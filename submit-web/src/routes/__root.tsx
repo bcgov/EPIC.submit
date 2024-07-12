@@ -4,19 +4,17 @@ import { Box } from "@mui/material";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 
-function App() {
-  return (
+export const Route = createRootRoute({
+  component: () => (
     <>
       <EAOAppBar />
       <Box display={"flex"}>
         <SideNavBar />
-        <Box display={"flex"} flexDirection={"column"} flex={1} padding={"1rem"}>
+        <Box display={"flex"} flexDirection={"column"}>
           <Outlet />
         </Box>
       </Box>
       <TanStackRouterDevtools />
     </>
-  );
-}
-
-export default App;
+  ),
+});

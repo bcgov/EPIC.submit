@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 export default function PlanListPage() {
   const { isLoading, data, isError, error } = usePlansData();
 
-  const plans: Array<Plan> = (data as AxiosResponse)?.data;
+  const plans: Array<Plan> = [];
 
   if (isLoading) {
     return <h2>Loading...</h2>;
@@ -39,7 +39,7 @@ export default function PlanListPage() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {plans.map((row: Plan) => (
+            {plans?.map((row: Plan) => (
               <TableRow
                 key={row.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}

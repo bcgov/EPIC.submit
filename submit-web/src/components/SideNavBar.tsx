@@ -1,10 +1,15 @@
+import { useState, useEffect } from "react";
 import { Box, List, ListItem, ListItemButton, useTheme } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "@tanstack/react-router";
+import { theme } from "@/styles/theme";
 
 export default function SideNavBar() {
-  const navigate = useNavigate();
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
   const location = useLocation();
-  const theme = useTheme();
+
+  useEffect(() => {
+    setCurrentPath(location.pathname);
+  }, [location]);
 
   const routes = [
     {
@@ -31,22 +36,32 @@ export default function SideNavBar() {
         <List>
           {routes.map((route) => (
             <ListItem key={route.routeName}>
-              <ListItemButton
-                onClick={() => navigate(route.path)}
-                sx={{
-                  fontWeight: "700",
-                  backgroundColor:
-                    location.pathname === route.path
-                      ? "rgba(0, 0, 0, 0.1)"
-                      : "transparent",
-                  borderLeft:
-                    location.pathname === route.path
-                      ? `4px solid ${theme.palette.primary.main}`
-                      : "none",
+              <Link
+                to={route.path}
+                onClick={() => setCurrentPath(route.path)}
+                style={{
+                  color: theme.palette.primary.main,
+                  fontWeight: currentPath === route.path ? "bold" : "normal",
+                  textDecoration: "none",
+                  width: "100%",
                 }}
               >
-                {route.routeName}
-              </ListItemButton>
+                <ListItemButton
+                  sx={{
+                    fontWeight: "700",
+                    backgroundColor:
+                      currentPath === route.path
+                        ? "rgba(0, 0, 0, 0.1)"
+                        : "transparent",
+                    borderLeft:
+                      currentPath === route.path
+                        ? `4px solid ${theme.palette.primary.main}`
+                        : "none",
+                  }}
+                >
+                  <span style={{ color: "inherit" }}>{route.routeName}</span>
+                </ListItemButton>
+              </Link>
             </ListItem>
           ))}
         </List>
