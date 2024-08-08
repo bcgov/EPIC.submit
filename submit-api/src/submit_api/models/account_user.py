@@ -24,6 +24,7 @@ class AccountUser(BaseModel):
     position = Column(db.String(100), nullable=False)
     work_email_address = Column(db.String(100), nullable=False)
     work_contact_number = Column(db.String(50), nullable=False)
+    auth_guid = Column(db.String(), nullable=True)
 
     @classmethod
     def create_account_user(cls, data, session=None) -> AccountUser:

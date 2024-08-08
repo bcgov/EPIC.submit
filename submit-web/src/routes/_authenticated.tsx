@@ -15,7 +15,7 @@ function Auth() {
 
   useEffect(() => {
     if (!isAuthenticated && !isLoading) {
-      signinRedirect();
+      // signinRedirect();
     }
     if (isAuthenticated && !isLoading) {
       setAccount({ isLoading: false, proponentId: proponent_id });
@@ -26,9 +26,9 @@ function Auth() {
     return <Loader />;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to={"/"} />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to={"/"} />;
+  // }
 
   return <Outlet />;
 }

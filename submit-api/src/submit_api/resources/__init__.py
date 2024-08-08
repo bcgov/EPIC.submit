@@ -27,7 +27,6 @@ from flask import Blueprint
 from .apihelper import Api
 
 from .ops import API as OPS_API
-from .user import API as USER_API
 from .account import API as ACCOUNT_API
 
 __all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT')
@@ -54,5 +53,4 @@ API = Api(
 
 # HANDLER = ExceptionHandler(API)
 
-API.add_namespace(USER_API)
 API.add_namespace(ACCOUNT_API)

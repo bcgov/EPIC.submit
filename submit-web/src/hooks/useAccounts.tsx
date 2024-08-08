@@ -14,13 +14,27 @@ type CreateAccount = {
   work_contact_number: string;
   work_email_address: string;
   proponent_id: string;
+  auth_guid: string;
 };
 const createAccount = (account: CreateAccount) => {
   return request({ url: "/accounts", method: "post", data: account });
 };
 
-const getAccountByProponentId = (proponentId?: string) => {
-  return request({ url: `/accounts/proponent/${proponentId}` });
+type GetUserResponse = {
+  id: number;
+  first_name: string;
+  last_name: string;
+  position: string;
+  work_contact_number: string;
+  work_email_address: string;
+  proponent_id: string;
+  auth_guid: string;
+  created_at: string;
+  updated_at: string;
+  account?: any;
+};
+const getUserByGuid = (guid?: string) => {
+  return request<GetUserResponse>({ url: `/users/guid/${guid}` });
 };
 
 export const useCreateAccount = (
@@ -34,15 +48,11 @@ export const useCreateAccount = (
   });
 };
 
-export const useGetAccountByProponentId = ({
-  proponentId,
-}: {
-  proponentId?: string;
-}) => {
+export const useGetUserByGuid = ({ guid }: { guid?: string }) => {
   return useQuery({
-    queryKey: ["account", proponentId],
-    queryFn: () => getAccountByProponentId(proponentId),
-    enabled: Boolean(proponentId),
+    queryKey: ["user", guid],
+    queryFn: () => getUserByGuid(guid),
+    enabled: Boolean(guid),
     retry: false,
   });
 };

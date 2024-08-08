@@ -22,8 +22,10 @@ const APP_VERSION =
 const APP_TITLE =
   window._env_?.VITE_APP_TITLE || import.meta.env.VITE_APP_TITLE || "";
 const APP_URL = window._env_?.VITE_APP_URL || import.meta.env.VITE_APP_URL;
-const OIDC_AUTHORITY = window._env_?.VITE_OIDC_AUTHORITY || import.meta.env.VITE_OIDC_AUTHORITY;
-const CLIENT_ID = window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID;
+const OIDC_AUTHORITY =
+  window._env_?.VITE_OIDC_AUTHORITY || import.meta.env.VITE_OIDC_AUTHORITY;
+const CLIENT_ID =
+  window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID;
 
 export const AppConfig = {
   apiUrl: `${API_URL}`,

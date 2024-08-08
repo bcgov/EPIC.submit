@@ -21,19 +21,3 @@ class UserSchema(Schema):
     email_address = fields.Str(data_key="email_address")
     contact_number = fields.Str(data_key="contact_number")
     username = fields.Str(data_key="username")
-
-
-class UserRequestSchema(Schema):
-    """User Request Schema"""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    first_name = fields.Str(data_key="first_name")
-    middle_name = fields.Str(data_key="description")
-    last_name = fields.Str(data_key="last_name")
-    email_address = fields.Str(data_key="email_address")
-    contact_number = fields.Str(data_key="contact_number")
-    username = fields.Str(data_key="username")

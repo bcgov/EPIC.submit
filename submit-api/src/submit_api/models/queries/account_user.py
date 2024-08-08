@@ -11,14 +11,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Model to handle all complex operations related to User."""
+from submit_api.models import AccountUser, Account, AccountProject, db
 
-"""This exports all of the models and schemas used by the application."""
 
-from .db import db, ma, migrate
-from .account_role import AccountRole
-from .account_user import AccountUser
-from .role import Role
-from .account import Account
-from .base_model import BaseModel
-from .account_project import AccountProject
-from .project_team import ProjectTeam
+# pylint: disable=too-few-public-methods
+class UserQueries:
+    """Query module for complex user queries"""
+
+    @classmethod
+    def get_by_guid(cls, guid: int):
+        """Find user by guid"""
+        result = (db.session.query.filter_by(auth_guid=guid)
+                  .join(Account, Account.id == AccountUser.account_id)
+                  .join(AccountProject, AccountProject.account_id == Account.id)
+                  .first())
+        return result

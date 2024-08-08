@@ -1,8 +1,6 @@
 import { Loader } from "@/components/Shared/Loader";
-import { useGetAccountByProponentId } from "@/hooks/useAccounts";
-import { useAccount } from "@/store/accountStore";
+import { useGetUserByGuid } from "@/hooks/useAccounts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback")({
@@ -10,43 +8,36 @@ export const Route = createFileRoute("/oidc-callback")({
 });
 
 function OidcCallback() {
-  const { error: getAuthError, user } = useAuth();
+  const { error: getAuthError, user: kcUser } = useAuth();
+  const params = new URLSearchParams(window.location.search);
+  const proponent_id = params.get("proponent_id");
+
   const {
-    setAccount,
-    proponentId,
-    isLoading: isAccountStateLoading,
-  } = useAccount();
+    data: userData,
+    isLoading: isUserLoading,
+    isError: isUserError,
+  } = useGetUserByGuid({
+    guid: kcUser?.profile.sub,
+  });
 
-  const { data: accountData, error: getAccountError } =
-    useGetAccountByProponentId({
-      proponentId: user?.profile.sub,
-    });
-
-  useEffect(() => {
-    if (accountData) {
-      setAccount({
-        proponentId: accountData.data?.proponent_id,
-        isLoading: false,
-      });
-    }
-    if (getAccountError) {
-      setAccount({
-        isLoading: false,
-      });
-    }
-  }, [accountData, getAccountError, setAccount]);
-
-  if (getAuthError) {
+  if (getAuthError || isUserError) {
     return <Navigate to="/error" />;
   }
 
-  if (isAccountStateLoading) {
+  if (isUserLoading) {
     return <Loader />;
   }
 
-  if (proponentId) {
+  if (userData?.account) {
     return <Navigate to="/profile" />;
   }
 
-  return <Navigate to="/registration/create-account"></Navigate>;
+  return (
+    <Navigate
+      to="/registration/create-account"
+      search={{
+        proponent_id: proponent_id ? Number.parseInt(proponent_id) : undefined,
+      }}
+    />
+  );
 }
