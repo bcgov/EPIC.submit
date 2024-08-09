@@ -9,9 +9,9 @@ import {
 import { Link } from "@tanstack/react-router";
 import { theme } from "@/styles/theme";
 import { useAuth } from "react-oidc-context";
-import { AuthenticatedRoutes, Routes } from "./layout/SideNav/SideNavElements";
-import { alpha } from '@mui/system';
-
+import { AuthenticatedRoutes, Routes } from "./SideNavElements";
+import { alpha } from "@mui/system";
+import BreadcrumbNav from "./BreadcrumbNav";
 
 export default function SideNavBar() {
   const { isAuthenticated } = useAuth();
@@ -25,6 +25,7 @@ export default function SideNavBar() {
 
   return (
     <div>
+      <BreadcrumbNav />
       <Box
         sx={{ overflow: "auto", borderRight: "1px solid #0000001A" }}
         width={240}
@@ -39,7 +40,7 @@ export default function SideNavBar() {
                   onClick={() => setCurrentPath(route.path)}
                   style={{
                     color: theme.palette.primary.light,
-                    fontWeight:  "bold",
+                    fontWeight: "bold",
                     textDecoration: "none",
                     width: "100%",
                   }}
@@ -48,9 +49,9 @@ export default function SideNavBar() {
                     sx={{
                       pl: "2rem",
                       backgroundColor:
-                      currentPath === route.path
-                        ? alpha(theme.palette.secondary.main, 0.1)
-                        : alpha(theme.palette.primary.light, 0.1),
+                        currentPath === route.path
+                          ? alpha(theme.palette.secondary.main, 0.1)
+                          : alpha(theme.palette.primary.light, 0.1),
                       borderLeft: `4px solid ${theme.palette.primary.main}`,
                     }}
                   >
