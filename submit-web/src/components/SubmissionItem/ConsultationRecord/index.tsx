@@ -38,16 +38,11 @@ import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
 
 const consultationRecordSchema = yup.object().shape({
-  consultedParties: yup
-    .array()
-    .of(
-      yup.object().shape({
-        consultedParty: yup
-          .string()
-          .required("Please provide the name of the consulted party."),
-      })
-    )
-    .required("Please provide at least one consulted party."),
+  consultedParties: yup.array().of(
+    yup.object().shape({
+      consultedParty: yup.string(),
+    })
+  ),
   allPartiesConsulted: yup.string().required("Please answer this question."),
   planWasReviewed: yup.string().required("Please answer this question."),
   writtenExplanationsProvidedToParties: yup
