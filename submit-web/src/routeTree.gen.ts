@@ -24,7 +24,6 @@ import { Route as AuthenticatedRegistrationCreateAccountImport } from './routes/
 import { Route as AuthenticatedRegistrationCompleteImport } from './routes/_authenticated/registration/complete'
 import { Route as AuthenticatedDashboardProfileImport } from './routes/_authenticated/_dashboard/profile'
 import { Route as AuthenticatedDashboardProjectsIndexImport } from './routes/_authenticated/_dashboard/projects/index'
-import { Route as AuthenticatedDashboardProjectsProjectIdIndexImport } from './routes/_authenticated/_dashboard/projects/$projectId/index'
 import { Route as AuthenticatedDashboardProjectsProjectIdProjectLayoutImport } from './routes/_authenticated/_dashboard/projects/$projectId/_projectLayout'
 import { Route as AuthenticatedDashboardProjectsProjectIdProjectLayoutIndexImport } from './routes/_authenticated/_dashboard/projects/$projectId/_projectLayout/index'
 import { Route as AuthenticatedDashboardProjectsProjectIdProjectLayoutNewSubmissionImport } from './routes/_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission'
@@ -120,12 +119,6 @@ const AuthenticatedDashboardProjectsIndexRoute =
   AuthenticatedDashboardProjectsIndexImport.update({
     path: '/projects/',
     getParentRoute: () => AuthenticatedDashboardRoute,
-  } as any)
-
-const AuthenticatedDashboardProjectsProjectIdIndexRoute =
-  AuthenticatedDashboardProjectsProjectIdIndexImport.update({
-    path: '/',
-    getParentRoute: () => AuthenticatedDashboardProjectsProjectIdRoute,
   } as any)
 
 const AuthenticatedDashboardProjectsProjectIdProjectLayoutRoute =
@@ -288,13 +281,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardProjectsProjectIdProjectLayoutImport
       parentRoute: typeof AuthenticatedDashboardProjectsProjectIdRoute
     }
-    '/_authenticated/_dashboard/projects/$projectId/': {
-      id: '/_authenticated/_dashboard/projects/$projectId/'
-      path: '/'
-      fullPath: '/projects/$projectId/'
-      preLoaderRoute: typeof AuthenticatedDashboardProjectsProjectIdIndexImport
-      parentRoute: typeof AuthenticatedDashboardProjectsProjectIdImport
-    }
     '/_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission': {
       id: '/_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission'
       path: '/new-submission'
@@ -370,7 +356,6 @@ export const routeTree = rootRoute.addChildren({
                   ),
               },
             ),
-          AuthenticatedDashboardProjectsProjectIdIndexRoute,
         }),
     }),
     AuthenticatedAdminLoginRoute,
@@ -456,8 +441,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "_authenticated/_dashboard/projects/$projectId",
       "parent": "/_authenticated/_dashboard",
       "children": [
-        "/_authenticated/_dashboard/projects/$projectId/_projectLayout",
-        "/_authenticated/_dashboard/projects/$projectId/"
+        "/_authenticated/_dashboard/projects/$projectId/_projectLayout"
       ]
     },
     "/_authenticated/_dashboard/projects/$projectId/_projectLayout": {
@@ -468,10 +452,6 @@ export const routeTree = rootRoute.addChildren({
         "/_authenticated/_dashboard/projects/$projectId/_projectLayout/",
         "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId"
       ]
-    },
-    "/_authenticated/_dashboard/projects/$projectId/": {
-      "filePath": "_authenticated/_dashboard/projects/$projectId/index.tsx",
-      "parent": "/_authenticated/_dashboard/projects/$projectId"
     },
     "/_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission": {
       "filePath": "_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission.tsx",
