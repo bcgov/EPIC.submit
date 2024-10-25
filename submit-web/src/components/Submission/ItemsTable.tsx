@@ -20,7 +20,7 @@ import {
 import { SubmissionItemTableRow as SubmissionItemTableRowType } from "./types";
 import { StyledTableHeadCell } from "../Shared/Table/common";
 import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
-import { usePackageTableStore } from "./packageStore";
+import { usePackageTableStore } from "./packageTableStore";
 
 export default function ItemsTable({
   submissionItems,

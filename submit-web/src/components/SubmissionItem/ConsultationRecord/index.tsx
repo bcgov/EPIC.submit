@@ -16,7 +16,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useEffect, useMemo } from "react";
 import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
-import { useGetProject } from "@/hooks/api/useProjects";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { CardInnerBox } from "@/components/Projects/Project";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
@@ -36,6 +36,8 @@ import { When } from "react-if";
 import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
+import { useQueryClient } from "@tanstack/react-query";
+import { SubmissionItem } from "@/models/SubmissionItem";
 
 const consultationRecordSchema = yup.object().shape({
   consultedParties: yup
@@ -45,7 +47,7 @@ const consultationRecordSchema = yup.object().shape({
         consultedParty: yup
           .string()
           .required("Please provide the name of the consulted party."),
-      })
+      }),
     )
     .required("Please provide at least one consulted party."),
   allPartiesConsulted: yup.string().required("Please answer this question."),
@@ -66,27 +68,29 @@ const consultationRecordSchema = yup.object().shape({
 type ConsultationRecordForm = yup.InferType<typeof consultationRecordSchema>;
 export const ConsultationRecord = () => {
   const {
-    projectId: projectIdParam,
+    projectId: accountProjectIdParam,
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
     from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
-  const projectId = Number(projectIdParam);
-  const { data: accountProject } = useGetProject({
-    projectId,
+  const accountProjectId = Number(accountProjectIdParam);
+  const { data: accountProject } = useGetAccountProject({
+    accountProjectId,
   });
 
   const { setIsOpen } = useLoaderBackdrop();
   const navigate = useNavigate();
   const { reset } = useDocumentUploadStore();
 
-  const { data: submissionItem } = useGetSubmissionItem({
-    itemId: Number(submissionItemId),
-  });
+  const queryClient = useQueryClient();
+  const submissionItem = queryClient.getQueryData<SubmissionItem>([
+    "item",
+    Number(submissionItemId),
+  ]);
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultFormValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -94,31 +98,31 @@ export const ConsultationRecord = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       allPartiesConsulted: booleanToString(
-        formSubmission.submitted_form.submission_json.allPartiesConsulted
+        formSubmission.submitted_form.submission_json.allPartiesConsulted,
       ),
       planWasReviewed: booleanToString(
-        formSubmission.submitted_form.submission_json.planWasReviewed
+        formSubmission.submitted_form.submission_json.planWasReviewed,
       ),
       writtenExplanationsProvidedToParties: booleanToString(
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToParties
+          .writtenExplanationsProvidedToParties,
       ),
       writtenExplanationsProvidedToCommenters: booleanToString(
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToCommenters
+          .writtenExplanationsProvidedToCommenters,
       ),
     };
   }, [formSubmission]);
 
   const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
 
     return {
       consultationRecords: documentSubmissions.map(
-        (submission) => submission.submitted_document.url
+        (submission) => submission.submitted_document.url,
       ),
     };
   }, [documentSubmissions]);
@@ -153,14 +157,19 @@ export const ConsultationRecord = () => {
 
   const onCreateSuccess = () => {
     notify.success("Submission saved successfully");
+
     navigate({
-      to: `/projects/${projectId}/submission-packages/${submissionPackageId}`,
+      to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
   const { mutate: callSaveSubmission, isPending: isCreatingSubmissionPending } =
-    useSaveSubmission(submissionItem, {
-      onError: onCreateFailure,
-      onSuccess: onCreateSuccess,
+    useSaveSubmission({
+      accountProjectId,
+      submissionItem,
+      options: {
+        onSuccess: onCreateSuccess,
+        onError: onCreateFailure,
+      },
     });
   const {
     handleSubmit,
@@ -173,7 +182,7 @@ export const ConsultationRecord = () => {
 
   const saveSubmission = async (
     formData: ConsultationRecordForm,
-    status: SubmissionStatus
+    status: SubmissionStatus,
   ) => {
     const {
       consultedParties,
@@ -192,10 +201,10 @@ export const ConsultationRecord = () => {
           allPartiesConsulted: stringToBoolean(allPartiesConsulted),
           planWasReviewed: stringToBoolean(planWasReviewed),
           writtenExplanationsProvidedToParties: stringToBoolean(
-            writtenExplanationsProvidedToParties
+            writtenExplanationsProvidedToParties,
           ),
           writtenExplanationsProvidedToCommenters: stringToBoolean(
-            writtenExplanationsProvidedToCommenters
+            writtenExplanationsProvidedToCommenters,
           ),
         },
       },
@@ -205,7 +214,7 @@ export const ConsultationRecord = () => {
   const saveAndClose = () => {
     if (!Object.keys(dirtyFields).length) {
       navigate({
-        to: `/projects/${projectId}/submission-packages/${submissionPackageId}`,
+        to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
       });
       return;
     }
@@ -397,7 +406,7 @@ export const ConsultationRecord = () => {
                       <ControlledRadioGroup name="writtenExplanationsProvidedToParties">
                         <YesNoRadioOptions
                           error={Boolean(
-                            errors["writtenExplanationsProvidedToParties"]
+                            errors["writtenExplanationsProvidedToParties"],
                           )}
                         />
                       </ControlledRadioGroup>
@@ -415,7 +424,7 @@ export const ConsultationRecord = () => {
                       <ControlledRadioGroup name="writtenExplanationsProvidedToCommenters">
                         <YesNoRadioOptions
                           error={Boolean(
-                            errors["writtenExplanationsProvidedToCommenters"]
+                            errors["writtenExplanationsProvidedToCommenters"],
                           )}
                         />
                       </ControlledRadioGroup>

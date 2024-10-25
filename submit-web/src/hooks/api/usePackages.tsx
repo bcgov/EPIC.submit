@@ -2,8 +2,7 @@ import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { SubmissionPackage } from "@/models/Package";
-import { usePackageTableStore } from "@/components/Submission/packageStore";
-import { defaultUseQueryOptions } from "./constants";
+import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 const createSubmissionPackage = ({
   accountProjectId,
@@ -24,12 +23,22 @@ export const useCreateSubmissionPackage = (options?: Options) => {
   return useMutation({
     mutationFn: createSubmissionPackage,
     ...options,
-    onSuccess: (submissionPackage: SubmissionPackage) => {
+    onSuccess: (submissionPackage) => {
       if (options?.onSuccess) {
-        options.onSuccess();
+        options.onSuccess(submissionPackage);
       }
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+        submissionPackage,
+      );
       queryClient.invalidateQueries({
-        queryKey: ["account-projects", submissionPackage.account_project_id],
+        queryKey: [
+          QUERY_KEY.ACCOUNT_PROJECT,
+          submissionPackage.account_project_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
   });
@@ -56,7 +65,7 @@ export const useGetSubmissionPackage = ({
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) => {
   return useQuery({
-    queryKey: ["package", packageId],
+    queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
     queryFn: () => getSubmissionPackageById({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,
@@ -79,7 +88,6 @@ const updateStateSubmissionPackage = ({
 
 export const useUpdateStateSubmissionPackage = (options?: Options) => {
   const queryClient = useQueryClient();
-  const {} = usePackageTableStore();
   return useMutation({
     mutationFn: updateStateSubmissionPackage,
     ...options,
@@ -87,11 +95,18 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       if (options?.onSuccess) {
         options.onSuccess();
       }
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+        submissionPackage,
+      );
       queryClient.invalidateQueries({
-        queryKey: ["package", submissionPackage.id],
+        queryKey: [
+          QUERY_KEY.ACCOUNT_PROJECT,
+          submissionPackage.account_project_id,
+        ],
       });
       queryClient.invalidateQueries({
-        queryKey: ["account-projects", submissionPackage.account_project_id],
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
   });

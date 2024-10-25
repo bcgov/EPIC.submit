@@ -14,7 +14,7 @@ import {
   SUBMISSION_TYPE,
   SubmissionStatus,
 } from "@/models/Submission";
-import { useGetProject } from "@/hooks/api/useProjects";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { CardInnerBox } from "@/components/Projects/Project";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
@@ -26,6 +26,8 @@ import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
+import { useQueryClient } from "@tanstack/react-query";
+import { SubmissionItem } from "@/models/SubmissionItem";
 
 const managementPlanSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
@@ -47,7 +49,7 @@ type ManagementPlanSubmissionForm = yup.InferType<
 >;
 export const ManagementPlanSubmission = () => {
   const {
-    projectId: projectIdParam,
+    projectId: accountProjectIdParam,
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
@@ -57,16 +59,19 @@ export const ManagementPlanSubmission = () => {
   const { setIsOpen } = useLoaderBackdrop();
   const navigate = useNavigate();
 
-  const projectId = Number(projectIdParam);
-  const { data: accountProject } = useGetProject({
-    projectId,
-  });
-  const { data: submissionItem } = useGetSubmissionItem({
-    itemId: Number(submissionItemId),
+  const accountProjectId = Number(accountProjectIdParam);
+  const { data: accountProject } = useGetAccountProject({
+    accountProjectId,
   });
 
+  const queryClient = useQueryClient();
+  const submissionItem = queryClient.getQueryData<SubmissionItem>([
+    "item",
+    Number(submissionItemId),
+  ]);
+
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultFormValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -74,22 +79,22 @@ export const ManagementPlanSubmission = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       conditionSatisfied: booleanToString(
-        formSubmission.submitted_form.submission_json.conditionSatisfied
+        formSubmission.submitted_form.submission_json.conditionSatisfied,
       ),
       allRequirementsAddressed: booleanToString(
-        formSubmission.submitted_form.submission_json.allRequirementsAddressed
+        formSubmission.submitted_form.submission_json.allRequirementsAddressed,
       ),
       requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear
+        formSubmission.submitted_form.submission_json.requirementsClear,
       ),
       informationAccurate: booleanToString(
-        formSubmission.submitted_form.submission_json.informationAccurate
+        formSubmission.submitted_form.submission_json.informationAccurate,
       ),
     };
   }, [formSubmission]);
 
   const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
@@ -99,14 +104,14 @@ export const ManagementPlanSubmission = () => {
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
         )
         .map((submission) => submission.submitted_document.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
         )
         .map((submission) => submission.submitted_document.url),
     };
@@ -133,13 +138,17 @@ export const ManagementPlanSubmission = () => {
   const onCreateSuccess = () => {
     notify.success("Submission saved successfully");
     navigate({
-      to: `/projects/${projectId}/submission-packages/${submissionPackageId}`,
+      to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
   const { mutate: callSaveSubmission, isPending: isCreatingSubmissionPending } =
-    useSaveSubmission(submissionItem, {
-      onError: onCreateFailure,
-      onSuccess: onCreateSuccess,
+    useSaveSubmission({
+      accountProjectId,
+      submissionItem,
+      options: {
+        onSuccess: onCreateSuccess,
+        onError: onCreateFailure,
+      },
     });
 
   useEffect(() => {
@@ -153,7 +162,7 @@ export const ManagementPlanSubmission = () => {
 
   const saveSubmission = async (
     formData: ManagementPlanSubmissionForm,
-    status: SubmissionStatus
+    status: SubmissionStatus,
   ) => {
     const {
       conditionSatisfied,
@@ -179,7 +188,7 @@ export const ManagementPlanSubmission = () => {
   const saveAndClose = () => {
     if (!Object.keys(dirtyFields).length) {
       navigate({
-        to: `/projects/${projectId}/submission-packages/${submissionPackageId}`,
+        to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
       });
       return;
     }

@@ -2,7 +2,7 @@ import { AccountProject, Project } from "@/models/Project";
 import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Options } from "./types";
-import { defaultUseQueryOptions } from "./constants";
+import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 const loadProjectsByProponentId = (proponentId?: number) => {
   if (!proponentId) {
@@ -31,7 +31,7 @@ const addProjects = ({
 
 export const useLoadProjectsByProponentId = (proponentId?: number) => {
   return useQuery({
-    queryKey: ["projects", proponentId],
+    queryKey: [QUERY_KEY.PROJECTS, proponentId],
     queryFn: () => loadProjectsByProponentId(proponentId),
     enabled: Boolean(proponentId),
     retry: false,
@@ -43,7 +43,7 @@ type GetProjectsByAccountParams = {
   searchOptions?: Record<string, string | number | string[]>;
 };
 
-const getProjectsByAccount = ({
+const getAccountProjectsByAccountId = ({
   accountId,
   searchOptions,
 }: GetProjectsByAccountParams) => {
@@ -66,37 +66,42 @@ export const useAddProjects = (options?: Options) => {
 type UseGetProjectsByAccountParams = {
   accountId: number;
   searchOptions?: Record<string, string | number | string[]>;
+  // queryOptions?: Record<string, unknown>;
 };
-export const useGetProjects = ({
+export const useGetAccountProjects = ({
   accountId,
   searchOptions,
 }: UseGetProjectsByAccountParams) => {
   return useQuery({
-    queryKey: ["account-projects", accountId, searchOptions],
-    queryFn: () => getProjectsByAccount({ accountId, searchOptions }),
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, accountId, searchOptions],
+    queryFn: () => getAccountProjectsByAccountId({ accountId, searchOptions }),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });
 };
 
-type GetProjectsByIdParams = {
-  projectId: number;
+type GetAccountProjectsByIdParams = {
+  accountProjectId: number;
 };
-const getProjectById = ({ projectId }: GetProjectsByIdParams) => {
+const getAccountProjectById = ({
+  accountProjectId,
+}: GetAccountProjectsByIdParams) => {
   return submitRequest<AccountProject>({
-    url: `projects/${projectId}`,
+    url: `projects/${accountProjectId}`,
   });
 };
 
-type UseGetProjectByIdParams = {
-  projectId: number;
+type UseGetAccountProjectByIdParams = {
+  accountProjectId: number;
 };
 
-export const useGetProject = ({ projectId }: UseGetProjectByIdParams) => {
+export const useGetAccountProject = ({
+  accountProjectId,
+}: UseGetAccountProjectByIdParams) => {
   return useQuery({
-    queryKey: ["account-project", projectId],
-    queryFn: () => getProjectById({ projectId }),
-    enabled: Boolean(projectId),
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+    queryFn: () => getAccountProjectById({ accountProjectId }),
+    enabled: Boolean(accountProjectId),
     ...defaultUseQueryOptions,
   });
 };

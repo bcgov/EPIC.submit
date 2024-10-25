@@ -3,7 +3,6 @@ import { useBreadCrumb } from "@/components/Shared/layout/SideNav/breadCrumbStor
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { ItemForm } from "@/components/SubmissionItem/ItemForm";
-import { useSubmissionItemStore } from "@/components/SubmissionItem/submissionItemStore";
 import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import {
   createFileRoute,
@@ -23,27 +22,10 @@ export const Route = createFileRoute(
 
 export function Submission() {
   const { submissionId: subItemId } = Route.useParams();
-  const {
-    data: submissionItem,
-    isPending: isSubmissionPending,
-    isSuccess,
-  } = useGetSubmissionItem({ itemId: Number(subItemId) });
-  const { setSubmissionItem, reset } = useSubmissionItemStore();
+  const { data: submissionItem, isPending: isSubmissionPending } =
+    useGetSubmissionItem({ itemId: Number(subItemId) });
   const { replaceBreadcrumb } = useBreadCrumb();
   const matches = useRouterState({ select: (s) => s.matches });
-
-  useEffect(() => {
-    if (isSuccess) {
-      setSubmissionItem(submissionItem);
-    }
-    return () => reset();
-  }, [
-    isSuccess,
-    setSubmissionItem,
-    reset,
-    isSubmissionPending,
-    submissionItem,
-  ]);
 
   useEffect(() => {
     if (submissionItem)

@@ -16,9 +16,11 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import { CardInnerBox } from "@/components/Projects/Project";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
-import { useGetProject } from "@/hooks/api/useProjects";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import Form from "@/components/Shared/Forms/common";
+import { useQueryClient } from "@tanstack/react-query";
+import { SubmissionItem } from "@/models/SubmissionItem";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -48,25 +50,28 @@ const contactInformationSchema = yup.object().shape({
 type ContactInformationForm = yup.InferType<typeof contactInformationSchema>;
 export const ContactInformation = () => {
   const {
-    projectId: projectIdParam,
+    projectId: accountProjectIdParam,
     submissionPackageId,
     submissionId,
   } = useParams({
     from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
-  const { data: submissionItem } = useGetSubmissionItem({
-    itemId: Number(submissionId),
-  });
-  const projectId = Number(projectIdParam);
-  const { data: accountProject } = useGetProject({
-    projectId,
+
+  const queryClient = useQueryClient();
+  const submissionItem = queryClient.getQueryData<SubmissionItem>([
+    "item",
+    Number(submissionId),
+  ]);
+  const accountProjectId = Number(accountProjectIdParam);
+  const { data: accountProject } = useGetAccountProject({
+    accountProjectId,
   });
 
   const { setIsOpen } = useLoaderBackdrop();
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -87,13 +92,17 @@ export const ContactInformation = () => {
   const onCreateSuccess = () => {
     notify.success("Submission created successfully");
     navigate({
-      to: `/projects/${projectId}/submission-packages/${submissionPackageId}`,
+      to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
   const { mutate: saveSubmission, isPending: isCreatingSubmissionPending } =
-    useSaveSubmission(submissionItem, {
-      onError: onCreateFailure,
-      onSuccess: onCreateSuccess,
+    useSaveSubmission({
+      accountProjectId,
+      submissionItem,
+      options: {
+        onSuccess: onCreateSuccess,
+        onError: onCreateFailure,
+      },
     });
 
   const onSubmitHandler = async (formData: ContactInformationForm) => {
@@ -119,7 +128,7 @@ export const ContactInformation = () => {
 
   const handleCancel = () => {
     navigate({
-      to: `/projects/${projectId}/submission-packages/${submissionPackageId}`,
+      to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
 

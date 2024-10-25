@@ -1,6 +1,6 @@
 import { OnErrorType, submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { defaultUseQueryOptions } from "./constants";
+import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 type CreateAccountRequest = {
   first_name: string;
@@ -56,7 +56,7 @@ export const useCreateAccount = (options: CreateAccountOptions) => {
 
 export const useGetUserByGuid = ({ guid }: { guid?: string }) => {
   return useQuery({
-    queryKey: ["user", guid],
+    queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
     queryFn: () => getUserByGuid(guid),
     enabled: Boolean(guid),
     retry: false,
