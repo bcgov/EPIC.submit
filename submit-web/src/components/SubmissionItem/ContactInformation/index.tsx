@@ -26,6 +26,7 @@ const contactInformationSchema = yup.object().shape({
     surname: yup.string().required("Please enter surname."),
     position: yup.string().required("Please enter position."),
     company: yup.string().required("Please enter company."),
+    extensionNumber: yup.string(),
     workPhoneNumber: yup.string().required("Please enter work phone number."),
     workEmailAddress: yup
       .string()
@@ -37,6 +38,7 @@ const contactInformationSchema = yup.object().shape({
     surname: yup.string().required("Please enter surname."),
     position: yup.string().required("Please enter position."),
     company: yup.string().required("Please enter company."),
+    extensionNumber: yup.string(),
     workPhoneNumber: yup.string().required("Please enter work phone number."),
     workEmailAddress: yup
       .string()
@@ -217,13 +219,23 @@ export const ContactInformation = () => {
                         fullWidth
                       />
                     </Grid>
-                    <Grid item xs={12}>
-                      <ControlledInputMask
-                        name="primaryContact.workPhoneNumber"
-                        mask="(999) 999-9999"
-                        label="Work Phone Number"
-                        fullWidth
-                      />
+                    <Grid item xs={12} container spacing={1}>
+                      <Grid item xs={8}>
+                        <ControlledInputMask
+                          name="primaryContact.workPhoneNumber"
+                          mask="(999) 999-9999"
+                          label="Work Phone Number"
+                          fullWidth
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <ControlledInputMask
+                          name="primaryContact.extensionNumber"
+                          mask="9999"
+                          label="Ext."
+                          fullWidth
+                        />
+                      </Grid>
                     </Grid>
                     <Grid item xs={12}>
                       <ControlledTextField
@@ -281,13 +293,23 @@ export const ContactInformation = () => {
                           fullWidth
                         />
                       </Grid>
-                      <Grid item xs={12}>
-                        <ControlledInputMask
-                          name="secondaryContact.workPhoneNumber"
-                          mask="(999) 999-9999"
-                          label="Work Phone Number"
-                          fullWidth
-                        />
+                      <Grid item xs={12} container spacing={1}>
+                        <Grid item xs={8}>
+                          <ControlledInputMask
+                            name="secondaryContact.workPhoneNumber"
+                            mask="(999) 999-9999"
+                            label="Work Phone Number"
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item xs={4}>
+                          <ControlledInputMask
+                            name="secondaryContact.extensionNumber"
+                            mask="9999"
+                            label="Ext."
+                            fullWidth
+                          />
+                        </Grid>
                       </Grid>
                       <Grid item xs={12}>
                         <ControlledTextField
