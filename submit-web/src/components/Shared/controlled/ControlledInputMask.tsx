@@ -2,6 +2,8 @@ import React, { FC } from "react";
 import { TextField, TextFieldProps } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import InputMask from "react-input-mask";
+import get from "lodash/get";
+import { BCDesignTokens } from "epic.theme";
 
 type IFormInputMaskProps = {
   name: string;
@@ -13,7 +15,12 @@ const ControlledInputMask: FC<IFormInputMaskProps> = ({
   mask,
   ...otherProps
 }) => {
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
+  const error = get(errors, name);
+  const helperText = error?.message ?? "";
 
   return (
     <Controller
@@ -33,6 +40,11 @@ const ControlledInputMask: FC<IFormInputMaskProps> = ({
               {...inputProps} // Spreading the masked input props to TextField
               {...otherProps} // Additional TextField props like label, variant, etc.
               inputRef={ref} // Pass the ref for react-hook-form
+              error={!!error}
+              FormHelperTextProps={{
+                sx: { color: BCDesignTokens.typographyColorDanger },
+              }}
+              helperText={String(helperText)}
             />
           )}
         </InputMask>

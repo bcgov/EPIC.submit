@@ -22,28 +22,32 @@ import Form from "@/components/Shared/Forms/common";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
-    givenName: yup.string().required("Please enter given name."),
-    surname: yup.string().required("Please enter surname."),
-    position: yup.string().required("Please enter position."),
-    company: yup.string().required("Please enter company."),
+    givenName: yup.string().required("Please enter a given name."),
+    surname: yup.string().required("Please enter a surname."),
+    position: yup.string().required("Please enter a position/role."),
+    company: yup.string().required("Please enter a company."),
     extensionNumber: yup.string(),
-    workPhoneNumber: yup.string().required("Please enter work phone number."),
+    workPhoneNumber: yup
+      .string()
+      .required("Please enter a phone number in this format: (xxx) xxx-xxxx."),
     workEmailAddress: yup
       .string()
       .email("Invalid email")
-      .required("Please enter work email."),
+      .required("Please enter a valid email address."),
   }),
   secondaryContact: yup.object().shape({
-    givenName: yup.string().required("Please enter given name."),
-    surname: yup.string().required("Please enter surname."),
-    position: yup.string().required("Please enter position."),
-    company: yup.string().required("Please enter company."),
+    givenName: yup.string().required("Please enter a given name."),
+    surname: yup.string().required("Please enter a surname."),
+    position: yup.string().required("Please enter a position/role."),
+    company: yup.string().required("Please enter a company."),
     extensionNumber: yup.string(),
-    workPhoneNumber: yup.string().required("Please enter work phone number."),
+    workPhoneNumber: yup
+      .string()
+      .required("Please enter a phone number in this format: (xxx) xxx-xxxx."),
     workEmailAddress: yup
       .string()
       .email("Invalid email")
-      .required("Please enter work email."),
+      .required("Please enter a valid email address."),
   }),
 });
 
@@ -208,7 +212,7 @@ export const ContactInformation = () => {
                     <Grid item xs={12}>
                       <ControlledTextField
                         name="primaryContact.company"
-                        label="Company"
+                        label="Company Name"
                         fullWidth
                       />
                     </Grid>
@@ -282,7 +286,7 @@ export const ContactInformation = () => {
                       <Grid item xs={12}>
                         <ControlledTextField
                           name="secondaryContact.company"
-                          label="Company"
+                          label="Company Name"
                           fullWidth
                         />
                       </Grid>
