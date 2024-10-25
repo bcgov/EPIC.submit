@@ -24,26 +24,32 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
-    givenName: yup.string().required("Please enter given name."),
-    surname: yup.string().required("Please enter surname."),
-    position: yup.string().required("Please enter position."),
-    company: yup.string().required("Please enter company."),
-    workPhoneNumber: yup.string().required("Please enter work phone number."),
+    givenName: yup.string().required("Please enter a given name."),
+    surname: yup.string().required("Please enter a surname."),
+    position: yup.string().required("Please enter a position/role."),
+    company: yup.string().required("Please enter a company."),
+    extensionNumber: yup.string(),
+    workPhoneNumber: yup
+      .string()
+      .required("Please enter a phone number in this format: (xxx) xxx-xxxx."),
     workEmailAddress: yup
       .string()
       .email("Invalid email")
-      .required("Please enter work email."),
+      .required("Please enter a valid email address."),
   }),
   secondaryContact: yup.object().shape({
-    givenName: yup.string().required("Please enter given name."),
-    surname: yup.string().required("Please enter surname."),
-    position: yup.string().required("Please enter position."),
-    company: yup.string().required("Please enter company."),
-    workPhoneNumber: yup.string().required("Please enter work phone number."),
+    givenName: yup.string().required("Please enter a given name."),
+    surname: yup.string().required("Please enter a surname."),
+    position: yup.string().required("Please enter a position/role."),
+    company: yup.string().required("Please enter a company."),
+    extensionNumber: yup.string(),
+    workPhoneNumber: yup
+      .string()
+      .required("Please enter a phone number in this format: (xxx) xxx-xxxx."),
     workEmailAddress: yup
       .string()
       .email("Invalid email")
-      .required("Please enter work email."),
+      .required("Please enter a valid email address."),
   }),
 });
 
@@ -215,7 +221,7 @@ export const ContactInformation = () => {
                     <Grid item xs={12}>
                       <ControlledTextField
                         name="primaryContact.company"
-                        label="Company"
+                        label="Company Name"
                         fullWidth
                       />
                     </Grid>
@@ -226,13 +232,23 @@ export const ContactInformation = () => {
                         fullWidth
                       />
                     </Grid>
-                    <Grid item xs={12}>
-                      <ControlledInputMask
-                        name="primaryContact.workPhoneNumber"
-                        mask="(999) 999-9999"
-                        label="Work Phone Number"
-                        fullWidth
-                      />
+                    <Grid item xs={12} container spacing={1}>
+                      <Grid item xs={8}>
+                        <ControlledInputMask
+                          name="primaryContact.workPhoneNumber"
+                          mask="(999) 999-9999"
+                          label="Work Phone Number"
+                          fullWidth
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <ControlledInputMask
+                          name="primaryContact.extensionNumber"
+                          mask="9999"
+                          label="Ext."
+                          fullWidth
+                        />
+                      </Grid>
                     </Grid>
                     <Grid item xs={12}>
                       <ControlledTextField
@@ -279,7 +295,7 @@ export const ContactInformation = () => {
                       <Grid item xs={12}>
                         <ControlledTextField
                           name="secondaryContact.company"
-                          label="Company"
+                          label="Company Name"
                           fullWidth
                         />
                       </Grid>
@@ -290,13 +306,23 @@ export const ContactInformation = () => {
                           fullWidth
                         />
                       </Grid>
-                      <Grid item xs={12}>
-                        <ControlledInputMask
-                          name="secondaryContact.workPhoneNumber"
-                          mask="(999) 999-9999"
-                          label="Work Phone Number"
-                          fullWidth
-                        />
+                      <Grid item xs={12} container spacing={1}>
+                        <Grid item xs={8}>
+                          <ControlledInputMask
+                            name="secondaryContact.workPhoneNumber"
+                            mask="(999) 999-9999"
+                            label="Work Phone Number"
+                            fullWidth
+                          />
+                        </Grid>
+                        <Grid item xs={4}>
+                          <ControlledInputMask
+                            name="secondaryContact.extensionNumber"
+                            mask="9999"
+                            label="Ext."
+                            fullWidth
+                          />
+                        </Grid>
                       </Grid>
                       <Grid item xs={12}>
                         <ControlledTextField
