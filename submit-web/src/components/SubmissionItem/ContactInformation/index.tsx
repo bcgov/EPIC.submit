@@ -17,7 +17,6 @@ import { CardInnerBox } from "@/components/Projects/Project";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";

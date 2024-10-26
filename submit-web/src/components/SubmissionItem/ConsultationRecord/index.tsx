@@ -33,7 +33,6 @@ import {
 } from "@/models/Submission";
 import CloseIcon from "@mui/icons-material/Close";
 import { When } from "react-if";
-import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
@@ -43,7 +42,7 @@ const consultationRecordSchema = yup.object().shape({
   consultedParties: yup.array().of(
     yup.object().shape({
       consultedParty: yup.string(),
-    })
+    }),
   ),
   allPartiesConsulted: yup.string().required("Please answer this question."),
   planWasReviewed: yup.string().required("Please answer this question."),

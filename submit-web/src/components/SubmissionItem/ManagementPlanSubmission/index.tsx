@@ -22,7 +22,6 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { DocumentUploadSection } from "./DocumentUploadSection";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
-import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
