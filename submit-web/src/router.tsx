@@ -25,9 +25,7 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
-// type RouterProviderWithAuthContextProps = {
-//   _queryClient: QueryClient;
-// };
+
 export default function RouterProviderWithAuthContext() {
   const authentication = useAuth();
   return <RouterProvider router={router} context={{ authentication }} />;

@@ -107,7 +107,5 @@ export const useGetAccountProject = ({
   accountProjectId,
 }: UseGetAccountProjectByIdParams) => {
   const options = getAccountProjectQueryOptions(accountProjectId);
-  return useQuery({
-    ...options,
-  });
+  return useQuery(options);
 };
