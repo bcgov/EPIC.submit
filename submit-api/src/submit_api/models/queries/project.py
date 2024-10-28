@@ -64,16 +64,15 @@ class ProjectQueries:
         ):
             return False
 
-        # Status filtering - requires package to have all statuses in search options
+        # Status filtering - requires package to have at least one status in search options
         if search_options.status:
             search_statuses = {
                 status.value if isinstance(status, PackageStatus) else status
                 for status in search_options.status
             }
             package_statuses = {status.value for status in package.status}
-            if not search_statuses.issubset(
-                package_statuses
-            ):  # Check all selected statuses are in package status
+            # Check if there's any overlap between selected statuses and package statuses
+            if not search_statuses.intersection(package_statuses):
                 return False
 
         # Date range filtering
