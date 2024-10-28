@@ -1,45 +1,29 @@
-# Copyright © 2024 Province of British Columbia
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Model to handle all complex operations related to User."""
+"""Module for handling complex queries related to projects."""
+
 from submit_api.models import AccountProject, Project, db
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package, PackageStatus
 
 
-# pylint: disable=too-few-public-methods
-
-
 class ProjectQueries:
-    """Query module for complex projects queries"""
+    """Handles queries related to projects and packages with complex filtering criteria."""
 
     @classmethod
     def get_projects_by_account_id(
-        cls, account_id: int, search_options=AccountProjectSearchOptions
+        cls, account_id: int, search_options: AccountProjectSearchOptions
     ):
-        """Find projects by account_id with optional search and pagination."""
-        # Disable autoflush for this query
+        """Retrieve projects by account_id, filtering packages based on search options."""
         with db.session.no_autoflush:
-            # Query projects by account ID
+            # Base query to filter projects by account ID
             query = (
                 db.session.query(AccountProject)
                 .filter(AccountProject.account_id == account_id)
                 .join(Project)
             )
 
-            # Retrieve projects and manually filter packages
             projects = query.all()
 
+            # Filter packages within each project based on criteria
             for project in projects:
                 project.packages = [
                     package
@@ -47,18 +31,19 @@ class ProjectQueries:
                     if cls._package_matches_criteria(package, search_options)
                 ]
 
-            # Return projects that have packages matching the criteria
+            # Return only projects with matching packages
             return [project for project in projects if project.packages]
 
     @classmethod
     def get_projects_by_proponent_id(cls, proponent_id: int):
-        """Find projects by proponent_id"""
-        query = db.session.query(Project).filter(Project.proponent_id == proponent_id)
-        return query.all()
+        """Retrieve projects by proponent_id."""
+        return (
+            db.session.query(Project).filter(Project.proponent_id == proponent_id).all()
+        )
 
     @classmethod
     def _package_matches_criteria(cls, package, search_options):
-        """Check if a package matches the search criteria."""
+        """Evaluate if a package matches search criteria."""
         # Text filtering
         if (
             search_options.search_text
@@ -66,35 +51,35 @@ class ProjectQueries:
         ):
             return False
 
-        # Status filtering - ensure that any of the statuses in search_options match package statuses
+        # Status filtering - requires package to have all statuses in search options
         if search_options.status:
             search_statuses = {
                 status.value if isinstance(status, PackageStatus) else status
                 for status in search_options.status
             }
             package_statuses = {status.value for status in package.status}
-            if not search_statuses.intersection(package_statuses):
+            if not search_statuses.issubset(
+                package_statuses
+            ):  # Check all selected statuses are in package status
                 return False
 
-        # Submitted date range filtering
-        if search_options.submitted_on_start:
-            if (
-                package.submitted_on is None
-                or package.submitted_on < search_options.submitted_on_start
-            ):
-                return False
-        if search_options.submitted_on_end:
-            if (
-                package.submitted_on is None
-                or package.submitted_on > search_options.submitted_on_end
-            ):
-                return False
+        # Date range filtering
+        if search_options.submitted_on_start and (
+            package.submitted_on is None
+            or package.submitted_on < search_options.submitted_on_start
+        ):
+            return False
+        if search_options.submitted_on_end and (
+            package.submitted_on is None
+            or package.submitted_on > search_options.submitted_on_end
+        ):
+            return False
 
         return True
 
     @classmethod
     def filter_by_search_criteria(cls, query, search_options):
-        """Apply various filters based on search options."""
+        """Apply multiple search criteria to a query."""
         if not search_options:
             return query
         query = db.session.query(AccountProject).join(Package)
@@ -107,24 +92,23 @@ class ProjectQueries:
 
     @classmethod
     def _filter_by_submission_name(cls, query, search_text):
-        """Filter by search text across package name."""
+        """Filter by package name containing search text."""
         if search_text:
-            query = query.filter(Package.name.ilike(f"%{search_text}%"))
+            return query.filter(Package.name.ilike(f"%{search_text}%"))
         return query
 
     @classmethod
     def _filter_by_submission_status(cls, query, statuses):
-        """Filter by submission status using overlap."""
+        """Filter by overlapping statuses in the package status array."""
         if statuses:
-            # Convert enum to string values
             status_values = [status.value for status in statuses]
             if status_values:
-                query = query.filter(Package.status.op("&&")(status_values))
+                return query.filter(Package.status.op("&&")(status_values))
         return query
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
-        """Filter by the submitted_on date range."""
+        """Filter by submission date range."""
         if submitted_on_start:
             query = query.filter(Package.submitted_on >= submitted_on_start)
         if submitted_on_end:
