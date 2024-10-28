@@ -2,6 +2,7 @@ import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { SubmissionPackage } from "@/models/Package";
+import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 const createSubmissionPackage = ({
   accountProjectId,
@@ -18,9 +19,28 @@ const createSubmissionPackage = ({
 };
 
 export const useCreateSubmissionPackage = (options?: Options) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createSubmissionPackage,
     ...options,
+    onSuccess: (submissionPackage) => {
+      if (options?.onSuccess) {
+        options.onSuccess(submissionPackage);
+      }
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+        submissionPackage,
+      );
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.ACCOUNT_PROJECT,
+          submissionPackage.account_project_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+    },
   });
 };
 
@@ -45,9 +65,10 @@ export const useGetSubmissionPackage = ({
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) => {
   return useQuery({
-    queryKey: ["package", packageId],
+    queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
     queryFn: () => getSubmissionPackageById({ packageId }),
     enabled: enabled && Boolean(packageId),
+    ...defaultUseQueryOptions,
   });
 };
 
@@ -74,8 +95,18 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       if (options?.onSuccess) {
         options.onSuccess();
       }
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+        submissionPackage,
+      );
       queryClient.invalidateQueries({
-        queryKey: ["package", submissionPackage.id],
+        queryKey: [
+          QUERY_KEY.ACCOUNT_PROJECT,
+          submissionPackage.account_project_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
   });

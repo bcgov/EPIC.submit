@@ -7,6 +7,7 @@ import {
   SubmissionType,
 } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
+import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 type FormType = Record<string, unknown>;
 export const editSubmission = (id: number, data: FormType) => {
@@ -26,7 +27,6 @@ export const createSubmission = (itemId: number, data: FormType) => {
 };
 
 export const useCreateSubmission = (itemId: number, options?: Options) => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ data }: { data: FormType }) =>
       createSubmission(itemId, data),
@@ -35,17 +35,20 @@ export const useCreateSubmission = (itemId: number, options?: Options) => {
       if (options?.onSuccess) {
         options.onSuccess();
       }
-      queryClient.invalidateQueries({
-        queryKey: ["item", itemId],
-      });
     },
   });
 };
 
-export const useSaveSubmission = (
-  submissionItem?: SubmissionItem,
-  options?: Options,
-) => {
+type UseSaveSubmissionParams = {
+  accountProjectId: number;
+  submissionItem?: SubmissionItem;
+  options?: Options;
+};
+export const useSaveSubmission = ({
+  accountProjectId,
+  submissionItem,
+  options,
+}: UseSaveSubmissionParams) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ data }: { data: FormType }) => {
@@ -67,7 +70,16 @@ export const useSaveSubmission = (
         options.onSuccess();
       }
       queryClient.invalidateQueries({
-        queryKey: ["item", submission.item_id],
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, submission.item_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionItem?.package_id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
   });
@@ -102,5 +114,6 @@ export const useGetSubmissionsByItemIdAndType = ({
     queryKey: ["submissions", type],
     queryFn: () => getSubmissionsByItemIdAndType({ itemId }),
     enabled: enabled && Boolean(itemId),
+    ...defaultUseQueryOptions,
   });
 };

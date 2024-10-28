@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { OnErrorType, OnSuccessType, submitRequest } from "@/utils/axiosUtils";
 import { User } from "@/models/User";
+import { QUERY_KEY } from "./constants";
 
 const fetchUsers = () => {
   return submitRequest({ url: "/users" });
@@ -28,14 +29,14 @@ const deleteUser = (id: number) => {
 
 export const useUsersData = () => {
   return useQuery({
-    queryKey: ["users"],
+    queryKey: [QUERY_KEY.USERS],
     queryFn: fetchUsers,
   });
 };
 
 export const useUserById = (userId: number) => {
   return useQuery({
-    queryKey: ["user", userId],
+    queryKey: [QUERY_KEY.ACCOUNT_USER, userId],
     queryFn: () => fetchUserById(userId),
     enabled: !!userId,
   });

@@ -1,7 +1,7 @@
 import { ProjectsSkeleton } from "@/components/Projects";
 import { useBreadCrumb } from "@/components/Shared/layout/SideNav/breadCrumbStore";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { useGetProject } from "@/hooks/api/useProjects";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 import {
   createFileRoute,
   Navigate,
@@ -12,25 +12,25 @@ import {
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout"
+  "/_authenticated/_dashboard/projects/$projectId/_projectLayout",
 )({
-  loader: () => useGetProject,
+  loader: () => useGetAccountProject,
   component: ProjectLayout,
   meta: ({ params }) => [{ title: `Project ${params.projectId}` }],
 });
 
 function ProjectLayout() {
-  const { projectId: projectIdParam } = useParams({ strict: false });
-  const projectId = Number(projectIdParam);
+  const { projectId: accountProjectIdParam } = useParams({ strict: false });
+  const accountProjectId = Number(accountProjectIdParam);
   const {
     data: accountProject,
     isLoading,
     isError,
     error,
-  } = useGetProject({
-    projectId,
+  } = useGetAccountProject({
+    accountProjectId,
   });
-  const META_TITLE = `Project ${projectId}`;
+  const META_TITLE = `Project ${accountProjectId}`;
   const matches = useRouterState({ select: (s) => s.matches });
   const { replaceBreadcrumb } = useBreadCrumb();
   useEffect(() => {

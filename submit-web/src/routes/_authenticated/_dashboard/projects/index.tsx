@@ -1,7 +1,6 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { Grid } from "@mui/material";
-
-import { useGetProjects } from "@/hooks/api/useProjects";
+import { useGetAccountProjects } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { Else, If, Then } from "react-if";
 import { Projects, ProjectsSkeleton } from "@/components/Projects";
@@ -23,7 +22,7 @@ export function ProjectsPage() {
     data: projectsData,
     isPending: isProjectsLoading,
     isError: isProjectsError,
-  } = useGetProjects({
+  } = useGetAccountProjects({
     accountId,
     searchOptions: filters,
   });

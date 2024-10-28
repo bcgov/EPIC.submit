@@ -1,14 +1,14 @@
 import { create } from "zustand";
 
-interface PackageStoreState {
+interface PackageTableStoreState {
   isValidating: boolean;
   reset: () => void;
   setIsValidating: (_isValidating: boolean) => void;
 }
-const initialState: Partial<PackageStoreState> = {
+const initialState: Partial<PackageTableStoreState> = {
   isValidating: false,
 };
-export const usePackageStore = create<PackageStoreState>((set) => ({
+export const usePackageTableStore = create<PackageTableStoreState>((set) => ({
   isValidating: false,
   setIsValidating: (_isValidating: boolean) =>
     set({ isValidating: _isValidating }),

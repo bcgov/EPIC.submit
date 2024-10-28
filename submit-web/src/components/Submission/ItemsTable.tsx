@@ -20,7 +20,7 @@ import {
 import { SubmissionItemTableRow as SubmissionItemTableRowType } from "./types";
 import { StyledTableHeadCell } from "../Shared/Table/common";
 import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
-import { usePackageStore } from "./packageStore";
+import { usePackageTableStore } from "./packageTableStore";
 
 export default function ItemsTable({
   submissionItems,
@@ -37,7 +37,7 @@ export default function ItemsTable({
     setOrderBy(property);
   };
 
-  const { isValidating } = usePackageStore();
+  const { isValidating } = usePackageTableStore();
 
   const sortedSubmissionItems = submissionItems.map((subItem) => ({
     id: subItem.id,

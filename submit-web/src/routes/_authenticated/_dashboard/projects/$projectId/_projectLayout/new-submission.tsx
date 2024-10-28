@@ -10,16 +10,15 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SUBMISSION_PACKAGE_TYPE } from "@/components/Shared/types";
 import { YellowBar } from "@/components/Shared/YellowBar";
 import { useCreateSubmissionPackage } from "@/hooks/api/usePackages";
-import { useGetProject } from "@/hooks/api/useProjects";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionPackage } from "@/models/Package";
 import { Box, Grid, Typography } from "@mui/material";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission"
+  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission",
 )({
   component: NewManagementPlan,
   meta: () => [{ title: "New Submission Package" }],
@@ -27,21 +26,19 @@ export const Route = createFileRoute(
 
 export function NewManagementPlan() {
   // get the projectId from the route
-  const queryClient = useQueryClient();
   const { projectId } = Route.useParams();
   const { setIsOpen } = useLoaderBackdrop();
-  const { data: accountProject, isPending: isProjectPending } = useGetProject({
-    projectId: Number(projectId),
-  });
+  const { data: accountProject, isPending: isProjectPending } =
+    useGetAccountProject({
+      accountProjectId: Number(projectId),
+    });
   const navigate = useNavigate();
 
-  const onCreateFailure = () =>
+  const onCreateFailure = () => {
     notify.error("Failed to create submission package");
+  };
 
   const onCreateSuccess = (createdSubmissionPackage: SubmissionPackage) => {
-    queryClient.invalidateQueries({
-      queryKey: ["project", projectId],
-    });
     notify.success("Submission package created successfully");
     navigate({
       to: `/projects/${projectId}/submission-packages/${createdSubmissionPackage.id}`,

@@ -2,7 +2,7 @@ import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSke
 import { useBreadCrumb } from "@/components/Shared/layout/SideNav/breadCrumbStore";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
-import { useGetProject } from "@/hooks/api/useProjects";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { Grid } from "@mui/material";
 import {
   createFileRoute,
@@ -13,17 +13,17 @@ import {
 } from "@tanstack/react-router";
 import { useEffect } from "react";
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
 )({
   component: SubmissionLayout,
   meta: ({ params }) => [{ title: `Submission ${params.submissionPackageId}` }],
 });
 
 export default function SubmissionLayout() {
-  const { projectId: projectIdParam } = useParams({ strict: false });
-  const projectId = Number(projectIdParam);
-  const { data: accountProject } = useGetProject({
-    projectId,
+  const { projectId: accountProjectIdParam } = useParams({ strict: false });
+  const accountProjectId = Number(accountProjectIdParam);
+  const { data: accountProject } = useGetAccountProject({
+    accountProjectId,
   });
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
