@@ -24,7 +24,15 @@ class ProjectQueries:
     """Query module for complex projects queries"""
 
     @classmethod
-    def get_projects_by_account_id(cls, account_id: int, search_options=None):
+    def get_projects_by_proponent_id(cls, proponent_id: int):
+        """Find projects by proponent_id"""
+        query = db.session.query(Project).filter(
+            Project.proponent_id == proponent_id
+        )
+        return query.all()
+
+    @classmethod
+    def get_projects_by_account_id(cls, account_id: int, search_options: AccountProjectSearchOptions = None):
         """Find projects by account_id with optional search and pagination."""
         query = db.session.query(AccountProject).filter(
             AccountProject.account_id == account_id
@@ -37,18 +45,10 @@ class ProjectQueries:
         return query.all()
 
     @classmethod
-    def get_projects_by_proponent_id(cls, proponent_id: int):
-        """Find projects by proponent_id"""
-        query = db.session.query(Project).filter(
-            Project.proponent_id == proponent_id
-        )
-        return query.all()
-
-    @classmethod
-    def filter_by_search_criteria(cls, project_query, search_options):
+    def filter_by_search_criteria(cls, project_query, search_options: AccountProjectSearchOptions):
         """Apply various filters based on search options."""
         # Subquery to get packages based on search criteria
-        package_query = db.session.query(Package).join(Package.account_project)
+        package_query = db.session.query(Package)
 
         if search_options.search_text:
             package_query = cls._filter_by_submission_name(package_query, search_options.search_text)
@@ -60,12 +60,11 @@ class ProjectQueries:
             )
 
         # Get the filtered packages
-        filtered_package_ids = package_query.with_entities(Package.id).subquery()
+        filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
 
-        project_query = project_query.join(AccountProject.packages).filter(
+        project_query = project_query.join(Package).filter(
             Package.id.in_(filtered_package_ids)).options(
-            db.contains_eager(AccountProject.packages).load_only(Package.id, Package.name, Package.status)
-        )
+            db.contains_eager(AccountProject.packages))
 
         return project_query
 
@@ -78,7 +77,9 @@ class ProjectQueries:
     def _filter_by_submission_status(cls, query, statuses):
         """Filter by submission status using overlap."""
         status_values = [status.value for status in statuses]
-        return query.filter(Package.status.op("&&")(status_values))
+
+        # check if Package.status has all the values in status_values
+        return query.filter(Package.status.op("@>")(status_values))
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
