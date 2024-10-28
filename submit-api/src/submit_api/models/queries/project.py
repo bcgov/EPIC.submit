@@ -24,54 +24,62 @@ class ProjectQueries:
     """Query module for complex projects queries"""
 
     @classmethod
-    def get_projects_by_account_id(
-        cls, account_id: int, search_options=AccountProjectSearchOptions
-    ):
-        """Find projects by account_id with optional search and pagination."""
-        query = db.session.query(AccountProject).filter(
-            AccountProject.account_id == account_id
-        ).join(Project)
-        # Apply search filters if provided
-        query = cls.filter_by_search_criteria(query, search_options)
-
-        return query.all()
-
-    @classmethod
     def get_projects_by_proponent_id(cls, proponent_id: int):
         """Find projects by proponent_id"""
         query = db.session.query(Project).filter(
-            Project.proponent_id == proponent_id)
+            Project.proponent_id == proponent_id
+        )
         return query.all()
 
     @classmethod
-    def filter_by_search_criteria(cls, query, search_options):
+    def get_projects_by_account_id(cls, account_id: int, search_options: AccountProjectSearchOptions = None):
+        """Find projects by account_id with optional search and pagination."""
+        query = db.session.query(AccountProject).filter(
+            AccountProject.account_id == account_id
+        ).join(AccountProject.project)
+
+        # Apply search filters if provided
+        if search_options:
+            query = cls.filter_by_search_criteria(query, search_options)
+
+        return query.all()
+
+    @classmethod
+    def filter_by_search_criteria(cls, project_query, search_options: AccountProjectSearchOptions):
         """Apply various filters based on search options."""
-        if not search_options:
-            return query
-        query = db.session.query(AccountProject).join(Package)
-        query = cls._filter_by_submission_name(
-            query, search_options.search_text)
-        query = cls._filter_by_submission_status(query, search_options.status)
-        query = cls._filter_by_submission_dates(
-            query, search_options.submitted_on_start, search_options.submitted_on_end)
-        return query
+        # Subquery to get packages based on search criteria
+        package_query = db.session.query(Package)
+
+        if search_options.search_text:
+            package_query = cls._filter_by_submission_name(package_query, search_options.search_text)
+        if search_options.status:
+            package_query = cls._filter_by_submission_status(package_query, search_options.status)
+        if search_options.submitted_on_start or search_options.submitted_on_end:
+            package_query = cls._filter_by_submission_dates(
+                package_query, search_options.submitted_on_start, search_options.submitted_on_end
+            )
+
+        # Get the filtered packages
+        filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
+
+        project_query = project_query.join(Package).filter(
+            Package.id.in_(filtered_package_ids)).options(
+            db.contains_eager(AccountProject.packages))
+
+        return project_query
 
     @classmethod
     def _filter_by_submission_name(cls, query, search_text):
         """Filter by search text across package name."""
-        if search_text:
-            query = query.filter(Package.name.ilike(f"%{search_text}%"))
-        return query
+        return query.filter(Package.name.ilike(f"%{search_text}%"))
 
     @classmethod
     def _filter_by_submission_status(cls, query, statuses):
         """Filter by submission status using overlap."""
-        if statuses:
-            # Convert enum to string values
-            status_values = [status.value for status in statuses]
-            if status_values:
-                query = query.filter(Package.status.op("&&")(status_values))
-        return query
+        status_values = [status.value for status in statuses]
+
+        # check if Package.status has all the values in status_values
+        return query.filter(Package.status.op("@>")(status_values))
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
