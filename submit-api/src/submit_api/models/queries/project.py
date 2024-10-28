@@ -19,7 +19,7 @@ from submit_api.models.package import Package, PackageStatus
 
 
 class ProjectQueries:
-    """Handles queries related to projects and packages with complex filtering criteria."""
+    """Query module for complex projects queries"""
 
     @classmethod
     def get_projects_by_account_id(
