@@ -14,7 +14,7 @@
 """Model to handle all complex operations related to User."""
 from submit_api.models import AccountProject, Project, db
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
-from submit_api.models.package import Package
+from submit_api.models.package import Package, PackageStatus
 
 
 # pylint: disable=too-few-public-methods
@@ -28,20 +28,69 @@ class ProjectQueries:
         cls, account_id: int, search_options=AccountProjectSearchOptions
     ):
         """Find projects by account_id with optional search and pagination."""
-        query = db.session.query(AccountProject).filter(
-            AccountProject.account_id == account_id
-        ).join(Project)
-        # Apply search filters if provided
-        query = cls.filter_by_search_criteria(query, search_options)
+        # Disable autoflush for this query
+        with db.session.no_autoflush:
+            # Query projects by account ID
+            query = (
+                db.session.query(AccountProject)
+                .filter(AccountProject.account_id == account_id)
+                .join(Project)
+            )
 
-        return query.all()
+            # Retrieve projects and manually filter packages
+            projects = query.all()
+
+            for project in projects:
+                project.packages = [
+                    package
+                    for package in project.packages
+                    if cls._package_matches_criteria(package, search_options)
+                ]
+
+            # Return projects that have packages matching the criteria
+            return [project for project in projects if project.packages]
 
     @classmethod
     def get_projects_by_proponent_id(cls, proponent_id: int):
         """Find projects by proponent_id"""
-        query = db.session.query(Project).filter(
-            Project.proponent_id == proponent_id)
+        query = db.session.query(Project).filter(Project.proponent_id == proponent_id)
         return query.all()
+
+    @classmethod
+    def _package_matches_criteria(cls, package, search_options):
+        """Check if a package matches the search criteria."""
+        # Text filtering
+        if (
+            search_options.search_text
+            and search_options.search_text.lower() not in package.name.lower()
+        ):
+            return False
+
+        # Status filtering - ensure that any of the statuses in search_options match package statuses
+        if search_options.status:
+            search_statuses = {
+                status.value if isinstance(status, PackageStatus) else status
+                for status in search_options.status
+            }
+            package_statuses = {status.value for status in package.status}
+            if not search_statuses.intersection(package_statuses):
+                return False
+
+        # Submitted date range filtering
+        if search_options.submitted_on_start:
+            if (
+                package.submitted_on is None
+                or package.submitted_on < search_options.submitted_on_start
+            ):
+                return False
+        if search_options.submitted_on_end:
+            if (
+                package.submitted_on is None
+                or package.submitted_on > search_options.submitted_on_end
+            ):
+                return False
+
+        return True
 
     @classmethod
     def filter_by_search_criteria(cls, query, search_options):
@@ -49,11 +98,11 @@ class ProjectQueries:
         if not search_options:
             return query
         query = db.session.query(AccountProject).join(Package)
-        query = cls._filter_by_submission_name(
-            query, search_options.search_text)
+        query = cls._filter_by_submission_name(query, search_options.search_text)
         query = cls._filter_by_submission_status(query, search_options.status)
         query = cls._filter_by_submission_dates(
-            query, search_options.submitted_on_start, search_options.submitted_on_end)
+            query, search_options.submitted_on_start, search_options.submitted_on_end
+        )
         return query
 
     @classmethod
