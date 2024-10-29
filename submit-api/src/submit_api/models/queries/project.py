@@ -11,11 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Module for handling complex queries related to projects."""
+"""Model to handle all complex operations related to User."""
 
 from submit_api.models import AccountProject, Project, db
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
+
+# pylint: disable=too-few-public-methods
 
 
 class ProjectQueries:
@@ -81,7 +83,7 @@ class ProjectQueries:
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
-        """Filter by submission date range."""
+        """Filter by the submitted_on date range."""
         if submitted_on_start:
             query = query.filter(Package.submitted_on >= submitted_on_start)
         if submitted_on_end:
