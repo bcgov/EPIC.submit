@@ -1,6 +1,6 @@
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { submitRequest } from "@/utils/axiosUtils";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 
 type GetSubmissionItemByIdParams = {
@@ -17,13 +17,20 @@ type UseGetSubmissionItemByIdParams = {
   enabled?: boolean;
 };
 
-export const useGetSubmissionItem = ({
+export const getSubmissionItemQueryOptions = ({
   itemId,
   enabled = true,
-}: UseGetSubmissionItemByIdParams) => {
-  return useQuery({
+}: UseGetSubmissionItemByIdParams) =>
+  queryOptions({
     queryKey: [QUERY_KEY.SUBMISSION_ITEM, itemId],
     queryFn: () => getSubmissionItemById({ itemId }),
     enabled: enabled && Boolean(itemId),
   });
+
+export const useGetSubmissionItem = ({
+  itemId,
+  enabled = true,
+}: UseGetSubmissionItemByIdParams) => {
+  const options = getSubmissionItemQueryOptions({ itemId, enabled });
+  return useQuery(options);
 };
