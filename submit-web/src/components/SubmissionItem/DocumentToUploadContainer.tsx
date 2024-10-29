@@ -10,6 +10,7 @@ import { useParams } from "@tanstack/react-router";
 import ProgressBar from "./ManagementPlanSubmission/ProgressBar";
 import { useQueryClient } from "@tanstack/react-query";
 import { SUBMISSION_TYPE } from "@/models/Submission";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 interface DocumentContainerProps {
   document: Document;
@@ -52,7 +53,7 @@ const DocumentToUploadContainer: React.FC<DocumentContainerProps> = ({
 
       completeDocument(document.id, documentSubmission.id);
       queryClient.invalidateQueries({
-        queryKey: ["item", documentSubmission.item_id],
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, documentSubmission.item_id],
       });
     } catch (error) {
       notify.error("Failed to upload document");

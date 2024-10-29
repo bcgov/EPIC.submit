@@ -7,16 +7,22 @@ import DocumentToUploadContainer from "../DocumentToUploadContainer";
 import { When } from "react-if";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useSubmissionItemStore } from "../submissionItemStore";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledFileUpload";
 import { CONSULTATION_RECORD_DOCUMENT_FOLDERS } from "./constants";
+import { useQueryClient } from "@tanstack/react-query";
+import { SubmissionItem } from "@/models/SubmissionItem";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId } = useParams({
     from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
-  const { submissionItem } = useSubmissionItemStore();
+
+  const queryClient = useQueryClient();
+  const submissionItem = queryClient.getQueryData<SubmissionItem>([
+    "item",
+    submissionItemId,
+  ]);
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
 
@@ -29,7 +35,7 @@ export const DocumentUploadSection = () => {
   const handleOnDrop = (acceptedFiles: File[]) => {
     handleAddDocuments(
       acceptedFiles[0],
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS
+      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
     );
   };
 
@@ -39,17 +45,17 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id
+    (submission) => submission.id,
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId)
+      !documentSubmissionIds?.includes(document.submissionId),
   );
 
   return (
