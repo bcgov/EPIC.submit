@@ -7,9 +7,11 @@ import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthContextProps } from "react-oidc-context";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DrawerProvider from "@/components/Shared/Drawers/DrawerProvider";
+import { QueryClient } from "@tanstack/react-query";
 
 type RouterContext = {
   authentication: AuthContextProps;
+  queryClient: QueryClient;
 };
 
 export const Route = createRootRouteWithContext<RouterContext>()({

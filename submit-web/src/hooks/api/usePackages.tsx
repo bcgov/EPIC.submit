@@ -1,5 +1,10 @@
 import { submitRequest } from "@/utils/axiosUtils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Options } from "./types";
 import { SubmissionPackage } from "@/models/Package";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
@@ -60,16 +65,23 @@ type UseGetSubmissionPackageByIdParams = {
   enabled?: boolean;
 };
 
-export const useGetSubmissionPackage = ({
+export const getSubmissionPackageQueryOptions = ({
   packageId,
   enabled = true,
-}: UseGetSubmissionPackageByIdParams) => {
-  return useQuery({
+}: UseGetSubmissionPackageByIdParams) =>
+  queryOptions({
     queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
     queryFn: () => getSubmissionPackageById({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,
   });
+
+export const useGetSubmissionPackage = ({
+  packageId,
+  enabled = true,
+}: UseGetSubmissionPackageByIdParams) => {
+  const options = getSubmissionPackageQueryOptions({ packageId, enabled });
+  return useQuery(options);
 };
 
 const updateStateSubmissionPackage = ({

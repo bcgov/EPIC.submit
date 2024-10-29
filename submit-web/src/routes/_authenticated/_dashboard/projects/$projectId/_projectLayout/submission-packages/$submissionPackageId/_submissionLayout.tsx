@@ -1,58 +1,55 @@
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
-import { useBreadCrumb } from "@/components/Shared/layout/SideNav/breadCrumbStore";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
+import { QUERY_KEY } from "@/hooks/api/constants";
+import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { Grid } from "@mui/material";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Navigate,
   Outlet,
   useParams,
-  useRouterState,
 } from "@tanstack/react-router";
-import { useEffect } from "react";
 export const Route = createFileRoute(
   "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
 )({
   component: SubmissionLayout,
-  meta: ({ params }) => [{ title: `Submission ${params.submissionPackageId}` }],
+  loader: ({ context: { queryClient }, params: { submissionPackageId } }) =>
+    queryClient.ensureQueryData(
+      getSubmissionPackageQueryOptions({
+        packageId: Number(submissionPackageId),
+      }),
+    ),
+  pendingComponent: () => (
+    <PageGrid>
+      <Grid item xs={12}>
+        <ContentBoxSkeleton />
+      </Grid>
+    </PageGrid>
+  ),
+  errorComponent: () => <Navigate to="/error" />,
+  meta: ({ loaderData: submissionPackage }) => [
+    { title: submissionPackage.name },
+  ],
 });
 
 export default function SubmissionLayout() {
+  const queryClient = useQueryClient();
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const accountProjectId = Number(accountProjectIdParam);
-  const { data: accountProject } = useGetAccountProject({
+  const accountProject = queryClient.getQueryData([
+    QUERY_KEY.ACCOUNT_PROJECT,
     accountProjectId,
-  });
+  ]);
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
   });
   const submissionPackageId = Number(submissionPackageIdParam);
-  const META_TITLE = `Submission ${submissionPackageId}`;
-  const { data: submissionPackage, isPending: isSubPackageLoading } =
-    useGetSubmissionPackage({
+  const { data: submissionPackage } = useSuspenseQuery(
+    getSubmissionPackageQueryOptions({
       packageId: submissionPackageId,
-      enabled: Boolean(accountProject?.id),
-    });
-  const { replaceBreadcrumb } = useBreadCrumb();
-  const matches = useRouterState({ select: (s) => s.matches });
-
-  useEffect(() => {
-    if (submissionPackage) {
-      replaceBreadcrumb(META_TITLE, submissionPackage?.name || "");
-    }
-  }, [submissionPackage, matches, replaceBreadcrumb, META_TITLE]);
-
-  if (isSubPackageLoading) {
-    return (
-      <PageGrid>
-        <Grid item xs={12}>
-          <ContentBoxSkeleton />
-        </Grid>
-      </PageGrid>
-    );
-  }
+    }),
+  );
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
