@@ -49,6 +49,9 @@ function StatusFilter() {
               <Typography
                 variant="body2"
                 color={BCDesignTokens.typographyColorDisabled}
+                sx={{
+                  lineHeight: BCDesignTokens.typographyLineHeightsXxdense,
+                }}
               >
                 Status
               </Typography>

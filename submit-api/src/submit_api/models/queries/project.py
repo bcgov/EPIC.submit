@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Model to handle all complex operations related to User."""
+
 from submit_api.models import AccountProject, Project, db
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
-
 
 # pylint: disable=too-few-public-methods
 
