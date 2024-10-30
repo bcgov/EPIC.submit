@@ -4,10 +4,18 @@ Manages the user
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, Index
+import enum
+
+from sqlalchemy import Column, Enum, Index
 
 from .base_model import BaseModel
 from .db import db
+
+
+class UserType(enum.Enum):
+    """Enum for user type."""
+    PROPONENT = 'PROPONENT'
+    STAFF = 'STAFF'
 
 
 class User(BaseModel):
@@ -17,16 +25,19 @@ class User(BaseModel):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     auth_guid = Column(db.String(), nullable=False, unique=True)
+    type = Column(Enum(UserType), nullable=False)
+    account_user = db.relationship('AccountUser', back_populates='user')
 
     __table_args__ = (
         Index('ix_users_auth_guid', 'auth_guid', unique=True),
     )
 
     @classmethod
-    def create_account_user(cls, data, session=None) -> User:
-        """Create account."""
+    def create_user(cls, data, session=None) -> User:
+        """Create user."""
         account_user = User(
-            auth_guid=data.get('auth_guid', None)
+            auth_guid=data.get('auth_guid', None),
+            type=data.get('type', None)
         )
         if session:
             session.add(account_user)
@@ -34,3 +45,9 @@ class User(BaseModel):
         else:
             account_user.save()
         return account_user
+
+    @classmethod
+    def get_by_guid(cls, _guid):
+        """Get user by guid."""
+        user = cls.query.filter(cls.auth_guid == _guid).first()
+        return user
