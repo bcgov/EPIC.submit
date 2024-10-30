@@ -31,9 +31,11 @@ export default function DocumentTable({
   pendingDocuments: Array<Document>;
 }) {
   const [order, setOrder] = useState<Order>("asc");
-  const [orderBy, setOrderBy] = useState<keyof any>("name");
+  const [orderBy, setOrderBy] = useState<keyof Submission>(
+    "document.submitted_document.name"
+  );
 
-  const handleRequestSort = (property: keyof any) => {
+  const handleRequestSort = (property: keyof Submission) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);

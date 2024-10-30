@@ -2,19 +2,16 @@ import { useEffect } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useDocumentUploadStore } from "@/store/documentUploadStore";
-import DocumentContainer from "./DocumentContainer";
 import { When } from "react-if";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import DocumentToUploadContainer from "../DocumentToUploadContainer";
 import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledFileUpload";
 import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import DocumentTable from "@/components/DocumentUpload/DocumentTable";
 import { QUERY_KEY } from "@/hooks/api/constants";
-import { ManagementPlanSubmission } from ".";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId } = useParams({
