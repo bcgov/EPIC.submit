@@ -136,13 +136,20 @@ export const DocumentUploadSection = () => {
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
 
-        <Box my={BCDesignTokens.layoutMarginLarge}>
-          <DocumentTable
-            header={"Management Plan"}
-            documents={managementPlanDocuments}
-            pendingDocuments={pendingManagementPlanDocuments}
-          />
-        </Box>
+        <When
+          condition={Boolean(
+            managementPlanDocuments?.length ||
+              pendingManagementPlanDocuments?.length
+          )}
+        >
+          <Box my={BCDesignTokens.layoutMarginLarge}>
+            <DocumentTable
+              header={"Management Plan"}
+              documents={managementPlanDocuments}
+              pendingDocuments={pendingManagementPlanDocuments}
+            />
+          </Box>
+        </When>
       </Grid>
       <Grid item xs={12}>
         <Box sx={{ flexDirection: "column", display: "flex" }}>
@@ -179,13 +186,20 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
-        <Box my={BCDesignTokens.layoutMarginLarge}>
-          <DocumentTable
-            header={"Supporting Documents"}
-            documents={supportingDocuments}
-            pendingDocuments={pendingSupportingDocuments}
-          />
-        </Box>
+
+        <When
+          condition={Boolean(
+            supportingDocuments?.length || pendingSupportingDocuments?.length
+          )}
+        >
+          <Box my={BCDesignTokens.layoutMarginLarge}>
+            <DocumentTable
+              header={"Supporting Documents"}
+              documents={supportingDocuments}
+              pendingDocuments={pendingSupportingDocuments}
+            />
+          </Box>
+        </When>
       </Grid>
     </Grid>
   );

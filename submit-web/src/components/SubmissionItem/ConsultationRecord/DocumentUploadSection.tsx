@@ -109,13 +109,19 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
-        <Box my={BCDesignTokens.layoutMarginLarge}>
-          <DocumentTable
-            documents={documentSubmissions}
-            pendingDocuments={pendingDocuments}
-            header={"Consultation Record(s)"}
-          />
-        </Box>
+        <When
+          condition={Boolean(
+            documentSubmissions?.length || pendingDocuments?.length
+          )}
+        >
+          <Box my={BCDesignTokens.layoutMarginLarge}>
+            <DocumentTable
+              documents={documentSubmissions}
+              pendingDocuments={pendingDocuments}
+              header={"Consultation Record(s)"}
+            />
+          </Box>
+        </When>
       </Grid>
     </Grid>
   );
