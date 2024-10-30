@@ -23,7 +23,7 @@ export function ProjectsPage() {
     isPending: isProjectsLoading,
     isError: isProjectsError,
   } = useGetAccountProjects({
-    accountId: 1,
+    accountId,
     searchOptions: filters,
   });
 
