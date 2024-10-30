@@ -21,7 +21,7 @@ export const DocumentUploadSection = () => {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
     "item",
-    submissionItemId,
+    Number(submissionItemId),
   ]);
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
@@ -42,39 +42,39 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
+    (submission) => submission.id
   );
 
   const managementPlanDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
   );
 
   const supportingDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
+      !documentSubmissionIds?.includes(document.submissionId)
   );
 
   const pendingManagementPlanDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
   );
 
   const pendingSupportingDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
   );
   return (
     <Grid container spacing={2}>
@@ -119,7 +119,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
             )
           }
         />
@@ -180,7 +180,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
             )
           }
         />
