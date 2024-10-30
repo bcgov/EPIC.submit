@@ -12,6 +12,9 @@ import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledF
 import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
+import DocumentTable from "@/components/DocumentUpload/DocumentTable";
+import { QUERY_KEY } from "@/hooks/api/constants";
+import { ManagementPlanSubmission } from ".";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId } = useParams({
@@ -20,8 +23,8 @@ export const DocumentUploadSection = () => {
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    "item",
-    submissionItemId,
+    QUERY_KEY.SUBMISSION_ITEM,
+    Number(submissionItemId),
   ]);
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
@@ -42,40 +45,41 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
+    (submission) => submission.id
   );
 
   const managementPlanDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
   );
 
   const supportingDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
+      !documentSubmissionIds?.includes(document.submissionId)
   );
 
   const pendingManagementPlanDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
   );
 
   const pendingSupportingDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
   );
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
@@ -119,7 +123,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
             )
           }
         />
@@ -131,22 +135,14 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
+        <When condition={Boolean(managementPlanDocuments?.length)}>
+          <DocumentTable
+            header={"Management Plan"}
+            documents={managementPlanDocuments}
+            pendingDocuments={pendingManagementPlanDocuments}
+          />
+        </When>
       </Grid>
-      <When condition={Boolean(documentSubmissions?.length)}>
-        <Grid
-          container
-          item
-          xs={12}
-          sx={{ mb: BCDesignTokens.layoutMarginXlarge }}
-        >
-          {managementPlanDocuments?.map((docSub) => (
-            <DocumentContainer
-              key={docSub.id}
-              document={docSub.submitted_document}
-            />
-          ))}
-        </Grid>
-      </When>
       <Grid
         container
         item
@@ -180,7 +176,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
             )
           }
         />
@@ -192,31 +188,13 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
-      </Grid>
-      <When condition={Boolean(documentSubmissions?.length)}>
-        <Grid
-          container
-          item
-          xs={12}
-          sx={{ mb: BCDesignTokens.layoutMarginXlarge }}
-        >
-          {supportingDocuments?.map((docSub) => (
-            <DocumentContainer
-              key={docSub.id}
-              document={docSub.submitted_document}
-            />
-          ))}
-        </Grid>
-      </When>
-      <Grid
-        container
-        item
-        xs={12}
-        sx={{ mb: BCDesignTokens.layoutMarginXlarge }}
-      >
-        {pendingSupportingDocuments.map((document) => (
-          <DocumentToUploadContainer key={document.id} document={document} />
-        ))}
+        <When condition={Boolean(supportingDocuments?.length)}>
+          <DocumentTable
+            header={"Supporting Documents"}
+            documents={supportingDocuments}
+            pendingDocuments={pendingSupportingDocuments}
+          />
+        </When>
       </Grid>
     </Grid>
   );
