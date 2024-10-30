@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Order } from "../Shared/Table/utils";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import { StyledTableHeadCell } from "../Shared/Table/common";
@@ -17,16 +17,18 @@ import { Submission } from "@/models/Submission";
 import DocumentTableRow, {
   StyledHeadTableCell,
   StyledHeadTableRow,
-  StyledTableCell,
-  StyledTableRow,
 } from "./DocumentTableRow";
+import { Document } from "@/store/documentUploadStore";
+import PendingDocumentRow from "./PendingDocumentRow";
 
-export default function ItemsTable({
+export default function DocumentTable({
   header,
   documents,
+  pendingDocuments,
 }: {
   header: string;
   documents: Array<Submission>;
+  pendingDocuments: Array<Document>;
 }) {
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] = useState<keyof any>("name");
@@ -42,6 +44,12 @@ export default function ItemsTable({
     name: document.submitted_document.name,
     submitted_by: document.account_user.full_name,
     version: document.version,
+    url: document.submitted_document.url,
+  }));
+
+  const pendingItems = pendingDocuments.map((document) => ({
+    id: document.id,
+    name: document.file.name,
   }));
 
   return (
@@ -104,7 +112,13 @@ export default function ItemsTable({
           {sortedSubmissionItems?.map((document) => (
             <DocumentTableRow
               key={`custom-row-${document.name}`}
-              document={document}
+              documentItem={document}
+            />
+          ))}
+          {pendingItems?.map((document) => (
+            <PendingDocumentRow
+              key={`pending-row-${document.name}`}
+              documentItem={document}
             />
           ))}
         </TableBody>

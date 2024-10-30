@@ -8,7 +8,6 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useNavigate, useParams } from "@tanstack/react-router";
 import { downloadObject } from "@/hooks/api/useObjectStorage";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 
@@ -49,7 +48,7 @@ export const StyledHeadTableRow = styled(TableRow)<{ error?: boolean }>(
   })
 );
 
-const StyledTableCell = styled(TableCell)(() => ({
+export const StyledTableCell = styled(TableCell)(() => ({
   borderTop: `1px solid ${BCDesignTokens.themeBlue20}`,
   borderBottom: `1px solid ${BCDesignTokens.themeBlue20}`,
   padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
@@ -68,7 +67,7 @@ const StyledTableCell = styled(TableCell)(() => ({
 const StyledTableRow = styled(TableRow)(() => ({}));
 
 type StyledTableRowProps = TableRowProps & { error?: boolean };
-const PackageTableRow = ({
+export const PackageTableRow = ({
   error,
   children,
   ...otherProps
@@ -101,19 +100,10 @@ export default function DocumentTableRow({
   documentItem,
   error = false,
 }: DocumentTableRowProps) {
+  const { name, submitted_by, version, url } = documentItem;
+
+  const onActionClick = () => {};
   const [pendingGetObject, setPendingGetObject] = useState(false);
-  const navigate = useNavigate();
-  const { projectId, submissionPackageId } = useParams({
-    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
-  });
-
-  const { name, id, submitted_by, version, url } = documentItem;
-
-  const onActionClick = () => {
-    navigate({
-      to: `/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
-    });
-  };
 
   const getObjectFromS3 = async () => {
     try {
@@ -151,7 +141,9 @@ export default function DocumentTableRow({
               textDecoration: "none",
             }}
           >
-            <MuiLink onClick={getObjectFromS3}>{name}</MuiLink>
+            <MuiLink onClick={getObjectFromS3} sx={{ textDecoration: "none" }}>
+              {name}
+            </MuiLink>
           </Typography>
         </StyledTableCell>
         <StyledTableCell align="right">{submitted_by}</StyledTableCell>
