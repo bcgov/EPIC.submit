@@ -14,10 +14,12 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegistrationImport } from './routes/registration'
-import { Route as OidcCallbackImport } from './routes/oidc-callback'
 import { Route as ErrorImport } from './routes/error'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
+import { Route as OidcCallbackIndexImport } from './routes/oidc-callback/index'
+import { Route as ProponentProponentLayoutImport } from './routes/proponent/_proponentLayout'
+import { Route as OidcCallbackStaffImport } from './routes/oidc-callback/staff'
 import { Route as AuthenticatedAdminLoginImport } from './routes/_authenticated/admin-login'
 import { Route as AuthenticatedDashboardImport } from './routes/_authenticated/_dashboard'
 import { Route as AuthenticatedRegistrationCreateAccountImport } from './routes/_authenticated/registration/create-account'
@@ -33,6 +35,7 @@ import { Route as AuthenticatedDashboardProjectsProjectIdProjectLayoutSubmission
 
 // Create Virtual Routes
 
+const ProponentImport = createFileRoute('/proponent')()
 const AuthenticatedDashboardAboutpageLazyImport = createFileRoute(
   '/_authenticated/_dashboard/aboutpage',
 )()
@@ -46,13 +49,13 @@ const AuthenticatedDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubm
 
 // Create/Update Routes
 
-const RegistrationRoute = RegistrationImport.update({
-  path: '/registration',
+const ProponentRoute = ProponentImport.update({
+  path: '/proponent',
   getParentRoute: () => rootRoute,
 } as any)
 
-const OidcCallbackRoute = OidcCallbackImport.update({
-  path: '/oidc-callback',
+const RegistrationRoute = RegistrationImport.update({
+  path: '/registration',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -68,6 +71,21 @@ const AuthenticatedRoute = AuthenticatedImport.update({
 
 const IndexRoute = IndexImport.update({
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OidcCallbackIndexRoute = OidcCallbackIndexImport.update({
+  path: '/oidc-callback/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ProponentProponentLayoutRoute = ProponentProponentLayoutImport.update({
+  id: '/_proponentLayout',
+  getParentRoute: () => ProponentRoute,
+} as any)
+
+const OidcCallbackStaffRoute = OidcCallbackStaffImport.update({
+  path: '/oidc-callback/staff',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -204,13 +222,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ErrorImport
       parentRoute: typeof rootRoute
     }
-    '/oidc-callback': {
-      id: '/oidc-callback'
-      path: '/oidc-callback'
-      fullPath: '/oidc-callback'
-      preLoaderRoute: typeof OidcCallbackImport
-      parentRoute: typeof rootRoute
-    }
     '/registration': {
       id: '/registration'
       path: '/registration'
@@ -231,6 +242,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin-login'
       preLoaderRoute: typeof AuthenticatedAdminLoginImport
       parentRoute: typeof AuthenticatedImport
+    }
+    '/oidc-callback/staff': {
+      id: '/oidc-callback/staff'
+      path: '/oidc-callback/staff'
+      fullPath: '/oidc-callback/staff'
+      preLoaderRoute: typeof OidcCallbackStaffImport
+      parentRoute: typeof rootRoute
+    }
+    '/proponent': {
+      id: '/proponent'
+      path: '/proponent'
+      fullPath: '/proponent'
+      preLoaderRoute: typeof ProponentImport
+      parentRoute: typeof rootRoute
+    }
+    '/proponent/_proponentLayout': {
+      id: '/proponent/_proponentLayout'
+      path: '/proponent'
+      fullPath: '/proponent'
+      preLoaderRoute: typeof ProponentProponentLayoutImport
+      parentRoute: typeof ProponentRoute
+    }
+    '/oidc-callback/': {
+      id: '/oidc-callback/'
+      path: '/oidc-callback'
+      fullPath: '/oidc-callback'
+      preLoaderRoute: typeof OidcCallbackIndexImport
+      parentRoute: typeof rootRoute
     }
     '/_authenticated/_dashboard/profile': {
       id: '/_authenticated/_dashboard/profile'
@@ -363,8 +402,10 @@ export const routeTree = rootRoute.addChildren({
     AuthenticatedRegistrationCreateAccountRoute,
   }),
   ErrorRoute,
-  OidcCallbackRoute,
   RegistrationRoute,
+  OidcCallbackStaffRoute,
+  ProponentRoute: ProponentRoute.addChildren({}),
+  OidcCallbackIndexRoute,
 })
 
 /* prettier-ignore-end */
@@ -378,8 +419,10 @@ export const routeTree = rootRoute.addChildren({
         "/",
         "/_authenticated",
         "/error",
-        "/oidc-callback",
-        "/registration"
+        "/registration",
+        "/oidc-callback/staff",
+        "/proponent",
+        "/oidc-callback/"
       ]
     },
     "/": {
@@ -397,9 +440,6 @@ export const routeTree = rootRoute.addChildren({
     "/error": {
       "filePath": "error.tsx"
     },
-    "/oidc-callback": {
-      "filePath": "oidc-callback.tsx"
-    },
     "/registration": {
       "filePath": "registration.tsx"
     },
@@ -416,6 +456,22 @@ export const routeTree = rootRoute.addChildren({
     "/_authenticated/admin-login": {
       "filePath": "_authenticated/admin-login.tsx",
       "parent": "/_authenticated"
+    },
+    "/oidc-callback/staff": {
+      "filePath": "oidc-callback/staff.tsx"
+    },
+    "/proponent": {
+      "filePath": "proponent",
+      "children": [
+        "/proponent/_proponentLayout"
+      ]
+    },
+    "/proponent/_proponentLayout": {
+      "filePath": "proponent/_proponentLayout.tsx",
+      "parent": "/proponent"
+    },
+    "/oidc-callback/": {
+      "filePath": "oidc-callback/index.tsx"
     },
     "/_authenticated/_dashboard/profile": {
       "filePath": "_authenticated/_dashboard/profile.tsx",
