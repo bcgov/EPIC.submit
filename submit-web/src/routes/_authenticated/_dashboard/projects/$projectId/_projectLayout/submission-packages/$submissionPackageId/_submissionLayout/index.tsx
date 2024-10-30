@@ -192,7 +192,7 @@ export default function SubmissionPage() {
                   loading={isSubmittingPackage}
                   disabled={isPackageSubmitted}
                 >
-                  Submit
+                  Submit to EAO
                 </Button>
               </Box>
             </Box>
