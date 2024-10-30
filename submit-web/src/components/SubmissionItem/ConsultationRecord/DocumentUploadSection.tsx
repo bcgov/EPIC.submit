@@ -12,6 +12,7 @@ import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledF
 import { CONSULTATION_RECORD_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
+import DocumentTable from "@/components/DocumentUpload/DocumentTable";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId } = useParams({
@@ -35,7 +36,7 @@ export const DocumentUploadSection = () => {
   const handleOnDrop = (acceptedFiles: File[]) => {
     handleAddDocuments(
       acceptedFiles[0],
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
+      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS
     );
   };
 
@@ -45,17 +46,17 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
+    (submission) => submission.id
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
+      !documentSubmissionIds?.includes(document.submissionId)
   );
 
   return (
@@ -108,31 +109,13 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
-      </Grid>
-      <When condition={Boolean(documentSubmissions?.length)}>
-        <Grid
-          container
-          item
-          xs={12}
-          sx={{ mb: BCDesignTokens.layoutMarginXlarge }}
-        >
-          {documentSubmissions?.map((docSub) => (
-            <DocumentContainer
-              key={docSub.id}
-              document={docSub.submitted_document}
-            />
-          ))}
-        </Grid>
-      </When>
-      <Grid
-        container
-        item
-        xs={12}
-        sx={{ mb: BCDesignTokens.layoutMarginXlarge }}
-      >
-        {pendingDocuments.map((document) => (
-          <DocumentToUploadContainer key={document.id} document={document} />
-        ))}
+        <Box my={BCDesignTokens.layoutMarginLarge}>
+          <DocumentTable
+            documents={documentSubmissions}
+            pendingDocuments={pendingDocuments}
+            header={"Consultation Record(s)"}
+          />
+        </Box>
       </Grid>
     </Grid>
   );

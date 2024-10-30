@@ -39,7 +39,7 @@ export default function DocumentTable({
     setOrderBy(property);
   };
 
-  const sortedSubmissionItems = documents.map((document) => ({
+  const sortedSubmissionItems = documents?.map((document) => ({
     id: document.id,
     name: document.submitted_document.name,
     submitted_by: document.account_user.full_name,
@@ -47,7 +47,7 @@ export default function DocumentTable({
     url: document.submitted_document.url,
   }));
 
-  const pendingItems = pendingDocuments.map((document) => ({
+  const pendingItems = pendingDocuments?.map((document) => ({
     id: document.id,
     name: document.file.name,
   }));
