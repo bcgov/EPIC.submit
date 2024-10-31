@@ -20,7 +20,7 @@ export const DocumentUploadSection = () => {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
     "item",
-    submissionItemId,
+    Number(submissionItemId),
   ]);
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
