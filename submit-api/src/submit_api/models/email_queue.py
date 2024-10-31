@@ -1,5 +1,9 @@
 """Email queue model."""
 from datetime import datetime
+from __future__ import annotations
+
+from typing import List
+
 from sqlalchemy import Column, Integer, String, DateTime
 
 from .base_model import BaseModel
@@ -30,4 +34,11 @@ class EmailQueue(BaseModel):
         """
         return cls.query.filter_by(status='PENDING').all()
 
-    
+    @classmethod
+    def find_all(cls) -> List[EmailQueue]:
+        """Find all entries in the email queue.
+
+        Returns:
+            list[EmailQueue]: List of all email queue entries.
+        """
+        return cls.query.all()

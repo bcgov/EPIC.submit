@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from submit_api.models.account import  Account
+from submit_api.models.email_queue import  EmailQueue
 
 
 class EmailService:  # pylint: disable=too-few-public-methods
@@ -8,6 +8,6 @@ class EmailService:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _send_email():
-        print('Starting Email Att**new*******------------------------', datetime.now())
-        mails = Account.find_all()
+        print('Starting Email Sending At ', datetime.now())
+        mails = EmailQueue.find_all()
         print('mails', mails)
