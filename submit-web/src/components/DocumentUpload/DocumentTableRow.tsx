@@ -37,7 +37,7 @@ export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   })
 );
 
-export const StyledHeadTableRow = styled(TableRow)<{ error?: boolean }>(
+export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
   ({ error }) => ({
     backgroundColor: error
       ? BCDesignTokens.supportSurfaceColorDanger

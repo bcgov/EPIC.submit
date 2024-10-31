@@ -16,7 +16,7 @@ import { StyledTableHeadCell } from "../Shared/Table/common";
 import { Submission } from "@/models/Submission";
 import DocumentTableRow, {
   StyledHeadTableCell,
-  StyledHeadTableRow,
+  DocumentHeadTableRow,
 } from "./DocumentTableRow";
 import { Document } from "@/store/documentUploadStore";
 import PendingDocumentRow from "./PendingDocumentRow";
@@ -94,7 +94,7 @@ export default function DocumentTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          <StyledHeadTableRow>
+          <DocumentHeadTableRow>
             <StyledHeadTableCell colSpan={5}>
               <Typography
                 variant="h6"
@@ -105,7 +105,7 @@ export default function DocumentTable({
                 {header}
               </Typography>
             </StyledHeadTableCell>
-          </StyledHeadTableRow>
+          </DocumentHeadTableRow>
           {sortedSubmissionItems?.map((document) => (
             <DocumentTableRow
               key={`custom-row-${document.name}`}
