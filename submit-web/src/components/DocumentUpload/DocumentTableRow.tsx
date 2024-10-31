@@ -48,7 +48,7 @@ export const StyledHeadTableRow = styled(TableRow)<{ error?: boolean }>(
   })
 );
 
-export const StyledTableCell = styled(TableCell)(() => ({
+export const DocumentTableCell = styled(TableCell)(() => ({
   borderTop: `1px solid ${BCDesignTokens.themeBlue20}`,
   borderBottom: `1px solid ${BCDesignTokens.themeBlue20}`,
   padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
@@ -127,43 +127,41 @@ export default function DocumentTableRow({
   };
 
   return (
-    <>
-      <PackageTableRow key={`row-${documentItem.name}`} error={error}>
-        <StyledTableCell colSpan={2}>
-          <Typography
-            variant="body1"
-            color="inherit"
-            sx={{
-              overflow: "clip",
-              textOverflow: "ellipsis",
+    <PackageTableRow key={`row-${documentItem.name}`} error={error}>
+      <DocumentTableCell colSpan={2}>
+        <Typography
+          variant="body1"
+          color="inherit"
+          sx={{
+            overflow: "clip",
+            textOverflow: "ellipsis",
+            cursor: "pointer",
+            mx: 0.5,
+            textDecoration: "none",
+          }}
+        >
+          <MuiLink onClick={getObjectFromS3} sx={{ textDecoration: "none" }}>
+            {name}
+          </MuiLink>
+        </Typography>
+      </DocumentTableCell>
+      <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>
+      <DocumentTableCell align="right">{version}</DocumentTableCell>
+      <DocumentTableCell align="center">
+        <Typography
+          variant="body2"
+          sx={{
+            color: BCDesignTokens.typographyColorLink,
+            "&:hover": {
               cursor: "pointer",
-              mx: 0.5,
-              textDecoration: "none",
-            }}
-          >
-            <MuiLink onClick={getObjectFromS3} sx={{ textDecoration: "none" }}>
-              {name}
-            </MuiLink>
-          </Typography>
-        </StyledTableCell>
-        <StyledTableCell align="right">{submitted_by}</StyledTableCell>
-        <StyledTableCell align="right">{version}</StyledTableCell>
-        <StyledTableCell align="center">
-          <Typography
-            variant="body2"
-            sx={{
-              color: BCDesignTokens.typographyColorLink,
-              "&:hover": {
-                cursor: "pointer",
-                textDecoration: "underline",
-              },
-            }}
-            onClick={onActionClick}
-          >
-            Remove
-          </Typography>
-        </StyledTableCell>
-      </PackageTableRow>
-    </>
+              textDecoration: "underline",
+            },
+          }}
+          onClick={onActionClick}
+        >
+          Remove
+        </Typography>
+      </DocumentTableCell>
+    </PackageTableRow>
   );
 }
