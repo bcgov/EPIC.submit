@@ -1,6 +1,8 @@
 """Email queue model."""
-from datetime import datetime
 from __future__ import annotations
+
+from datetime import datetime
+
 
 from typing import List
 
