@@ -33,11 +33,8 @@ class Submission(BaseModel):
     submitted_form = db.relationship('SubmittedForm', foreign_keys=[submitted_form_id], lazy='joined')
     submitted_document = db.relationship('SubmittedDocument', foreign_keys=[submitted_document_id], lazy='joined')
     version = Column(db.Integer, nullable=False, default=1)
-    user = db.relationship(
-        'User',
-        primaryjoin="foreign(Submission.created_by) == User.auth_guid",
-        lazy='joined'
-    )
+    created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
+    submitted_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
 
     Index('idx_submissions_type_item_id', type, item_id)
 

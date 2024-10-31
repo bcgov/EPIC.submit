@@ -98,13 +98,14 @@ export default function SubmissionPage() {
     PACKAGE_STATUS.SUBMITTED.value,
   );
 
+  console.log(accountProject?.project?.ea_certificate);
   return (
     <PageGrid>
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project?.name}
           label={
-            accountProject?.project.ea_certificate
+            accountProject?.project?.ea_certificate
               ? `EAC #${accountProject?.project?.ea_certificate}`
               : ""
           }

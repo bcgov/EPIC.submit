@@ -39,7 +39,7 @@ export default function SubmissionLayout() {
     projectId: accountProjectIdParam,
     submissionPackageId: submissionPackageIdParam,
   } = useParams({
-    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
   });
   const accountProjectId = Number(accountProjectIdParam);
   const accountProject = queryClient.getQueryData([

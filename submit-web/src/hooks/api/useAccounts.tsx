@@ -70,5 +70,11 @@ export const getUserByGuidQueryOptions = ({ guid }: GetUserByGuidOptions) =>
     ...defaultUseQueryOptions,
   });
 export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
-  return useQuery(getUserByGuidQueryOptions({ guid }));
+  return useQuery({
+    queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
+    queryFn: () => getUserByGuid(guid),
+    enabled: Boolean(guid),
+    retry: false,
+    ...defaultUseQueryOptions,
+  });
 };

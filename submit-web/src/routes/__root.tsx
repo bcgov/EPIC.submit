@@ -2,7 +2,11 @@ import EAOAppBar from "@/components/Shared/layout/Header/EAOAppBar";
 import Footer from "@/components/Shared/layout/Footer";
 import PageNotFound from "@/components/Shared/PageNotFound";
 import { Box } from "@mui/system";
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import {
+  CatchBoundary,
+  createRootRouteWithContext,
+  Outlet,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthContextProps } from "react-oidc-context";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -21,7 +25,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function Layout() {
   return (
-    <>
+    <CatchBoundary
+      getResetKey={() => "reset"}
+      onCatch={(error) => console.log("boundary error", error)}
+    >
       <EAOAppBar />
       <DrawerProvider />
       <Box minHeight={"calc(100vh - 88px)"}>
@@ -30,6 +37,6 @@ function Layout() {
       <Footer />
       <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools initialIsOpen={false} />
-    </>
+    </CatchBoundary>
   );
 }

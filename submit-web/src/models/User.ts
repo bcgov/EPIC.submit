@@ -1,9 +1,13 @@
+import { AccountUser } from "./AccountUser";
+
+export type UserType = "PROPONENT" | "STAFF";
+export const USER_TYPE = Object.freeze<Record<UserType, UserType>>({
+  PROPONENT: "PROPONENT",
+  STAFF: "STAFF",
+});
 export interface User {
   id: number;
-  first_name: string;
-  last_name: string;
-  username: string;
-  email_address: string;
-  contact_number: string;
-  description: string;
+  auth_guid: string;
+  account_user: AccountUser;
+  type: UserType;
 }

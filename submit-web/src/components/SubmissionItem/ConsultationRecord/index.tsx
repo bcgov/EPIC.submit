@@ -230,7 +230,10 @@ export const ConsultationRecord = () => {
     <Grid item xs={12}>
       <ContentBox
         mainLabel={"Copper Mine"}
-        label={`EAC #${accountProject?.project.ea_certificate}`}
+        label={
+          accountProject?.project.ea_certificate &&
+          `EAC #${accountProject?.project.ea_certificate}`
+        }
       >
         <Box
           sx={{

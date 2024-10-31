@@ -1,6 +1,5 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
-import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useGetUserByGuid } from "@/hooks/api/useAccounts";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
@@ -28,13 +27,12 @@ function OidcCallback() {
     }
   }, [kcUser, setIsAuthLoading]);
 
-  const { data: userData, isLoading: isUserDataLoading } = useSuspenseQuery(
-    getUserByGuidQueryOptions({
-      guid: kcUser?.profile.sub,
-    }),
-  );
+  const { data: userData, isLoading: isUserDataLoading } = useGetUserByGuid({
+    guid: kcUser?.profile.sub,
+  });
 
   if (getAuthError) {
+    console.log("auth error", getAuthError);
     return <Navigate to="/error" />;
   }
 
