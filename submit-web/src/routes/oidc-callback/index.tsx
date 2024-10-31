@@ -32,11 +32,8 @@ function OidcCallback() {
   });
 
   if (getAuthError) {
-    console.log("auth error", getAuthError);
     return <Navigate to="/error" />;
   }
-
-  console.log(userData);
 
   if (userData?.account_user.account_id) {
     return <Navigate to="/projects" />;

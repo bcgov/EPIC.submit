@@ -1,6 +1,7 @@
 import { OnErrorType, submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
+import { User } from "@/models/User";
 
 type CreateAccountRequest = {
   first_name: string;
@@ -23,28 +24,8 @@ const createAccount = (account: CreateAccountRequest) => {
   });
 };
 
-type GetUserResponse = {
-  id: number;
-  auth_guid: string;
-  type: string;
-  account_user: {
-    first_name: string;
-    last_name: string;
-    position: string;
-    work_contact_number: string;
-    work_email_address: string;
-    created_at: string;
-    updated_at: string;
-    account_id: number;
-    account: {
-      id: number;
-      proponent_id: number;
-    };
-  };
-};
 const getUserByGuid = (guid?: string) => {
-  console.log("guid", guid);
-  return submitRequest<GetUserResponse>({ url: `/users/guid/${guid}` });
+  return submitRequest<User>({ url: `/users/guid/${guid}` });
 };
 
 type CreateAccountOptions = {

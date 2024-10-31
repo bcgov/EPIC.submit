@@ -98,7 +98,6 @@ export default function SubmissionPage() {
     PACKAGE_STATUS.SUBMITTED.value,
   );
 
-  console.log(accountProject?.project?.ea_certificate);
   return (
     <PageGrid>
       <Grid item xs={12}>

@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as RegistrationImport } from './routes/registration'
+import { Route as NotFoundImport } from './routes/not-found'
 import { Route as ErrorImport } from './routes/error'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
@@ -56,6 +57,11 @@ const ProponentRoute = ProponentImport.update({
 
 const RegistrationRoute = RegistrationImport.update({
   path: '/registration',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const NotFoundRoute = NotFoundImport.update({
+  path: '/not-found',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -220,6 +226,13 @@ declare module '@tanstack/react-router' {
       path: '/error'
       fullPath: '/error'
       preLoaderRoute: typeof ErrorImport
+      parentRoute: typeof rootRoute
+    }
+    '/not-found': {
+      id: '/not-found'
+      path: '/not-found'
+      fullPath: '/not-found'
+      preLoaderRoute: typeof NotFoundImport
       parentRoute: typeof rootRoute
     }
     '/registration': {
@@ -402,6 +415,7 @@ export const routeTree = rootRoute.addChildren({
     AuthenticatedRegistrationCreateAccountRoute,
   }),
   ErrorRoute,
+  NotFoundRoute,
   RegistrationRoute,
   OidcCallbackStaffRoute,
   ProponentRoute: ProponentRoute.addChildren({}),
@@ -419,6 +433,7 @@ export const routeTree = rootRoute.addChildren({
         "/",
         "/_authenticated",
         "/error",
+        "/not-found",
         "/registration",
         "/oidc-callback/staff",
         "/proponent",
@@ -439,6 +454,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/error": {
       "filePath": "error.tsx"
+    },
+    "/not-found": {
+      "filePath": "not-found.tsx"
     },
     "/registration": {
       "filePath": "registration.tsx"

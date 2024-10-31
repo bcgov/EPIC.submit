@@ -1,5 +1,3 @@
-import { User } from "./User";
-
 export type SubmissionStatus =
   | "NEW_SUBMISSION"
   | "COMPLETED"

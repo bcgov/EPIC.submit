@@ -1,5 +1,6 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useGetUserByGuid } from "@/hooks/api/useAccounts";
+import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -48,7 +49,11 @@ function Auth() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={"/not-found"} />;
+  }
+
+  if (userData?.type !== USER_TYPE.PROPONENT) {
+    return <Navigate to={"/error"} />;
   }
 
   return <Outlet />;
