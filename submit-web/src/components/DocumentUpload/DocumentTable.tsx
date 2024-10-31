@@ -49,11 +49,6 @@ export default function DocumentTable({
     url: document.submitted_document.url,
   }));
 
-  const pendingItems = pendingDocuments?.map((document) => ({
-    id: document.id,
-    name: document.file.name,
-  }));
-
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table sx={{ tableLayout: "fixed" }}>
@@ -117,9 +112,9 @@ export default function DocumentTable({
               documentItem={document}
             />
           ))}
-          {pendingItems?.map((document) => (
+          {pendingDocuments?.map((document) => (
             <PendingDocumentRow
-              key={`pending-row-${document.name}`}
+              key={`pending-row-${document.file.name}`}
               documentItem={document}
             />
           ))}
