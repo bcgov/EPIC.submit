@@ -23,6 +23,7 @@ from .db import db, ma, migrate
 from .item import Item
 from .item_type import ItemType
 from .package import Package
+from .package_metadata import PackageMetadata
 from .package_item_type import PackageItemType
 from .package_type import PackageType
 from .project import Project
