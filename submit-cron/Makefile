@@ -1,24 +1,18 @@
 .PHONY: license
 .PHONY: setup
 .PHONY: ci cd
-.PHONY: db run
+.PHONY: run
 
 MKFILE_PATH:=$(abspath $(lastword $(MAKEFILE_LIST)))
 CURRENT_ABS_DIR:=$(patsubst %/,%,$(dir $(MKFILE_PATH)))
 
-PROJECT_NAME:=submit_api
-DOCKER_NAME:=submit_api
-
-#################################################################################
-# COMMANDS -- license                                                           #
-#################################################################################
-license: ## Verify source code license headers.
-	./scripts/verify_license_headers.sh $(CURRENT_ABS_DIR)/src $(CURRENT_ABS_DIR)/tests
+PROJECT_NAME:=submit-cron
+DOCKER_NAME:=submit-cron
 
 #################################################################################
 # COMMANDS -- Setup                                                             #
 #################################################################################
-setup: clean install install-dev ## Setup the project
+setup: install install-dev ## Setup the project
 
 clean: clean-build clean-pyc clean-test ## Clean the project
 	rm -rf venv/
@@ -42,25 +36,19 @@ clean-test: ## clean test files
 	rm -f .coverage
 	rm -fr htmlcov/
 
-build-req: clean ## Upgrade requirements
-	test -f venv/bin/activate || python3.9 -m venv  $(CURRENT_ABS_DIR)/venv ;\
+install: clean ## Install python virtrual environment
+	test -f venv/bin/activate || python3 -m venv  $(CURRENT_ABS_DIR)/venv
 	. venv/bin/activate ;\
 	pip install --upgrade pip ;\
 	pip install -Ur requirements/prod.txt ;\
 	pip freeze | sort > requirements.txt ;\
 	cat requirements/repo-libraries.txt >> requirements.txt ;\
-	pip install -Ur requirements/repo-libraries.txt
-
-install: clean ## Install python virtrual environment
-	test -f venv/bin/activate || python3.9 -m venv  $(CURRENT_ABS_DIR)/venv ;\
-	. venv/bin/activate ;\
-	pip install --upgrade pip ;\
-	pip install -Ur requirements.txt
+	pip install -Ur requirements/repo-libraries.txt ;\
+	pip install -Ur requirements/dev.txt  ;\
+	touch venv/bin/activate  # update so it's as new as requirements/prod.txt
 
 install-dev: ## Install local application
-	. venv/bin/activate ; \
-	pip install -Ur requirements/dev.txt; \
-	pip install -e .
+	. venv/bin/activate && pip install -e .
 
 #################################################################################
 # COMMANDS - CI                                                                 #
@@ -68,21 +56,18 @@ install-dev: ## Install local application
 ci: lint flake8 test ## CI flow
 
 pylint: ## Linting with pylint
-	. venv/bin/activate && pylint --rcfile=setup.cfg  src/$(PROJECT_NAME)
+	. venv/bin/activate && pylint --rcfile=setup.cfg  tasks
 
 flake8: ## Linting with flake8
-	. venv/bin/activate && flake8 --extend-ignore=Q000,D400,D401,I005,W503 src/$(PROJECT_NAME) tests
-
-lintfix: ## Linting fix
-	. venv/bin/activate && autopep8 -i -a src/**/*.py tests/**/*.py
+	. venv/bin/activate && flake8 tasks tests
 
 lint: pylint flake8 ## run all lint type scripts
 
 test: ## Unit testing
 	. venv/bin/activate && pytest
 
-mac-cov: local-test ## Run the coverage report and display in a browser window (mac)
-	open -a "Google Chrome" htmlcov/index.html
+mac-cov: test ## Run the coverage report and display in a browser window (mac)
+	@open -a "Google Chrome" htmlcov/index.html
 
 #################################################################################
 # COMMANDS - CD
@@ -138,17 +123,23 @@ tag: push ## tag image
 #################################################################################
 # COMMANDS - Local                                                              #
 #################################################################################
-run: db ## Run the project in local
-	. venv/bin/activate && python -m flask run -p 5000
+run: ## Run the project in local
+	./docker-entrypoint.sh
+
+run_etl: ## Run the etl task in local
+	. venv/bin/activate && python invoke_jobs.py EXTRACT_submit
+
+run_closeout: ## Run the closeout task in local
+	. venv/bin/activate && python invoke_jobs.py ENGAGEMENT_CLOSEOUT
+
+run_publish: ## Run the publish task in local
+	. venv/bin/activate && python invoke_jobs.py ENGAGEMENT_PUBLISH
+
+run_purge: ## Run the publish task in local
+	. venv/bin/activate && python invoke_jobs.py PURGE
 
 db: ## Update the local database
-	. venv/bin/activate && flask db upgrade
-
-db-downgrade: ## Update the local database to the previous migration
-	. venv/bin/activate && flask db downgrade
-
-db-migrate: ## Create a new migration
-	. venv/bin/activate && flask db migrate -m "$(message)"
+	. venv/bin/activate && python manage.py db upgrade
 
 #################################################################################
 # Self Documenting Commands                                                     #
