@@ -8,6 +8,6 @@ class EmailService:  # pylint: disable=too-few-public-methods
 
     @staticmethod
     def _send_email():
-        print('Starting Email Att*********------------------------', datetime.now())
-        mails = Account.find_by_id(1)
+        print('Starting Email Att**new*******------------------------', datetime.now())
+        mails = Account.find_all()
         print('mails', mails)
