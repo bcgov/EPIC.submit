@@ -49,6 +49,7 @@ class User(Resource):
     def get(guid):
         """Fetch an account by id."""
         user = UserService.get_by_auth_guid(guid)
+        print(UserSchema().dump(user))
         if not user:
             return ResourceNotFoundError(f"User with guid {guid} not found")
         return UserSchema().dump(user), HTTPStatus.OK

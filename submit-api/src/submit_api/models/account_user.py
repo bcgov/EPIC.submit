@@ -7,6 +7,7 @@ from __future__ import annotations
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import column_property
 
+from .user import User as UserModel
 from .base_model import BaseModel
 from .db import db
 
@@ -51,5 +52,5 @@ class AccountUser(BaseModel):
     @classmethod
     def get_by_guid(cls, _guid):
         """Get account user by guid."""
-        account_user = cls.query.join(cls.user).filter(cls.user.auth_guid == _guid).first()
+        account_user = cls.query.join(UserModel).filter(UserModel.auth_guid == _guid).first()
         return account_user

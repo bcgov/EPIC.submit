@@ -26,7 +26,7 @@ class User(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     auth_guid = Column(db.String(), nullable=False, unique=True)
     type = Column(Enum(UserType), nullable=False)
-    account_user = db.relationship('AccountUser', back_populates='user')
+    account_user = db.relationship('AccountUser', uselist=False, back_populates='user')
 
     __table_args__ = (
         Index('ix_users_auth_guid', 'auth_guid', unique=True),
@@ -49,5 +49,4 @@ class User(BaseModel):
     @classmethod
     def get_by_guid(cls, _guid):
         """Get user by guid."""
-        user = cls.query.filter(cls.auth_guid == _guid).first()
-        return user
+        return cls.query.filter(cls.auth_guid == _guid).first()

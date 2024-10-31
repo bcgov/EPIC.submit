@@ -33,9 +33,9 @@ class Submission(BaseModel):
     submitted_form = db.relationship('SubmittedForm', foreign_keys=[submitted_form_id], lazy='joined')
     submitted_document = db.relationship('SubmittedDocument', foreign_keys=[submitted_document_id], lazy='joined')
     version = Column(db.Integer, nullable=False, default=1)
-    account_user = db.relationship(
-        'AccountUser',
-        primaryjoin="foreign(Submission.created_by) == AccountUser.auth_guid",
+    user = db.relationship(
+        'User',
+        primaryjoin="foreign(Submission.created_by) == User.auth_guid",
         lazy='joined'
     )
 

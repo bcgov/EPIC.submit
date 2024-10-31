@@ -16,10 +16,9 @@ function Auth() {
     isLoading: isUserAuthLoading,
     user,
   } = useAuth();
-  const { data: userAccountData, isPending: isUserAccountLoading } =
-    useGetUserByGuid({
-      guid: user?.profile.sub,
-    });
+  const { data: userData, isPending: isUserAccountLoading } = useGetUserByGuid({
+    guid: user?.profile.sub,
+  });
   const { setAccount } = useAccount();
 
   const isLoading = isUserAuthLoading || isUserAccountLoading;
@@ -31,8 +30,8 @@ function Auth() {
     if (isAuthenticated && !isLoading) {
       setAccount({
         isLoading: false,
-        proponentId: userAccountData?.account.proponent_id,
-        accountId: userAccountData?.account.id,
+        proponentId: userData?.account_user.account.proponent_id,
+        accountId: userData?.account_user.account.id,
       });
     }
   }, [
@@ -40,7 +39,7 @@ function Auth() {
     isUserAuthLoading,
     signinRedirect,
     setAccount,
-    userAccountData,
+    userData,
     isLoading,
   ]);
 

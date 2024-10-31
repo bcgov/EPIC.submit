@@ -37,9 +37,9 @@ class Package(BaseModel):
     type = db.relationship('PackageType', foreign_keys=[type_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String(255), nullable=True)
-    submitted_by_account_user = db.relationship(
-        'AccountUser',
-        primaryjoin="foreign(Package.submitted_by) == AccountUser.auth_guid",
+    submitted_by_user = db.relationship(
+        'User',
+        primaryjoin="foreign(Package.submitted_by) == User.auth_guid",
         lazy='joined'
     )
     meta = db.relationship('PackageMetadata', backref='package', lazy='select')

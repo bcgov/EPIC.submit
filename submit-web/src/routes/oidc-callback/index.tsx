@@ -38,7 +38,9 @@ function OidcCallback() {
     return <Navigate to="/error" />;
   }
 
-  if (userData?.account_id) {
+  console.log(userData);
+
+  if (userData?.account_user.account_id) {
     return <Navigate to="/projects" />;
   }
 

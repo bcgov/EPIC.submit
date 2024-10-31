@@ -25,21 +25,25 @@ const createAccount = (account: CreateAccountRequest) => {
 
 type GetUserResponse = {
   id: number;
-  first_name: string;
-  last_name: string;
-  position: string;
-  work_contact_number: string;
-  work_email_address: string;
   auth_guid: string;
-  created_at: string;
-  updated_at: string;
-  account_id: number;
-  account: {
-    id: number;
-    proponent_id: number;
+  type: string;
+  account_user: {
+    first_name: string;
+    last_name: string;
+    position: string;
+    work_contact_number: string;
+    work_email_address: string;
+    created_at: string;
+    updated_at: string;
+    account_id: number;
+    account: {
+      id: number;
+      proponent_id: number;
+    };
   };
 };
 const getUserByGuid = (guid?: string) => {
+  console.log("guid", guid);
   return submitRequest<GetUserResponse>({ url: `/users/guid/${guid}` });
 };
 
