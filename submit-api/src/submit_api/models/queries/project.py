@@ -39,7 +39,7 @@ class ProjectQueries:
         ).join(AccountProject.project)
 
         # Apply search filters if provided
-        if search_options:
+        if search_options and any(bool(search_option) for search_option in search_options.__dict__.values()):
             query = cls.filter_by_search_criteria(query, search_options)
 
         return query.all()
