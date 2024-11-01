@@ -18,7 +18,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/new-submission",
+  "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/new-submission",
 )({
   component: NewManagementPlan,
   meta: () => [{ title: "New Submission Package" }],
@@ -41,7 +41,7 @@ export function NewManagementPlan() {
   const onCreateSuccess = (createdSubmissionPackage: SubmissionPackage) => {
     notify.success("Submission package created successfully");
     navigate({
-      to: `/projects/${projectId}/submission-packages/${createdSubmissionPackage.id}`,
+      to: `/proponent/projects/${projectId}/submission-packages/${createdSubmissionPackage.id}`,
     });
   };
   const {

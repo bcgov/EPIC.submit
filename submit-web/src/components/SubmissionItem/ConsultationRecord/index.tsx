@@ -66,7 +66,7 @@ export const ConsultationRecord = () => {
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
-    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   const accountProjectId = Number(accountProjectIdParam);
   const { data: accountProject } = useGetAccountProject({
@@ -153,7 +153,7 @@ export const ConsultationRecord = () => {
     notify.success("Submission saved successfully");
 
     navigate({
-      to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+      to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
   const { mutate: callSaveSubmission, isPending: isCreatingSubmissionPending } =
@@ -208,7 +208,7 @@ export const ConsultationRecord = () => {
   const saveAndClose = () => {
     if (!Object.keys(dirtyFields).length) {
       navigate({
-        to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+        to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
       });
       return;
     }

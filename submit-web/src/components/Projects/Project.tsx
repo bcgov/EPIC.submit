@@ -44,12 +44,12 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const { name, ea_certificate } = accountProject.project;
 
   const handleNewSubmission = () => {
-    navigate({ to: `/projects/${accountProject.id}/new-submission` });
+    navigate({ to: `/proponent/projects/${accountProject.id}/new-submission` });
   };
 
   const handleOnSubmissionClick = (submissionPackageId: number) => {
     navigate({
-      to: `/projects/${accountProject.id}/submission-packages/${submissionPackageId}`,
+      to: `/proponent/projects/${accountProject.id}/submission-packages/${submissionPackageId}`,
     });
   };
 

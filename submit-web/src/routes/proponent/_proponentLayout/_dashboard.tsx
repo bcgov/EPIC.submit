@@ -4,7 +4,7 @@ import { useIsMobile } from "@/hooks/common";
 import { Box } from "@mui/material";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authenticated/_dashboard")({
+export const Route = createFileRoute("/proponent/_proponentLayout/_dashboard")({
   component: DashboardLayout,
 });
 

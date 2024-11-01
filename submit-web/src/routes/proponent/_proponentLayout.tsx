@@ -6,11 +6,11 @@ import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
-export const Route = createFileRoute("/_authenticated")({
-  component: Auth,
+export const Route = createFileRoute("/proponent/_proponentLayout")({
+  component: ProponentLayout,
 });
 
-function Auth() {
+function ProponentLayout() {
   const {
     isAuthenticated,
     signinRedirect,
@@ -48,12 +48,8 @@ function Auth() {
     return <PageLoader />;
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || userData?.type !== USER_TYPE.PROPONENT) {
     return <Navigate to={"/not-found"} />;
-  }
-
-  if (userData?.type !== USER_TYPE.PROPONENT) {
-    return <Navigate to={"/error"} />;
   }
 
   return <Outlet />;

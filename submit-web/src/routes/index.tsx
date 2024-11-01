@@ -28,7 +28,7 @@ function Index() {
         <Button
           variant="outlined"
           color="primary"
-          onClick={() => navigate({ to: "/projects" })}
+          onClick={() => navigate({ to: "/proponent/projects" })}
         >
           See Plans
         </Button>

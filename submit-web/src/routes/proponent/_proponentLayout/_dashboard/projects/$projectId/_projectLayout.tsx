@@ -10,7 +10,7 @@ import {
 } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout",
+  "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout",
 )({
   loader: ({ context: { queryClient }, params: { projectId } }) =>
     queryClient.ensureQueryData(

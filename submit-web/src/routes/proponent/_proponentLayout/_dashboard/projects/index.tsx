@@ -10,7 +10,7 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import ProjectFilters from "@/components/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/Filters/projectFilterStore";
 
-export const Route = createFileRoute("/_authenticated/_dashboard/projects/")({
+export const Route = createFileRoute("/proponent/_proponentLayout/_dashboard/projects/")({
   component: ProjectsPage,
   meta: () => [{ title: "All Projects" }],
 });

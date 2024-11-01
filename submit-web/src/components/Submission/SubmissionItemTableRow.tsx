@@ -58,7 +58,7 @@ const PackageTableRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      : child
+      : child,
   );
 
   return (
@@ -78,7 +78,7 @@ export default function SubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const navigate = useNavigate();
   const { projectId, submissionPackageId } = useParams({
-    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
   });
 
   const { name, id, submissions, has_document, status } = item;
@@ -87,7 +87,7 @@ export default function SubmissionItemTableRow({
 
   const onActionClick = () => {
     navigate({
-      to: `/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+      to: `/proponent/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
     });
   };
 

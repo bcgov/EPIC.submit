@@ -11,17 +11,18 @@ import { CONSULTATION_RECORD_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import DocumentTable from "@/components/DocumentUpload/DocumentTable";
+import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId } = useParams({
-    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
-  const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    "item",
-    Number(submissionItemId),
-  ]);
+  const submissionItem = queryClient.getQueryData<SubmissionItem>(
+    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) })
+      .queryKey,
+  );
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
 
@@ -34,7 +35,7 @@ export const DocumentUploadSection = () => {
   const handleOnDrop = (acceptedFiles: File[]) => {
     handleAddDocuments(
       acceptedFiles[0],
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS
+      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
     );
   };
 
@@ -44,17 +45,17 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id
+    (submission) => submission.id,
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId)
+      !documentSubmissionIds?.includes(document.submissionId),
   );
 
   return (
@@ -109,7 +110,7 @@ export const DocumentUploadSection = () => {
         </Typography>
         <When
           condition={Boolean(
-            documentSubmissions?.length || pendingDocuments?.length
+            documentSubmissions?.length || pendingDocuments?.length,
           )}
         >
           <Box my={BCDesignTokens.layoutMarginLarge}>
