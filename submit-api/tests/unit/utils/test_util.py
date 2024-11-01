@@ -21,7 +21,7 @@ from urllib.parse import unquote
 
 import pytest
 
-from submit_api.utils.util import camelback2snake, escape_wam_friendly_url, snake2camelback
+from compliance_api.utils.util import camelback2snake, escape_wam_friendly_url, snake2camelback
 
 
 TEST_CAMEL_DATA = {'loginSource': 'PASSCODE', 'userName': 'test name', 'realmAccess': {

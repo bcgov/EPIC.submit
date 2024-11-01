@@ -18,7 +18,7 @@ Test Utility for creating test scenarios.
 
 from faker import Faker
 
-from submit_api.config import get_named_config
+from compliance_api.config import get_named_config
 
 
 fake = Faker()

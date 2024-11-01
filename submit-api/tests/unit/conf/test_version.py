@@ -16,8 +16,8 @@
 
 Test-Suite to ensure that the version utilities are working as expected.
 """
-from submit_api.utils import run_version
-from submit_api.version import __version__
+from compliance_api.utils import run_version
+from compliance_api.version import __version__
 
 
 def test_get_version():

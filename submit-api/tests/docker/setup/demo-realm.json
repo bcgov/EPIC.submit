@@ -279,8 +279,8 @@
           "containerId": "9e254d9e-9aa8-4357-b86e-4762544c8dce"
         }
       ],
-      "submit-web": [],
-      "submit-admin": []
+      "compliance-web": [],
+      "compliance-admin": []
     }
   },
   "groups": [
@@ -383,7 +383,7 @@
       }
     },
     {
-      "clientId": "submit-web",
+      "clientId": "compliance-web",
       "rootUrl": "http://localhost:8080/*",
       "adminUrl": "/",
       "baseUrl": "/*",
@@ -548,7 +548,7 @@
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "submit-web",
+            "included.client.audience": "compliance-web",
             "id.token.claim": "false",
             "access.token.claim": "true",
             "userinfo.token.claim": "false"
@@ -569,7 +569,7 @@
       }
     },
     {
-      "clientId": "submit-admin",
+      "clientId": "compliance-admin",
       "surrogateAuthRequired": false,
       "enabled": true,
       "clientAuthenticatorType": "client-secret",
@@ -623,7 +623,7 @@
           "protocolMapper": "oidc-audience-mapper",
           "consentRequired": false,
           "config": {
-            "included.client.audience": "submit-web",
+            "included.client.audience": "compliance-web",
             "id.token.claim": "false",
             "access.token.claim": "true"
           }
@@ -634,7 +634,7 @@
           "protocolMapper": "oidc-hardcoded-claim-mapper",
           "consentRequired": false,
           "config": {
-            "claim.value": "submit-admin",
+            "claim.value": "compliance-admin",
             "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
@@ -740,7 +740,7 @@
           "protocolMapper": "oidc-hardcoded-claim-mapper",
           "consentRequired": false,
           "config": {
-            "claim.value": "submit",
+            "claim.value": "compliance",
             "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
@@ -824,12 +824,12 @@
       ]
     },
     {
-      "username": "service-account-submit-admin",
+      "username": "service-account-compliance-admin",
       "enabled": true,
       "totp": false,
       "emailVerified": false,
-      "email": "service-account-submit-admin@placeholder.org",
-      "serviceAccountClientId": "submit-admin",
+      "email": "service-account-compliance-admin@placeholder.org",
+      "serviceAccountClientId": "compliance-admin",
       "credentials": [],
       "disableableCredentialTypes": [],
       "requiredActions": [],

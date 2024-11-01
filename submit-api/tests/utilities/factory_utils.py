@@ -15,22 +15,38 @@
 
 Test Utility for creating model factory.
 """
+import random
+import string
+
 from faker import Faker
 from flask import g
 
-from submit_api.config import get_named_config
+from compliance_api.config import get_named_config
 
 
-CONFIG = get_named_config('testing')
+CONFIG = get_named_config("testing")
 fake = Faker()
 
 JWT_HEADER = {
-    'alg': CONFIG.JWT_OIDC_TEST_ALGORITHMS,
-    'typ': 'JWT',
-    'kid': CONFIG.JWT_OIDC_TEST_AUDIENCE
+    "alg": CONFIG.JWT_OIDC_TEST_ALGORITHMS,
+    "typ": "JWT",
+    "kid": CONFIG.JWT_OIDC_TEST_AUDIENCE,
 }
 
 
 def set_global_tenant(tenant_id=1):
     """Set the global tenant id."""
     g.tenant_id = tenant_id
+
+
+def factory_auth_header(jwt, claims):
+    """Produce JWT tokens for use in tests."""
+    return {
+        "Authorization": "Bearer " + jwt.create_jwt(claims=claims, header=JWT_HEADER)
+    }
+
+
+def generate_abbreviation(number_of_characters):
+    """Create abbreviation with given number of characters."""
+    # Create a random 4-letter abbreviation
+    return "".join(random.choices(string.ascii_uppercase, k=number_of_characters))
