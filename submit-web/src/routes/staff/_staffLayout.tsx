@@ -5,7 +5,7 @@ import { useAuth } from "react-oidc-context";
 
 const IDIR = "idir";
 
-export const Route = createFileRoute("/proponent/_proponentLayout")({
+export const Route = createFileRoute("/staff/_staffLayout")({
   component: Proponent,
 });
 
