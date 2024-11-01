@@ -6,7 +6,6 @@ Manages the engagement
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.models.package import PackageStatus
-from submit_api.schemas.account_user import AccountUserSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 
 
@@ -54,7 +53,9 @@ class AccountProjectPackageSchema(Schema):
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
-        obj.submitted_by = obj.submitted_by_user.account_user.full_name if obj.submitted_by_user and obj.submitted_by_user.account_user else None
+        """Get submitted by."""
+        obj.submitted_by = obj.submitted_by_user.account_user.full_name \
+            if obj.submitted_by_user and obj.submitted_by_user.account_user else None
         return obj
 
 

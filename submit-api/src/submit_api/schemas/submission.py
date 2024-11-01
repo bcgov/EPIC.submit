@@ -5,8 +5,6 @@ Manages the submission schema
 
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
-from submit_api.schemas.account_user import AccountUserSchema
-
 
 class SubmittedFormSchema(Schema):
     """submitted form schema."""

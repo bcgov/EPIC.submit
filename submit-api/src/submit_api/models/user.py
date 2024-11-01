@@ -14,6 +14,7 @@ from .db import db
 
 class UserType(enum.Enum):
     """Enum for user type."""
+
     PROPONENT = 'PROPONENT'
     STAFF = 'STAFF'
 

@@ -12,6 +12,7 @@ import { AuthContextProps } from "react-oidc-context";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DrawerProvider from "@/components/Shared/Drawers/DrawerProvider";
 import { QueryClient } from "@tanstack/react-query";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 type RouterContext = {
   authentication: AuthContextProps;
@@ -27,7 +28,7 @@ function Layout() {
   return (
     <CatchBoundary
       getResetKey={() => "reset"}
-      onCatch={(error) => console.log("boundary error", error)}
+      onCatch={(error) => notify.error(error.message)}
     >
       <EAOAppBar />
       <DrawerProvider />

@@ -7,10 +7,8 @@ from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionTypeStatus
-from submit_api.schemas.account_user import AccountUserSchema
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
-from submit_api.schemas.user import UserSchema
 
 
 class ItemSubmissionSchema(Schema):

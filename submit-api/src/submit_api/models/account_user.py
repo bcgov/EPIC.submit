@@ -7,9 +7,9 @@ from __future__ import annotations
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import column_property
 
-from .user import User as UserModel
 from .base_model import BaseModel
 from .db import db
+from .user import User as UserModel
 
 
 class AccountUser(BaseModel):
