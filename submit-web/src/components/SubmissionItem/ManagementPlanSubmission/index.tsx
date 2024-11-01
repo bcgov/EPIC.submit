@@ -27,6 +27,7 @@ import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 const managementPlanSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
@@ -65,12 +66,12 @@ export const ManagementPlanSubmission = () => {
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    "item",
+    QUERY_KEY.SUBMISSION_ITEM,
     Number(submissionItemId),
   ]);
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
   const defaultFormValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -78,22 +79,22 @@ export const ManagementPlanSubmission = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       conditionSatisfied: booleanToString(
-        formSubmission.submitted_form.submission_json.conditionSatisfied,
+        formSubmission.submitted_form.submission_json.conditionSatisfied
       ),
       allRequirementsAddressed: booleanToString(
-        formSubmission.submitted_form.submission_json.allRequirementsAddressed,
+        formSubmission.submitted_form.submission_json.allRequirementsAddressed
       ),
       requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear,
+        formSubmission.submitted_form.submission_json.requirementsClear
       ),
       informationAccurate: booleanToString(
-        formSubmission.submitted_form.submission_json.informationAccurate,
+        formSubmission.submitted_form.submission_json.informationAccurate
       ),
     };
   }, [formSubmission]);
 
   const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
@@ -103,14 +104,14 @@ export const ManagementPlanSubmission = () => {
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
         )
         .map((submission) => submission.submitted_document.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
         )
         .map((submission) => submission.submitted_document.url),
     };
@@ -161,7 +162,7 @@ export const ManagementPlanSubmission = () => {
 
   const saveSubmission = async (
     formData: ManagementPlanSubmissionForm,
-    status: SubmissionStatus,
+    status: SubmissionStatus
   ) => {
     const {
       conditionSatisfied,

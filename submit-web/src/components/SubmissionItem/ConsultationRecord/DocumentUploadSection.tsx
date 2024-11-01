@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useDocumentUploadStore } from "@/store/documentUploadStore";
-import DocumentContainer from "../ManagementPlanSubmission/DocumentContainer";
-import DocumentToUploadContainer from "../DocumentToUploadContainer";
 import { When } from "react-if";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -12,6 +10,7 @@ import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledF
 import { CONSULTATION_RECORD_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
+import DocumentTable from "@/components/DocumentUpload/DocumentTable";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId } = useParams({
@@ -21,7 +20,7 @@ export const DocumentUploadSection = () => {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
     "item",
-    submissionItemId,
+    Number(submissionItemId),
   ]);
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
@@ -35,7 +34,7 @@ export const DocumentUploadSection = () => {
   const handleOnDrop = (acceptedFiles: File[]) => {
     handleAddDocuments(
       acceptedFiles[0],
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
+      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS
     );
   };
 
@@ -45,17 +44,17 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
+    (submission) => submission.id
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
+      !documentSubmissionIds?.includes(document.submissionId)
   );
 
   return (
@@ -108,31 +107,19 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
-      </Grid>
-      <When condition={Boolean(documentSubmissions?.length)}>
-        <Grid
-          container
-          item
-          xs={12}
-          sx={{ mb: BCDesignTokens.layoutMarginXlarge }}
+        <When
+          condition={Boolean(
+            documentSubmissions?.length || pendingDocuments?.length
+          )}
         >
-          {documentSubmissions?.map((docSub) => (
-            <DocumentContainer
-              key={docSub.id}
-              document={docSub.submitted_document}
+          <Box my={BCDesignTokens.layoutMarginLarge}>
+            <DocumentTable
+              documents={documentSubmissions}
+              pendingDocuments={pendingDocuments}
+              header={"Consultation Record(s)"}
             />
-          ))}
-        </Grid>
-      </When>
-      <Grid
-        container
-        item
-        xs={12}
-        sx={{ mb: BCDesignTokens.layoutMarginXlarge }}
-      >
-        {pendingDocuments.map((document) => (
-          <DocumentToUploadContainer key={document.id} document={document} />
-        ))}
+          </Box>
+        </When>
       </Grid>
     </Grid>
   );
