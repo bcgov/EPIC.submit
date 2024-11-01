@@ -1,5 +1,3 @@
-import { AccountUser } from "./AccountUser";
-
 export type SubmissionStatus =
   | "NEW_SUBMISSION"
   | "COMPLETED"
@@ -55,5 +53,5 @@ export type Submission = {
   submitted_document: DocumentSubmission;
   submitted_form: SubmittedForm;
   created_date: string;
-  account_user: AccountUser;
+  submitted_by: string;
 };

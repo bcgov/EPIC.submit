@@ -17,13 +17,12 @@ from http import HTTPStatus
 
 from flask_restx import Namespace, Resource, cors
 
+from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
+from submit_api.resources.apihelper import Api as ApiHelper
+from submit_api.schemas.user import UserSchema
+from submit_api.services.user_service import UserService
 from submit_api.utils.util import cors_preflight
-
-from ..auth import auth
-from ..schemas.user import UserSchema
-from ..services.user_service import UserService
-from .apihelper import Api as ApiHelper
 
 
 API = Namespace("users", description="Endpoints for Account Management")

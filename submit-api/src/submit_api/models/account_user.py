@@ -4,11 +4,12 @@ Manages the account user
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, ForeignKey, Index
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import column_property
 
 from .base_model import BaseModel
 from .db import db
+from .user import User as UserModel
 
 
 class AccountUser(BaseModel):
@@ -24,12 +25,10 @@ class AccountUser(BaseModel):
     position = Column(db.String(100), nullable=False)
     work_email_address = Column(db.String(100), nullable=False)
     work_contact_number = Column(db.String(50), nullable=False)
-    auth_guid = Column(db.String(), nullable=False, unique=True)
-    account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
+    user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
 
-    __table_args__ = (
-        Index('ix_account_users_auth_guid', 'auth_guid', unique=True),
-    )
+    account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
+    user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
 
     @classmethod
     def create_account_user(cls, data, session=None) -> AccountUser:
@@ -41,11 +40,17 @@ class AccountUser(BaseModel):
             position=data.get('position', None),
             work_email_address=data.get('work_email_address', None),
             work_contact_number=data.get('work_contact_number', None),
-            auth_guid=data.get('auth_guid', None)
+            user_id=data.get('user_id', None)
         )
         if session:
             session.add(account_user)
             session.commit()
         else:
             account_user.save()
+        return account_user
+
+    @classmethod
+    def get_by_guid(cls, _guid):
+        """Get account user by guid."""
+        account_user = cls.query.join(UserModel).filter(UserModel.auth_guid == _guid).first()
         return account_user

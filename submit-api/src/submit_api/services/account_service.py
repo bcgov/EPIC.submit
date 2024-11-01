@@ -6,6 +6,8 @@ from submit_api.models import Role as RoleModel
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
 from submit_api.models.role import RoleEnum
+from submit_api.models.user import User as UserModel
+from submit_api.models.user import UserType
 
 
 class AccountService:
@@ -37,6 +39,26 @@ class AccountService:
             raise ResourceExistsError(f'Account with proponent id {proponent_id} already exists.')
 
     @classmethod
+    def _create_account_user(cls, data, account, session):
+        """Create account user."""
+        user_data = {
+            'auth_guid': data.get('auth_guid'),
+            'type': UserType.PROPONENT.value
+        }
+        user = UserModel.create_user(user_data, session)
+        account_user_data = {
+            "account_id": account.id,
+            "first_name": data.get("first_name"),
+            "last_name": data.get("last_name"),
+            "position": data.get("position"),
+            "work_email_address": data.get("work_email_address"),
+            "work_contact_number": data.get("work_contact_number"),
+            "user_id": user.id
+        }
+        account_user = AccountUserModel.create_account_user(account_user_data, session)
+        return account_user
+
+    @classmethod
     def create_account(cls, data):
         """Create account."""
         cls.validate_create_account_data(data)
@@ -45,16 +67,7 @@ class AccountService:
                 'proponent_id': data.get("proponent_id"),
             }
             account = AccountModel.create_account(account_data, session)
-            account_user_data = {
-                "account_id": account.id,
-                "first_name": data.get("first_name"),
-                "last_name": data.get("last_name"),
-                "position": data.get("position"),
-                "work_email_address": data.get("work_email_address"),
-                "work_contact_number": data.get("work_contact_number"),
-                'auth_guid': data.get('auth_guid')
-            }
-            account_user = AccountUserModel.create_account_user(account_user_data, session)
+            account_user = cls._create_account_user(data, account, session)
 
             account_admin_role = RoleModel.get_by_name(RoleEnum.ACCOUNT_PRIMARY_ADMIN.value)
             if not account_admin_role:

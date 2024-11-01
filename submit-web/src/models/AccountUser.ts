@@ -1,3 +1,5 @@
+import { Account } from "./Account";
+
 export type AccountUser = {
   id: number;
   account_id: number;
@@ -8,4 +10,5 @@ export type AccountUser = {
   work_email_address: string;
   work_contact_number: string;
   auth_guid: string;
+  account: Account;
 };

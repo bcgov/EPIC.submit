@@ -1,6 +1,7 @@
 import { OnErrorType, submitRequest } from "@/utils/axiosUtils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
+import { User } from "@/models/User";
 
 type CreateAccountRequest = {
   first_name: string;
@@ -23,24 +24,8 @@ const createAccount = (account: CreateAccountRequest) => {
   });
 };
 
-type GetUserResponse = {
-  id: number;
-  first_name: string;
-  last_name: string;
-  position: string;
-  work_contact_number: string;
-  work_email_address: string;
-  auth_guid: string;
-  created_at: string;
-  updated_at: string;
-  account_id: number;
-  account: {
-    id: number;
-    proponent_id: number;
-  };
-};
 const getUserByGuid = (guid?: string) => {
-  return submitRequest<GetUserResponse>({ url: `/users/guid/${guid}` });
+  return submitRequest<User>({ url: `/users/guid/${guid}` });
 };
 
 type CreateAccountOptions = {
@@ -54,7 +39,18 @@ export const useCreateAccount = (options: CreateAccountOptions) => {
   });
 };
 
-export const useGetUserByGuid = ({ guid }: { guid?: string }) => {
+type GetUserByGuidOptions = {
+  guid?: string;
+};
+export const getUserByGuidQueryOptions = ({ guid }: GetUserByGuidOptions) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
+    queryFn: () => getUserByGuid(guid),
+    enabled: Boolean(guid),
+    retry: false,
+    ...defaultUseQueryOptions,
+  });
+export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
   return useQuery({
     queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
     queryFn: () => getUserByGuid(guid),

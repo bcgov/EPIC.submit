@@ -35,15 +35,18 @@ export const Route = createFileRoute(
 
 export default function SubmissionLayout() {
   const queryClient = useQueryClient();
-  const { projectId: accountProjectIdParam } = useParams({ strict: false });
+  const {
+    projectId: accountProjectIdParam,
+    submissionPackageId: submissionPackageIdParam,
+  } = useParams({
+    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
+  });
   const accountProjectId = Number(accountProjectIdParam);
   const accountProject = queryClient.getQueryData([
     QUERY_KEY.ACCOUNT_PROJECT,
     accountProjectId,
   ]);
-  const { submissionPackageId: submissionPackageIdParam } = useParams({
-    strict: false,
-  });
+
   const submissionPackageId = Number(submissionPackageIdParam);
   const { data: submissionPackage } = useSuspenseQuery(
     getSubmissionPackageQueryOptions({

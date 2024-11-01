@@ -104,7 +104,7 @@ export default function SubmissionPage() {
         <ContentBox
           mainLabel={accountProject?.project?.name}
           label={
-            accountProject?.project.ea_certificate
+            accountProject?.project?.ea_certificate
               ? `EAC #${accountProject?.project?.ea_certificate}`
               : ""
           }

@@ -4,8 +4,15 @@ import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
 
-export const Route = createFileRoute("/oidc-callback")({
+export const Route = createFileRoute("/oidc-callback/")({
   component: OidcCallback,
+  // loader: ({ context: { authentication, queryClient } }) => {
+  //   return queryClient.ensureQueryData(
+  //     getUserByGuidQueryOptions({ guid: authentication?.user?.profile.sub }),
+  //   );
+  // },
+  // errorComponent: () => <Navigate to="/error" />,
+  // pendingComponent: () => <PageLoader />,
 });
 
 function OidcCallback() {
@@ -28,7 +35,7 @@ function OidcCallback() {
     return <Navigate to="/error" />;
   }
 
-  if (userData?.account_id) {
+  if (userData?.account_user.account_id) {
     return <Navigate to="/projects" />;
   }
 

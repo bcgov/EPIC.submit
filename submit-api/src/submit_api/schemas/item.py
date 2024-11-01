@@ -3,11 +3,10 @@
 Manages the item schema
 """
 
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionTypeStatus
-from submit_api.schemas.account_user import AccountUserSchema
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
 
@@ -29,8 +28,14 @@ class ItemSubmissionSchema(Schema):
     submitted_document = fields.Nested(SubmittedDocumentSchema, data_key="submitted_document")
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
-    account_user = fields.Nested(AccountUserSchema, data_key="account_user")
+    submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Int(data_key="version")
+
+    @pre_dump
+    def get_submitted_by(self, obj, **kwargs):
+        """Get submitted by."""
+        obj.submitted_by = obj.submitted_by_user.account_user.full_name if obj.submitted_by_user else None
+        return obj
 
 
 class ItemSchema(Schema):

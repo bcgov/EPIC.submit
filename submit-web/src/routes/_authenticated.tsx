@@ -1,5 +1,6 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useGetUserByGuid } from "@/hooks/api/useAccounts";
+import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -16,10 +17,9 @@ function Auth() {
     isLoading: isUserAuthLoading,
     user,
   } = useAuth();
-  const { data: userAccountData, isPending: isUserAccountLoading } =
-    useGetUserByGuid({
-      guid: user?.profile.sub,
-    });
+  const { data: userData, isPending: isUserAccountLoading } = useGetUserByGuid({
+    guid: user?.profile.sub,
+  });
   const { setAccount } = useAccount();
 
   const isLoading = isUserAuthLoading || isUserAccountLoading;
@@ -31,8 +31,8 @@ function Auth() {
     if (isAuthenticated && !isLoading) {
       setAccount({
         isLoading: false,
-        proponentId: userAccountData?.account.proponent_id,
-        accountId: userAccountData?.account.id,
+        proponentId: userData?.account_user.account.proponent_id,
+        accountId: userData?.account_user.account.id,
       });
     }
   }, [
@@ -40,7 +40,7 @@ function Auth() {
     isUserAuthLoading,
     signinRedirect,
     setAccount,
-    userAccountData,
+    userData,
     isLoading,
   ]);
 
@@ -49,7 +49,11 @@ function Auth() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={"/not-found"} />;
+  }
+
+  if (userData?.type !== USER_TYPE.PROPONENT) {
+    return <Navigate to={"/error"} />;
   }
 
   return <Outlet />;
