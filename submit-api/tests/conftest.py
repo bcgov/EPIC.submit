@@ -21,10 +21,10 @@ from flask import g
 from flask_migrate import Migrate, upgrade
 from sqlalchemy import event, text
 
-from compliance_api import create_app
-from compliance_api.auth import jwt as _jwt
-from compliance_api.config import get_named_config
-from compliance_api.models import db as _db
+from submit_api import create_app
+from submit_api.auth import jwt as _jwt
+from submit_api.config import get_named_config
+from submit_api.models import db as _db
 
 from .utilities.factory_scenario import TokenJWTClaims
 from .utilities.factory_utils import factory_auth_header
