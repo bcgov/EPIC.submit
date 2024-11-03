@@ -18,8 +18,13 @@ This module will create statement records for each account.
 import os
 import sys
 
-from flask import Flask
+from flask import Flask, app
+from sqlalchemy import inspect
+
 from utils.logger import setup_logging
+from datetime import datetime
+
+from submit_api.models.project import  Project
 
 import config
 
@@ -35,11 +40,14 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'production')):
     print(f'>>>>> Creating app in run_mode: {run_mode}')
     print(f'>>>>> Creating app in run_mode: {config.get_named_config(run_mode)}')
 
+
     app.config.from_object(config.get_named_config(run_mode))
     # Configure Sentry
     app.logger.info(f'<<<< Starting Jobs >>>>')
     db.init_app(app)
     ma.init_app(app)
+
+
 
     register_shellcontext(app)
 
@@ -61,13 +69,31 @@ def register_shellcontext(app):
 def run(job_name):
     from tasks.submit_mail import SubmitMailer
     application = create_app()
+    from submit_cron.models import db
+    from submit_cron.models import ma
 
-    application.app_context().push()
+    with application.app_context():
 
-    print('Requested Job:', job_name)
-    if job_name == 'EMAIL':
-        SubmitMailer.send_mail()
-        application.logger.info(f'<<<< Completed Submit  Email Task >>>>')
+        print('Requested Job:', job_name)
+        if job_name == 'EMAIL':
+
+            #print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+            print(f"Database Enginesaravan: {db.engine.url}")
+            try:
+                inspector = inspect(db.engine)
+                table_names = inspector.get_table_names()
+                print(f"Database Table Names: {table_names}")
+            except Exception as e:
+                print(f"Error fetching table names: {e}")
+
+
+            print('Starting Email Sending At ', datetime.now())
+            #mails = EmailQueue.find_all()
+            #print('mails', mails)
+
+            SubmitMailer.send_mail()
+            application.logger.info(f'<<<< Completed Submit Email Task >>>>')
+
 
 
 if __name__ == "__main__":

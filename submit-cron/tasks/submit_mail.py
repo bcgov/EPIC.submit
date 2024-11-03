@@ -14,7 +14,6 @@
 """MET Publish Scheduled Engagements."""
 from datetime import datetime
 
-from submit_api.models.account import  Account
 from submit_cron.services.mail_service import EmailService
 
 
