@@ -1,2 +1,2 @@
 # EMAILER Run everyday.
-0 16 * * 1-5 default cd /met-cron && ./run_engagement_closing_soon.sh
+0 16 * * 1-5 default cd /submit-cron && ./run_engagement_closing_soon.sh
