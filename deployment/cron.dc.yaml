@@ -1,0 +1,179 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: cron-deploy-template
+  annotations:
+    description: "Deployment Configuration Template for the Submit Cron job Project"
+    tags: "submit, cron, python"
+objects:
+- kind: DeploymentConfig
+  apiVersion: apps.openshift.io/v1
+  metadata:
+    name: ${NAME}
+    labels:
+      app: ${NAME}
+      app-group: submit-app
+      template: ${NAME}-deploy
+  spec:
+    strategy:
+      type: Rolling
+      rollingParams:
+        updatePeriodSeconds: 1
+        intervalSeconds: 1
+        timeoutSeconds: 600
+        maxUnavailable: 25%
+        maxSurge: 25%
+        pre:
+          execNewPod:
+            command:
+            - /submit-cron/pre-hook-update-db.sh
+            containerName: ${NAME}
+          failurePolicy: Abort
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${NAME}
+        from:
+          kind: ImageStreamTag
+          namespace: ${IMAGE_NAMESPACE}
+          name: ${NAME}:${IMAGE_TAG}
+    - type: ConfigChange
+    replicas: 1
+    test: false
+    selector:
+      app: ${NAME}
+      deploymentconfig: ${NAME}
+    template:
+      metadata:
+        labels:
+          app: ${NAME}
+          app-group: submit-app
+          environment: ${ENV}
+          deploymentconfig: ${NAME}
+          template: ${NAME}-deploy
+      spec:
+        volumes:
+        - name: cron-config
+          configMap:
+            name: ${NAME}-config
+            defaultMode: 420
+        containers:
+        - name: ${NAME}
+          image: image-registry.openshift-image-registry.svc:5000/${IMAGE_NAMESPACE}/${NAME}:${IMAGE_TAG}
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          volumeMounts:
+          - name: cron-config
+            readOnly: true
+            mountPath: /submit-cron/cron/
+          env:
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-username
+                  name: submit-patroni
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: submit-patroni
+                  key: app-db-password
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: ${DATABASE_HOST}
+                  key: app-db-username
+            - name: DATABASE_HOST
+              value: ${DATABASE_HOST}
+            - name: DATABASE_PORT
+              value: ${DATABASE_PORT}
+          resources:
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
+          terminationMessagePath: "/dev/termination-log"
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+        restartPolicy: Always
+        terminationGracePeriodSeconds: 30
+        dnsPolicy: ClusterFirst
+        securityContext: {}
+        schedulerName: default-scheduler
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: ${NAME}
+    creationTimestamp:
+    labels:
+      app: ${NAME}
+      app-group: submit-app
+      template: ${NAME}-deploy
+  spec:
+    ports:
+    - name: 8080-tcp
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+    selector:
+      deploymentconfig: ${NAME}
+    type: ClusterIP
+    sessionAffinity: None
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: ${NAME}
+      app-group: submit-app
+    name: ${NAME}
+  data:
+parameters:
+- name: NAME
+  description: "The name assigned to all of the OpenShift resources associated to the server instance."
+  required: true
+  value: submit-cron
+- name: IMAGE_NAMESPACE
+  required: true
+  description: "The namespace of the OpenShift project containing the imagestream for the application."
+  value: c8b80a-tools
+- name: ENV
+  description: "The TAG name for this environment, e.g.(dev, test, prod)."
+  required: true
+  value: dev
+- name: DATABASE_HOST
+  description: "The analytics postgresql application name."
+  required: true
+  value: submit-patroni
+- name: DATABASE_PORT
+  description: "The analytics postgresql application port."
+  required: true
+  value: '5432'
+- name: CPU_REQUEST
+  description: "The resources CPU request (in cores) for this build."
+  required: true
+  value: 100m
+- name: CPU_LIMIT
+  description: "The resources CPU limit (in cores) for this build."
+  required: true
+  value: 750m
+- name: MEMORY_REQUEST
+  description: "The resources Memory request (in Mi, Gi, etc) for this build."
+  required: true
+  value: 100Mi
+- name: MEMORY_LIMIT
+  description: "The resources Memory limit (in Mi, Gi, etc) for this build."
+  required: true
+  value: 2Gi
+- name: REPLICAS
+  description: "The number of replicas to run in this environment."
+  required: true
+  value: '1'
+- name: IMAGE_TAG
+  description: "The image tag to deploy"
+  value: latest

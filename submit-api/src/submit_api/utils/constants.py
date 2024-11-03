@@ -12,33 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This module contains constants used in the application."""
-from enum import Enum
 
-class SubmissionConstants(Enum):
-    # Package Types
-    MANAGEMENT_PLAN = 'Management Plan'
-    
-    # Email Templates
-    MANAGEMENT_PLAN_SUBMISSION_TEMPLATE = 'management_plan_submission_verification.html'
-    
-    # Email Subjects
-    MANAGEMENT_PLAN_SUBMISSION_SUBJECT = 'Management Plan Submission Confirmation'
-    
-    # Email Senders
-    MANAGEMENT_PLAN_SENDER = 'EAO.ManagementPlanSupport@gov.bc.ca'
-
-# Map submission package types to their corresponding email senders
 SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP = {
-    SubmissionConstants.MANAGEMENT_PLAN.value: SubmissionConstants.MANAGEMENT_PLAN_SENDER.value
+    'Management Plan': 'EAO.ManagementPlanSupport@gov.bc.ca'
 }
 
-
-class EmailConstants(Enum):
-    """Constants for emails."""
-    PENDING = 'PENDING'
-    SENT = 'SENT'
-    FAILED = 'FAILED'
-
-class NotificationEntity(Enum):
-    """Enum for entity types that can have associated emails."""
-    PACKAGE = 'PACKAGE'
+MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
+MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_SUBJECT = 'Management Plan Submission Confirmation'
