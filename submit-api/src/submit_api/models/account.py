@@ -35,9 +35,3 @@ class Account(BaseModel):
         else:
             account.save()
         return account
-
-    @classmethod
-    def find_all(cls) -> list[Account]:
-        """Fetch all accounts."""
-        print('------nope----here')
-        return cls.query.all()

@@ -24,5 +24,4 @@ class SubmitMailer:  # pylint:disable=too-few-public-methods
     def send_mail(cls):
         """Publish the scheduled engagements."""
         print('Starting Email Att----nope----mn----------------', datetime.now())
-
         EmailService._send_email()
