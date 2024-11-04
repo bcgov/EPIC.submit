@@ -76,20 +76,7 @@ def run(job_name):
 
         print('Requested Job:', job_name)
         if job_name == 'EMAIL':
-
-            #print(f"Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
-            print(f"Database Enginesaravan: {db.engine.url}")
-            try:
-                inspector = inspect(db.engine)
-                table_names = inspector.get_table_names()
-                print(f"Database Table Names: {table_names}")
-            except Exception as e:
-                print(f"Error fetching table names: {e}")
-
-
             print('Starting Email Sending At ', datetime.now())
-            #mails = EmailQueue.find_all()
-            #print('mails', mails)
 
             SubmitMailer.send_mail()
             application.logger.info(f'<<<< Completed Submit Email Task >>>>')

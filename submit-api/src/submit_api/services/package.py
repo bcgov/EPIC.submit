@@ -20,7 +20,6 @@ from submit_api.services.email_service import EmailService
 from submit_api.services.package_type import PackageTypeService
 from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
-from submit_api.utils.constants import NotificationEntity
 
 
 class PackageService:
@@ -179,7 +178,7 @@ class PackageService:
     def _create_email_queue_record(package, session):
         """Create an email queue record."""
         email_queue = EmailQueueModel(
-            entity_id=package.id, entity_type=NotificationEntity.PACKAGE, template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+            entity_id=package.id, entity_type='PACKAGE', template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
         )
         session.add(email_queue)
 

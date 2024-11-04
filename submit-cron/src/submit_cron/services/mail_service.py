@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
@@ -8,6 +9,7 @@ from submit_api.models.email_queue import EmailQueue
 from submit_cron.services.package_submission_email_service import PackageSubmissionEmailService
 from submit_cron.services.ches_service import ChesApiService
 from submit_cron.models import db
+from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
 
 
 class EmailService:  # pylint: disable=too-few-public-methods
@@ -16,10 +18,13 @@ class EmailService:  # pylint: disable=too-few-public-methods
     @staticmethod
     def process_email_queue():
         """Process all pending emails in the email queue."""
-        pending_emails = EmailQueue.find_pending()
+        pending_emails = EmailService.find_pending()
+        if not pending_emails:
+            print("No pending emails found.")
+            return
         for email_entry in pending_emails:
             try:
-                if email_entry.entity_type == 'Package_Submission':
+                if email_entry.entity_type == MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE:
                     EmailService._process_package_submission_email(email_entry)
                 else:
                     raise BadRequestError(f"Unsupported entity type for email notification: {email_entry.entity_type}")
@@ -37,11 +42,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         if not package:
             raise BadRequestError(f"Package with ID {package_id} not found.")
 
-        # Depending on the package type, prepare the email details
-        if package.type.name == 'MANAGEMENT_PLAN':
-            email_details = PackageSubmissionEmailService.prepare_package_submission_email_confirmation(package)
-        else:
-            raise BadRequestError(f"Unsupported package type for email notification: {package.type.name}")
+        email_details = PackageSubmissionEmailService.prepare_package_submission_email_confirmation(package)
 
         # Send the email using ChesApiService
         EmailService.send_email(email_details)
@@ -59,3 +60,15 @@ class EmailService:  # pylint: disable=too-few-public-methods
             return email_api_service.send_email(email_details)
         except Exception as e:
             raise BadRequestError(f"Failed to send email: {str(e)}")
+
+    @staticmethod
+    def find_pending(limit=100) -> List[EmailQueue]:
+        """Find all pending emails in the queue, with a limit for performance.
+
+        Args:
+            limit (int): Maximum number of pending emails to return.
+
+        Returns:
+            list[EmailQueue]: List of pending email queue entries.
+        """
+        return db.session.query(EmailQueue).filter(EmailQueue.status == 'PENDING').limit(limit).all()
