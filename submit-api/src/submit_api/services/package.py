@@ -10,6 +10,7 @@ from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
 from submit_api.models import Project as ProjectModel
 from submit_api.models.db import session_scope
+from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.package import PackageStatus
 from submit_api.models.package_item_type import PackageItemType as PackageItemTypeModel
 from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
@@ -161,8 +162,10 @@ class PackageService:
             cls._update_items_status(package.items, ItemStatus.SUBMITTED.value, session)
             cls._update_package_status(package_id, session, package)
             cls._update_package_submission_details(package, session)
+            cls._create_email_queue_record(package, session)
             session.flush()
             session.commit()
+        # TODO: Remove this once we have a generic email service
         cls.send_package_submission_email_confirmation(package)
         return package
 
@@ -170,6 +173,15 @@ class PackageService:
     def _unsupported_status(*args, **kwargs):
         """Handle unsupported status."""
         raise BadRequestError("Status is not supported.")
+    
+    @staticmethod
+    def _create_email_queue_record(package, session):
+        """Create an email queue record."""
+        email_queue = EmailQueueModel(
+            entity_id=package.id, entity_type='PACKAGE', template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+        )
+        session.add(email_queue)
+
 
     @classmethod
     def _get_state_updater(cls, status) -> callable:
