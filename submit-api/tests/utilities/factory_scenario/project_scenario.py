@@ -1,8 +1,12 @@
+"""
+Module for defining various project scenarios for testing with realistic data.
+"""
 from enum import Enum
 from faker import Faker
 from src.submit_api.models import Project as ProjectModel
 
 fake = Faker()
+
 
 class ProjectScenario(Enum):
     """Project scenarios for testing with realistic data according to the model."""
