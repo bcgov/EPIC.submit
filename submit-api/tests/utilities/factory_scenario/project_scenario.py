@@ -3,7 +3,7 @@ from enum import Enum
 
 from faker import Faker
 
-from submit_api.models import Project as ProjectModel
+from ....src.submit_api.models import Project as ProjectModel
 
 from ..factory_utils import generate_abbreviation
 

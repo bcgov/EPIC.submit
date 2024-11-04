@@ -21,7 +21,7 @@ import string
 from faker import Faker
 from flask import g
 
-from compliance_api.config import get_named_config
+from ....src.submit_api.conf import get_named_config
 
 
 CONFIG = get_named_config("testing")
