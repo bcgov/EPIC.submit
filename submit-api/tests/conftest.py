@@ -42,10 +42,10 @@ def app():
     with _app.app_context():
         # Create the schema each time before the test starts
         drop_schema_sql = text(
-            f"""              CREATE SCHEMA IF NOT EXISTS public;
-                             GRANT ALL ON SCHEMA public TO {CONFIG.DB_USER};
-                             GRANT ALL ON SCHEMA public TO public;
-                          """
+            f"""CREATE SCHEMA IF NOT EXISTS public;
+                 GRANT ALL ON SCHEMA public TO {CONFIG.DB_USER};
+                 GRANT ALL ON SCHEMA public TO public;
+            """
         )
 
         sess = _db.session()
@@ -54,7 +54,6 @@ def app():
         upgrade()  # Apply migrations
         yield _app
         _db.session.remove()
-    return _app
 
 
 @pytest.fixture(autouse=True)
