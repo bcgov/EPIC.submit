@@ -173,15 +173,15 @@ class PackageService:
     def _unsupported_status(*args, **kwargs):
         """Handle unsupported status."""
         raise BadRequestError("Status is not supported.")
-    
+
     @staticmethod
     def _create_email_queue_record(package, session):
         """Create an email queue record."""
         email_queue = EmailQueueModel(
-            entity_id=package.id, entity_type='PACKAGE', template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+            entity_id=package.id, entity_type='PACKAGE',
+            template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
         )
         session.add(email_queue)
-
 
     @classmethod
     def _get_state_updater(cls, status) -> callable:

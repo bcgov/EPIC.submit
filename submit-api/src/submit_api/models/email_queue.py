@@ -2,11 +2,9 @@
 from __future__ import annotations
 
 from datetime import datetime
-
-
 from typing import List
 
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, DateTime
 
 from .base_model import BaseModel
 from .db import db
@@ -30,7 +28,7 @@ class EmailQueue(BaseModel):
     @classmethod
     def find_pending(cls):
         """Find all pending emails in the queue.
-        
+
         Returns:
             list[EmailQueue]: List of pending email queue entries
         """
