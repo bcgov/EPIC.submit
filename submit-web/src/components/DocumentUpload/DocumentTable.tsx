@@ -19,11 +19,11 @@ import PendingDocumentRow from "./PendingDocumentRow";
 
 export default function DocumentTable({
   header,
-  documents,
+  documents = [],
   pendingDocuments,
 }: {
   header: string;
-  documents: Array<Submission>;
+  documents?: Array<Submission>;
   pendingDocuments: Array<Document>;
 }) {
   return (
@@ -70,8 +70,14 @@ export default function DocumentTable({
           </DocumentHeadTableRow>
           {documents?.map((document) => (
             <DocumentTableRow
-              key={`custom-row-${document.name}`}
-              documentItem={document}
+              key={`custom-row-${document.id}`}
+              documentItem={{
+                id: document.id,
+                name: document.submitted_document.name,
+                version: document.version,
+                submitted_by: document.submitted_by,
+                url: document.submitted_document.url,
+              }}
             />
           ))}
           {pendingDocuments?.map((document) => (

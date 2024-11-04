@@ -7,26 +7,26 @@ export default function EAORoutes() {
       <MainListItem
         route={{
           name: "Projects",
-          path: "/projects",
+          path: "/staff/projects",
         }}
       />
       <MainListItem
         route={{
           name: "Documents",
-          path: "/documents",
+          path: "/staff/documents",
         }}
       />
       <MainListItem
         route={{
           name: "Admin",
-          path: "/profile",
+          path: "/staff/profile",
         }}
       />
       <SubListItem
         key={`sub-list-user-management`}
         route={{
           name: "User Management",
-          path: `/user-management`,
+          path: `/staff/user-management`,
         }}
       />
     </>

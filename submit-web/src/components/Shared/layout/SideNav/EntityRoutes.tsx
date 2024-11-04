@@ -7,14 +7,14 @@ export default function EntityRoutes() {
       <MainListItem
         route={{
           name: "All Projects",
-          path: "/projects",
+          path: "/proponent/projects",
         }}
       />
       <ProjectsSubRoutes />
       <MainListItem
         route={{
           name: "Admin",
-          path: "/profile",
+          path: "/proponent/profile",
         }}
       />
     </>

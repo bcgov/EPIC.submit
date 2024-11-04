@@ -5,7 +5,7 @@ import { Project as ProjectComponent } from "@/components/Projects/Project";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/",
+  "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/",
 )({
   component: ProjectPage,
   notFoundComponent: () => {

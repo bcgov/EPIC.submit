@@ -1,9 +1,12 @@
-import { Box, Divider, Grid, Typography } from "@mui/material";
+import { Box, Button, Divider, Grid, Typography } from "@mui/material";
 import EAOLogo from "@/assets/images/EAO_Logo.png";
 import { COPYRIGHT_TEXT, FOOTER_COLORS, FOOTER_DESCRIPTION } from "./constants";
 import { theme } from "@/styles/theme";
+import { useAuth } from "react-oidc-context";
+import { OidcConfig } from "@/utils/config";
 
 const Footer = () => {
+  const { signinRedirect } = useAuth();
   return (
     <Grid container justifyContent="center" alignItems="center" spacing={0}>
       <Grid
@@ -53,6 +56,18 @@ const Footer = () => {
         </Grid>
         <Grid item xs={12} sm={6}>
           <Typography variant="body1">{COPYRIGHT_TEXT}</Typography>
+        </Grid>
+        <Grid item xs={12} sm={6}>
+          <Button
+            variant="text"
+            onClick={() => {
+              signinRedirect({
+                redirect_uri: `${OidcConfig.redirect_uri}`,
+              });
+            }}
+          >
+            Sign In as staff
+          </Button>
         </Grid>
       </Grid>
     </Grid>

@@ -29,7 +29,7 @@ import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageSt
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
 
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -75,7 +75,7 @@ export default function SubmissionPage() {
 
     if (
       submissionPackage.items.some(
-        (item) => item.status !== SUBMISSION_STATUS.COMPLETED.value
+        (item) => item.status !== SUBMISSION_STATUS.COMPLETED.value,
       )
     ) {
       setIsValidating(true);
@@ -95,7 +95,7 @@ export default function SubmissionPage() {
   }
 
   const isPackageSubmitted = submissionPackage.status.includes(
-    PACKAGE_STATUS.SUBMITTED.value
+    PACKAGE_STATUS.SUBMITTED.value,
   );
 
   return (
@@ -182,7 +182,7 @@ export default function SubmissionPage() {
                   color="secondary"
                   sx={{ mr: 1 }}
                   onClick={() =>
-                    navigate({ to: `/projects/${accountProject.id}` })
+                    navigate({ to: `/proponent/projects/${accountProject.id}` })
                   }
                 >
                   Save & Close

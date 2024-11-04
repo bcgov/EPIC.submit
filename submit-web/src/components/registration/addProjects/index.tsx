@@ -44,7 +44,7 @@ function AddProjects() {
   const [openWarning, setOpenWarning] = useState(false);
 
   const onAddProjectsSuccess = () => {
-    navigate({ to: "/registration/complete" });
+    navigate({ to: "/proponent/registration/complete" });
   };
   const onAddProjectsError = () => {
     notify.error("Failed to add projects");

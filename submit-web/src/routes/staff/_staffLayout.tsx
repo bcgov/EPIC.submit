@@ -1,6 +1,12 @@
-import { PageGrid } from "@/components/Shared/PageGrid";
-import { Grid, Typography } from "@mui/material";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
+import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
+import { PageLoader } from "@/components/Shared/PageLoader";
+import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
+import { useIsMobile } from "@/hooks/common";
+import { USER_TYPE } from "@/models/User";
+import { Box } from "@mui/material";
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useAuth } from "react-oidc-context";
 
 const IDIR = "idir";
@@ -10,24 +16,41 @@ export const Route = createFileRoute("/staff/_staffLayout")({
 });
 
 function Proponent() {
-  const { user, signoutRedirect } = useAuth();
+  const { user, signoutRedirect, isLoading: isAuthLoading } = useAuth();
+
+  const { data: userData, isPending: isUserPending } = useQuery(
+    getUserByGuidQueryOptions({
+      guid: user?.profile.sub,
+    }),
+  );
+  const isMobile = useIsMobile();
+
+  if (isUserPending || isAuthLoading) {
+    return <PageLoader />;
+  }
 
   if (user?.profile.identity_provider !== IDIR) {
     signoutRedirect();
+    return null;
   }
 
-  const noRoles = !user?.profile.roles;
-  if (noRoles) {
-    return (
-      <PageGrid>
-        <Grid item xs={12}>
-          <Typography>
-            You need to request access from the administrator
-          </Typography>
-        </Grid>
-      </PageGrid>
-    );
+  if (userData?.type !== USER_TYPE.STAFF) {
+    return <Navigate to="/not-found" />;
   }
 
-  return <Outlet />;
+  // TODO: Uncomment this block when roles are implemented
+  // const noRoles = !user?.profile.roles;
+  // if (noRoles) {
+  //   return <NoRoles />;
+  // }
+
+  return (
+    <div>
+      <BreadcrumbNav />
+      <Box flexDirection={"row"} display={"flex"}>
+        {!isMobile && <EaoSideNavBar />}
+        <Outlet />
+      </Box>
+    </div>
+  );
 }

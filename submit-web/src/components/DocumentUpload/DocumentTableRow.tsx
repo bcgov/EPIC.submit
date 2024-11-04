@@ -35,7 +35,7 @@ export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
     },
-  })
+  }),
 );
 
 export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
@@ -46,7 +46,7 @@ export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
     "&:hover": {
       backgroundColor: BCDesignTokens.themeBlue40,
     },
-  })
+  }),
 );
 
 export const DocumentTableCell = styled(TableCell)(() => ({
@@ -77,14 +77,10 @@ export const PackageTableRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      : child
+      : child,
   );
 
-  return (
-    <StyledTableRow error={error} {...otherProps}>
-      {childrenWithProps}
-    </StyledTableRow>
-  );
+  return <StyledTableRow {...otherProps}>{childrenWithProps}</StyledTableRow>;
 };
 
 type DocumentTableRowProps = {

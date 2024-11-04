@@ -59,7 +59,7 @@ export const ContactInformation = () => {
     submissionPackageId,
     submissionId,
   } = useParams({
-    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
@@ -97,7 +97,7 @@ export const ContactInformation = () => {
   const onCreateSuccess = () => {
     notify.success("Submission created successfully");
     navigate({
-      to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+      to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
   const { mutate: saveSubmission, isPending: isCreatingSubmissionPending } =
@@ -133,7 +133,7 @@ export const ContactInformation = () => {
 
   const handleCancel = () => {
     navigate({
-      to: `/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+      to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
 

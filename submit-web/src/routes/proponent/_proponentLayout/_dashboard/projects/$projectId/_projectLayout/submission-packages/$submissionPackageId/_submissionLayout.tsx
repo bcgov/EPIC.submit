@@ -11,7 +11,7 @@ import {
   useParams,
 } from "@tanstack/react-router";
 export const Route = createFileRoute(
-  "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
+  "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
 )({
   component: SubmissionLayout,
   loader: ({ context: { queryClient }, params: { submissionPackageId } }) =>
@@ -39,7 +39,7 @@ export default function SubmissionLayout() {
     projectId: accountProjectIdParam,
     submissionPackageId: submissionPackageIdParam,
   } = useParams({
-    from: "/_authenticated/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
   });
   const accountProjectId = Number(accountProjectIdParam);
   const accountProject = queryClient.getQueryData([

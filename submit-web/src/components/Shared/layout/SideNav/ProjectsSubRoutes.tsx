@@ -19,7 +19,7 @@ export default function ProjectsSubRoutes() {
       key={`sub-list-${accountProject.id}`}
       route={{
         name: accountProject.project.name,
-        path: `/projects/${accountProject.id}`,
+        path: `/proponent/projects/${accountProject.id}`,
       }}
     />
   ));

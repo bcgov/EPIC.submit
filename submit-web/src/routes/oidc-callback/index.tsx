@@ -1,5 +1,6 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useGetUserByGuid } from "@/hooks/api/useAccounts";
+import { USER_TYPE } from "@/models/User";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useAuth } from "react-oidc-context";
@@ -35,14 +36,18 @@ function OidcCallback() {
     return <Navigate to="/error" />;
   }
 
+  if (userData?.type === USER_TYPE.STAFF) {
+    return <Navigate to="/staff/projects" />;
+  }
+
   if (userData?.account_user.account_id) {
-    return <Navigate to="/projects" />;
+    return <Navigate to="/proponent/projects" />;
   }
 
   if (!isAuthLoading && !isUserDataLoading) {
     return (
       <Navigate
-        to="/registration/create-account"
+        to="/proponent/registration/create-account"
         search={{
           proponent_id: proponent_id
             ? Number.parseInt(proponent_id)

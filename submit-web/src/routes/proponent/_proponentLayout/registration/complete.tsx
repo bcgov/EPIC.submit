@@ -11,7 +11,9 @@ import {
 } from "@mui/material";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authenticated/registration/complete")({
+export const Route = createFileRoute(
+  "/proponent/_proponentLayout/registration/complete",
+)({
   component: Complete,
 });
 
@@ -49,7 +51,7 @@ function Complete() {
           variant="contained"
           color="primary"
           onClick={() => {
-            navigate({ to: "/projects" });
+            navigate({ to: "/proponent/projects" });
           }}
         >
           Go
