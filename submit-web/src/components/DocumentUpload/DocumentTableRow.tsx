@@ -91,7 +91,7 @@ export default function DocumentTableRow({
   documentItem,
   error = false,
 }: DocumentTableRowProps) {
-  const { account_user, version, submitted_document } = documentItem;
+  const { submitted_by, version, submitted_document } = documentItem;
 
   const onActionClick = () => {};
   const [pendingGetObject, setPendingGetObject] = useState(false);
@@ -139,9 +139,7 @@ export default function DocumentTableRow({
           </MuiLink>
         </Typography>
       </DocumentTableCell>
-      <DocumentTableCell align="right">
-        {account_user.full_name}
-      </DocumentTableCell>
+      <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>
       <DocumentTableCell align="right">{version}</DocumentTableCell>
       <DocumentTableCell align="center">
         <Typography

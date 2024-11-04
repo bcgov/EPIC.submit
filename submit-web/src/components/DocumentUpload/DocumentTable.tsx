@@ -71,13 +71,7 @@ export default function DocumentTable({
           {documents?.map((document) => (
             <DocumentTableRow
               key={`custom-row-${document.id}`}
-              documentItem={{
-                id: document.id,
-                name: document.submitted_document.name,
-                version: document.version,
-                submitted_by: document.submitted_by,
-                url: document.submitted_document.url,
-              }}
+              documentItem={document}
             />
           ))}
           {pendingDocuments?.map((document) => (
