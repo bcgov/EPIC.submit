@@ -39,7 +39,7 @@ def app():
     """Return a session-wide application configured in TEST mode."""
     os.environ["FLASK_ENV"] = "testing"
     _app = create_app(run_mode="testing")
-    with _app.app_context():
+    with _app.app_context()
         # Create the schema each time before the test starts
         drop_schema_sql = text(
             f"""CREATE SCHEMA IF NOT EXISTS public;
