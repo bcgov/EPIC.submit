@@ -14,4 +14,4 @@
 
 """The Test-Suite used to ensure that the Model objects are working correctly."""
 
-from ....src.submit_api.models.account_project import AccountProject
+from src.submit_api.models.account_project import AccountProject

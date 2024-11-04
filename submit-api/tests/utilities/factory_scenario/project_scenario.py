@@ -1,6 +1,6 @@
 from enum import Enum
 from faker import Faker
-from ....src.submit_api.models import Project as ProjectModel
+from src.submit_api.models import Project as ProjectModel
 
 fake = Faker()
 
