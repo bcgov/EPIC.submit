@@ -1,7 +1,5 @@
 import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
-import SideNavBar from "@/components/Shared/layout/SideNav/SideNavBar";
-import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
 import { useIsMobile } from "@/hooks/common";
