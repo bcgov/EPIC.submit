@@ -49,9 +49,8 @@ class ProjectsByAccount(Resource):
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Get projects by account id"
     )
-    @API.expect(project_add_list)
     @API.response(
-        code=HTTPStatus.CREATED, model=project_list_model, description="Get projects"
+        code=HTTPStatus.OK, model=project_list_model, description="Get projects"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
@@ -99,9 +98,8 @@ class Project(Resource):
     @ApiHelper.swagger_decorators(
         API, endpoint_description="Get projects by proponent id"
     )
-    @API.expect(project_add_list)
     @API.response(
-        code=HTTPStatus.CREATED, model=project_list_model, description="Get project"
+        code=HTTPStatus.OK, model=project_list_model, description="Get project"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")

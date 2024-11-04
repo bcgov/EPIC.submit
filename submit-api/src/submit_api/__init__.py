@@ -13,6 +13,7 @@ from flask_cors import CORS
 from submit_api.auth import jwt
 from submit_api.config import get_named_config
 from submit_api.models import db, ma, migrate
+from submit_api.resources import STAFF_API_BLUEPRINT
 from submit_api.utils.cache import cache
 from submit_api.utils.util import allowedorigins
 
@@ -56,6 +57,7 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'development')):
     # Register blueprints
     app.register_blueprint(API_BLUEPRINT)
     app.register_blueprint(OPS_BLUEPRINT)
+    app.register_blueprint(STAFF_API_BLUEPRINT)
 
     # Setup jwt for keycloak
     if os.getenv('FLASK_ENV', 'production') != 'testing':
