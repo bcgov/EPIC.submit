@@ -72,6 +72,23 @@ class ProjectsByAccount(Resource):
         projects = ProjectService.get_projects_by_account_id(account_id, search_options)
         return AccountProjectSchema(many=True).dump(projects), HTTPStatus.OK
 
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Add projects in bulk")
+    @API.expect(project_add_list)
+    @API.response(
+        code=HTTPStatus.CREATED, model=project_list_model, description="Added projects"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def post(account_id):
+        """Add projects in bulk."""
+        projects_data = AddProjectSchema().load(API.payload)
+        added_projects = ProjectService.bulk_add_projects(
+            account_id, projects_data.get("project_ids")
+        )
+        return ProjectSchema(many=True).dump(added_projects), HTTPStatus.CREATED
+
 
 @cors_preflight("GET, OPTIONS, POST")
 @API.route("/proponents/<int:proponent_id>", methods=["POST", "GET", "OPTIONS"])

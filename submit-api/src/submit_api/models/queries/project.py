@@ -17,6 +17,7 @@ from submit_api.models import AccountProject, Project, db
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
 
+
 # pylint: disable=too-few-public-methods
 
 
@@ -39,7 +40,7 @@ class ProjectQueries:
         ).join(AccountProject.project)
 
         # Apply search filters if provided
-        if search_options:
+        if search_options and any(bool(search_option) for search_option in search_options.__dict__.values()):
             query = cls.filter_by_search_criteria(query, search_options)
 
         return query.all()

@@ -19,11 +19,11 @@ import PendingDocumentRow from "./PendingDocumentRow";
 
 export default function DocumentTable({
   header,
-  documents,
+  documents = [],
   pendingDocuments,
 }: {
   header: string;
-  documents: Array<Submission>;
+  documents?: Array<Submission>;
   pendingDocuments: Array<Document>;
 }) {
   return (
@@ -70,7 +70,7 @@ export default function DocumentTable({
           </DocumentHeadTableRow>
           {documents?.map((document) => (
             <DocumentTableRow
-              key={`custom-row-${document.name}`}
+              key={`custom-row-${document.id}`}
               documentItem={document}
             />
           ))}

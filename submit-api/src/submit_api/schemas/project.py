@@ -3,10 +3,9 @@
 Manages the engagement
 """
 
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.models.package import PackageStatus
-from submit_api.schemas.account_user import AccountUserSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 
 
@@ -49,8 +48,15 @@ class AccountProjectPackageSchema(Schema):
     type = fields.Nested(PackageTypeSchema, data_key="type")
     status = fields.List(fields.Enum(enum=PackageStatus), data_key="status")
     submitted_on = fields.DateTime(data_key="submitted_on")
-    submitted_by_account_user = fields.Pluck(AccountUserSchema, "full_name", data_key="submitted_by")
+    submitted_by = fields.Str(data_key="submitted_by")
     items = fields.Function(lambda obj: [])
+
+    @pre_dump
+    def get_submitted_by(self, obj, **kwargs):
+        """Get submitted by."""
+        obj.submitted_by = obj.submitted_by_user.account_user.full_name \
+            if obj.submitted_by_user and obj.submitted_by_user.account_user else None
+        return obj
 
 
 class AccountProjectSchema(Schema):

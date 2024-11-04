@@ -64,7 +64,7 @@ export default function AppBarActions() {
           >
             <MenuItem
               onClick={() => {
-                navigate({ to: "/profile" });
+                navigate({ to: "/proponent/profile" });
               }}
             >
               My Profile

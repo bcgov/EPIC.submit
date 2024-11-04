@@ -38,7 +38,7 @@ export default function DocumentRow({ documentSubmission }: DocumentRowProps) {
   const {
     submitted_document: { name, url },
     version,
-    account_user,
+    submitted_by,
   } = documentSubmission;
 
   const getObjectFromS3 = async () => {
@@ -77,9 +77,7 @@ export default function DocumentRow({ documentSubmission }: DocumentRowProps) {
           <MuiLink onClick={getObjectFromS3}>{name}</MuiLink>
         </Typography>
       </StyledTableCell>
-      <StyledTableCell align="right">
-        {account_user?.full_name || ""}
-      </StyledTableCell>
+      <StyledTableCell align="right">{submitted_by || ""}</StyledTableCell>
       <StyledTableCell align="right">{version}</StyledTableCell>
       <StyledTableCell align="right"></StyledTableCell>
       <StyledTableCell align="right"></StyledTableCell>
