@@ -24,16 +24,23 @@ def upgrade():
     with op.batch_alter_table('users', schema=None) as batch_op:
         batch_op.add_column(sa.Column('type', usertype_enum, nullable=True))
 
-    # get list of user_ids from account_users
+    # Get list of user_ids from account_users
     conn = op.get_bind()
     result = conn.execute(sa.text("SELECT user_id FROM account_users")).fetchall()
     user_ids = [row[0] for row in result]
 
-    # update user type to PROPONENT for all users in account_users, pgsql
-    op.execute(f"UPDATE users SET type = 'PROPONENT' WHERE id IN ({','.join(map(str, user_ids))})")
+    # Update user type to PROPONENT for all users in account_users if user_ids is not empty
+    if user_ids:
+        user_ids_str = ','.join(map(str, user_ids))
+        op.execute(f"UPDATE users SET type = 'PROPONENT' WHERE id IN ({user_ids_str})")
+    else:
+        print("No user IDs found in account_users. Skipping update to PROPONENT.")
 
-    # update user type to STAFF for all users not in account_users, pgsql
-    op.execute(f"UPDATE users SET type = 'STAFF' WHERE id NOT IN ({','.join(map(str, user_ids))})")
+    # Update user type to STAFF for all users not in account_users if user_ids is not empty
+    if user_ids:
+        op.execute(f"UPDATE users SET type = 'STAFF' WHERE id NOT IN ({user_ids_str})")
+    else:
+        op.execute("UPDATE users SET type = 'STAFF'")
 
     with op.batch_alter_table('users', schema=None) as batch_op:
         batch_op.alter_column('type', nullable=False)

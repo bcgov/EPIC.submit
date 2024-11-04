@@ -17,10 +17,10 @@ to test api helper functions
 """
 import pytest
 
-from submit_api.resources.apihelper import Api
+from src.submit_api.resources.apihelper import Api
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def app(app):
     """Defining app test fixture"""
     api = Api(app)
