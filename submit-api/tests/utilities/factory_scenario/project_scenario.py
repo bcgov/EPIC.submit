@@ -1,29 +1,37 @@
-"""Various test data for project."""
 from enum import Enum
-
 from faker import Faker
-
 from ....src.submit_api.models import Project as ProjectModel
-
-from ..factory_utils import generate_abbreviation
-
 
 fake = Faker()
 
-
 class ProjectScenario(Enum):
-    """project scenario."""
+    """Project scenarios for testing with realistic data according to the model."""
 
-    default_project = {"name": fake.name(), "abbreviation": generate_abbreviation(4)}
+    default_project = {
+        "name": fake.name(),
+        "proponent_id": fake.random_int(1),
+        "proponent_name": fake.name(),
+        "ea_certificate": fake.uuid4()
+    }
 
-    project1 = {"name": fake.name(), "abbreviation": generate_abbreviation(4)}
+    project1 = {
+        "name": fake.name(),
+        "proponent_id": 1,
+        "proponent_name": fake.name(),
+        "ea_certificate": fake.uuid4()
+    }
 
-    project2 = {"name": fake.name(), "abbreviation": generate_abbreviation(4)}
+    project2 = {
+        "name": fake.name(),
+        "proponent_id": 1,
+        "proponent_name": fake.name(),
+        "ea_certificate": fake.uuid4()
+    }
 
     @staticmethod
     def create(project_data: dict):
-        """Create project."""
+        """Create and save a Project instance."""
         project = ProjectModel(**project_data)
         project.save()
-        print("save completed")
+        print("Save completed")
         return project
