@@ -38,7 +38,7 @@ class Package(BaseModel):
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=True)
     submitted_by_user = db.relationship('User', foreign_keys=[submitted_by], lazy='joined')
-    meta = db.relationship('PackageMetadata', backref='package', lazy='select')
+    meta = db.relationship('PackageMetadata', backref='package', lazy='joined', uselist=False)
     items = db.relationship('Item', backref='package', lazy='joined', order_by='Item.sort_order')
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
 

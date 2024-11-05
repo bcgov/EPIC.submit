@@ -32,13 +32,15 @@ from .project import API as PROJECT_API
 from .submission import API as SUBMISSION_API
 from .test import API as TEST_API
 from .user import API as USER_API
+from .staff.project import API as STAFF_PROJECT_API
 
 
-__all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT')
+__all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT', 'STAFF_API_BLUEPRINT')
 
-URL_PREFIX = '/api/'
-API_BLUEPRINT = Blueprint('API', __name__, url_prefix=URL_PREFIX)
+URL_PREFIX = '/api'
+API_BLUEPRINT = Blueprint('API', __name__, url_prefix=f"{URL_PREFIX}/")
 OPS_BLUEPRINT = Blueprint("API_OPS", __name__, url_prefix="/ops")
+STAFF_API_BLUEPRINT = Blueprint("STAFF_API", __name__, url_prefix=f"{URL_PREFIX}/staff")
 
 API_OPS = Api(
     OPS_BLUEPRINT,
@@ -65,3 +67,12 @@ API.add_namespace(PACKAGE_API)
 API.add_namespace(ITEM_API)
 API.add_namespace(SUBMISSION_API)
 API.add_namespace(TEST_API)
+
+STAFF_API = Api(
+    STAFF_API_BLUEPRINT,
+    title='STAFF SUBMIT API',
+    version='1.0',
+    description='The Core API for staff of SUBMIT'
+)
+
+STAFF_API.add_namespace(STAFF_PROJECT_API)

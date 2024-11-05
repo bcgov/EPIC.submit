@@ -27,3 +27,8 @@ class AccountProject(BaseModel):
         db.session.bulk_insert_mappings(cls, projects)
         db.session.commit()
         return projects
+
+    @classmethod
+    def get_all(cls):
+        """Get all projects."""
+        return cls.query.all()
