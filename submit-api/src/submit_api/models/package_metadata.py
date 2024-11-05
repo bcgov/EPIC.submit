@@ -18,4 +18,3 @@ class PackageMetadata(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False)
     package_meta = Column(db.JSON, nullable=False)
-    package = db.relationship('Package', foreign_keys=[package_id], lazy='joined')

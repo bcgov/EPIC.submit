@@ -40,15 +40,18 @@ class AccountProjectPackageSchema(Schema):
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
     items = fields.Function(lambda obj: [])
-    days_since_submission = fields.Function(lambda obj: obj.get_days_since_submission())
-    package_metadata = fields.Dict(data_key="package_metadata")
+    days_since_submission = fields.Method('get_days_since_submission')
+    meta = fields.Method('get_meta')
 
-    @staticmethod
-    def get_days_since_submission(obj, **kwargs):
+    def get_days_since_submission(self, obj):
         """Get days since submission."""
         if obj.submitted_on:
             return (datetime.now() - obj.submitted_on).days
         return None
+
+    def get_meta(self, obj):
+        """Get meta."""
+        return obj.meta.package_meta if obj.meta else None
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):

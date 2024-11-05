@@ -13,7 +13,6 @@ from flask_cors import CORS
 from submit_api.auth import jwt
 from submit_api.config import get_named_config
 from submit_api.models import db, ma, migrate
-from submit_api.resources import STAFF_API_BLUEPRINT
 from submit_api.utils.cache import cache
 from submit_api.utils.util import allowedorigins
 
@@ -44,7 +43,7 @@ secure_headers = secure.Secure(
 
 def create_app(run_mode=os.getenv('FLASK_ENV', 'development')):
     """Create flask app."""
-    from submit_api.resources import API_BLUEPRINT, OPS_BLUEPRINT  # pylint: disable=import-outside-toplevel
+    from submit_api.resources import API_BLUEPRINT, OPS_BLUEPRINT, STAFF_API_BLUEPRINT  # pylint: disable=import-outside-toplevel
 
     # Flask app initialize
     app = Flask(__name__)
