@@ -17,7 +17,7 @@ function Index() {
     if (isAuthenticated) {
       signoutSilent();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, signoutSilent]);
 
   if (isAuthenticated || isLoading) {
     return <PageLoader />;
