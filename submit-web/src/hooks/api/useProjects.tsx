@@ -68,16 +68,23 @@ type UseGetProjectsByAccountParams = {
   searchOptions?: Record<string, string | number | string[]>;
   // queryOptions?: Record<string, unknown>;
 };
-export const useGetAccountProjects = ({
+
+export const getAccountProjectsQueryOptions = ({
   accountId,
   searchOptions,
-}: UseGetProjectsByAccountParams) => {
-  return useQuery({
+}: UseGetProjectsByAccountParams) =>
+  queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, accountId, searchOptions],
     queryFn: () => getAccountProjectsByAccountId({ accountId, searchOptions }),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });
+export const useGetAccountProjects = ({
+  accountId,
+  searchOptions,
+}: UseGetProjectsByAccountParams) => {
+  const options = getAccountProjectsQueryOptions({ accountId, searchOptions });
+  return useQuery(options);
 };
 
 type GetAccountProjectsByIdParams = {
