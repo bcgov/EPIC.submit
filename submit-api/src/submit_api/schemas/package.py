@@ -34,19 +34,6 @@ class PostPackageState(Schema):
     status = fields.Str(data_key="status")
 
 
-class PackageMetadataSchema(Schema):
-    """package schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    id = fields.Int(data_key="id")
-    package_id = fields.Int(data_key="package_id")
-    package_meta = fields.Dict(data_key="package_meta")
-
-
 class PackageSchema(Schema):
     """package schema."""
 
@@ -63,8 +50,12 @@ class PackageSchema(Schema):
     status = fields.List(fields.Enum(enum=PackageStatus), enum=PackageStatus, data_key="status")
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
-    meta = fields.Nested(PackageMetadataSchema, data_key="meta", many=True)
+    meta = fields.Method('get_meta')
     items = fields.Nested(ItemSchema, data_key="items", many=True)
+
+    def get_meta(self, obj):
+        """Get meta."""
+        return obj.meta.package_meta if obj.meta else None
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
