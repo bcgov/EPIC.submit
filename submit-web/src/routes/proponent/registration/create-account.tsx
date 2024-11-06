@@ -6,10 +6,5 @@ export const Route = createFileRoute("/proponent/registration/create-account")({
 });
 
 function CreateAccount() {
-  console.log("in create account");
-  return (
-    <>
-      <TabPanel />
-    </>
-  );
+  return <TabPanel />;
 }

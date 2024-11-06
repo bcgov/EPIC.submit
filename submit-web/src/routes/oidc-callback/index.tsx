@@ -20,7 +20,6 @@ function OidcCallback() {
   const { error: getAuthError, user: kcUser } = useAuth();
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const params = new URLSearchParams(window.location.search);
-  console.log(window.location.search);
   const proponent_id = params.get("proponent_id");
 
   useEffect(() => {
@@ -46,7 +45,6 @@ function OidcCallback() {
   }
 
   if (!isAuthLoading && !isUserDataLoading) {
-    console.log("redirecting with proponent id", proponent_id);
     return (
       <Navigate
         to="/proponent/registration/create-account"

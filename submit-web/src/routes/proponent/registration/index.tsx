@@ -11,12 +11,9 @@ export const Route = createFileRoute("/proponent/registration/")({
 
 function Registration() {
   const { isAuthenticated, signinRedirect } = useAuth();
-  // const { proponent_id } = Route.useSearch<{
-  //   proponent_id: number;
-  // }>();
-  const params = new URLSearchParams(window.location.search);
-  console.log("in registration with search", window.location.search);
-  const proponent_id = params.get("proponent_id");
+  const { proponent_id } = Route.useSearch<{
+    proponent_id: number;
+  }>();
 
   useEffect(() => {
     if (!proponent_id) {
