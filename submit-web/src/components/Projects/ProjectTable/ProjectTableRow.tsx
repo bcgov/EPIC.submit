@@ -6,21 +6,14 @@ import ProponentTableRow from "./ProponentTableRow";
 
 interface ProjectRowProps {
   subPackage: SubmissionPackage;
-  onSubmissionClick: (submissionId: number) => void;
 }
 
-export default function ProjectTableRow({
-  subPackage,
-  onSubmissionClick,
-}: ProjectRowProps) {
+export default function ProjectTableRow({ subPackage }: ProjectRowProps) {
   const { userType } = useAccount();
   return (
     <Switch>
       <Case condition={userType === USER_TYPE.PROPONENT}>
-        <ProponentTableRow
-          subPackage={subPackage}
-          onSubmissionClick={onSubmissionClick}
-        />
+        <ProponentTableRow subPackage={subPackage} />
       </Case>
     </Switch>
   );

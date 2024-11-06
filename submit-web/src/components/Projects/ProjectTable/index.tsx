@@ -3,14 +3,12 @@ import { SubmissionPackage } from "@/models/Package";
 import ProjectTableHead from "./TableHead";
 import ProjectTableRow from "./ProjectTableRow";
 
-export default function SubmissionPackageTable({
+export default function ProjectTable({
   submissionPackages,
   headless,
-  onSubmissionClick,
 }: {
   submissionPackages: Array<SubmissionPackage>;
   headless?: boolean;
-  onSubmissionClick: (submissionId: number) => void;
 }) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
@@ -18,11 +16,7 @@ export default function SubmissionPackageTable({
         {!headless && <ProjectTableHead />}
         <TableBody>
           {submissionPackages?.map((subPackage) => (
-            <ProjectTableRow
-              key={subPackage.id}
-              subPackage={subPackage}
-              onSubmissionClick={onSubmissionClick}
-            />
+            <ProjectTableRow key={subPackage.id} subPackage={subPackage} />
           ))}
         </TableBody>
       </Table>

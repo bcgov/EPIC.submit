@@ -2,7 +2,6 @@ import { ArrowForwardIos } from "@mui/icons-material";
 import { Link, TableCell, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
-import dayjs from "dayjs";
 import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
 import {
   StyledProjectTableCell,
@@ -12,14 +11,14 @@ import EmptyRow from "./EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
 
 interface ProjectRowProps {
-  subPackage: SubmissionPackage;
+  submissionPackage: SubmissionPackage;
 }
 
-export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
+export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
   const navigate = useNavigate();
   const onSubmissionClick = () => {
     navigate({
-      to: `/proponent/projects/${subPackage.account_project_id}/submission-packages/${subPackage.id}`,
+      to: `/proponent/projects/${submissionPackage.account_project_id}/submission-packages/${submissionPackage.id}`,
     });
   };
   return (
@@ -41,21 +40,25 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
               fontWeight={"500"}
               sx={{ mr: 0.5 }}
             >
-              {subPackage.name}
+              {submissionPackage.name}
             </Typography>
             <ArrowForwardIos fontSize="small" />
           </Link>
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {subPackage.submitted_on
-            ? dayjs(subPackage.submitted_on).format("DD-MMM-YYYY")
-            : "--"}
+          {submissionPackage.meta?.type}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {subPackage.submitted_by ?? "--"}
+          {/* {submissionPackage.days_since_submission} */}
+        </StyledProjectTableCell>
+        <StyledProjectTableCell align="right">
+          {submissionPackage.meta?.cc_completed_on}
+        </StyledProjectTableCell>
+        <StyledProjectTableCell align="right">
+          {submissionPackage.meta?.mp_review}
         </StyledProjectTableCell>
         <TableCell align="center">
-          <PackageStatusChipStack status={subPackage.status} />
+          <PackageStatusChipStack status={submissionPackage.status} />
         </TableCell>
       </StyledProjectTableRow>
       <EmptyRow />

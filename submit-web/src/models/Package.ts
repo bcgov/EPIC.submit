@@ -48,6 +48,8 @@ export const PACKAGE_STATUS: Record<
   },
 };
 
+export type SubmissionPackageMeta = Record<string, any>;
+
 export type SubmissionPackage = {
   id: number;
   name: string;
@@ -58,4 +60,5 @@ export type SubmissionPackage = {
   type: PackageType;
   items: Array<SubmissionItem>;
   account_project_id: number;
+  meta?: SubmissionPackageMeta;
 };
