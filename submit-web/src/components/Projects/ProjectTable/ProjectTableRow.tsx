@@ -15,6 +15,9 @@ export default function ProjectTableRow({ subPackage }: ProjectRowProps) {
       <Case condition={userType === USER_TYPE.PROPONENT}>
         <ProponentTableRow subPackage={subPackage} />
       </Case>
+      <Case condition={userType === USER_TYPE.STAFF}>
+        <ProponentTableRow subPackage={subPackage} />
+      </Case>
     </Switch>
   );
 }

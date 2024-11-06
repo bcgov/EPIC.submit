@@ -3,6 +3,8 @@ import { submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { Options } from "./types";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
+import { useAccount } from "@/store/accountStore";
+import { USER_TYPE } from "@/models/User";
 
 const loadProjectsByProponentId = (proponentId?: number) => {
   if (!proponentId) {
@@ -69,7 +71,7 @@ type UseGetProjectsByAccountParams = {
   // queryOptions?: Record<string, unknown>;
 };
 
-export const getAccountProjectsQueryOptions = ({
+export const getAccountProjectsByAccountQueryOptions = ({
   accountId,
   searchOptions,
 }: UseGetProjectsByAccountParams) =>
@@ -79,11 +81,14 @@ export const getAccountProjectsQueryOptions = ({
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });
-export const useGetAccountProjects = ({
+export const useGetAccountProjectsByAccount = ({
   accountId,
   searchOptions,
 }: UseGetProjectsByAccountParams) => {
-  const options = getAccountProjectsQueryOptions({ accountId, searchOptions });
+  const options = getAccountProjectsByAccountQueryOptions({
+    accountId,
+    searchOptions,
+  });
   return useQuery(options);
 };
 
@@ -114,5 +119,39 @@ export const useGetAccountProject = ({
   accountProjectId,
 }: UseGetAccountProjectByIdParams) => {
   const options = getAccountProjectQueryOptions(accountProjectId);
+  return useQuery(options);
+};
+
+type GetProjectsByParamsForStaff = {
+  searchOptions?: Record<string, string | number | string[]>;
+};
+const getAccountProjectsForStaff = ({
+  searchOptions,
+}: GetProjectsByParamsForStaff) => {
+  const url = "/staff/projects";
+
+  return submitRequest<AccountProject[]>({
+    url,
+    params: searchOptions,
+  });
+};
+
+type UseGetProjectsForStaffParams = {
+  searchOptions?: Record<string, string | number | string[]>;
+  // queryOptions?: Record<string, unknown>;
+};
+
+export const getAccountProjectsForStaffQueryOptions = ({
+  searchOptions,
+}: UseGetProjectsForStaffParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.STAFF_ACCOUNT_PROJECTS, searchOptions],
+    queryFn: () => getAccountProjectsForStaff({ searchOptions }),
+    ...defaultUseQueryOptions,
+  });
+export const useGetAccountProjectsForStaff = ({
+  searchOptions,
+}: UseGetProjectsByAccountParams) => {
+  const options = getAccountProjectsForStaffQueryOptions({ searchOptions });
   return useQuery(options);
 };
