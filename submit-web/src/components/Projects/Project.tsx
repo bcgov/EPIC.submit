@@ -3,7 +3,7 @@ import { BCDesignTokens } from "epic.theme";
 import AddIcon from "@mui/icons-material/Add";
 import { ProjectStatus } from "../registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "../registration/addProjects/ProjectCard/constants";
-import SubmissionPackageTable from "./ProjectTable";
+import ProjectTable from "./ProjectTable";
 import { AccountProject } from "@/models/Project";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { useNavigate } from "@tanstack/react-router";
@@ -50,12 +50,6 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const handleNewSubmission = () => {
     navigate({
       to: `/proponent/projects/${accountProject.id}/new-submission`,
-    });
-  };
-
-  const handleOnSubmissionClick = (submissionPackageId: number) => {
-    navigate({
-      to: `/${userType?.toLowerCase()}/projects/${accountProject.id}/submission-packages/${submissionPackageId}`,
     });
   };
 
@@ -114,10 +108,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
           <CardInnerBox
             sx={{ height: "100%", py: BCDesignTokens.layoutPaddingSmall }}
           >
-            <SubmissionPackageTable
-              onSubmissionClick={handleOnSubmissionClick}
-              submissionPackages={activeSubmissionPackages}
-            />
+            <ProjectTable submissionPackages={activeSubmissionPackages} />
           </CardInnerBox>
           <Divider
             sx={{
@@ -139,9 +130,8 @@ export const Project = ({ accountProject }: ProjectParam) => {
           <CardInnerBox
             sx={{ height: "100%", py: BCDesignTokens.layoutPaddingMedium }}
           >
-            <SubmissionPackageTable
+            <ProjectTable
               headless
-              onSubmissionClick={handleOnSubmissionClick}
               submissionPackages={pastSubmissionPackages}
             />
           </CardInnerBox>

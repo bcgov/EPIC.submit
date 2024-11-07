@@ -68,16 +68,26 @@ type UseGetProjectsByAccountParams = {
   searchOptions?: Record<string, string | number | string[]>;
   // queryOptions?: Record<string, unknown>;
 };
-export const useGetAccountProjects = ({
+
+export const getAccountProjectsByAccountQueryOptions = ({
   accountId,
   searchOptions,
-}: UseGetProjectsByAccountParams) => {
-  return useQuery({
+}: UseGetProjectsByAccountParams) =>
+  queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, accountId, searchOptions],
     queryFn: () => getAccountProjectsByAccountId({ accountId, searchOptions }),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });
+export const useGetAccountProjectsByAccount = ({
+  accountId,
+  searchOptions,
+}: UseGetProjectsByAccountParams) => {
+  const options = getAccountProjectsByAccountQueryOptions({
+    accountId,
+    searchOptions,
+  });
+  return useQuery(options);
 };
 
 type GetAccountProjectsByIdParams = {
@@ -107,5 +117,39 @@ export const useGetAccountProject = ({
   accountProjectId,
 }: UseGetAccountProjectByIdParams) => {
   const options = getAccountProjectQueryOptions(accountProjectId);
+  return useQuery(options);
+};
+
+type GetProjectsByParamsForStaff = {
+  searchOptions?: Record<string, string | number | string[]>;
+};
+const getAccountProjectsForStaff = ({
+  searchOptions,
+}: GetProjectsByParamsForStaff) => {
+  const url = "/staff/projects";
+
+  return submitRequest<AccountProject[]>({
+    url,
+    params: searchOptions,
+  });
+};
+
+type UseGetProjectsForStaffParams = {
+  searchOptions?: Record<string, string | number | string[]>;
+  // queryOptions?: Record<string, unknown>;
+};
+
+export const getAccountProjectsForStaffQueryOptions = ({
+  searchOptions,
+}: UseGetProjectsForStaffParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.STAFF_ACCOUNT_PROJECTS, searchOptions],
+    queryFn: () => getAccountProjectsForStaff({ searchOptions }),
+    ...defaultUseQueryOptions,
+  });
+export const useGetAccountProjectsForStaff = ({
+  searchOptions,
+}: UseGetProjectsByAccountParams) => {
+  const options = getAccountProjectsForStaffQueryOptions({ searchOptions });
   return useQuery(options);
 };

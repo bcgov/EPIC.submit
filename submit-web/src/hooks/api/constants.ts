@@ -13,4 +13,5 @@ export const QUERY_KEY = Object.freeze({
   PROJECTS: "projects",
   SUBMISSIONS: "submissions",
   USERS: "users",
+  STAFF_ACCOUNT_PROJECTS: "staff/account-projects",
 });
