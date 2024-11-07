@@ -16,7 +16,6 @@ import { InfoBox } from "@/components/Submission/InfoBox";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useEffect } from "react";
-import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
@@ -136,7 +135,7 @@ export default function SubmissionPage() {
                   color="secondary"
                   sx={{ mr: 1 }}
                   onClick={() =>
-                    navigate({ to: `/proponent/projects/${accountProject.id}` })
+                    navigate({ to: `/staff/projects/${accountProject.id}` })
                   }
                 >
                   Close

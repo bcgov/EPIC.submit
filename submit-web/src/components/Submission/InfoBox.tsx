@@ -31,16 +31,7 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
   return (
     <>
       <Case condition={userType === USER_TYPE.STAFF}>
-        <StaffInfoBox
-          submissionPackage={submissionPackage}
-          userType={userType}
-        />
-      </Case>
-      <Case condition={userType === USER_TYPE.PROPONENT}>
-        <ProponentInfoBox
-          submissionPackage={submissionPackage}
-          userType={userType}
-        />
+        <StaffInfoBox submissionPackage={submissionPackage} />
       </Case>
     </>
   );
@@ -108,19 +99,38 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
+        <InfoBoxItem label={"Condition"} />
+      </Grid>
+      <Grid item xs={12} lg={4} container>
+        <InfoBoxItem label={"CC Start Date"} />
+      </Grid>
+      <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted by"}
           value={submissionPackage?.submitted_by}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Condition"} />
-      </Grid>
-      <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Date Review Completed"} />
-      </Grid>
-      <Grid item xs={12} lg={4} container>
         <InfoBoxItem label={"Supporting Conditions"} />
+      </Grid>
+      <Grid item xs={12} lg={4} container>
+        <InfoBoxItem label={"CC Completed"} />
+      </Grid>
+      <Grid item xs={12} lg={4} container></Grid>
+      <Grid item xs={12} lg={4} container></Grid>
+      <Grid item xs={12} lg={4} container>
+        <InfoBoxItem label={"Review Start Date"} />
+      </Grid>
+      <Grid item xs={12} lg={4} container></Grid>
+      <Grid item xs={12} lg={4} container></Grid>
+      <Grid
+        item
+        xs={12}
+        lg={4}
+        container
+        sx={{ mb: BCDesignTokens.layoutMarginXsmall }}
+      >
+        <InfoBoxItem label={"Review Completed"} />
       </Grid>
     </Grid>
   );
