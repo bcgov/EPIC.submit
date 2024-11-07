@@ -1,5 +1,5 @@
 import { ArrowForwardIos } from "@mui/icons-material";
-import { Link, TableCell, Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
 import dayjs from "dayjs";
@@ -54,9 +54,9 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
         <StyledProjectTableCell align="right">
           {subPackage.submitted_by ?? "--"}
         </StyledProjectTableCell>
-        <TableCell align="center">
+        <StyledProjectTableCell align="center">
           <PackageStatusChipStack status={subPackage.status} />
-        </TableCell>
+        </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow />
     </>

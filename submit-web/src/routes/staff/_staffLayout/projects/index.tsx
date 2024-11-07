@@ -10,8 +10,9 @@ import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
 
-export const Route = createFileRoute("/staff/_staffLayout/projects")({
+export const Route = createFileRoute("/staff/_staffLayout/projects/")({
   component: ProjectsPage,
+  meta: () => [{ title: "All Projects" }],
 });
 
 function ProjectsPage() {

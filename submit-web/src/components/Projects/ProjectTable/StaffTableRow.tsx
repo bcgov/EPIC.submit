@@ -1,5 +1,5 @@
 import { ArrowForwardIos } from "@mui/icons-material";
-import { Link, TableCell, Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
 import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
@@ -8,17 +8,20 @@ import {
   StyledProjectTableRow,
 } from "./StyledComponents";
 import EmptyRow from "./EmptyRow";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 interface ProjectRowProps {
   submissionPackage: SubmissionPackage;
 }
 
 export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
+  const { projectId: accountProjectIdParam } = useParams({ strict: false });
+  const accountProjectId = Number(accountProjectIdParam);
   const navigate = useNavigate();
+
   const onSubmissionClick = () => {
     navigate({
-      to: `/proponent/projects/${submissionPackage.account_project_id}/submission-packages/${submissionPackage.id}`,
+      to: `/staff/projects/${accountProjectId}/submission-packages/${submissionPackage.id}`,
     });
   };
   return (
@@ -57,9 +60,9 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
         <StyledProjectTableCell align="right">
           {submissionPackage.meta?.mp_review || ""}
         </StyledProjectTableCell>
-        <TableCell align="center">
+        <StyledProjectTableCell align="center">
           <PackageStatusChipStack status={submissionPackage.status} />
-        </TableCell>
+        </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow />
     </>

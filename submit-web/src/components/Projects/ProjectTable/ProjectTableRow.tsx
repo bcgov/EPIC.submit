@@ -3,6 +3,7 @@ import { Case, Switch } from "react-if";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import ProponentTableRow from "./ProponentTableRow";
+import StaffTableRow from "./StaffTableRow";
 
 interface ProjectRowProps {
   subPackage: SubmissionPackage;
@@ -16,7 +17,7 @@ export default function ProjectTableRow({ subPackage }: ProjectRowProps) {
         <ProponentTableRow subPackage={subPackage} />
       </Case>
       <Case condition={userType === USER_TYPE.STAFF}>
-        <ProponentTableRow subPackage={subPackage} />
+        <StaffTableRow submissionPackage={subPackage} />
       </Case>
     </Switch>
   );
