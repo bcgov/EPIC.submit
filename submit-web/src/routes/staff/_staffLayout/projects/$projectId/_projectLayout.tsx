@@ -3,7 +3,7 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { AccountProject } from "@/models/Project";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   createFileRoute,
   Navigate,
