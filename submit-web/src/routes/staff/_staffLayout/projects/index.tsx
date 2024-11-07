@@ -3,8 +3,7 @@ import { useProjectFilters } from "@/components/Filters/projectFilterStore";
 import { Projects, ProjectsSkeleton } from "@/components/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
-import { useAccount } from "@/store/accountStore";
+import { useGetAccountProjectsForStaff } from "@/hooks/api/useProjects";
 import { Grid } from "@mui/material";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -16,14 +15,12 @@ export const Route = createFileRoute("/staff/_staffLayout/projects/")({
 });
 
 function ProjectsPage() {
-  const { accountId } = useAccount();
   const { filters } = useProjectFilters();
   const {
     data: projectsData,
     isPending: isProjectsLoading,
     isError: isProjectsError,
-  } = useGetAccountProjectsByAccount({
-    accountId,
+  } = useGetAccountProjectsForStaff({
     searchOptions: filters,
   });
 
