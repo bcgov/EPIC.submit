@@ -30,16 +30,14 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const { userType } = useAccount();
 
   return (
-    <>
-      <Switch>
-        <Case condition={userType === USER_TYPE.STAFF}>
-          <StaffInfoBox submissionPackage={submissionPackage} />
-        </Case>
-        <Case condition={userType === USER_TYPE.PROPONENT}>
-          <ProponentInfoBox submissionPackage={submissionPackage} />
-        </Case>
-      </Switch>
-    </>
+    <Switch>
+      <Case condition={userType === USER_TYPE.STAFF}>
+        <StaffInfoBox submissionPackage={submissionPackage} />
+      </Case>
+      <Case condition={userType === USER_TYPE.PROPONENT}>
+        <ProponentInfoBox submissionPackage={submissionPackage} />
+      </Case>
+    </Switch>
   );
 };
 

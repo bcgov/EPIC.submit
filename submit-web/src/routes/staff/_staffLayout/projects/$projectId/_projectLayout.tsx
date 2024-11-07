@@ -1,9 +1,7 @@
 import { ProjectsSkeleton } from "@/components/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { QUERY_KEY } from "@/hooks/api/constants";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
-import { AccountProject } from "@/models/Project";
-import { useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Navigate,
@@ -29,14 +27,11 @@ export const Route = createFileRoute(
 });
 
 function ProjectLayout() {
-  const { projectId: accountProjectIdParam } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout",
-  });
-  const queryClient = useQueryClient();
-  const accountProject = queryClient.getQueryData<AccountProject>([
-    QUERY_KEY.ACCOUNT_PROJECT,
-    Number(accountProjectIdParam),
-  ]);
+  const { projectId: accountProjectIdParam } = useParams({ strict: false });
+  const accountProjectId = Number(accountProjectIdParam);
+  const { data: accountProject } = useSuspenseQuery(
+    getAccountProjectQueryOptions(accountProjectId)
+  );
 
   if (!accountProject) return <Navigate to="/error" />;
 
