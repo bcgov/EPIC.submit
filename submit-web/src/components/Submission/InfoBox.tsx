@@ -4,7 +4,7 @@ import { useAccount } from "@/store/accountStore";
 import { Grid, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
-import { Case, Switch, When } from "react-if";
+import { Case, Switch } from "react-if";
 
 type InfoBoxItemProps = {
   label?: string;

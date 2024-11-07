@@ -13,7 +13,6 @@ import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { InfoBox } from "@/components/Submission/InfoBox";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useEffect } from "react";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
