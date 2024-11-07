@@ -40,7 +40,7 @@ function OidcCallback() {
     return <Navigate to="/staff/projects" />;
   }
 
-  if (userData?.account_user.account_id) {
+  if (userData?.account_user?.account_id) {
     return <Navigate to="/proponent/projects" />;
   }
 
