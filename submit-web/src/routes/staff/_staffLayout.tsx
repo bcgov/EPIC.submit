@@ -4,9 +4,11 @@ import { PageLoader } from "@/components/Shared/PageLoader";
 import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
 import { useIsMobile } from "@/hooks/common";
 import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 const IDIR = "idir";
@@ -16,14 +18,45 @@ export const Route = createFileRoute("/staff/_staffLayout")({
 });
 
 function Proponent() {
-  const { user, signoutRedirect, isLoading: isAuthLoading } = useAuth();
+  const { setAccount } = useAccount();
+  const {
+    user,
+    signoutRedirect,
+    isLoading: isAuthLoading,
+    isAuthenticated,
+    signinRedirect,
+  } = useAuth();
 
   const { data: userData, isPending: isUserPending } = useQuery(
     getUserByGuidQueryOptions({
       guid: user?.profile.sub,
-    }),
+    })
   );
   const isMobile = useIsMobile();
+
+  const isLoading = isAuthLoading || isUserPending;
+
+  useEffect(() => {
+    if (!isAuthenticated && !isAuthLoading) {
+      signinRedirect();
+    }
+    if (isAuthenticated && !isLoading) {
+      setAccount({
+        isLoading: false,
+        proponentId: userData?.account_user.account.proponent_id,
+        accountId: userData?.account_user.account.id,
+        userType: USER_TYPE.STAFF,
+      });
+    }
+  }, [
+    isAuthenticated,
+    isUserPending,
+    signinRedirect,
+    setAccount,
+    userData,
+    isLoading,
+    isAuthLoading,
+  ]);
 
   if (isUserPending || isAuthLoading) {
     return <PageLoader />;

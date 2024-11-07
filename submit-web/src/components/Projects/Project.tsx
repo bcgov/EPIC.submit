@@ -8,6 +8,9 @@ import { AccountProject } from "@/models/Project";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { useNavigate } from "@tanstack/react-router";
 import { ContentBox } from "../Shared/ContentBox";
+import { When } from "react-if";
+import { useAccount } from "@/store/accountStore";
+import { USER_TYPE } from "@/models/User";
 
 export const CardInnerBox = styled(Box)({
   display: "flex",
@@ -24,32 +27,35 @@ type ProjectParam = {
 
 export const Project = ({ accountProject }: ProjectParam) => {
   const navigate = useNavigate();
+  const { userType } = useAccount();
 
   const activeSubmissionPackages = accountProject.packages.filter(
     (subPackage) =>
       !subPackage.status.some(
         (status) =>
           status === PACKAGE_STATUS.APPROVED.value ||
-          status === PACKAGE_STATUS.REJECTED.value,
-      ),
+          status === PACKAGE_STATUS.REJECTED.value
+      )
   );
   const pastSubmissionPackages = accountProject.packages.filter((subPackage) =>
     subPackage.status.some(
       (status) =>
         status === PACKAGE_STATUS.APPROVED.value ||
-        status === PACKAGE_STATUS.REJECTED.value,
-    ),
+        status === PACKAGE_STATUS.REJECTED.value
+    )
   );
 
   const { name, ea_certificate } = accountProject.project;
 
   const handleNewSubmission = () => {
-    navigate({ to: `/proponent/projects/${accountProject.id}/new-submission` });
+    navigate({
+      to: `/proponent/projects/${accountProject.id}/new-submission`,
+    });
   };
 
   const handleOnSubmissionClick = (submissionPackageId: number) => {
     navigate({
-      to: `/proponent/projects/${accountProject.id}/submission-packages/${submissionPackageId}`,
+      to: `/${userType?.toLowerCase()}/projects/${accountProject.id}/submission-packages/${submissionPackageId}`,
     });
   };
 
@@ -79,12 +85,14 @@ export const Project = ({ accountProject }: ProjectParam) => {
             </Typography>
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
           </CardInnerBox>
-          <CardInnerBox>
-            <Button onClick={handleNewSubmission}>
-              <AddIcon sx={{ p: 0, mr: 0.5 }} />
-              New Submission
-            </Button>
-          </CardInnerBox>
+          <When condition={userType === USER_TYPE.PROPONENT}>
+            <CardInnerBox>
+              <Button onClick={handleNewSubmission}>
+                <AddIcon sx={{ p: 0, mr: 0.5 }} />
+                New Submission
+              </Button>
+            </CardInnerBox>
+          </When>
         </Box>
         <Box height={"100%"} px={BCDesignTokens.layoutPaddingXsmall}>
           <Divider
