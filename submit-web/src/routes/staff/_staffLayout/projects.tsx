@@ -3,10 +3,7 @@ import { useProjectFilters } from "@/components/Filters/projectFilterStore";
 import { Projects, ProjectsSkeleton } from "@/components/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import {
-  getAccountProjectsForStaffQueryOptions,
-  useGetAccountProjectsByAccount,
-} from "@/hooks/api/useProjects";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
 import { createFileRoute, Navigate } from "@tanstack/react-router";

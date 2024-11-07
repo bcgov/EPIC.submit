@@ -48,7 +48,7 @@ export const PACKAGE_STATUS: Record<
   },
 };
 
-export type SubmissionPackageMeta = Record<string, any>;
+export type SubmissionPackageMeta = Record<string, number | string>;
 
 export type SubmissionPackage = {
   id: number;

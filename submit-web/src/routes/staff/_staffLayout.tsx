@@ -34,10 +34,6 @@ function Proponent() {
   );
   const isMobile = useIsMobile();
 
-  if (isUserPending || isAuthLoading) {
-    return <PageLoader />;
-  }
-
   const isLoading = isAuthLoading || isUserPending;
 
   useEffect(() => {
@@ -59,7 +55,12 @@ function Proponent() {
     setAccount,
     userData,
     isLoading,
+    isAuthLoading,
   ]);
+
+  if (isUserPending || isAuthLoading) {
+    return <PageLoader />;
+  }
 
   if (user?.profile.identity_provider !== IDIR) {
     signoutRedirect();

@@ -3,8 +3,6 @@ import { submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { Options } from "./types";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
-import { useAccount } from "@/store/accountStore";
-import { USER_TYPE } from "@/models/User";
 
 const loadProjectsByProponentId = (proponentId?: number) => {
   if (!proponentId) {
