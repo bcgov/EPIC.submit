@@ -18,6 +18,9 @@ import { useEffect } from "react";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { AccountProject } from "@/models/Project";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
@@ -28,10 +31,11 @@ export const Route = createFileRoute(
 export default function SubmissionPage() {
   const { reset } = usePackageTableStore();
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
-  const accountProjectId = Number(accountProjectIdParam);
-  const { data: accountProject } = useGetAccountProject({
-    accountProjectId,
-  });
+  const queryClient = useQueryClient();
+  const accountProject = queryClient.getQueryData<AccountProject>([
+    QUERY_KEY.ACCOUNT_PROJECT,
+    Number(accountProjectIdParam),
+  ]);
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
   });
