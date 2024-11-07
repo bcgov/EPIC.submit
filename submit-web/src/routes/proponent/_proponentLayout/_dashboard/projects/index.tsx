@@ -1,6 +1,6 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { Grid } from "@mui/material";
-import { useGetAccountProjects } from "@/hooks/api/useProjects";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { Else, If, Then } from "react-if";
 import { Projects, ProjectsSkeleton } from "@/components/Projects";
@@ -10,7 +10,9 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import ProjectFilters from "@/components/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/Filters/projectFilterStore";
 
-export const Route = createFileRoute("/proponent/_proponentLayout/_dashboard/projects/")({
+export const Route = createFileRoute(
+  "/proponent/_proponentLayout/_dashboard/projects/",
+)({
   component: ProjectsPage,
   meta: () => [{ title: "All Projects" }],
 });
@@ -22,7 +24,7 @@ export function ProjectsPage() {
     data: projectsData,
     isPending: isProjectsLoading,
     isError: isProjectsError,
-  } = useGetAccountProjects({
+  } = useGetAccountProjectsByAccount({
     accountId,
     searchOptions: filters,
   });
