@@ -12,6 +12,7 @@ import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute("/staff/_staffLayout/projects/")({
   component: ProjectsPage,
+  meta: () => [{ title: "All Projects" }],
 });
 
 function ProjectsPage() {

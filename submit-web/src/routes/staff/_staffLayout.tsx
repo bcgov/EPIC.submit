@@ -14,10 +14,10 @@ import { useAuth } from "react-oidc-context";
 const IDIR = "idir";
 
 export const Route = createFileRoute("/staff/_staffLayout")({
-  component: Proponent,
+  component: Staff,
 });
 
-function Proponent() {
+function Staff() {
   const { setAccount } = useAccount();
   const {
     user,

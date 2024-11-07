@@ -54,7 +54,10 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       rowSpacing={1}
     >
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Condition"} />
+        <InfoBoxItem
+          label={"Condition"}
+          value={submissionPackage.meta?.condition}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
@@ -67,10 +70,16 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Date Review Completed"} />
+        <InfoBoxItem
+          label={"Date Review Completed"}
+          value={submissionPackage.meta?.date_review_completed}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Supporting Conditions"} />
+        <InfoBoxItem
+          label={"Supporting Conditions"}
+          value={submissionPackage.meta?.supporting_condition}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
@@ -107,7 +116,10 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem label={"Condition"} />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"CC Start Date"} />
+        <InfoBoxItem
+          label={"CC Start Date"}
+          value={submissionPackage.meta?.cc_start_date}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
@@ -116,15 +128,24 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Supporting Conditions"} />
+        <InfoBoxItem
+          label={"Supporting Conditions"}
+          value={submissionPackage.meta?.cc_completed_on}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"CC Completed"} />
+        <InfoBoxItem
+          label={"CC Completed"}
+          value={submissionPackage.meta?.cc_completed_on}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>
       <Grid item xs={12} lg={4} container></Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Review Start Date"} />
+        <InfoBoxItem
+          label={"Review Start Date"}
+          value={submissionPackage.meta?.review_start_date}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>
       <Grid item xs={12} lg={4} container></Grid>
@@ -135,7 +156,10 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         container
         sx={{ mb: BCDesignTokens.layoutMarginXsmall }}
       >
-        <InfoBoxItem label={"Review Completed"} />
+        <InfoBoxItem
+          label={"Review Completed"}
+          value={submissionPackage.meta?.review_completed_on}
+        />
       </Grid>
     </Grid>
   );

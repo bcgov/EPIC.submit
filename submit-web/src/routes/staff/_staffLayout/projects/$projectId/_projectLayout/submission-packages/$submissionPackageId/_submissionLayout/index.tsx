@@ -16,6 +16,7 @@ import { InfoBox } from "@/components/Submission/InfoBox";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useEffect } from "react";
+import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
@@ -123,7 +124,8 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable submissionItems={submissionPackage.items} />
+                {/* TODO Setup the items table for staff */}
+                {/* <ItemsTable submissionItems={submissionPackage.items} /> */}
               </Box>
 
               <Box
