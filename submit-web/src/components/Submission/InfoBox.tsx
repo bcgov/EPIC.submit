@@ -1,11 +1,10 @@
 import { SubmissionPackage } from "@/models/Package";
-import { USER_TYPE, UserType } from "@/models/User";
+import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Grid, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
-import { useEffect } from "react";
-import { Case, When } from "react-if";
+import { When } from "react-if";
 
 type InfoBoxItemProps = {
   label?: string;

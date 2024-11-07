@@ -2,7 +2,6 @@ import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCar
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { YellowBar } from "@/components/Shared/YellowBar";
-import ItemsTable from "@/components/Submission/ItemsTable";
 import { Box, Grid, Typography } from "@mui/material";
 import {
   createFileRoute,
@@ -16,7 +15,6 @@ import { InfoBox } from "@/components/Submission/InfoBox";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useEffect } from "react";
-import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";

@@ -1,5 +1,5 @@
 import { ArrowForwardIos } from "@mui/icons-material";
-import { Link, TableCell, Typography } from "@mui/material";
+import { Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
 import dayjs from "dayjs";
