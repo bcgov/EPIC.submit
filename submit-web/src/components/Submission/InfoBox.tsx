@@ -4,7 +4,8 @@ import { useAccount } from "@/store/accountStore";
 import { Grid, Typography } from "@mui/material";
 import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
-import { Case } from "react-if";
+import { useEffect } from "react";
+import { Case, When } from "react-if";
 
 type InfoBoxItemProps = {
   label?: string;
@@ -28,11 +29,15 @@ type InfoBoxProps = {
 };
 export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const { userType } = useAccount();
+
   return (
     <>
-      <Case condition={userType === USER_TYPE.STAFF}>
+      <When condition={userType === USER_TYPE.STAFF}>
         <StaffInfoBox submissionPackage={submissionPackage} />
-      </Case>
+      </When>
+      <When condition={userType === USER_TYPE.PROPONENT}>
+        <ProponentInfoBox submissionPackage={submissionPackage} />
+      </When>
     </>
   );
 };
