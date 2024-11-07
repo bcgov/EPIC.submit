@@ -54,9 +54,9 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
         <StyledProjectTableCell align="right">
           {subPackage.submitted_by ?? "--"}
         </StyledProjectTableCell>
-        <TableCell align="center">
+        <StyledProjectTableCell align="center">
           <PackageStatusChipStack status={subPackage.status} />
-        </TableCell>
+        </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow />
     </>
