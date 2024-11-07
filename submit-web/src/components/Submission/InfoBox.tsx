@@ -112,7 +112,10 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Condition"} />
+        <InfoBoxItem
+          label={"Condition"}
+          value={submissionPackage.meta?.conditions.value[0]}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
