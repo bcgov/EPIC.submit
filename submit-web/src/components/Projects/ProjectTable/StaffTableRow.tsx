@@ -46,16 +46,16 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           </Link>
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {submissionPackage.meta?.type}
+          {submissionPackage.meta?.type || ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
           {/* {submissionPackage.days_since_submission} */}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {submissionPackage.meta?.cc_completed_on}
+          {submissionPackage.meta?.cc_completed_on || ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {submissionPackage.meta?.mp_review}
+          {submissionPackage.meta?.mp_review || ""}
         </StyledProjectTableCell>
         <TableCell align="center">
           <PackageStatusChipStack status={submissionPackage.status} />
