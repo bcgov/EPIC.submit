@@ -5,7 +5,7 @@ import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
-export const Route = createFileRoute("/registration")({
+export const Route = createFileRoute("/proponent/registration/")({
   component: Registration,
 });
 
@@ -25,8 +25,20 @@ function Registration() {
     }
   }, [proponent_id, isAuthenticated, signinRedirect]);
 
-  if (isAuthenticated || !proponent_id) {
+  if (!isAuthenticated) {
+    return <PageLoader />;
+  }
+
+  if (!proponent_id) {
     return <Navigate to={"/error"} />;
   }
-  return <PageLoader />;
+
+  return (
+    <Navigate
+      to="/proponent/registration/create-account"
+      search={{
+        proponent_id: Number(proponent_id),
+      }}
+    />
+  );
 }

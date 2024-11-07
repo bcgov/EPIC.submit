@@ -47,7 +47,11 @@ function CreateAccountForm() {
   }, []);
 
   const onCreateAccountSuccess = (data: CreateAccountResponse) => {
-    setAccount({ proponentId: data.proponent_id, accountId: data.id });
+    setAccount({
+      proponentId: data.proponent_id,
+      accountId: data.id,
+      isLoading: false,
+    });
     setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
   };
 
