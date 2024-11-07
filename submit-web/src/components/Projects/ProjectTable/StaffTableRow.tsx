@@ -49,7 +49,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           {submissionPackage.meta?.type || ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {/* {submissionPackage.days_since_submission} */}
+          {submissionPackage.days_since_submission || ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
           {submissionPackage.meta?.cc_completed_on || ""}
