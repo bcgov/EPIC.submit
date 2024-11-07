@@ -1,0 +1,23 @@
+name: submit-cron
+imageNamespace: c8b80a-tools
+env: dev
+database:
+  host: submit-patroni
+  port: "5432"
+resources:
+  requests:
+    cpu: 100m
+    memory: 100Mi
+  limits:
+    cpu: 750m
+    memory: 2Gi
+replicaCount: 1
+imageTag: latest
+
+
+chesSecrets:
+  create: true
+  tokenEndPoint: "https://test.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
+  apiEndPoint: "https://cdogs-test.api.gov.bc.ca/api/v2"
+  clientId: "your_client_id"
+  clientSecret: "your_client_secret"
