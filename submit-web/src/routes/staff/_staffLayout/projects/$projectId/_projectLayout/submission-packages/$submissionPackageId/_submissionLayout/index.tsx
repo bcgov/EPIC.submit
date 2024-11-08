@@ -126,7 +126,6 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                {/* TODO Setup the items table for staff */}
                 <ItemsTable submissionItems={submissionPackage.items} />
               </Box>
 

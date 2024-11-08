@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Order } from "../Shared/Table/utils";
 import SwapVertIcon from "@mui/icons-material/SwapVert";
 import SubmissionItemTableRow from "./SubmissionItemTableRow";
@@ -36,10 +36,6 @@ export default function ItemsTable({
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
-
-  useEffect(() => {
-    console.log("submissionItems", submissionItems);
-  }, [submissionItems]);
 
   const { isValidating } = usePackageTableStore();
 
