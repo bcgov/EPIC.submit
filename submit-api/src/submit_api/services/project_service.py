@@ -33,3 +33,8 @@ class ProjectService:
         ]
         AccountProjectModel.add_projects_bulk(projects_to_add)
         return projects
+
+    @classmethod
+    def get_all_account_projects(cls):
+        """Get projects by proponent id."""
+        return AccountProjectModel.get_all()
