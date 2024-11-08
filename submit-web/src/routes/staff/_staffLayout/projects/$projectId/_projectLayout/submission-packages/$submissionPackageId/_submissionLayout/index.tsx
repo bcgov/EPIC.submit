@@ -12,7 +12,7 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { InfoBox } from "@/components/Submission/InfoBox";
-import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
+import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
 import { useEffect } from "react";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
@@ -20,6 +20,7 @@ import { usePackageTableStore } from "@/components/Submission/packageTableStore"
 import { useQueryClient } from "@tanstack/react-query";
 import { AccountProject } from "@/models/Project";
 import { QUERY_KEY } from "@/hooks/api/constants";
+import ItemsTable from "@/components/Submission/ItemsTable";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
@@ -39,7 +40,7 @@ export default function SubmissionPage() {
     strict: false,
   });
   const submissionPackageId = Number(submissionPackageIdParam);
-  const { data: submissionPackage } = useGetSubmissionPackage({
+  const { data: submissionPackage } = useGetStaffSubmissionPackage({
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
@@ -126,7 +127,7 @@ export default function SubmissionPage() {
                 }}
               >
                 {/* TODO Setup the items table for staff */}
-                {/* <ItemsTable submissionItems={submissionPackage.items} /> */}
+                <ItemsTable submissionItems={submissionPackage.items} />
               </Box>
 
               <Box
