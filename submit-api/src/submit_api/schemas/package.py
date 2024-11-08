@@ -6,7 +6,6 @@ Manages the package
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.models.package import PackageStatus
-from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 
