@@ -28,4 +28,4 @@ class InternalStaffDocuments(BaseModel):
     name = Column(db.String(255), nullable=False)
     url = Column(db.String(), nullable=False)
     type = Column(db.Enum(InternalStaffDocumentType), nullable=False)
-    submission_item_id = Column(db.Integer, db.ForeignKey('submission_items.id'), nullable=False)
+    item_id = Column(db.Integer, db.ForeignKey('items.id'), nullable=False)

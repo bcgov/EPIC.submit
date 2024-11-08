@@ -7,7 +7,7 @@ from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.models.package import PackageStatus
 from submit_api.schemas.internal_staff_document import InternalStaffDocument
-from submit_api.schemas.item import ItemSchema
+from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 
 
@@ -74,4 +74,4 @@ class StaffPackageSchema(PackageSchema):
 
         unknown = EXCLUDE
 
-    internal_staff_documents = fields.Nested(InternalStaffDocument, data_key="internal_staff_documents", many=True)
+    items = fields.Nested(StaffItemSchema, data_key="items", many=True)

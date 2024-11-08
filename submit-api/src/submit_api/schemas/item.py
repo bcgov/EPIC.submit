@@ -7,6 +7,7 @@ from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionTypeStatus
+from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
 
@@ -56,3 +57,14 @@ class ItemSchema(Schema):
     submitted_by = fields.Str(data_key="submitted_by")
     submissions = fields.Nested(ItemSubmissionSchema, data_key="submissions", many=True)
     sort_order = fields.Int(data_key="sort_order")
+
+
+class StaffItemSchema(ItemSchema):
+    """item schema for staff."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    internal_staff_documents = fields.Nested(InternalStaffDocument, data_key="internal_staff_documents", many=True)
