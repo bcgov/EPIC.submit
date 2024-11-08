@@ -24,8 +24,8 @@ from submit_api.schemas.project import AccountProjectSchema, AddProjectSchema, P
 from submit_api.services.project_service import ProjectService
 from submit_api.utils.util import cors_preflight
 
-from ..auth import auth
-from .apihelper import Api as ApiHelper
+from submit_api.auth import auth
+from submit_api.resources.apihelper import Api as ApiHelper
 
 
 API = Namespace("projects", description="Endpoints for Project Management")

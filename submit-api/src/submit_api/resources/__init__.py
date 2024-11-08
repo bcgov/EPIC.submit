@@ -23,15 +23,15 @@ That are used to expose operational health information about the service, and me
 
 from flask import Blueprint
 
-from .account import API as ACCOUNT_API
 from .apihelper import Api
-from .item import API as ITEM_API
 from .ops import API as OPS_API
-from .package import API as PACKAGE_API
-from .project import API as PROJECT_API
-from .submission import API as SUBMISSION_API
-from .test import API as TEST_API
-from .user import API as USER_API
+from .proponent.account import API as ACCOUNT_API
+from .proponent.item import API as ITEM_API
+from .proponent.package import API as PACKAGE_API
+from .proponent.project import API as PROJECT_API
+from .proponent.submission import API as SUBMISSION_API
+from .proponent.user import API as USER_API
+from .staff.package import API as STAFF_PACKAGE_API
 from .staff.project import API as STAFF_PROJECT_API
 
 
@@ -66,7 +66,6 @@ API.add_namespace(PROJECT_API)
 API.add_namespace(PACKAGE_API)
 API.add_namespace(ITEM_API)
 API.add_namespace(SUBMISSION_API)
-API.add_namespace(TEST_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,
@@ -76,3 +75,4 @@ STAFF_API = Api(
 )
 
 STAFF_API.add_namespace(STAFF_PROJECT_API)
+STAFF_API.add_namespace(STAFF_PACKAGE_API)

@@ -2,6 +2,7 @@
 
 Manages the engagement
 """
+from datetime import datetime
 
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
@@ -73,3 +74,36 @@ class AccountProjectSchema(Schema):
     project_id = fields.Int(data_key="project_id")
     project = fields.Nested(ProjectSchema, data_key="project")
     packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
+
+
+class StaffAccountProjectPackageSchema(AccountProjectPackageSchema):
+    """Account project package schema for staff."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    days_since_submission = fields.Method('get_days_since_submission')
+    meta = fields.Method('get_meta')
+
+    def get_days_since_submission(self, obj):
+        """Get days since submission."""
+        if obj.submitted_on:
+            return (datetime.now() - obj.submitted_on).days
+        return None
+
+    def get_meta(self, obj):
+        """Get meta."""
+        return obj.meta.package_meta if obj.meta else None
+
+
+class StaffAccountProjectSchema(AccountProjectSchema):
+    """Account project schema for staff."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    packages = fields.List(fields.Nested(StaffAccountProjectPackageSchema), data_key="packages")
