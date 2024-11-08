@@ -30,7 +30,7 @@ function Staff() {
   const { data: userData, isPending: isUserPending } = useQuery(
     getUserByGuidQueryOptions({
       guid: user?.profile.sub,
-    })
+    }),
   );
   const isMobile = useIsMobile();
 
@@ -43,8 +43,6 @@ function Staff() {
     if (isAuthenticated && !isLoading) {
       setAccount({
         isLoading: false,
-        proponentId: userData?.account_user.account.proponent_id,
-        accountId: userData?.account_user.account.id,
         userType: USER_TYPE.STAFF,
       });
     }

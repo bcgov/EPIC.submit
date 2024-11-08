@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""API endpoints for managing a project resource."""
+"""API endpoints for managing a package resource."""
 
 from http import HTTPStatus
 
@@ -19,37 +19,37 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.project import StaffAccountProjectSchema as AccountProjectSchema
-from submit_api.services.project_service import ProjectService
+from submit_api.schemas.package import PackageSchema
+from submit_api.services.package import PackageService
 from submit_api.utils.util import cors_preflight
 
 
-API = Namespace("projects", description="Endpoints for Project Management")
+API = Namespace("packages", description="Endpoints for Package Management")
 """Custom exception messages
 """
 
-project_list_model = ApiHelper.convert_ma_schema_to_restx_model(
-    API, AccountProjectSchema(), "Project"
+package_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, PackageSchema(), "Package"
 )
 
 
 @cors_preflight("GET, OPTIONS")
 @API.route(
-    "",
+    "/<int:package_id>",
     methods=["GET", "OPTIONS"],
 )
-class AccountProjects(Resource):
-    """Resource for managing account projects."""
+class Package(Resource):
+    """Resource for managing a package."""
 
     @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Get project by project_id")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get package by id")
     @API.response(
-        code=HTTPStatus.OK, model=project_list_model, description="Get project"
+        code=HTTPStatus.OK, model=package_model, description="Get package"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
     @cors.crossdomain(origin="*")
-    def get():
-        """Get all account projects."""
-        account_projects = ProjectService.get_all_account_projects()
-        return AccountProjectSchema(many=True).dump(account_projects), HTTPStatus.OK
+    def get(package_id):
+        """Get a package."""
+        package = PackageService.get_package_by_id(package_id)
+        return PackageSchema().dump(package), HTTPStatus.OK

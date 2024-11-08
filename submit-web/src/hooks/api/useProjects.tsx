@@ -149,7 +149,7 @@ export const getAccountProjectsForStaffQueryOptions = ({
   });
 export const useGetAccountProjectsForStaff = ({
   searchOptions,
-}: UseGetProjectsByAccountParams) => {
+}: UseGetProjectsForStaffParams) => {
   const options = getAccountProjectsForStaffQueryOptions({ searchOptions });
   return useQuery(options);
 };
