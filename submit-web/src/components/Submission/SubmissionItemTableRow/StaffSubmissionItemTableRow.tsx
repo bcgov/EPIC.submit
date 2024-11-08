@@ -9,7 +9,7 @@ import { SUBMISSION_STATUS } from "@/models/Submission";
 import DocumentRow from "../DocumentRow";
 import { Unless, When } from "react-if";
 import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
-import { PackageTableRow } from "@/components/DocumentUpload/DocumentTableRow";
+import { PackageTableRow } from ".";
 
 export default function StaffSubmissionItemTableRow({
   item,
