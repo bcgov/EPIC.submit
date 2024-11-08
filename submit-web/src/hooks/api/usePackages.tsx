@@ -34,7 +34,7 @@ export const useCreateSubmissionPackage = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage,
+        submissionPackage
       );
       queryClient.invalidateQueries({
         queryKey: [
@@ -60,6 +60,14 @@ const getSubmissionPackageById = ({
   });
 };
 
+const getStaffSubmissionPackageById = ({
+  packageId,
+}: GetSubmissionPackageByIdParams) => {
+  return submitRequest<SubmissionPackage>({
+    url: `staff/packages/${packageId}`,
+  });
+};
+
 type UseGetSubmissionPackageByIdParams = {
   packageId: number;
   enabled?: boolean;
@@ -76,11 +84,30 @@ export const getSubmissionPackageQueryOptions = ({
     ...defaultUseQueryOptions,
   });
 
+export const getStaffSubmissionPackageQueryOptions = ({
+  packageId,
+  enabled = true,
+}: UseGetSubmissionPackageByIdParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.STAFF_SUBMISSION_PACKAGE, packageId],
+    queryFn: () => getStaffSubmissionPackageById({ packageId }),
+    enabled: enabled && Boolean(packageId),
+    ...defaultUseQueryOptions,
+  });
+
 export const useGetSubmissionPackage = ({
   packageId,
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) => {
   const options = getSubmissionPackageQueryOptions({ packageId, enabled });
+  return useQuery(options);
+};
+
+export const useGetStaffSubmissionPackage = ({
+  packageId,
+  enabled = true,
+}: UseGetSubmissionPackageByIdParams) => {
+  const options = getStaffSubmissionPackageQueryOptions({ packageId, enabled });
   return useQuery(options);
 };
 
@@ -109,7 +136,7 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage,
+        submissionPackage
       );
       queryClient.invalidateQueries({
         queryKey: [

@@ -20,8 +20,7 @@ export const DocumentUploadSection = () => {
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
-    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) }).queryKey
   );
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
@@ -35,7 +34,7 @@ export const DocumentUploadSection = () => {
   const handleOnDrop = (acceptedFiles: File[]) => {
     handleAddDocuments(
       acceptedFiles[0],
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
+      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS
     );
   };
 
@@ -45,17 +44,17 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
+    (submission) => submission.id
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
+      !documentSubmissionIds?.includes(document.submissionId)
   );
 
   return (
@@ -110,7 +109,7 @@ export const DocumentUploadSection = () => {
         </Typography>
         <When
           condition={Boolean(
-            documentSubmissions?.length || pendingDocuments?.length,
+            documentSubmissions?.length || pendingDocuments?.length
           )}
         >
           <Box my={BCDesignTokens.layoutMarginLarge}>

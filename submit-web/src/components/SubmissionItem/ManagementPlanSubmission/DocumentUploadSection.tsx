@@ -42,39 +42,39 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
+    (submission) => submission.id
   );
 
   const managementPlanDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
   );
 
   const supportingDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
+      !documentSubmissionIds?.includes(document.submissionId)
   );
 
   const pendingManagementPlanDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
   );
 
   const pendingSupportingDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
   );
 
   return (
@@ -120,7 +120,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
             )
           }
         />
@@ -136,7 +136,7 @@ export const DocumentUploadSection = () => {
         <When
           condition={Boolean(
             managementPlanDocuments?.length ||
-              pendingManagementPlanDocuments?.length,
+              pendingManagementPlanDocuments?.length
           )}
         >
           <Box my={BCDesignTokens.layoutMarginLarge}>
@@ -171,7 +171,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
             )
           }
         />
@@ -186,7 +186,7 @@ export const DocumentUploadSection = () => {
 
         <When
           condition={Boolean(
-            supportingDocuments?.length || pendingSupportingDocuments?.length,
+            supportingDocuments?.length || pendingSupportingDocuments?.length
           )}
         >
           <Box my={BCDesignTokens.layoutMarginLarge}>

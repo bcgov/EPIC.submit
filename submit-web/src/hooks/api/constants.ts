@@ -8,6 +8,7 @@ export const QUERY_KEY = Object.freeze({
   ACCOUNT_PROJECTS: "projects/accounts",
   ACCOUNT_PROJECT: "account-project",
   SUBMISSION_PACKAGE: "package",
+  STAFF_SUBMISSION_PACKAGE: "staff/package",
   ACCOUNT_USER: "user",
   SUBMISSION_ITEM: "item",
   PROJECTS: "projects",

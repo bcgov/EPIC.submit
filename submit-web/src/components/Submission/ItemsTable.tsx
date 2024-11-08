@@ -43,10 +43,10 @@ export default function ItemsTable({
     id: subItem.id,
     name: subItem.type.name,
     status: subItem.status,
-    submitted_by: subItem.submitted_by,
+    submitted_by: subItem?.submitted_by,
     version: subItem.version,
     submissions: subItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
     ),
     has_document:
       subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
