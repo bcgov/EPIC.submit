@@ -35,6 +35,7 @@ class Submission(BaseModel):
     version = Column(db.Integer, nullable=False, default=1)
     created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
     submitted_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
+    internal_staff_documents = db.relationship('InternalStaffDocuments', backref='submission', lazy='select')
 
     Index('idx_submissions_type_item_id', type, item_id)
 

@@ -6,6 +6,7 @@ Manages the package
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.models.package import PackageStatus
+from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item import ItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 
@@ -63,3 +64,14 @@ class PackageSchema(Schema):
         obj.submitted_by = obj.submitted_by_user.account_user.full_name \
             if obj.submitted_by_user and obj.submitted_by_user.account_user else None
         return obj
+
+
+class StaffPackageSchema(PackageSchema):
+    """staff package schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    internal_staff_documents = fields.Nested(InternalStaffDocument, data_key="internal_staff_documents", many=True)
