@@ -51,6 +51,7 @@ class AccountProjectPackageSchema(Schema):
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
     items = fields.Function(lambda obj: [])
+    account_project_id = fields.Int(data_key="account_project_id")
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
