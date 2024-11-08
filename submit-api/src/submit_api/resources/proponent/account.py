@@ -22,8 +22,8 @@ from submit_api.schemas.account import AccountCreateSchema, AccountSchema
 from submit_api.services.account_service import AccountService
 from submit_api.utils.util import cors_preflight
 
-from ..auth import auth
-from .apihelper import Api as ApiHelper
+from submit_api.auth import auth
+from submit_api.resources.apihelper import Api as ApiHelper
 
 
 API = Namespace("accounts", description="Endpoints for Account Management")

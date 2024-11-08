@@ -21,8 +21,8 @@ from submit_api.schemas.item import ItemSchema
 from submit_api.services.item import ItemService
 from submit_api.utils.util import cors_preflight
 
-from ..auth import auth
-from .apihelper import Api as ApiHelper
+from submit_api.auth import auth
+from submit_api.resources.apihelper import Api as ApiHelper
 
 
 API = Namespace("items", description="Endpoints for item Management")
