@@ -23,14 +23,14 @@ That are used to expose operational health information about the service, and me
 
 from flask import Blueprint
 
-from submit_api.resources.proponent.account import API as ACCOUNT_API
 from .apihelper import Api
-from submit_api.resources.proponent.item import API as ITEM_API
 from .ops import API as OPS_API
-from submit_api.resources.proponent.package import API as PACKAGE_API
-from submit_api.resources.proponent.project import API as PROJECT_API
-from submit_api.resources.proponent.submission import API as SUBMISSION_API
-from submit_api.resources.proponent.user import API as USER_API
+from .proponent.account import API as ACCOUNT_API
+from .proponent.item import API as ITEM_API
+from .proponent.package import API as PACKAGE_API
+from .proponent.project import API as PROJECT_API
+from .proponent.submission import API as SUBMISSION_API
+from .proponent.user import API as USER_API
 from .staff.project import API as STAFF_PROJECT_API
 
 
