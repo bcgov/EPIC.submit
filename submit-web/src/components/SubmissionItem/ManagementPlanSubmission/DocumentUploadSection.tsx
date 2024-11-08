@@ -15,7 +15,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId } = useParams({
-    strict: false,
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();

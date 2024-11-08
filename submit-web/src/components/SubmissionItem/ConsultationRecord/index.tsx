@@ -66,7 +66,7 @@ export const ConsultationRecord = () => {
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
-    strict: false,
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   const accountProjectId = Number(accountProjectIdParam);
   const { data: accountProject } = useGetAccountProject({

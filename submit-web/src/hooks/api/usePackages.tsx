@@ -89,7 +89,7 @@ export const getStaffSubmissionPackageQueryOptions = ({
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) =>
   queryOptions({
-    queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+    queryKey: [QUERY_KEY.STAFF_SUBMISSION_PACKAGE, packageId],
     queryFn: () => getStaffSubmissionPackageById({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,

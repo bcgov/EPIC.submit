@@ -53,7 +53,7 @@ export const ManagementPlanSubmission = () => {
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
-    strict: false,
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const { setIsOpen } = useLoaderBackdrop();

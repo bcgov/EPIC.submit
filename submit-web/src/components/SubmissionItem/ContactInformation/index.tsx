@@ -59,7 +59,7 @@ export const ContactInformation = () => {
     submissionPackageId,
     submissionId,
   } = useParams({
-    strict: false,
+    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
