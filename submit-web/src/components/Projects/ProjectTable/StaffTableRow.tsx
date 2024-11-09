@@ -25,6 +25,15 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
       to: `/staff/projects/${accountProjectId}/submission-packages/${submissionPackage.id}`,
     });
   };
+
+  const {
+    name,
+    meta: { cc_completed_on = "", mp_review = "", type = "" },
+    days_since_submission = 0,
+    status,
+    submitted_on,
+  } = submissionPackage;
+
   return (
     <>
       <StyledProjectTableRow>
@@ -44,30 +53,34 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
               fontWeight={"500"}
               sx={{ mr: 0.5 }}
             >
-              {submissionPackage.name}
+              {name}
             </Typography>
             <ArrowForwardIos fontSize="small" />
           </Link>
         </StyledProjectTableCell>
+        <StyledProjectTableCell align="right">{type}</StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {submissionPackage.meta?.type ?? ""}
+          {submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
+        </StyledProjectTableCell>
+        <StyledProjectTableCell
+          align="right"
+          sx={{
+            color:
+              days_since_submission > 4
+                ? BCDesignTokens.typographyColorDanger
+                : BCDesignTokens.supportBorderColorSuccess,
+          }}
+        >
+          {days_since_submission && `+ ${days_since_submission} Days`}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {submissionPackage.submitted_on
-            ? dayjs(submissionPackage.submitted_on).format("DD-MMM-YYYY")
-            : ""}
+          {cc_completed_on}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {submissionPackage.days_since_submission ?? ""}
-        </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
-          {submissionPackage.meta?.cc_completed_on ?? ""}
-        </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
-          {submissionPackage.meta?.mp_review ?? ""}
+          {mp_review}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="center">
-          <PackageStatusChipStack status={submissionPackage.status} />
+          <PackageStatusChipStack status={status} />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow />
