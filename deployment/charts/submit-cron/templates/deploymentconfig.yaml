@@ -59,42 +59,42 @@ spec:
           readOnly: true
           mountPath: /submit-cron/cron/
         env:
-        - name: DATABASE_USERNAME
-          valueFrom:
-            secretKeyRef:
-              name: submit-patroni
-              key: app-db-username
-        - name: DATABASE_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: submit-patroni
-              key: app-db-password
-        - name: CDOGS_TOKEN_END_POINT
-          valueFrom:
-            secretKeyRef:
-              name: ches-secrets
-              key: CDOGS_TOKEN_END_POINT
-        - name: CDOGS_API_ENDPOINT
-          valueFrom:
-            secretKeyRef:
-              name: ches-secrets
-              key: CDOGS_API_ENDPOINT
-        - name: CDOGS_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: ches-secrets
-              key: CDOGS_CLIENT_ID
-        - name: CDOGS_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: ches-secrets
-              key: CDOGS_CLIENT_SECRET           
-        - name: DATABASE_NAME
-          value: {{ .Values.database.username }}
-        - name: DATABASE_HOST
-          value: {{ .Values.database.host }}
-        - name: DATABASE_PORT
-          value: {{ .Values.database.port }}
+          - name: DATABASE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: submit-patroni
+                key: app-db-username
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: submit-patroni
+                key: app-db-password
+          - name: CDOGS_TOKEN_END_POINT
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_TOKEN_END_POINT
+          - name: CDOGS_API_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_API_ENDPOINT
+          - name: CDOGS_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_CLIENT_ID
+          - name: CDOGS_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_CLIENT_SECRET           
+          - name: DATABASE_NAME
+            value: "{{ .Values.database.username }}"
+          - name: DATABASE_HOST
+            value: "{{ .Values.database.host }}"
+          - name: DATABASE_PORT
+            value: "{{ .Values.database.port }}"      
         resources:
           requests:
             cpu: {{ .Values.resources.requests.cpu }}
