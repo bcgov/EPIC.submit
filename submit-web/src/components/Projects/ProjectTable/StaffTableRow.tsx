@@ -16,10 +16,8 @@ interface ProjectRowProps {
 }
 
 export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
-  const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const navigate = useNavigate();
-  const accountProjectId =
-    Number(accountProjectIdParam) || submissionPackage.account_project_id;
+  const accountProjectId = submissionPackage.account_project_id;
 
   const onSubmissionClick = () => {
     navigate({
