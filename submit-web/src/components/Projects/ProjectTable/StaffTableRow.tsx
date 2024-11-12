@@ -8,7 +8,7 @@ import {
   StyledProjectTableRow,
 } from "./StyledComponents";
 import EmptyRow from "./EmptyRow";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 
 interface ProjectRowProps {
@@ -16,9 +16,8 @@ interface ProjectRowProps {
 }
 
 export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
-  const { projectId: accountProjectIdParam } = useParams({ strict: false });
-  const accountProjectId = Number(accountProjectIdParam);
   const navigate = useNavigate();
+  const accountProjectId = submissionPackage.account_project_id;
 
   const onSubmissionClick = () => {
     navigate({
