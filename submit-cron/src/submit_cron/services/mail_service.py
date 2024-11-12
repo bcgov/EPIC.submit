@@ -22,6 +22,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         if not pending_emails:
             print("No pending emails found.")
             return
+        print(f"Number of pending emails: {len(pending_emails)}")
         for email_entry in pending_emails:
             try:
                 if email_entry.entity_type == MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE:

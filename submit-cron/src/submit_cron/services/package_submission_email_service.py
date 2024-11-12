@@ -4,6 +4,7 @@ from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
 from submit_api.models.project import Project as ProjectModel
 from submit_api.models.package import Package as PackageModel
+from submit_api.models.user import User as UserModel
 from submit_api.models.account_user import AccountUser as AccountUserModel
 from submit_api.models.submission import SubmissionTypeStatus
 
@@ -45,6 +46,8 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
             sender=sender_email,
             recipients=[submitter.work_email_address],
         )
+        print(
+            f"Sending email from {email_details.sender} to {', '.join(email_details.recipients)} for package: {email_details.body_args['package_name']}")
 
         return email_details
 
@@ -66,6 +69,16 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
     def _get_submitter(auth_guid: str) -> AccountUserModel:
         """Retrieve the account user by their auth_guid."""
         return db.session.query(AccountUserModel).filter(AccountUserModel.auth_guid == auth_guid).first()
+
+    @staticmethod
+    def _get_submitter(auth_guid: str) -> AccountUserModel:
+        """Retrieve the account user by their auth_guid."""
+        return (
+            db.session.query(AccountUserModel)
+            .join(UserModel)
+            .filter(UserModel.auth_guid == auth_guid)
+            .first()
+        )
 
     @staticmethod
     def _get_proponent(proponent_id: int) -> ProjectModel:
