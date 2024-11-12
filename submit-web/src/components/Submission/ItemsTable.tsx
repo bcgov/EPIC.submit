@@ -24,7 +24,7 @@ import { usePackageTableStore } from "./packageTableStore";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import { When } from "react-if";
-import InternalDocumentsRow from "./InternalDocumentsRow/InternalDocumentsRow";
+import InternalDocuments from "./InternalDocuments";
 
 export default function ItemsTable({
   submissionItems,
@@ -113,7 +113,7 @@ export default function ItemsTable({
             />
           ))}
           <When condition={userType === USER_TYPE.STAFF}>
-            <InternalDocumentsRow />
+            <InternalDocuments submissions={submissions} />
           </When>
         </TableBody>
       </Table>

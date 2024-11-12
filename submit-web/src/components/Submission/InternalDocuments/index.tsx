@@ -5,15 +5,26 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { SUBMISSION_STATUS } from "@/models/Submission";
+import { StaffSubmission, SUBMISSION_STATUS } from "@/models/Submission";
 import { Unless } from "react-if";
 import {
   SubmissionItemTableCell,
   PackageTableRow,
 } from "../SubmissionItemTableRow";
+import DocumentRow from "../DocumentRow";
 
-export default function InternalDocumentsRow() {
+export default function InternalDocuments({
+  submissions,
+}: {
+  submissions: Array<StaffSubmission>;
+}) {
   const actionLabel = "Add Documents";
+  const internalDocuments = submissions.flatMap((submission) =>
+    submission.internal_staff_documents.map((doc) => ({
+      ...submission,
+      submitted_document: { name: doc.name, url: doc.url },
+    }))
+  );
 
   const onActionClick = () => {};
 
@@ -62,12 +73,12 @@ export default function InternalDocumentsRow() {
           </Unless>
         </SubmissionItemTableCell>
       </PackageTableRow>
-      {/* {submissions.map((submission) => (
+      {internalDocuments.map((document) => (
         <DocumentRow
-          key={`doc-row-${submission.id}`}
-          documentSubmission={submission}
+          key={`doc-row-${document.id}`}
+          documentSubmission={document}
         />
-      ))} */}
+      ))}
       <TableRow key={`row-${name}-divider`}>
         <TableCell
           colSpan={5}
