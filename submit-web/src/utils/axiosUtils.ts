@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { AppConfig, OidcConfig } from "@/utils/config";
-import axios, { AxiosError, AxiosInstance } from "axios";
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import { User } from "oidc-client-ts";
 
 export type OnErrorType = (error: AxiosError) => void;
