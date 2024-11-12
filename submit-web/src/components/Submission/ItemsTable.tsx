@@ -21,6 +21,10 @@ import { SubmissionItemTableRow as SubmissionItemTableRowType } from "./types";
 import { StyledTableHeadCell } from "../Shared/Table/common";
 import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import { usePackageTableStore } from "./packageTableStore";
+import { useAccount } from "@/store/accountStore";
+import { USER_TYPE } from "@/models/User";
+import { When } from "react-if";
+import InternalDocumentsRow from "./InternalDocumentsRow/InternalDocumentsRow";
 
 export default function ItemsTable({
   submissionItems,
@@ -30,7 +34,7 @@ export default function ItemsTable({
   const [order, setOrder] = useState<Order>("asc");
   const [orderBy, setOrderBy] =
     useState<keyof SubmissionItemTableRowType>("name");
-
+  const { userType } = useAccount();
   const handleRequestSort = (property: keyof SubmissionItemTableRowType) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
@@ -108,6 +112,9 @@ export default function ItemsTable({
               }
             />
           ))}
+          <When condition={userType === USER_TYPE.STAFF}>
+            <InternalDocumentsRow />
+          </When>
         </TableBody>
       </Table>
     </TableContainer>
