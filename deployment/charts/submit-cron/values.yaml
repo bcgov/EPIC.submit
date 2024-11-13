@@ -19,7 +19,7 @@ cronTab: "*/5 * * * * default cd /submit-cron && ./run_emailer.sh"
 
 chesSecrets:
   create: true
-  tokenEndPoint: "https://test.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
-  apiEndPoint: "https://cdogs-test.api.gov.bc.ca/api/v2"
-  clientId: "your_client_id"
-  clientSecret: "your_client_secret"
+  tokenEndPoint: "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
+  apiEndPoint: "https://ches-dev.api.gov.bc.ca"
+  clientId: "CDACC9DF-F0E517FDED1"
+  clientSecret: "5c3cd76e-f02c-4903-af8a-ed3c7b0c5372"
