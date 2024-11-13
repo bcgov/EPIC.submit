@@ -1,0 +1,112 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+    app-group: submit-app
+spec:
+  strategy:
+    type: Rolling
+    rollingParams:
+      updatePeriodSeconds: 1
+      intervalSeconds: 1
+      timeoutSeconds: 600
+      maxUnavailable: 25%
+      maxSurge: 25%
+      pre:
+        execNewPod:
+          command:
+          - /submit-cron/pre-hook-update-db.sh
+          containerName: {{ .Values.name }}
+        failurePolicy: Abort
+  triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - {{ .Values.name }}
+        from:
+          kind: ImageStreamTag
+          namespace: {{ .Values.imageNamespace }}
+          name: {{ .Values.name }}:{{ .Values.imageTag }}
+    - type: ConfigChange
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    app: {{ .Values.name }}
+    deploymentconfig: {{ .Values.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+        app-group: submit-app
+        environment: {{ .Values.env }}
+        deploymentconfig: {{ .Values.name }}
+    spec:
+      volumes:
+      - name: cron-config
+        configMap:
+          name: {{ .Values.name }}-config
+          defaultMode: 420
+      containers:
+      - name: {{ .Values.name }}
+        image: image-registry.openshift-image-registry.svc:5000/{{ .Values.imageNamespace }}/{{ .Values.name }}:{{ .Values.imageTag }}
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        volumeMounts:
+        - name: cron-config
+          readOnly: true
+          mountPath: /submit-cron/cron/
+        env:
+          - name: DATABASE_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: submit-patroni
+                key: app-db-username
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: submit-patroni
+                key: app-db-password
+          - name: CDOGS_TOKEN_END_POINT
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_TOKEN_END_POINT
+          - name: CDOGS_API_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_API_ENDPOINT
+          - name: CDOGS_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_CLIENT_ID
+          - name: CDOGS_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: ches-secrets
+                key: CDOGS_CLIENT_SECRET           
+          - name: DATABASE_NAME
+            value: "{{ .Values.database.username }}"
+          - name: DATABASE_HOST
+            value: "{{ .Values.database.host }}"
+          - name: DATABASE_PORT
+            value: "{{ .Values.database.port }}"      
+        resources:
+          requests:
+            cpu: {{ .Values.resources.requests.cpu }}
+            memory: {{ .Values.resources.requests.memory }}
+          limits:
+            cpu: {{ .Values.resources.limits.cpu }}
+            memory: {{ .Values.resources.limits.memory }}
+        terminationMessagePath: "/dev/termination-log"
+        terminationMessagePolicy: File
+        imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler

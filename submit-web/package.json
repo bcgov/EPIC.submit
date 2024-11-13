@@ -24,6 +24,7 @@
     "@tanstack/router-plugin": "^1.45.7",
     "@types/react-input-mask": "^3.0.5",
     "axios": "^1.7.2",
+    "change-case": "^5.4.4",
     "dayjs": "^1.11.13",
     "epic.theme": "latest",
     "keycloak-js": "^25.0.1",

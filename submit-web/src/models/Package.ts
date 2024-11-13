@@ -60,6 +60,6 @@ export type SubmissionPackage = {
   type: PackageType;
   items: Array<SubmissionItem>;
   account_project_id: number;
-  meta?: SubmissionPackageMeta;
+  meta: SubmissionPackageMeta;
   days_since_submission?: number;
 };

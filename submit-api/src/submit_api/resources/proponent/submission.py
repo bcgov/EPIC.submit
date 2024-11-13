@@ -17,12 +17,11 @@ from http import HTTPStatus
 
 from flask_restx import Namespace, Resource, cors
 
+from submit_api.auth import auth
+from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.util import cors_preflight
-
-from submit_api.auth import auth
-from submit_api.resources.apihelper import Api as ApiHelper
 
 
 API = Namespace("submissions", description="Endpoints for Submission Management")

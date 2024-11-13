@@ -18,8 +18,7 @@ This module will create statement records for each account.
 import os
 import sys
 
-from flask import Flask, app
-from sqlalchemy import inspect
+from flask import Flask
 
 from utils.logger import setup_logging
 from datetime import datetime
