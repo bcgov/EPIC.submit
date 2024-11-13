@@ -74,11 +74,11 @@ spec:
               secretKeyRef:
                 name: ches-secrets
                 key: CHES_TOKEN_END_POINT
-          - name: CHES_API_ENDPOINT
+          - name: CHES_BASE_URL
             valueFrom:
               secretKeyRef:
                 name: ches-secrets
-                key: CHES_API_ENDPOINT
+                key: CHES_BASE_URL
           - name: CHES_CLIENT_ID
             valueFrom:
               secretKeyRef:

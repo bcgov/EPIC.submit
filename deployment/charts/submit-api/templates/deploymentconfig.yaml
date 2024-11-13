@@ -133,14 +133,14 @@ spec:
                   key: PYTHONBUFFERED
             - name: CHES_TOKEN_END_POINT
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: {{ .Chart.Name }}
                   key: CHES_TOKEN_END_POINT
-            - name: CHES_API_ENDPOINT
+            - name: CHES_BASE_URL
               valueFrom:
-                configMapKeyRef:
+                secretKeyRef:
                   name: {{ .Chart.Name }}
-                  key: CHES_API_ENDPOINT
+                  key: CHES_BASE_URL
             - name: CHES_CLIENT_ID
               valueFrom:
                 secretKeyRef:
