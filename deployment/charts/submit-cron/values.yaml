@@ -21,5 +21,5 @@ chesSecrets:
   create: true
   tokenEndPoint: "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
   apiEndPoint: "https://ches-dev.api.gov.bc.ca"
-  clientId: "CDACC9DF-F0E517FDED1"
-  clientSecret: "5c3cd76e-f02c-4903-af8a-ed3c7b0c5372"
+  clientId: ""
+  clientSecret: ""
