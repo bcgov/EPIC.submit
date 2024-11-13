@@ -58,7 +58,6 @@ export default function SubmissionLayout() {
   );
 
   if (!accountProject || !submissionPackage) {
-    console.log("at SubmissionLayout");
     return <Navigate to={"/error"} />;
   }
 
