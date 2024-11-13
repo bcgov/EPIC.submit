@@ -27,6 +27,7 @@ export default function DocumentTable({
   header,
   documents = [],
   pendingDocuments,
+  folder: s3Folder,
 }: DocumentTableProps) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
@@ -80,6 +81,7 @@ export default function DocumentTable({
             <PendingDocumentRow
               key={`pending-row-${document.file.name}`}
               documentItem={document}
+              folder={s3Folder}
             />
           ))}
         </TableBody>
