@@ -19,7 +19,7 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.project import StaffAccountProjectSchema as AccountProjectSchema
+from submit_api.schemas.project import StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
 from submit_api.utils.util import cors_preflight
 
@@ -29,7 +29,7 @@ API = Namespace("projects", description="Endpoints for Project Management")
 """
 
 project_list_model = ApiHelper.convert_ma_schema_to_restx_model(
-    API, AccountProjectSchema(), "Project"
+    API, StaffAccountProjectSchema(), "Project"
 )
 
 
@@ -52,4 +52,25 @@ class AccountProjects(Resource):
     def get():
         """Get all account projects."""
         account_projects = ProjectService.get_all_account_projects()
-        return AccountProjectSchema(many=True).dump(account_projects), HTTPStatus.OK
+        return StaffAccountProjectSchema(many=True).dump(account_projects), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS, POST")
+@API.route(
+    "/<int:account_project_id>",
+    methods=["POST", "GET", "OPTIONS"],
+)
+class AccountProject(Resource):
+    """Resource for managing projects."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get project by project_id")
+    @API.response(
+        code=HTTPStatus.CREATED, model=project_list_model, description="Get project"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cors.crossdomain(origin="*")
+    def get(account_project_id):
+        """Get projects by proponent id."""
+        account_project = ProjectService.get_account_project_by_id(account_project_id)
+        return StaffAccountProjectSchema().dump(account_project), HTTPStatus.OK
