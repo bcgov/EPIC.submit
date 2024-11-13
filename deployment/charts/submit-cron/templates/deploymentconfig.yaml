@@ -69,11 +69,11 @@ spec:
               secretKeyRef:
                 name: submit-patroni
                 key: app-db-password
-          - name: CHES_TOKEN_END_POINT
+          - name: CHES_TOKEN_ENDPOINT
             valueFrom:
               secretKeyRef:
                 name: ches-secrets
-                key: CHES_TOKEN_END_POINT
+                key: CHES_TOKEN_ENDPOINT
           - name: CHES_BASE_URL
             valueFrom:
               secretKeyRef:
