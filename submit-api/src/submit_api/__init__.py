@@ -43,8 +43,8 @@ secure_headers = secure.Secure(
 
 def create_app(run_mode=os.getenv('FLASK_ENV', 'development')):
     """Create flask app."""
-    from submit_api.resources import (API_BLUEPRINT, OPS_BLUEPRINT,  # pylint: disable=import-outside-toplevel
-                                      STAFF_API_BLUEPRINT)
+    from submit_api.resources import (  # pylint: disable=import-outside-toplevel
+        API_BLUEPRINT, OPS_BLUEPRINT, STAFF_API_BLUEPRINT)
 
     # Flask app initialize
     app = Flask(__name__)

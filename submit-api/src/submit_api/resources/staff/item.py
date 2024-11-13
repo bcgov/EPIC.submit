@@ -17,12 +17,11 @@ from http import HTTPStatus
 
 from flask_restx import Namespace, Resource, cors
 
+from submit_api.auth import auth
+from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.item import StaffItemSchema
 from submit_api.services.item import ItemService
 from submit_api.utils.util import cors_preflight
-
-from submit_api.auth import auth
-from submit_api.resources.apihelper import Api as ApiHelper
 
 
 API = Namespace("items", description="Endpoints for item Management")
