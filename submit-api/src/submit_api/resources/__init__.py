@@ -33,6 +33,7 @@ from .proponent.submission import API as SUBMISSION_API
 from .proponent.user import API as USER_API
 from .staff.package import API as STAFF_PACKAGE_API
 from .staff.project import API as STAFF_PROJECT_API
+from .staff.item import API as STAFF_ITEM_API
 
 
 __all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT', 'STAFF_API_BLUEPRINT')
@@ -76,3 +77,4 @@ STAFF_API = Api(
 
 STAFF_API.add_namespace(STAFF_PROJECT_API)
 STAFF_API.add_namespace(STAFF_PACKAGE_API)
+STAFF_API.add_namespace(STAFF_ITEM_API)
