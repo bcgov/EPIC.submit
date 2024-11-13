@@ -68,11 +68,6 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
     @staticmethod
     def _get_submitter(auth_guid: str) -> AccountUserModel:
         """Retrieve the account user by their auth_guid."""
-        return db.session.query(AccountUserModel).filter(AccountUserModel.auth_guid == auth_guid).first()
-
-    @staticmethod
-    def _get_submitter(auth_guid: str) -> AccountUserModel:
-        """Retrieve the account user by their auth_guid."""
         return (
             db.session.query(AccountUserModel)
             .join(UserModel)

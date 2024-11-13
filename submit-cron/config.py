@@ -86,6 +86,11 @@ class _Config():  # pylint: disable=too-few-public-methods
     KEYCLOAK_ADMIN_USERNAME = os.getenv('MET_ADMIN_CLIENT_ID')
     KEYCLOAK_ADMIN_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
 
+    CHES_TOKEN_ENDPOINT = os.getenv('CHES_TOKEN_ENDPOINT')
+    CHES_CLIENT_ID = os.getenv('CHES_CLIENT_ID')
+    CHES_CLIENT_SECRET = os.getenv('CHES_CLIENT_SECRET')
+    CHES_BASE_URL = os.getenv('CHES_BASE_URL')
+
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
     """Dev Config."""
@@ -93,10 +98,6 @@ class DevConfig(_Config):  # pylint: disable=too-few-public-methods
     TESTING = False
     DEBUG = True
 
-    CHES_TOKEN_ENDPOINT = os.getenv('CHES_TOKEN_ENDPOINT')
-    CHES_CLIENT_ID = os.getenv('CHES_CLIENT_ID')
-    CHES_CLIENT_SECRET = os.getenv('CHES_CLIENT_SECRET')
-    CHES_BASE_URL = os.getenv('CHES_BASE_URL')
     print(f'SQLAlchemy URL (DevConfig): {_Config.SQLALCHEMY_DATABASE_URI}')
 
 

@@ -165,8 +165,6 @@ class PackageService:
             cls._create_email_queue_record(package, session)
             session.flush()
             session.commit()
-        # TODO: Remove this once we have a generic email service
-        cls.send_package_submission_email_confirmation(package)
         return package
 
     @staticmethod

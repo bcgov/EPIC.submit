@@ -9,17 +9,17 @@ resources:
     cpu: 100m
     memory: 100Mi
   limits:
-    cpu: 750m
-    memory: 2Gi
+    cpu: 250m
+    memory: 200Mi
 replicaCount: 1
-imageTag: latest
+imageTag: dev
 
 cronTab: "*/5 * * * * default cd /submit-cron && ./run_emailer.sh"
 
 
 chesSecrets:
   create: true
-  tokenEndPoint: "https://test.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
-  apiEndPoint: "https://cdogs-test.api.gov.bc.ca/api/v2"
-  clientId: "your_client_id"
-  clientSecret: "your_client_secret"
+  tokenEndPoint: "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
+  apiEndPoint: "https://ches-dev.api.gov.bc.ca"
+  clientId: ""
+  clientSecret: ""
