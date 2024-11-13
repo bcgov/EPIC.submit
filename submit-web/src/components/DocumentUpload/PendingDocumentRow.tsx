@@ -40,6 +40,7 @@ export default function PendingDocumentRow({
         file: documentItem.file,
         fileDetails: {
           filename: documentItem.file.name,
+          folder: documentItem.folder,
         },
       });
 

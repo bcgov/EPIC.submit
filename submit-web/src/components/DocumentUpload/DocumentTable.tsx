@@ -17,15 +17,17 @@ import DocumentTableRow, {
 import { Document } from "@/store/documentUploadStore";
 import PendingDocumentRow from "./PendingDocumentRow";
 
+type DocumentTableProps = {
+  header: string;
+  documents?: Array<Submission>;
+  pendingDocuments: Array<Document>;
+  folder?: string;
+};
 export default function DocumentTable({
   header,
   documents = [],
   pendingDocuments,
-}: {
-  header: string;
-  documents?: Array<Submission>;
-  pendingDocuments: Array<Document>;
-}) {
+}: DocumentTableProps) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table sx={{ tableLayout: "fixed" }}>

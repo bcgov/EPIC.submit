@@ -6,6 +6,14 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { Options } from "./types";
 
+export const S3_FOLDER = {
+  INTERNAL_STAFF: "internal_staff",
+  MANAGEMENT_PLANS: "management_plans",
+  SUPPORTING_DOCUMENTS: "supporting_documents",
+  CONSULTATION_RECORDS: "consultation_records",
+  SUBMISSIONS: "submissions",
+};
+
 export type ObjectStorageHeaderDetails = {
   filename: string;
   filepath: string;
@@ -17,6 +25,7 @@ export type ObjectStorageHeaderDetails = {
 type AuthHeaderRequestData = {
   filename: string;
   s3sourceuri?: string;
+  folder?: string;
 };
 const createAuthHeaders = (data: AuthHeaderRequestData) => {
   return documentRequest<ObjectStorageHeaderDetails>({

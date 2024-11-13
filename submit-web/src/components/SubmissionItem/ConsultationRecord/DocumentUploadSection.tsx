@@ -12,15 +12,24 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import DocumentTable from "@/components/DocumentUpload/DocumentTable";
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
+import { AccountProject } from "@/models/Project";
+import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
+import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { camelCase } from "change-case";
 
 export const DocumentUploadSection = () => {
-  const { submissionId: submissionItemId } = useParams({
+  const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
-    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) }).queryKey
+    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) })
+      .queryKey,
+  );
+
+  const accountProject = queryClient.getQueryData<AccountProject>(
+    getAccountProjectQueryOptions(Number(projectId)).queryKey,
   );
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
@@ -34,7 +43,7 @@ export const DocumentUploadSection = () => {
   const handleOnDrop = (acceptedFiles: File[]) => {
     handleAddDocuments(
       acceptedFiles[0],
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS
+      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
     );
   };
 
@@ -44,18 +53,25 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id
+    (submission) => submission.id,
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId)
+      !documentSubmissionIds?.includes(document.submissionId),
   );
+
+  const projectName = camelCase(accountProject?.project.name || "");
+
+  if (!accountProject) {
+    notify.error("Failed to load project");
+    return null;
+  }
 
   return (
     <Grid container spacing={2}>
@@ -109,7 +125,7 @@ export const DocumentUploadSection = () => {
         </Typography>
         <When
           condition={Boolean(
-            documentSubmissions?.length || pendingDocuments?.length
+            documentSubmissions?.length || pendingDocuments?.length,
           )}
         >
           <Box my={BCDesignTokens.layoutMarginLarge}>
@@ -117,6 +133,7 @@ export const DocumentUploadSection = () => {
               documents={documentSubmissions}
               pendingDocuments={pendingDocuments}
               header={"Consultation Record(s)"}
+              folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS}`}
             />
           </Box>
         </When>
