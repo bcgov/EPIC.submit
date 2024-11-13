@@ -20,11 +20,12 @@ from .account_role import AccountRole
 from .account_user import AccountUser
 from .base_model import BaseModel
 from .db import db, ma, migrate
+from .email_queue import EmailQueue
 from .item import Item
 from .item_type import ItemType
 from .package import Package
-from .package_metadata import PackageMetadata
 from .package_item_type import PackageItemType
+from .package_metadata import PackageMetadata
 from .package_type import PackageType
 from .project import Project
 from .project_team import ProjectTeam
@@ -33,4 +34,3 @@ from .submission import Submission
 from .submitted_document import SubmittedDocument
 from .submitted_form import SubmittedForm
 from .user import User
-from .email_queue import EmailQueue

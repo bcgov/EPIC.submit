@@ -22,9 +22,9 @@ from flask_migrate import Migrate, upgrade
 from sqlalchemy import event, text
 
 from src.submit_api import create_app
-from src.submit_api.auth import jwt as _jwt
-from src.submit_api import get_named_config
 from src.submit_api import db as _db
+from src.submit_api import get_named_config
+from src.submit_api.auth import jwt as _jwt
 
 from .utilities.factory_scenario import TokenJWTClaims
 from .utilities.factory_utils import factory_auth_header

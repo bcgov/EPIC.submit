@@ -15,10 +15,12 @@ import { Document } from "@/store/documentUploadStore";
 type DocumentTableRowProps = {
   documentItem: Document;
   error?: boolean;
+  folder?: string;
 };
 export default function PendingDocumentRow({
   documentItem,
   error = false,
+  folder: s3Folder,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -40,6 +42,7 @@ export default function PendingDocumentRow({
         file: documentItem.file,
         fileDetails: {
           filename: documentItem.file.name,
+          folder: s3Folder,
         },
       });
 

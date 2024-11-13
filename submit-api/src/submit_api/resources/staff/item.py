@@ -19,7 +19,7 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.item import ItemSchema
+from submit_api.schemas.item import StaffItemSchema
 from submit_api.services.item import ItemService
 from submit_api.utils.util import cors_preflight
 
@@ -29,7 +29,7 @@ API = Namespace("items", description="Endpoints for item Management")
 """
 
 item_model = ApiHelper.convert_ma_schema_to_restx_model(
-    API, ItemSchema(), "Submission item"
+    API, StaffItemSchema(), "Submission item"
 )
 
 
@@ -51,4 +51,4 @@ class Item(Resource):
     def get(item_id):
         """Get item by id."""
         projects = ItemService.get_item_by_id(item_id)
-        return ItemSchema().dump(projects), HTTPStatus.OK
+        return StaffItemSchema().dump(projects), HTTPStatus.OK

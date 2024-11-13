@@ -12,9 +12,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import DocumentTable from "@/components/DocumentUpload/DocumentTable";
 import { QUERY_KEY } from "@/hooks/api/constants";
+import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
+import { AccountProject } from "@/models/Project";
+import { camelCase } from "change-case";
 
 export const DocumentUploadSection = () => {
-  const { submissionId: submissionItemId } = useParams({
+  const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
@@ -23,6 +27,10 @@ export const DocumentUploadSection = () => {
     QUERY_KEY.SUBMISSION_ITEM,
     Number(submissionItemId),
   ]);
+
+  const accountProject = queryClient.getQueryData<AccountProject>(
+    getAccountProjectQueryOptions(Number(projectId)).queryKey,
+  );
 
   const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
 
@@ -42,40 +50,46 @@ export const DocumentUploadSection = () => {
   }
 
   const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
 
   const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id
+    (submission) => submission.id,
   );
 
   const managementPlanDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
   );
 
   const supportingDocuments = documentSubmissions?.filter(
     (submission) =>
       submission.submitted_document.folder ===
-      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
+      MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
   );
 
   const pendingDocuments = documents.filter(
     (document) =>
       !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId)
+      !documentSubmissionIds?.includes(document.submissionId),
   );
 
   const pendingManagementPlanDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
   );
 
   const pendingSupportingDocuments = pendingDocuments.filter(
     (document) =>
-      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
+      document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
   );
+  const projectName = camelCase(accountProject?.project.name || "");
+
+  if (!accountProject) {
+    notify.error("Failed to load project");
+    return null;
+  }
 
   return (
     <Grid container spacing={2}>
@@ -120,7 +134,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
             )
           }
         />
@@ -136,7 +150,7 @@ export const DocumentUploadSection = () => {
         <When
           condition={Boolean(
             managementPlanDocuments?.length ||
-              pendingManagementPlanDocuments?.length
+              pendingManagementPlanDocuments?.length,
           )}
         >
           <Box my={BCDesignTokens.layoutMarginLarge}>
@@ -144,6 +158,7 @@ export const DocumentUploadSection = () => {
               header={"Management Plan"}
               documents={managementPlanDocuments}
               pendingDocuments={pendingManagementPlanDocuments}
+              folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}`}
             />
           </Box>
         </When>
@@ -171,7 +186,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(
               acceptedFiles,
-              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
+              MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
             )
           }
         />
@@ -186,7 +201,7 @@ export const DocumentUploadSection = () => {
 
         <When
           condition={Boolean(
-            supportingDocuments?.length || pendingSupportingDocuments?.length
+            supportingDocuments?.length || pendingSupportingDocuments?.length,
           )}
         >
           <Box my={BCDesignTokens.layoutMarginLarge}>
@@ -194,6 +209,7 @@ export const DocumentUploadSection = () => {
               header={"Supporting Documents"}
               documents={supportingDocuments}
               pendingDocuments={pendingSupportingDocuments}
+              folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}`}
             />
           </Box>
         </When>

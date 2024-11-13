@@ -10,8 +10,7 @@ class ItemService:
     @classmethod
     def get_item_by_id(cls, item_id) -> ItemModel:
         """Get item by id."""
-        item = ItemModel.find_by_id(item_id)
-        return item
+        return ItemModel.find_by_id(item_id)
 
     @staticmethod
     def _apply_update_data(submission_item, update_data):
