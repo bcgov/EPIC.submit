@@ -34,3 +34,4 @@ from .submission import Submission
 from .submitted_document import SubmittedDocument
 from .submitted_form import SubmittedForm
 from .user import User
+from .internal_staff_documents import InternalStaffDocuments
