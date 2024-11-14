@@ -10,16 +10,23 @@ import DocumentRow from "../DocumentRow";
 import { Unless, When } from "react-if";
 import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
 import { PackageTableRow } from ".";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 export default function StaffSubmissionItemTableRow({
   item,
   error = false,
 }: SubmissionItemTableRowProps) {
-  const { name, submissions, has_document, status } = item;
+  const { projectId, submissionPackageId } = useParams({ strict: false });
+  const navigate = useNavigate();
+  const { name, submissions, has_document, status, id } = item;
 
   const actionLabel = has_document ? "Review" : "View";
 
-  const onActionClick = () => {};
+  const onActionClick = () => {
+    navigate({
+      to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+    });
+  };
 
   return (
     <>
