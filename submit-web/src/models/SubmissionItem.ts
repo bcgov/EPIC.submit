@@ -37,4 +37,14 @@ export interface SubmissionItem {
   type_id: number;
   version: number;
   submissions: Submission[];
+  internal_staff_documents?: InternalStaffDocument[];
 }
+
+export type InternalStaffDocument = {
+  id: number;
+  name: string;
+  url: string;
+  folder: string;
+  item_id: number;
+  created_by: string;
+};
