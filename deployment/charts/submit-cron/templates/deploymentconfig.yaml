@@ -69,26 +69,26 @@ spec:
               secretKeyRef:
                 name: submit-patroni
                 key: app-db-password
-          - name: CDOGS_TOKEN_END_POINT
+          - name: CHES_TOKEN_ENDPOINT
             valueFrom:
               secretKeyRef:
                 name: ches-secrets
-                key: CDOGS_TOKEN_END_POINT
-          - name: CDOGS_API_ENDPOINT
+                key: CHES_TOKEN_ENDPOINT
+          - name: CHES_BASE_URL
             valueFrom:
               secretKeyRef:
                 name: ches-secrets
-                key: CDOGS_API_ENDPOINT
-          - name: CDOGS_CLIENT_ID
+                key: CHES_BASE_URL
+          - name: CHES_CLIENT_ID
             valueFrom:
               secretKeyRef:
                 name: ches-secrets
-                key: CDOGS_CLIENT_ID
-          - name: CDOGS_CLIENT_SECRET
+                key: CHES_CLIENT_ID
+          - name: CHES_CLIENT_SECRET
             valueFrom:
               secretKeyRef:
                 name: ches-secrets
-                key: CDOGS_CLIENT_SECRET           
+                key: CHES_CLIENT_SECRET           
           - name: DATABASE_NAME
             value: "{{ .Values.database.username }}"
           - name: DATABASE_HOST

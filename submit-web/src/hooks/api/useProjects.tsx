@@ -120,6 +120,38 @@ export const useGetAccountProject = ({
   return useQuery(options);
 };
 
+type GetAccountProjectsByIdForStaffParams = {
+  accountProjectId: number;
+};
+const getAccountProjectByIdForStaff = ({
+  accountProjectId,
+}: GetAccountProjectsByIdForStaffParams) => {
+  return submitRequest<AccountProject>({
+    url: `staff/projects/${accountProjectId}`,
+  });
+};
+
+type UseGetAccountProjectByIdForStaffParams = {
+  accountProjectId: number;
+};
+
+export const getAccountProjectForStaffQueryOptions = (
+  accountProjectId: number,
+) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+    queryFn: () => getAccountProjectByIdForStaff({ accountProjectId }),
+    enabled: Boolean(accountProjectId),
+    ...defaultUseQueryOptions,
+  });
+
+export const useGetAccountProjectForStaff = ({
+  accountProjectId,
+}: UseGetAccountProjectByIdForStaffParams) => {
+  const options = getAccountProjectForStaffQueryOptions(accountProjectId);
+  return useQuery(options);
+};
+
 type GetProjectsByParamsForStaff = {
   searchOptions?: Record<string, string | number | string[]>;
 };

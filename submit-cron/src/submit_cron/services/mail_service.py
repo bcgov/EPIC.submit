@@ -9,7 +9,7 @@ from submit_api.models.email_queue import EmailQueue
 from submit_cron.services.package_submission_email_service import PackageSubmissionEmailService
 from submit_cron.services.ches_service import ChesApiService
 from submit_cron.models import db
-from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+from submit_cron.utils.constants import PACKAGE_ENTITY_TPYE
 
 
 class EmailService:  # pylint: disable=too-few-public-methods
@@ -25,7 +25,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         print(f"Number of pending emails: {len(pending_emails)}")
         for email_entry in pending_emails:
             try:
-                if email_entry.entity_type == MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE:
+                if email_entry.entity_type == PACKAGE_ENTITY_TPYE:
                     EmailService._process_package_submission_email(email_entry)
                 else:
                     raise BadRequestError(f"Unsupported entity type for email notification: {email_entry.entity_type}")
