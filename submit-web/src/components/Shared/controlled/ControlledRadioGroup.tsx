@@ -9,13 +9,11 @@ import { Controller, useFormContext } from "react-hook-form";
 
 type IFormInputProps = {
   name: string;
-  disabled?: boolean;
 } & RadioGroupProps;
 
 const ControlledRadioGroup: FC<IFormInputProps> = ({
   name,
   children,
-  disabled,
   ...otherProps
 }) => {
   const {
@@ -30,9 +28,8 @@ const ControlledRadioGroup: FC<IFormInputProps> = ({
         control={control}
         name={name}
         defaultValue={defaultValues?.[name] || ""}
-        disabled={disabled}
         render={({ field }) => (
-          <RadioGroup disabled={disabled} {...otherProps} {...field}>
+          <RadioGroup {...otherProps} {...field}>
             {children}
           </RadioGroup>
         )}

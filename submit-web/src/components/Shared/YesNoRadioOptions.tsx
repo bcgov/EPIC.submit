@@ -6,7 +6,7 @@ export const NO = false;
 
 type IYesNoRadioOptionsProps = {
   error: boolean;
-  disabled: boolean;
+  disabled?: boolean;
 };
 export const YesNoRadioOptions = ({
   error = true,
