@@ -31,7 +31,7 @@ export const SubmissionItemTableCell = styled(TableCell)<{ error?: boolean }>(
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
     },
-  })
+  }),
 );
 
 const StyledTableRow = styled(TableRow)<{ error?: boolean }>(({ error }) => ({
@@ -54,7 +54,7 @@ export const PackageTableRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
-      : child
+      : child,
   );
 
   return (
