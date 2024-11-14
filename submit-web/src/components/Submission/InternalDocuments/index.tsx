@@ -1,30 +1,23 @@
-import {
-  Link as MuiLink,
-  TableCell,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Link as MuiLink, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { StaffSubmission, SUBMISSION_STATUS } from "@/models/Submission";
-import { Unless } from "react-if";
+import { When } from "react-if";
 import {
   SubmissionItemTableCell,
   PackageTableRow,
 } from "../SubmissionItemTableRow";
-import DocumentRow from "../DocumentRow";
+import { InternalStaffDocument } from "@/models/SubmissionItem";
+import Row from "./Row";
+import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
 
+type InternalDocumentsProps = {
+  internalStaffDocuments: Array<InternalStaffDocument>;
+  submissionItemId?: number;
+};
 export default function InternalDocuments({
-  submissions,
-}: {
-  submissions: Array<StaffSubmission>;
-}) {
+  internalStaffDocuments,
+  submissionItemId,
+}: InternalDocumentsProps) {
   const actionLabel = "Add Documents";
-  const internalDocuments = submissions.flatMap((submission) =>
-    submission.internal_staff_documents.map((doc) => ({
-      ...submission,
-      submitted_document: { name: doc.name, url: doc.url },
-    }))
-  );
 
   const onActionClick = () => {};
 
@@ -56,7 +49,7 @@ export default function InternalDocuments({
           {/* TODO Add Staff Status' */}
         </SubmissionItemTableCell>
         <SubmissionItemTableCell align="center">
-          <Unless condition={status === SUBMISSION_STATUS.SUBMITTED.value}>
+          <When condition={Boolean(submissionItemId)}>
             <Typography
               variant="body2"
               sx={{
@@ -70,24 +63,13 @@ export default function InternalDocuments({
             >
               {actionLabel}
             </Typography>
-          </Unless>
+          </When>
         </SubmissionItemTableCell>
       </PackageTableRow>
-      {internalDocuments.map((document) => (
-        <DocumentRow
-          key={`doc-row-${document.id}`}
-          documentSubmission={document}
-        />
+      {internalStaffDocuments.map((document) => (
+        <Row key={`doc-row-${document.id}`} internalStaffDocument={document} />
       ))}
-      <TableRow key={`row-${name}-divider`}>
-        <TableCell
-          colSpan={5}
-          sx={{
-            py: BCDesignTokens.layoutPaddingXsmall,
-            border: 0,
-          }}
-        />
-      </TableRow>
+      <EmptyRow colSpan={5} />
     </>
   );
 }

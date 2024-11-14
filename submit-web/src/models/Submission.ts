@@ -32,17 +32,12 @@ export type SubmittedForm = {
   };
 };
 
-export type SubmissionType =
-  | "FORM"
-  | "DOCUMENT"
-  | "BUSINESS_DATA"
-  | "INTERNAL_STAFF_DOCUMENT";
+export type SubmissionType = "FORM" | "DOCUMENT" | "BUSINESS_DATA";
 
 export const SUBMISSION_TYPE: Record<SubmissionType, SubmissionType> = {
   FORM: "FORM",
   DOCUMENT: "DOCUMENT",
   BUSINESS_DATA: "BUSINESS_DATA",
-  INTERNAL_STAFF_DOCUMENT: "INTERNAL_STAFF_DOCUMENT",
 };
 
 export type DocumentSubmission = {
@@ -61,16 +56,4 @@ export type Submission = {
   submitted_form: SubmittedForm;
   created_date: string;
   submitted_by: string;
-};
-
-export type StaffSubmission = Submission & {
-  internal_staff_documents: StaffDocument[]; // Assuming this is an array of DocumentSubmission
-};
-
-export type StaffDocument = {
-  id: number;
-  name: string;
-  url: string;
-  type: SubmissionType;
-  submission_item_id: number;
 };
