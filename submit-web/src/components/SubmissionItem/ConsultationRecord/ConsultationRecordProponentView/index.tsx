@@ -26,7 +26,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
-import { consultationRecordSchema, ConsultationRecordForm } from "..";
+import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
 
 export const ConsultationRecordProponentView = () => {
   const {

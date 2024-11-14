@@ -25,7 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
-import { consultationRecordSchema, ConsultationRecordForm } from "..";
+import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
 
 export const ConsultationRecordStaffView = () => {
   const {
@@ -126,7 +126,7 @@ export const ConsultationRecordStaffView = () => {
     });
   const {
     handleSubmit,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = methods;
 
   const handleCompleteForm = (formData: ConsultationRecordForm) => {
@@ -213,7 +213,7 @@ export const ConsultationRecordStaffView = () => {
               <Form onSubmit={handleSubmit(handleCompleteForm)}>
                 <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
                   <FormFieldSection errors={errors} methods={methods} />
-                  <ActionButtons saveAndClose={() => {}} />
+                  <ActionButtons saveAndClose={saveAndClose} />
                 </Grid>
               </Form>
             </FormProvider>
