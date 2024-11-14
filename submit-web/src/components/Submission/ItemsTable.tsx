@@ -113,7 +113,7 @@ export default function ItemsTable({
             />
           ))}
           <When condition={userType === USER_TYPE.STAFF}>
-            <InternalDocuments submissions={submissions} />
+            <InternalDocuments submissions={submissionItems} />
           </When>
         </TableBody>
       </Table>
