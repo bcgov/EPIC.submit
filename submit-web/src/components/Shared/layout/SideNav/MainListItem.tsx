@@ -1,15 +1,21 @@
-import { alpha, ListItem, ListItemButton } from "@mui/material";
+import { alpha, ListItem, ListItemButton, SxProps } from "@mui/material";
 import { RouteType } from "./SideNavElements";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { theme } from "@/styles/theme";
 
-export const MainListItem = ({ route }: { route: RouteType }) => {
+export const MainListItem = ({
+  route,
+  sx,
+}: {
+  route: RouteType;
+  sx?: SxProps;
+}) => {
   const router = useRouterState();
   const currentPath = router.location.pathname;
   const isActive =
     currentPath === route.path || currentPath.includes(route.path);
   return (
-    <ListItem key={route.name} sx={{ py: 0, pr: 0 }}>
+    <ListItem key={route.name} sx={{ py: 0, pr: 0, ...sx }}>
       <Link
         to={route.path}
         style={{
