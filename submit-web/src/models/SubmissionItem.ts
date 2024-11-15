@@ -47,4 +47,5 @@ export type InternalStaffDocument = {
   folder: string;
   item_id: number;
   created_by: string;
+  created_date: string;
 };

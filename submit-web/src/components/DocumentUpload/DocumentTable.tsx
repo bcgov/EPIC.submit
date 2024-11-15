@@ -14,13 +14,13 @@ import DocumentTableRow, {
   StyledHeadTableCell,
   DocumentHeadTableRow,
 } from "./DocumentTableRow";
-import { Document } from "@/store/documentUploadStore";
+import { UploadObject } from "@/store/documentUploadStore";
 import PendingDocumentRow from "./PendingDocumentRow";
 
 type DocumentTableProps = {
   header: string;
   documents?: Array<Submission>;
-  pendingDocuments: Array<Document>;
+  pendingDocuments: Array<UploadObject>;
   folder?: string;
 };
 export default function DocumentTable({

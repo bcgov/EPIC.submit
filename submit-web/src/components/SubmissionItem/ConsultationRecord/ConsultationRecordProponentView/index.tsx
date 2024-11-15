@@ -13,7 +13,7 @@ import { CardInnerBox } from "@/components/Projects/Project";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
   SUBMISSION_STATUS,
@@ -43,7 +43,7 @@ export const ConsultationRecordProponentView = () => {
 
   const { setIsOpen } = useLoaderBackdrop();
   const navigate = useNavigate();
-  const { reset } = useDocumentUploadStore();
+  const { reset } = useObjectUploadStore();
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
@@ -52,7 +52,7 @@ export const ConsultationRecordProponentView = () => {
   ]);
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultFormValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -60,31 +60,31 @@ export const ConsultationRecordProponentView = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       allPartiesConsulted: booleanToString(
-        formSubmission.submitted_form.submission_json.allPartiesConsulted
+        formSubmission.submitted_form.submission_json.allPartiesConsulted,
       ),
       planWasReviewed: booleanToString(
-        formSubmission.submitted_form.submission_json.planWasReviewed
+        formSubmission.submitted_form.submission_json.planWasReviewed,
       ),
       writtenExplanationsProvidedToParties: booleanToString(
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToParties
+          .writtenExplanationsProvidedToParties,
       ),
       writtenExplanationsProvidedToCommenters: booleanToString(
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToCommenters
+          .writtenExplanationsProvidedToCommenters,
       ),
     };
   }, [formSubmission]);
 
   const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
 
     return {
       consultationRecords: documentSubmissions.map(
-        (submission) => submission.submitted_document.url
+        (submission) => submission.submitted_document.url,
       ),
     };
   }, [documentSubmissions]);
@@ -136,7 +136,7 @@ export const ConsultationRecordProponentView = () => {
 
   const saveSubmission = async (
     formData: ConsultationRecordForm,
-    status: SubmissionStatus
+    status: SubmissionStatus,
   ) => {
     const {
       consultedParties,
@@ -155,10 +155,10 @@ export const ConsultationRecordProponentView = () => {
           allPartiesConsulted: stringToBoolean(allPartiesConsulted),
           planWasReviewed: stringToBoolean(planWasReviewed),
           writtenExplanationsProvidedToParties: stringToBoolean(
-            writtenExplanationsProvidedToParties
+            writtenExplanationsProvidedToParties,
           ),
           writtenExplanationsProvidedToCommenters: stringToBoolean(
-            writtenExplanationsProvidedToCommenters
+            writtenExplanationsProvidedToCommenters,
           ),
         },
       },

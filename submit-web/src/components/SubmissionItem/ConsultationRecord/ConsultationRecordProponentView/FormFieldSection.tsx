@@ -6,7 +6,7 @@ import { When } from "react-if";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
-import { ConsultationRecordForm } from ".";
+import { ConsultationRecordForm } from "../constants";
 
 interface FormFieldSectionProps {
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface

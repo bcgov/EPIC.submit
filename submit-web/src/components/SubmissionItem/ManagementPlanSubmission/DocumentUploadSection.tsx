@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { When } from "react-if";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -32,7 +32,11 @@ export const DocumentUploadSection = () => {
     getAccountProjectQueryOptions(Number(projectId)).queryKey,
   );
 
-  const { reset, handleAddDocuments, documents } = useDocumentUploadStore();
+  const {
+    reset,
+    handleAddObjects: handleAddDocuments,
+    uploadObjects: documents,
+  } = useObjectUploadStore();
 
   useEffect(() => {
     return () => {

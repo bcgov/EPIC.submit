@@ -1,7 +1,6 @@
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { booleanToString } from "@/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,8 +12,7 @@ import { CardInnerBox } from "@/components/Projects/Project";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import FormFieldSection from "./FormFieldSection";
-import ActionButtons from "./ActionButtons";
+import InternalDocumentSection from "./InternalDocumentSection";
 
 export const ConsultationRecordStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
@@ -26,8 +24,6 @@ export const ConsultationRecordStaffView = () => {
     accountProjectId,
   });
 
-  const { reset } = useDocumentUploadStore();
-
   const queryClient = useQueryClient();
 
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
@@ -35,41 +31,45 @@ export const ConsultationRecordStaffView = () => {
     Number(submissionItemId),
   ]);
 
-  const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
-  );
+  // const formSubmission = submissionItem?.submissions?.find(
+  //   (submission) => submission.type === SUBMISSION_TYPE.FORM
+  // );
 
-  const defaultFormValues = useMemo(() => {
-    if (!formSubmission?.submitted_form?.submission_json) return {};
+  // const defaultFormValues = useMemo(() => {
+  //   if (!formSubmission?.submitted_form?.submission_json) return {};
 
-    return {
-      ...formSubmission.submitted_form.submission_json,
-      allPartiesConsulted: booleanToString(
-        formSubmission.submitted_form.submission_json.allPartiesConsulted
-      ),
-      planWasReviewed: booleanToString(
-        formSubmission.submitted_form.submission_json.planWasReviewed
-      ),
-      writtenExplanationsProvidedToParties: booleanToString(
-        formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToParties
-      ),
-      writtenExplanationsProvidedToCommenters: booleanToString(
-        formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToCommenters
-      ),
-    };
-  }, [formSubmission]);
+  //   return {
+  //     ...formSubmission.submitted_form.submission_json,
+  //     allPartiesConsulted: booleanToString(
+  //       formSubmission.submitted_form.submission_json.allPartiesConsulted
+  //     ),
+  //     planWasReviewed: booleanToString(
+  //       formSubmission.submitted_form.submission_json.planWasReviewed
+  //     ),
+  //     writtenExplanationsProvidedToParties: booleanToString(
+  //       formSubmission.submitted_form.submission_json
+  //         .writtenExplanationsProvidedToParties
+  //     ),
+  //     writtenExplanationsProvidedToCommenters: booleanToString(
+  //       formSubmission.submitted_form.submission_json
+  //         .writtenExplanationsProvidedToCommenters
+  //     ),
+  //   };
+  // }, [formSubmission]);
 
-  useEffect(() => {
-    console.log(formSubmission);
-  }, [defaultFormValues]);
+  // const documentSubmissions = submissionItem?.submissions?.filter(
+  //   (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+  // );
 
-  useEffect(() => {
-    return () => {
-      reset();
-    };
-  }, [reset]);
+  // const defaultDocumentValues = useMemo(() => {
+  //   if (!documentSubmissions) return {};
+
+  //   return {
+  //     consultationRecords: documentSubmissions.map(
+  //       (submission) => submission.submitted_document.url
+  //     ),
+  //   };
+  // }, [documentSubmissions]);
 
   if (!accountProject) return <Navigate to="/error" />;
 
@@ -112,6 +112,7 @@ export const ConsultationRecordStaffView = () => {
             <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
               {/* <FormFieldSection formData={defaultFormValues} /> */}
               {/* <ActionButtons saveAndClose={saveAndClose} /> */}
+              <InternalDocumentSection />
             </Grid>
           </Box>
         </Box>
