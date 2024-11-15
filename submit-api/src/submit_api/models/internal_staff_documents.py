@@ -29,3 +29,5 @@ class InternalStaffDocuments(BaseModel):
     url = Column(db.String(), nullable=False)
     type = Column(db.Enum(InternalStaffDocumentType), nullable=False)
     item_id = Column(db.Integer, db.ForeignKey('items.id'), nullable=False)
+    created_by = Column(db.String, db.ForeignKey('users.auth_guid'), nullable=True)
+    created_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')

@@ -1,30 +1,27 @@
 import { Link as MuiLink, Typography } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
-import { When } from "react-if";
 import {
   SubmissionItemTableCell,
   PackageTableRow,
-} from "../SubmissionItemTableRow";
+} from "../../Submission/SubmissionItemTableRow";
 import { InternalStaffDocument } from "@/models/SubmissionItem";
 import Row from "./Row";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
+import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import PendingRow from "./PendingRow";
 
 type InternalDocumentsProps = {
   internalStaffDocuments: Array<InternalStaffDocument>;
   submissionItemId?: number;
 };
-export default function InternalDocuments({
+export default function Rows({
   internalStaffDocuments,
-  submissionItemId,
 }: InternalDocumentsProps) {
-  const actionLabel = "Add Documents";
-
-  const onActionClick = () => {};
+  const { documents: pendingDocuments } = useDocumentUploadStore();
 
   return (
     <>
       <PackageTableRow>
-        <SubmissionItemTableCell colSpan={2}>
+        <SubmissionItemTableCell>
           <MuiLink
             color="inherit"
             sx={{
@@ -43,31 +40,16 @@ export default function InternalDocuments({
             </Typography>
           </MuiLink>
         </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right"></SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right"></SubmissionItemTableCell>
-        <SubmissionItemTableCell align="center">
-          {/* TODO Add Staff Status' */}
-        </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="center">
-          <When condition={Boolean(submissionItemId)}>
-            <Typography
-              variant="body2"
-              sx={{
-                color: BCDesignTokens.typographyColorLink,
-                "&:hover": {
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                },
-              }}
-              onClick={onActionClick}
-            >
-              {actionLabel}
-            </Typography>
-          </When>
-        </SubmissionItemTableCell>
+        <SubmissionItemTableCell align="right" colSpan={3} />
       </PackageTableRow>
       {internalStaffDocuments.map((document) => (
         <Row key={`doc-row-${document.id}`} internalStaffDocument={document} />
+      ))}
+      {pendingDocuments.map((pendingDocument) => (
+        <PendingRow
+          key={`pending-doc-row-${pendingDocument.id}`}
+          pendingDocument={pendingDocument}
+        />
       ))}
       <EmptyRow colSpan={5} />
     </>
