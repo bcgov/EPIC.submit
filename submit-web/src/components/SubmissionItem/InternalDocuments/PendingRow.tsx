@@ -5,12 +5,15 @@ import {
   Typography,
 } from "@mui/material";
 import { StyledTableCell } from "@/components/Shared/Table/common";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import {
+  UploadObject,
+  useObjectUploadStore,
+} from "@/store/documentUploadStore";
 import { useEffect } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 type RowProps = {
-  pendingDocument: Record<string, any>;
+  pendingDocument: UploadObject;
 };
 
 export default function PendingRow({ pendingDocument }: RowProps) {
@@ -18,9 +21,7 @@ export default function PendingRow({ pendingDocument }: RowProps) {
     file: { name },
   } = pendingDocument;
 
-  const { triggerPending, removeDocument } = useDocumentUploadStore();
-
-  console.log(pendingDocument);
+  const { triggerPending, removeObject } = useObjectUploadStore();
 
   useEffect(() => {
     triggerPending(pendingDocument.id);
@@ -32,7 +33,7 @@ export default function PendingRow({ pendingDocument }: RowProps) {
       // TODO: Implement saveObject function
     } catch (error) {
       notify.error("Failed to upload document");
-      removeDocument(pendingDocument.id);
+      removeObject(pendingDocument.id);
     }
   };
 

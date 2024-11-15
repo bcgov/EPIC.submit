@@ -1,5 +1,4 @@
 import {
-  Box,
   Table as MuiTable,
   TableBody,
   TableContainer,

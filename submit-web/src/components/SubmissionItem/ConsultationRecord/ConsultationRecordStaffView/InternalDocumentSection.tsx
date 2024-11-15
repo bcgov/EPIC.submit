@@ -1,5 +1,5 @@
 import FileUpload from "@/components/FileUpload";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import { useObjectUploadStore } from "@/store/documentUploadStore";
 import {
   Button,
   Divider,
@@ -13,11 +13,7 @@ import { useEffect, useState } from "react";
 import InternalDocumentsTable from "../../InternalDocuments/Table";
 
 export default function InternalDocumentSection() {
-  const {
-    reset,
-    handleAddDocuments,
-    documents: pendingDocuments,
-  } = useDocumentUploadStore();
+  const { reset, handleAddObjects, uploadObjects } = useObjectUploadStore();
   const [link, setLink] = useState("");
 
   useEffect(() => {
@@ -32,17 +28,15 @@ export default function InternalDocumentSection() {
 
   const handleSaveLinkText = () => {
     if (!link) {
-      console.log("Link is empty");
       return;
     }
-    console.log(link);
   };
 
   const handleFileDrop = (acceptedFiles: File[]) => {
-    if (pendingDocuments.length > 0) {
+    if (uploadObjects.length > 0) {
       return;
     }
-    handleAddDocuments(acceptedFiles[0]);
+    handleAddObjects(acceptedFiles[0]);
   };
   return (
     <Grid item container>

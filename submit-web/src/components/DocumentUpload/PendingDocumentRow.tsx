@@ -7,13 +7,13 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { useEffect } from "react";
 import { saveObject } from "@/hooks/api/useObjectStorage";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { Document } from "@/store/documentUploadStore";
+import { UploadObject } from "@/store/documentUploadStore";
 
 type DocumentTableRowProps = {
-  documentItem: Document;
+  documentItem: UploadObject;
   error?: boolean;
   folder?: string;
 };
@@ -28,8 +28,11 @@ export default function PendingDocumentRow({
 
   const queryClient = useQueryClient();
 
-  const { triggerPending, completeDocument, removeDocument } =
-    useDocumentUploadStore();
+  const {
+    triggerPending,
+    completeObject: completeDocument,
+    removeObject: removeDocument,
+  } = useObjectUploadStore();
 
   useEffect(() => {
     triggerPending(documentItem.id);

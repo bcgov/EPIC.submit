@@ -6,7 +6,7 @@ import {
 import { InternalStaffDocument } from "@/models/SubmissionItem";
 import Row from "./Row";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import { useObjectUploadStore } from "@/store/documentUploadStore";
 import PendingRow from "./PendingRow";
 
 type InternalDocumentsProps = {
@@ -16,7 +16,7 @@ type InternalDocumentsProps = {
 export default function Rows({
   internalStaffDocuments,
 }: InternalDocumentsProps) {
-  const { documents: pendingDocuments } = useDocumentUploadStore();
+  const { uploadObjects: pendingDocuments } = useObjectUploadStore();
 
   return (
     <>

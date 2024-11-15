@@ -13,7 +13,7 @@ import { CardInnerBox } from "@/components/Projects/Project";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
   SUBMISSION_STATUS,
@@ -43,7 +43,7 @@ export const ConsultationRecordProponentView = () => {
 
   const { setIsOpen } = useLoaderBackdrop();
   const navigate = useNavigate();
-  const { reset } = useDocumentUploadStore();
+  const { reset } = useObjectUploadStore();
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
