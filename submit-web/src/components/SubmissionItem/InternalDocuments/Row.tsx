@@ -26,7 +26,7 @@ export default function Row({ internalStaffDocument }: RowProps) {
   };
   return (
     <TableRow>
-      <StyledTableCell colSpan={2}>
+      <StyledTableCell>
         <Typography
           variant="body1"
           color="inherit"
@@ -41,9 +41,7 @@ export default function Row({ internalStaffDocument }: RowProps) {
         </Typography>
       </StyledTableCell>
       <StyledTableCell align="right">{created_by || ""}</StyledTableCell>
-      <StyledTableCell align="right"></StyledTableCell>
-      <StyledTableCell align="right"></StyledTableCell>
-      <StyledTableCell align="right"></StyledTableCell>
+      <StyledTableCell align="right" colSpan={2}></StyledTableCell>
     </TableRow>
   );
 }

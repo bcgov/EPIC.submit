@@ -5,7 +5,10 @@ import DocumentIcon from "./ManagementPlanSubmission/DocumentIcon";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { createSubmission } from "@/hooks/api/useSubmissions";
-import { Document, useDocumentUploadStore } from "@/store/documentUploadStore";
+import {
+  UploadObject,
+  useObjectUploadStore,
+} from "@/store/documentUploadStore";
 import { useParams } from "@tanstack/react-router";
 import ProgressBar from "./ManagementPlanSubmission/ProgressBar";
 import { useQueryClient } from "@tanstack/react-query";
@@ -13,7 +16,7 @@ import { SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 
 interface DocumentContainerProps {
-  document: Document;
+  document: UploadObject;
 }
 
 const DocumentToUploadContainer: React.FC<DocumentContainerProps> = ({
@@ -24,8 +27,11 @@ const DocumentToUploadContainer: React.FC<DocumentContainerProps> = ({
   });
   const queryClient = useQueryClient();
 
-  const { triggerPending, completeDocument, removeDocument } =
-    useDocumentUploadStore();
+  const {
+    triggerPending,
+    completeObject: completeDocument,
+    removeObject: removeDocument,
+  } = useObjectUploadStore();
 
   useEffect(() => {
     triggerPending(document.id);

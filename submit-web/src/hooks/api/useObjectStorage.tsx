@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Options } from "./types";
 
 export const S3_FOLDER = {
-  INTERNAL_STAFF: "internal_staff",
+  INTERNAL_STAFF_DOCUMENTS: "internal_staff_documents",
   MANAGEMENT_PLANS: "management_plans",
   SUPPORTING_DOCUMENTS: "supporting_documents",
   CONSULTATION_RECORDS: "consultation_records",

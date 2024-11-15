@@ -7,12 +7,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
 )({
   component: Submission,
   loader: ({ context: { queryClient }, params: { submissionId } }) =>
     queryClient.ensureQueryData(
-      getSubmissionItemQueryOptions({ itemId: Number(submissionId) })
+      getSubmissionItemQueryOptions({ itemId: Number(submissionId) }),
     ),
   errorComponent: () => <Navigate to="/error" />,
   pendingComponent: () => (
@@ -28,7 +28,7 @@ export const Route = createFileRoute(
 export function Submission() {
   const { submissionId: subItemId } = Route.useParams();
   const { data: submissionItem } = useSuspenseQuery(
-    getSubmissionItemQueryOptions({ itemId: Number(subItemId) })
+    getSubmissionItemQueryOptions({ itemId: Number(subItemId) }),
   );
 
   if (!submissionItem) {

@@ -6,7 +6,7 @@ import { When } from "react-if";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
-import { ConsultationRecordForm } from "..";
+import { ConsultationRecordForm } from "../constants";
 
 interface FormFieldSectionProps {
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
@@ -114,7 +114,7 @@ export default function FormFieldSection({
             Were all parties listed above consulted/engaged on the development
             of this plan?
           </Typography>
-          <ControlledRadioGroup name="allPartiesConsulted" disabled>
+          <ControlledRadioGroup name="allPartiesConsulted">
             <YesNoRadioOptions
               disabled
               error={Boolean(errors["allPartiesConsulted"])}

@@ -1,10 +1,10 @@
 import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useDocumentUploadStore } from "@/store/documentUploadStore";
+import { useObjectUploadStore } from "@/store/documentUploadStore";
 import DocumentToUploadContainer from "../DocumentToUploadContainer";
 
 export const PendingDocuments = () => {
-  const { documents } = useDocumentUploadStore();
+  const { uploadObjects: documents } = useObjectUploadStore();
 
   return (
     <Grid container sx={{ mb: BCDesignTokens.layoutMarginXlarge }}>
