@@ -110,8 +110,8 @@ export const ConsultationRecordStaffView = () => {
               title={accountProject.project.name + " Management Plan"}
             />
             <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-              {/* <FormFieldSection formData={defaultFormValues} />
-              <ActionButtons saveAndClose={saveAndClose} /> */}
+              {/* <FormFieldSection formData={defaultFormValues} /> */}
+              {/* <ActionButtons saveAndClose={saveAndClose} /> */}
             </Grid>
           </Box>
         </Box>

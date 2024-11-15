@@ -99,7 +99,10 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               Were all parties listed above consulted/engaged on the development
               of this plan?
             </Typography>
-            <ControlledRadioGroup name="allPartiesConsulted">
+            <ControlledRadioGroup
+              name="allPartiesConsulted"
+              value={formData.allPartiesConsulted}
+            >
               <YesNoRadioOptions disabled error={false} />
             </ControlledRadioGroup>
           </Grid>
@@ -108,7 +111,12 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               Was the plan provided to all parties listed above for review and
               comment during plan development?
             </Typography>
-            <YesNoRadioOptions disabled error={false} />
+            <ControlledRadioGroup
+              name="planWasReviewed"
+              value={formData.planWasReviewed}
+            >
+              <YesNoRadioOptions disabled error={false} />
+            </ControlledRadioGroup>
           </Grid>
           <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
             <Typography variant="body1">
@@ -116,7 +124,12 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               on how comments were fully and impartially considered and
               addressed in the plan?
             </Typography>
-            <YesNoRadioOptions disabled error={false} />
+            <ControlledRadioGroup
+              name="writtenExplanationsProvidedToParties"
+              value={formData.writtenExplanationsProvidedToCommenters}
+            >
+              <YesNoRadioOptions disabled error={false} />
+            </ControlledRadioGroup>
           </Grid>
           <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
             <Typography variant="body1">
@@ -124,7 +137,12 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               been provided to the commenters as to why the comments were not
               addressed?
             </Typography>
-            <YesNoRadioOptions disabled error={false} />
+            <ControlledRadioGroup
+              name="writtenExplanationsProvidedToParties"
+              value={formData.writtenExplanationsProvidedToParties}
+            >
+              <YesNoRadioOptions disabled error={false} />
+            </ControlledRadioGroup>
           </Grid>
         </When>
       </Grid>
