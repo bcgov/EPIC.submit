@@ -19,7 +19,7 @@ class InternalStaffDocumentType(enum.Enum):
     LINK = 'LINK'
 
 
-class InternalStaffDocuments(BaseModel):
+class InternalStaffDocument(BaseModel):
     """Definition of the submitted documents entity."""
 
     __tablename__ = 'internal_staff_documents'

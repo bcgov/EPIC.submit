@@ -42,7 +42,7 @@ export const useObjectUploadStore = create<UploadObjectState>((set) => ({
   completeObject: (id: number, submissionId: number) => {
     set((prev) => {
       const documents = prev.uploadObjects.map((doc) =>
-        doc.id === id ? { ...doc, submissionId } : doc,
+        doc.id === id ? { ...doc, submissionId, pending: false } : doc,
       );
       return { uploadObjects: documents };
     });
