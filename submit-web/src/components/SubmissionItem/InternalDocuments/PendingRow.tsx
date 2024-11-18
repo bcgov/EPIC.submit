@@ -73,7 +73,7 @@ export default function PendingRow({ pendingDocument }: RowProps) {
     if (pendingDocument.pending) {
       uploadObject();
     }
-  }, [pendingDocument.pending, uploadObject]);
+  }, [pendingDocument.pending]);
 
   return (
     <TableRow>
