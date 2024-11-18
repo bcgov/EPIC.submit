@@ -13,6 +13,8 @@ import { ProjectStatus } from "@/components/registration/addProjects/ProjectStat
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import InternalDocumentSection from "./InternalDocumentSection";
+import ActionButtons from "./ActionButtons";
+import FormFieldSection from "./FormFieldSection";
 
 export const ConsultationRecordStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
@@ -31,47 +33,35 @@ export const ConsultationRecordStaffView = () => {
     Number(submissionItemId),
   ]);
 
-  // const formSubmission = submissionItem?.submissions?.find(
-  //   (submission) => submission.type === SUBMISSION_TYPE.FORM
-  // );
+  const formSubmission = submissionItem?.submissions?.find(
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
+  );
 
-  // const defaultFormValues = useMemo(() => {
-  //   if (!formSubmission?.submitted_form?.submission_json) return {};
+  const formData = useMemo(() => {
+    if (!formSubmission?.submitted_form?.submission_json) return {};
 
-  //   return {
-  //     ...formSubmission.submitted_form.submission_json,
-  //     allPartiesConsulted: booleanToString(
-  //       formSubmission.submitted_form.submission_json.allPartiesConsulted
-  //     ),
-  //     planWasReviewed: booleanToString(
-  //       formSubmission.submitted_form.submission_json.planWasReviewed
-  //     ),
-  //     writtenExplanationsProvidedToParties: booleanToString(
-  //       formSubmission.submitted_form.submission_json
-  //         .writtenExplanationsProvidedToParties
-  //     ),
-  //     writtenExplanationsProvidedToCommenters: booleanToString(
-  //       formSubmission.submitted_form.submission_json
-  //         .writtenExplanationsProvidedToCommenters
-  //     ),
-  //   };
-  // }, [formSubmission]);
-
-  // const documentSubmissions = submissionItem?.submissions?.filter(
-  //   (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
-  // );
-
-  // const defaultDocumentValues = useMemo(() => {
-  //   if (!documentSubmissions) return {};
-
-  //   return {
-  //     consultationRecords: documentSubmissions.map(
-  //       (submission) => submission.submitted_document.url
-  //     ),
-  //   };
-  // }, [documentSubmissions]);
+    return {
+      ...formSubmission.submitted_form.submission_json,
+      allPartiesConsulted: booleanToString(
+        formSubmission.submitted_form.submission_json.allPartiesConsulted
+      ),
+      planWasReviewed: booleanToString(
+        formSubmission.submitted_form.submission_json.planWasReviewed
+      ),
+      writtenExplanationsProvidedToParties: booleanToString(
+        formSubmission.submitted_form.submission_json
+          .writtenExplanationsProvidedToParties
+      ),
+      writtenExplanationsProvidedToCommenters: booleanToString(
+        formSubmission.submitted_form.submission_json
+          .writtenExplanationsProvidedToCommenters
+      ),
+    };
+  }, [formSubmission]);
 
   if (!accountProject) return <Navigate to="/error" />;
+
+  const saveAndClose = () => {};
 
   return (
     <Grid item xs={12}>
@@ -110,10 +100,10 @@ export const ConsultationRecordStaffView = () => {
               title={accountProject.project.name + " Management Plan"}
             />
             <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-              {/* <FormFieldSection formData={defaultFormValues} /> */}
-              {/* <ActionButtons saveAndClose={saveAndClose} /> */}
+              <FormFieldSection formData={formData} />
               <InternalDocumentSection />
             </Grid>
+            <ActionButtons saveAndClose={saveAndClose} />
           </Box>
         </Box>
       </ContentBox>
