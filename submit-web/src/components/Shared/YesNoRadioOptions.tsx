@@ -14,12 +14,7 @@ export const YesNoRadioOptions = ({
 }: IYesNoRadioOptionsProps) => {
   const sx = [
     disabled && {
-      "&.Mui-checked": {
-        color: BCDesignTokens.iconsColorDisabled,
-      },
-      "&.MuiFormControlLabel-label": {
-        color: BCDesignTokens.typographyColorPrimary,
-      },
+      color: `${BCDesignTokens.typographyColorPrimary} !important`,
     },
     error && {
       color: BCDesignTokens.surfaceColorPrimaryDangerButtonDefault,
@@ -30,11 +25,13 @@ export const YesNoRadioOptions = ({
     <>
       <FormControlLabel
         value={YES}
+        sx={sx}
         control={<Radio sx={sx} disabled={disabled} />}
         label="Yes"
       />
       <FormControlLabel
         value={NO}
+        sx={sx}
         control={<Radio sx={sx} disabled={disabled} />}
         label="No"
       />
