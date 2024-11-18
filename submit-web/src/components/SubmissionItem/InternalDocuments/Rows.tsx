@@ -21,8 +21,9 @@ export default function Rows({
   const internalStaffDocumentsIds = new Set(
     internalStaffDocuments.map((doc) => doc.id),
   );
+
   const filteredPendingDocuments = pendingDocuments.filter(
-    (doc) => !internalStaffDocumentsIds.has(doc.id),
+    (doc) => !internalStaffDocumentsIds.has(doc.submissionId ?? 0),
   );
 
   return (

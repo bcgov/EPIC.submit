@@ -35,7 +35,6 @@ export const useGetSubmissionItem = ({
   return useQuery(options);
 };
 
-/////////////
 type GetSubmissionItemByIdForStaffParams = {
   itemId: number;
 };

@@ -35,4 +35,5 @@ class InternalStaffDocumentService:
             type=data.get("type"),
             item_id=submission_item_id,
         )
+        internal_staff_document.save()
         return internal_staff_document

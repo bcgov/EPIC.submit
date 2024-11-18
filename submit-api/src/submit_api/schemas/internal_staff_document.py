@@ -20,7 +20,7 @@ class InternalStaffDocument(Schema):
     name = fields.Str(data_key="name")
     url = fields.Str(data_key="url")
     type = fields.Enum(data_key="type", enum=InternalStaffDocumentType)
-    submission_item_id = fields.Int(data_key="submission_item_id")
+    item_id = fields.Int(data_key="item_id")
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Method('get_created_by')
 
