@@ -5,9 +5,8 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { SUBMISSION_STATUS } from "@/models/Submission";
 import DocumentRow from "../DocumentRow";
-import { Unless, When } from "react-if";
+import { When } from "react-if";
 import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
 import { PackageTableRow } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
@@ -18,7 +17,7 @@ export default function StaffSubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
   const navigate = useNavigate();
-  const { name, submissions, has_document, status, id } = item;
+  const { name, submissions, has_document, id } = item;
 
   const actionLabel = has_document ? "Review" : "View";
 
@@ -56,21 +55,19 @@ export default function StaffSubmissionItemTableRow({
           {/* TODO Add Staff Status' */}
         </SubmissionItemTableCell>
         <SubmissionItemTableCell align="center">
-          <Unless condition={status === SUBMISSION_STATUS.SUBMITTED.value}>
-            <Typography
-              variant="body2"
-              sx={{
-                color: BCDesignTokens.typographyColorLink,
-                "&:hover": {
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                },
-              }}
-              onClick={onActionClick}
-            >
-              {actionLabel}
-            </Typography>
-          </Unless>
+          <Typography
+            variant="body2"
+            sx={{
+              color: BCDesignTokens.typographyColorLink,
+              "&:hover": {
+                cursor: "pointer",
+                textDecoration: "underline",
+              },
+            }}
+            onClick={onActionClick}
+          >
+            {actionLabel}
+          </Typography>
         </SubmissionItemTableCell>
       </PackageTableRow>
       {submissions.map((submission) => (
