@@ -43,7 +43,7 @@ const getSubmissionItemByIdForStaff = ({
   itemId,
 }: GetSubmissionItemByIdForStaffParams) => {
   return submitRequest<SubmissionItem>({
-    url: `items/${itemId}`,
+    url: `staff/items/${itemId}`,
   });
 };
 

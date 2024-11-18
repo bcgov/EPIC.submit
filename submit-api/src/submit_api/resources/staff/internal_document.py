@@ -53,5 +53,6 @@ class InternalStaffDocuments(Resource):
     def post(submission_item_id):
         """Create an internal staff document."""
         create_document_data = PostInternalStaffDocument().load(API.payload)
-        created_document = InternalStaffDocumentService.create_internal_staff_document(submission_item_id, create_document_data)
+        created_document = (InternalStaffDocumentService
+                            .create_internal_staff_document(submission_item_id, create_document_data))
         return InternalStaffDocument().dump(created_document), HTTPStatus.CREATED
