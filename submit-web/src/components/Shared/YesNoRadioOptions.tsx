@@ -25,13 +25,11 @@ export const YesNoRadioOptions = ({
     <>
       <FormControlLabel
         value={YES}
-        sx={sx}
         control={<Radio sx={sx} disabled={disabled} />}
         label="Yes"
       />
       <FormControlLabel
         value={NO}
-        sx={sx}
         control={<Radio sx={sx} disabled={disabled} />}
         label="No"
       />
