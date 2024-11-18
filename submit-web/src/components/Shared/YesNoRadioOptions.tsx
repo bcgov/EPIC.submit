@@ -14,7 +14,7 @@ export const YesNoRadioOptions = ({
 }: IYesNoRadioOptionsProps) => {
   const sx = [
     disabled && {
-      color: BCDesignTokens.iconsColorDisabled,
+      color: `${BCDesignTokens.typographyColorPrimary} !important`,
     },
     error && {
       color: BCDesignTokens.surfaceColorPrimaryDangerButtonDefault,
@@ -25,13 +25,11 @@ export const YesNoRadioOptions = ({
     <>
       <FormControlLabel
         value={YES}
-        disabled={disabled}
         control={<Radio sx={sx} disabled={disabled} />}
         label="Yes"
       />
       <FormControlLabel
         value={NO}
-        disabled={disabled}
         control={<Radio sx={sx} disabled={disabled} />}
         label="No"
       />
