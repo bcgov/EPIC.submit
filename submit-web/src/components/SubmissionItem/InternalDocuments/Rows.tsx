@@ -18,6 +18,13 @@ export default function Rows({
 }: InternalDocumentsProps) {
   const { uploadObjects: pendingDocuments } = useObjectUploadStore();
 
+  const internalStaffDocumentsIds = new Set(
+    internalStaffDocuments.map((doc) => doc.id),
+  );
+  const filteredPendingDocuments = pendingDocuments.filter(
+    (doc) => !internalStaffDocumentsIds.has(doc.id),
+  );
+
   return (
     <>
       <PackageTableRow>
@@ -45,7 +52,7 @@ export default function Rows({
       {internalStaffDocuments.map((document) => (
         <Row key={`doc-row-${document.id}`} internalStaffDocument={document} />
       ))}
-      {pendingDocuments.map((pendingDocument) => (
+      {filteredPendingDocuments.map((pendingDocument) => (
         <PendingRow
           key={`pending-doc-row-${pendingDocument.id}`}
           pendingDocument={pendingDocument}

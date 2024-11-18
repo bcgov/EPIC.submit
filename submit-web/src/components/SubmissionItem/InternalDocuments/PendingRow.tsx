@@ -15,7 +15,6 @@ import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
 import { useCreateInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 import { useParams } from "@tanstack/react-router";
 import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
-import { useQueryClient } from "@tanstack/react-query";
 
 type RowProps = {
   pendingDocument: UploadObject;
@@ -43,12 +42,6 @@ export default function PendingRow({ pendingDocument }: RowProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (pendingDocument.pending) {
-      uploadObject();
-    }
-  }, [pendingDocument.pending]);
-
   const uploadObject = async () => {
     try {
       const uploadedFile = await saveObject({
@@ -64,17 +57,23 @@ export default function PendingRow({ pendingDocument }: RowProps) {
         url: uploadedFile.filepath,
         type: INTERNAL_STAFF_DOCUMENT_TYPE.S3,
       };
-      await createInternalStaffDocument({
+      const createdInternalStaff = await createInternalStaffDocument({
         submission_item_id: Number(submissionItemId),
         document: documentData,
       });
 
-      removeObject(pendingDocument.id);
+      completeObject(pendingDocument.id, createdInternalStaff.id);
     } catch (error) {
       notify.error("Failed to upload document");
       removeObject(pendingDocument.id);
     }
   };
+
+  useEffect(() => {
+    if (pendingDocument.pending) {
+      uploadObject();
+    }
+  }, [pendingDocument.pending, uploadObject]);
 
   return (
     <TableRow>
