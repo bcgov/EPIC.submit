@@ -21,7 +21,7 @@ from .account_user import AccountUser
 from .base_model import BaseModel
 from .db import db, ma, migrate
 from .email_queue import EmailQueue
-from .internal_staff_documents import InternalStaffDocuments
+from .internal_staff_document import InternalStaffDocument
 from .item import Item
 from .item_type import ItemType
 from .package import Package

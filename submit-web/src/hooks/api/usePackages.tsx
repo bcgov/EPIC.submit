@@ -7,7 +7,11 @@ import {
 } from "@tanstack/react-query";
 import { Options } from "./types";
 import { SubmissionPackage } from "@/models/Package";
-import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
+import {
+  defaultUseQueryOptions,
+  QUERY_KEY,
+  STAFF_QUERY_KEY,
+} from "./constants";
 
 const createSubmissionPackage = ({
   accountProjectId,
@@ -34,7 +38,7 @@ export const useCreateSubmissionPackage = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage
+        submissionPackage,
       );
       queryClient.invalidateQueries({
         queryKey: [
@@ -89,7 +93,7 @@ export const getStaffSubmissionPackageQueryOptions = ({
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) =>
   queryOptions({
-    queryKey: [QUERY_KEY.STAFF_SUBMISSION_PACKAGE, packageId],
+    queryKey: [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
     queryFn: () => getStaffSubmissionPackageById({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,
@@ -136,7 +140,7 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage
+        submissionPackage,
       );
       queryClient.invalidateQueries({
         queryKey: [

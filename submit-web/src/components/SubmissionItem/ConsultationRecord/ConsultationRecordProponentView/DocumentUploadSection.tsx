@@ -15,7 +15,7 @@ import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
 import { AccountProject } from "@/models/Project";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
-import { camelCase } from "change-case";
+import { camelCase } from "lodash";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({

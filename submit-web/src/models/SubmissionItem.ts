@@ -40,11 +40,18 @@ export interface SubmissionItem {
   internal_staff_documents?: InternalStaffDocument[];
 }
 
+export type InternalStaffDocumentType = "S3" | "LINK";
+export const INTERNAL_STAFF_DOCUMENT_TYPE = Object.freeze<
+  Record<InternalStaffDocumentType, InternalStaffDocumentType>
+>({
+  S3: "S3",
+  LINK: "LINK",
+});
 export type InternalStaffDocument = {
   id: number;
   name: string;
   url: string;
-  folder: string;
+  type: InternalStaffDocumentType;
   item_id: number;
   created_by: string;
   created_date: string;

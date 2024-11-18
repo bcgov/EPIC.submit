@@ -27,4 +27,4 @@ class Item(BaseModel):
     submitted_by = Column(db.String(255), nullable=True)
     version = Column(db.Integer, nullable=False, default=1)
     submissions = db.relationship('Submission', lazy='joined')
-    internal_staff_documents = db.relationship('InternalStaffDocuments', backref='item', lazy='select')
+    internal_staff_documents = db.relationship('InternalStaffDocument', backref='item', lazy='select')
