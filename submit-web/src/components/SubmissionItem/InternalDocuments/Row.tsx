@@ -41,8 +41,7 @@ export default function Row({ internalStaffDocument, numColumns }: RowProps) {
           <MuiLink onClick={downloadDocument}>{name}</MuiLink>
         </Typography>
       </StyledTableCell>
-      <StyledTableCell align="right">{created_by || ""}</StyledTableCell>
-      <StyledTableCell align="right" colSpan={numColumns - 2}></StyledTableCell>
+      <StyledTableCell align="right" colSpan={numColumns - 1}></StyledTableCell>
     </TableRow>
   );
 }
