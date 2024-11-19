@@ -110,7 +110,7 @@ export default function FormFieldSection({
               Were all parties listed above consulted/engaged on the development
               of this plan?
             </Typography>
-            <RadioGroup defaultValue={formData.allPartiesConsulted}>
+            <RadioGroup value={formData.allPartiesConsulted}>
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
@@ -119,7 +119,7 @@ export default function FormFieldSection({
               Was the plan provided to all parties listed above for review and
               comment during plan development?
             </Typography>
-            <RadioGroup defaultValue={formData.planWasReviewed}>
+            <RadioGroup value={formData.planWasReviewed}>
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
@@ -129,9 +129,7 @@ export default function FormFieldSection({
               on how comments were fully and impartially considered and
               addressed in the plan?
             </Typography>
-            <RadioGroup
-              defaultValue={formData.writtenExplanationsProvidedToParties}
-            >
+            <RadioGroup value={formData.writtenExplanationsProvidedToParties}>
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
@@ -142,7 +140,7 @@ export default function FormFieldSection({
               addressed?
             </Typography>
             <RadioGroup
-              defaultValue={formData.writtenExplanationsProvidedToCommenters}
+              value={formData.writtenExplanationsProvidedToCommenters}
             >
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>

@@ -29,7 +29,11 @@ export default function StaffSubmissionItemTableRow({
 
   return (
     <>
-      <PackageTableRow key={`row-${item.name}`} error={error}>
+      <PackageTableRow
+        key={`row-${item.name}`}
+        error={error}
+        onClick={onActionClick}
+      >
         <SubmissionItemTableCell>
           <MuiLink
             color="inherit"

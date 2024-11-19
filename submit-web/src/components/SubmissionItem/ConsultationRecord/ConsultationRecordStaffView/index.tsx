@@ -2,9 +2,6 @@ import { useMemo } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import { booleanToString } from "@/utils";
-import { useQueryClient } from "@tanstack/react-query";
-import { SubmissionItem } from "@/models/SubmissionItem";
 import { Box, Grid, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { BCDesignTokens } from "epic.theme";
@@ -15,6 +12,7 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import InternalDocumentSection from "./InternalDocumentSection";
 import ActionButtons from "./ActionButtons";
 import FormFieldSection from "./FormFieldSection";
+import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
 
 export const ConsultationRecordStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
@@ -22,19 +20,17 @@ export const ConsultationRecordStaffView = () => {
       from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
     });
   const accountProjectId = Number(accountProjectIdParam);
+  const submissionId = Number(submissionItemId);
   const { data: accountProject } = useGetAccountProject({
     accountProjectId,
   });
 
-  const queryClient = useQueryClient();
-
-  const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    "item",
-    Number(submissionItemId),
-  ]);
+  const { data: submissionItem } = useGetSubmissionItemForStaff({
+    itemId: submissionId,
+  });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const formData = useMemo(() => {
@@ -42,20 +38,17 @@ export const ConsultationRecordStaffView = () => {
 
     return {
       ...formSubmission.submitted_form.submission_json,
-      allPartiesConsulted: booleanToString(
-        formSubmission.submitted_form.submission_json.allPartiesConsulted
-      ),
-      planWasReviewed: booleanToString(
-        formSubmission.submitted_form.submission_json.planWasReviewed
-      ),
-      writtenExplanationsProvidedToParties: booleanToString(
+      allPartiesConsulted:
+        formSubmission.submitted_form.submission_json.allPartiesConsulted,
+      planWasReviewed:
+        formSubmission.submitted_form.submission_json.planWasReviewed,
+
+      writtenExplanationsProvidedToParties:
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToParties
-      ),
-      writtenExplanationsProvidedToCommenters: booleanToString(
+          .writtenExplanationsProvidedToParties,
+      writtenExplanationsProvidedToCommenters:
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToCommenters
-      ),
+          .writtenExplanationsProvidedToCommenters,
     };
   }, [formSubmission]);
 
