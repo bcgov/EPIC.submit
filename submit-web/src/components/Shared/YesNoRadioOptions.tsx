@@ -14,7 +14,7 @@ export const YesNoRadioOptions = ({
 }: IYesNoRadioOptionsProps) => {
   const sx = [
     disabled && {
-      color: `${BCDesignTokens.typographyColorPrimary} !important`,
+      color: `${BCDesignTokens.typographyColorDisabled} !important`,
     },
     error && {
       color: BCDesignTokens.surfaceColorPrimaryDangerButtonDefault,
