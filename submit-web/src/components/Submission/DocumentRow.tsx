@@ -30,7 +30,7 @@ export default function DocumentRow({ documentSubmission }: DocumentRowProps) {
   };
   return (
     <TableRow>
-      <StyledTableCell colSpan={2}>
+      <StyledTableCell>
         <Typography
           variant="body1"
           color="inherit"
@@ -46,8 +46,7 @@ export default function DocumentRow({ documentSubmission }: DocumentRowProps) {
       </StyledTableCell>
       <StyledTableCell align="right">{submitted_by || ""}</StyledTableCell>
       <StyledTableCell align="right">{version}</StyledTableCell>
-      <StyledTableCell align="right"></StyledTableCell>
-      <StyledTableCell align="right"></StyledTableCell>
+      <StyledTableCell align="right" colSpan={2}></StyledTableCell>
     </TableRow>
   );
 }

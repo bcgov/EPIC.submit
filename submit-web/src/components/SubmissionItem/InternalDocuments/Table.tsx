@@ -47,7 +47,10 @@ export default function Table({
           </TableRow>
         </TableHead>
         <TableBody>
-          <Rows internalStaffDocuments={internalStaffDocuments} />
+          <Rows
+            internalStaffDocuments={internalStaffDocuments}
+            numColumns={4}
+          />
         </TableBody>
       </MuiTable>
     </TableContainer>

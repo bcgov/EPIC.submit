@@ -11,10 +11,11 @@ import PendingRow from "./PendingRow";
 
 type InternalDocumentsProps = {
   internalStaffDocuments: Array<InternalStaffDocument>;
-  submissionItemId?: number;
+  numColumns?: number;
 };
 export default function Rows({
   internalStaffDocuments,
+  numColumns = 4,
 }: InternalDocumentsProps) {
   const { uploadObjects: pendingDocuments } = useObjectUploadStore();
 
@@ -48,10 +49,17 @@ export default function Rows({
             </Typography>
           </MuiLink>
         </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right" colSpan={3} />
+        <SubmissionItemTableCell
+          align="right"
+          colSpan={numColumns - 1}
+        ></SubmissionItemTableCell>
       </PackageTableRow>
       {internalStaffDocuments.map((document) => (
-        <Row key={`doc-row-${document.id}`} internalStaffDocument={document} />
+        <Row
+          key={`doc-row-${document.id}`}
+          internalStaffDocument={document}
+          numColumns={5}
+        />
       ))}
       {filteredPendingDocuments.map((pendingDocument) => (
         <PendingRow
