@@ -7,7 +7,6 @@ import {
   createRootRouteWithContext,
   Outlet,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthContextProps } from "react-oidc-context";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DrawerProvider from "@/components/Shared/Drawers/DrawerProvider";
@@ -36,7 +35,6 @@ function Layout() {
         <Outlet />
       </Box>
       <Footer />
-      <TanStackRouterDevtools position="bottom-left" />
       <ReactQueryDevtools initialIsOpen={false} />
     </CatchBoundary>
   );
