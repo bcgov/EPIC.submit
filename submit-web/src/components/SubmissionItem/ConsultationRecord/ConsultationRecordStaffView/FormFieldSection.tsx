@@ -91,7 +91,7 @@ export default function FormFieldSection({
                 <li>Nustuk</li>
                 <li>Langkuem</li>
                 <li>Miskuuck</li>
-                <When condition={Boolean(mergedFormData?.consultedParties)}>
+                <When condition={mergedFormData?.consultedParties.length > 0}>
                   {mergedFormData?.consultedParties?.map((field, index) => (
                     <li key={index}>{field.consultedParty}</li>
                   ))}
