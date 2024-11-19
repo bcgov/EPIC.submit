@@ -3,11 +3,14 @@
 Manages the package
 """
 
-from marshmallow import EXCLUDE, Schema, fields, pre_dump
+from marshmallow import EXCLUDE, Schema, fields, pre_dump, post_dump
 
 from submit_api.models.package import PackageStatus
+from submit_api.models.user import UserType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
+from submit_api.services.user_service import UserService
+from submit_api.utils.token_info import TokenInfo
 
 
 class PostPackageRequestSchema(Schema):
@@ -49,20 +52,34 @@ class PackageSchema(Schema):
     type_id = fields.Int(data_key="type_id")
     status = fields.List(fields.Enum(enum=PackageStatus), enum=PackageStatus, data_key="status")
     submitted_on = fields.DateTime(data_key="submitted_on")
-    submitted_by = fields.Str(data_key="submitted_by")
+    submitted_by = fields.Method('get_submitted_by')
     meta = fields.Method('get_meta')
     items = fields.Nested(ItemSchema, data_key="items", many=True)
+
+    def get_submitted_by(self, obj):
+        """Get submitted by."""
+        submitted_by = obj.submitted_by_user.account_user.full_name \
+            if obj.submitted_by_user and obj.submitted_by_user.account_user else None
+        return submitted_by
 
     def get_meta(self, obj):
         """Get meta."""
         return obj.meta.package_meta if obj.meta else None
 
-    @pre_dump
-    def get_submitted_by(self, obj, **kwargs):
-        """Get submitted by."""
-        obj.submitted_by = obj.submitted_by_user.account_user.full_name \
-            if obj.submitted_by_user and obj.submitted_by_user.account_user else None
-        return obj
+    @post_dump
+    def map_status(self, data, many, **kwargs):
+        """Map status."""
+        auth_guid = TokenInfo.get_id()
+        if not auth_guid:
+            data['status'] = []
+            return data
+        user = UserService.get_by_auth_guid(auth_guid)
+        user_type = user.type if user else None
+
+        new_status = [get_package_status(status, user_type) for status in data['status']]
+        data['status'] = new_status
+
+        return data
 
 
 class StaffPackageSchema(PackageSchema):
@@ -74,3 +91,34 @@ class StaffPackageSchema(PackageSchema):
         unknown = EXCLUDE
 
     items = fields.Nested(StaffItemSchema, data_key="items", many=True)
+
+
+def get_package_status(status, user_type):
+    """Get the local (Pacific Timezone) datetime."""
+    if not status:
+        return None
+    if user_type not in [UserType.PROPONENT, UserType.STAFF]:
+        return status
+
+    package_status_mapping = {
+        PackageStatus.NEW_SUBMISSION.value: {
+            UserType.PROPONENT: PackageStatus.NEW_SUBMISSION.value,
+            UserType.STAFF: None
+        },
+        PackageStatus.PARTIALLY_COMPLETED.value: {
+            UserType.PROPONENT: PackageStatus.PARTIALLY_COMPLETED.value,
+            UserType.STAFF: None
+        },
+        PackageStatus.COMPLETED.value: {
+            UserType.PROPONENT: PackageStatus.COMPLETED.value,
+            UserType.STAFF: None
+        },
+        PackageStatus.SUBMITTED.value: {
+            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+            UserType.STAFF: PackageStatus.NEW_SUBMISSION.value
+        },
+    }
+    if status in package_status_mapping:
+        return package_status_mapping[status][user_type]
+
+    return status
