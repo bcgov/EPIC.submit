@@ -7,11 +7,14 @@ import {
   createRootRouteWithContext,
   Outlet,
 } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthContextProps } from "react-oidc-context";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DrawerProvider from "@/components/Shared/Drawers/DrawerProvider";
 import { QueryClient } from "@tanstack/react-query";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { AppConfig } from "@/utils/config";
+import { When } from "react-if";
 
 type RouterContext = {
   authentication: AuthContextProps;
@@ -24,6 +27,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function Layout() {
+  const isLocal = AppConfig.environment === "local";
+
   return (
     <CatchBoundary
       getResetKey={() => "reset"}
@@ -35,6 +40,9 @@ function Layout() {
         <Outlet />
       </Box>
       <Footer />
+      <When condition={AppConfig.environment === isLocal}>
+        <TanStackRouterDevtools position="bottom-left" />
+      </When>
       <ReactQueryDevtools initialIsOpen={false} />
     </CatchBoundary>
   );
