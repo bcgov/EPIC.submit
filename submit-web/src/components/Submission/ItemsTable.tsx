@@ -8,16 +8,11 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import TableSortLabel from "@mui/material/TableSortLabel";
-import { useState } from "react";
-import { Order } from "../Shared/Table/utils";
-import SwapVertIcon from "@mui/icons-material/SwapVert";
 import SubmissionItemTableRow from "./SubmissionItemTableRow";
 import {
   SUBMISSION_ITEM_METHOD,
   SubmissionItem,
 } from "@/models/SubmissionItem";
-import { SubmissionItemTableRow as SubmissionItemTableRowType } from "./types";
 import { StyledTableHeadCell } from "../Shared/Table/common";
 import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import { usePackageTableStore } from "./packageTableStore";

@@ -77,6 +77,7 @@ export default function PendingRow({
     if (pendingDocument.pending) {
       uploadObject();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingDocument.pending]);
 
   return (

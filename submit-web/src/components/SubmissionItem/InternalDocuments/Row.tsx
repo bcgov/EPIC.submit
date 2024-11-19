@@ -12,7 +12,7 @@ type RowProps = {
 
 export default function Row({ internalStaffDocument, numColumns }: RowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
-  const { name, url, created_by } = internalStaffDocument;
+  const { name, url } = internalStaffDocument;
 
   const downloadDocument = async () => {
     try {
