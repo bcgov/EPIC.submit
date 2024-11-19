@@ -10,7 +10,7 @@ import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const defaultFormData = {
   consultedParties: [],
@@ -29,8 +29,6 @@ export default function FormFieldSection({
   formData = defaultFormData,
 }: FormFieldSectionProps) {
   const [isHidden, setIsHidden] = useState(false);
-
-  useEffect(() => {}, [formData]);
 
   return (
     <>
