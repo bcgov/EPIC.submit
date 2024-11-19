@@ -25,10 +25,9 @@ interface FormFieldSectionProps {
   formData: ConsultationRecordForm; // Replace FormValues with your actual form schema interface
 }
 
-export default function FormFieldSection({
-  formData = defaultFormData,
-}: FormFieldSectionProps) {
+export default function FormFieldSection({ formData }: FormFieldSectionProps) {
   const [isHidden, setIsHidden] = useState(false);
+  const mergedFormData = { ...defaultFormData, ...formData };
 
   return (
     <>
@@ -90,8 +89,8 @@ export default function FormFieldSection({
                 <li>Nustuk</li>
                 <li>Langkuem</li>
                 <li>Miskuuck</li>
-                <When condition={Boolean(formData?.consultedParties)}>
-                  {formData?.consultedParties?.map((field, index) => (
+                <When condition={Boolean(mergedFormData?.consultedParties)}>
+                  {mergedFormData?.consultedParties?.map((field, index) => (
                     <li key={index}>{field.consultedParty}</li>
                   ))}
                 </When>
@@ -110,7 +109,7 @@ export default function FormFieldSection({
               Were all parties listed above consulted/engaged on the development
               of this plan?
             </Typography>
-            <RadioGroup value={formData.allPartiesConsulted}>
+            <RadioGroup value={mergedFormData.allPartiesConsulted}>
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
@@ -119,7 +118,7 @@ export default function FormFieldSection({
               Was the plan provided to all parties listed above for review and
               comment during plan development?
             </Typography>
-            <RadioGroup value={formData.planWasReviewed}>
+            <RadioGroup value={mergedFormData.planWasReviewed}>
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
@@ -129,7 +128,9 @@ export default function FormFieldSection({
               on how comments were fully and impartially considered and
               addressed in the plan?
             </Typography>
-            <RadioGroup value={formData.writtenExplanationsProvidedToParties}>
+            <RadioGroup
+              value={mergedFormData.writtenExplanationsProvidedToParties}
+            >
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
@@ -140,7 +141,7 @@ export default function FormFieldSection({
               addressed?
             </Typography>
             <RadioGroup
-              value={formData.writtenExplanationsProvidedToCommenters}
+              value={mergedFormData.writtenExplanationsProvidedToCommenters}
             >
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
