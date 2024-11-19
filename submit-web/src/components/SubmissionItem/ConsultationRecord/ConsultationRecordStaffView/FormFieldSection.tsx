@@ -14,10 +14,10 @@ import { useEffect, useState } from "react";
 
 const defaultFormData = {
   consultedParties: [],
-  writtenExplanationsProvidedToCommenters: true,
-  allPartiesConsulted: true,
-  planWasReviewed: true,
-  writtenExplanationsProvidedToParties: true,
+  writtenExplanationsProvidedToCommenters: "",
+  allPartiesConsulted: "",
+  planWasReviewed: "",
+  writtenExplanationsProvidedToParties: "",
   consultationRecords: [],
 };
 
