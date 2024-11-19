@@ -90,7 +90,7 @@ class StaffAccountProjectPackageSchema(AccountProjectPackageSchema):
     def get_days_since_submission(self, obj):
         """Get days since submission."""
         if obj.submitted_on:
-            return (datetime.now() - obj.submitted_on).days
+            return (datetime.now().date() - obj.submitted_on.date()).days
         return None
 
     def get_meta(self, obj):

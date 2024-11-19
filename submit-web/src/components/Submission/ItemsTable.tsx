@@ -31,15 +31,7 @@ export default function ItemsTable({
 }: {
   submissionItems: Array<SubmissionItem>;
 }) {
-  const [order, setOrder] = useState<Order>("asc");
-  const [orderBy, setOrderBy] =
-    useState<keyof SubmissionItemTableRowType>("name");
   const { userType } = useAccount();
-  const handleRequestSort = (property: keyof SubmissionItemTableRowType) => {
-    const isAsc = orderBy === property && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(property);
-  };
 
   const { isValidating } = usePackageTableStore();
 
@@ -71,33 +63,18 @@ export default function ItemsTable({
           }}
         >
           <TableRow>
-            <StyledTableHeadCell colSpan={2}>
-              <TableSortLabel
-                active={orderBy === "name"}
-                direction={orderBy === "name" ? order : "asc"}
-                onClick={() => handleRequestSort("name")}
-                IconComponent={SwapVertIcon}
+            <StyledTableHeadCell>
+              <Typography
+                variant="body2"
                 sx={{
-                  ".MuiTableSortLabel-icon": {
-                    color: `${BCDesignTokens.themeGray70} !important`,
-                    "&:hover": {
-                      color: "#EDEBE9 !important",
-                    },
+                  color: BCDesignTokens.themeGray70,
+                  "&:hover": {
+                    color: "#EDEBE9",
                   },
                 }}
               >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: BCDesignTokens.themeGray70,
-                    "&:hover": {
-                      color: "#EDEBE9",
-                    },
-                  }}
-                >
-                  Form/Document
-                </Typography>
-              </TableSortLabel>
+                Form/Document
+              </Typography>
             </StyledTableHeadCell>
             <StyledTableHeadCell align="right">Uploaded by</StyledTableHeadCell>
             <StyledTableHeadCell align="right">Version</StyledTableHeadCell>
@@ -119,6 +96,7 @@ export default function ItemsTable({
           <When condition={userType === USER_TYPE.STAFF}>
             <InternalDocumentsRows
               internalStaffDocuments={internalStaffDocuments}
+              numColumns={5}
             />
           </When>
         </TableBody>

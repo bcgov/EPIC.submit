@@ -30,7 +30,7 @@ export default function StaffSubmissionItemTableRow({
   return (
     <>
       <PackageTableRow key={`row-${item.name}`} error={error}>
-        <SubmissionItemTableCell colSpan={2}>
+        <SubmissionItemTableCell>
           <MuiLink
             color="inherit"
             sx={{
@@ -49,11 +49,7 @@ export default function StaffSubmissionItemTableRow({
             </Typography>
           </MuiLink>
         </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right"></SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right"></SubmissionItemTableCell>
-        <SubmissionItemTableCell align="center">
-          {/* TODO Add Staff Status' */}
-        </SubmissionItemTableCell>
+        <SubmissionItemTableCell align="right" colSpan={3} />
         <SubmissionItemTableCell align="center">
           <Typography
             variant="body2"

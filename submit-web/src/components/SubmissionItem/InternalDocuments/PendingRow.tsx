@@ -18,9 +18,13 @@ import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
 
 type RowProps = {
   pendingDocument: UploadObject;
+  numColumns?: number;
 };
 
-export default function PendingRow({ pendingDocument }: RowProps) {
+export default function PendingRow({
+  pendingDocument,
+  numColumns = 4,
+}: RowProps) {
   const {
     file: { name },
   } = pendingDocument;
@@ -91,7 +95,7 @@ export default function PendingRow({ pendingDocument }: RowProps) {
           <MuiLink>{name}</MuiLink>
         </Typography>
       </StyledTableCell>
-      <StyledTableCell align="left" colSpan={3}>
+      <StyledTableCell align="left" colSpan={numColumns - 1}>
         <CircularProgress size={20} />
       </StyledTableCell>
     </TableRow>

@@ -58,7 +58,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
           <PackageStatusChipStack status={subPackage.status} />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
-      <EmptyRow />
+      <EmptyRow colSpan={4} />
     </>
   );
 }
