@@ -25,7 +25,9 @@ interface FormFieldSectionProps {
   formData: ConsultationRecordForm; // Replace FormValues with your actual form schema interface
 }
 
-export default function FormFieldSection({ formData }: FormFieldSectionProps) {
+export default function FormFieldSection({
+  formData = defaultFormData,
+}: FormFieldSectionProps) {
   const [isHidden, setIsHidden] = useState(false);
   const mergedFormData = { ...defaultFormData, ...formData };
 
