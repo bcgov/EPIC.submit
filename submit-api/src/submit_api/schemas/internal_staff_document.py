@@ -22,12 +22,7 @@ class InternalStaffDocument(Schema):
     type = fields.Enum(data_key="type", enum=InternalStaffDocumentType)
     item_id = fields.Int(data_key="item_id")
     created_date = fields.DateTime(data_key="created_date")
-    created_by = fields.Method('get_created_by')
-
-    @classmethod
-    def get_created_by(cls, obj):
-        """Get created by."""
-        return obj.created_by_user.full_name if obj.created_by_user else None
+    created_by = fields.Str(data_key="created_by")
 
 
 class PostInternalStaffDocument(Schema):

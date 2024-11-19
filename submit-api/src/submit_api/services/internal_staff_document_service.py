@@ -17,6 +17,7 @@
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Item
 from submit_api.models.internal_staff_document import InternalStaffDocument as InternalStaffDocumentModel
+from submit_api.utils.token_info import TokenInfo
 
 
 class InternalStaffDocumentService:
@@ -34,6 +35,7 @@ class InternalStaffDocumentService:
             url=data.get("url"),
             type=data.get("type"),
             item_id=submission_item_id,
+            created_by=TokenInfo.get_id(),
         )
         internal_staff_document.save()
         return internal_staff_document

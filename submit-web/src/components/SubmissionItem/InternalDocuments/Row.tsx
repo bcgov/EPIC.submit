@@ -7,11 +7,12 @@ import { StyledTableCell } from "@/components/Shared/Table/common";
 
 type RowProps = {
   internalStaffDocument: InternalStaffDocument;
+  numColumns: number;
 };
 
-export default function Row({ internalStaffDocument }: RowProps) {
+export default function Row({ internalStaffDocument, numColumns }: RowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
-  const { name, url, created_by } = internalStaffDocument;
+  const { name, url } = internalStaffDocument;
 
   const downloadDocument = async () => {
     try {
@@ -40,8 +41,7 @@ export default function Row({ internalStaffDocument }: RowProps) {
           <MuiLink onClick={downloadDocument}>{name}</MuiLink>
         </Typography>
       </StyledTableCell>
-      <StyledTableCell align="right">{created_by || ""}</StyledTableCell>
-      <StyledTableCell align="right" colSpan={2}></StyledTableCell>
+      <StyledTableCell align="right" colSpan={numColumns - 1}></StyledTableCell>
     </TableRow>
   );
 }

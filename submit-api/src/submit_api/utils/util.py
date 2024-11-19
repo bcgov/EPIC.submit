@@ -59,7 +59,8 @@ def allowedorigins():
     allowedcors = []
     if _allowedcors and ',' in _allowedcors:
         for entry in re.split(',', _allowedcors):
-            allowedcors.append(entry)
+            if entry:
+                allowedcors.append(entry)
     return allowedcors
 
 

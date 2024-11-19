@@ -6,6 +6,7 @@ export const StyledProjectTableRow = styled(TableRow)(() => ({
   "&:hover": {
     backgroundColor: BCDesignTokens.surfaceColorMenusHover,
   },
+  cursor: "pointer",
 }));
 
 export const StyledProjectTableCell = styled(TableCell)(() => ({

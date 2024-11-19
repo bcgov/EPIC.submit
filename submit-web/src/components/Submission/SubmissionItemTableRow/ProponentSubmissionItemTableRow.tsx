@@ -12,6 +12,7 @@ import DocumentRow from "../DocumentRow";
 import { Unless, When } from "react-if";
 import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
 import { PackageTableRow } from ".";
+import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -35,7 +36,7 @@ export default function ProponentSubmissionItemTableRow({
   return (
     <>
       <PackageTableRow key={`row-${item.name}`} error={error}>
-        <SubmissionItemTableCell colSpan={2}>
+        <SubmissionItemTableCell>
           <MuiLink
             color="inherit"
             sx={{
@@ -54,8 +55,7 @@ export default function ProponentSubmissionItemTableRow({
             </Typography>
           </MuiLink>
         </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right"></SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right"></SubmissionItemTableCell>
+        <SubmissionItemTableCell align="right" colSpan={2} />
         <SubmissionItemTableCell align="right">
           <When condition={SUBMISSION_STATUS.NEW_SUBMISSION.value !== status}>
             <SubmissionStatusChip status={status} />
@@ -106,15 +106,7 @@ export default function ProponentSubmissionItemTableRow({
           </TableCell>
         </TableRow>
       </When>
-      <TableRow key={`row-${name}-divider`}>
-        <TableCell
-          colSpan={5}
-          sx={{
-            py: BCDesignTokens.layoutPaddingXsmall,
-            border: 0,
-          }}
-        />
-      </TableRow>
+      <EmptyRow colSpan={5} />
     </>
   );
 }

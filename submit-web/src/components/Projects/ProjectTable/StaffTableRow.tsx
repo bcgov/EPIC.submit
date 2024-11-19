@@ -82,7 +82,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           <PackageStatusChipStack status={status} />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
-      <EmptyRow />
+      <EmptyRow colSpan={7} />
     </>
   );
 }
