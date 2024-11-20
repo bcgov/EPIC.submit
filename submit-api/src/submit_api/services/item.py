@@ -36,8 +36,7 @@ class ItemService:
             session.add(submission_item)
             session.flush()
 
-            status_key_name = 'status'
-            if 'status' in update_data and existing_status != update_data[status_key_name]:
+            if 'status' in update_data and existing_status != update_data['status']:
                 cls._update_package_status(submission_item.package_id, session)
 
             session.commit()

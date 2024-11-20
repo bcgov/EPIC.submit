@@ -4,11 +4,9 @@ Manages the engagement
 """
 from datetime import datetime
 
-from marshmallow import EXCLUDE, Schema, fields, pre_dump
+from marshmallow import EXCLUDE, Schema, fields
 
-from submit_api.models.package import PackageStatus
 from submit_api.schemas.package import PackageSchema
-from submit_api.schemas.package_type import PackageTypeSchema
 
 
 class ProjectSchema(Schema):

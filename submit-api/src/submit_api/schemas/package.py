@@ -3,7 +3,7 @@
 Manages the package
 """
 
-from marshmallow import EXCLUDE, Schema, fields, pre_dump, post_dump
+from marshmallow import EXCLUDE, Schema, fields, post_dump
 
 from submit_api.models.package import PackageStatus
 from submit_api.models.user import UserType
