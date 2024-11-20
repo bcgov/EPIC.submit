@@ -124,6 +124,7 @@ class Projects(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
+    @auth.require
     def get(account_project_id):
         """Get projects by proponent id."""
         account_project = ProjectService.get_account_project_by_id(account_project_id)
