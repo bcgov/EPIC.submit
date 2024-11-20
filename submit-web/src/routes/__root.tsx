@@ -42,8 +42,8 @@ function Layout() {
       <Footer />
       <When condition={isLocal}>
         <TanStackRouterDevtools position="bottom-left" />
+        <ReactQueryDevtools initialIsOpen={false} />
       </When>
-      <ReactQueryDevtools initialIsOpen={false} />
     </CatchBoundary>
   );
 }
