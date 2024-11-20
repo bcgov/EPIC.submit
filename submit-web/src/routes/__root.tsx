@@ -40,7 +40,7 @@ function Layout() {
         <Outlet />
       </Box>
       <Footer />
-      <When condition={AppConfig.environment === isLocal}>
+      <When condition={isLocal}>
         <TanStackRouterDevtools position="bottom-left" />
       </When>
       <ReactQueryDevtools initialIsOpen={false} />
