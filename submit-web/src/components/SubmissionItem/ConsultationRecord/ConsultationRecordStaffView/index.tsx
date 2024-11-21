@@ -10,9 +10,9 @@ import { ProjectStatus } from "@/components/registration/addProjects/ProjectStat
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import InternalDocumentSection from "./InternalDocumentSection";
-import ActionButtons from "./ActionButtons";
 import FormFieldSection from "./FormFieldSection";
 import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
+import ReviewSection from "./ReviewSection";
 
 export const ConsultationRecordStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
@@ -30,7 +30,7 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
 
   const formData = useMemo(() => {
@@ -53,8 +53,6 @@ export const ConsultationRecordStaffView = () => {
   }, [formSubmission]);
 
   if (!accountProject) return <Navigate to="/error" />;
-
-  const saveAndClose = () => {};
 
   return (
     <Grid item xs={12}>
@@ -95,8 +93,8 @@ export const ConsultationRecordStaffView = () => {
             <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
               <FormFieldSection formData={formData} />
               <InternalDocumentSection />
+              <ReviewSection />
             </Grid>
-            <ActionButtons saveAndClose={saveAndClose} />
           </Box>
         </Box>
       </ContentBox>
