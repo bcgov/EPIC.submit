@@ -1,6 +1,6 @@
 import { Grid, Divider, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useForm, FormProvider, Controller } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { CustomRadioOptions } from "@/components/Shared/CustomRadioOptions";
@@ -21,7 +21,7 @@ const consultationSchema = yup.object().shape({
 // Define form types
 type ConsultationForm = {
   staffConsultationCheck: boolean;
-  managerConfirmation?: boolean; // Optional if role is staff
+  managerConfirmation: boolean; // Optional if role is staff
 };
 
 export default function ReviewSection() {
@@ -36,7 +36,6 @@ export default function ReviewSection() {
 
   const {
     handleSubmit,
-    control,
     formState: { errors },
   } = methods;
 
@@ -54,7 +53,7 @@ export default function ReviewSection() {
   ];
 
   const role = "staff"; // Replace with actual role
-  const saveAndClose = (data: ConsultationForm) => {
+  const saveAndClose = () => {
     // Add save logic here
   };
 
@@ -89,7 +88,10 @@ export default function ReviewSection() {
             </Typography>
 
             <ControlledRadioGroup name="staffConsultationCheck">
-              <CustomRadioOptions options={consultationCheckOptions} />
+              <CustomRadioOptions
+                options={consultationCheckOptions}
+                error={Boolean(errors["staffConsultationCheck"])}
+              />
             </ControlledRadioGroup>
             <When condition={role === "staff"}>
               <Typography
@@ -99,7 +101,10 @@ export default function ReviewSection() {
                 MANAGER CONFIRMATION:
               </Typography>
               <ControlledRadioGroup name="managerConfirmation">
-                <CustomRadioOptions options={managerConfirmationOptions} />
+                <CustomRadioOptions
+                  options={managerConfirmationOptions}
+                  error={Boolean(errors["managerConfirmation"])}
+                />
               </ControlledRadioGroup>
             </When>
             <ActionButtons saveAndClose={handleSubmit(saveAndClose)} />
