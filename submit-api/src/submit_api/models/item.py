@@ -28,3 +28,4 @@ class Item(BaseModel):
     version = Column(db.Integer, nullable=False, default=1)
     submissions = db.relationship('Submission', lazy='joined')
     internal_staff_documents = db.relationship('InternalStaffDocument', backref='item', lazy='select')
+    review = db.relationship('SubmissionReview', uselist=False, backref='item', lazy='select')

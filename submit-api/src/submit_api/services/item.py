@@ -2,6 +2,7 @@
 from submit_api.models import Item as ItemModel
 from submit_api.models.db import session_scope
 from submit_api.models.queries.package import PackageQueries
+from submit_api.models.submission_review import SubmissionReview
 
 
 class ItemService:
@@ -42,3 +43,23 @@ class ItemService:
             session.commit()
 
         return submission_item
+
+    @classmethod
+    def get_item_review(cls, item_id) -> SubmissionReview:
+        """Get item by id."""
+        return SubmissionReview.get_by_item_id(item_id)
+
+    @classmethod
+    def save_submission_review(cls, item_id, review_data):
+        """Save submission item review."""
+        submission_item = cls.get_item_by_id(item_id)
+        if not submission_item:
+            raise ValueError(f"Item with id {item_id} not found.")
+
+        review = cls.get_item_review(item_id)
+        if not review:
+            review = SubmissionReview(item_id=item_id)
+
+        review.form_answers.update(review_data)
+
+        return review, submission_item
