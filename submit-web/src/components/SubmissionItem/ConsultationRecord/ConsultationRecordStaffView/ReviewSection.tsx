@@ -93,7 +93,7 @@ export default function ReviewSection() {
                 error={Boolean(errors["staffConsultationCheck"])}
               />
             </ControlledRadioGroup>
-            <When condition={role === "staff"}>
+            <When condition={role !== "staff"}>
               <Typography
                 variant="body1"
                 sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
