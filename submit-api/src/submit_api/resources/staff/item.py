@@ -75,3 +75,25 @@ class ItemReview(Resource):
         request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
         review, _ = ItemService.save_submission_review(item_id, request_body)
         return SubmissionReviewSchema().dump(review), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS, POST")
+@API.route("/<int:item_id>/recommendation", methods=["GET", "OPTIONS", "POST"])
+class ItemRecommendation(Resource):
+    """Resource for managing submission item reviews."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Save a review for an item with recommendation"
+    )
+    @API.response(
+        code=HTTPStatus.OK, model=item_model, description="Submission item review"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cors.crossdomain(origin="*")
+    @auth.require
+    def post(item_id):
+        """Save submission review with recommendation."""
+        request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
+        review, _ = ItemService.save_submission_review(item_id, request_body)
+        return SubmissionReviewSchema().dump(review), HTTPStatus.OK
