@@ -20,6 +20,7 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.item import StaffItemSchema
+from submit_api.schemas.submission_review import SubmissionReviewSchema, SaveSubmissionReviewRequestSchema
 from submit_api.services.item import ItemService
 from submit_api.utils.util import cors_preflight
 
@@ -36,7 +37,7 @@ item_model = ApiHelper.convert_ma_schema_to_restx_model(
 @cors_preflight("GET, OPTIONS")
 @API.route("/<int:item_id>", methods=["GET", "OPTIONS"])
 class Item(Resource):
-    """Resource for managing projects."""
+    """Resource for managing submission items."""
 
     @staticmethod
     @ApiHelper.swagger_decorators(
@@ -52,3 +53,25 @@ class Item(Resource):
         """Get item by id."""
         projects = ItemService.get_item_by_id(item_id)
         return StaffItemSchema().dump(projects), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS, POST")
+@API.route("/<int:item_id>/review", methods=["GET", "OPTIONS", "POST"])
+class ItemReview(Resource):
+    """Resource for managing submission item reviews."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Save a review for an item"
+    )
+    @API.response(
+        code=HTTPStatus.OK, model=item_model, description="Submission item review"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cors.crossdomain(origin="*")
+    @auth.require
+    def post(item_id):
+        """Save submission review."""
+        request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
+        review, _ = ItemService.save_submission_review(item_id, request_body)
+        return SubmissionReviewSchema().dump(review), HTTPStatus.OK
