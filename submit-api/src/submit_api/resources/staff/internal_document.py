@@ -19,7 +19,7 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.internal_staff_document import PostInternalStaffDocument, InternalStaffDocument
+from submit_api.schemas.internal_staff_document import InternalStaffDocument, PostInternalStaffDocument
 from submit_api.services.internal_staff_document_service import InternalStaffDocumentService
 from submit_api.utils.util import cors_preflight
 
