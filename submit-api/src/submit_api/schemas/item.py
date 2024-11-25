@@ -68,3 +68,4 @@ class StaffItemSchema(ItemSchema):
         unknown = EXCLUDE
 
     internal_staff_documents = fields.Nested(InternalStaffDocument, data_key="internal_staff_documents", many=True)
+    review = fields.Str(data_key="review")

@@ -35,3 +35,4 @@ from .submission import Submission
 from .submitted_document import SubmittedDocument
 from .submitted_form import SubmittedForm
 from .user import User
+from .submission_review import SubmissionReview
