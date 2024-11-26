@@ -7,6 +7,7 @@ import { CustomRadioOptions } from "@/components/Shared/CustomRadioOptions";
 import { When } from "react-if";
 import ActionButtons from "./ActionButtons";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
+import NotesSection from "./NotesSection";
 
 // Define Yup schema
 const consultationSchema = yup.object().shape({
@@ -107,6 +108,7 @@ export default function ReviewSection() {
                 />
               </ControlledRadioGroup>
             </When>
+            <NotesSection />
             <ActionButtons saveAndClose={handleSubmit(saveAndClose)} />
           </form>
         </FormProvider>
