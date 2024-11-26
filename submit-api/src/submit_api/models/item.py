@@ -5,6 +5,7 @@ Manages the item
 from __future__ import annotations
 
 from sqlalchemy import Column, Enum, ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from ..enums.item_status import ItemStatus
 from .base_model import BaseModel
@@ -28,4 +29,9 @@ class Item(BaseModel):
     version = Column(db.Integer, nullable=False, default=1)
     submissions = db.relationship('Submission', lazy='joined')
     internal_staff_documents = db.relationship('InternalStaffDocument', backref='item', lazy='select')
-    review = db.relationship('SubmissionReview', uselist=False, backref='item', lazy='select')
+    reviews = db.relationship('SubmissionReview', backref='item', lazy='select')
+
+    @hybrid_property
+    def review(self):
+        """Get the active review for the item."""
+        return next((review for review in self.reviews if review.active), None)
