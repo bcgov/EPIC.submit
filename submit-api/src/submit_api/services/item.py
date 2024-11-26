@@ -1,7 +1,7 @@
 """Service for item management."""
 from collections import defaultdict
 
-from submit_api.exceptions import BadRequestError, UnprocessableEntityError
+from submit_api.exceptions import UnprocessableEntityError
 from submit_api.models import Item as ItemModel
 from submit_api.models.db import session_scope
 from submit_api.models.queries.package import PackageQueries
