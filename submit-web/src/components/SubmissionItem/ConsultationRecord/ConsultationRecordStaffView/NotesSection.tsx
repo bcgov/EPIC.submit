@@ -44,6 +44,11 @@ export default function NotesSection() {
   const [addNote, setAddNote] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
+  const handleAddNote = () => {
+    setAddNote(!addNote);
+    setExpanded(true);
+  };
+
   return (
     <Accordion
       disableGutters
@@ -98,13 +103,13 @@ export default function NotesSection() {
               sx={{ ml: 0.5, color: "#38598A", p: 0 }}
             />
           </Box>
-          <Box onClick={() => setAddNote(!addNote)}>
+          <Box onClick={handleAddNote}>
             <Typography
               variant="body1"
               color={BCDesignTokens.typographyColorLink}
               sx={{ cursor: "pointer" }}
             >
-              + Add Notes
+              + Add a Note
             </Typography>
           </Box>
         </Box>
