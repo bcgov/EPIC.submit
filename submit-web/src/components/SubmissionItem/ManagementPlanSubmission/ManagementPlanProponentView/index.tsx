@@ -71,7 +71,7 @@ export const ManagementPlanSubmission = () => {
   ]);
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
   const defaultFormValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -79,22 +79,22 @@ export const ManagementPlanSubmission = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       conditionSatisfied: booleanToString(
-        formSubmission.submitted_form.submission_json.conditionSatisfied,
+        formSubmission.submitted_form.submission_json.conditionSatisfied
       ),
       allRequirementsAddressed: booleanToString(
-        formSubmission.submitted_form.submission_json.allRequirementsAddressed,
+        formSubmission.submitted_form.submission_json.allRequirementsAddressed
       ),
       requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear,
+        formSubmission.submitted_form.submission_json.requirementsClear
       ),
       informationAccurate: booleanToString(
-        formSubmission.submitted_form.submission_json.informationAccurate,
+        formSubmission.submitted_form.submission_json.informationAccurate
       ),
     };
   }, [formSubmission]);
 
   const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
@@ -104,14 +104,14 @@ export const ManagementPlanSubmission = () => {
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
         )
         .map((submission) => submission.submitted_document.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
         )
         .map((submission) => submission.submitted_document.url),
     };
@@ -162,7 +162,7 @@ export const ManagementPlanSubmission = () => {
 
   const saveSubmission = async (
     formData: ManagementPlanSubmissionForm,
-    status: SubmissionStatus,
+    status: SubmissionStatus
   ) => {
     const {
       conditionSatisfied,
@@ -249,65 +249,6 @@ export const ManagementPlanSubmission = () => {
                       Management Plan Requirements
                     </Typography>
                     <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
-                  </Grid>
-                  <Grid item xs={12} container>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Does the plan address all the requirements in the
-                        (condition number)?
-                      </Typography>
-
-                      <ControlledRadioGroup name="conditionSatisfied">
-                        <YesNoRadioOptions
-                          error={Boolean(errors["conditionSatisfied"])}
-                        />
-                      </ControlledRadioGroup>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        If the condition(s) associated with the plan reference
-                        other documents, in whole or part (e.g., project
-                        application sections), does the plan address all
-                        requirements within the referenced document(s)?
-                      </Typography>
-                      <ControlledRadioGroup name="allRequirementsAddressed">
-                        <YesNoRadioOptions
-                          error={Boolean(errors["allRequirementsAddressed"])}
-                        />
-                      </ControlledRadioGroup>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="body1">
-                        Is each requirement in the plan clear, measurable,
-                        and/or include accountability?
-                      </Typography>
-                      <ControlledRadioGroup name="requirementsClear">
-                        <YesNoRadioOptions
-                          error={Boolean(errors["requirementsClear"])}
-                        />
-                      </ControlledRadioGroup>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      variant="h5"
-                      fontWeight={400}
-                      sx={{ color: BCDesignTokens.typographyColorDisabled }}
-                    >
-                      Information Verification
-                    </Typography>
-                    <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="body1">
-                      The information on this form is correct to the best of
-                      your knowledge.
-                    </Typography>
-                    <ControlledRadioGroup name="informationAccurate">
-                      <YesNoRadioOptions
-                        error={Boolean(errors["informationAccurate"])}
-                      />
-                    </ControlledRadioGroup>
                   </Grid>
                   <Grid item xs={12}>
                     <DocumentUploadSection />

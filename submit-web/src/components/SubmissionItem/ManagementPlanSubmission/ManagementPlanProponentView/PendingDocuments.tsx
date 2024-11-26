@@ -1,7 +1,7 @@
 import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useObjectUploadStore } from "@/store/documentUploadStore";
-import DocumentToUploadContainer from "../DocumentToUploadContainer";
+import DocumentToUploadContainer from "../../DocumentToUploadContainer";
 
 export const PendingDocuments = () => {
   const { uploadObjects: documents } = useObjectUploadStore();

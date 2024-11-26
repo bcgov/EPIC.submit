@@ -4,7 +4,7 @@ import {
 } from "@/models/SubmissionItem";
 import { Case, Default, Switch } from "react-if";
 import { ContactInformation } from "./ContactInformation";
-import { ManagementPlanSubmission } from "./ManagementPlanSubmission";
+import { ManagementPlanSubmission } from "./ManagementPlanSubmission/ManagementPlanProponentView";
 import { ConsultationRecord } from "./ConsultationRecord";
 
 type ItemFormProps = {
