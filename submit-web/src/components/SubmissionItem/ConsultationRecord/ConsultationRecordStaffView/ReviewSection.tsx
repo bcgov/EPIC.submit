@@ -7,6 +7,8 @@ import { When } from "react-if";
 import ActionButtons from "./ActionButtons";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { SubmitRadio } from "@/components/Shared/SubmitRadio";
+import { useSaveSubmissionReview } from "@/hooks/api/useItems";
+import { useParams } from "@tanstack/react-router";
 
 // Define Yup schema
 const consultationSchema = yup.object().shape({
@@ -24,16 +26,40 @@ const YES_LABEL = "Yes, the holder has passed the Consultation Check";
 const NO_LABEL = "No, the holder has failed the Consultation Check";
 
 export default function ReviewSection() {
+  const role = "staff"; // Replace with actual role
+  const consultationSchema = yup.object().shape({
+    staff: yup.object().shape({
+      passed: yup.boolean().required(),
+    }),
+    manager: yup.object().shape({
+      passed: yup.boolean().required(),
+    }),
+  });
   const methods = useForm<ConsultationForm>({
     resolver: yupResolver(consultationSchema),
     mode: "onSubmit",
   });
 
-  const { handleSubmit } = methods;
+  const {
+    projectId,
+    submissionPackageId,
+    submissionId: submissionItemId,
+  } = useParams({
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  });
 
-  const role = "staff"; // Replace with actual role
+  const { mutate: saveSubmissionReview, isPending: isSavingSubmissionReview } =
+    useSaveSubmissionReview({
+      itemId: Number(submissionItemId),
+      packageId: Number(submissionPackageId),
+      accountProjectId: Number(projectId),
+    });
+
+  const { handleSubmit, getValues } = methods;
+
   const saveAndClose = () => {
     // Add save logic here
+    const values = getValues();
   };
 
   return (
@@ -82,7 +108,7 @@ export default function ReviewSection() {
                 <SubmitRadio label={NO_LABEL} value={false} />
               </ControlledRadioGroup>
             </When>
-            <ActionButtons saveAndClose={handleSubmit(saveAndClose)} />
+            <ActionButtons saveAndClose={saveAndClose} />
           </form>
         </FormProvider>
       </Grid>

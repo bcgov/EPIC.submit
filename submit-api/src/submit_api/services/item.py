@@ -92,6 +92,8 @@ class ItemService:
     @classmethod
     def process_review_status(cls, review, status, session):
         """Process review status."""
+        if not status:
+            return
         status_processor = cls._get_review_status_processor(status)
         status_processor(review, status)
         session.add(review)
