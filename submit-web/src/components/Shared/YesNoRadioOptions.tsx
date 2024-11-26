@@ -1,5 +1,4 @@
-import { FormControlLabel, Radio } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { SubmitRadio } from "./SubmitRadio";
 
 export const YES = true;
 export const NO = false;
@@ -12,27 +11,10 @@ export const YesNoRadioOptions = ({
   error = true,
   disabled = false,
 }: IYesNoRadioOptionsProps) => {
-  const sx = [
-    disabled && {
-      color: `${BCDesignTokens.typographyColorDisabled} !important`,
-    },
-    error && {
-      color: BCDesignTokens.surfaceColorPrimaryDangerButtonDefault,
-    },
-  ];
-
   return (
     <>
-      <FormControlLabel
-        value={YES}
-        control={<Radio sx={sx} disabled={disabled} />}
-        label="Yes"
-      />
-      <FormControlLabel
-        value={NO}
-        control={<Radio sx={sx} disabled={disabled} />}
-        label="No"
-      />
+      <SubmitRadio value={YES} label="Yes" error={error} disabled={disabled} />
+      <SubmitRadio value={NO} label="No" error={error} disabled={disabled} />
     </>
   );
 };

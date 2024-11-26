@@ -1,4 +1,4 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -6,6 +6,7 @@ import {
   RadioGroupProps,
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
+import { get } from "lodash";
 
 type IFormInputProps = {
   name: string;
@@ -21,7 +22,15 @@ const ControlledRadioGroup: FC<IFormInputProps> = ({
     formState: { defaultValues, errors },
   } = useFormContext();
 
-  const error = errors[name];
+  const error = get(errors, name);
+  // pass error prop to children
+  const childrenWithProps = React.Children.map(children, (child) => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { error: Boolean(error) } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+    }
+    return child;
+  });
+
   return (
     <FormControl error={Boolean(error)}>
       <Controller
@@ -30,7 +39,7 @@ const ControlledRadioGroup: FC<IFormInputProps> = ({
         defaultValue={defaultValues?.[name] || ""}
         render={({ field }) => (
           <RadioGroup {...otherProps} {...field}>
-            {children}
+            {childrenWithProps}
           </RadioGroup>
         )}
       />
