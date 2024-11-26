@@ -15,32 +15,7 @@ import { When } from "react-if";
 import { useState } from "react";
 
 export default function NotesSection() {
-  const mockNotes = [
-    {
-      id: 1,
-      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit le lobortis eget.",
-      created_by: "John Doe",
-      date_created: "2021-10-01",
-    },
-    {
-      id: 2,
-      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit le lobortis eget.",
-      created_by: "John Doe",
-      date_created: "2021-10-01",
-    },
-    {
-      id: 3,
-      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit le lobortis eget.",
-      created_by: "John Doe",
-      date_created: "2021-10-01",
-    },
-    {
-      id: 4,
-      note: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit le lobortis eget.",
-      created_by: "John Doe",
-      date_created: "2021-10-01",
-    },
-  ];
+  const mockNotes = [];
   const [addNote, setAddNote] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
