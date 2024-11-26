@@ -1,5 +1,5 @@
 import { ContentBox } from "@/components/Shared/ContentBox";
-import { Box, Button, Divider, Grid, Typography } from "@mui/material";
+import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -19,15 +19,15 @@ import { CardInnerBox } from "@/components/Projects/Project";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { DocumentUploadSection } from "./DocumentUploadSection";
-import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "@/hooks/api/constants";
+import FormFieldSection from "./FormFieldSection";
+import ActionButtons from "./ActionButtons";
 
 const managementPlanSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
@@ -47,7 +47,7 @@ const managementPlanSubmissionSchema = yup.object().shape({
 type ManagementPlanSubmissionForm = yup.InferType<
   typeof managementPlanSubmissionSchema
 >;
-export const ManagementPlanSubmission = () => {
+export const ManagementPlanSubmissionProponentView = () => {
   const {
     projectId: accountProjectIdParam,
     submissionPackageId,
@@ -251,18 +251,10 @@ export const ManagementPlanSubmission = () => {
                     <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
                   </Grid>
                   <Grid item xs={12}>
+                    <FormFieldSection errors={errors} />
                     <DocumentUploadSection />
                   </Grid>
-                  <Grid item xs={12} container spacing={2}>
-                    <Grid item xs={12} sm="auto">
-                      <Button color="secondary" onClick={saveAndClose}>
-                        Save & Continue Later
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm="auto">
-                      <Button type="submit">Save Completed Form</Button>
-                    </Grid>
-                  </Grid>
+                  <ActionButtons saveAndClose={saveAndClose} />
                 </Grid>
               </Form>
             </FormProvider>

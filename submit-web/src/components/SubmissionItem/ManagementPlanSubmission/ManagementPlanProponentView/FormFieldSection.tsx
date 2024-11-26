@@ -2,8 +2,11 @@ import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadio
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
+import { FieldErrors } from "react-hook-form";
+
 interface FormFieldSectionProps {
-  errors: FieldErrors<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
+  errors: FieldErrors<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
 }
 
 export default function FormFieldSection({ errors }: FormFieldSectionProps) {
