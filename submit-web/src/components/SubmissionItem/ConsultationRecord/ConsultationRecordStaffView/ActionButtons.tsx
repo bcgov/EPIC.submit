@@ -41,12 +41,22 @@ export default function ActionButtons() {
 
   const isLoading = isSavingAndClosing || isSendingToManager;
 
-  const { getValues, trigger } = useFormContext();
+  const {
+    getValues,
+    trigger,
+    formState: { dirtyFields },
+  } = useFormContext();
+  const isDirty = Object.keys(dirtyFields).length > 0;
 
   const navigate = useNavigate();
 
   const handleSaveAndClose = async () => {
-    // Add save logic here
+    if (!isDirty) {
+      navigate({
+        to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}`,
+      });
+      return;
+    }
     const validateAtKey = isStaff ? "staff" : "manager";
     const data = getValues();
     try {

@@ -14,6 +14,7 @@ import { useMemo } from "react";
 import NotesSection from "./NotesSection";
 import { consultationSchema } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
+import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -33,9 +34,9 @@ export default function ReviewSection() {
       .queryKey,
   );
   const defaultValues = useMemo(() => {
-    if (!submissionItem) return {};
+    if (!submissionItem) return undefined;
 
-    if (!submissionItem.review?.form_answers) return {};
+    if (!submissionItem.review?.form_answers) return undefined;
 
     return submissionItem.review.form_answers;
   }, [submissionItem]);
@@ -47,7 +48,9 @@ export default function ReviewSection() {
   });
 
   const isFormDisabled =
-    isStaff && submissionItem?.review?.status !== "PENDING_STAFF_REVIEW";
+    isStaff &&
+    submissionItem?.review?.status ===
+      SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW;
 
   return (
     <Grid item container>
