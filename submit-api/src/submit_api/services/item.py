@@ -55,9 +55,7 @@ class ItemService:
         """Get item by id."""
         _ = cls.get_item_by_id(item_id)
         review = SubmissionReview.get_active_review_by_item_id(item_id)
-        print(review)
         if not review:
-            print('creating review')
             review = SubmissionReview(item_id=item_id)
         return review
 
