@@ -12,6 +12,7 @@ import { STAFF_QUERY_KEY } from "@/hooks/api/constants";
 import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { useMemo } from "react";
+import NotesSection from "./NotesSection";
 
 // Define Yup schema
 export const consultationSchema = yup.object().shape({
@@ -100,6 +101,7 @@ export default function ReviewSection() {
                 <SubmitRadio label={NO_LABEL} value={"false"} />
               </ControlledRadioGroup>
             </When>
+            <NotesSection />
             <ActionButtons />
           </form>
         </FormProvider>
