@@ -2,12 +2,12 @@ import { useSaveSubmissionReview } from "@/hooks/api/useItems";
 import { Grid } from "@mui/material";
 import { useParams } from "@tanstack/react-router";
 import { useFormContext } from "react-hook-form";
-import { consultationSchema } from "./ReviewSection";
 import { useState } from "react";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
 import { isAxiosError } from "axios";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { consultationSchema } from "./constants";
 
 export default function ActionButtons() {
   const {

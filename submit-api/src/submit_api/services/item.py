@@ -97,7 +97,7 @@ class ItemService:
         return status_processor_map[status]
 
     @classmethod
-    def process_review_status(cls, review, status, session):
+    def process_review_status(cls, review, status):
         """Process review status."""
         if not status:
             return

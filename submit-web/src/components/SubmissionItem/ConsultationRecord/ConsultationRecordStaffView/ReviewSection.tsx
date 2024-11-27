@@ -13,16 +13,7 @@ import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import NotesSection from "./NotesSection";
-
-// Define Yup schema
-export const consultationSchema = yup.object().shape({
-  staff: yup.object().shape({
-    passed: yup.string().required("Staff decision is required"),
-  }),
-  manager: yup.object().shape({
-    passed: yup.string().required("Manager decision is required"),
-  }),
-});
+import { consultationSchema } from "./constants";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -47,7 +38,7 @@ export default function ReviewSection() {
     if (!submissionItem.review?.form_answers) return {};
 
     return submissionItem.review.form_answers;
-  }, [submissionItem?.review?.form_answers]);
+  }, [submissionItem]);
 
   const methods = useForm<ConsultationForm>({
     resolver: yupResolver(consultationSchema),
