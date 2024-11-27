@@ -10,6 +10,7 @@ from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
+from submit_api.schemas.submission_review import SubmissionReviewSchema
 
 
 class ItemSubmissionSchema(Schema):
@@ -68,4 +69,4 @@ class StaffItemSchema(ItemSchema):
         unknown = EXCLUDE
 
     internal_staff_documents = fields.Nested(InternalStaffDocument, data_key="internal_staff_documents", many=True)
-    review = fields.Str(data_key="review")
+    review = fields.Nested(SubmissionReviewSchema, data_key="review")

@@ -1,22 +1,18 @@
 import { FormControlLabel, Radio } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
-type Option = {
-  label: string;
+type SubmitRadioProps = {
   value: string | number | boolean;
-};
-
-type CustomRadioOptionsProps = {
-  options: Option[];
+  label: string;
   error?: boolean;
   disabled?: boolean;
 };
-
-export const CustomRadioOptions = ({
-  options,
+export const SubmitRadio = ({
+  value,
+  label,
   error = false,
   disabled = false,
-}: CustomRadioOptionsProps) => {
+}: SubmitRadioProps) => {
   const sx = [
     disabled && {
       color: `${BCDesignTokens.typographyColorDisabled} !important`,
@@ -27,15 +23,10 @@ export const CustomRadioOptions = ({
   ];
 
   return (
-    <>
-      {options.map(({ label, value }) => (
-        <FormControlLabel
-          key={value.toString()}
-          value={value}
-          control={<Radio sx={sx} disabled={disabled} />}
-          label={label}
-        />
-      ))}
-    </>
+    <FormControlLabel
+      value={value}
+      control={<Radio sx={sx} disabled={disabled} />}
+      label={label}
+    />
   );
 };
