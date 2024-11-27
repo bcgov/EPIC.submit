@@ -22,7 +22,7 @@ const defaultFormData = {
 };
 
 interface FormFieldSectionProps {
-  formData: ConsultationRecordForm; // Replace FormValues with your actual form schema interface
+  formData: Partial<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
 }
 
 export default function FormFieldSection({

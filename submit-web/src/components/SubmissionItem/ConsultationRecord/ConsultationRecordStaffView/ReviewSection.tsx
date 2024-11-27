@@ -8,12 +8,12 @@ import ActionButtons from "./ActionButtons";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { SubmitRadio } from "@/components/Shared/SubmitRadio";
 import { useQueryClient } from "@tanstack/react-query";
-import { STAFF_QUERY_KEY } from "@/hooks/api/constants";
 import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import NotesSection from "./NotesSection";
 import { consultationSchema } from "./constants";
+import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -28,10 +28,10 @@ export default function ReviewSection() {
   });
 
   const queryClient = useQueryClient();
-  const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    STAFF_QUERY_KEY.SUBMISSION_ITEM,
-    submissionItemId,
-  ]);
+  const submissionItem = queryClient.getQueryData<SubmissionItem>(
+    getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
+      .queryKey,
+  );
   const defaultValues = useMemo(() => {
     if (!submissionItem) return {};
 
@@ -76,9 +76,9 @@ export default function ReviewSection() {
               Consultation Check?
             </Typography>
 
-            <ControlledRadioGroup name="staff.passed">
-              <SubmitRadio label={YES_LABEL} value={"true"} />
-              <SubmitRadio label={NO_LABEL} value={"false"} />
+            <ControlledRadioGroup name="staff.passedConsultationCheck">
+              <SubmitRadio label={YES_LABEL} value={"yes"} />
+              <SubmitRadio label={NO_LABEL} value={"no"} />
             </ControlledRadioGroup>
             <When condition={role !== "staff"}>
               <Typography
@@ -87,9 +87,9 @@ export default function ReviewSection() {
               >
                 MANAGER CONFIRMATION:
               </Typography>
-              <ControlledRadioGroup name="manager.passed">
-                <SubmitRadio label={YES_LABEL} value={"true"} />
-                <SubmitRadio label={NO_LABEL} value={"false"} />
+              <ControlledRadioGroup name="manager.passedConsultationCheck">
+                <SubmitRadio label={YES_LABEL} value={"yes"} />
+                <SubmitRadio label={NO_LABEL} value={"no"} />
               </ControlledRadioGroup>
             </When>
             <NotesSection />
