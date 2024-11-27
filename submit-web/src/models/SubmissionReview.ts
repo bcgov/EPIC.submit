@@ -1,8 +1,3 @@
-// PENDING_STAFF_REVIEW = 'PENDING_STAFF_REVIEW'
-// PENDING_MANAGER_REVIEW = 'PENDING_MANAGER_REVIEW'
-// APPROVED = 'APPROVED'
-// REJECTED = 'REJECTED'
-
 type SubmissionReviewStatus =
   | "PENDING_STAFF_REVIEW"
   | "PENDING_MANAGER_REVIEW"
@@ -21,6 +16,6 @@ export type SubmissionReview = {
   id: number;
   item_id: number;
   form_answers: Record<string, unknown>;
-  status: string;
+  status: SubmissionReviewStatus;
   active: boolean;
 };
