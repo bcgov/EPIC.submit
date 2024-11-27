@@ -1,6 +1,9 @@
-import { useSaveSubmissionReview } from "@/hooks/api/useItems";
+import {
+  getSubmissionItemForStaffQueryOptions,
+  useSaveSubmissionReview,
+} from "@/hooks/api/useItems";
 import { Grid } from "@mui/material";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useFormContext } from "react-hook-form";
 import { useState } from "react";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
@@ -8,6 +11,8 @@ import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
 import { isAxiosError } from "axios";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { consultationSchema } from "./constants";
+import { useQueryClient } from "@tanstack/react-query";
+import { SubmissionItem } from "@/models/SubmissionItem";
 
 export default function ActionButtons() {
   const {
@@ -17,6 +22,14 @@ export default function ActionButtons() {
   } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
+
+  const queryClient = useQueryClient();
+  const submissionItem = queryClient.getQueryData<SubmissionItem>(
+    getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
+      .queryKey,
+  );
+  const submissionReview = submissionItem?.review;
+  const isStaff = true;
 
   const { mutateAsync: saveSubmissionReview } = useSaveSubmissionReview({
     itemId: Number(submissionItemId),
@@ -30,10 +43,11 @@ export default function ActionButtons() {
 
   const { getValues, trigger } = useFormContext();
 
+  const navigate = useNavigate();
+
   const handleSaveAndClose = async () => {
     // Add save logic here
-    const role = "staff";
-    const validateAtKey = role === "staff" ? "staff" : "manager";
+    const validateAtKey = isStaff ? "staff" : "manager";
     const data = getValues();
     try {
       const validData = consultationSchema.validateSyncAt(validateAtKey, data);
@@ -45,6 +59,10 @@ export default function ActionButtons() {
       setIsSavingAndClosing(true);
       await saveSubmissionReview(requestBody);
       setIsSavingAndClosing(false);
+      notify.success("Review saved successfully");
+      navigate({
+        to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}`,
+      });
     } catch (error) {
       trigger();
       setIsSavingAndClosing(false);
@@ -63,6 +81,10 @@ export default function ActionButtons() {
       };
       await saveSubmissionReview(requestBody);
       setIsSendingToManager(false);
+      notify.success("Review saved successfully");
+      navigate({
+        to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}`,
+      });
     } catch (error) {
       setIsSendingToManager(false);
       trigger();
@@ -71,13 +93,19 @@ export default function ActionButtons() {
       }
     }
   };
+
   return (
     <Grid item xs={12} container spacing={2}>
       <Grid item xs={12} sm="auto">
         <LoadingButton
           color="secondary"
           onClick={handleSaveAndClose}
-          disabled={isLoading}
+          disabled={
+            isLoading ||
+            (isStaff &&
+              submissionReview?.status ===
+                SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW)
+          }
           loading={isSavingAndClosing}
         >
           Save & Exit
@@ -85,7 +113,12 @@ export default function ActionButtons() {
       </Grid>
       <Grid item xs={12} sm="auto">
         <LoadingButton
-          disabled={isLoading}
+          disabled={
+            isLoading ||
+            (isStaff &&
+              submissionReview?.status ===
+                SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW)
+          }
           loading={isSendingToManager}
           onClick={handleSendToManager}
         >

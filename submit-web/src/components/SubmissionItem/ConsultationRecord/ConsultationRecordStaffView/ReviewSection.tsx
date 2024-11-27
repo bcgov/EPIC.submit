@@ -3,7 +3,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { When } from "react-if";
+import { Unless, When } from "react-if";
 import ActionButtons from "./ActionButtons";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { SubmitRadio } from "@/components/Shared/SubmitRadio";
@@ -21,7 +21,7 @@ const YES_LABEL = "Yes, the holder has passed the Consultation Check";
 const NO_LABEL = "No, the holder has failed the Consultation Check";
 
 export default function ReviewSection() {
-  const role = "staff"; // Replace with actual role
+  const isStaff = true;
 
   const { submissionId: submissionItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -45,6 +45,9 @@ export default function ReviewSection() {
     mode: "onChange",
     defaultValues,
   });
+
+  const isFormDisabled =
+    isStaff && submissionItem?.review?.status !== "PENDING_STAFF_REVIEW";
 
   return (
     <Grid item container>
@@ -77,10 +80,18 @@ export default function ReviewSection() {
             </Typography>
 
             <ControlledRadioGroup name="staff.passedConsultationCheck">
-              <SubmitRadio label={YES_LABEL} value={"yes"} />
-              <SubmitRadio label={NO_LABEL} value={"no"} />
+              <SubmitRadio
+                label={YES_LABEL}
+                value={"yes"}
+                disabled={isFormDisabled}
+              />
+              <SubmitRadio
+                label={NO_LABEL}
+                value={"no"}
+                disabled={isFormDisabled}
+              />
             </ControlledRadioGroup>
-            <When condition={role !== "staff"}>
+            <Unless condition={isStaff}>
               <Typography
                 variant="body1"
                 sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
@@ -88,10 +99,18 @@ export default function ReviewSection() {
                 MANAGER CONFIRMATION:
               </Typography>
               <ControlledRadioGroup name="manager.passedConsultationCheck">
-                <SubmitRadio label={YES_LABEL} value={"yes"} />
-                <SubmitRadio label={NO_LABEL} value={"no"} />
+                <SubmitRadio
+                  label={YES_LABEL}
+                  value={"yes"}
+                  disabled={isFormDisabled}
+                />
+                <SubmitRadio
+                  label={NO_LABEL}
+                  value={"no"}
+                  disabled={isFormDisabled}
+                />
               </ControlledRadioGroup>
-            </When>
+            </Unless>
             <NotesSection />
             <ActionButtons />
           </form>
