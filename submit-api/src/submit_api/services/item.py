@@ -14,7 +14,7 @@ class ItemService:
     @classmethod
     def get_item_by_id(cls, item_id) -> ItemModel:
         """Get item by id."""
-        item = cls.get_item_by_id(item_id)
+        item = ItemModel.find_by_id(item_id)
         if not item:
             raise ValueError(f"Item with id {item_id} not found.")
         return item
@@ -54,7 +54,7 @@ class ItemService:
     def get_or_create_active_item_review(cls, item_id) -> SubmissionReview:
         """Get item by id."""
         _ = cls.get_item_by_id(item_id)
-        review = SubmissionReview.get_by_item_id(item_id)
+        review = SubmissionReview.get_active_review_by_item_id(item_id)
         if not review:
             review = SubmissionReview(item_id=item_id)
         return review
@@ -63,7 +63,12 @@ class ItemService:
     def _save_submission_review_answers(cls, review, review_data):
         """Save submission item review answers."""
         form_answers = review_data.get('form_answers', {})
-        review.form_answers.update(form_answers)
+
+        current_form_answers = review.form_answers if review.form_answers else {}
+        review.form_answers = {
+            **current_form_answers,
+            **form_answers,
+        }
         return review
 
     @classmethod
@@ -90,11 +95,12 @@ class ItemService:
         return status_processor_map[status]
 
     @classmethod
-    def process_review_status(cls, review, status, session):
+    def process_review_status(cls, review, status):
         """Process review status."""
+        if not status:
+            return
         status_processor = cls._get_review_status_processor(status)
         status_processor(review, status)
-        session.add(review)
 
     @classmethod
     def save_submission_review(cls, item_id, review_data):
@@ -103,7 +109,9 @@ class ItemService:
 
         with session_scope() as session:
             cls._save_submission_review_answers(review, review_data)
-            cls.process_review_status(review, review_data['status'], session)
+            status = review_data.get('status')
+            cls.process_review_status(review, status)
             session.add(review)
+            session.flush()
             session.commit()
             return review

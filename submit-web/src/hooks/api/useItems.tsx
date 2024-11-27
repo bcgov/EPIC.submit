@@ -1,7 +1,13 @@
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { submitRequest } from "@/utils/axiosUtils";
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { QUERY_KEY, STAFF_QUERY_KEY } from "./constants";
+import { SubmissionReview } from "@/models/SubmissionReview";
 
 type GetSubmissionItemByIdParams = {
   itemId: number;
@@ -65,6 +71,52 @@ export const useGetSubmissionItemForStaff = ({
   itemId,
   enabled = true,
 }: UseGetSubmissionItemByIdForStaffParams) => {
-  const options = getSubmissionItemQueryOptions({ itemId, enabled });
+  const options = getSubmissionItemForStaffQueryOptions({ itemId, enabled });
   return useQuery(options);
+};
+
+type SaveReviewRequestBody = {
+  status?: string;
+  form_answers: Record<string, unknown>;
+};
+export const saveSubmissionReview = (
+  itemId: number,
+  data: SaveReviewRequestBody,
+) => {
+  return submitRequest<SubmissionReview>({
+    url: `/staff/items/${itemId}/review`,
+    method: "post",
+    data,
+  });
+};
+
+type UseSaveSubmissionParams = {
+  itemId: number;
+  packageId: number;
+  accountProjectId: number;
+};
+export const useSaveSubmissionReview = ({
+  itemId,
+  packageId,
+  accountProjectId,
+}: UseSaveSubmissionParams) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: SaveReviewRequestBody) =>
+      saveSubmissionReview(itemId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [STAFF_QUERY_KEY.SUBMISSION_ITEM, itemId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+    },
+  });
 };
