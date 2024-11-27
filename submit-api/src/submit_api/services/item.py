@@ -112,7 +112,7 @@ class ItemService:
         with session_scope() as session:
             cls._save_submission_review_answers(review, review_data)
             status = review_data.get('status')
-            cls.process_review_status(review, status, session)
+            cls.process_review_status(review, status)
             session.add(review)
             session.flush()
             session.commit()
