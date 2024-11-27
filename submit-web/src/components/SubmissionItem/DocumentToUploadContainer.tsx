@@ -1,7 +1,7 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import React, { useEffect } from "react";
-import DocumentIcon from "./ManagementPlanSubmission/DocumentIcon";
+import DocumentIcon from "./ManagementPlanSubmission/ManagementPlanProponentView/DocumentIcon";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { createSubmission } from "@/hooks/api/useSubmissions";
@@ -10,7 +10,7 @@ import {
   useObjectUploadStore,
 } from "@/store/documentUploadStore";
 import { useParams } from "@tanstack/react-router";
-import ProgressBar from "./ManagementPlanSubmission/ProgressBar";
+import ProgressBar from "./ManagementPlanSubmission/ManagementPlanProponentView/ProgressBar";
 import { useQueryClient } from "@tanstack/react-query";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";

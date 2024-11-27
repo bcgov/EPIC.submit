@@ -34,15 +34,15 @@ export const Project = ({ accountProject }: ProjectParam) => {
       !subPackage.status.some(
         (status) =>
           status === PACKAGE_STATUS.APPROVED.value ||
-          status === PACKAGE_STATUS.REJECTED.value,
-      ),
+          status === PACKAGE_STATUS.REJECTED.value
+      )
   );
   const pastSubmissionPackages = accountProject.packages.filter((subPackage) =>
     subPackage.status.some(
       (status) =>
         status === PACKAGE_STATUS.APPROVED.value ||
-        status === PACKAGE_STATUS.REJECTED.value,
-    ),
+        status === PACKAGE_STATUS.REJECTED.value
+    )
   );
 
   const { name, ea_certificate } = accountProject.project;

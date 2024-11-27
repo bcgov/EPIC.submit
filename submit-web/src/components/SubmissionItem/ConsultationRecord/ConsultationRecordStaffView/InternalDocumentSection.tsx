@@ -25,7 +25,7 @@ export default function InternalDocumentSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
-      .queryKey,
+      .queryKey
   );
   const internalStaffDocuments = submissionItem?.internal_staff_documents || [];
 
