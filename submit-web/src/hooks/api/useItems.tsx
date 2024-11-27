@@ -71,12 +71,12 @@ export const useGetSubmissionItemForStaff = ({
   itemId,
   enabled = true,
 }: UseGetSubmissionItemByIdForStaffParams) => {
-  const options = getSubmissionItemQueryOptions({ itemId, enabled });
+  const options = getSubmissionItemForStaffQueryOptions({ itemId, enabled });
   return useQuery(options);
 };
 
 type SaveReviewRequestBody = {
-  status: string;
+  status?: string;
   form_answers: Record<string, unknown>;
 };
 export const saveSubmissionReview = (
@@ -84,7 +84,7 @@ export const saveSubmissionReview = (
   data: SaveReviewRequestBody,
 ) => {
   return submitRequest<SubmissionReview>({
-    url: `/submissions/items/${itemId}/review`,
+    url: `/staff/items/${itemId}/review`,
     method: "post",
     data,
   });
@@ -102,7 +102,7 @@ export const useSaveSubmissionReview = ({
 }: UseSaveSubmissionParams) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ data }: { data: SaveReviewRequestBody }) =>
+    mutationFn: (data: SaveReviewRequestBody) =>
       saveSubmissionReview(itemId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({

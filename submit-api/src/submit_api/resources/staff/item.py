@@ -73,5 +73,5 @@ class ItemReview(Resource):
     def post(item_id):
         """Save submission review."""
         request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
-        review, _ = ItemService.save_submission_review(item_id, request_body)
+        review = ItemService.save_submission_review(item_id, request_body)
         return SubmissionReviewSchema().dump(review), HTTPStatus.OK

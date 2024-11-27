@@ -1,4 +1,5 @@
 import { Submission, SubmissionStatus } from "./Submission";
+import { SubmissionReview } from "./SubmissionReview";
 
 type SubmissionItemTypeName =
   | "Contact Information Form"
@@ -38,6 +39,7 @@ export interface SubmissionItem {
   version: number;
   submissions: Submission[];
   internal_staff_documents?: InternalStaffDocument[];
+  review?: SubmissionReview;
 }
 
 export type InternalStaffDocumentType = "S3" | "LINK";

@@ -37,11 +37,13 @@ const ControlledRadioGroup: FC<IFormInputProps> = ({
         control={control}
         name={name}
         defaultValue={defaultValues?.[name] || ""}
-        render={({ field }) => (
-          <RadioGroup {...otherProps} {...field}>
-            {childrenWithProps}
-          </RadioGroup>
-        )}
+        render={({ field }) => {
+          return (
+            <RadioGroup {...otherProps} {...field}>
+              {childrenWithProps}
+            </RadioGroup>
+          );
+        }}
       />
       {error && <FormHelperText>{error.message?.toString()}</FormHelperText>}
     </FormControl>
