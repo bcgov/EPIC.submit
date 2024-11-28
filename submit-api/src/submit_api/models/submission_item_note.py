@@ -14,7 +14,7 @@ from .db import db
 class SubmissionItemNote(BaseModel):
     """Definition of the submitted documents entity."""
 
-    __tablename__ = "internal_staff_documents"
+    __tablename__ = "submission_item_notes"
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     note = Column(db.String(255), nullable=False)
