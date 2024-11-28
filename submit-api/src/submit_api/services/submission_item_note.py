@@ -16,11 +16,11 @@
 """Service for internal staff document service."""
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Item
-from submit_api.models.note import Note as NoteModel
+from submit_api.models.submission_item_note import SubmissionItemNote as SubmissionItemNoteModel
 from submit_api.utils.token_info import TokenInfo
 
 
-class NoteService:
+class SubmissionItemNoteService:
     """Item management service."""
 
     @classmethod
@@ -30,7 +30,7 @@ class NoteService:
         if not submission_item:
             raise ResourceNotFoundError("Submission item not found")
 
-        note = NoteModel(
+        note = SubmissionItemNoteModel(
             name=data.get("name"),
             url=data.get("url"),
             type=data.get("type"),

@@ -5,10 +5,8 @@ Manages the package
 
 from marshmallow import EXCLUDE, Schema, fields
 
-from submit_api.models.internal_staff_document import InternalStaffDocumentType
 
-
-class Note(Schema):
+class SubmissionItemNote(Schema):
     """note schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
@@ -23,7 +21,7 @@ class Note(Schema):
     created_by = fields.Str(data_key="created_by")
 
 
-class PostNote(Schema):
+class PostSubmissionItemNote(Schema):
     """Post note schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods

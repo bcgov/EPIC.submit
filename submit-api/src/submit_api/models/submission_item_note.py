@@ -11,7 +11,7 @@ from .base_model import BaseModel
 from .db import db
 
 
-class Note(BaseModel):
+class SubmissionItemNote(BaseModel):
     """Definition of the submitted documents entity."""
 
     __tablename__ = "internal_staff_documents"
@@ -20,5 +20,4 @@ class Note(BaseModel):
     note = Column(db.String(255), nullable=False)
     item_id = Column(db.Integer, db.ForeignKey("items.id"), nullable=False)
     created_by = Column(db.String, db.ForeignKey("users.auth_guid"), nullable=True)
-    created_date = Column(db.DateTime, nullable=False)
     created_by_user = db.relationship("User", foreign_keys=[created_by], lazy="joined")

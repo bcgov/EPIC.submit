@@ -19,8 +19,8 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.note import Note, PostNote
-from submit_api.services.note import NoteService
+from submit_api.schemas.submission_item_note import SubmissionItemNote, PostSubmissionItemNote
+from submit_api.services.submission_item_note import SubmissionItemNoteService
 from submit_api.utils.util import cors_preflight
 
 
@@ -29,10 +29,10 @@ API = Namespace("notes", description="Endpoints for staff notes")
 """
 
 create_note = ApiHelper.convert_ma_schema_to_restx_model(
-    API, PostNote(), "Create a staff note"
+    API, PostSubmissionItemNote(), "Create a staff note"
 )
 note = ApiHelper.convert_ma_schema_to_restx_model(
-    API, Note(), "Staff Note"
+    API, SubmissionItemNote(), "Staff Note"
 )
 
 
@@ -52,6 +52,6 @@ class InternalStaffDocuments(Resource):
     @cors.crossdomain(origin="*")
     def post(submission_item_id):
         """Create a staff note."""
-        create_note_data = PostNote().load(API.payload)
-        created_note = (NoteService.create_note(submission_item_id, create_note_data))
-        return Note().dump(created_note), HTTPStatus.CREATED
+        create_note_data = PostSubmissionItemNote().load(API.payload)
+        created_note = SubmissionItemNoteService.create_note(submission_item_id, create_note_data)
+        return SubmissionItemNote().dump(created_note), HTTPStatus.CREATED
