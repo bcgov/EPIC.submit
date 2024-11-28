@@ -116,7 +116,10 @@ export default function SubmissionPage() {
                   >
                     Submission Status:
                   </Typography>
-                  <PackageStatusChipStack status={submissionPackage.status} />
+                  <PackageStatusChipStack
+                    status={submissionPackage.status}
+                    reviewStatus={submissionPackage.reviewStatus}
+                  />
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />

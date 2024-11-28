@@ -6,9 +6,11 @@ Manages the package
 from marshmallow import EXCLUDE, Schema, fields, post_dump
 
 from submit_api.models.package import PackageStatus
+from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.user import UserType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
+from submit_api.schemas.submission_review import SubmissionReviewSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 
@@ -77,6 +79,7 @@ class PackageSchema(Schema):
         user_type = user.type if user else None
 
         new_status = [get_package_status(status, user_type) for status in data['status']]
+        new_status = [status for status in new_status if status]
         data['status'] = new_status
 
         return data
@@ -91,6 +94,15 @@ class StaffPackageSchema(PackageSchema):
         unknown = EXCLUDE
 
     items = fields.Nested(StaffItemSchema, data_key="items", many=True)
+    review_status = fields.Method('get_review_status')
+
+    def get_review_status(self, package):
+        """Add review status."""
+        reviews = [item.review for item in package.items if item.review]
+        pending_manager_review = any(review.status == SubmissionReviewStatus.PENDING_MANAGER_REVIEW for review in reviews)
+        if pending_manager_review:
+            return SubmissionReviewStatus.PENDING_MANAGER_REVIEW.value
+        return None
 
 
 def get_package_status(status, user_type):

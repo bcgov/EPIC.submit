@@ -1,4 +1,4 @@
-import { PackageStatus } from "@/models/Package";
+import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 import { Chip } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 
@@ -6,7 +6,10 @@ type StyleProps = {
   sx: Record<string, string | number>;
   label: string;
 };
-const statusStyles: Record<PackageStatus, StyleProps> = {
+const statusStyles: Record<
+  PackageStatus | NonCanonicalPackageStatus,
+  StyleProps
+> = {
   APPROVED: {
     sx: {
       borderRadius: 1,
@@ -67,12 +70,21 @@ const statusStyles: Record<PackageStatus, StyleProps> = {
     },
     label: "New",
   },
+  PENDING_MANAGER_REVIEW: {
+    sx: {
+      borderRadius: 2,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+    },
+    label: "Awaiting Manager Review",
+  },
 };
 
 export default function PackageStatusChip({
   status,
 }: {
-  status: PackageStatus;
+  status: PackageStatus | NonCanonicalPackageStatus;
 }) {
   const style = statusStyles[status];
 

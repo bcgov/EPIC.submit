@@ -79,7 +79,10 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           {mp_review}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="center">
-          <PackageStatusChipStack status={status} />
+          <PackageStatusChipStack
+            status={submissionPackage.status}
+            reviewStatus={submissionPackage.reviewStatus}
+          />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow colSpan={7} />
