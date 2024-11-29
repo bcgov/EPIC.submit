@@ -23,8 +23,8 @@ export type PackageStatus =
   | "NEW_SUBMISSION";
 
 export const PACKAGE_STATUS: Record<
-  PackageStatus | NonCanonicalPackageStatus,
-  { value: PackageStatus | NonCanonicalPackageStatus; label: string }
+  PackageStatus,
+  { value: PackageStatus; label: string }
 > = {
   IN_REVIEW: {
     value: "IN_REVIEW",
@@ -54,10 +54,6 @@ export const PACKAGE_STATUS: Record<
     value: "NEW_SUBMISSION",
     label: "New Submission",
   },
-  PENDING_MANAGER_REVIEW: {
-    value: "PENDING_MANAGER_REVIEW",
-    label: "Awaiting Manager Review",
-  },
 };
 
 export type SubmissionPackageMeta = Record<string, number | string>;
@@ -74,5 +70,5 @@ export type SubmissionPackage = {
   account_project_id: number;
   meta: SubmissionPackageMeta;
   days_since_submission?: number;
-  reviewStatus?: NonCanonicalPackageStatus;
+  review_status?: NonCanonicalPackageStatus;
 };

@@ -72,12 +72,12 @@ const statusStyles: Record<
   },
   PENDING_MANAGER_REVIEW: {
     sx: {
-      borderRadius: 2,
+      borderRadius: 1,
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
     },
-    label: "Awaiting Manager Review",
+    label: "In Manager Review",
   },
 };
 

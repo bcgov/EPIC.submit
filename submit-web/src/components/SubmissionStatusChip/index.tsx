@@ -1,5 +1,8 @@
-import { SubmissionStatus } from "@/models/Submission";
-import { Chip } from "@mui/material";
+import {
+  NON_CANONICAL_SUBMISSION_STATUS,
+  SubmissionStatus,
+} from "@/models/Submission";
+import { Box, Chip, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { EAOColors } from "epic.theme";
 
@@ -8,7 +11,7 @@ type StyleProps = {
   label: string;
 };
 
-const statusStyles: Record<SubmissionStatus, StyleProps> = {
+const statusStyles: Record<string, StyleProps> = {
   NEW_SUBMISSION: {
     sx: {
       borderRadius: 1,
@@ -45,13 +48,18 @@ const statusStyles: Record<SubmissionStatus, StyleProps> = {
       height: "24px",
     },
   },
+  PENDING_MANAGER_REVIEW: {
+    sx: {
+      borderRadius: 2,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+    },
+    label: "Awaiting Manager Review",
+  },
 };
 
-export default function SubmissionStatusChip({
-  status,
-}: {
-  status: SubmissionStatus;
-}) {
+export function SubmissionStatusChip({ status }: { status: string }) {
   const style = statusStyles[status];
 
   if (!style) {
@@ -67,3 +75,24 @@ export default function SubmissionStatusChip({
     />
   );
 }
+
+type SubmissionStatusChipStackProps = {
+  status: SubmissionStatus;
+  reviewStatus?: string;
+};
+export const SubmissionStatusChipStack = ({
+  status,
+  reviewStatus,
+}: SubmissionStatusChipStackProps) => {
+  return (
+    <Box sx={{ display: "inline-block" }}>
+      <Stack direction="column" spacing={1} width={"fit-content"}>
+        <SubmissionStatusChip key={status} status={status} />
+        {reviewStatus ===
+          NON_CANONICAL_SUBMISSION_STATUS.PENDING_MANAGER_REVIEW && (
+          <SubmissionStatusChip status={reviewStatus} />
+        )}
+      </Stack>
+    </Box>
+  );
+};

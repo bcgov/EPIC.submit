@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import SubmissionStatusChip from "../SubmissionStatusChip";
+import { SubmissionStatusChip } from "../../SubmissionStatusChip";
 import { SUBMISSION_STATUS } from "@/models/Submission";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "../DocumentRow";

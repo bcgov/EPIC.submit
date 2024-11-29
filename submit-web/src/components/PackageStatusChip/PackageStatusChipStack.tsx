@@ -17,7 +17,7 @@ export const PackageStatusChipStack = ({
 }: PackageStatusChipStackProps) => {
   return (
     <Box sx={{ display: "inline-block" }}>
-      <Stack direction="column" spacing={1} width={"fit-content"}>
+      <Stack direction="column" spacing={1} alignItems={"flex-start"}>
         {status.map((value) => (
           <PackageStatusChip key={value} status={value} />
         ))}
