@@ -56,12 +56,10 @@ export default function StaffSubmissionItemTableRow({
         </SubmissionItemTableCell>
         <SubmissionItemTableCell align="right" colSpan={2} />
         <SubmissionItemTableCell align="right">
-          <When condition={status}>
-            <SubmissionStatusChipStack
-              status={status}
-              reviewStatus={reviewStatus}
-            />
-          </When>
+          <SubmissionStatusChipStack
+            status={status}
+            reviewStatus={reviewStatus}
+          />
         </SubmissionItemTableCell>
 
         <SubmissionItemTableCell align="center">

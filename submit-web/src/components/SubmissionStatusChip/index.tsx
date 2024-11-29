@@ -42,6 +42,7 @@ const statusStyles: Record<string, StyleProps> = {
   SUBMITTED: {
     label: "Submitted",
     sx: {
+      width: "90px",
       borderRadius: 1,
       border: `1px solid ${BCDesignTokens.themeBlue100}`,
       background: BCDesignTokens.themeBlue20,
@@ -50,10 +51,11 @@ const statusStyles: Record<string, StyleProps> = {
   },
   PENDING_MANAGER_REVIEW: {
     sx: {
-      borderRadius: 2,
+      borderRadius: 1,
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
+      width: "188px",
     },
     label: "Awaiting Manager Review",
   },
@@ -86,8 +88,13 @@ export const SubmissionStatusChipStack = ({
 }: SubmissionStatusChipStackProps) => {
   return (
     <Box sx={{ display: "inline-block" }}>
-      <Stack direction="column" spacing={1} width={"fit-content"}>
-        <SubmissionStatusChip key={status} status={status} />
+      <Stack
+        direction="column"
+        spacing={1}
+        width={"fit-content"}
+        alignItems={"flex-end"}
+      >
+        {status && <SubmissionStatusChip status={status} />}
         {reviewStatus ===
           NON_CANONICAL_SUBMISSION_STATUS.PENDING_MANAGER_REVIEW && (
           <SubmissionStatusChip status={reviewStatus} />

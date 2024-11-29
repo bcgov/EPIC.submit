@@ -2,9 +2,9 @@
 export type NonCanonicalSubmissionStatus = "PENDING_MANAGER_REVIEW";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
-  Record<NonCanonicalSubmissionStatus, string>
+  Record<NonCanonicalSubmissionStatus, NonCanonicalSubmissionStatus>
 >({
-  PENDING_MANAGER_REVIEW: "Awaiting Manager Review",
+  PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
 });
 
 export type SubmissionStatus =

@@ -16,8 +16,8 @@ export const PackageStatusChipStack = ({
   reviewStatus,
 }: PackageStatusChipStackProps) => {
   return (
-    <Box sx={{ display: "inline-block" }}>
-      <Stack direction="column" spacing={1} alignItems={"flex-start"}>
+    <Box sx={{ display: "inline-block", width: "fit-content" }}>
+      <Stack direction="column" spacing={1} alignItems={"flex-end"}>
         {status.map((value) => (
           <PackageStatusChip key={value} status={value} />
         ))}

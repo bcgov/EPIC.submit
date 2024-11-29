@@ -34,8 +34,6 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     status,
   } = submissionPackage;
 
-  console.log(review_status);
-
   return (
     <>
       <StyledProjectTableRow>
@@ -81,7 +79,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
         <StyledProjectTableCell align="right">
           {mp_review}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="center">
+        <StyledProjectTableCell align="right">
           <PackageStatusChipStack
             status={status}
             reviewStatus={review_status}

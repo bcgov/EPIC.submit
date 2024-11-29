@@ -76,8 +76,9 @@ const statusStyles: Record<
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
+      width: "188px",
     },
-    label: "In Manager Review",
+    label: "Awaiting Manager Review",
   },
 };
 
