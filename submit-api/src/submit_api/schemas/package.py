@@ -10,7 +10,6 @@ from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.user import UserType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
-from submit_api.schemas.submission_review import SubmissionReviewSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 
@@ -99,7 +98,8 @@ class StaffPackageSchema(PackageSchema):
     def get_review_status(self, package):
         """Add review status."""
         reviews = [item.review for item in package.items if item.review]
-        pending_manager_review = any(review.status == SubmissionReviewStatus.PENDING_MANAGER_REVIEW for review in reviews)
+        pending_manager_review = any(review.status == SubmissionReviewStatus.PENDING_MANAGER_REVIEW
+                                     for review in reviews)
         if pending_manager_review:
             return SubmissionReviewStatus.PENDING_MANAGER_REVIEW.value
         return None
