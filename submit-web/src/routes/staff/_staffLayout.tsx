@@ -5,6 +5,7 @@ import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
 import { useIsMobile } from "@/hooks/common";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
+import { getUserRolesFromToken } from "@/utils";
 import { Box } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
@@ -44,6 +45,7 @@ function Staff() {
       setAccount({
         isLoading: false,
         userType: USER_TYPE.STAFF,
+        roles: getUserRolesFromToken(user?.access_token),
       });
     }
   }, [
