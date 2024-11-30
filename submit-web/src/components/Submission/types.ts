@@ -8,4 +8,5 @@ export type SubmissionItemTableRow = {
   version: number;
   submissions: Array<Submission>;
   has_document: boolean;
+  reviewStatus?: string;
 };

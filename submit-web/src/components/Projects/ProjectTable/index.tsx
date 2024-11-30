@@ -12,7 +12,7 @@ export default function ProjectTable({
 }) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
-      <Table sx={{ tableLayout: "fixed", border: 0 }}>
+      <Table>
         {!headless && <ProjectTableHead />}
         <TableBody>
           {submissionPackages?.map((subPackage) => (

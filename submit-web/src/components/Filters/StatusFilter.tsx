@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useProjectFilters } from "./projectFilterStore";
 import { SUBMISSION_STATUS } from "@/models/Submission";
-import SubmissionStatusChip from "../Submission/SubmissionStatusChip";
+import { SubmissionStatusChip } from "../SubmissionStatusChip";
 import { BCDesignTokens } from "epic.theme";
 
 function StatusFilter() {

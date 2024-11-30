@@ -10,6 +10,7 @@ import { When } from "react-if";
 import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
 import { PackageTableRow } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -17,7 +18,7 @@ export default function StaffSubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
   const navigate = useNavigate();
-  const { name, submissions, has_document, id } = item;
+  const { name, submissions, has_document, id, status, reviewStatus } = item;
 
   const actionLabel = has_document ? "Review" : "View";
 
@@ -53,7 +54,14 @@ export default function StaffSubmissionItemTableRow({
             </Typography>
           </MuiLink>
         </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right" colSpan={3} />
+        <SubmissionItemTableCell align="right" colSpan={2} />
+        <SubmissionItemTableCell align="right">
+          <SubmissionStatusChipStack
+            status={status}
+            reviewStatus={reviewStatus}
+          />
+        </SubmissionItemTableCell>
+
         <SubmissionItemTableCell align="center">
           <Typography
             variant="body2"

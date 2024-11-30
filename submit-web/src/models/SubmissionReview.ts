@@ -1,4 +1,4 @@
-type SubmissionReviewStatus =
+export type SubmissionReviewStatus =
   | "PENDING_STAFF_REVIEW"
   | "PENDING_MANAGER_REVIEW"
   | "APPROVED"
