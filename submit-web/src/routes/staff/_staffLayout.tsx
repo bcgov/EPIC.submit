@@ -1,8 +1,10 @@
 import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
+import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
 import { useIsMobile } from "@/hooks/common";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { getUserRolesFromToken } from "@/utils";
@@ -19,7 +21,7 @@ export const Route = createFileRoute("/staff/_staffLayout")({
 });
 
 function Staff() {
-  const { setAccount } = useAccount();
+  const { setAccount, roles, isLoading: isAccountLoading } = useAccount();
   const {
     user,
     signoutRedirect,
@@ -35,13 +37,11 @@ function Staff() {
   );
   const isMobile = useIsMobile();
 
-  const isLoading = isAuthLoading || isUserPending;
-
   useEffect(() => {
     if (!isAuthenticated && !isAuthLoading) {
       signinRedirect();
     }
-    if (isAuthenticated && !isLoading) {
+    if (isAuthenticated && !isAuthLoading && !isUserPending) {
       setAccount({
         isLoading: false,
         userType: USER_TYPE.STAFF,
@@ -55,11 +55,13 @@ function Staff() {
     signinRedirect,
     setAccount,
     userData,
-    isLoading,
     isAuthLoading,
+    isUserPending,
   ]);
 
-  if (isUserPending || isAuthLoading) {
+  const isLoading = isAccountLoading || isAuthLoading || isUserPending;
+
+  if (isLoading) {
     return <PageLoader />;
   }
 
@@ -72,11 +74,10 @@ function Staff() {
     return <Navigate to="/not-found" />;
   }
 
-  // TODO: Uncomment this block when roles are implemented
-  // const noRoles = !user?.profile.roles;
-  // if (noRoles) {
-  //   return <NoRoles />;
-  // }
+  const canViewStaff = roles?.includes(EPIC_SUBMIT_ROLE.eao_view);
+  if (!canViewStaff) {
+    return <NoRoles />;
+  }
 
   return (
     <div>
