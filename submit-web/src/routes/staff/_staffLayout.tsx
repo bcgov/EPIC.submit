@@ -56,7 +56,6 @@ function Staff() {
     setAccount,
     userData,
     isAuthLoading,
-    isUserPending,
   ]);
 
   const isLoading = isAccountLoading || isAuthLoading || isUserPending;
