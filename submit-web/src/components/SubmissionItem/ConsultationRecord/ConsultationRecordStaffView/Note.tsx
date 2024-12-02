@@ -1,11 +1,11 @@
 import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
-interface Note {
+export interface Note {
   id: string;
   note: string;
   created_by: string;
-  date_created: string;
+  created_date: string;
 }
 
 export default function Note({ note }: { note: Note }) {
@@ -22,7 +22,7 @@ export default function Note({ note }: { note: Note }) {
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
           {note.created_by}
         </Typography>
-        <Typography variant="subtitle1">{note.date_created}</Typography>
+        <Typography variant="subtitle1">{note.created_date}</Typography>
       </Box>
       <Typography key={note.id} variant="body1" sx={{ mb: 1 }}>
         {note.note}

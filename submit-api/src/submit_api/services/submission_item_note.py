@@ -31,9 +31,7 @@ class SubmissionItemNoteService:
             raise ResourceNotFoundError("Submission item not found")
 
         note = SubmissionItemNoteModel(
-            name=data.get("name"),
-            url=data.get("url"),
-            type=data.get("type"),
+            note=data.get("note"),
             item_id=submission_item_id,
             created_by=TokenInfo.get_id(),
         )

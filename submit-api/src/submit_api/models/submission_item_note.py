@@ -1,6 +1,6 @@
-"""Internal staff document model class.
+"""Submission item note document model class.
 
-Manages the internal staff
+Manages the submission item notes.
 """
 
 from __future__ import annotations
