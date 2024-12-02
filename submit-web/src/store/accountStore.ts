@@ -6,6 +6,7 @@ interface AccountStoreState {
   accountId: number;
   isLoading: boolean;
   userType?: UserType;
+  roles?: string[];
   setAccount: (account: Partial<AccountStoreState>) => void;
 }
 
@@ -14,6 +15,7 @@ export const useAccount = create<AccountStoreState>((set) => ({
   accountId: 0,
   isLoading: true,
   userType: undefined,
+  roles: [],
   setAccount: (account: Partial<AccountStoreState>) =>
     set((prev) => ({ ...prev, ...account })),
 }));
