@@ -48,6 +48,7 @@ function Staff() {
         roles: getUserRolesFromToken(user?.access_token),
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isAuthenticated,
     isUserPending,
