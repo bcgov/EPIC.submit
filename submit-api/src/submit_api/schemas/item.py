@@ -11,6 +11,7 @@ from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
 from submit_api.schemas.submission_review import SubmissionReviewSchema
+from submit_api.schemas.submission_item_note import SubmissionItemNote
 
 
 class ItemSubmissionSchema(Schema):
@@ -70,3 +71,4 @@ class StaffItemSchema(ItemSchema):
 
     internal_staff_documents = fields.Nested(InternalStaffDocument, data_key="internal_staff_documents", many=True)
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
+    notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)

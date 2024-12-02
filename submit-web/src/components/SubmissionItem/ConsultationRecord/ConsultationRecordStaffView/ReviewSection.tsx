@@ -31,7 +31,7 @@ export default function ReviewSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
   const defaultValues = useMemo(() => {
     if (!submissionItem) return undefined;

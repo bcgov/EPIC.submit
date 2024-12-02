@@ -37,7 +37,7 @@ export default function ItemsTable({
     submitted_by: subItem?.submitted_by,
     version: subItem.version,
     submissions: subItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
     ),
     has_document:
       subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
@@ -45,7 +45,7 @@ export default function ItemsTable({
   }));
 
   const internalStaffDocuments = submissionItems.flatMap(
-    (item) => item.internal_staff_documents ?? [],
+    (item) => item.internal_staff_documents ?? []
   );
 
   return (

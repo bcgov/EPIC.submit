@@ -38,8 +38,8 @@ note = ApiHelper.convert_ma_schema_to_restx_model(
 
 @cors_preflight("OPTIONS, POST")
 @API.route("/submission-items/<int:submission_item_id>", methods=["POST", "OPTIONS"])
-class InternalStaffDocuments(Resource):
-    """Resource for managing projects."""
+class SubmissionItemNoteResource(Resource):
+    """Resource for managing submission item notes."""
 
     @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Create a staff note")

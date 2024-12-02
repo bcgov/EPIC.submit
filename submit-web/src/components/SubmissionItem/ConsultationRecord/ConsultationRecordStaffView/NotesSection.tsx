@@ -10,18 +10,51 @@ import {
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import EventNoteIcon from "@mui/icons-material/EventNote";
-import Note from "./Note";
+import Note, { Note as NoteType } from "./Note";
 import { When } from "react-if";
 import { useState } from "react";
+import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
+import { useParams } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCreateNote } from "@/hooks/api/useSubmissionItemNotes";
+import { SubmissionItem } from "@/models/SubmissionItem";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
 
 export default function NotesSection() {
-  const mockNotes = [];
   const [addNote, setAddNote] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [noteText, setNoteText] = useState("");
+  const { submissionPackageId, submissionId: submissionItemId } = useParams({
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  });
+
+  const queryClient = useQueryClient();
+  const submissionItem = queryClient.getQueryData<SubmissionItem>(
+    getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
+      .queryKey
+  );
+
+  const { notes } = submissionItem;
+
+  const { mutateAsync: createNote, isPending: createNoteLoading } =
+    useCreateNote({
+      itemId: Number(submissionItemId),
+      packageId: Number(submissionPackageId),
+    });
 
   const handleAddNote = () => {
     setAddNote(!addNote);
     setExpanded(true);
+  };
+
+  const handleSaveNote = async () => {
+    createNote({
+      submission_item_id: Number(submissionItemId),
+      note: {
+        note: noteText,
+      },
+    });
+    setAddNote(false);
   };
 
   return (
@@ -95,22 +128,33 @@ export default function NotesSection() {
             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
               Notes
             </Typography>
-            <TextField multiline fullWidth minRows={6} />
-            <Button sx={{ mr: BCDesignTokens.layoutMarginSmall }}>
+            <TextField
+              multiline
+              fullWidth
+              minRows={6}
+              onChange={(e) => setNoteText(e.target.value)}
+            />
+            <LoadingButton
+              onClick={handleSaveNote}
+              sx={{ mr: BCDesignTokens.layoutMarginSmall }}
+              loading={createNoteLoading}
+            >
               Save Note
-            </Button>
+            </LoadingButton>
             <Button color="secondary" onClick={() => setAddNote(false)}>
               Cancel
             </Button>
           </Box>
         </When>
-        {mockNotes.length > 0 ? (
-          mockNotes.map((note) => <Note key={note.id} note={note} />)
-        ) : (
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            No notes have been added yet.
-          </Typography>
-        )}
+        <When condition={notes}>
+          {notes ? (
+            notes.map((note: NoteType) => <Note key={note.id} note={note} />)
+          ) : (
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              No notes have been added yet.
+            </Typography>
+          )}
+        </When>
       </AccordionDetails>
     </Accordion>
   );

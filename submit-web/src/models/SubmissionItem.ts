@@ -1,3 +1,4 @@
+import { Note } from "@/components/SubmissionItem/ConsultationRecord/ConsultationRecordStaffView/Note";
 import { Submission, SubmissionStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
 
@@ -40,6 +41,7 @@ export interface SubmissionItem {
   submissions: Submission[];
   internal_staff_documents?: InternalStaffDocument[];
   review?: SubmissionReview;
+  notes?: Note[];
 }
 
 export type InternalStaffDocumentType = "S3" | "LINK";
