@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-
+import dayjs from "dayjs";
 export interface Note {
   id: string;
   note: string;
@@ -9,6 +9,8 @@ export interface Note {
 }
 
 export default function Note({ note }: { note: Note }) {
+  const createdDate = dayjs(note.created_date).format("DD/MM/YYYY");
+
   return (
     <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
       <Box
@@ -22,7 +24,7 @@ export default function Note({ note }: { note: Note }) {
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
           {note.created_by}
         </Typography>
-        <Typography variant="subtitle1">{note.created_date}</Typography>
+        <Typography variant="subtitle1">{createdDate}</Typography>
       </Box>
       <Typography key={note.id} variant="body1" sx={{ mb: 1 }}>
         {note.note}

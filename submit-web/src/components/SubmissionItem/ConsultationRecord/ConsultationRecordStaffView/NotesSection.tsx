@@ -54,6 +54,7 @@ export default function NotesSection() {
         note: noteText,
       },
     });
+    setAddNote(false);
   };
 
   return (
