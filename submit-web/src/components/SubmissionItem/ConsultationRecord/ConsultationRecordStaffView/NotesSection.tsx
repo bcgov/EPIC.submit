@@ -4,6 +4,7 @@ import {
   AccordionSummary,
   Box,
   Button,
+  Collapse,
   TextField,
   Typography,
 } from "@mui/material";
@@ -43,8 +44,8 @@ export default function NotesSection() {
     });
 
   const handleAddNote = () => {
-    setAddNote(!addNote);
     setExpanded(true);
+    setAddNote(!addNote);
   };
 
   const handleSaveNote = async () => {
@@ -55,6 +56,11 @@ export default function NotesSection() {
       },
     });
     setAddNote(false);
+  };
+
+  const handleCancelNote = () => {
+    setAddNote(false);
+    setExpanded(false);
   };
 
   return (
@@ -90,8 +96,9 @@ export default function NotesSection() {
             sx={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent: "flex-start",
             }}
+            width={"90%"}
           >
             <EventNoteIcon
               htmlColor={BCDesignTokens.themeBlue60}
@@ -123,7 +130,7 @@ export default function NotesSection() {
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        <When condition={addNote}>
+        <Collapse in={addNote}>
           <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
             <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
               Notes
@@ -141,13 +148,13 @@ export default function NotesSection() {
             >
               Save Note
             </LoadingButton>
-            <Button color="secondary" onClick={() => setAddNote(false)}>
+            <Button color="secondary" onClick={handleCancelNote}>
               Cancel
             </Button>
           </Box>
-        </When>
+        </Collapse>
         <When condition={notes}>
-          {notes ? (
+          {notes.length > 1 ? (
             notes.map((note: NoteType) => <Note key={note.id} note={note} />)
           ) : (
             <Typography variant="body1" sx={{ mb: 1 }}>
