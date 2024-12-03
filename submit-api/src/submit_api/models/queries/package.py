@@ -27,20 +27,24 @@ class PackageQueries:
         if (ItemStatus.PARTIALLY_COMPLETED.value
                 in statuses or len(statuses) > statuses.count(ItemStatus.COMPLETED.value) > 0):
             aggregated_statuses.add(PackageStatus.PARTIALLY_COMPLETED.value)
-        return
 
     @classmethod
     def _add_completed_status(cls, aggregated_statuses: set, statuses: list[str]):
         """Find completed packages"""
         if all(status == ItemStatus.COMPLETED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.COMPLETED.value)
-        return
 
     @classmethod
     def _add_submitted_status(cls, aggregated_statuses: set, statuses: list[str]):
         """Find submitted packages"""
         if all(status == ItemStatus.SUBMITTED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.SUBMITTED.value)
+
+    @classmethod
+    def _add_passed_consultation_check(cls, aggregated_statuses: set, statuses: list[str]):
+        """Find packages that passed consultation check"""
+        if any(status == ItemStatus.PASSED_CONSULTATION_CHECK.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.PASSED_CONSULTATION_CHECK.value)
 
     @classmethod
     def aggregate_item_statuses(cls, items: list):
@@ -52,6 +56,7 @@ class PackageQueries:
         cls._add_partially_completed_status(aggregated_statuses, statuses)
         cls._add_completed_status(aggregated_statuses, statuses)
         cls._add_submitted_status(aggregated_statuses, statuses)
+        cls._add_passed_consultation_check(aggregated_statuses, statuses)
         aggregated_statuses_list = list(aggregated_statuses)
         return aggregated_statuses_list
 
