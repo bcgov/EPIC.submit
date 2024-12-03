@@ -41,6 +41,7 @@ export default function ItemsTable({
     ),
     has_document:
       subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+    reviewStatus: subItem.review?.status,
   }));
 
   const internalStaffDocuments = submissionItems.flatMap(

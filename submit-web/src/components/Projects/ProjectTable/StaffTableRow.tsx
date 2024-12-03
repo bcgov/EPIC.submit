@@ -29,8 +29,9 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     name,
     meta: { cc_completed_on = "", mp_review = "", type = "" },
     days_since_submission = 0,
-    status,
+    review_status,
     submitted_on,
+    status,
   } = submissionPackage;
 
   return (
@@ -78,8 +79,11 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
         <StyledProjectTableCell align="right">
           {mp_review}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="center">
-          <PackageStatusChipStack status={status} />
+        <StyledProjectTableCell align="right">
+          <PackageStatusChipStack
+            status={status}
+            reviewStatus={review_status}
+          />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow colSpan={7} />

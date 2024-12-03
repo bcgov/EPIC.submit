@@ -1,11 +1,21 @@
+// NonCanonicalSubmissionStatus are just for display purpose, they are not canonical business statuses
+export type NonCanonicalSubmissionStatus = "PENDING_MANAGER_REVIEW";
+
+export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
+  Record<NonCanonicalSubmissionStatus, NonCanonicalSubmissionStatus>
+>({
+  PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
+});
+
 export type SubmissionStatus =
   | "NEW_SUBMISSION"
   | "COMPLETED"
   | "PARTIALLY_COMPLETED"
   | "SUBMITTED";
+
 export const SUBMISSION_STATUS: Record<
-  SubmissionStatus,
-  { value: SubmissionStatus; label: string }
+  SubmissionStatus | NonCanonicalSubmissionStatus,
+  { value: SubmissionStatus | NonCanonicalSubmissionStatus; label: string }
 > = {
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
@@ -22,6 +32,10 @@ export const SUBMISSION_STATUS: Record<
   SUBMITTED: {
     value: "SUBMITTED",
     label: "Submitted",
+  },
+  PENDING_MANAGER_REVIEW: {
+    value: "PENDING_MANAGER_REVIEW",
+    label: "Awaiting Manager Review",
   },
 };
 

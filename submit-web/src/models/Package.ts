@@ -5,6 +5,14 @@ export type PackageType = {
   name: string;
 };
 
+// These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus
+export type NonCanonicalPackageStatus = "PENDING_MANAGER_REVIEW";
+export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
+  Record<NonCanonicalPackageStatus, NonCanonicalPackageStatus>
+>({
+  PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
+});
+
 export type PackageStatus =
   | "IN_REVIEW"
   | "APPROVED"
@@ -62,4 +70,5 @@ export type SubmissionPackage = {
   account_project_id: number;
   meta: SubmissionPackageMeta;
   days_since_submission?: number;
+  review_status?: NonCanonicalPackageStatus;
 };

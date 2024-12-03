@@ -23,7 +23,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import ItemsTable from "@/components/Submission/ItemsTable";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -116,7 +116,10 @@ export default function SubmissionPage() {
                   >
                     Submission Status:
                   </Typography>
-                  <PackageStatusChipStack status={submissionPackage.status} />
+                  <PackageStatusChipStack
+                    status={submissionPackage.status}
+                    reviewStatus={submissionPackage.review_status}
+                  />
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />

@@ -39,6 +39,7 @@ export const AppConfig = {
   version: APP_VERSION,
   appTitle: APP_TITLE,
   appUrl: APP_URL,
+  clientId: CLIENT_ID,
 };
 
 export const OidcConfig = {

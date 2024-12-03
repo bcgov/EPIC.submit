@@ -6,7 +6,7 @@ from datetime import datetime
 
 from marshmallow import EXCLUDE, Schema, fields
 
-from submit_api.schemas.package import PackageSchema
+from submit_api.schemas.package import PackageSchema, StaffPackageSchema
 
 
 class ProjectSchema(Schema):
@@ -61,7 +61,7 @@ class AccountProjectSchema(Schema):
     packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
 
 
-class StaffAccountProjectPackageSchema(AccountProjectPackageSchema):
+class StaffAccountProjectPackageSchema(StaffPackageSchema):
     """Account project package schema for staff."""
 
     class Meta:  # pylint: disable=too-few-public-methods
@@ -71,6 +71,7 @@ class StaffAccountProjectPackageSchema(AccountProjectPackageSchema):
 
     days_since_submission = fields.Method('get_days_since_submission')
     meta = fields.Method('get_meta')
+    items = fields.Function(lambda obj: [])
 
     def get_days_since_submission(self, obj):
         """Get days since submission."""
