@@ -20,7 +20,8 @@ export type PackageStatus =
   | "COMPLETED"
   | "SUBMITTED"
   | "PARTIALLY_COMPLETED"
-  | "NEW_SUBMISSION";
+  | "NEW_SUBMISSION"
+  | "PASSED_CONSULTATION_CHECK";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -53,6 +54,10 @@ export const PACKAGE_STATUS: Record<
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
+  },
+  PASSED_CONSULTATION_CHECK: {
+    value: "PASSED_CONSULTATION_CHECK",
+    label: "Passed Consultation Check",
   },
 };
 

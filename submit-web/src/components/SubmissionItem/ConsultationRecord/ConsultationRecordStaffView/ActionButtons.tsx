@@ -5,7 +5,7 @@ import {
 import { Grid } from "@mui/material";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useFormContext } from "react-hook-form";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
 import { isAxiosError } from "axios";
@@ -13,6 +13,8 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { consultationSchema } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
+import { checkIfManager, checkIfStaff } from "@/components/Shared/Table/utils";
+import { When } from "react-if";
 
 export default function ActionButtons() {
   const {
@@ -29,7 +31,10 @@ export default function ActionButtons() {
       .queryKey,
   );
   const submissionReview = submissionItem?.review;
-  const isStaff = true;
+  console.log(submissionReview);
+
+  const isStaff = checkIfStaff();
+  const isManager = checkIfManager();
 
   const { mutateAsync: saveSubmissionReview } = useSaveSubmissionReview({
     itemId: Number(submissionItemId),
@@ -38,8 +43,11 @@ export default function ActionButtons() {
   });
   const [isSavingAndClosing, setIsSavingAndClosing] = useState(false);
   const [isSendingToManager, setIsSendingToManager] = useState(false);
+  const [isCompletingConsultationCheck, setIsCompletingConsultationCheck] =
+    useState(false);
 
-  const isLoading = isSavingAndClosing || isSendingToManager;
+  const isLoading =
+    isSavingAndClosing || isSendingToManager || isCompletingConsultationCheck;
 
   const {
     getValues,
@@ -91,10 +99,7 @@ export default function ActionButtons() {
       };
       await saveSubmissionReview(requestBody);
       setIsSendingToManager(false);
-      notify.success("Review saved successfully");
-      navigate({
-        to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}`,
-      });
+      notify.success("Recommendation sent to manager");
     } catch (error) {
       setIsSendingToManager(false);
       trigger();
@@ -103,38 +108,94 @@ export default function ActionButtons() {
       }
     }
   };
+  const handleCompletingConsultationCheck = async () => {
+    try {
+      setIsCompletingConsultationCheck(true);
+      const validData = consultationSchema.validateSyncAt(
+        "manager",
+        getValues(),
+      );
+      const requestBody = {
+        status: validData.passedConsultationCheck
+          ? SUBMISSION_REVIEW_STATUS.APPROVED
+          : SUBMISSION_REVIEW_STATUS.REJECTED,
+        form_answers: validData,
+      };
+      await saveSubmissionReview(requestBody);
+      setIsCompletingConsultationCheck(false);
+      notify.success("Consultation Check was completed");
+    } catch (error) {
+      setIsCompletingConsultationCheck(false);
+      trigger();
+      if (isAxiosError(error)) {
+        notify.error("Failed to complete consultation check");
+      }
+    }
+  };
+
+  const isSaveAndExistDisabled = useMemo(() => {
+    const currentStatus =
+      submissionReview?.status || SUBMISSION_REVIEW_STATUS.PENDING_STAFF_REVIEW;
+    if (currentStatus === SUBMISSION_REVIEW_STATUS.APPROVED) {
+      return true;
+    }
+
+    if (isStaff) {
+      return [
+        SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
+        SUBMISSION_REVIEW_STATUS.REJECTED,
+      ].includes(
+        submissionReview?.status ||
+          SUBMISSION_REVIEW_STATUS.PENDING_STAFF_REVIEW,
+      );
+    }
+    return false;
+  }, [isStaff, isLoading, submissionReview]);
 
   return (
     <Grid item xs={12} container spacing={2}>
-      <Grid item xs={12} sm="auto">
-        <LoadingButton
-          color="secondary"
-          onClick={handleSaveAndClose}
-          disabled={
-            isLoading ||
-            (isStaff &&
+      <When condition={isStaff || isManager}>
+        <Grid item xs={12} sm="auto">
+          <LoadingButton
+            color="secondary"
+            onClick={handleSaveAndClose}
+            disabled={isLoading || isSaveAndExistDisabled}
+            loading={isSavingAndClosing}
+          >
+            Save & Exit
+          </LoadingButton>
+        </Grid>
+      </When>
+      <When condition={isStaff}>
+        <Grid item xs={12} sm="auto">
+          <LoadingButton
+            disabled={
+              isLoading ||
               submissionReview?.status ===
-                SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW)
-          }
-          loading={isSavingAndClosing}
-        >
-          Save & Exit
-        </LoadingButton>
-      </Grid>
-      <Grid item xs={12} sm="auto">
-        <LoadingButton
-          disabled={
-            isLoading ||
-            (isStaff &&
-              submissionReview?.status ===
-                SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW)
-          }
-          loading={isSendingToManager}
-          onClick={handleSendToManager}
-        >
-          Send Recommendations to Manager
-        </LoadingButton>
-      </Grid>
+                SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW
+            }
+            loading={isSendingToManager}
+            onClick={handleSendToManager}
+          >
+            Send Recommendations to Manager
+          </LoadingButton>
+        </Grid>
+      </When>
+      <When condition={isManager}>
+        <Grid item xs={12} sm="auto">
+          <LoadingButton
+            disabled={
+              isLoading ||
+              submissionReview?.status === SUBMISSION_REVIEW_STATUS.APPROVED ||
+              submissionReview?.status === SUBMISSION_REVIEW_STATUS.REJECTED
+            }
+            loading={isCompletingConsultationCheck}
+            onClick={handleCompletingConsultationCheck}
+          >
+            Complete Consultation Check
+          </LoadingButton>
+        </Grid>
+      </When>
     </Grid>
   );
 }

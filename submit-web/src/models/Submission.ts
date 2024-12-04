@@ -11,7 +11,8 @@ export type SubmissionStatus =
   | "NEW_SUBMISSION"
   | "COMPLETED"
   | "PARTIALLY_COMPLETED"
-  | "SUBMITTED";
+  | "SUBMITTED"
+  | "PASSED_CONSULTATION_CHECK";
 
 export const SUBMISSION_STATUS: Record<
   SubmissionStatus | NonCanonicalSubmissionStatus,
@@ -36,6 +37,10 @@ export const SUBMISSION_STATUS: Record<
   PENDING_MANAGER_REVIEW: {
     value: "PENDING_MANAGER_REVIEW",
     label: "Awaiting Manager Review",
+  },
+  PASSED_CONSULTATION_CHECK: {
+    value: "PASSED_CONSULTATION_CHECK",
+    label: "Passed Consultation Check",
   },
 };
 
