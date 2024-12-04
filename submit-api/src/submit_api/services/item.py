@@ -25,13 +25,13 @@ class ItemService:
         current_app.logger.debug(f"Updated submission item {submission_item.id} with data: {update_data}")
 
     @staticmethod
-    def _unsupported_submission_item_type(*args, **kwargs):
+    def _unsupported_submission_item_type(*args, **kwargs):  # pylint: disable=unused-argument
         """Unset submission item type."""
         current_app.logger.error("Attempted to use an unsupported item type.")
         raise UnprocessableEntityError("Item type is not supported.")
 
     @staticmethod
-    def _unsupported_submission_review_status(*args, **kwargs):
+    def _unsupported_submission_review_status(*args, **kwargs):  # pylint: disable=unused-argument
         """Unset submission item review status."""
         current_app.logger.error("Attempted to use an unsupported review status.")
         raise UnprocessableEntityError("Status is not supported.")
@@ -99,7 +99,7 @@ class ItemService:
     def process_review_status(cls, review, status, session):
         """Process review status."""
         if not status:
-            return
+            return review
         if status not in SubmissionReviewStatus.__members__:
             current_app.logger.error(f"Unsupported review status: {status}")
             raise UnprocessableEntityError("Status is not supported.")
@@ -112,7 +112,7 @@ class ItemService:
     def submission_item_post_review(cls, review, session):
         """Post review of submission item."""
         if review.status == SubmissionReviewStatus.APPROVED.value:
-            return cls.approve_submission_item(review.item_id, session)
+            cls.approve_submission_item(review.item_id, session)
 
     @classmethod
     def save_submission_review(cls, item_id, review_data):
@@ -180,4 +180,3 @@ class ItemService:
         current_app.logger.info(f"Consultation record approved for item {item.id}.")
 
         return item
-

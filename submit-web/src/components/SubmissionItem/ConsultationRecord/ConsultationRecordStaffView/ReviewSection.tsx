@@ -94,26 +94,26 @@ export default function ReviewSection() {
                 disabled={isFormDisabled}
               />
             </ControlledRadioGroup>
-            {/* <Unless condition={isStaff}> */}
-            <Typography
-              variant="body1"
-              sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
-            >
-              MANAGER CONFIRMATION:
-            </Typography>
-            <ControlledRadioGroup name="manager.passedConsultationCheck">
-              <SubmitRadio
-                label={YES_LABEL}
-                value={"yes"}
-                disabled={isFormDisabled}
-              />
-              <SubmitRadio
-                label={NO_LABEL}
-                value={"no"}
-                disabled={isFormDisabled}
-              />
-            </ControlledRadioGroup>
-            {/* </Unless> */}
+            <Unless condition={isStaff}>
+              <Typography
+                variant="body1"
+                sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
+              >
+                MANAGER CONFIRMATION:
+              </Typography>
+              <ControlledRadioGroup name="manager.passedConsultationCheck">
+                <SubmitRadio
+                  label={YES_LABEL}
+                  value={"yes"}
+                  disabled={isFormDisabled}
+                />
+                <SubmitRadio
+                  label={NO_LABEL}
+                  value={"no"}
+                  disabled={isFormDisabled}
+                />
+              </ControlledRadioGroup>
+            </Unless>
             <NotesSection />
             <ActionButtons />
           </form>
