@@ -15,6 +15,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { checkIfManager, checkIfStaff } from "@/components/Shared/Table/utils";
 import { When } from "react-if";
+import { useAccount } from "@/store/accountStore";
 
 export default function ActionButtons() {
   const {
@@ -31,10 +32,10 @@ export default function ActionButtons() {
       .queryKey,
   );
   const submissionReview = submissionItem?.review;
-  console.log(submissionReview);
 
-  const isStaff = checkIfStaff();
-  const isManager = checkIfManager();
+  const { roles } = useAccount();
+  const isStaff = checkIfStaff(roles);
+  const isManager = checkIfManager(roles);
 
   const { mutateAsync: saveSubmissionReview } = useSaveSubmissionReview({
     itemId: Number(submissionItemId),
@@ -150,7 +151,7 @@ export default function ActionButtons() {
       );
     }
     return false;
-  }, [isStaff, isLoading, submissionReview]);
+  }, [isStaff, submissionReview]);
 
   return (
     <Grid item xs={12} container spacing={2}>

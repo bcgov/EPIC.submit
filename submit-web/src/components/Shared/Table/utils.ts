@@ -46,20 +46,24 @@ export const getObjectFromS3 = async ({
   link.click();
 };
 
-export const checkIfManager = () => {
-  const { roles } = useAccount();
+export const checkIfManager = (roles?: string[]) => {
+  if (!roles) {
+    return false;
+  }
   return hasPermission({
     permissions: roles || [],
     scopes: [EPIC_SUBMIT_ROLE.extended_eao_edit],
   });
 };
 
-export const checkIfStaff = () => {
-  const { roles } = useAccount();
+export const checkIfStaff = (roles?: string[]) => {
+  if (!roles) {
+    return false;
+  }
   return (
-    !checkIfManager() &&
+    !checkIfManager(roles) &&
     hasPermission({
-      permissions: roles || [],
+      permissions: roles,
       scopes: [EPIC_SUBMIT_ROLE.eao_view],
     })
   );

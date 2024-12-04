@@ -26,7 +26,7 @@ export const hasPermission = ({
   return permissions.some((permission) => scopesMap[permission]);
 };
 
-export default function PermissionsGate({
+export function PermissionsGate({
   children,
   RenderError = () => <></>,
   scopes = [],

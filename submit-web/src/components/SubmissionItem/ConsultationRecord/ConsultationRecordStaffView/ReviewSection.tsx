@@ -14,9 +14,10 @@ import NotesSection from "./NotesSection";
 import { consultationSchema } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
-import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { checkIfStaff } from "@/components/Shared/Table/utils";
+import { PermissionsGate } from "@/components/Shared/PermissionGate";
+import { useAccount } from "@/store/accountStore";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -24,7 +25,8 @@ const YES_LABEL = "Yes, the holder has passed the Consultation Check";
 const NO_LABEL = "No, the holder has failed the Consultation Check";
 
 export default function ReviewSection() {
-  const isStaff = checkIfStaff();
+  const { roles } = useAccount();
+  const isStaff = checkIfStaff(roles);
 
   const { submissionId: submissionItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
