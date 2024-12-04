@@ -21,6 +21,13 @@ class SubmissionMethod(enum.Enum):
     DOCUMENT_UPLOAD = 'DOCUMENT_UPLOAD'
 
 
+class SubmissionItemType(enum.Enum):
+    """Enum for item type input format."""
+
+    CONSULTATION_RECORD = 'Consultation Record(s)'
+    MANAGEMENT_PLAN_FORM = 'Management Plan'
+
+
 class ItemType(BaseModel):
     """Definition of the item type entity."""
 

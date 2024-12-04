@@ -65,7 +65,7 @@ class PackageSchema(Schema):
 
     def get_meta(self, obj):
         """Get meta."""
-        return obj.meta.package_meta if obj.meta else None
+        return obj.meta.json if obj.meta else None
 
     @post_dump
     def map_status(self, data, many, **kwargs):

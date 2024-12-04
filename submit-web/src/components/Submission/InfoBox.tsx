@@ -2,15 +2,16 @@ import { SubmissionPackage } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Grid, Typography } from "@mui/material";
+import { ReactNode } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
 import { Case, Switch } from "react-if";
 
 type InfoBoxItemProps = {
   label?: string;
-  value?: string;
+  value?: ReactNode;
 };
-const InfoBoxItem = ({ label, value }: InfoBoxItemProps) => {
+const InfoBoxItem = ({ label = "", value = "" }: InfoBoxItemProps) => {
   return (
     <Grid container direction="row" spacing={1} alignItems={"flex-start"}>
       <Grid item xs={6}>
@@ -42,6 +43,13 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
 };
 
 const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
+  const {
+    submitted_on,
+    date_review_completed,
+    supporting_condition,
+    submitted_by,
+    condition,
+  } = submissionPackage.json || {};
   return (
     <Grid
       container
@@ -53,44 +61,45 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       rowSpacing={1}
     >
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Condition"}
-          value={submissionPackage.meta?.condition}
-        />
+        <InfoBoxItem label={"Condition"} value={condition} />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted on"}
           value={
-            submissionPackage?.submitted_on
-              ? dayjs(submissionPackage.submitted_on).format("DD-MMM-YYYY")
-              : "--"
+            submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : "--"
           }
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Date Review Completed"}
-          value={submissionPackage.meta?.date_review_completed}
+          value={date_review_completed}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Supporting Conditions"}
-          value={submissionPackage.meta?.supporting_condition}
+          value={supporting_condition}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Submitted by"}
-          value={submissionPackage?.submitted_by}
-        />
+        <InfoBoxItem label={"Submitted by"} value={submitted_by} />
       </Grid>
     </Grid>
   );
 };
 
 const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
+  const {
+    submitted_on,
+    review_start_date,
+    supporting_condition,
+    review_completed_on,
+    submitted_by,
+    cc_start_date,
+    cc_completed_on,
+  } = submissionPackage.json || {};
   return (
     <Grid
       container
@@ -105,49 +114,32 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem
           label={"Submitted on"}
           value={
-            submissionPackage?.submitted_on
-              ? dayjs(submissionPackage.submitted_on).format("DD-MMM-YYYY")
-              : "--"
+            submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : "--"
           }
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Condition"}
-          value={submissionPackage.meta?.conditions.value[0]}
-        />
+        <InfoBoxItem label={"Condition"} />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"CC Start Date"}
-          value={submissionPackage.meta?.cc_start_date}
-        />
+        <InfoBoxItem label={"CC Start Date"} value={cc_start_date} />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Submitted by"}
-          value={submissionPackage?.submitted_by}
-        />
+        <InfoBoxItem label={"Submitted by"} value={submitted_by} />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Supporting Conditions"}
-          value={submissionPackage.meta?.cc_completed_on}
+          value={supporting_condition}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"CC Completed"}
-          value={submissionPackage.meta?.cc_completed_on}
-        />
+        <InfoBoxItem label={"CC Completed"} value={cc_completed_on} />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>
       <Grid item xs={12} lg={4} container></Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Review Start Date"}
-          value={submissionPackage.meta?.review_start_date}
-        />
+        <InfoBoxItem label={"Review Start Date"} value={review_start_date} />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>
       <Grid item xs={12} lg={4} container></Grid>
@@ -158,10 +150,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         container
         sx={{ mb: BCDesignTokens.layoutMarginXsmall }}
       >
-        <InfoBoxItem
-          label={"Review Completed"}
-          value={submissionPackage.meta?.review_completed_on}
-        />
+        <InfoBoxItem label={"Review Completed"} value={review_completed_on} />
       </Grid>
     </Grid>
   );

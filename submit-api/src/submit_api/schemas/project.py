@@ -81,7 +81,7 @@ class StaffAccountProjectPackageSchema(StaffPackageSchema):
 
     def get_meta(self, obj):
         """Get meta."""
-        return obj.meta.package_meta if obj.meta else None
+        return obj.meta.json if obj.meta else None
 
 
 class StaffAccountProjectSchema(AccountProjectSchema):

@@ -31,6 +31,7 @@ class Item(BaseModel):
     internal_staff_documents = db.relationship('InternalStaffDocument', backref='item', lazy='select')
     reviews = db.relationship('SubmissionReview', backref='item', lazy='select')
     notes = db.relationship('SubmissionItemNote', backref='item', lazy='select')
+    reviewed_on = Column(db.DateTime, nullable=True)
 
     @hybrid_property
     def review(self):
