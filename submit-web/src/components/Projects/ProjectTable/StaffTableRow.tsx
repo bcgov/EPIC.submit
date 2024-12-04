@@ -35,12 +35,11 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
 
   return (
     <>
-      <StyledProjectTableRow sx={{ maxHeight: "40px", py: 0 }}>
+      <StyledProjectTableRow sx={{ maxHeight: "40px" }}>
         <StyledProjectTableCell
           sx={{
             minWidth: "150px", // Adjust this value based on your layout
             flexGrow: 1, // Allows flexibility for resizing
-            py: 0,
           }}
         >
           <Link
