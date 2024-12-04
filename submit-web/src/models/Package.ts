@@ -68,7 +68,7 @@ export type SubmissionPackage = {
   type: PackageType;
   items: Array<SubmissionItem>;
   account_project_id: number;
-  meta: SubmissionPackageMeta;
+  json?: SubmissionPackageMeta;
   days_since_submission?: number;
   review_status?: NonCanonicalPackageStatus;
 };

@@ -27,12 +27,14 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
 
   const {
     name,
-    meta: { cc_completed_on = "", mp_review = "", type = "" },
+    json,
     days_since_submission = 0,
     review_status,
     submitted_on,
     status,
   } = submissionPackage;
+
+  const { cc_completed_on, mp_review, type } = json || {};
 
   return (
     <>

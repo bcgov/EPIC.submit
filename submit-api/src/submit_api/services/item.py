@@ -5,8 +5,8 @@ from datetime import datetime
 from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.exceptions import UnprocessableEntityError
-from submit_api.models import Item as ItemModel, PackageMetadata
+from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
+from submit_api.models import Item as ItemModel, PackageMetadata, Package as PackageModel
 from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
@@ -48,7 +48,7 @@ class ItemService:
         item = ItemModel.find_by_id(item_id)
         if not item:
             current_app.logger.warning(f"Item with id {item_id} not found.")
-            raise ValueError(f"Item with id {item_id} not found.")
+            raise ResourceNotFoundError(f"Item with id {item_id} not found.")
         return item
 
     @classmethod
@@ -57,7 +57,7 @@ class ItemService:
         submission_item = cls.get_item_by_id(item_id)
         if not submission_item:
             current_app.logger.warning(f"Item with id {item_id} not found.")
-            raise ValueError(f"Item with id {item_id} not found.")
+            raise ResourceNotFoundError(f"Item with id {item_id} not found.")
 
         existing_status = submission_item.status
         with session_scope() as session:
@@ -118,8 +118,13 @@ class ItemService:
     def save_submission_review(cls, item_id, review_data):
         """Save submission item review."""
         review = cls.get_or_create_active_item_review(item_id)
+        item = cls.get_item_by_id(item_id)
+        package = PackageModel.find_by_id(item.package_id)
+        if not package.submitted_on:
+            current_app.logger.error(f"Package {package.id} has not been submitted.")
+            raise UnprocessableEntityError("Package has not been submitted.")
 
-        if review.status == SubmissionReviewStatus.APPROVED.value:
+        if review.status == SubmissionReviewStatus.APPROVED:
             current_app.logger.error(f"Item {item_id} already approved.")
             raise UnprocessableEntityError("Item has already been approved.")
 
@@ -130,20 +135,20 @@ class ItemService:
             session.add(review)
             session.flush()
             session.commit()
-        current_app.logger.info(f"Submission review saved for item {item_id}.")
-        return review
+            current_app.logger.info(f"Submission review saved for item {item_id}.")
+            return review
 
     @classmethod
     def _get_submission_item_approval_processor(cls, item: ItemModel) -> callable:
         """Get submission item approval processor."""
-        item_type = item.type
+        item_type = item.type.name
         status_processor_map = defaultdict(
             lambda: cls._unsupported_submission_item_type,
             {
                 SubmissionItemType.CONSULTATION_RECORD.value: cls.approve_consultation_record,
             }
         )
-        current_app.logger.debug(f"Approval processor retrieved for item {item.id}: {status_processor_map[item_type]}")
+        current_app.logger.debug(f"Approval processor retrieved for item {item.id} of type {item_type}")
         return status_processor_map[item_type]
 
     @classmethod
@@ -163,7 +168,13 @@ class ItemService:
         reviewed_on = datetime.utcnow()
         item.reviewed_on = reviewed_on
         package_metadata = PackageMetadata.get_by_package_id(item.package_id)
-        package_metadata.json[PackageMetadataFields.CONSULTATION_CHECK_COMPLETED_ON.value] = reviewed_on
+        if not package_metadata:
+            package_metadata = PackageMetadata(package_id=item.package_id, json={})
+        existing_json = package_metadata.json if package_metadata.json else {}
+        package_metadata.json = {
+            **existing_json,
+            PackageMetadataFields.CONSULTATION_CHECK_COMPLETED_ON.value: reviewed_on.isoformat(),
+        }
         session.add(item)
         session.add(package_metadata)
         current_app.logger.info(f"Consultation record approved for item {item.id}.")
