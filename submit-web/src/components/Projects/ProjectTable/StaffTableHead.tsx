@@ -13,27 +13,22 @@ export default function StaffTableHead() {
       }}
     >
       <TableRow>
-        {/* Submission Name - Wider */}
         <StyledTableHeadCell
           sx={{
-            minWidth: "250px", // Match the body width
-            flexGrow: 1, // Align with the table body
+            minWidth: "250px",
+            flexGrow: 1,
           }}
         >
           Submission Name
         </StyledTableHeadCell>
-
-        {/* Type - Narrow */}
         <StyledTableHeadCell
           align="right"
           sx={{
-            maxWidth: "75px", // Match the body width
+            maxWidth: "75px",
           }}
         >
           Type
         </StyledTableHeadCell>
-
-        {/* Submitted On - Narrow */}
         <StyledTableHeadCell
           align="right"
           sx={{
@@ -42,12 +37,10 @@ export default function StaffTableHead() {
         >
           Submitted On
         </StyledTableHeadCell>
-
-        {/* Days Since Submission - Wrap on Two Lines */}
         <StyledTableHeadCell
           align="right"
           sx={{
-            maxWidth: "80px", // Match the body logic
+            maxWidth: "80px",
             lineHeight: 1.2,
             wordWrap: "break-word",
             textAlign: "right",
@@ -55,8 +48,6 @@ export default function StaffTableHead() {
         >
           Days since submission
         </StyledTableHeadCell>
-
-        {/* CC Completed On - Narrow */}
         <StyledTableHeadCell
           align="right"
           sx={{
@@ -65,8 +56,6 @@ export default function StaffTableHead() {
         >
           CC Completed On
         </StyledTableHeadCell>
-
-        {/* MP Review - Narrow */}
         <StyledTableHeadCell
           align="right"
           sx={{
@@ -75,12 +64,10 @@ export default function StaffTableHead() {
         >
           MP Review
         </StyledTableHeadCell>
-
-        {/* Status - Match Badge Width */}
         <StyledTableHeadCell
           align="center"
           sx={{
-            maxWidth: "120px", // Match longest badge width
+            maxWidth: "120px",
           }}
         >
           Status

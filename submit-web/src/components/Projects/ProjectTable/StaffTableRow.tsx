@@ -25,6 +25,10 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     });
   };
 
+  if (submissionPackage.meta === null) {
+    return <></>;
+  }
+
   const {
     name,
     meta: { cc_completed_on = "", mp_review = "", type = "" },
@@ -39,8 +43,8 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
       <StyledProjectTableRow sx={{ maxHeight: "40px", py: 0 }}>
         <StyledProjectTableCell
           sx={{
-            minWidth: "150px", // Adjust this value based on your layout
-            flexGrow: 1, // Allows flexibility for resizing
+            minWidth: "150px",
+            flexGrow: 1,
             py: 0,
           }}
         >
@@ -67,7 +71,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
         <StyledProjectTableCell
           align="right"
           sx={{
-            maxWidth: "75px", // Adjust to desired width
+            maxWidth: "75px",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -79,7 +83,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           align="right"
           sx={{
             maxWidth: "80px",
-            lineHeight: 1.2, // Adjust for compactness
+            lineHeight: 1.2,
             wordWrap: "break-word",
             textAlign: "right",
             color:
