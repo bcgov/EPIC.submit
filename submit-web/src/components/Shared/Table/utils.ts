@@ -1,7 +1,6 @@
 import { downloadObject } from "@/hooks/api/useObjectStorage";
 import { hasPermission } from "../PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { useAccount } from "@/store/accountStore";
 
 export type Order = "asc" | "desc";
 

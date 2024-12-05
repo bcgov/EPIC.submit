@@ -4,7 +4,7 @@ import { useAccount } from "@/store/accountStore";
 export type PermissionsGateProps = {
   children: React.ReactElement;
   RenderError?: React.ComponentType;
-  errorProps?: Record<string, any>;
+  errorProps?: Record<string, unknown>;
   scopes: string[];
 };
 
