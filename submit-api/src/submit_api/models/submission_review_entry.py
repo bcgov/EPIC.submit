@@ -22,7 +22,7 @@ class SubmissionReviewEntryType(enum.Enum):
 class SubmissionReviewEntry(BaseModel):
     """Definition of the review submission entity."""
 
-    __tablename__ = 'submission_review_submissions'
+    __tablename__ = 'submission_review_entries'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     review_id = Column(db.Integer, ForeignKey('submission_reviews.id'), nullable=False)
