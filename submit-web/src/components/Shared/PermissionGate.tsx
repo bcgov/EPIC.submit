@@ -1,7 +1,7 @@
 import React, { cloneElement } from "react";
 import { useAccount } from "@/store/accountStore";
 
-export type PermissionsGateProps = {
+type PermissionsGateProps = {
   children: React.ReactElement;
   RenderError?: React.ComponentType;
   errorProps?: Record<string, unknown>;
