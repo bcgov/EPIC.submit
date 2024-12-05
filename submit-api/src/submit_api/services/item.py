@@ -6,12 +6,14 @@ from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
-from submit_api.models import Item as ItemModel, PackageMetadata, Package as PackageModel
+from submit_api.models import Item as ItemModel, PackageMetadata, Package as PackageModel, SubmissionReviewEntry
 from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission_review import SubmissionReview, SubmissionReviewStatus
+from submit_api.models.submission_review_entry import SubmissionReviewEntryType
+from submit_api.utils.token_info import TokenInfo
 
 
 class ItemService:
@@ -83,16 +85,30 @@ class ItemService:
         return review
 
     @classmethod
-    def _save_submission_review_answers(cls, review, review_data):
-        """Save submission item review answers."""
-        form_answers = review_data.get('form_answers', {})
+    def get_or_create_active_item_review_entry(cls, review_id, entry_type) -> SubmissionReview:
+        """Get or create item review entry."""
+        if entry_type not in SubmissionReviewEntryType.__members__:
+            current_app.logger.error(f"Unsupported review entry type: {entry_type}")
+            raise UnprocessableEntityError("Review entry type is not supported.")
+        review_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(review_id, entry_type)
+        if not review_entry:
+            review_entry = SubmissionReviewEntry(review_id=review_id, type=entry_type)
+        return review_entry
 
-        current_form_answers = review.form_answers if review.form_answers else {}
-        review.form_answers = {
-            **current_form_answers,
-            **form_answers,
-        }
-        current_app.logger.debug(f"Review answers saved for review {review.id}: {review.form_answers}")
+    @classmethod
+    def _save_submission_review_answers(cls, review, review_data, session):
+        """Save submission item review answers."""
+        review_type = review_data.get('type')
+        if not review_type:
+            current_app.logger.error("Review type is required.")
+            raise UnprocessableEntityError("Review type is required.")
+
+        form_answers = review_data.get('form_answers', {})
+        review_entry = cls.get_or_create_active_item_review_entry(review.id, review_type)
+        review_entry.entry = form_answers
+        review_entry.created_by = TokenInfo.get_id()
+        session.add(review_entry)
+        current_app.logger.debug(f"Submission review answers saved for review {review.id}.")
         return review
 
     @classmethod
@@ -118,6 +134,7 @@ class ItemService:
     def save_submission_review(cls, item_id, review_data):
         """Save submission item review."""
         review = cls.get_or_create_active_item_review(item_id)
+        review.flush()
         item = cls.get_item_by_id(item_id)
         package = PackageModel.find_by_id(item.package_id)
         if not package.submitted_on:
@@ -129,7 +146,7 @@ class ItemService:
             raise UnprocessableEntityError("Item has already been approved.")
 
         with session_scope() as session:
-            cls._save_submission_review_answers(review, review_data)
+            cls._save_submission_review_answers(review, review_data, session)
             status = review_data.get('status')
             cls.process_review_status(review, status, session)
             session.add(review)

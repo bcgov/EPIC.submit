@@ -33,6 +33,7 @@ from .project_team import ProjectTeam
 from .role import Role
 from .submission import Submission
 from .submission_review import SubmissionReview
+from .submission_review_entry import SubmissionReviewEntry
 from .submitted_document import SubmittedDocument
 from .submitted_form import SubmittedForm
 from .user import User

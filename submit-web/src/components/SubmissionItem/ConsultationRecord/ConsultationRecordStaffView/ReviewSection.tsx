@@ -13,7 +13,12 @@ import { useMemo } from "react";
 import NotesSection from "./NotesSection";
 import { consultationSchema } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
-import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
+import {
+  SUBMISSION_REVIEW_ENTRY_TYPE,
+  SUBMISSION_REVIEW_STATUS,
+  SubmissionReview,
+  SubmissionReviewEntryType,
+} from "@/models/SubmissionReview";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import PermissionsGate from "@/components/Shared/PermissionGate";
@@ -23,6 +28,14 @@ type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
 const YES_LABEL = "Yes, the holder has passed the Consultation Check";
 const NO_LABEL = "No, the holder has failed the Consultation Check";
+
+const getAnswersByType = (
+  review: SubmissionReview,
+  type: SubmissionReviewEntryType,
+) => {
+  if (!review?.entries) return {};
+  return review.entries?.find((entry) => entry.type === type)?.entry;
+};
 
 export default function ReviewSection() {
   const { roles } = useAccount();
@@ -37,13 +50,30 @@ export default function ReviewSection() {
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
       .queryKey,
   );
+
   const defaultValues = useMemo(() => {
-    if (!submissionItem) return undefined;
+    if (!submissionItem || !submissionItem.review) return undefined;
 
-    if (!submissionItem.review?.form_answers) return undefined;
+    const review = submissionItem.review;
+    const staffAnswers = getAnswersByType(
+      review,
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
+    );
+    console.log("staffAnswers", staffAnswers);
+    const managerAnswers = getAnswersByType(
+      review,
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
+    );
 
-    return submissionItem.review.form_answers;
-  }, [submissionItem]);
+    return {
+      staff: {
+        ...staffAnswers,
+      },
+      manager: {
+        ...managerAnswers,
+      },
+    };
+  }, [submissionItem?.review?.id]);
 
   const methods = useForm<ConsultationForm>({
     resolver: yupResolver(consultationSchema),
@@ -52,9 +82,10 @@ export default function ReviewSection() {
   });
 
   const isFormDisabled =
-    isStaff &&
-    submissionItem?.review?.status ===
-      SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW;
+    (isStaff &&
+      submissionItem?.review?.status ===
+        SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
+    submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED;
 
   return (
     <Grid item container>
