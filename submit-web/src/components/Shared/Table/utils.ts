@@ -1,6 +1,4 @@
 import { downloadObject } from "@/hooks/api/useObjectStorage";
-import { hasPermission } from "../PermissionGate";
-import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 export type Order = "asc" | "desc";
 
@@ -43,27 +41,4 @@ export const getObjectFromS3 = async ({
   link.setAttribute("download", name);
   document.body.appendChild(link);
   link.click();
-};
-
-export const checkIfManager = (roles?: string[]) => {
-  if (!roles) {
-    return false;
-  }
-  return hasPermission({
-    permissions: roles || [],
-    scopes: [EPIC_SUBMIT_ROLE.extended_eao_edit],
-  });
-};
-
-export const checkIfStaff = (roles?: string[]) => {
-  if (!roles) {
-    return false;
-  }
-  return (
-    !checkIfManager(roles) &&
-    hasPermission({
-      permissions: roles,
-      scopes: [EPIC_SUBMIT_ROLE.eao_view],
-    })
-  );
 };

@@ -13,9 +13,12 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { consultationSchema } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
-import { checkIfManager, checkIfStaff } from "@/components/Shared/Table/utils";
 import { When } from "react-if";
 import { useAccount } from "@/store/accountStore";
+import {
+  checkIfManager,
+  checkIfStaff,
+} from "@/components/Shared/PermissionGate/utils";
 
 export default function ActionButtons() {
   const {

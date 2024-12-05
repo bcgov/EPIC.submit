@@ -15,9 +15,9 @@ import { consultationSchema } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { checkIfStaff } from "@/components/Shared/Table/utils";
-import { PermissionsGate } from "@/components/Shared/PermissionGate";
 import { useAccount } from "@/store/accountStore";
+import PermissionsGate from "@/components/Shared/PermissionGate";
+import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 

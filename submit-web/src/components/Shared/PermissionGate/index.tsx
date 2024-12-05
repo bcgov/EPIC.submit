@@ -1,5 +1,6 @@
-import React, { cloneElement } from "react";
 import { useAccount } from "@/store/accountStore";
+import { cloneElement } from "react";
+import { hasPermission } from "./utils";
 
 type PermissionsGateProps = {
   children: React.ReactElement;
@@ -8,25 +9,7 @@ type PermissionsGateProps = {
   scopes: string[];
 };
 
-export const hasPermission = ({
-  permissions,
-  scopes,
-}: {
-  permissions: string[];
-  scopes: string[];
-}) => {
-  const scopesMap = scopes.reduce(
-    (acc, scope) => {
-      acc[scope] = true;
-      return acc;
-    },
-    {} as Record<string, boolean>,
-  );
-
-  return permissions.some((permission) => scopesMap[permission]);
-};
-
-export function PermissionsGate({
+export default function PermissionsGate({
   children,
   RenderError = () => <></>,
   scopes = [],
