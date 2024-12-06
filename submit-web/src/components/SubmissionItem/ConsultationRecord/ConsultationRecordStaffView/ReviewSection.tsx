@@ -59,7 +59,6 @@ export default function ReviewSection() {
       review,
       SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
     );
-    console.log("staffAnswers", staffAnswers);
     const managerAnswers = getAnswersByType(
       review,
       SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
@@ -73,7 +72,7 @@ export default function ReviewSection() {
         ...managerAnswers,
       },
     };
-  }, [submissionItem?.review?.id]);
+  }, [submissionItem]);
 
   const methods = useForm<ConsultationForm>({
     resolver: yupResolver(consultationSchema),
