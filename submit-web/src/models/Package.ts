@@ -20,7 +20,8 @@ export type PackageStatus =
   | "COMPLETED"
   | "SUBMITTED"
   | "PARTIALLY_COMPLETED"
-  | "NEW_SUBMISSION";
+  | "NEW_SUBMISSION"
+  | "PASSED_CONSULTATION_CHECK";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -54,6 +55,10 @@ export const PACKAGE_STATUS: Record<
     value: "NEW_SUBMISSION",
     label: "New Submission",
   },
+  PASSED_CONSULTATION_CHECK: {
+    value: "PASSED_CONSULTATION_CHECK",
+    label: "Passed Consultation Check",
+  },
 };
 
 export type SubmissionPackageMeta = Record<string, number | string>;
@@ -68,7 +73,7 @@ export type SubmissionPackage = {
   type: PackageType;
   items: Array<SubmissionItem>;
   account_project_id: number;
-  meta: SubmissionPackageMeta;
+  json?: SubmissionPackageMeta;
   days_since_submission?: number;
   review_status?: NonCanonicalPackageStatus;
 };

@@ -1,10 +1,7 @@
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { QUERY_KEY } from "@/hooks/api/constants";
-import {
-  getStaffSubmissionPackageQueryOptions,
-  getSubmissionPackageQueryOptions,
-} from "@/hooks/api/usePackages";
+import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import { Grid } from "@mui/material";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -19,7 +16,7 @@ export const Route = createFileRoute(
   component: SubmissionLayout,
   loader: ({ context: { queryClient }, params: { submissionPackageId } }) =>
     queryClient.ensureQueryData(
-      getSubmissionPackageQueryOptions({
+      getStaffSubmissionPackageQueryOptions({
         packageId: Number(submissionPackageId),
       }),
     ),
@@ -30,7 +27,9 @@ export const Route = createFileRoute(
       </Grid>
     </PageGrid>
   ),
-  errorComponent: () => <Navigate to="/error" />,
+  errorComponent: () => {
+    return <Navigate to={"/error"} />;
+  },
   meta: ({ loaderData: submissionPackage }) => [
     { title: submissionPackage.name },
   ],
@@ -45,10 +44,9 @@ export default function SubmissionLayout() {
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
   });
   const accountProjectId = Number(accountProjectIdParam);
-  const accountProject = queryClient.getQueryData([
-    QUERY_KEY.ACCOUNT_PROJECT,
-    accountProjectId,
-  ]);
+  const accountProject = queryClient.getQueryData(
+    getAccountProjectForStaffQueryOptions(accountProjectId).queryKey,
+  );
 
   const submissionPackageId = Number(submissionPackageIdParam);
   const { data: submissionPackage } = useSuspenseQuery(

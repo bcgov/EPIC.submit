@@ -28,10 +28,11 @@ class SubmissionReview(BaseModel):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     item_id = Column(db.Integer, ForeignKey('items.id'), nullable=False)
-    form_answers = Column(db.JSON, nullable=False)
     status = Column(db.Enum(SubmissionReviewStatus), nullable=False,
                     default=SubmissionReviewStatus.PENDING_STAFF_REVIEW.value)
     active = Column(db.Boolean, nullable=False, default=True)
+
+    entries = db.relationship('SubmissionReviewEntry', backref='review', lazy='joined')
 
     __table_args__ = (
         db.Index('submission_reviews_item_id_idx', item_id),

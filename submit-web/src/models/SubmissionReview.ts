@@ -15,7 +15,27 @@ export const SUBMISSION_REVIEW_STATUS = Object.freeze<
 export type SubmissionReview = {
   id: number;
   item_id: number;
-  form_answers: Record<string, unknown>;
+  entries: SubmissionReviewEntry[];
   status: SubmissionReviewStatus;
   active: boolean;
+};
+
+export type SubmissionReviewEntryType =
+  | "STAFF_RECOMMENDATION"
+  | "MANAGER_CONFIRMATION";
+
+export const SUBMISSION_REVIEW_ENTRY_TYPE = Object.freeze<
+  Record<SubmissionReviewEntryType, SubmissionReviewEntryType>
+>({
+  STAFF_RECOMMENDATION: "STAFF_RECOMMENDATION",
+  MANAGER_CONFIRMATION: "MANAGER_CONFIRMATION",
+});
+
+export type SubmissionReviewEntry = {
+  id: number;
+  review_id: number;
+  type: SubmissionReviewEntryType;
+  created_by: string;
+  created_on: string;
+  entry: Record<string, unknown>;
 };

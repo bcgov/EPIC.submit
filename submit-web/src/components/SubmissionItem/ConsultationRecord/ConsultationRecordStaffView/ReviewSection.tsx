@@ -3,7 +3,6 @@ import { BCDesignTokens } from "epic.theme";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { Unless } from "react-if";
 import ActionButtons from "./ActionButtons";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { SubmitRadio } from "@/components/Shared/SubmitRadio";
@@ -14,15 +13,33 @@ import { useMemo } from "react";
 import NotesSection from "./NotesSection";
 import { consultationSchema } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
-import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
+import {
+  SUBMISSION_REVIEW_ENTRY_TYPE,
+  SUBMISSION_REVIEW_STATUS,
+  SubmissionReview,
+  SubmissionReviewEntryType,
+} from "@/models/SubmissionReview";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { useAccount } from "@/store/accountStore";
+import PermissionsGate from "@/components/Shared/PermissionGate";
+import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
 const YES_LABEL = "Yes, the holder has passed the Consultation Check";
 const NO_LABEL = "No, the holder has failed the Consultation Check";
 
+const getAnswersByType = (
+  review: SubmissionReview,
+  type: SubmissionReviewEntryType,
+) => {
+  if (!review?.entries) return {};
+  return review.entries?.find((entry) => entry.type === type)?.entry;
+};
+
 export default function ReviewSection() {
-  const isStaff = true;
+  const { roles } = useAccount();
+  const isStaff = checkIfStaff(roles);
 
   const { submissionId: submissionItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -31,14 +48,30 @@ export default function ReviewSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey
+      .queryKey,
   );
+
   const defaultValues = useMemo(() => {
-    if (!submissionItem) return undefined;
+    if (!submissionItem || !submissionItem.review) return undefined;
 
-    if (!submissionItem.review?.form_answers) return undefined;
+    const review = submissionItem.review;
+    const staffAnswers = getAnswersByType(
+      review,
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
+    );
+    const managerAnswers = getAnswersByType(
+      review,
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
+    );
 
-    return submissionItem.review.form_answers;
+    return {
+      staff: {
+        ...staffAnswers,
+      },
+      manager: {
+        ...managerAnswers,
+      },
+    };
   }, [submissionItem]);
 
   const methods = useForm<ConsultationForm>({
@@ -48,9 +81,10 @@ export default function ReviewSection() {
   });
 
   const isFormDisabled =
-    isStaff &&
-    submissionItem?.review?.status ===
-      SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW;
+    (isStaff &&
+      submissionItem?.review?.status ===
+        SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
+    submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED;
 
   return (
     <Grid item container>
@@ -94,26 +128,28 @@ export default function ReviewSection() {
                 disabled={isFormDisabled}
               />
             </ControlledRadioGroup>
-            <Unless condition={isStaff}>
-              <Typography
-                variant="body1"
-                sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
-              >
-                MANAGER CONFIRMATION:
-              </Typography>
-              <ControlledRadioGroup name="manager.passedConsultationCheck">
-                <SubmitRadio
-                  label={YES_LABEL}
-                  value={"yes"}
-                  disabled={isFormDisabled}
-                />
-                <SubmitRadio
-                  label={NO_LABEL}
-                  value={"no"}
-                  disabled={isFormDisabled}
-                />
-              </ControlledRadioGroup>
-            </Unless>
+            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.extended_eao_edit]}>
+              <>
+                <Typography
+                  variant="body1"
+                  sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
+                >
+                  MANAGER CONFIRMATION:
+                </Typography>
+                <ControlledRadioGroup name="manager.passedConsultationCheck">
+                  <SubmitRadio
+                    label={YES_LABEL}
+                    value={"yes"}
+                    disabled={isFormDisabled}
+                  />
+                  <SubmitRadio
+                    label={NO_LABEL}
+                    value={"no"}
+                    disabled={isFormDisabled}
+                  />
+                </ControlledRadioGroup>
+              </>
+            </PermissionsGate>
             <NotesSection />
             <ActionButtons />
           </form>
