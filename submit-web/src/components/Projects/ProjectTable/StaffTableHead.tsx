@@ -64,14 +64,7 @@ export default function StaffTableHead() {
         >
           MP Review
         </StyledTableHeadCell>
-        <StyledTableHeadCell
-          align="center"
-          sx={{
-            maxWidth: "120px",
-          }}
-        >
-          Status
-        </StyledTableHeadCell>
+        <StyledTableHeadCell align="center">Status</StyledTableHeadCell>
       </TableRow>
     </TableHead>
   );
