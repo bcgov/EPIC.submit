@@ -3,7 +3,9 @@
 Manages the package
 """
 
-from marshmallow import EXCLUDE, Schema, fields, pre_dump
+from marshmallow import EXCLUDE, Schema, fields, post_dump
+from submit_api.models.user import User
+from submit_api.models.db import db
 
 
 class SubmissionItemNote(Schema):
@@ -20,11 +22,16 @@ class SubmissionItemNote(Schema):
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
 
-    @pre_dump
-    def get_submitted_by(self, obj, **kwargs):
-        """Get created_by."""
-        obj.created_by = obj.created_by_user.account_user.full_name if obj.created_by_user else None
-        return obj
+    @post_dump
+    def transform_created_by(self, data, **kwargs):
+        """Temporarily transform created_by to display the user's full name."""
+        user_id = data.get("created_by")
+        if user_id:
+            user = db.session.query(User).filter(User.auth_guid == user_id).first()
+            if user and user.account_user:
+                # Temporarily modify the output for serialization
+                data["created_by"] = user.account_user.full_name
+        return data
 
 
 class PostSubmissionItemNote(Schema):
