@@ -13,14 +13,13 @@ import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { InfoBox } from "@/components/Submission/InfoBox";
 import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
-import { useEffect } from "react";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
 import { useQueryClient } from "@tanstack/react-query";
-import { AccountProject } from "@/models/Project";
-import { QUERY_KEY } from "@/hooks/api/constants";
 import ItemsTable from "@/components/Submission/ItemsTable";
+import { useMounted } from "@/hooks/common";
+import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -32,10 +31,10 @@ export default function SubmissionPage() {
   const { reset } = usePackageTableStore();
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const queryClient = useQueryClient();
-  const accountProject = queryClient.getQueryData<AccountProject>([
-    QUERY_KEY.ACCOUNT_PROJECT,
-    Number(accountProjectIdParam),
-  ]);
+  const accountProject = queryClient.getQueryData(
+    getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
+      .queryKey,
+  );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
   });
@@ -47,12 +46,11 @@ export default function SubmissionPage() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
+  useMounted(() => {
     return () => {
       reset();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
