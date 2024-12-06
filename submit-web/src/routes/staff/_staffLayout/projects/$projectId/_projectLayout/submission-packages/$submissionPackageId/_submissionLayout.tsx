@@ -27,9 +27,6 @@ export const Route = createFileRoute(
       </Grid>
     </PageGrid>
   ),
-  onCatch: (error, errorInfo) => {
-    console.error(error, errorInfo);
-  },
   errorComponent: () => {
     return <Navigate to={"/error"} />;
   },
