@@ -25,7 +25,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     });
   };
 
-  if (submissionPackage.meta === null) {
+  if (submissionPackage.json === null) {
     return <></>;
   }
 
