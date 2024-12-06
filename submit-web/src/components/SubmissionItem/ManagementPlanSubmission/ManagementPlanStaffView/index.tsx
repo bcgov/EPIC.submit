@@ -5,7 +5,7 @@ import * as yup from "yup";
 import { useMemo } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
+import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { CardInnerBox } from "@/components/Projects/Project";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
@@ -42,7 +42,7 @@ export const ManagementPlanSubmissionStaffView = () => {
 
   const accountProjectId = Number(accountProjectIdParam);
 
-  const { data: accountProject } = useGetAccountProject({
+  const { data: accountProject } = useGetAccountProjectForStaff({
     accountProjectId,
   });
 
@@ -51,7 +51,7 @@ export const ManagementPlanSubmissionStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const formData = useMemo(() => {
@@ -60,16 +60,16 @@ export const ManagementPlanSubmissionStaffView = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       conditionSatisfied: booleanToString(
-        formSubmission.submitted_form.submission_json.conditionSatisfied
+        formSubmission.submitted_form.submission_json.conditionSatisfied,
       ),
       allRequirementsAddressed: booleanToString(
-        formSubmission.submitted_form.submission_json.allRequirementsAddressed
+        formSubmission.submitted_form.submission_json.allRequirementsAddressed,
       ),
       requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear
+        formSubmission.submitted_form.submission_json.requirementsClear,
       ),
       informationAccurate: booleanToString(
-        formSubmission.submitted_form.submission_json.informationAccurate
+        formSubmission.submitted_form.submission_json.informationAccurate,
       ),
     };
   }, [formSubmission]);

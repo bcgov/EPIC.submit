@@ -1,13 +1,13 @@
+import { useMounted } from "@/hooks/common";
 import { Paper, Container } from "@mui/material";
-import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export default function ErrorPage() {
   const { signoutRedirect } = useAuth();
 
-  useEffect(() => {
+  useMounted(() => {
     signoutRedirect();
-  }, [signoutRedirect]);
+  });
 
   return (
     <Container id="Error">

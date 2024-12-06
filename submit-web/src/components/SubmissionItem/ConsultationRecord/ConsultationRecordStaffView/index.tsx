@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
+import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { Box, Grid, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/ContentBox";
@@ -21,7 +21,7 @@ export const ConsultationRecordStaffView = () => {
     });
   const accountProjectId = Number(accountProjectIdParam);
   const submissionId = Number(submissionItemId);
-  const { data: accountProject } = useGetAccountProject({
+  const { data: accountProject } = useGetAccountProjectForStaff({
     accountProjectId,
   });
 

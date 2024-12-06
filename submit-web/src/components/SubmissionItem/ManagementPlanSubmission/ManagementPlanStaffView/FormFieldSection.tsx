@@ -20,7 +20,7 @@ const defaultFormData = {
 };
 
 interface FormFieldSectionProps {
-  formData: ManagementPlanSubmissionForm; // Replace FormValues with your actual form schema interface
+  formData: Partial<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
 }
 
 export default function FormFieldSection({ formData }: FormFieldSectionProps) {
