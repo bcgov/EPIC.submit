@@ -128,7 +128,6 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           align="right"
           sx={{
             pr: BCDesignTokens.layoutPaddingSmall,
-            maxWidth: "100x",
           }}
         >
           <PackageStatusChipStack
