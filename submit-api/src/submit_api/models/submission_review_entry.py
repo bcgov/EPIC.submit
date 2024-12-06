@@ -10,6 +10,7 @@ from sqlalchemy import Column, ForeignKey
 
 from .base_model import BaseModel
 from .db import db
+from ..utils.token_info import TokenInfo
 
 
 class SubmissionReviewEntryType(enum.Enum):
@@ -27,8 +28,8 @@ class SubmissionReviewEntry(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     review_id = Column(db.Integer, ForeignKey('submission_reviews.id'), nullable=False)
     type = Column(db.Enum(SubmissionReviewEntryType), nullable=False)
-    created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=True)
-    created_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
+    updated_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=True)
+    updated_by_user = db.relationship('User', foreign_keys=[updated_by], lazy='joined')
     entry = Column(db.JSON, nullable=False)
 
     __table_args__ = (

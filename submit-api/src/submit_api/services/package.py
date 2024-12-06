@@ -62,7 +62,7 @@ class PackageService:
     def _create_package_metadata(session, package_id, metadata):
         """Create package metadata."""
         package_metadata = PackageMetadataModel(
-            package_id=package_id, package_meta=metadata
+            package_id=package_id, json=metadata
         )
         session.add(package_metadata)
 
