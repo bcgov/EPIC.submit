@@ -3,9 +3,7 @@
 Manages the package
 """
 
-from marshmallow import EXCLUDE, Schema, fields, post_dump
-from submit_api.models.user import User
-from submit_api.models.db import db
+from marshmallow import EXCLUDE, Schema, fields
 
 
 class SubmissionItemNote(Schema):
