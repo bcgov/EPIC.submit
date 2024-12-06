@@ -114,7 +114,7 @@ export const useSaveSubmissionReview = ({
       queryClient.invalidateQueries({
         queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
