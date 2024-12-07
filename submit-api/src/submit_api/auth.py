@@ -20,6 +20,7 @@ from flask_jwt_oidc import JwtManager
 
 from submit_api.exceptions import PermissionDeniedError
 
+
 jwt = (
     JwtManager()
 )  # pylint: disable=invalid-name; lower case name as used by convention in most Flask apps

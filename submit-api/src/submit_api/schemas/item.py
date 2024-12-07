@@ -10,8 +10,8 @@ from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
-from submit_api.schemas.submission_review import SubmissionReviewSchema
 from submit_api.schemas.submission_item_note import SubmissionItemNote
+from submit_api.schemas.submission_review import SubmissionReviewSchema
 
 
 class ItemSubmissionSchema(Schema):
