@@ -10,7 +10,6 @@ from sqlalchemy import Column, ForeignKey
 
 from .base_model import BaseModel
 from .db import db
-from ..utils.token_info import TokenInfo
 
 
 class SubmissionReviewEntryType(enum.Enum):
