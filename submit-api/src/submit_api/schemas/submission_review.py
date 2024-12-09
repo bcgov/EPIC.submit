@@ -22,6 +22,7 @@ class SubmissionReviewEntrySchema(Schema):
     type = fields.Enum(data_key="type", enum=SubmissionReviewEntryType)
     created_by = fields.Str(data_key="created_by")
     created_date = fields.DateTime(data_key="created_date")
+    updated_date = fields.DateTime(data_key="updated_date")
     entry = fields.Dict(data_key="entry")
 
 

@@ -23,6 +23,7 @@ import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
+import { NotificationBox } from "./NotificationBox";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -151,6 +152,7 @@ export default function ReviewSection() {
               </>
             </PermissionsGate>
             <NotesSection />
+            <NotificationBox />
             <ActionButtons />
           </form>
         </FormProvider>

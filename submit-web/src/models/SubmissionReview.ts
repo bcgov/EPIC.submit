@@ -35,7 +35,7 @@ export type SubmissionReviewEntry = {
   id: number;
   review_id: number;
   type: SubmissionReviewEntryType;
-  created_by: string;
-  created_on: string;
+  updated_by: string;
+  updated_on: string;
   entry: Record<string, unknown>;
 };

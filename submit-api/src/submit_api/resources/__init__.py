@@ -37,6 +37,7 @@ from .staff.package import API as STAFF_PACKAGE_API
 from .staff.project import API as STAFF_PROJECT_API
 from .staff.submission_item_note import API as STAFF_SUBMISSION_ITEM_NOTE_API
 
+
 __all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT', 'STAFF_API_BLUEPRINT')
 
 URL_PREFIX = '/api'

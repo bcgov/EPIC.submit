@@ -5,8 +5,10 @@ from datetime import datetime
 from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
-from submit_api.models import Item as ItemModel, PackageMetadata, Package as PackageModel, SubmissionReviewEntry
+from submit_api.exceptions import ResourceNotFoundError, UnprocessableEntityError
+from submit_api.models import Item as ItemModel
+from submit_api.models import Package as PackageModel
+from submit_api.models import PackageMetadata, SubmissionReviewEntry
 from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
@@ -106,7 +108,7 @@ class ItemService:
         form_answers = review_data.get('form_answers', {})
         review_entry = cls.get_or_create_active_item_review_entry(review.id, review_type)
         review_entry.entry = form_answers
-        review_entry.created_by = TokenInfo.get_id()
+        review_entry.updated_by = TokenInfo.get_id()
         session.add(review_entry)
         current_app.logger.debug(f"Submission review answers saved for review {review.id}.")
         return review
