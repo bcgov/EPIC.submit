@@ -22,7 +22,10 @@ import {
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import PermissionsGate from "@/components/Shared/PermissionGate";
-import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
+import {
+  checkIfManager,
+  checkIfStaff,
+} from "@/components/Shared/PermissionGate/utils";
 import { NotificationBox } from "./NotificationBox";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
@@ -40,7 +43,8 @@ const getAnswersByType = (
 
 export default function ReviewSection() {
   const { roles } = useAccount();
-  const isStaff = checkIfStaff(roles);
+  const isStaff = useMemo(() => checkIfStaff(roles), [roles]);
+  const isManager = useMemo(() => checkIfManager(roles), [roles]);
 
   const { submissionId: submissionItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -121,12 +125,12 @@ export default function ReviewSection() {
               <SubmitRadio
                 label={YES_LABEL}
                 value={"yes"}
-                disabled={isFormDisabled}
+                disabled={isFormDisabled || isManager}
               />
               <SubmitRadio
                 label={NO_LABEL}
                 value={"no"}
-                disabled={isFormDisabled}
+                disabled={isFormDisabled || isManager}
               />
             </ControlledRadioGroup>
             <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.extended_eao_edit]}>
