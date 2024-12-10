@@ -12,7 +12,6 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import Note, { Note as NoteType } from "./Note";
-import { When } from "react-if";
 import { useState } from "react";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useParams } from "@tanstack/react-router";
