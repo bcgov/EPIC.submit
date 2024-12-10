@@ -13,6 +13,7 @@ import { useAccount } from "@/store/accountStore";
 import { Grid, Stack, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import dayjs from "dayjs";
 
 export const NotificationBox = () => {
   const queryClient = useQueryClient();
@@ -86,14 +87,26 @@ export const NotificationBox = () => {
               <Grid item xs={12}>
                 <LabelValuePair
                   label="Date"
-                  value={staffRecommendation?.updated_on}
+                  value={
+                    staffRecommendation?.updated_date
+                      ? dayjs(staffRecommendation.updated_date).format(
+                          "DD-MMM-YYYY",
+                        )
+                      : ""
+                  }
                   labelProps={{ color: "inherit", width: "50px" }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <LabelValuePair
                   label="Date"
-                  value={managerConfirmation?.updated_on}
+                  value={
+                    managerConfirmation?.updated_date
+                      ? dayjs(managerConfirmation.updated_date).format(
+                          "DD-MMM-YYYY",
+                        )
+                      : ""
+                  }
                   labelProps={{ color: "inherit", width: "50px" }}
                 />
               </Grid>

@@ -21,7 +21,10 @@ import {
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import PermissionsGate from "@/components/Shared/PermissionGate";
-import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
+import {
+  checkIfManager,
+  checkIfStaff,
+} from "@/components/Shared/PermissionGate/utils";
 import { NotificationBox } from "./NotificationBox";
 import NotesSection from "../../NotesSection";
 
@@ -38,6 +41,7 @@ const getAnswersByType = (
 export default function ReviewSection() {
   const { roles } = useAccount();
   const isStaff = checkIfStaff(roles);
+  const isManager = checkIfManager(roles);
 
   const { submissionId: submissionItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -118,12 +122,12 @@ export default function ReviewSection() {
               <SubmitRadio
                 label={RadioOptions.YES.label}
                 value={RadioOptions.YES.value}
-                disabled={isFormDisabled}
+                disabled={isFormDisabled || isManager}
               />
               <SubmitRadio
                 label={RadioOptions.NO.label}
                 value={RadioOptions.NO.value}
-                disabled={isFormDisabled}
+                disabled={isFormDisabled || isManager}
               />
             </ControlledRadioGroup>
             <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.extended_eao_edit]}>
