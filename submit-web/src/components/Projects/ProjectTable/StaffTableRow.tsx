@@ -25,20 +25,20 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     });
   };
 
-  if (submissionPackage.json === null) {
+  if (submissionPackage.meta === null) {
     return <></>;
   }
 
   const {
     name,
-    json,
+    meta,
     days_since_submission = 0,
     review_status,
     submitted_on,
     status,
   } = submissionPackage;
 
-  const { cc_completed_on, mp_review, type } = json || {};
+  const { cc_completed_on, mp_review, type } = meta || {};
 
   return (
     <>
@@ -106,7 +106,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             maxWidth: "75px",
           }}
         >
-          {days_since_submission && `+ ${days_since_submission} Days`}
+          {Boolean(days_since_submission) && `+ ${days_since_submission} Days`}
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="right"
@@ -114,7 +114,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             maxWidth: "75px",
           }}
         >
-          {cc_completed_on}
+          {cc_completed_on ? dayjs(cc_completed_on).format("DD-MMM-YYYY") : ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="right"
