@@ -36,6 +36,6 @@ export type SubmissionReviewEntry = {
   review_id: number;
   type: SubmissionReviewEntryType;
   updated_by: string;
-  updated_on: string;
+  updated_date: string;
   entry: Record<string, unknown>;
 };

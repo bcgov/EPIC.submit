@@ -12,7 +12,6 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import Note, { Note as NoteType } from "./Note";
-import { When } from "react-if";
 import { useState } from "react";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useParams } from "@tanstack/react-router";
@@ -32,10 +31,8 @@ export default function NotesSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey
+      .queryKey,
   );
-
-  const { notes } = submissionItem;
 
   const { mutateAsync: createNote, isPending: createNoteLoading } =
     useCreateNote({
@@ -62,6 +59,10 @@ export default function NotesSection() {
     setAddNote(false);
     setExpanded(false);
   };
+
+  if (!submissionItem) return null;
+
+  const { notes } = submissionItem;
 
   return (
     <Accordion
@@ -152,16 +153,14 @@ export default function NotesSection() {
               Cancel
             </Button>
           </Box>
-        </Collapse>
-        <When condition={notes}>
-          {notes.length > 1 ? (
-            notes.map((note: NoteType) => <Note key={note.id} note={note} />)
-          ) : (
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              No notes have been added yet.
-            </Typography>
-          )}
-        </When>
+        </Collapse>{" "}
+        {notes && notes.length > 1 ? (
+          notes.map((note: NoteType) => <Note key={note.id} note={note} />)
+        ) : (
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            No notes have been added yet.
+          </Typography>
+        )}
       </AccordionDetails>
     </Accordion>
   );
