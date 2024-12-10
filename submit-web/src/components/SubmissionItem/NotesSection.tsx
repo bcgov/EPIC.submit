@@ -70,8 +70,6 @@ export default function NotesSection() {
 
   if (!submissionItem) return null;
 
-  const { notes } = submissionItem;
-
   return (
     <Accordion
       disableGutters
