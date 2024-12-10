@@ -70,14 +70,14 @@ export const NotificationBox = () => {
               <Grid item xs={12}>
                 <LabelValuePair
                   label="Decision recommended by"
-                  value={"Placeholder"}
+                  value={""}
                   labelProps={{ color: "inherit", width: "220px" }}
                 />
               </Grid>
               <Grid item xs={12}>
                 <LabelValuePair
                   label="Confirmed by"
-                  value="Placeholder"
+                  value=""
                   labelProps={{ color: "inherit", width: "220px" }}
                 />
               </Grid>

@@ -10,7 +10,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { useMemo } from "react";
-import NotesSection from "./NotesSection";
 import { consultationSchema, RadioOptions } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import {
@@ -24,6 +23,7 @@ import { useAccount } from "@/store/accountStore";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
 import { NotificationBox } from "./NotificationBox";
+import NotesSection from "../../NotesSection";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 

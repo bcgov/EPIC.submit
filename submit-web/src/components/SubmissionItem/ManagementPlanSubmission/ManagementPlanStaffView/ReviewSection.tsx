@@ -27,6 +27,7 @@ import { managementPlanReviewSchema, RadioOptions } from "./constants";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import ActionButtons from "./ActionButtons";
+import NotesSection from "../../NotesSection";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema
@@ -169,6 +170,7 @@ export default function ReviewSection() {
                 </ControlledRadioGroup>
               </>
             </PermissionsGate>
+            <NotesSection />
             <ActionButtons />
           </form>
         </FormProvider>
