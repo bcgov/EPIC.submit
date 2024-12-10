@@ -14,7 +14,7 @@ import { booleanToString } from "@/utils";
 import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
 import FormFieldSection from "./FormFieldSection";
 import InternalDocumentSection from "../../ConsultationRecord/ConsultationRecordStaffView/InternalDocumentSection";
-import ReviewSection from "../../ConsultationRecord/ConsultationRecordStaffView/ReviewSection";
+import ReviewSection from "./ReviewSection";
 
 const managementPlanSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),

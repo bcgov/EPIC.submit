@@ -13,7 +13,6 @@ import {
 } from "@/models/SubmissionReview";
 import { isAxiosError } from "axios";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { consultationSchema, RadioOptions } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { When } from "react-if";
@@ -22,6 +21,7 @@ import {
   checkIfManager,
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
+import { managementPlanReviewSchema, RadioOptions } from "./constants";
 
 export default function ActionButtons() {
   const {
@@ -50,11 +50,10 @@ export default function ActionButtons() {
   });
   const [isSavingAndClosing, setIsSavingAndClosing] = useState(false);
   const [isSendingToManager, setIsSendingToManager] = useState(false);
-  const [isCompletingConsultationCheck, setIsCompletingConsultationCheck] =
-    useState(false);
+  const [isCompletingReview, setIsCompletingReview] = useState(false);
 
   const isLoading =
-    isSavingAndClosing || isSendingToManager || isCompletingConsultationCheck;
+    isSavingAndClosing || isSendingToManager || isCompletingReview;
 
   const {
     getValues,
@@ -75,7 +74,10 @@ export default function ActionButtons() {
     const validateAtKey = isStaff ? "staff" : "manager";
     const data = getValues();
     try {
-      const validData = consultationSchema.validateSyncAt(validateAtKey, data);
+      const validData = managementPlanReviewSchema.validateSyncAt(
+        validateAtKey,
+        data,
+      );
       const requestBody = {
         form_answers: validData,
         type: isStaff
@@ -100,7 +102,10 @@ export default function ActionButtons() {
   const handleSendToManager = async () => {
     try {
       setIsSendingToManager(true);
-      const validData = consultationSchema.validateSyncAt("staff", getValues());
+      const validData = managementPlanReviewSchema.validateSyncAt(
+        "staff",
+        getValues(),
+      );
       const requestBody = {
         status: SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
         form_answers: validData,
@@ -117,15 +122,17 @@ export default function ActionButtons() {
       }
     }
   };
-  const handleCompletingConsultationCheck = async () => {
+  const handleCompletingReview = async () => {
     try {
-      setIsCompletingConsultationCheck(true);
-      const validData = consultationSchema.validateSyncAt(
+      setIsCompletingReview(true);
+      const validData = managementPlanReviewSchema.validateSyncAt(
         "manager",
         getValues(),
       );
-      const passed =
-        validData.passedConsultationCheck === RadioOptions.YES.value;
+      const passed = [
+        RadioOptions.YES.value,
+        RadioOptions.YES_DEFAULT.value,
+      ].includes(validData.passedReview);
       const requestBody = {
         status: passed
           ? SUBMISSION_REVIEW_STATUS.APPROVED
@@ -134,13 +141,13 @@ export default function ActionButtons() {
         type: SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
       };
       await saveSubmissionReview(requestBody);
-      setIsCompletingConsultationCheck(false);
-      notify.success("Consultation Check was completed");
+      setIsCompletingReview(false);
+      notify.success("Review was completed");
     } catch (error) {
-      setIsCompletingConsultationCheck(false);
+      setIsCompletingReview(false);
       trigger();
       if (isAxiosError(error)) {
-        notify.error("Failed to complete consultation check");
+        notify.error("Failed to complete review");
       }
     }
   };
@@ -196,10 +203,10 @@ export default function ActionButtons() {
         <Grid item xs={12} sm="auto">
           <LoadingButton
             disabled={isLoading || isSaveDisabled}
-            loading={isCompletingConsultationCheck}
-            onClick={handleCompletingConsultationCheck}
+            loading={isCompletingReview}
+            onClick={handleCompletingReview}
           >
-            Complete Consultation Check
+            Complete Review
           </LoadingButton>
         </Grid>
       </When>

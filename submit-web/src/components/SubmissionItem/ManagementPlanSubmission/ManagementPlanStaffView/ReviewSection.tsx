@@ -3,15 +3,12 @@ import { BCDesignTokens } from "epic.theme";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import ActionButtons from "./ActionButtons";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { SubmitRadio } from "@/components/Shared/SubmitRadio";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { useMemo } from "react";
-import NotesSection from "./NotesSection";
-import { consultationSchema, RadioOptions } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import {
   SUBMISSION_REVIEW_ENTRY_TYPE,
@@ -22,10 +19,18 @@ import {
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import PermissionsGate from "@/components/Shared/PermissionGate";
-import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
-import { NotificationBox } from "./NotificationBox";
+import {
+  checkIfManager,
+  checkIfStaff,
+} from "@/components/Shared/PermissionGate/utils";
+import { managementPlanReviewSchema, RadioOptions } from "./constants";
+import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { SubmissionPackage } from "@/models/Package";
+import ActionButtons from "./ActionButtons";
 
-type ConsultationForm = yup.InferType<typeof consultationSchema>;
+type managementPlanReviewForm = yup.InferType<
+  typeof managementPlanReviewSchema
+>;
 
 const getAnswersByType = (
   review: SubmissionReview,
@@ -37,9 +42,10 @@ const getAnswersByType = (
 
 export default function ReviewSection() {
   const { roles } = useAccount();
-  const isStaff = checkIfStaff(roles);
+  const isStaff = useMemo(() => checkIfStaff(roles), [roles]);
+  const isManager = useMemo(() => checkIfManager(roles), [roles]);
 
-  const { submissionId: submissionItemId } = useParams({
+  const { submissionId: submissionItemId, submissionPackageId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
@@ -47,6 +53,11 @@ export default function ReviewSection() {
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
       .queryKey,
+  );
+  const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
+    getStaffSubmissionPackageQueryOptions({
+      packageId: Number(submissionPackageId),
+    }).queryKey,
   );
 
   const defaultValues = useMemo(() => {
@@ -72,8 +83,8 @@ export default function ReviewSection() {
     };
   }, [submissionItem]);
 
-  const methods = useForm<ConsultationForm>({
-    resolver: yupResolver(consultationSchema),
+  const methods = useForm<managementPlanReviewForm>({
+    resolver: yupResolver(managementPlanReviewSchema),
     mode: "onChange",
     defaultValues,
   });
@@ -97,7 +108,7 @@ export default function ReviewSection() {
         <FormProvider {...methods}>
           <form>
             <Typography variant="h6" color={"#858A8C"}>
-              Consultation Check
+              Management Plan Review
             </Typography>
             <Divider
               sx={{
@@ -111,19 +122,24 @@ export default function ReviewSection() {
               sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
             >
               Based on the above information, has the holder passed the
-              Consultation Check?
+              Management Plan Review for the {submissionPackage?.name}?
             </Typography>
 
-            <ControlledRadioGroup name="staff.passedConsultationCheck">
+            <ControlledRadioGroup name="staff.passedReview">
               <SubmitRadio
                 label={RadioOptions.YES.label}
                 value={RadioOptions.YES.value}
-                disabled={isFormDisabled}
+                disabled={isFormDisabled || isManager}
               />
               <SubmitRadio
                 label={RadioOptions.NO.label}
                 value={RadioOptions.NO.value}
-                disabled={isFormDisabled}
+                disabled={isFormDisabled || isManager}
+              />
+              <SubmitRadio
+                label={RadioOptions.YES_DEFAULT.label}
+                value={RadioOptions.YES_DEFAULT.value}
+                disabled={isFormDisabled || isManager}
               />
             </ControlledRadioGroup>
             <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.extended_eao_edit]}>
@@ -134,7 +150,7 @@ export default function ReviewSection() {
                 >
                   MANAGER CONFIRMATION:
                 </Typography>
-                <ControlledRadioGroup name="manager.passedConsultationCheck">
+                <ControlledRadioGroup name="manager.passedReview">
                   <SubmitRadio
                     label={RadioOptions.YES.label}
                     value={RadioOptions.YES.value}
@@ -145,11 +161,14 @@ export default function ReviewSection() {
                     value={RadioOptions.NO.value}
                     disabled={isFormDisabled}
                   />
+                  <SubmitRadio
+                    label={RadioOptions.YES_DEFAULT.label}
+                    value={RadioOptions.YES_DEFAULT.value}
+                    disabled={isFormDisabled}
+                  />
                 </ControlledRadioGroup>
               </>
             </PermissionsGate>
-            <NotesSection />
-            <NotificationBox />
             <ActionButtons />
           </form>
         </FormProvider>
