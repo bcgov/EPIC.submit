@@ -13,28 +13,23 @@ from .user import User as UserModel
 
 
 class StaffUser(BaseModel):
-    """Definition of the Account User entity."""
+    """Definition of the Staff User entity."""
 
     __tablename__ = 'staff_users'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    account_id = Column(db.Integer, ForeignKey('accounts.id'), nullable=False)
     first_name = Column(db.String(50), nullable=False)
     last_name = Column(db.String(50), nullable=False)
     full_name = column_property(first_name + ' ' + last_name)
-    position = Column(db.String(100), nullable=False)
     work_email_address = Column(db.String(100), nullable=False)
     work_contact_number = Column(db.String(50), nullable=False)
     user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
-
-    account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
 
     @classmethod
     def create_staff_user(cls, data, session=None) -> StaffUser:
         """Create account."""
         staff_user = StaffUser(
-            account_id=data.get('account_id', None),
             first_name=data.get('first_name', None),
             last_name=data.get('last_name', None),
             position=data.get('position', None),
@@ -51,6 +46,6 @@ class StaffUser(BaseModel):
 
     @classmethod
     def get_by_guid(cls, _guid):
-        """Get account user by guid."""
+        """Get staff user by guid."""
         staff_user = cls.query.join(UserModel).filter(UserModel.auth_guid == _guid).first()
         return staff_user
