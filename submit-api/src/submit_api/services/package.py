@@ -5,7 +5,7 @@ from datetime import datetime
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError
-from submit_api.models import Item as ItemModel
+from submit_api.models import Item as ItemModel, PackageVersion as PackageVersionModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
 from submit_api.models import Project as ProjectModel
@@ -32,13 +32,15 @@ class PackageService:
         return package
 
     @classmethod
-    def create_package(cls, account_project_id, request_data):
+    def create_new_package(cls, account_project_id, request_data):
         """Create a new package."""
         with session_scope() as session:
             package_type = PackageTypeModel.find_by_name(
                 request_data.get("type"))
             package = cls._create_package(
                 session, account_project_id, request_data, package_type)
+            cls._create_package_version(
+                session, package_id=package.id, original_package_id=package.id, version=1)
             cls._create_package_metadata(
                 session, package.id, request_data.get("metadata"))
             cls._create_items(session, package.id, package_type.id, package_type.item_types)
@@ -65,6 +67,16 @@ class PackageService:
             package_id=package_id, json=metadata
         )
         session.add(package_metadata)
+
+    @classmethod
+    def _create_package_version(cls, session, package_id, original_package_id, version=1):
+        """Create a new package version."""
+        package_version = PackageVersionModel(
+            package_id=package_id,
+            original_package_id=original_package_id,
+            version=version
+        )
+        session.add(package_version)
 
     @staticmethod
     def _create_items(session, package_id, package_type_id, item_types):
