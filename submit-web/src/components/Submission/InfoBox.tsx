@@ -49,7 +49,7 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
     supporting_condition,
     submitted_by,
     condition,
-  } = submissionPackage.json || {};
+  } = submissionPackage.meta || {};
   return (
     <Grid
       container
@@ -92,14 +92,15 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
 
 const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const {
-    submitted_on,
     review_start_date,
     supporting_condition,
     review_completed_on,
-    submitted_by,
     cc_start_date,
     cc_completed_on,
-  } = submissionPackage.json || {};
+  } = submissionPackage.meta || {};
+
+  const { submitted_on, submitted_by } = submissionPackage;
+
   return (
     <Grid
       container
@@ -134,7 +135,14 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"CC Completed"} value={cc_completed_on} />
+        <InfoBoxItem
+          label={"CC Completed"}
+          value={
+            cc_completed_on
+              ? dayjs(cc_completed_on).format("DD-MMM-YYYY")
+              : "--"
+          }
+        />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>
       <Grid item xs={12} lg={4} container></Grid>

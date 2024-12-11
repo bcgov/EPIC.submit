@@ -25,21 +25,31 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     });
   };
 
+  if (submissionPackage.meta === null) {
+    return <></>;
+  }
+
   const {
     name,
-    json,
+    meta,
     days_since_submission = 0,
     review_status,
     submitted_on,
     status,
   } = submissionPackage;
 
-  const { cc_completed_on, mp_review, type } = json || {};
+  const { cc_completed_on, mp_review, type } = meta || {};
 
   return (
     <>
-      <StyledProjectTableRow>
-        <StyledProjectTableCell>
+      <StyledProjectTableRow sx={{ maxHeight: "40px", py: 0 }}>
+        <StyledProjectTableCell
+          sx={{
+            minWidth: "150px",
+            flexGrow: 1,
+            py: 0,
+          }}
+        >
           <Link
             sx={{
               color: BCDesignTokens.themeBlue90,
@@ -60,8 +70,30 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             <ArrowForwardIos fontSize="small" />
           </Link>
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">{type}</StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
+        <StyledProjectTableCell
+          align="right"
+          sx={{
+            maxWidth: "75px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {type}
+        </StyledProjectTableCell>
+        <StyledProjectTableCell
+          align="right"
+          sx={{
+            maxWidth: "80px",
+            lineHeight: 1.2,
+            wordWrap: "break-word",
+            textAlign: "right",
+            color:
+              days_since_submission > 4
+                ? BCDesignTokens.typographyColorDanger
+                : BCDesignTokens.supportBorderColorSuccess,
+          }}
+        >
           {submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell
@@ -71,17 +103,33 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
               days_since_submission > 4
                 ? BCDesignTokens.typographyColorDanger
                 : BCDesignTokens.supportBorderColorSuccess,
+            maxWidth: "75px",
           }}
         >
-          {days_since_submission && `+ ${days_since_submission} Days`}
+          {Boolean(days_since_submission) && `+ ${days_since_submission} Days`}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
-          {cc_completed_on}
+        <StyledProjectTableCell
+          align="right"
+          sx={{
+            maxWidth: "75px",
+          }}
+        >
+          {cc_completed_on ? dayjs(cc_completed_on).format("DD-MMM-YYYY") : ""}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
+        <StyledProjectTableCell
+          align="right"
+          sx={{
+            maxWidth: "75px",
+          }}
+        >
           {mp_review}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
+        <StyledProjectTableCell
+          align="right"
+          sx={{
+            pr: BCDesignTokens.layoutPaddingSmall,
+          }}
+        >
           <PackageStatusChipStack
             status={status}
             reviewStatus={review_status}

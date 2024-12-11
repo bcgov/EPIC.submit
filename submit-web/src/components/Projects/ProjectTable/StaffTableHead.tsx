@@ -13,14 +13,57 @@ export default function StaffTableHead() {
       }}
     >
       <TableRow>
-        <StyledTableHeadCell>Submission Name</StyledTableHeadCell>
-        <StyledTableHeadCell align="right">Type</StyledTableHeadCell>
-        <StyledTableHeadCell align="right">Submitted On</StyledTableHeadCell>
-        <StyledTableHeadCell align="right">
+        <StyledTableHeadCell
+          sx={{
+            minWidth: "250px",
+            flexGrow: 1,
+          }}
+        >
+          Submission Name
+        </StyledTableHeadCell>
+        <StyledTableHeadCell
+          align="right"
+          sx={{
+            maxWidth: "75px",
+          }}
+        >
+          Type
+        </StyledTableHeadCell>
+        <StyledTableHeadCell
+          align="right"
+          sx={{
+            maxWidth: "75px",
+          }}
+        >
+          Submitted On
+        </StyledTableHeadCell>
+        <StyledTableHeadCell
+          align="right"
+          sx={{
+            maxWidth: "80px",
+            lineHeight: 1.2,
+            wordWrap: "break-word",
+            textAlign: "right",
+          }}
+        >
           Days since submission
         </StyledTableHeadCell>
-        <StyledTableHeadCell align="right">CC Completed On</StyledTableHeadCell>
-        <StyledTableHeadCell align="right">MP Review</StyledTableHeadCell>
+        <StyledTableHeadCell
+          align="right"
+          sx={{
+            maxWidth: "75px",
+          }}
+        >
+          CC Completed On
+        </StyledTableHeadCell>
+        <StyledTableHeadCell
+          align="right"
+          sx={{
+            maxWidth: "75px",
+          }}
+        >
+          MP Review
+        </StyledTableHeadCell>
         <StyledTableHeadCell align="center">Status</StyledTableHeadCell>
       </TableRow>
     </TableHead>

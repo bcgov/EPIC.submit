@@ -19,7 +19,7 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.submission_item_note import SubmissionItemNote, PostSubmissionItemNote
+from submit_api.schemas.submission_item_note import PostSubmissionItemNote, SubmissionItemNote
 from submit_api.services.submission_item_note import SubmissionItemNoteService
 from submit_api.utils.util import cors_preflight
 

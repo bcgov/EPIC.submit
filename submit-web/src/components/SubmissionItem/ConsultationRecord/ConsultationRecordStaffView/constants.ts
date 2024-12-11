@@ -12,3 +12,14 @@ export const consultationSchema = yup.object().shape({
       .required("Manager decision is required"),
   }),
 });
+
+export const RadioOptions = {
+  YES: {
+    label: "Yes, the holder has passed the Consultation Check",
+    value: "YES",
+  },
+  NO: {
+    label: "No, the holder has not passed the Consultation Check",
+    value: "NO",
+  },
+};

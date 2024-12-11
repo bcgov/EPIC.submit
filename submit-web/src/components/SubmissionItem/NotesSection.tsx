@@ -4,6 +4,7 @@ import {
   AccordionSummary,
   Box,
   Button,
+  Chip,
   Collapse,
   TextField,
   Typography,
@@ -13,7 +14,7 @@ import { BCDesignTokens } from "epic.theme";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import Note, { Note as NoteType } from "./Note";
 import { When } from "react-if";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useParams } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -36,6 +37,10 @@ export default function NotesSection() {
   );
 
   const { notes } = submissionItem;
+
+  useEffect(() => {
+    setNoteText("");
+  }, [addNote]);
 
   const { mutateAsync: createNote, isPending: createNoteLoading } =
     useCreateNote({
@@ -63,6 +68,8 @@ export default function NotesSection() {
     setExpanded(false);
   };
 
+  if (!submissionItem) return null;
+
   return (
     <Accordion
       disableGutters
@@ -81,6 +88,8 @@ export default function NotesSection() {
         id="panel1-header"
         sx={{
           py: 0,
+          borderRadius: "4px",
+          border: `1px solid ${BCDesignTokens.themeBlue60}`,
         }}
       >
         <Box
@@ -113,9 +122,29 @@ export default function NotesSection() {
             >
               View Notes
             </Typography>
+            <When condition={notes && notes.length > 0}>
+              <Chip
+                sx={{
+                  backgroundColor: "#F18A15",
+                  borderRadius: "100%",
+                  ml: BCDesignTokens.layoutMarginXsmall,
+                  width: "20px",
+                  height: "20px",
+                  "& .MuiChip-label": {
+                    fontSize: "0.8rem",
+                    fontWeight: "bold",
+                    color: "#FFFFFF",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  },
+                }}
+                label={`${notes.length}`}
+              />
+            </When>
             <KeyboardArrowRightIcon
               fontSize="medium"
-              sx={{ ml: 0.5, color: "#38598A", p: 0 }}
+              sx={{ color: "#38598A", p: 0 }}
             />
           </Box>
           <Box onClick={handleAddNote}>
@@ -136,10 +165,17 @@ export default function NotesSection() {
               Notes
             </Typography>
             <TextField
+              variant="outlined"
+              value={noteText}
               multiline
               fullWidth
               minRows={6}
               onChange={(e) => setNoteText(e.target.value)}
+              sx={{
+                "& .MuiInputBase-root": {
+                  borderColor: BCDesignTokens.typographyColorDisabled,
+                },
+              }}
             />
             <LoadingButton
               onClick={handleSaveNote}
@@ -148,13 +184,17 @@ export default function NotesSection() {
             >
               Save Note
             </LoadingButton>
-            <Button color="secondary" onClick={handleCancelNote}>
+            <Button
+              color="secondary"
+              onClick={handleCancelNote}
+              sx={{ border: "0px" }}
+            >
               Cancel
             </Button>
           </Box>
         </Collapse>
         <When condition={notes}>
-          {notes.length > 1 ? (
+          {notes.length > 0 ? (
             notes.map((note: NoteType) => <Note key={note.id} note={note} />)
           ) : (
             <Typography variant="body1" sx={{ mb: 1 }}>
