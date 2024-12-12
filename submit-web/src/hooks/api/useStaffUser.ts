@@ -2,13 +2,14 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { OnErrorType, OnSuccessType, submitRequest } from "@/utils/axiosUtils";
 import { User } from "@/models/User";
 import { QUERY_KEY } from "./constants";
+import { Options } from "./types";
 
 const fetchStaffUserByGUID = (id: number) => {
-  return submitRequest({ url: `/staff_user/${id}` });
+  return submitRequest({ url: `staff/staff_user/${id}` });
 };
 
-const addStaffUser = (user: Omit<User, "id">) => {
-  return submitRequest({ url: "/staff_user", method: "post", data: user });
+const addStaffUser = (user: User) => {
+  return submitRequest({ url: "staff/staff_user", method: "post", data: user });
 };
 
 export const useStaffUserById = (userId: number) => {
@@ -19,13 +20,9 @@ export const useStaffUserById = (userId: number) => {
   });
 };
 
-export const useStaffAddUser = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType,
-) => {
+export const useStaffAddUser = (options?: Options) => {
   return useMutation({
     mutationFn: addStaffUser,
-    onSuccess,
-    onError,
+    ...options,
   });
 };
