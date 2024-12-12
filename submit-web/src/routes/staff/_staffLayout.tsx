@@ -3,6 +3,7 @@ import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
 import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
+import { useStaffUserById } from "@/hooks/api/useStaffUser";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
@@ -33,15 +34,27 @@ function Staff() {
   const { data: userData, isPending: isUserPending } = useQuery(
     getUserByGuidQueryOptions({
       guid: user?.profile.sub,
-    }),
+    })
   );
+
+  const { data: staffData, isPending: isStaffPending } = useStaffUserById(
+    user?.profile.sub
+  );
+
   const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!isAuthenticated && !isAuthLoading) {
       signinRedirect();
     }
-    if (isAuthenticated && !isAuthLoading && !isUserPending) {
+    if (
+      isAuthenticated &&
+      !isAuthLoading &&
+      !isUserPending &&
+      !isStaffPending
+    ) {
+      if (!staffData) {
+      }
       setAccount({
         isLoading: false,
         userType: USER_TYPE.STAFF,

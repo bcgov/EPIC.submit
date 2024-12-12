@@ -4,7 +4,7 @@ from submit_api.models import User as UserModel
 from submit_api.models.user import UserType
 
 
-class StaffService:
+class StaffUserService:
     """Staff management service."""
 
     @classmethod

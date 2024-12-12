@@ -32,7 +32,6 @@ class StaffUser(BaseModel):
         staff_user = StaffUser(
             first_name=data.get('first_name', None),
             last_name=data.get('last_name', None),
-            position=data.get('position', None),
             work_email_address=data.get('work_email_address', None),
             work_contact_number=data.get('work_contact_number', None),
             user_id=data.get('user_id', None)

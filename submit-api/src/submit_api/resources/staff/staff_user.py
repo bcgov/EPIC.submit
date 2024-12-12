@@ -24,9 +24,10 @@ from submit_api.schemas.user import UserSchema
 from submit_api.services.user_service import UserService
 from submit_api.services.staff__user_service import StaffUserService
 from submit_api.utils.util import cors_preflight
+from submit_api.schemas.staff_user import StaffUserSchema
 
 
-API = Namespace("staff", description="Endpoints for Staff Management")
+API = Namespace("staff_user", description="Endpoints for Staff Management")
 """Custom exception messages
 """
 
@@ -49,7 +50,7 @@ class StaffUser(Resource):
     @cors.crossdomain(origin="*")
     def get(guid):
         """Fetch a staff by id."""
-        staff = StaffUserService.get_by_auth_guid(guid)
+        staff = StaffUserService.get_staff_by_id(guid)
         if not staff:
             return ResourceNotFoundError(f"User with guid {guid} not found")
         return StaffUserSchema().dump(staff), HTTPStatus.OK
@@ -65,5 +66,5 @@ class StaffUser(Resource):
     @cors.crossdomain(origin="*")
     def post():
         """Create a staff user."""
-        staff = StaffUserService.create_staff_user(UserSchema().load(API.payload))
+        staff = StaffUserService._create_staff_user(UserSchema().load(API.payload))
         return StaffUserSchema().dump(staff), HTTPStatus.CREATED
