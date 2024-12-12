@@ -26,7 +26,7 @@ class StaffUserService:
             user = UserModel.create_user(user_data)
         staff_user_data = {
             "first_name": data.get('first_name'),
-            "last_name":  data.get('last_name'),
+            "last_name": data.get('last_name'),
             "work_email_address": data.get('work_email_address'),
             "user_id": user.id
         }
