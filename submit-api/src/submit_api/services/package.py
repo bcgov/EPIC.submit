@@ -5,7 +5,7 @@ from datetime import datetime
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError
-from submit_api.models import Item as ItemModel
+from submit_api.models import Item as ItemModel, PackageVersion as PackageVersionModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
 from submit_api.models import Project as ProjectModel
@@ -13,7 +13,7 @@ from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.package import PackageStatus
 from submit_api.models.package_item_type import PackageItemType as PackageItemTypeModel
-from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
+from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel, PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.services.email_service import EmailService
@@ -32,16 +32,53 @@ class PackageService:
         return package
 
     @classmethod
-    def create_package(cls, account_project_id, request_data):
+    def create_new_package_from_original(cls, original_package_id, _session):
+        """Create a new package version."""
+        with session_scope(_session) as session:
+            original_package = PackageModel.get_by_id(original_package_id)
+            package_version = PackageVersionModel.get_by_package_id(original_package_id)
+            all_package_versions = PackageVersionModel.get_all_by_original_package_id(original_package_id)
+            if not all_package_versions:
+                raise BadRequestError("Cannot create a new version for a package that has no versions")
+
+            latest_version = max([package_version.version for package_version in all_package_versions])
+            if latest_version != package_version.version:
+                raise BadRequestError("Cannot create a new version for a package that is not the latest version")
+
+            new_version = latest_version + 1
+            new_package_data = {
+                "name": original_package.name,
+            }
+            package_type = original_package.type
+            new_package = cls._create_package(
+                session, original_package.account_project_id, new_package_data, package_type)
+            cls._create_package_version(
+                session, package_id=new_package.id, original_package_id=original_package.id, version=new_version)
+            new_metadata = {
+                PackageMetadataFields.CONDITION.value: original_package.metadata.json.get(
+                    PackageMetadataFields.CONDITION.value, None),
+            }
+            cls._create_package_metadata(
+                session, new_package.id, new_metadata)
+            cls._create_items(session, new_package.id, package_type)
+
+            original_package.active = False
+            session.add(original_package)
+            return new_package
+
+    @classmethod
+    def create_first_package(cls, account_project_id, request_data):
         """Create a new package."""
         with session_scope() as session:
             package_type = PackageTypeModel.find_by_name(
                 request_data.get("type"))
             package = cls._create_package(
                 session, account_project_id, request_data, package_type)
+            cls._create_package_version(
+                session, package_id=package.id, original_package_id=package.id, version=1)
             cls._create_package_metadata(
                 session, package.id, request_data.get("metadata"))
-            cls._create_items(session, package.id, package_type.id, package_type.item_types)
+            cls._create_items(session, package.id, package_type)
             session.commit()
         return PackageModel.find_by_id(package.id)
 
@@ -66,18 +103,28 @@ class PackageService:
         )
         session.add(package_metadata)
 
+    @classmethod
+    def _create_package_version(cls, session, package_id, original_package_id, version=1):
+        """Create a new package version."""
+        package_version = PackageVersionModel(
+            package_id=package_id,
+            original_package_id=original_package_id,
+            version=version
+        )
+        session.add(package_version)
+
     @staticmethod
-    def _create_items(session, package_id, package_type_id, item_types):
+    def _create_items(session, package_id, package_type):
         """Create items for the package."""
         package_item_types = session.query(PackageItemTypeModel).filter_by(
-            package_type_id=package_type_id,
+            package_type_id=package_type.id,
         ).all()
 
         item_type_to_package_item_type = {
             pit.item_type_id: pit for pit in package_item_types
         }
 
-        for item_type in item_types:
+        for item_type in package_type.item_types:
             package_item_type = item_type_to_package_item_type.get(item_type.id)
             if package_item_type:
                 item = ItemModel(

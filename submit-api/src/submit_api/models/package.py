@@ -42,6 +42,15 @@ class Package(BaseModel):
     meta = db.relationship('PackageMetadata', backref='package', lazy='joined', uselist=False)
     items = db.relationship('Item', backref='package', lazy='joined', order_by='Item.sort_order')
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
+    active = Column(db.Boolean, nullable=False, default=True)
+
+    version = db.relationship(
+        'PackageVersion',
+        backref='package',
+        lazy='select',
+        uselist=False,
+        primaryjoin='Package.id == PackageVersion.package_id',
+        foreign_keys='PackageVersion.package_id')
 
     @classmethod
     def get_package_by_id_with_items(cls, package_id: int):

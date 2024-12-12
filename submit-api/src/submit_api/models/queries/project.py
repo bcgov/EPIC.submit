@@ -36,7 +36,7 @@ class ProjectQueries:
     def get_projects_by_account_id(cls, account_id: int, search_options: AccountProjectSearchOptions = None):
         """Find projects by account_id with optional search and pagination."""
         query = db.session.query(AccountProject).filter(
-            AccountProject.account_id == account_id
+            AccountProject.account_id == account_id,
         ).join(AccountProject.project)
 
         # Apply search filters if provided
