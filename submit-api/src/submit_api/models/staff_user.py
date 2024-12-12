@@ -1,0 +1,48 @@
+"""Account User model class.
+
+Manages the account user
+"""
+from __future__ import annotations
+
+from sqlalchemy import Column, ForeignKey
+from sqlalchemy.orm import column_property
+
+from .base_model import BaseModel
+from .db import db
+from .user import User as UserModel
+
+
+class StaffUser(BaseModel):
+    """Definition of the Staff User entity."""
+
+    __tablename__ = 'staff_users'
+
+    id = Column(db.Integer, primary_key=True, autoincrement=True)
+    first_name = Column(db.String(50), nullable=False)
+    last_name = Column(db.String(50), nullable=False)
+    full_name = column_property(first_name + ' ' + last_name)
+    work_email_address = Column(db.String(100), nullable=False)
+    user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
+    user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
+
+    @classmethod
+    def create_staff_user(cls, data, session=None) -> StaffUser:
+        """Create account."""
+        staff_user = StaffUser(
+            first_name=data.get('first_name', None),
+            last_name=data.get('last_name', None),
+            work_email_address=data.get('work_email_address', None),
+            user_id=data.get('user_id', None)
+        )
+        if session:
+            session.add(staff_user)
+            session.commit()
+        else:
+            staff_user.save()
+        return staff_user
+
+    @classmethod
+    def get_by_guid(cls, _guid):
+        """Get staff user by guid."""
+        staff_user = cls.query.join(UserModel).filter(UserModel.auth_guid == _guid).first()
+        return staff_user

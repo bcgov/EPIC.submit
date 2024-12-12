@@ -3,6 +3,7 @@ import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
 import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
+import { useStaffAddUser, useStaffUserById } from "@/hooks/api/useStaffUser";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
@@ -22,6 +23,7 @@ export const Route = createFileRoute("/staff/_staffLayout")({
 
 function Staff() {
   const { setAccount, roles, isLoading: isAccountLoading } = useAccount();
+  const { user: kcUser } = useAuth();
   const {
     user,
     signoutRedirect,
@@ -29,19 +31,42 @@ function Staff() {
     isAuthenticated,
     signinRedirect,
   } = useAuth();
-
+  const { mutate: addStaffUser } = useStaffAddUser();
   const { data: userData, isPending: isUserPending } = useQuery(
     getUserByGuidQueryOptions({
       guid: user?.profile.sub,
-    }),
+    })
   );
+
+  const {
+    data: staffData,
+    isPending: isStaffPending,
+    error: staffError,
+    isError: isStaffError,
+  } = useStaffUserById(user?.profile.sub);
+  const staffIsNotRegistered =
+    isStaffError && staffError?.request.status === 404;
   const isMobile = useIsMobile();
 
   useEffect(() => {
     if (!isAuthenticated && !isAuthLoading) {
       signinRedirect();
     }
-    if (isAuthenticated && !isAuthLoading && !isUserPending) {
+    if (
+      isAuthenticated &&
+      !isAuthLoading &&
+      !isUserPending &&
+      !isStaffPending
+    ) {
+      if (userData && staffIsNotRegistered && kcUser) {
+        const staffUser = {
+          auth_guid: kcUser.profile.sub,
+          first_name: kcUser.profile.given_name,
+          last_name: kcUser.profile.family_name,
+          work_email_address: kcUser.profile.email,
+        };
+        addStaffUser(staffUser);
+      }
       setAccount({
         isLoading: false,
         userType: USER_TYPE.STAFF,
@@ -56,6 +81,11 @@ function Staff() {
     setAccount,
     userData,
     isAuthLoading,
+    isStaffPending,
+    staffData,
+    addStaffUser,
+    staffIsNotRegistered,
+    kcUser,
   ]);
 
   const isLoading = isAccountLoading || isAuthLoading || isUserPending;

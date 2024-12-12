@@ -27,7 +27,10 @@ class User(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     auth_guid = Column(db.String(), nullable=False, unique=True)
     type = Column(Enum(UserType), nullable=False)
-    account_user = db.relationship('AccountUser', uselist=False, back_populates='user')
+    account_user = db.relationship(
+        'AccountUser', uselist=False, back_populates='user')
+    staff_user = db.relationship(
+        'StaffUser', uselist=False, back_populates='user')
 
     __table_args__ = (
         Index('ix_users_auth_guid', 'auth_guid', unique=True),
