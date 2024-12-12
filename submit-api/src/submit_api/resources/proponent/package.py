@@ -74,7 +74,7 @@ class PackageByAccountProject(Resource):
     def post(account_project_id):
         """Create a submission package."""
         create_package_data = PostPackageRequestSchema().load(API.payload)
-        created_package = PackageService.create_new_package(account_project_id, create_package_data)
+        created_package = PackageService.create_first_package(account_project_id, create_package_data)
         return PackageSchema().dump(created_package), HTTPStatus.CREATED
 
 

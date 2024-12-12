@@ -16,6 +16,7 @@ class PackageMetadataFields(enum.Enum):
     """Enum for package metadata fields."""
 
     CONSULTATION_CHECK_COMPLETED_ON = 'cc_completed_on'
+    CONDITION = 'condition'
 
 
 class PackageMetadata(BaseModel):
