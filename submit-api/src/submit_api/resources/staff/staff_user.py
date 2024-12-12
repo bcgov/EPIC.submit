@@ -21,7 +21,6 @@ from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.user import UserSchema
-from submit_api.services.user_service import UserService
 from submit_api.services.staff__user_service import StaffUserService
 from submit_api.utils.util import cors_preflight
 from submit_api.schemas.staff_user import StaffUserSchema

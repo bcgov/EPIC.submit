@@ -27,7 +27,7 @@ class StaffUser(BaseModel):
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
 
     @classmethod
-    def     create_staff_user(cls, data, session=None) -> StaffUser:
+    def create_staff_user(cls, data, session=None) -> StaffUser:
         """Create account."""
         staff_user = StaffUser(
             first_name=data.get('first_name', None),
