@@ -53,7 +53,6 @@ function Staff() {
       !isUserPending &&
       !isStaffPending
     ) {
-      console.log(staffData);
       if (!staffData) {
         addStaffUser(userData);
       }
