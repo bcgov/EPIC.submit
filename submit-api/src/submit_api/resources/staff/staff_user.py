@@ -35,7 +35,7 @@ user_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 
 
-@cors_preflight("GET, OPTIONS, POST")
+@cors_preflight("GET, OPTIONS")
 @API.route("/<string:guid>", methods=["GET", "OPTIONS"])
 @API.doc(params={"guid": "The user global unique identifier"})
 class StaffUser(Resource):
@@ -71,5 +71,5 @@ class StaffUsers(Resource):
     @cors.crossdomain(origin="*")
     def post():
         """Create a staff user."""
-        staff = StaffUserService._create_staff_user(UserSchema().load(API.payload))
+        staff = StaffUserService._create_staff_user(StaffUserSchema().load(API.payload))
         return StaffUserSchema().dump(staff), HTTPStatus.CREATED

@@ -1,7 +1,7 @@
 """
 
 Revision ID: d01edacafbe7
-Revises: 640535864292
+Revises: 550e2205818f
 Create Date: 2024-12-11 19:20:55.742928
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'd01edacafbe7'
-down_revision = '640535864292'
+down_revision = '550e2205818f'
 branch_labels = None
 depends_on = None
 
@@ -23,7 +23,6 @@ def upgrade():
     sa.Column('first_name', sa.String(length=50), nullable=False),
     sa.Column('last_name', sa.String(length=50), nullable=False),
     sa.Column('work_email_address', sa.String(length=100), nullable=False),
-    sa.Column('work_contact_number', sa.String(length=50), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('created_date', sa.DateTime(), nullable=False),
     sa.Column('updated_date', sa.DateTime(), nullable=True),

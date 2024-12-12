@@ -23,6 +23,7 @@ export const Route = createFileRoute("/staff/_staffLayout")({
 
 function Staff() {
   const { setAccount, roles, isLoading: isAccountLoading } = useAccount();
+  const { user: kcUser } = useAuth();
   const {
     user,
     signoutRedirect,
@@ -37,10 +38,14 @@ function Staff() {
     })
   );
 
-  const { data: staffData, isPending: isStaffPending } = useStaffUserById(
-    user?.profile.sub
-  );
-
+  const {
+    data: staffData,
+    isPending: isStaffPending,
+    error: staffError,
+    isError: isStaffError,
+  } = useStaffUserById(user?.profile.sub);
+  const staffIsNotRegistered =
+    isStaffError && staffError?.request.status === 404;
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -53,8 +58,14 @@ function Staff() {
       !isUserPending &&
       !isStaffPending
     ) {
-      if (!staffData) {
-        addStaffUser(userData);
+      if (userData && staffIsNotRegistered && kcUser) {
+        const staffUser = {
+          auth_guid: kcUser.profile.sub,
+          first_name: kcUser.profile.given_name,
+          last_name: kcUser.profile.family_name,
+          work_email_address: kcUser.profile.email,
+        };
+        addStaffUser(staffUser);
       }
       setAccount({
         isLoading: false,

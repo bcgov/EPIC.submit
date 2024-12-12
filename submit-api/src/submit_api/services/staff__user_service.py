@@ -16,17 +16,18 @@ class StaffUserService:
     @classmethod
     def _create_staff_user(cls, data):
         """Create staff user."""
-        user_data = {
-            'auth_guid': data.get('auth_guid'),
-            'type': UserType.STAFF.value
-        }
-        user = UserModel.create_user(user_data)
+        user = UserModel.get_by_guid(data.get('auth_guid'))
+        if not user:
+            # Create the user if it does not exist
+            user_data = {
+                'auth_guid': data.get('auth_guid'),
+                'type': UserType.STAFF.value
+            }
+            user = UserModel.create_user(user_data)
         staff_user_data = {
-            "first_name": data.get("first_name"),
-            "last_name": data.get("last_name"),
-            "position": data.get("position"),
-            "work_email_address": data.get("work_email_address"),
-            "work_contact_number": data.get("work_contact_number"),
+            "first_name": data.get('first_name'),
+            "last_name":  data.get('last_name'),
+            "work_email_address": data.get('work_email_address'),
             "user_id": user.id
         }
         staff_user = StaffUser.create_staff_user(staff_user_data)

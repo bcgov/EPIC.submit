@@ -22,7 +22,6 @@ class StaffUser(BaseModel):
     last_name = Column(db.String(50), nullable=False)
     full_name = column_property(first_name + ' ' + last_name)
     work_email_address = Column(db.String(100), nullable=False)
-    work_contact_number = Column(db.String(50), nullable=False)
     user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
 
@@ -33,7 +32,6 @@ class StaffUser(BaseModel):
             first_name=data.get('first_name', None),
             last_name=data.get('last_name', None),
             work_email_address=data.get('work_email_address', None),
-            work_contact_number=data.get('work_contact_number', None),
             user_id=data.get('user_id', None)
         )
         if session:
