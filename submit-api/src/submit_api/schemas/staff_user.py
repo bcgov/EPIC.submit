@@ -19,5 +19,4 @@ class StaffUserSchema(Schema):
     last_name = fields.Str(data_key="last_name")
     full_name = fields.Str(data_key="full_name")
     work_email_address = fields.Str(data_key="work_email_address")
-    work_contact_number = fields.Str(data_key="work_contact_number")
     auth_guid = fields.Str(data_key="auth_guid")

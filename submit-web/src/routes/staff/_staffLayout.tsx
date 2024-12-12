@@ -84,6 +84,7 @@ function Staff() {
     isStaffPending,
     staffData,
     addStaffUser,
+    staffIsNotRegistered,
   ]);
 
   const isLoading = isAccountLoading || isAuthLoading || isUserPending;
