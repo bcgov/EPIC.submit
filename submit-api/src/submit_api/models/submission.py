@@ -32,9 +32,12 @@ class Submission(BaseModel):
     submitted_document_id = Column(db.Integer, ForeignKey('submitted_documents.id'), nullable=True)
     submitted_form = db.relationship('SubmittedForm', foreign_keys=[submitted_form_id], lazy='joined')
     submitted_document = db.relationship('SubmittedDocument', foreign_keys=[submitted_document_id], lazy='joined')
-    version = Column(db.Integer, nullable=False, default=1)
     created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
     submitted_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
+    major_version = Column(db.Integer, nullable=False, default=1)
+    minor_version = Column(db.Integer, nullable=False, default=1)
+    version = db.column_property(f'{major_version}.{minor_version}')
+    active = Column(db.Boolean, nullable=False, default=True)
 
     Index('idx_submissions_type_item_id', type, item_id)
 

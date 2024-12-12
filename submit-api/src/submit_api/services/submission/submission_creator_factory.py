@@ -66,6 +66,22 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             submission = self._create_submission(session, item_id, submitted_document.id)
             return submission
 
+    @classmethod
+    def get_document_version(cls, item_id, original_submission_id=None):
+        """Get the latest document version."""
+        submission_item = SubmissionModel.find_by_id(item_id)
+        submission_package = submission_item.package
+        major_version = submission_package.version
+
+        if not original_submission_id or not submission_package.submitted_on:
+            minor_version = 1
+            return major_version, minor_version
+
+        original_submission = SubmissionModel.find_by_id(original_submission_id)
+        minor_version = original_submission.minor_version + 1
+
+        return major_version, minor_version
+
     @staticmethod
     def _create_submitted_document(session, request_data):
         """Create a new submitted document."""
@@ -82,10 +98,13 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     @staticmethod
     def _create_submission(session, item_id, submitted_document_id):
         """Create a new submission."""
+        major_version, minor_version = DocumentSubmissionCreator.get_document_version(item_id)
         submission = SubmissionModel(
             item_id=item_id,
             type=SubmissionTypeStatus.DOCUMENT,
             submitted_document_id=submitted_document_id,
+            major_version=major_version,
+            minor_version=minor_version
         )
         session.add(submission)
         session.commit()

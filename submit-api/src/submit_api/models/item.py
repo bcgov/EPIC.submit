@@ -33,6 +33,8 @@ class Item(BaseModel):
     notes = db.relationship('SubmissionItemNote', backref='item', lazy='select')
     reviewed_on = Column(db.DateTime, nullable=True)
 
+    package = db.relationship('Package', foreign_keys=[package_id], lazy='select')
+
     @hybrid_property
     def review(self):
         """Get the active review for the item."""
