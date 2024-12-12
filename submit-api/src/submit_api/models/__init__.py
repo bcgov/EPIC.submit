@@ -38,3 +38,4 @@ from .submitted_document import SubmittedDocument
 from .submitted_form import SubmittedForm
 from .user import User
 from .staff_user import StaffUser
+from .package_version import PackageVersion
