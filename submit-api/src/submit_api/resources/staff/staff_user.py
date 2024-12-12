@@ -27,7 +27,7 @@ from submit_api.utils.util import cors_preflight
 from submit_api.schemas.staff_user import StaffUserSchema
 
 
-API = Namespace("staff_user", description="Endpoints for Staff Management")
+API = Namespace("staff-user", description="Endpoints for Staff Management")
 """Custom exception messages
 """
 
@@ -53,6 +53,12 @@ class StaffUser(Resource):
         if not staff:
             return ResourceNotFoundError(f"User with guid {guid} not found")
         return StaffUserSchema().dump(staff), HTTPStatus.OK
+
+
+@cors_preflight("OPTIONS, POST")
+@API.route("", methods=["POST", "OPTIONS"])
+class StaffUsers(Resource):
+    """Resource for managing a list of accounts"""
 
     @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Create a staff user")

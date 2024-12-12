@@ -20,4 +20,5 @@ export const STAFF_QUERY_KEY = Object.freeze({
   ACCOUNT_PROJECT: "staff/account-project",
   SUBMISSION_PACKAGE: "staff/package",
   SUBMISSION_ITEM: "staff/item",
+  STAFF_USER: "staff/staff-user",
 });
