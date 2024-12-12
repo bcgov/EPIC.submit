@@ -14,13 +14,13 @@ class StaffUserService:
         return db_account
 
     @classmethod
-    def _create_staff_user(cls, data, account, session):
+    def _create_staff_user(cls, data):
         """Create staff user."""
         user_data = {
             'auth_guid': data.get('auth_guid'),
             'type': UserType.STAFF.value
         }
-        user = UserModel.create_user(user_data, session)
+        user = UserModel.create_user(user_data)
         staff_user_data = {
             "first_name": data.get("first_name"),
             "last_name": data.get("last_name"),
@@ -29,5 +29,5 @@ class StaffUserService:
             "work_contact_number": data.get("work_contact_number"),
             "user_id": user.id
         }
-        staff_user = StaffUser.create_staff_user(staff_user_data, session)
+        staff_user = StaffUser.create_staff_user(staff_user_data)
         return staff_user
