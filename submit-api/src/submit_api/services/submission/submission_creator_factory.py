@@ -1,7 +1,7 @@
 """Service for submission management."""
 from typing import Protocol
 
-from submit_api.models import SubmittedDocument as SubmittedDocumentModel, Package as PackageModel
+from submit_api.models import SubmittedDocument as SubmittedDocumentModel, Package as PackageModel, Item as ItemModel
 from submit_api.models.db import session_scope
 from submit_api.models.submission import Submission as SubmissionModel
 from submit_api.models.submission import SubmissionTypeStatus
@@ -69,9 +69,10 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     @classmethod
     def get_document_version(cls, item_id, original_submission_id=None):
         """Get the latest document version."""
-        submission_item = SubmissionModel.find_by_id(item_id)
+        submission_item = ItemModel.find_by_id(item_id)
         submission_package = PackageModel.find_by_id(submission_item.package_id)
-        major_version = submission_package.version
+        package_version = submission_package.version
+        major_version = package_version.version
 
         if not original_submission_id or not submission_package.submitted_on:
             minor_version = 1

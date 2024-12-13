@@ -53,7 +53,7 @@ class SubmissionSchema(Schema):
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
-    version = fields.Int(data_key="version")
+    version = fields.Str(data_key="version")
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
