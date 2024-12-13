@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
+import { isAxiosError } from "axios";
 
 const IDIR = "idir";
 
@@ -42,10 +43,9 @@ function Staff() {
     data: staffData,
     isPending: isStaffPending,
     error: staffError,
-    isError: isStaffError,
   } = useStaffUserById(user?.profile.sub);
   const staffIsNotRegistered =
-    isStaffError && staffError?.request.status === 404;
+    isAxiosError(staffError) && staffError.response?.status === 404;
   const isMobile = useIsMobile();
 
   useEffect(() => {
