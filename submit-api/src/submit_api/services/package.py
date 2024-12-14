@@ -249,14 +249,26 @@ class PackageService:
     @classmethod
     def create_update_request(cls, package_id, request_data):
         """Create an update request for the package."""
-        package = cls.get_package_by_id(package_id)
-        if not package:
-            raise ResourceNotFoundError("Package not found")
+        package = cls._get_and_validate_package_for_update_request(package_id)
 
         update_request = UpdateRequestModel(
-            submission_package_id=package_id,
+            submission_package_id=package.id,
             submission_item_ids=request_data.get("submission_item_ids"),
             note=request_data.get("note"),
         )
         update_request.save()
         return update_request
+
+    @classmethod
+    def _get_and_validate_package_for_update_request(cls, package_id):
+        """Validate package status for update request."""
+        package = cls.get_package_by_id(package_id)
+        if not package:
+            raise ResourceNotFoundError("Package not found")
+        if not package.submitted_on:
+            raise BadRequestError("Cannot create an update request for a package that has not been submitted")
+        if package.status == PackageStatus.APPROVED:
+            raise BadRequestError("Cannot create an update request for a package that has been approved")
+        if package.status == PackageStatus.REJECTED:
+            raise BadRequestError("Cannot create an update request for a package that has been rejected")
+        return package

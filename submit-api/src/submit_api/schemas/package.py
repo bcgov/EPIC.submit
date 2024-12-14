@@ -137,20 +137,19 @@ def get_package_status(status, user_type):
 
 
 class CreateUpdateRequestSchema(Schema):
-    """staff package schema."""
+    """create update request schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
 
         unknown = EXCLUDE
 
-    package_id = fields.Int(data_key="package_id")
-    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids")
-    note = fields.Str(data_key="note")
+    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids", required=True)
+    note = fields.Str(data_key="note", required=True)
 
 
 class PackageUpdateRequestSchema(Schema):
-    """staff package schema."""
+    """package update request schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
