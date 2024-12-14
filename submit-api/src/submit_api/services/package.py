@@ -4,8 +4,8 @@ from datetime import datetime
 
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.enums.item_status import ItemStatus
-from submit_api.exceptions import BadRequestError
-from submit_api.models import Item as ItemModel, PackageVersion as PackageVersionModel
+from submit_api.exceptions import BadRequestError, ResourceNotFoundError
+from submit_api.models import Item as ItemModel, PackageVersion as PackageVersionModel, UpdateRequest as UpdateRequestModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
 from submit_api.models import Project as ProjectModel
@@ -245,3 +245,18 @@ class PackageService:
         status = request_data.get("status")
         state_updater = cls._get_state_updater(status)
         return state_updater(package_id)
+
+    @classmethod
+    def create_update_request(cls, package_id, request_data):
+        """Create an update request for the package."""
+        package = cls.get_package_by_id(package_id)
+        if not package:
+            raise ResourceNotFoundError("Package not found")
+
+        update_request = UpdateRequestModel(
+            submission_package_id=package_id,
+            submission_item_ids=request_data.get("submission_item_ids"),
+            note=request_data.get("note"),
+        )
+        update_request.save()
+        return update_request

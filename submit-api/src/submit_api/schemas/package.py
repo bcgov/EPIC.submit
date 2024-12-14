@@ -134,3 +134,37 @@ def get_package_status(status, user_type):
         return package_status_mapping[status][user_type]
 
     return status
+
+
+class CreateUpdateRequestSchema(Schema):
+    """staff package schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    package_id = fields.Int(data_key="package_id")
+    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids")
+    note = fields.Str(data_key="note")
+
+
+class PackageUpdateRequestSchema(Schema):
+    """staff package schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    id = fields.Int(data_key="id")
+    submission_package_id = fields.Int(data_key="submission_package_id")
+    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids")
+    active = fields.Bool(data_key="active")
+    note = fields.Str(data_key="note")
+    created_date = fields.DateTime(data_key="created_date")
+    created_by_user = fields.Method('get_created_by_user')
+
+    def get_created_by_user(self, obj):
+        """Get created by user."""
+        return obj.created_by_user.staff_user.full_name if obj.created_by_user and obj.created_by_user.staff_user else None

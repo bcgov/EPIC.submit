@@ -1,0 +1,24 @@
+"""Update request model class.
+
+Manages the update request
+"""
+from __future__ import annotations
+
+from sqlalchemy import Column, ForeignKey
+
+from .base_model import BaseModel
+from .db import db
+
+
+class UpdateRequest(BaseModel):
+    """Definition of update request entity."""
+
+    __tablename__ = 'update_requests'
+
+    id = Column(db.Integer, primary_key=True, autoincrement=True)
+    submission_package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False)
+    submission_item_ids = Column(db.ARRAY(db.Integer), nullable=False)
+    active = Column(db.Boolean, nullable=False, default=True)
+    created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
+    created_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
+    note = Column(db.String, nullable=True)
