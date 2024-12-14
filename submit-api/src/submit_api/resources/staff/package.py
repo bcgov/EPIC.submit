@@ -19,7 +19,7 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.package import StaffPackageSchema, CreateUpdateRequestSchema, PackageUpdateRequestSchema
+from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateRequestSchema, StaffPackageSchema
 from submit_api.services.package import PackageService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight

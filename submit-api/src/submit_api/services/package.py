@@ -5,15 +5,18 @@ from datetime import datetime
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.models import Item as ItemModel, PackageVersion as PackageVersionModel, UpdateRequest as UpdateRequestModel
+from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
+from submit_api.models import PackageVersion as PackageVersionModel
 from submit_api.models import Project as ProjectModel
+from submit_api.models import UpdateRequest as UpdateRequestModel
 from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.package import PackageStatus
 from submit_api.models.package_item_type import PackageItemType as PackageItemTypeModel
-from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel, PackageMetadataFields
+from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
+from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.services.email_service import EmailService
@@ -41,7 +44,7 @@ class PackageService:
             if not all_package_versions:
                 raise BadRequestError("Cannot create a new version for a package that has no versions")
 
-            latest_version = max([package_version.version for package_version in all_package_versions])
+            latest_version = max(package_version.version for package_version in all_package_versions)
             if latest_version != package_version.version:
                 raise BadRequestError("Cannot create a new version for a package that is not the latest version")
 

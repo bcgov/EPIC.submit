@@ -20,10 +20,10 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
+from submit_api.schemas.staff_user import StaffUserSchema
 from submit_api.services.staff__user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
-from submit_api.schemas.staff_user import StaffUserSchema
 
 
 API = Namespace("staff-user", description="Endpoints for Staff Management")

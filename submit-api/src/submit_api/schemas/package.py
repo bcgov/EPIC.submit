@@ -166,4 +166,5 @@ class PackageUpdateRequestSchema(Schema):
 
     def get_created_by_user(self, obj):
         """Get created by user."""
-        return obj.created_by_user.staff_user.full_name if obj.created_by_user and obj.created_by_user.staff_user else None
+        return obj.created_by_user.staff_user.full_name \
+            if obj.created_by_user and obj.created_by_user.staff_user else None
