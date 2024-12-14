@@ -21,6 +21,7 @@ from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
 
 
@@ -47,7 +48,7 @@ class AccountProjects(Resource):
         code=HTTPStatus.OK, model=project_list_model, description="Get project"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
     @cors.crossdomain(origin="*")
     def get():
         """Get all account projects."""
@@ -70,7 +71,8 @@ class AccountProject(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
     def get(account_project_id):
-        """Get projects by proponent id."""
+        """Get project by id."""
         account_project = ProjectService.get_account_project_by_id(account_project_id)
         return StaffAccountProjectSchema().dump(account_project), HTTPStatus.OK

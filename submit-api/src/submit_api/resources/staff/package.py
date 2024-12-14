@@ -21,6 +21,7 @@ from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import StaffPackageSchema, CreateUpdateRequestSchema, PackageUpdateRequestSchema
 from submit_api.services.package import PackageService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
 
 
@@ -55,7 +56,7 @@ class Package(Resource):
         code=HTTPStatus.OK, model=package_model, description="Get package"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
     @cors.crossdomain(origin="*")
     def get(package_id):
         """Get a package."""
@@ -79,7 +80,7 @@ class PackageUpdateRequest(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE])
     @cors.crossdomain(origin="*")
     def post(package_id):
         """Create an update request."""

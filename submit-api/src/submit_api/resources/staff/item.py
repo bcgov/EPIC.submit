@@ -22,6 +22,7 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.item import StaffItemSchema
 from submit_api.schemas.submission_review import SaveSubmissionReviewRequestSchema, SubmissionReviewSchema
 from submit_api.services.item import ItemService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
 
 
@@ -48,7 +49,7 @@ class Item(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
     def get(item_id):
         """Get item by id."""
         projects = ItemService.get_item_by_id(item_id)
@@ -69,7 +70,7 @@ class ItemReview(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE])
     def post(item_id):
         """Save submission review."""
         request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
