@@ -20,9 +20,10 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.services.staff__user_service import StaffUserService
-from submit_api.utils.util import cors_preflight
 from submit_api.schemas.staff_user import StaffUserSchema
+from submit_api.services.staff__user_service import StaffUserService
+from submit_api.utils.roles import EpicSubmitRole
+from submit_api.utils.util import cors_preflight
 
 
 API = Namespace("staff-user", description="Endpoints for Staff Management")
@@ -44,7 +45,7 @@ class StaffUser(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a staff by guid")
     @API.response(code=200, model=user_model, description="Success")
     @API.response(404, "Not Found")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
     @cors.crossdomain(origin="*")
     def get(guid):
         """Fetch a staff by id."""
@@ -66,7 +67,7 @@ class StaffUsers(Resource):
         code=HTTPStatus.CREATED, model=user_model, description="Created Staff User"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE])
     @cors.crossdomain(origin="*")
     def post():
         """Create a staff user."""
