@@ -48,7 +48,7 @@ class AccountProjects(Resource):
         code=HTTPStatus.OK, model=project_list_model, description="Get project"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get():
         """Get all account projects."""
@@ -71,7 +71,7 @@ class AccountProject(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
     def get(account_project_id):
         """Get project by id."""
         account_project = ProjectService.get_account_project_by_id(account_project_id)

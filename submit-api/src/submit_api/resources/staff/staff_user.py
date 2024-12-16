@@ -45,7 +45,7 @@ class StaffUser(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a staff by guid")
     @API.response(code=200, model=user_model, description="Success")
     @API.response(404, "Not Found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get(guid):
         """Fetch a staff by id."""
@@ -67,9 +67,9 @@ class StaffUsers(Resource):
         code=HTTPStatus.CREATED, model=user_model, description="Created Staff User"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def post():
         """Create a staff user."""
-        staff = StaffUserService._create_staff_user(StaffUserSchema().load(API.payload))
+        staff = StaffUserService.create_staff_user(StaffUserSchema().load(API.payload))
         return StaffUserSchema().dump(staff), HTTPStatus.CREATED

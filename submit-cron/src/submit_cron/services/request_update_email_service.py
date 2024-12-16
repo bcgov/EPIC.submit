@@ -13,9 +13,9 @@ class RequestUpdateEmailService:  # pylint: disable=too-few-public-methods
     @classmethod
     def prepare_update_request_creation_email_notification(cls, package: PackageModel) -> EmailDetails:
         """Prepare email details for update request creation."""
-        submitter = package.submitted_by_user
-        if not submitter or not submitter.staff_user:
+        if not package.submitter or not package.submitter.account_user:
             raise BadRequestError(f"Submitter with auth_guid {package.submitted_by} not found")
+        submitter = package.submitted_by_user.account_user
 
         sender_email = cls.get_email_sender_for_package_type(package.type.name)
         if not sender_email:
@@ -28,13 +28,13 @@ class RequestUpdateEmailService:  # pylint: disable=too-few-public-methods
         email_details = EmailDetails(
             template_name=MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
             body_args={
-                'submitter_name': submitter.staff_user.full_name,
+                'submitter_name': submitter.full_name,
                 'package_name': package.name,
                 'sender_name': sender_name,
             },
             subject='Action Required: Update Your Submission',
             sender=sender_email,
-            recipients=[submitter.staff_user.work_email_address],
+            recipients=[submitter.work_email_address],
         )
 
         return email_details

@@ -14,7 +14,7 @@ class StaffUserService:
         return db_account
 
     @classmethod
-    def _create_staff_user(cls, data):
+    def create_staff_user(cls, data):
         """Create staff user."""
         user = UserModel.get_by_guid(data.get('auth_guid'))
         if not user:

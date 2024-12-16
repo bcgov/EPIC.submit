@@ -49,7 +49,7 @@ class InternalStaffDocuments(Resource):
         code=HTTPStatus.CREATED, model=internal_document, description="Created Internal Staff Document"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def post(submission_item_id):
         """Create an internal staff document."""
