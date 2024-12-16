@@ -1,7 +1,9 @@
 """Service for submission management."""
 from typing import Protocol
 
-from submit_api.models import SubmittedDocument as SubmittedDocumentModel, Package as PackageModel, Item as ItemModel
+from submit_api.models import Item as ItemModel
+from submit_api.models import Package as PackageModel
+from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
 from submit_api.models.submission import Submission as SubmissionModel
 from submit_api.models.submission import SubmissionTypeStatus

@@ -21,6 +21,7 @@ from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission_item_note import PostSubmissionItemNote, SubmissionItemNote
 from submit_api.services.submission_item_note import SubmissionItemNoteService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
 
 
@@ -48,7 +49,7 @@ class SubmissionItemNoteResource(Resource):
         code=HTTPStatus.CREATED, model=note, description="Created a staff note"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
-    @auth.require
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE])
     @cors.crossdomain(origin="*")
     def post(submission_item_id):
         """Create a staff note."""

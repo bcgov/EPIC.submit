@@ -5,11 +5,11 @@ Revises: be096790789f
 Create Date: 2024-12-11 15:14:04.255245
 
 """
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import table, column
+from sqlalchemy.sql import column, table
 
 
 # revision identifiers, used by Alembic.

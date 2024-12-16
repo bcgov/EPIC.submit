@@ -4,16 +4,19 @@ from datetime import datetime
 
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.enums.item_status import ItemStatus
-from submit_api.exceptions import BadRequestError
-from submit_api.models import Item as ItemModel, PackageVersion as PackageVersionModel
+from submit_api.exceptions import BadRequestError, ResourceNotFoundError
+from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
+from submit_api.models import PackageVersion as PackageVersionModel
 from submit_api.models import Project as ProjectModel
+from submit_api.models import UpdateRequest as UpdateRequestModel
 from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.package import PackageStatus
 from submit_api.models.package_item_type import PackageItemType as PackageItemTypeModel
-from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel, PackageMetadataFields
+from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
+from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.services.email_service import EmailService
@@ -41,7 +44,7 @@ class PackageService:
             if not all_package_versions:
                 raise BadRequestError("Cannot create a new version for a package that has no versions")
 
-            latest_version = max([package_version.version for package_version in all_package_versions])
+            latest_version = max(package_version.version for package_version in all_package_versions)
             if latest_version != package_version.version:
                 raise BadRequestError("Cannot create a new version for a package that is not the latest version")
 
@@ -245,3 +248,30 @@ class PackageService:
         status = request_data.get("status")
         state_updater = cls._get_state_updater(status)
         return state_updater(package_id)
+
+    @classmethod
+    def create_update_request(cls, package_id, request_data):
+        """Create an update request for the package."""
+        package = cls._get_and_validate_package_for_update_request(package_id)
+
+        update_request = UpdateRequestModel(
+            submission_package_id=package.id,
+            submission_item_ids=request_data.get("submission_item_ids"),
+            note=request_data.get("note"),
+        )
+        update_request.save()
+        return update_request
+
+    @classmethod
+    def _get_and_validate_package_for_update_request(cls, package_id):
+        """Validate package status for update request."""
+        package = cls.get_package_by_id(package_id)
+        if not package:
+            raise ResourceNotFoundError("Package not found")
+        if not package.submitted_on:
+            raise BadRequestError("Cannot create an update request for a package that has not been submitted")
+        if package.status == PackageStatus.APPROVED:
+            raise BadRequestError("Cannot create an update request for a package that has been approved")
+        if package.status == PackageStatus.REJECTED:
+            raise BadRequestError("Cannot create an update request for a package that has been rejected")
+        return package
