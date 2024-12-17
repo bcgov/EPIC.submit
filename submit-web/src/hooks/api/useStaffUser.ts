@@ -1,7 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { submitRequest } from "@/utils/axiosUtils";
 import { STAFF_QUERY_KEY } from "./constants";
-import { Options } from "./types";
 import { StaffUser } from "@/models/User";
 
 type CreateStaffRequest = {

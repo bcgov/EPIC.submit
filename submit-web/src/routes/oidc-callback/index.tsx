@@ -5,14 +5,13 @@ import { USER_TYPE } from "@/models/User";
 import { HTTP_STATUS } from "@/utils/constants";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
-import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback/")({
   component: OidcCallback,
 });
 
-const ERROR_MESSAGE = "An error occurred while loading user data";
+\const ERROR_MESSAGE = "An error occurred while loading user data";
 
 function OidcCallback() {
   const { error: getAuthError, user: kcUser } = useAuth();

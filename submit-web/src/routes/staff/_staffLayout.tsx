@@ -3,8 +3,8 @@ import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
 import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
-import { useStaffAddUser, useStaffUserById } from "@/hooks/api/useStaffUser";
-import { useIsMobile, useMounted } from "@/hooks/common";
+import { useStaffAddUser } from "@/hooks/api/useStaffUser";
+import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
@@ -71,7 +71,7 @@ function Staff() {
         addStaffUser(staffUser);
       }
     }
-  }, [userData, kcUser]);
+  }, [userData, kcUser, addStaffUser, isCreatingStaffUserPending]);
 
   const isLoading = isAccountLoading;
 
