@@ -70,6 +70,15 @@ const statusStyles: Record<
     },
     label: "New",
   },
+  UPDATED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${EAOColors.DecisionDark}`,
+      background: EAOColors.DecisionLight,
+      height: "24px",
+    },
+    label: "Updated",
+  },
   PENDING_MANAGER_REVIEW: {
     sx: {
       borderRadius: 1,

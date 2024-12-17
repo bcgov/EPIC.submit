@@ -20,9 +20,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import ItemsTable from "@/components/Submission/ItemsTable";
 import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
+import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -33,7 +34,7 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey,
+      .queryKey
   );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
@@ -129,7 +130,7 @@ export default function SubmissionPage() {
               >
                 <ItemsTable submissionItems={submissionPackage.items} />
               </Box>
-
+              <UpdateRequestWidget />
               <Box
                 sx={{
                   pt: BCDesignTokens.layoutPaddingXlarge,
