@@ -5,6 +5,7 @@ import { USER_TYPE } from "@/models/User";
 import { HTTP_STATUS } from "@/utils/constants";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
+import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback/")({

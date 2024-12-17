@@ -19,4 +19,18 @@ class StaffUserSchema(Schema):
     last_name = fields.Str(data_key="last_name")
     full_name = fields.Str(data_key="full_name")
     work_email_address = fields.Str(data_key="work_email_address")
-    auth_guid = fields.Str(data_key="auth_guid")
+    user_id = fields.Int(data_key="user_id")
+
+
+class CreateStaffUserRequest(Schema):
+    """Create staff user request schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    first_name = fields.Str(data_key="first_name", required=True)
+    last_name = fields.Str(data_key="last_name", required=True)
+    work_email_address = fields.Str(data_key="work_email_address")
+    auth_guid = fields.Str(data_key="auth_guid", required=True)
