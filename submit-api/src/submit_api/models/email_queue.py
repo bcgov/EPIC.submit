@@ -12,6 +12,8 @@ from .db import db
 
 
 class EmailStatus(Enum):
+    """Enum for email status."""
+
     PENDING = 'PENDING'
     SENT = 'SENT'
     FAILED = 'FAILED'
@@ -19,6 +21,7 @@ class EmailStatus(Enum):
 
 class EntityType(Enum):
     """Enum for package type."""
+
     PACKAGE = 'PACKAGE'
 
 
