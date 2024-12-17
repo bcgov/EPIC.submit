@@ -1,11 +1,11 @@
 """Service for account management."""
 from submit_api.exceptions import ResourceExistsError, ResourceNotFoundError
-from submit_api.models import AccountUserRole as AccountRoleModel
-from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import AccountRole as RoleModel
+from submit_api.models import AccountUser as AccountUserModel
+from submit_api.models import AccountUserRole as AccountRoleModel
 from submit_api.models.account import Account as AccountModel
-from submit_api.models.db import session_scope
 from submit_api.models.account_role import AccountRoleEnum
+from submit_api.models.db import session_scope
 from submit_api.models.user import User as UserModel
 from submit_api.models.user import UserType
 

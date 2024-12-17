@@ -16,8 +16,9 @@
 
 from .account import Account
 from .account_project import AccountProject
-from .account_user_role import AccountUserRole
+from .account_role import AccountRole
 from .account_user import AccountUser
+from .account_user_role import AccountUserRole
 from .base_model import BaseModel
 from .db import db, ma, migrate
 from .email_queue import EmailQueue
@@ -30,7 +31,6 @@ from .package_metadata import PackageMetadata
 from .package_type import PackageType
 from .package_version import PackageVersion
 from .project import Project
-from .account_role import AccountRole
 from .staff_user import StaffUser
 from .submission import Submission
 from .submission_review import SubmissionReview
