@@ -11,7 +11,7 @@ export const Route = createFileRoute("/oidc-callback/")({
   component: OidcCallback,
 });
 
-\const ERROR_MESSAGE = "An error occurred while loading user data";
+const ERROR_MESSAGE = "An error occurred while loading user data";
 
 function OidcCallback() {
   const { error: getAuthError, user: kcUser } = useAuth();

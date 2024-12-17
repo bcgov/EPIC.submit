@@ -1,10 +1,9 @@
 """Service for account management."""
 from flask import current_app
 
-from submit_api.exceptions import ResourceNotFoundError, BadRequestError
+from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import StaffUser
 from submit_api.models import User as UserModel
-from submit_api.models.user import UserType
 
 
 class StaffUserService:
