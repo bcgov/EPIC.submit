@@ -49,7 +49,7 @@ class Item(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
     def get(item_id):
         """Get item by id."""
         projects = ItemService.get_item_by_id(item_id)
@@ -70,7 +70,7 @@ class ItemReview(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
     def post(item_id):
         """Save submission review."""
         request_body = SaveSubmissionReviewRequestSchema().load(API.payload)

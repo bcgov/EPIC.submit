@@ -4,12 +4,14 @@ from typing import List
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
 from submit_api.models.package import Package as PackageModel
-from submit_api.models.email_queue import EmailQueue
+from submit_api.models.email_queue import EmailQueue, EmailStatus
 
 from submit_cron.services.package_submission_email_service import PackageSubmissionEmailService
 from submit_cron.services.ches_service import ChesApiService
 from submit_cron.models import db
-from submit_cron.utils.constants import PACKAGE_ENTITY_TPYE
+from submit_cron.services.request_update_email_service import RequestUpdateEmailService
+from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, \
+    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE
 
 
 class EmailService:  # pylint: disable=too-few-public-methods
@@ -25,15 +27,25 @@ class EmailService:  # pylint: disable=too-few-public-methods
         print(f"Number of pending emails: {len(pending_emails)}")
         for email_entry in pending_emails:
             try:
-                if email_entry.entity_type == PACKAGE_ENTITY_TPYE:
-                    EmailService._process_package_submission_email(email_entry)
-                else:
-                    raise BadRequestError(f"Unsupported entity type for email notification: {email_entry.entity_type}")
+                email_processor = EmailService._get_email_processor(email_entry)
+                email_processor(email_entry)
             except Exception as e:
                 # Log the error and update the status to FAILED
-                email_entry.status = 'FAILED'
+                email_entry.status = EmailStatus.FAILED.value
                 email_entry.error_message = str(e)
                 db.session.commit()
+
+    @classmethod
+    def _get_email_processor(cls, email_entry: EmailQueue) -> callable:
+        """Get the email processor based on the template name."""
+        email_processors = {
+            MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE: cls._process_package_submission_email,
+            MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE: cls._process_request_update_creation_email
+        }
+        template = email_entry.template_name
+        if template not in email_processors:
+            raise BadRequestError(f"Unsupported email template: {template}")
+        return email_processors.get(template)
 
     @staticmethod
     def _process_package_submission_email(email_entry: EmailQueue):
@@ -49,7 +61,25 @@ class EmailService:  # pylint: disable=too-few-public-methods
         EmailService.send_email(email_details)
 
         # Update the email queue status to SENT
-        email_entry.status = 'SENT'
+        email_entry.status = EmailStatus.SENT.value
+        email_entry.sent_at = datetime.utcnow()
+        db.session.commit()
+
+    @staticmethod
+    def _process_request_update_creation_email(email_entry: EmailQueue):
+        """Process email entry for request update creation."""
+        package_id = email_entry.entity_id
+        package: PackageModel = db.session.get(PackageModel, package_id)
+        if not package:
+            raise BadRequestError(f"Package with ID {package_id} not found.")
+
+        email_details = RequestUpdateEmailService.prepare_update_request_creation_email_notification(package)
+
+        # Send the email using ChesApiService
+        EmailService.send_email(email_details)
+
+        # Update the email queue status to SENT
+        email_entry.status = EmailStatus.SENT.value
         email_entry.sent_at = datetime.utcnow()
         db.session.commit()
 
@@ -72,4 +102,4 @@ class EmailService:  # pylint: disable=too-few-public-methods
         Returns:
             list[EmailQueue]: List of pending email queue entries.
         """
-        return db.session.query(EmailQueue).filter(EmailQueue.status == 'PENDING').limit(limit).all()
+        return db.session.query(EmailQueue).filter(EmailQueue.status == EmailStatus.PENDING.value).limit(limit).all()

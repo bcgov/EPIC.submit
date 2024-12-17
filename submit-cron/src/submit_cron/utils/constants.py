@@ -17,7 +17,12 @@ SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP = {
     'Management Plan': 'EAO.ManagementPlanSupport@gov.bc.ca'
 }
 
+SUBMISSION_PACKAGE_TYPE_SENDER_MAP = {
+    'Management Plan': 'The Management Plan Team at the Environmental Assessment Office'
+}
+
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_SUBJECT = 'Management Plan Submission Confirmation'
+MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'management_plan_update_request_created.html'
 
-PACKAGE_ENTITY_TPYE = 'PACKAGE'
+PACKAGE_ENTITY_TYPE = 'PACKAGE'

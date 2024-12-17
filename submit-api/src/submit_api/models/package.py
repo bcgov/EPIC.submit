@@ -46,9 +46,9 @@ class Package(BaseModel):
 
     update_requests = db.relationship(
         'UpdateRequest',
-        backref='package',
+        backref='submission_package',
         lazy='joined',
-        primaryjoin='_and(UpdateRequest.submission_package_id == Package.id, UpdateRequest.active == True)',
+        primaryjoin='and_(UpdateRequest.submission_package_id == Package.id, UpdateRequest.active.is_(True))',
         foreign_keys='UpdateRequest.submission_package_id')
 
     version = db.relationship(
