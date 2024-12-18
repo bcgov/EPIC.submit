@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { submitRequest } from "@/utils/axiosUtils";
 import { STAFF_QUERY_KEY } from "./constants";
-import { Options } from "./types";
+import { StaffUser } from "@/models/User";
 
 type CreateStaffRequest = {
   first_name?: string;
@@ -11,11 +11,15 @@ type CreateStaffRequest = {
 };
 
 const fetchStaffUserByGUID = (id?: string) => {
-  return submitRequest({ url: `staff/staff-user/${id}` });
+  return submitRequest<StaffUser>({ url: `staff/staff-user/${id}` });
 };
 
 const addStaffUser = (data: CreateStaffRequest) => {
-  return submitRequest({ url: "staff/staff-user", method: "post", data });
+  return submitRequest<StaffUser>({
+    url: "staff/staff-user",
+    method: "post",
+    data,
+  });
 };
 
 export const useStaffUserById = (userId?: string) => {
@@ -26,9 +30,8 @@ export const useStaffUserById = (userId?: string) => {
   });
 };
 
-export const useStaffAddUser = (options?: Options) => {
+export const useStaffAddUser = () => {
   return useMutation({
     mutationFn: addStaffUser,
-    ...options,
   });
 };

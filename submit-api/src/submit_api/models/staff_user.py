@@ -22,7 +22,7 @@ class StaffUser(BaseModel):
     last_name = Column(db.String(50), nullable=False)
     full_name = column_property(first_name + ' ' + last_name)
     work_email_address = Column(db.String(100), nullable=False)
-    user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
+    user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False, unique=True)
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
 
     @classmethod

@@ -20,7 +20,7 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.staff_user import StaffUserSchema
+from submit_api.schemas.staff_user import StaffUserSchema, CreateStaffUserRequest
 from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
@@ -71,5 +71,6 @@ class StaffUsers(Resource):
     @cors.crossdomain(origin="*")
     def post():
         """Create a staff user."""
-        staff = StaffUserService.create_staff_user(StaffUserSchema().load(API.payload))
+        request_data = CreateStaffUserRequest().load(API.payload)
+        staff = StaffUserService.create_staff_user_if_missing(request_data)
         return StaffUserSchema().dump(staff), HTTPStatus.CREATED
