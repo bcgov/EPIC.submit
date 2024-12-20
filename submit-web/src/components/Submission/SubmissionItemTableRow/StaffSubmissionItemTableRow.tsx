@@ -12,7 +12,6 @@ import { PackageTableRow } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { openModal } from "@/components/Shared/Modals/modalStore";
-import { PACKAGE_STATUS } from "@/models/Package";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 
