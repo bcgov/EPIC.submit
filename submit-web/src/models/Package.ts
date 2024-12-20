@@ -1,4 +1,5 @@
 import { SubmissionItem } from "./SubmissionItem";
+import { UpdateRequest } from "./UpdateRequest";
 
 export type PackageType = {
   id: number;
@@ -81,4 +82,5 @@ export type SubmissionPackage = {
   meta?: SubmissionPackageMeta;
   days_since_submission?: number;
   review_status?: NonCanonicalPackageStatus;
+  update_requests: Array<UpdateRequest>;
 };
