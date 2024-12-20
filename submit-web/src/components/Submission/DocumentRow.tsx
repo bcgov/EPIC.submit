@@ -7,15 +7,17 @@ import { StyledTableCell } from "../Shared/Table/common";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { openModal } from "../Shared/Modals/modalStore";
 import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
+import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
+import { SubmissionItemTableRow } from "./types";
 
 type DocumentRowProps = {
   documentSubmission: Submission;
-  submissionStatus?: string;
+  submissionItem: SubmissionItemTableRow;
 };
 
 export default function DocumentRow({
   documentSubmission,
-  submissionStatus,
+  submissionItem,
 }: DocumentRowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const {
@@ -23,17 +25,34 @@ export default function DocumentRow({
     version,
     submitted_by,
   } = documentSubmission;
+  const hasReviewStarted = submissionItem.review_start_date !== null;
 
   const downloadDocument = async () => {
     try {
-      if (submissionStatus === PACKAGE_STATUS.SUBMITTED.value) {
-        openModal(
-          <ConfirmationModal
-            onConfirm={() => {}}
-            title="Review Submission"
-            description="Are you sure you want to review this submission? Once you start a review you will not be able to revert this management plan's status."
-          />
-        );
+      if (!hasReviewStarted) {
+        //TODO: on confirm update status in next pr
+        if (submissionItem.name === SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN) {
+          openModal(
+            <ConfirmationModal
+              onConfirm={() => {}}
+              title="Start Management Plan Review"
+              description="Would you like to start the Management Plan Review now? This will start the counter for the MP Review."
+              confirmText="Start Consultation Check"
+              cancelText="Start Later"
+            />
+          );
+        }
+        if (submissionItem.name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD) {
+          openModal(
+            <ConfirmationModal
+              onConfirm={() => {}}
+              title="Start Consultation Check"
+              description="Would you like to start the Consultation Check now?"
+              confirmText="Start Consultation Check"
+              cancelText="Start Later"
+            />
+          );
+        }
         return;
       }
       if (pendingGetObject) return;

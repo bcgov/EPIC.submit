@@ -14,6 +14,7 @@ import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { openModal } from "@/components/Shared/Modals/modalStore";
 import { PACKAGE_STATUS } from "@/models/Package";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -21,19 +22,43 @@ export default function StaffSubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
   const navigate = useNavigate();
-  const { name, submissions, has_document, id, status, reviewStatus } = item;
+  const {
+    name,
+    submissions,
+    has_document,
+    id,
+    status,
+    reviewStatus,
+    review_start_date,
+  } = item;
   const actionLabel = has_document ? "Review" : "View";
+  const hasReviewStarted = review_start_date !== null;
 
   const onActionClick = () => {
-    if (status === PACKAGE_STATUS.SUBMITTED.value) {
+    if (!hasReviewStarted) {
       //TODO: on confirm update status in next pr
-      openModal(
-        <ConfirmationModal
-          onConfirm={() => {}}
-          title="Review Submission"
-          description="Are you sure you want to review this submission? Once you start a review you will not be able to revert this management plan's status."
-        />
-      );
+      if (name === SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN) {
+        openModal(
+          <ConfirmationModal
+            onConfirm={() => {}}
+            title="Start Management Plan Review"
+            description="Would you like to start the Management Plan Review now? This will start the counter for the MP Review."
+            confirmText="Start MP Review"
+            cancelText="Start Later"
+          />
+        );
+      }
+      if (name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD) {
+        openModal(
+          <ConfirmationModal
+            onConfirm={() => {}}
+            title="Start Consultation Check"
+            description="Would you like to start the Consultation Check now?"
+            confirmText="Start Consultation Check"
+            cancelText="Start Later"
+          />
+        );
+      }
     } else {
       navigate({
         to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
@@ -91,11 +116,11 @@ export default function StaffSubmissionItemTableRow({
           </Typography>
         </SubmissionItemTableCell>
       </PackageTableRow>
-      {submissions.map((submissionItem) => (
+      {submissions.map((submission) => (
         <DocumentRow
-          submissionStatus={status}
-          key={`doc-row-${submissionItem.id}`}
-          documentSubmission={submissionItem}
+          submissionItem={item}
+          key={`doc-row-${submission.id}`}
+          documentSubmission={submission}
         />
       ))}
       <When condition={error}>
