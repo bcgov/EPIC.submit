@@ -7,11 +7,14 @@ export type PackageType = {
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus
-export type NonCanonicalPackageStatus = "PENDING_MANAGER_REVIEW";
+export type NonCanonicalPackageStatus =
+  | "PENDING_MANAGER_REVIEW"
+  | "UPDATE_REQUESTED";
 export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   Record<NonCanonicalPackageStatus, NonCanonicalPackageStatus>
 >({
   PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
+  UPDATE_REQUESTED: "UPDATE_REQUESTED",
 });
 
 export type PackageStatus =

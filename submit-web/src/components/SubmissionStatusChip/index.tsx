@@ -91,10 +91,12 @@ export function SubmissionStatusChip({ status }: { status: string }) {
 type SubmissionStatusChipStackProps = {
   status: SubmissionStatus;
   reviewStatus?: string;
+  isUpdateRequested?: boolean;
 };
 export const SubmissionStatusChipStack = ({
   status,
   reviewStatus,
+  isUpdateRequested = false,
 }: SubmissionStatusChipStackProps) => {
   return (
     <Box sx={{ display: "inline-block" }}>
@@ -108,6 +110,12 @@ export const SubmissionStatusChipStack = ({
         {reviewStatus ===
           NON_CANONICAL_SUBMISSION_STATUS.PENDING_MANAGER_REVIEW && (
           <SubmissionStatusChip status={reviewStatus} />
+        )}
+
+        {isUpdateRequested && (
+          <SubmissionStatusChip
+            status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
+          />
         )}
       </Stack>
     </Box>

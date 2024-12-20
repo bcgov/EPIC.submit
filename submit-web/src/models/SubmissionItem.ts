@@ -1,4 +1,4 @@
-import { Note } from "@/components/SubmissionItem/ConsultationRecord/ConsultationRecordStaffView/Note";
+import { Note } from "@/components/SubmissionItem/Note";
 import { Submission, SubmissionStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
 
