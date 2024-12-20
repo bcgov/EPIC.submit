@@ -39,10 +39,11 @@ export default function UpdateRequestWidget({
           setExpanded(false);
         },
         onError: (error) => {
+          const defaultMessage = "Failed to create update request";
           notify.error(
             isAxiosError(error)
-              ? error.response?.data.message
-              : "Failed to create update request",
+              ? (error.response?.data.message ?? defaultMessage)
+              : defaultMessage,
           );
         },
       },
