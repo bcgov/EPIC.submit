@@ -15,8 +15,6 @@ import { SubmissionPackage } from "@/models/Package";
 import RequestSection from "./RequestSection";
 import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import AddRequestSection from "./AddRequestSection";
-import { useQueryClient } from "@tanstack/react-query";
-import { STAFF_QUERY_KEY } from "@/hooks/api/constants";
 
 type UpdateRequestWidgetProps = {
   submissionPackage: SubmissionPackage;
@@ -24,7 +22,6 @@ type UpdateRequestWidgetProps = {
 export default function UpdateRequestWidget({
   submissionPackage,
 }: UpdateRequestWidgetProps) {
-  const queryClient = useQueryClient();
   const [isCreateRequestOpen, setIsCreateRequestOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
