@@ -2,8 +2,6 @@
 from collections import defaultdict
 from datetime import datetime
 
-from flask import current_app
-
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel

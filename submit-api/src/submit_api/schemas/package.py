@@ -46,7 +46,8 @@ class CreateUpdateRequestSchema(Schema):
 
         unknown = EXCLUDE
 
-    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids", required=True, validate=validate.Length(min=1))
+    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids",
+                                      required=True, validate=validate.Length(min=1))
     note = fields.Str(data_key="note", required=True, validate=validate.Length(min=1))
 
 
