@@ -15,6 +15,8 @@ import { SubmissionPackage } from "@/models/Package";
 import RequestSection from "./RequestSection";
 import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import AddRequestSection from "./AddRequestSection";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { isAxiosError } from "axios";
 
 type UpdateRequestWidgetProps = {
   submissionPackage: SubmissionPackage;
@@ -31,6 +33,19 @@ export default function UpdateRequestWidget({
     useCreatePackageUpdateRequest({
       accountProjectId: submissionPackage.account_project_id,
       packageId: submissionPackage.id,
+      options: {
+        onSuccess: () => {
+          notify.success("Update request created successfully");
+          setExpanded(false);
+        },
+        onError: (error) => {
+          notify.error(
+            isAxiosError(error)
+              ? error.response?.data.message
+              : "Failed to create update request",
+          );
+        },
+      },
     });
 
   const handleIsCreateRequestOpen = () => {

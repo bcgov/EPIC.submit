@@ -18,7 +18,15 @@ export default function StaffSubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
   const navigate = useNavigate();
-  const { name, submissions, has_document, id, status, reviewStatus } = item;
+  const {
+    name,
+    submissions,
+    has_document,
+    id,
+    status,
+    reviewStatus,
+    isUpdateRequest,
+  } = item;
 
   const actionLabel = has_document ? "Review" : "View";
 
@@ -59,6 +67,7 @@ export default function StaffSubmissionItemTableRow({
           <SubmissionStatusChipStack
             status={status}
             reviewStatus={reviewStatus}
+            isUpdateRequested={isUpdateRequest}
           />
         </SubmissionItemTableCell>
 

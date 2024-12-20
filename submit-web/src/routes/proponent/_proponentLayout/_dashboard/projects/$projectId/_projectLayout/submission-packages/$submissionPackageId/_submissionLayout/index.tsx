@@ -168,7 +168,7 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable submissionItems={submissionPackage.items} />
+                <ItemsTable submissionPackage={submissionPackage} />
               </Box>
               <When condition={isPackageSubmitted}>
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>

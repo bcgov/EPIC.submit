@@ -105,7 +105,7 @@ const statusStyles: Record<
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
-      // width: "191px",
+      width: "140px",
     },
     label: "Update Requested",
   },

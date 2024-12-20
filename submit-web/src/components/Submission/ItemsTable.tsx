@@ -9,10 +9,7 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import SubmissionItemTableRow from "./SubmissionItemTableRow";
-import {
-  SUBMISSION_ITEM_METHOD,
-  SubmissionItem,
-} from "@/models/SubmissionItem";
+import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
 import { StyledTableHeadCell } from "../Shared/Table/common";
 import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import { usePackageTableStore } from "./packageTableStore";
@@ -20,12 +17,25 @@ import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import { When } from "react-if";
 import InternalDocumentsRows from "../SubmissionItem/InternalDocuments/Rows";
+import { SubmissionPackage } from "@/models/Package";
+import { useMemo } from "react";
 
 export default function ItemsTable({
-  submissionItems,
+  submissionPackage,
 }: {
-  submissionItems: Array<SubmissionItem>;
+  submissionPackage: SubmissionPackage;
 }) {
+  const { items: submissionItems, update_requests } = submissionPackage;
+
+  const itemUpdateRequestMap = useMemo(() => {
+    return update_requests
+      .flatMap((update_request) => update_request.submission_item_ids)
+      .reduce((acc: { [key: number]: boolean }, id) => {
+        acc[id] = true;
+        return acc;
+      }, {});
+  }, [update_requests]);
+
   const { userType } = useAccount();
 
   const { isValidating } = usePackageTableStore();
@@ -42,6 +52,7 @@ export default function ItemsTable({
     has_document:
       subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
     reviewStatus: subItem.review?.status,
+    isUpdateRequest: Boolean(itemUpdateRequestMap[subItem.id]),
   }));
 
   const internalStaffDocuments = submissionItems.flatMap(
