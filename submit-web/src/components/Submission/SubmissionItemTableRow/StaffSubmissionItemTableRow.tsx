@@ -11,6 +11,9 @@ import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
 import { PackageTableRow } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
+import { openModal } from "@/components/Shared/Modals/modalStore";
+import { PACKAGE_STATUS } from "@/models/Package";
+import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -19,13 +22,23 @@ export default function StaffSubmissionItemTableRow({
   const { projectId, submissionPackageId } = useParams({ strict: false });
   const navigate = useNavigate();
   const { name, submissions, has_document, id, status, reviewStatus } = item;
-
   const actionLabel = has_document ? "Review" : "View";
 
   const onActionClick = () => {
-    navigate({
-      to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
-    });
+    if (status === PACKAGE_STATUS.SUBMITTED.value) {
+      //TODO: on confirm update status in next pr
+      openModal(
+        <ConfirmationModal
+          onConfirm={() => {}}
+          title="Review Submission"
+          description="Are you sure you want to review this submission? Once you start a review you will not be able to revert this management plan's status."
+        />
+      );
+    } else {
+      navigate({
+        to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+      });
+    }
   };
 
   return (
@@ -78,10 +91,11 @@ export default function StaffSubmissionItemTableRow({
           </Typography>
         </SubmissionItemTableCell>
       </PackageTableRow>
-      {submissions.map((submission) => (
+      {submissions.map((submissionItem) => (
         <DocumentRow
-          key={`doc-row-${submission.id}`}
-          documentSubmission={submission}
+          submissionStatus={status}
+          key={`doc-row-${submissionItem.id}`}
+          documentSubmission={submissionItem}
         />
       ))}
       <When condition={error}>

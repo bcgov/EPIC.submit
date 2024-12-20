@@ -4,8 +4,10 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
+  Box,
 } from "@mui/material";
 import { useModal } from "./modalStore";
+import { modalStyle } from "./constants";
 
 type ConfirmationModalProps = {
   title: string;
@@ -20,20 +22,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 }) => {
   const { setClose } = useModal();
   return (
-    <>
+    <Box sx={modalStyle}>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{description}</DialogContentText>
       </DialogContent>
       <DialogActions sx={{ padding: "1rem" }}>
-        <Button onClick={setClose} color="primary">
-          Cancel
-        </Button>
-        <Button variant="contained" onClick={onConfirm} color="error">
+        <Button variant="contained" onClick={onConfirm} color="primary">
           Confirm
         </Button>
+        <Button onClick={setClose} color="error">
+          Cancel
+        </Button>
       </DialogActions>
-    </>
+    </Box>
   );
 };
 
