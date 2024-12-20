@@ -39,11 +39,7 @@ const ControlledFormGroup: FC<IFormInputProps> = ({
         defaultValue={defaultValues?.[name] || ""}
         render={({ field }) => {
           return (
-            <FormGroup
-              {...otherProps}
-              {...field}
-              onChange={(e) => console.log(e)}
-            >
+            <FormGroup {...otherProps} {...field}>
               {childrenWithProps}
             </FormGroup>
           );

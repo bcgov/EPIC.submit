@@ -2,10 +2,7 @@ import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
 import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
-import {
-  getUserByGuidQueryOptions,
-  useGetUserByGuid,
-} from "@/hooks/api/useAccounts";
+import { useGetUserByGuid } from "@/hooks/api/useAccounts";
 import { useStaffAddUser } from "@/hooks/api/useStaffUser";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
@@ -14,8 +11,7 @@ import { useAccount } from "@/store/accountStore";
 import { getUserRolesFromToken } from "@/utils";
 import { Box } from "@mui/material";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
-import { set } from "lodash";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 const IDIR = "idir";
 
@@ -51,13 +47,15 @@ function Staff() {
 
   const isIdirSignIn = kcUser?.profile.identity_provider === IDIR;
 
-  const handleUser = () => {
+  const handleUser = useCallback(() => {
     if (!isAuthenticated) {
       signinRedirect();
+      return;
     }
 
     if (!isIdirSignIn) {
       signoutRedirect();
+      return;
     }
 
     if (isAccountLoading) {
@@ -67,7 +65,16 @@ function Staff() {
         roles: getUserRolesFromToken(kcUser?.access_token),
       });
     }
-  };
+  }, [
+    isAuthenticated,
+    isIdirSignIn,
+    isAccountLoading,
+    signinRedirect,
+    signoutRedirect,
+    setAccount,
+    kcUser,
+  ]);
+
   useEffect(() => {
     if (!isAuthLoading) {
       handleUser();

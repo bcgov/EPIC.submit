@@ -40,7 +40,7 @@ export default function SubmissionPage() {
     strict: false,
   });
   const submissionPackageId = Number(submissionPackageIdParam);
-  const { data: submissionPackage, isPending } = useGetStaffSubmissionPackage({
+  const { data: submissionPackage } = useGetStaffSubmissionPackage({
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
@@ -52,8 +52,6 @@ export default function SubmissionPage() {
       reset();
     };
   });
-
-  console.log("query client is fetching", queryClient.isFetching());
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;

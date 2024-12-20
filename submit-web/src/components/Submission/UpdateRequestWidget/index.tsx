@@ -13,10 +13,7 @@ import { When } from "react-if";
 import { useState } from "react";
 import { SubmissionPackage } from "@/models/Package";
 import RequestSection from "./RequestSection";
-import {
-  getStaffSubmissionPackageQueryOptions,
-  useCreatePackageUpdateRequest,
-} from "@/hooks/api/usePackages";
+import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import AddRequestSection from "./AddRequestSection";
 import { useQueryClient } from "@tanstack/react-query";
 import { STAFF_QUERY_KEY } from "@/hooks/api/constants";
@@ -62,13 +59,6 @@ export default function UpdateRequestWidget({
     setIsCreateRequestOpen(false);
     setExpanded(false);
   };
-
-  const packageQueryState = queryClient.getQueryState([
-    STAFF_QUERY_KEY.SUBMISSION_PACKAGE,
-    submissionPackage.id,
-  ]);
-
-  console.log(packageQueryState?.fetchStatus);
 
   if (!updateRequests) return null;
 

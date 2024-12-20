@@ -12,7 +12,6 @@ import {
   QUERY_KEY,
   STAFF_QUERY_KEY,
 } from "./constants";
-import { UpdateRequest } from "@/models/UpdateRequest";
 
 const createSubmissionPackage = ({
   accountProjectId,
