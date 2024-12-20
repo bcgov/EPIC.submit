@@ -24,11 +24,10 @@ export default function DocumentRow({
     version,
     submitted_by,
   } = documentSubmission;
-  const hasReviewStarted = submissionItem.review_start_date !== null;
 
   const downloadDocument = async () => {
     try {
-      if (!hasReviewStarted) {
+      if (!submissionItem.review_start_date) {
         //TODO: on confirm update status in next pr
         if (submissionItem.name === SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN) {
           openModal(

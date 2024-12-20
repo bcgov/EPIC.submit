@@ -31,10 +31,9 @@ export default function StaffSubmissionItemTableRow({
     review_start_date,
   } = item;
   const actionLabel = has_document ? "Review" : "View";
-  const hasReviewStarted = review_start_date !== null;
 
   const onActionClick = () => {
-    if (!hasReviewStarted) {
+    if (!review_start_date) {
       //TODO: on confirm update status in next pr
       if (name === SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN) {
         openModal(
