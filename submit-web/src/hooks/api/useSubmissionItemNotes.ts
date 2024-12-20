@@ -2,8 +2,8 @@ import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { STAFF_QUERY_KEY } from "./constants";
-import { Note } from "@/components/SubmissionItem/ConsultationRecord/ConsultationRecordStaffView/Note";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { Note } from "@/components/SubmissionItem/Note";
 
 type CreateNoteType = {
   submission_item_id: number;

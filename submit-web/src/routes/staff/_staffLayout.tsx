@@ -2,7 +2,10 @@ import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
 import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
-import { getUserByGuidQueryOptions } from "@/hooks/api/useAccounts";
+import {
+  getUserByGuidQueryOptions,
+  useGetUserByGuid,
+} from "@/hooks/api/useAccounts";
 import { useStaffAddUser } from "@/hooks/api/useStaffUser";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
@@ -10,8 +13,8 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { getUserRolesFromToken } from "@/utils";
 import { Box } from "@mui/material";
-import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
+import { set } from "lodash";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 const IDIR = "idir";
@@ -27,37 +30,49 @@ function Staff() {
     signoutRedirect,
     isAuthenticated,
     signinRedirect,
+    isLoading: isAuthLoading,
   } = useAuth();
 
   const { mutate: addStaffUser, isPending: isCreatingStaffUserPending } =
     useStaffAddUser();
 
-  const queryClient = useQueryClient();
-  const userData = queryClient.getQueryData(
-    getUserByGuidQueryOptions({
-      guid: kcUser?.profile.sub,
-    }).queryKey,
-  );
+  const {
+    data: userData,
+    error: getUserError,
+    isPending: isUserDataPending,
+  } = useGetUserByGuid({
+    guid: kcUser?.profile.sub,
+  });
 
   const isMobile = useIsMobile();
 
-  useEffect(() => {
+  const isLoading =
+    isAccountLoading || isUserDataPending || isAuthLoading || isAccountLoading;
+
+  const isIdirSignIn = kcUser?.profile.identity_provider === IDIR;
+
+  const handleUser = () => {
     if (!isAuthenticated) {
       signinRedirect();
-    } else {
+    }
+
+    if (!isIdirSignIn) {
+      signoutRedirect();
+    }
+
+    if (isAccountLoading) {
       setAccount({
         isLoading: false,
         userType: USER_TYPE.STAFF,
         roles: getUserRolesFromToken(kcUser?.access_token),
       });
     }
-  }, [
-    kcUser?.access_token,
-    isAuthenticated,
-    signinRedirect,
-    setAccount,
-    kcUser,
-  ]);
+  };
+  useEffect(() => {
+    if (!isAuthLoading) {
+      handleUser();
+    }
+  }, [handleUser, isAuthLoading]);
 
   useEffect(() => {
     if (userData && kcUser && !isCreatingStaffUserPending) {
@@ -73,15 +88,12 @@ function Staff() {
     }
   }, [userData, kcUser, addStaffUser, isCreatingStaffUserPending]);
 
-  const isLoading = isAccountLoading;
-
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
     return <PageLoader />;
   }
 
-  if (kcUser?.profile.identity_provider !== IDIR) {
-    signoutRedirect();
-    return null;
+  if (getUserError) {
+    return <Navigate to="/error" />;
   }
 
   if (userData?.type !== USER_TYPE.STAFF) {

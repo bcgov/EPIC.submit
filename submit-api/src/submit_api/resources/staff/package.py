@@ -80,10 +80,10 @@ class PackageUpdateRequest(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_EDIT.value])
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def post(package_id):
         """Create an update request."""
         create_update_request_data = CreateUpdateRequestSchema().load(API.payload)
         created_update_request = PackageService.create_update_request(package_id, create_update_request_data)
-        return PackageUpdateRequestSchema().dump(created_update_request), HTTPStatus.CREATED
+        return StaffPackageSchema().dump(created_update_request), HTTPStatus.CREATED

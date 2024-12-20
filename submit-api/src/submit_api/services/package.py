@@ -2,6 +2,8 @@
 from collections import defaultdict
 from datetime import datetime
 
+from flask import current_app
+
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel
@@ -224,10 +226,9 @@ class PackageService:
     def create_update_request(cls, package_id, request_data):
         """Create an update request for the package."""
         package = cls._get_and_validate_package_for_update_request(package_id)
-
-        update_request = cls._create_update_request(package, request_data)
+        cls._create_update_request(package, request_data)
         cls._update_request_creation_email_queue(package.id)
-        return update_request
+        return package
 
     @classmethod
     def _create_update_request(cls, package, request_data):
@@ -236,6 +237,7 @@ class PackageService:
             submission_package_id=package.id,
             submission_item_ids=request_data.get("submission_item_ids"),
             note=request_data.get("note"),
+            created_by=TokenInfo.get_id()
         )
         update_request.save()
         return update_request
@@ -244,7 +246,7 @@ class PackageService:
     def _update_request_creation_email_queue(cls, package_id):
         """Create an email queue record for an update request."""
         email_queue = EmailQueueModel(
-            entity_id=package_id.id, entity_type=EntityType.PACKAGE.value,
+            entity_id=package_id, entity_type=EntityType.PACKAGE.value,
             template_name=MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE
         )
         email_queue.save()
