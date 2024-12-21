@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  Checkbox,
-  FormControlLabel,
-  FormGroup,
-  FormHelperText,
-} from "@mui/material";
+import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
 
 type CheckboxGroupProps = {
   defaultSelectedValues?: unknown[];
