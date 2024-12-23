@@ -13,7 +13,6 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { openModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
-import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -34,34 +33,24 @@ export default function StaffSubmissionItemTableRow({
 
   const onActionClick = () => {
     if (!review_start_date) {
-      //TODO: on confirm update status in next pr
-      if (name === SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN) {
-        openModal(
-          <ConfirmationModal
-            onConfirm={() => {}}
-            title="Start Management Plan Review"
-            description="Would you like to start the Management Plan Review now? This will start the counter for the MP Review."
-            confirmText="Start MP Review"
-            cancelText="Start Later"
-          />
-        );
-      }
-      if (name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD) {
-        openModal(
-          <ConfirmationModal
-            onConfirm={() => {}}
-            title="Start Consultation Check"
-            description="Would you like to start the Consultation Check now?"
-            confirmText="Start Consultation Check"
-            cancelText="Start Later"
-          />
-        );
-      }
-    } else {
-      navigate({
-        to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
-      });
+      openVerificationModal();
     }
+    navigate({
+      to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+    });
+  };
+
+  const openVerificationModal = () => {
+    openModal(
+      <ConfirmationModal
+        onConfirm={() => {}}
+        title={`Start ${name} Review`}
+        description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
+        confirmText={`Start ${name} Review`}
+        cancelText="Start Later"
+      />
+    );
+    return;
   };
 
   return (
