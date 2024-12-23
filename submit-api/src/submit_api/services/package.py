@@ -64,7 +64,9 @@ class PackageService:
                 session, new_package.id, new_metadata)
             cls._create_items(session, new_package.id, package_type)
 
+            original_package.is_latest = False
             session.add(original_package)
+            new_package.is_latest = True
             return new_package
 
     @classmethod
@@ -90,7 +92,7 @@ class PackageService:
             "account_project_id": account_project_id,
             "name": request_data.get("name"),
             "type_id": package_type.id,
-            "active": request_data.get("active", True),
+            "active": request_data.get("active", None),
         }
         package = PackageModel(**package_data)
         session.add(package)
