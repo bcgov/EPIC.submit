@@ -19,10 +19,16 @@ class AccountProject(BaseModel):
     account_id = Column(db.Integer, ForeignKey('accounts.id'), nullable=False)
     project_id = Column(db.Integer, ForeignKey('projects.id'), nullable=False)
     project = db.relationship('Project', foreign_keys=[project_id], lazy='joined')
-    packages = db.relationship(
+    active_packages = db.relationship(
         'Package',
         primaryjoin='and_(Package.account_project_id==AccountProject.id, Package.active==True)',
-        lazy='select')
+        lazy='select',
+        viewonly=True)
+    latest_packages = db.relationship(
+        'Package',
+        primaryjoin='and_(Package.account_project_id==AccountProject.id, Package.is_latest==True)',
+        lazy='select',
+        viewonly=True)
 
     @classmethod
     def add_projects_bulk(cls, projects):

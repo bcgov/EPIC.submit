@@ -1,4 +1,4 @@
-"""empty message
+""" Add is_latest column to packages
 
 Revision ID: a7074e98dede
 Revises: 0b48adc3879f

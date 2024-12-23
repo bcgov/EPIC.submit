@@ -1,6 +1,6 @@
-"""Engagement model class.
+"""Project schema.
 
-Manages the engagement
+This module defines the schema for the project entity.
 """
 from datetime import datetime
 
@@ -58,7 +58,7 @@ class AccountProjectSchema(Schema):
     account_id = fields.Int(data_key="account_id")
     project_id = fields.Int(data_key="project_id")
     project = fields.Nested(ProjectSchema, data_key="project")
-    packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
+    latest_packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
 
 
 class StaffAccountProjectPackageSchema(StaffPackageSchema):
@@ -84,12 +84,14 @@ class StaffAccountProjectPackageSchema(StaffPackageSchema):
         return obj.meta.json if obj.meta else None
 
 
-class StaffAccountProjectSchema(AccountProjectSchema):
+class StaffAccountProjectSchema(Schema):
     """Account project schema for staff."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
 
-        unknown = EXCLUDE
-
-    packages = fields.List(fields.Nested(StaffAccountProjectPackageSchema), data_key="packages")
+    id = fields.Int(data_key="id")
+    account_id = fields.Int(data_key="account_id")
+    project_id = fields.Int(data_key="project_id")
+    project = fields.Nested(ProjectSchema, data_key="project")
+    active_packages = fields.List(fields.Nested(StaffAccountProjectPackageSchema), data_key="packages")
