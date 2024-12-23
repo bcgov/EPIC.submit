@@ -154,3 +154,50 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
     },
   });
 };
+
+const createPackageUpdateRequest = ({
+  packageId,
+  data,
+}: {
+  packageId: number;
+  data: Record<string, unknown>;
+}) => {
+  return submitRequest<SubmissionPackage>({
+    url: `/staff/packages/${packageId}/update-request`,
+    method: "post",
+    data,
+  });
+};
+
+type UseCreatePackageUpdateRequestParams = {
+  packageId: number;
+  accountProjectId: number;
+  options?: Options;
+};
+export const useCreatePackageUpdateRequest = ({
+  packageId,
+  accountProjectId,
+  options = {},
+}: UseCreatePackageUpdateRequestParams) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createPackageUpdateRequest,
+    ...options,
+    onSuccess: (submissionPackage) => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+
+      queryClient.setQueryData(
+        [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        submissionPackage,
+      );
+      queryClient.invalidateQueries({
+        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+    },
+  });
+};

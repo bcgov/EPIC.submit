@@ -3,7 +3,7 @@
 Manages the package
 """
 
-from marshmallow import EXCLUDE, Schema, fields, post_dump
+from marshmallow import EXCLUDE, Schema, fields, post_dump, validate
 
 from submit_api.models.package import PackageStatus
 from submit_api.models.submission_review import SubmissionReviewStatus
@@ -38,6 +38,41 @@ class PostPackageState(Schema):
     status = fields.Str(data_key="status")
 
 
+class CreateUpdateRequestSchema(Schema):
+    """create update request schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids",
+                                      required=True, validate=validate.Length(min=1))
+    note = fields.Str(data_key="note", required=True, validate=validate.Length(min=1))
+
+
+class PackageUpdateRequestSchema(Schema):
+    """package update request schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    id = fields.Int(data_key="id")
+    submission_package_id = fields.Int(data_key="submission_package_id")
+    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids")
+    active = fields.Bool(data_key="active")
+    note = fields.Str(data_key="note")
+    created_date = fields.DateTime(data_key="created_date")
+    created_by = fields.Method('get_created_by')
+
+    def get_created_by(self, obj):
+        """Get created by user."""
+        return obj.created_by_user.staff_user.full_name \
+            if obj.created_by_user and obj.created_by_user.staff_user else None
+
+
 class PackageSchema(Schema):
     """package schema."""
 
@@ -56,6 +91,7 @@ class PackageSchema(Schema):
     submitted_by = fields.Method('get_submitted_by')
     meta = fields.Method('get_meta')
     items = fields.Nested(ItemSchema, data_key="items", many=True)
+    update_requests = fields.Nested(PackageUpdateRequestSchema, data_key="update_requests", many=True)
 
     def get_submitted_by(self, obj):
         """Get submitted by."""
@@ -134,37 +170,3 @@ def get_package_status(status, user_type):
         return package_status_mapping[status][user_type]
 
     return status
-
-
-class CreateUpdateRequestSchema(Schema):
-    """create update request schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids", required=True)
-    note = fields.Str(data_key="note", required=True)
-
-
-class PackageUpdateRequestSchema(Schema):
-    """package update request schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    id = fields.Int(data_key="id")
-    submission_package_id = fields.Int(data_key="submission_package_id")
-    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids")
-    active = fields.Bool(data_key="active")
-    note = fields.Str(data_key="note")
-    created_date = fields.DateTime(data_key="created_date")
-    created_by_user = fields.Method('get_created_by_user')
-
-    def get_created_by_user(self, obj):
-        """Get created by user."""
-        return obj.created_by_user.staff_user.full_name \
-            if obj.created_by_user and obj.created_by_user.staff_user else None

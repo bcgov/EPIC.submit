@@ -10,4 +10,5 @@ export type SubmissionItemTableRow = {
   has_document: boolean;
   reviewStatus?: string;
   review_start_date?: string;
+  isUpdateRequest?: boolean;
 };

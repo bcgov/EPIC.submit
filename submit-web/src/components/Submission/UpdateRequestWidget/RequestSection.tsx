@@ -1,19 +1,15 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dayjs from "dayjs";
-import { When } from "react-if";
-import PackageStatusChip from "../PackageStatusChip";
-import { PACKAGE_STATUS } from "@/models/Package";
-export interface RequestNote {
-  id: string;
-  note: string;
-  created_by: string;
-  created_date: string;
-  updated: boolean;
-}
+import { UpdateRequest } from "@/models/UpdateRequest";
 
-export default function RequestNote({ note }: { note: RequestNote }) {
-  const createdDate = dayjs(note.created_date).format("DD-MMM-YYYY");
+type UpdateRequestProps = {
+  updateRequest: UpdateRequest;
+};
+
+export default function RequestSection({ updateRequest }: UpdateRequestProps) {
+  const { note, created_date, created_by } = updateRequest;
+  const createdDate = dayjs(created_date).format("DD-MMM-YYYY");
 
   return (
     <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
@@ -26,7 +22,7 @@ export default function RequestNote({ note }: { note: RequestNote }) {
         }}
       >
         <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-          {note.created_by}
+          {created_by}
         </Typography>
         <Typography variant="subtitle1">{createdDate}</Typography>
       </Box>
@@ -38,15 +34,15 @@ export default function RequestNote({ note }: { note: RequestNote }) {
           mb: BCDesignTokens.layoutMarginSmall,
         }}
       >
-        <Typography key={note.id} variant="body1" sx={{ mb: 1 }}>
-          {note.note}
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          {note}
         </Typography>
-        <When condition={note.updated}>
+        {/* <When condition={note.updated}>
           <PackageStatusChip status={PACKAGE_STATUS.UPDATED.value} />
-        </When>
-        <When condition={!note.updated}>
+        </When> */}
+        {/* <When condition={!note.updated}>
           <Button color="secondary">Accept Update</Button>
-        </When>
+        </When> */}
       </Box>
     </Box>
   );

@@ -23,7 +23,7 @@ import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -34,7 +34,7 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey
+      .queryKey,
   );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
@@ -116,8 +116,7 @@ export default function SubmissionPage() {
                     Submission Status:
                   </Typography>
                   <PackageStatusChipStack
-                    status={submissionPackage.status}
-                    reviewStatus={submissionPackage.review_status}
+                    submissionPackage={submissionPackage}
                   />
                 </Box>
               </Box>
@@ -128,9 +127,9 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable submissionItems={submissionPackage.items} />
+                <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <UpdateRequestWidget />
+              <UpdateRequestWidget submissionPackage={submissionPackage} />
               <Box
                 sx={{
                   pt: BCDesignTokens.layoutPaddingXlarge,

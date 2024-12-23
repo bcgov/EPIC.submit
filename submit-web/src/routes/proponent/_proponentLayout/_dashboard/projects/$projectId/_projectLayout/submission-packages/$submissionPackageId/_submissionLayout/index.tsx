@@ -156,7 +156,9 @@ export default function SubmissionPage() {
                   >
                     Submission Status:
                   </Typography>
-                  <PackageStatusChipStack status={submissionPackage.status} />
+                  <PackageStatusChipStack
+                    submissionPackage={submissionPackage}
+                  />
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />
@@ -166,7 +168,7 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable submissionItems={submissionPackage.items} />
+                <ItemsTable submissionPackage={submissionPackage} />
               </Box>
               <When condition={isPackageSubmitted}>
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>

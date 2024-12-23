@@ -28,7 +28,9 @@ export default function StaffSubmissionItemTableRow({
     status,
     reviewStatus,
     review_start_date,
+    isUpdateRequest,
   } = item;
+
   const actionLabel = has_document ? "Review" : "View";
 
   const onActionClick = () => {
@@ -84,6 +86,7 @@ export default function StaffSubmissionItemTableRow({
           <SubmissionStatusChipStack
             status={status}
             reviewStatus={reviewStatus}
+            isUpdateRequested={isUpdateRequest}
           />
         </SubmissionItemTableCell>
 
