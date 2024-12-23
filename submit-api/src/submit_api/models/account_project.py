@@ -35,3 +35,7 @@ class AccountProject(BaseModel):
     def get_all(cls):
         """Get all projects."""
         return cls.query.all()
+
+    @classmethod
+    def get_all_with_latest_packages(cls):
+        """Get all projects with latest packages."""

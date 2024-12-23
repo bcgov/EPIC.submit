@@ -43,6 +43,7 @@ class Package(BaseModel):
     items = db.relationship('Item', backref='package', lazy='joined', order_by='Item.sort_order')
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
+    is_latest = Column(db.Boolean, nullable=False, default=True)
 
     update_requests = db.relationship(
         'UpdateRequest',
@@ -63,3 +64,8 @@ class Package(BaseModel):
     def get_package_by_id_with_items(cls, package_id: int):
         """Return model by package id."""
         return cls.query.filter_by(id=package_id).options(joinedload(Package.items)).first()
+
+    @classmethod
+    def get_all_by_package_ids(cls, package_ids: list):
+        """Return all packages by package ids."""
+        return cls.query.filter(cls.id.in_(package_ids)).all()

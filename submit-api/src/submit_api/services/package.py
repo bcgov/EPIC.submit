@@ -49,6 +49,7 @@ class PackageService:
             new_version = latest_version + 1
             new_package_data = {
                 "name": original_package.name,
+                "active": False,
             }
             package_type = original_package.type
             new_package = cls._create_package(
@@ -63,7 +64,6 @@ class PackageService:
                 session, new_package.id, new_metadata)
             cls._create_items(session, new_package.id, package_type)
 
-            original_package.active = False
             session.add(original_package)
             return new_package
 
@@ -90,6 +90,7 @@ class PackageService:
             "account_project_id": account_project_id,
             "name": request_data.get("name"),
             "type_id": package_type.id,
+            "active": request_data.get("active", True),
         }
         package = PackageModel(**package_data)
         session.add(package)
@@ -162,7 +163,22 @@ class PackageService:
         """Update package submission details."""
         package.submitted_on = datetime.utcnow()
         package.submitted_by = TokenInfo.get_id()
+
         session.add(package)
+
+    @staticmethod
+    def _set_package_to_active(package, session):
+        """Update package submission details."""
+        package.active = True
+        session.add(package)
+        versions = PackageVersionModel.get_all_by_original_package_id(package.version.original_package_id)
+        package_ids = [version.package_id for version in versions if version.package_id != package.id]
+        if package_ids:
+            other_package_versions = PackageModel.get_all_by_package_ids(package_ids)
+            for other_version_package in other_package_versions:
+                other_version_package.active = False
+                session.add(other_version_package)
+        return package
 
     @staticmethod
     def _get_document_submissions_from_package(package):
@@ -183,6 +199,7 @@ class PackageService:
             cls._update_items_status(package.items, ItemStatus.SUBMITTED.value, session)
             cls._update_package_status(package_id, session, package)
             cls._update_package_submission_details(package, session)
+            cls._set_package_to_active(package, session)
             cls._create_email_queue_record(package, session)
             session.flush()
             session.commit()
