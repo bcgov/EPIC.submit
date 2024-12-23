@@ -12,6 +12,7 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { SubmissionPackage } from "@/models/Package";
 import { CheckboxGroup } from "@/components/Shared/CheckboxGroup";
 import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 type AddRequestSectionProps = {
   submissionPackage: SubmissionPackage;
@@ -38,6 +39,15 @@ export default function AddRequestSection({
   >([]);
 
   const onCreateUpdateRequest = () => {
+    if (!noteText) {
+      notify.error("Please enter a note");
+      return;
+    }
+    if (selectedSubmissionItems.length === 0) {
+      notify.error("Please select at least one item");
+      return;
+    }
+
     handleCreateUpdateRequest({
       note: noteText,
       submissionItems: selectedSubmissionItems,

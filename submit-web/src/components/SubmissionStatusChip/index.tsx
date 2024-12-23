@@ -69,6 +69,16 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Passed Consultation Check",
   },
+  UPDATE_REQUESTED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+      width: "140px",
+    },
+    label: "Update Requested",
+  },
 };
 
 export function SubmissionStatusChip({ status }: { status: string }) {
@@ -91,10 +101,12 @@ export function SubmissionStatusChip({ status }: { status: string }) {
 type SubmissionStatusChipStackProps = {
   status: SubmissionStatus;
   reviewStatus?: string;
+  isUpdateRequested?: boolean;
 };
 export const SubmissionStatusChipStack = ({
   status,
   reviewStatus,
+  isUpdateRequested = false,
 }: SubmissionStatusChipStackProps) => {
   return (
     <Box sx={{ display: "inline-block" }}>
@@ -108,6 +120,12 @@ export const SubmissionStatusChipStack = ({
         {reviewStatus ===
           NON_CANONICAL_SUBMISSION_STATUS.PENDING_MANAGER_REVIEW && (
           <SubmissionStatusChip status={reviewStatus} />
+        )}
+
+        {isUpdateRequested && (
+          <SubmissionStatusChip
+            status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
+          />
         )}
       </Stack>
     </Box>

@@ -1,10 +1,13 @@
 // NonCanonicalSubmissionStatus are just for display purpose, they are not canonical business statuses
-export type NonCanonicalSubmissionStatus = "PENDING_MANAGER_REVIEW";
+export type NonCanonicalSubmissionStatus =
+  | "PENDING_MANAGER_REVIEW"
+  | "UPDATE_REQUESTED";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   Record<NonCanonicalSubmissionStatus, NonCanonicalSubmissionStatus>
 >({
   PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
+  UPDATE_REQUESTED: "UPDATE_REQUESTED",
 });
 
 export type SubmissionStatus =

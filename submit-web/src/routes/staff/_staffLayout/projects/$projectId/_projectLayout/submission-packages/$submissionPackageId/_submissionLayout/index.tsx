@@ -116,8 +116,7 @@ export default function SubmissionPage() {
                     Submission Status:
                   </Typography>
                   <PackageStatusChipStack
-                    status={submissionPackage.status}
-                    reviewStatus={submissionPackage.review_status}
+                    submissionPackage={submissionPackage}
                   />
                 </Box>
               </Box>
@@ -128,7 +127,7 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable submissionItems={submissionPackage.items} />
+                <ItemsTable submissionPackage={submissionPackage} />
               </Box>
               <UpdateRequestWidget submissionPackage={submissionPackage} />
               <Box

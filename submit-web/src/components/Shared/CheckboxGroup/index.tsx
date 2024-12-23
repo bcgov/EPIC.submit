@@ -5,6 +5,7 @@ type CheckboxGroupProps = {
   defaultSelectedValues?: unknown[];
   children: React.ReactNode;
   onChange: (selectedValues: unknown[]) => void;
+  errorMessage?: string;
 };
 export const CheckboxGroup = ({
   onChange,

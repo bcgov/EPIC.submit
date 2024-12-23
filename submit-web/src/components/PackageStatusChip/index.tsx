@@ -99,6 +99,16 @@ const statusStyles: Record<
     },
     label: "Passed Consultation Check",
   },
+  UPDATE_REQUESTED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+      width: "140px",
+    },
+    label: "Update Requested",
+  },
 };
 
 export default function PackageStatusChip({

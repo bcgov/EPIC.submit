@@ -29,9 +29,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     name,
     meta,
     days_since_submission = 0,
-    review_status,
     submitted_on,
-    status,
   } = submissionPackage;
 
   const { cc_completed_on, mp_review, type } = meta || {};
@@ -126,10 +124,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             pr: BCDesignTokens.layoutPaddingSmall,
           }}
         >
-          <PackageStatusChipStack
-            status={status}
-            reviewStatus={review_status}
-          />
+          <PackageStatusChipStack submissionPackage={submissionPackage} />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow colSpan={7} />
