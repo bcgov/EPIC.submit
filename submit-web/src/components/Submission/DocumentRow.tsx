@@ -35,7 +35,6 @@ export default function DocumentRow({
         cancelText="Start Later"
       />
     );
-    return;
   };
 
   const downloadDocument = async () => {
@@ -51,8 +50,9 @@ export default function DocumentRow({
   };
 
   const openDocument = () => {
-    if (!submissionItem.review_start_date) {
+    if (!submissionItem.review_start_date && submissionItem.has_document) {
       openVerificationModal();
+      return;
     }
     downloadDocument();
   };

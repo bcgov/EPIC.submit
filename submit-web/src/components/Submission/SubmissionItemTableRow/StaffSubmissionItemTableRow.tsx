@@ -32,8 +32,9 @@ export default function StaffSubmissionItemTableRow({
   const actionLabel = has_document ? "Review" : "View";
 
   const onActionClick = () => {
-    if (!review_start_date) {
+    if (!review_start_date && has_document) {
       openVerificationModal();
+      return;
     }
     navigate({
       to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
@@ -50,7 +51,6 @@ export default function StaffSubmissionItemTableRow({
         cancelText="Start Later"
       />
     );
-    return;
   };
 
   return (
