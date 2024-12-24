@@ -84,14 +84,12 @@ class StaffAccountProjectPackageSchema(StaffPackageSchema):
         return obj.meta.json if obj.meta else None
 
 
-class StaffAccountProjectSchema(Schema):
+class StaffAccountProjectSchema(AccountProjectSchema):
     """Account project schema for staff."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
 
-    id = fields.Int(data_key="id")
-    account_id = fields.Int(data_key="account_id")
-    project_id = fields.Int(data_key="project_id")
-    project = fields.Nested(ProjectSchema, data_key="project")
-    active_packages = fields.List(fields.Nested(StaffAccountProjectPackageSchema), data_key="packages")
+        unknown = EXCLUDE
+
+    latest_packages = fields.List(fields.Nested(StaffAccountProjectPackageSchema), data_key="packages")

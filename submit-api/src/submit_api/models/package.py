@@ -43,7 +43,6 @@ class Package(BaseModel):
     items = db.relationship('Item', backref='package', lazy='joined', order_by='Item.sort_order')
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
-    is_latest = Column(db.Boolean, nullable=False, default=True)
 
     update_requests = db.relationship(
         'UpdateRequest',
@@ -55,7 +54,7 @@ class Package(BaseModel):
     version = db.relationship(
         'PackageVersion',
         backref='package',
-        lazy='select',
+        lazy='joined',
         uselist=False,
         primaryjoin='Package.id == PackageVersion.package_id',
         foreign_keys='PackageVersion.package_id')
