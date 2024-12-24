@@ -24,11 +24,20 @@ const statusStyles: Record<string, StyleProps> = {
   UNDER_REVIEW: {
     sx: {
       borderRadius: 1,
-      border: `1px solid ${EAOColors.DecisionDark}`,
-      background: EAOColors.DecisionLight,
+      border: `1px solid ${BCDesignTokens.themeBlue100}`,
+      background: BCDesignTokens.themeBlue20,
       height: "24px",
     },
     label: "Under Review",
+  },
+  UNDER_CONSULTATION_CHECK: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.themeBlue100}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+    },
+    label: "Under Consultation Check",
   },
   COMPLETED: {
     sx: {
