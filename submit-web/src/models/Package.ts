@@ -19,6 +19,7 @@ export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
 
 export type PackageStatus =
   | "IN_REVIEW"
+  | "UNDER_REVIEW"
   | "APPROVED"
   | "REJECTED"
   | "COMPLETED"
@@ -35,6 +36,10 @@ export const PACKAGE_STATUS: Record<
   IN_REVIEW: {
     value: "IN_REVIEW",
     label: "In Review",
+  },
+  UNDER_REVIEW: {
+    value: "UNDER_REVIEW",
+    label: "Under Review",
   },
   APPROVED: {
     value: "APPROVED",

@@ -13,6 +13,10 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { openModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { SUBMISSION_PACKAGE_TYPE } from "@/components/Shared/types";
+import { PACKAGE_STATUS } from "@/models/Package";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -33,9 +37,24 @@ export default function StaffSubmissionItemTableRow({
 
   const actionLabel = has_document ? "Review" : "View";
 
+  const { mutate: updateStateSubmissionPackage } =
+    useUpdateStateSubmissionPackage({
+      onError: () => {
+        notify.error("Failed to update management plan");
+      },
+    });
+
   const onActionClick = () => {
     if (!review_start_date && has_document) {
-      openVerificationModal();
+      openModal(
+        <ConfirmationModal
+          onConfirm={handleConfirm}
+          title={`Start ${name} Review`}
+          description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
+          confirmText={`Start ${name} Review`}
+          cancelText="Start Later"
+        />
+      );
       return;
     }
     navigate({
@@ -43,16 +62,13 @@ export default function StaffSubmissionItemTableRow({
     });
   };
 
-  const openVerificationModal = () => {
-    openModal(
-      <ConfirmationModal
-        onConfirm={() => {}}
-        title={`Start ${name} Review`}
-        description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
-        confirmText={`Start ${name} Review`}
-        cancelText="Start Later"
-      />
-    );
+  const handleConfirm = () => {
+    updateStateSubmissionPackage({
+      packageId: Number(submissionPackageId),
+      data: {
+        status: PACKAGE_STATUS.UNDER_REVIEW.value,
+      },
+    });
   };
 
   return (

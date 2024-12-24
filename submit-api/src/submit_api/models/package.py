@@ -24,6 +24,7 @@ class PackageStatus(enum.Enum):
     COMPLETED = 'COMPLETED'
     NEW_SUBMISSION = 'NEW_SUBMISSION'
     PASSED_CONSULTATION_CHECK = 'PASSED_CONSULTATION_CHECK'
+    UNDER_REVIEW = 'UNDER_REVIEW'
 
 
 class Package(BaseModel):
@@ -41,7 +42,7 @@ class Package(BaseModel):
     submitted_by_user = db.relationship('User', foreign_keys=[submitted_by], lazy='joined')
     meta = db.relationship('PackageMetadata', backref='package', lazy='joined', uselist=False)
     items = db.relationship('Item', backref='package', lazy='joined', order_by='Item.sort_order')
-    status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
+    status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[ PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
 
     update_requests = db.relationship(

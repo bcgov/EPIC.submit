@@ -187,6 +187,18 @@ class PackageService:
             session.flush()
             session.commit()
         return package
+  
+    @classmethod
+    def start_review(cls, package_id):
+        """Start the review process for the package."""
+        package = cls._get_and_validate_package_for_starting_review(package_id)
+
+        with session_scope() as session:
+            cls._update_items_status(package.items, ItemStatus.UNDER_REVIEW.value, session)
+            cls._update_package_status(package_id, session, package)
+            session.flush()
+            session.commit()
+        return package
 
     @staticmethod
     def _unsupported_status(*args, **kwargs):
@@ -209,6 +221,7 @@ class PackageService:
             lambda: cls._unsupported_status,
             {
                 PackageStatus.SUBMITTED.value: cls.submit_package,
+                PackageStatus.UNDER_REVIEW.value: cls.start_review,
             }
         )
         return state_updaters[status]
@@ -261,4 +274,16 @@ class PackageService:
             raise BadRequestError("Cannot create an update request for a package that has been approved")
         if package.status == PackageStatus.REJECTED:
             raise BadRequestError("Cannot create an update request for a package that has been rejected")
+        return package
+
+    @classmethod
+    def _get_and_validate_package_for_starting_review(cls, package_id):
+        """Validate package status for update request."""
+        package = cls.get_package_by_id(package_id)
+        if not package:
+            raise ResourceNotFoundError("Package not found")
+        if package.status == PackageStatus.APPROVED:
+            raise BadRequestError("Cannot create a review for a package that has been approved")
+        if package.status == PackageStatus.REJECTED:
+            raise BadRequestError("Cannot create a review for a package that has been rejected")
         return package

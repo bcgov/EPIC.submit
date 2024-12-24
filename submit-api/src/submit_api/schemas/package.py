@@ -165,6 +165,10 @@ def get_package_status(status, user_type):
             UserType.PROPONENT: PackageStatus.SUBMITTED.value,
             UserType.STAFF: PackageStatus.NEW_SUBMISSION.value
         },
+        PackageStatus.UNDER_REVIEW.value: {
+            UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
+            UserType.STAFF: PackageStatus.UNDER_REVIEW.value
+        },
     }
     if status in package_status_mapping:
         return package_status_mapping[status][user_type]

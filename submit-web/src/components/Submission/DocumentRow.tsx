@@ -25,7 +25,7 @@ export default function DocumentRow({
   } = documentSubmission;
 
   const openVerificationModal = () => {
-    //todo: setup onConfirm
+    //todo: Setup onConfirm
     openModal(
       <ConfirmationModal
         onConfirm={() => {}}
