@@ -11,6 +11,8 @@ import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
 import { PackageTableRow } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
+import { openModal } from "@/components/Shared/Modals/modalStore";
+import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -25,15 +27,32 @@ export default function StaffSubmissionItemTableRow({
     id,
     status,
     reviewStatus,
+    review_start_date,
     isUpdateRequest,
   } = item;
 
   const actionLabel = has_document ? "Review" : "View";
 
   const onActionClick = () => {
+    if (!review_start_date && has_document) {
+      openVerificationModal();
+      return;
+    }
     navigate({
       to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
     });
+  };
+
+  const openVerificationModal = () => {
+    openModal(
+      <ConfirmationModal
+        onConfirm={() => {}}
+        title={`Start ${name} Review`}
+        description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
+        confirmText={`Start ${name} Review`}
+        cancelText="Start Later"
+      />
+    );
   };
 
   return (
@@ -89,6 +108,7 @@ export default function StaffSubmissionItemTableRow({
       </PackageTableRow>
       {submissions.map((submission) => (
         <DocumentRow
+          submissionItem={item}
           key={`doc-row-${submission.id}`}
           documentSubmission={submission}
         />

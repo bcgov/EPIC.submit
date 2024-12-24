@@ -4,7 +4,8 @@ import { create } from "zustand";
 interface ModalStore {
   isOpen: boolean;
   modalContent: React.ReactNode | null;
-  setOpen: (modal: React.ReactNode) => Promise<void>;
+  handleClose: (() => void) | null;
+  setOpen: (modal: React.ReactNode, handleClose?: () => void) => Promise<void>;
   setClose: () => void;
 }
 
@@ -12,20 +13,36 @@ interface ModalStore {
 export const useModal = create<ModalStore>((set) => ({
   isOpen: false,
   modalContent: null,
+  handleClose: null,
 
-  setOpen: async (modal) => {
+  setOpen: async (modal, handleClose = () => {}) => {
     if (modal) {
       set(() => ({
         modalContent: modal,
         isOpen: true,
+        handleClose,
       }));
     }
   },
 
   setClose: () => {
-    set({
-      isOpen: false,
-      modalContent: null,
+    set((state) => {
+      if (state.handleClose) {
+        state.handleClose(); // Trigger the handleClose function
+      }
+      return {
+        isOpen: false,
+        modalContent: null,
+        handleClose: null,
+      };
     });
   },
 }));
+
+export const openModal = async (
+  modal: React.ReactNode,
+  handleClose?: () => void,
+) => {
+  const { setOpen } = useModal.getState();
+  await setOpen(modal, handleClose);
+};

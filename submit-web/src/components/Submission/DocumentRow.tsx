@@ -4,18 +4,38 @@ import { useState } from "react";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "../Shared/Table/utils";
 import { StyledTableCell } from "../Shared/Table/common";
+import { openModal } from "../Shared/Modals/modalStore";
+import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
+import { SubmissionItemTableRow } from "./types";
 
 type DocumentRowProps = {
   documentSubmission: Submission;
+  submissionItem: SubmissionItemTableRow;
 };
 
-export default function DocumentRow({ documentSubmission }: DocumentRowProps) {
+export default function DocumentRow({
+  documentSubmission,
+  submissionItem,
+}: DocumentRowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const {
     submitted_document: { name, url },
     version,
     submitted_by,
   } = documentSubmission;
+
+  const openVerificationModal = () => {
+    //todo: setup onConfirm
+    openModal(
+      <ConfirmationModal
+        onConfirm={() => {}}
+        title={`Start ${submissionItem.name} Review`}
+        description={`Would you like to start the ${submissionItem.name} review now? This will start the counter for the Review.`}
+        confirmText={`Start ${submissionItem.name} Review`}
+        cancelText="Start Later"
+      />
+    );
+  };
 
   const downloadDocument = async () => {
     try {
@@ -28,6 +48,15 @@ export default function DocumentRow({ documentSubmission }: DocumentRowProps) {
       setPendingGetObject(false);
     }
   };
+
+  const openDocument = () => {
+    if (!submissionItem.review_start_date && submissionItem.has_document) {
+      openVerificationModal();
+      return;
+    }
+    downloadDocument();
+  };
+
   return (
     <TableRow>
       <StyledTableCell>
@@ -41,7 +70,7 @@ export default function DocumentRow({ documentSubmission }: DocumentRowProps) {
             mx: 0.5,
           }}
         >
-          <MuiLink onClick={downloadDocument}>{name}</MuiLink>
+          <MuiLink onClick={openDocument}>{name}</MuiLink>
         </Typography>
       </StyledTableCell>
       <StyledTableCell align="right">{submitted_by || ""}</StyledTableCell>
