@@ -17,6 +17,7 @@ class PackageMetadataFields(enum.Enum):
 
     CONSULTATION_CHECK_COMPLETED_ON = 'cc_completed_on'
     CONDITION = 'condition'
+    REVIEW_COMPLETED_ON = 'review_completed_on'
 
 
 class PackageMetadata(BaseModel):
