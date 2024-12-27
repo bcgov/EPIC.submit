@@ -63,8 +63,3 @@ class Package(BaseModel):
     def get_package_by_id_with_items(cls, package_id: int):
         """Return model by package id."""
         return cls.query.filter_by(id=package_id).options(joinedload(Package.items)).first()
-
-    @classmethod
-    def get_all_by_package_ids(cls, package_ids: list):
-        """Return all packages by package ids."""
-        return cls.query.filter(cls.id.in_(package_ids)).all()
