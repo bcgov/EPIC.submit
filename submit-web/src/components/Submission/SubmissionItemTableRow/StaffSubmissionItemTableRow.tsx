@@ -46,12 +46,16 @@ export default function StaffSubmissionItemTableRow({
   const openVerificationModal = () => {
     openModal(
       <ConfirmationModal
-        onConfirm={() => {}}
+        onConfirm={() => {
+          navigate({
+            to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+          });
+        }}
         title={`Start ${name} Review`}
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}
         cancelText="Start Later"
-      />
+      />,
     );
   };
 

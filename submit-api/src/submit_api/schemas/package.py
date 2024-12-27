@@ -7,6 +7,7 @@ from marshmallow import EXCLUDE, Schema, fields, post_dump, validate
 
 from submit_api.models.package import PackageStatus
 from submit_api.models.submission_review import SubmissionReviewStatus
+from submit_api.models.update_request import UpdateRequestType
 from submit_api.models.user import UserType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
@@ -66,6 +67,7 @@ class PackageUpdateRequestSchema(Schema):
     note = fields.Str(data_key="note")
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Method('get_created_by')
+    type = fields.Enum(data_key="type", enum=UpdateRequestType)
 
     def get_created_by(self, obj):
         """Get created by user."""
