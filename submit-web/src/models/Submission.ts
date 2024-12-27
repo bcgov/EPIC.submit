@@ -1,6 +1,7 @@
 // NonCanonicalSubmissionStatus are just for display purpose, they are not canonical business statuses
 export type NonCanonicalSubmissionStatus =
   | "PENDING_MANAGER_REVIEW"
+  | "REVISION_REQUIRED"
   | "UPDATE_REQUESTED";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
@@ -8,6 +9,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
 >({
   PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
   UPDATE_REQUESTED: "UPDATE_REQUESTED",
+  REVISION_REQUIRED: "REVISION_REQUIRED",
 });
 
 export type SubmissionStatus =
@@ -15,6 +17,7 @@ export type SubmissionStatus =
   | "COMPLETED"
   | "PARTIALLY_COMPLETED"
   | "SUBMITTED"
+  | "REVIEW_REJECTED"
   | "PASSED_CONSULTATION_CHECK";
 
 export const SUBMISSION_STATUS: Record<
@@ -40,6 +43,10 @@ export const SUBMISSION_STATUS: Record<
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
+  },
+  REVIEW_REJECTED: {
+    value: "REVIEW_REJECTED",
+    label: "Review Rejected",
   },
 };
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "../Shared/Table/utils";
 import { StyledTableCell } from "../Shared/Table/common";
-import { openModal } from "../Shared/Modals/modalStore";
+import { openModal, useModal } from "../Shared/Modals/modalStore";
 import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
 import { SubmissionItemTableRow } from "./types";
 
@@ -18,6 +18,7 @@ export default function DocumentRow({
   submissionItem,
 }: DocumentRowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
+  const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
   const {
     submitted_document: { name, url },
     version,
@@ -26,14 +27,17 @@ export default function DocumentRow({
 
   const openVerificationModal = () => {
     //todo: setup onConfirm
-    openModal(
+    setOpenModal(
       <ConfirmationModal
-        onConfirm={() => {}}
+        onConfirm={() => {
+          setCloseModal();
+          downloadDocument();
+        }}
         title={`Start ${submissionItem.name} Review`}
         description={`Would you like to start the ${submissionItem.name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${submissionItem.name} Review`}
         cancelText="Start Later"
-      />
+      />,
     );
   };
 

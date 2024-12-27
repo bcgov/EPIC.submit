@@ -5,6 +5,8 @@ import {
 import { Box, Stack } from "@mui/material";
 import PackageStatusChip from ".";
 import { When } from "react-if";
+import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import { useMemo } from "react";
 
 type PackageStatusChipStackProps = {
   submissionPackage: SubmissionPackage;
@@ -15,7 +17,25 @@ export const PackageStatusChipStack = ({
   hideReviewStatus = false,
 }: PackageStatusChipStackProps) => {
   const { status, review_status } = submissionPackage;
-  const isUpdateRequested = submissionPackage.update_requests?.length > 0;
+
+  const isUpdateRequested = useMemo(() => {
+    return (
+      submissionPackage.update_requests.filter(
+        (updateRequest) =>
+          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value,
+      ).length > 0
+    );
+  }, [submissionPackage.update_requests]);
+
+  const isRevisionRequired = useMemo(() => {
+    return (
+      submissionPackage.update_requests.filter(
+        (updateRequest) =>
+          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+      ).length > 0
+    );
+  }, [submissionPackage.update_requests]);
+
   return (
     <Box sx={{ display: "inline-block", width: "fit-content" }}>
       <Stack direction="column" spacing={1} alignItems={"flex-end"}>
@@ -36,6 +56,11 @@ export const PackageStatusChipStack = ({
         <When condition={isUpdateRequested}>
           <PackageStatusChip
             status={NON_CANONICAL_PACKAGE_STATUS.UPDATE_REQUESTED}
+          />
+        </When>
+        <When condition={isRevisionRequired}>
+          <PackageStatusChip
+            status={NON_CANONICAL_PACKAGE_STATUS.REVISION_REQUIRED}
           />
         </When>
       </Stack>

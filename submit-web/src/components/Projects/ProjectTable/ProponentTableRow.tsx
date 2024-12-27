@@ -49,10 +49,10 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
         <StyledProjectTableCell align="right">
           {subPackage.submitted_on
             ? dayjs(subPackage.submitted_on).format("DD-MMM-YYYY")
-            : "--"}
+            : ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="right">
-          {subPackage.submitted_by ?? "--"}
+          {subPackage.submitted_by ?? ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="center">
           <PackageStatusChipStack

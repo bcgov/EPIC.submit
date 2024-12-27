@@ -66,9 +66,7 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted on"}
-          value={
-            submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : "--"
-          }
+          value={submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -114,9 +112,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted on"}
-          value={
-            submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : "--"
-          }
+          value={submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -138,9 +134,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem
           label={"CC Completed"}
           value={
-            cc_completed_on
-              ? dayjs(cc_completed_on).format("DD-MMM-YYYY")
-              : "--"
+            cc_completed_on ? dayjs(cc_completed_on).format("DD-MMM-YYYY") : ""
           }
         />
       </Grid>
@@ -158,7 +152,14 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         container
         sx={{ mb: BCDesignTokens.layoutMarginXsmall }}
       >
-        <InfoBoxItem label={"Review Completed"} value={review_completed_on} />
+        <InfoBoxItem
+          label={"Review Completed"}
+          value={
+            review_completed_on
+              ? dayjs(review_completed_on).format("DD-MMM-YYYY")
+              : ""
+          }
+        />
       </Grid>
     </Grid>
   );

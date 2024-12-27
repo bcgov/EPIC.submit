@@ -28,10 +28,14 @@ const statusStyles: Record<
     },
     label: "In Review",
   },
-  REJECTED: {
-    label: "Rejected",
+  REVIEW_REJECTED: {
+    label: "Review Rejected",
     sx: {
-      //TODO - Add styles for rejected status
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+      background: BCDesignTokens.supportSurfaceColorDanger,
+      height: "24px",
+      width: "125px",
     },
   },
   SUBMITTED: {
@@ -108,6 +112,16 @@ const statusStyles: Record<
       width: "140px",
     },
     label: "Update Requested",
+  },
+  REVISION_REQUIRED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+      width: "140px",
+    },
+    label: "Revision Required",
   },
 };
 

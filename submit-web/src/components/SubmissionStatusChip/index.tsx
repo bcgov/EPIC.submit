@@ -3,8 +3,7 @@ import {
   SubmissionStatus,
 } from "@/models/Submission";
 import { Box, Chip, Stack } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
-import { EAOColors } from "epic.theme";
+import { BCDesignTokens, EAOColors } from "epic.theme";
 
 type StyleProps = {
   sx: Record<string, string | number>;
@@ -79,6 +78,26 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Update Requested",
   },
+  REVIEW_REJECTED: {
+    label: "Review Rejected",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+      background: BCDesignTokens.supportSurfaceColorDanger,
+      height: "24px",
+      width: "125px",
+    },
+  },
+  REVISION_REQUIRED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+      width: "140px",
+    },
+    label: "Revision Required",
+  },
 };
 
 export function SubmissionStatusChip({ status }: { status: string }) {
@@ -102,11 +121,13 @@ type SubmissionStatusChipStackProps = {
   status: SubmissionStatus;
   reviewStatus?: string;
   isUpdateRequested?: boolean;
+  isRevisionRequired?: boolean;
 };
 export const SubmissionStatusChipStack = ({
   status,
   reviewStatus,
   isUpdateRequested = false,
+  isRevisionRequired = false,
 }: SubmissionStatusChipStackProps) => {
   return (
     <Box sx={{ display: "inline-block" }}>
@@ -125,6 +146,11 @@ export const SubmissionStatusChipStack = ({
         {isUpdateRequested && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
+          />
+        )}
+        {isRevisionRequired && (
+          <SubmissionStatusChip
+            status={NON_CANONICAL_SUBMISSION_STATUS.REVISION_REQUIRED}
           />
         )}
       </Stack>

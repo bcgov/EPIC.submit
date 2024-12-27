@@ -265,7 +265,7 @@ class SubmissionReviewService:
             submission_package_id=new_package.id,
             submission_item_ids=[new_management_plan_item.id],
             created_by=TokenInfo.get_id(),
-            note="Review required for Management Plan",
+            note="Revision required for Management Plan",
             type=UpdateRequestType.REVIEW
         )
         session.add(update_request)
