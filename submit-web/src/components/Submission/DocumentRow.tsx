@@ -4,7 +4,7 @@ import { useState } from "react";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "../Shared/Table/utils";
 import { StyledTableCell } from "../Shared/Table/common";
-import { openModal, useModal } from "../Shared/Modals/modalStore";
+import { useModal } from "../Shared/Modals/modalStore";
 import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
 import { SubmissionItemTableRow } from "./types";
 
