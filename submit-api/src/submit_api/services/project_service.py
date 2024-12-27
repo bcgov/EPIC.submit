@@ -38,3 +38,8 @@ class ProjectService:
     def get_all_account_projects(cls):
         """Get projects by proponent id."""
         return AccountProjectModel.get_all()
+
+    @classmethod
+    def get_all_account_projects_with_latest_packages(cls):
+        """Get all account projects with latest packages."""
+        return AccountProjectModel.get_all_with_latest_packages()

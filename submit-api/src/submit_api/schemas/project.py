@@ -1,6 +1,6 @@
-"""Engagement model class.
+"""Project schema.
 
-Manages the engagement
+This module defines the schema for the project entity.
 """
 from datetime import datetime
 
@@ -58,7 +58,7 @@ class AccountProjectSchema(Schema):
     account_id = fields.Int(data_key="account_id")
     project_id = fields.Int(data_key="project_id")
     project = fields.Nested(ProjectSchema, data_key="project")
-    packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
+    latest_packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
 
 
 class StaffAccountProjectPackageSchema(StaffPackageSchema):
@@ -92,4 +92,4 @@ class StaffAccountProjectSchema(AccountProjectSchema):
 
         unknown = EXCLUDE
 
-    packages = fields.List(fields.Nested(StaffAccountProjectPackageSchema), data_key="packages")
+    latest_packages = fields.List(fields.Nested(StaffAccountProjectPackageSchema), data_key="packages")

@@ -33,39 +33,35 @@ class PackageService:
         return package
 
     @classmethod
-    def create_new_package_from_original(cls, original_package_id, _session):
+    def create_new_package_from_original(cls, original_package_id, session):
         """Create a new package version."""
-        with session_scope(_session) as session:
-            original_package = PackageModel.get_by_id(original_package_id)
-            package_version = PackageVersionModel.get_by_package_id(original_package_id)
-            all_package_versions = PackageVersionModel.get_all_by_original_package_id(original_package_id)
-            if not all_package_versions:
-                raise BadRequestError("Cannot create a new version for a package that has no versions")
+        original_package = PackageModel.get_by_id(original_package_id)
+        package_version = PackageVersionModel.get_by_package_id(original_package_id)
+        all_package_versions = PackageVersionModel.get_all_by_original_package_id(original_package_id)
+        if not all_package_versions:
+            raise BadRequestError("Cannot create a new version for a package that has no versions")
 
-            latest_version = max(package_version.version for package_version in all_package_versions)
-            if latest_version != package_version.version:
-                raise BadRequestError("Cannot create a new version for a package that is not the latest version")
+        latest_version = max(package_version.version for package_version in all_package_versions)
+        if latest_version != package_version.version:
+            raise BadRequestError("Cannot create a new version for a package that is not the latest version")
 
-            new_version = latest_version + 1
-            new_package_data = {
-                "name": original_package.name,
-            }
-            package_type = original_package.type
-            new_package = cls._create_package(
-                session, original_package.account_project_id, new_package_data, package_type)
-            cls._create_package_version(
-                session, package_id=new_package.id, original_package_id=original_package.id, version=new_version)
-            new_metadata = {
-                PackageMetadataFields.CONDITION.value: original_package.metadata.json.get(
-                    PackageMetadataFields.CONDITION.value, None),
-            }
-            cls._create_package_metadata(
-                session, new_package.id, new_metadata)
-            cls._create_items(session, new_package.id, package_type)
-
-            original_package.active = False
-            session.add(original_package)
-            return new_package
+        new_version = latest_version + 1
+        new_package_data = {
+            "name": original_package.name,
+        }
+        package_type = original_package.type
+        new_package = cls._create_package(
+            session, original_package.account_project_id, new_package_data, package_type)
+        cls._create_package_version(
+            session, package_id=new_package.id, original_package_id=original_package.id, version=new_version)
+        new_metadata = {
+            PackageMetadataFields.CONDITION.value: original_package.metadata.json.get(
+                PackageMetadataFields.CONDITION.value, None),
+        }
+        cls._create_package_metadata(
+            session, new_package.id, new_metadata)
+        cls._create_items(session, new_package.id, package_type)
+        return new_package
 
     @classmethod
     def create_first_package(cls, account_project_id, request_data):
@@ -162,6 +158,7 @@ class PackageService:
         """Update package submission details."""
         package.submitted_on = datetime.utcnow()
         package.submitted_by = TokenInfo.get_id()
+
         session.add(package)
 
     @staticmethod

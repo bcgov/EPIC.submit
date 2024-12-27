@@ -34,6 +34,9 @@ class Item(BaseModel):
     reviewed_on = Column(db.DateTime, nullable=True)
     review_start_date = Column(db.DateTime, nullable=True)
 
+    # add unique constraint package_id and type_id
+    __table_args__ = (db.UniqueConstraint('package_id', 'type_id'),)
+
     @hybrid_property
     def review(self):
         """Get the active review for the item."""

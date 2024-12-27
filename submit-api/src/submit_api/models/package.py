@@ -54,7 +54,7 @@ class Package(BaseModel):
     version = db.relationship(
         'PackageVersion',
         backref='package',
-        lazy='select',
+        lazy='joined',
         uselist=False,
         primaryjoin='Package.id == PackageVersion.package_id',
         foreign_keys='PackageVersion.package_id')
