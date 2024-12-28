@@ -1,5 +1,5 @@
 import { ArrowForwardIos } from "@mui/icons-material";
-import { Link, Stack, Typography } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
 import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
@@ -32,7 +32,6 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     days_since_submission = 0,
     submitted_on,
   } = submissionPackage;
-  console.log(submissionPackage);
 
   const { cc_completed_on, mp_review, type } = meta || {};
 
