@@ -15,6 +15,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission_review import SubmissionReview, SubmissionReviewStatus
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
+from submit_api.models.update_request import UpdateRequestType
 from submit_api.services.package import PackageService
 from submit_api.utils.token_info import TokenInfo
 
@@ -264,7 +265,8 @@ class SubmissionReviewService:
             submission_package_id=new_package.id,
             submission_item_ids=[new_management_plan_item.id],
             created_by=TokenInfo.get_id(),
-            note="Review required for Management Plan",
+            note="Revision required for Management Plan",
+            type=UpdateRequestType.REVIEW
         )
         session.add(update_request)
         current_app.logger.info(f"Update request created for new package {new_package.id}.")

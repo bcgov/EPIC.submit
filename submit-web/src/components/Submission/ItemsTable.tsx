@@ -19,6 +19,7 @@ import { When } from "react-if";
 import InternalDocumentsRows from "../SubmissionItem/InternalDocuments/Rows";
 import { SubmissionPackage } from "@/models/Package";
 import { useMemo } from "react";
+import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
 
 export default function ItemsTable({
   submissionPackage,
@@ -28,7 +29,24 @@ export default function ItemsTable({
   const { items: submissionItems, update_requests } = submissionPackage;
 
   const itemUpdateRequestMap = useMemo(() => {
-    return update_requests
+    const _update_requests = update_requests.filter(
+      (update_request) =>
+        update_request.type === UPDATE_REQUEST_TYPE.UPDATE.value,
+    );
+    return _update_requests
+      .flatMap((update_request) => update_request.submission_item_ids)
+      .reduce((acc: { [key: number]: boolean }, id) => {
+        acc[id] = true;
+        return acc;
+      }, {});
+  }, [update_requests]);
+
+  const itemRevisionRequiredMap = useMemo(() => {
+    const _update_requests = update_requests.filter(
+      (update_request) =>
+        update_request.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+    );
+    return _update_requests
       .flatMap((update_request) => update_request.submission_item_ids)
       .reduce((acc: { [key: number]: boolean }, id) => {
         acc[id] = true;
@@ -53,6 +71,7 @@ export default function ItemsTable({
       subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
     reviewStatus: subItem.review?.status,
     isUpdateRequest: Boolean(itemUpdateRequestMap[subItem.id]),
+    isRevisionRequired: Boolean(itemRevisionRequiredMap[subItem.id]),
   }));
 
   const internalStaffDocuments = submissionItems.flatMap(

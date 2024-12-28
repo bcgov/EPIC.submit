@@ -35,7 +35,7 @@ class PackageService:
     @classmethod
     def create_new_package_from_original(cls, original_package_id, session):
         """Create a new package version."""
-        original_package = PackageModel.get_by_id(original_package_id)
+        original_package = PackageModel.find_by_id(original_package_id)
         package_version = PackageVersionModel.get_by_package_id(original_package_id)
         all_package_versions = PackageVersionModel.get_all_by_original_package_id(original_package_id)
         if not all_package_versions:
@@ -55,7 +55,7 @@ class PackageService:
         cls._create_package_version(
             session, package_id=new_package.id, original_package_id=original_package.id, version=new_version)
         new_metadata = {
-            PackageMetadataFields.CONDITION.value: original_package.metadata.json.get(
+            PackageMetadataFields.CONDITION.value: original_package.meta.json.get(
                 PackageMetadataFields.CONDITION.value, None),
         }
         cls._create_package_metadata(

@@ -11,4 +11,5 @@ export type SubmissionItemTableRow = {
   reviewStatus?: string;
   review_start_date?: string;
   isUpdateRequest?: boolean;
+  isRevisionRequired?: boolean;
 };

@@ -143,6 +143,9 @@ export default function ActionButtons() {
       await saveSubmissionReview(requestBody);
       setIsCompletingReview(false);
       notify.success("Review was completed");
+      navigate({
+        to: `/staff/projects/${projectId}`,
+      });
     } catch (error) {
       setIsCompletingReview(false);
       trigger();

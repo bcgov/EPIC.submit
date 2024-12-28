@@ -11,7 +11,7 @@ import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
 import { PackageTableRow } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
-import { openModal } from "@/components/Shared/Modals/modalStore";
+import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 
 export default function StaffSubmissionItemTableRow({
@@ -19,6 +19,7 @@ export default function StaffSubmissionItemTableRow({
   error = false,
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
+  const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
   const navigate = useNavigate();
   const {
     name,
@@ -29,6 +30,7 @@ export default function StaffSubmissionItemTableRow({
     reviewStatus,
     review_start_date,
     isUpdateRequest,
+    isRevisionRequired,
   } = item;
 
   const actionLabel = has_document ? "Review" : "View";
@@ -36,22 +38,23 @@ export default function StaffSubmissionItemTableRow({
   const onActionClick = () => {
     if (!review_start_date && has_document) {
       openVerificationModal();
-      return;
     }
-    navigate({
-      to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
-    });
   };
 
   const openVerificationModal = () => {
-    openModal(
+    setOpenModal(
       <ConfirmationModal
-        onConfirm={() => {}}
+        onConfirm={() => {
+          setCloseModal();
+          navigate({
+            to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+          });
+        }}
         title={`Start ${name} Review`}
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}
         cancelText="Start Later"
-      />
+      />,
     );
   };
 
@@ -87,6 +90,7 @@ export default function StaffSubmissionItemTableRow({
             status={status}
             reviewStatus={reviewStatus}
             isUpdateRequested={isUpdateRequest}
+            isRevisionRequired={isRevisionRequired}
           />
         </SubmissionItemTableCell>
 
