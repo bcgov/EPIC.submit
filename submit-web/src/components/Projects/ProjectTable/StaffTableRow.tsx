@@ -1,5 +1,5 @@
 import { ArrowForwardIos } from "@mui/icons-material";
-import { Link, Typography } from "@mui/material";
+import { Link, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
 import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
@@ -10,6 +10,7 @@ import {
 import EmptyRow from "./EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
+import { SubmitLink } from "@/components/Shared/SubmitLink";
 
 interface ProjectRowProps {
   submissionPackage: SubmissionPackage;
@@ -31,6 +32,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     days_since_submission = 0,
     submitted_on,
   } = submissionPackage;
+  console.log(submissionPackage);
 
   const { cc_completed_on, mp_review, type } = meta || {};
 
@@ -44,25 +46,26 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             py: 0,
           }}
         >
-          <Link
+          <SubmitLink
             sx={{
               color: BCDesignTokens.themeBlue90,
               textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
             }}
             onClick={onSubmissionClick}
+            disabled={!submitted_on}
           >
-            <Typography
-              variant="h6"
-              color={BCDesignTokens.themeBlue90}
-              fontWeight={"500"}
-              sx={{ mr: 0.5 }}
-            >
-              {name}
-            </Typography>
-            <ArrowForwardIos fontSize="small" />
-          </Link>
+            <Stack direction="row" spacing={1} alignItems={"center"}>
+              <Typography
+                variant="h6"
+                fontWeight={"500"}
+                sx={{ mr: 0.5 }}
+                color="inherit"
+              >
+                {name}
+              </Typography>
+              <ArrowForwardIos fontSize="small" htmlColor="inherit" />
+            </Stack>
+          </SubmitLink>
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="right"

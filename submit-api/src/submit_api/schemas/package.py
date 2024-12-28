@@ -153,15 +153,15 @@ def get_package_status(status, user_type):
     package_status_mapping = {
         PackageStatus.NEW_SUBMISSION.value: {
             UserType.PROPONENT: PackageStatus.NEW_SUBMISSION.value,
-            UserType.STAFF: None
+            UserType.STAFF: PackageStatus.CREATED.value
         },
         PackageStatus.PARTIALLY_COMPLETED.value: {
             UserType.PROPONENT: PackageStatus.PARTIALLY_COMPLETED.value,
-            UserType.STAFF: None
+            UserType.STAFF: PackageStatus.CREATED.value
         },
         PackageStatus.COMPLETED.value: {
             UserType.PROPONENT: PackageStatus.COMPLETED.value,
-            UserType.STAFF: None
+            UserType.STAFF: PackageStatus.CREATED.value
         },
         PackageStatus.SUBMITTED.value: {
             UserType.PROPONENT: PackageStatus.SUBMITTED.value,
