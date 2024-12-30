@@ -4,10 +4,19 @@ Manages the update request
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, ForeignKey
+import enum
+
+from sqlalchemy import Column, ForeignKey, Enum
 
 from .base_model import BaseModel
 from .db import db
+
+
+class UpdateRequestType(enum.Enum):
+    """Enum for update request statuses."""
+
+    REVIEW = 'REVIEW'
+    UPDATE = 'UPDATE'
 
 
 class UpdateRequest(BaseModel):
@@ -22,3 +31,4 @@ class UpdateRequest(BaseModel):
     created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
     created_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
     note = Column(db.String, nullable=True)
+    type = Column(Enum(UpdateRequestType), nullable=False, default=UpdateRequestType.UPDATE)

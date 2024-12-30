@@ -47,6 +47,12 @@ class PackageQueries:
             aggregated_statuses.add(PackageStatus.PASSED_CONSULTATION_CHECK.value)
 
     @classmethod
+    def _add_review_rejected(cls, aggregated_statuses: set, statuses: list[str]):
+        """Find packages that have been rejected during review"""
+        if any(status == ItemStatus.REVIEW_REJECTED.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.REVIEW_REJECTED.value)
+
+    @classmethod
     def aggregate_item_statuses(cls, items: list):
         """Aggregate item statuses"""
         statuses = [item.status.value if isinstance(item.status, ItemStatus)
@@ -57,6 +63,7 @@ class PackageQueries:
         cls._add_completed_status(aggregated_statuses, statuses)
         cls._add_submitted_status(aggregated_statuses, statuses)
         cls._add_passed_consultation_check(aggregated_statuses, statuses)
+        cls._add_review_rejected(aggregated_statuses, statuses)
         aggregated_statuses_list = list(aggregated_statuses)
         return aggregated_statuses_list
 

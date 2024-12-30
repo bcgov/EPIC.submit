@@ -25,6 +25,8 @@ class PackageStatus(enum.Enum):
     NEW_SUBMISSION = 'NEW_SUBMISSION'
     PASSED_CONSULTATION_CHECK = 'PASSED_CONSULTATION_CHECK'
     UNDER_REVIEW = 'UNDER_REVIEW'
+    REVIEW_REJECTED = 'REVIEW_REJECTED'
+    CREATED = 'CREATED'
 
 
 class Package(BaseModel):
@@ -55,7 +57,7 @@ class Package(BaseModel):
     version = db.relationship(
         'PackageVersion',
         backref='package',
-        lazy='select',
+        lazy='joined',
         uselist=False,
         primaryjoin='Package.id == PackageVersion.package_id',
         foreign_keys='PackageVersion.package_id')

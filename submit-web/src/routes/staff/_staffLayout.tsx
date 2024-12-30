@@ -88,7 +88,7 @@ function Staff() {
           auth_guid: kcUser.profile.sub,
           first_name: kcUser.profile.given_name,
           last_name: kcUser.profile.family_name,
-          work_email_address: kcUser.profile.email || "",
+          work_email_address: kcUser.profile.email ?? "",
         };
         addStaffUser(staffUser);
       }

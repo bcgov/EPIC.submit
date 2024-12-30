@@ -33,10 +33,10 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       </DialogContent>
       <DialogActions sx={{ padding: "1rem" }}>
         <Button variant="contained" onClick={onConfirm} color="primary">
-          {confirmText || "Confirm"}
+          {confirmText ?? "Confirm"}
         </Button>
         <Button onClick={setClose} color="secondary">
-          {cancelText || "Cancel"}
+          {cancelText ?? "Cancel"}
         </Button>
       </DialogActions>
     </Box>
