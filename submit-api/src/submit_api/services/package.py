@@ -106,6 +106,28 @@ class PackageService:
         )
         session.add(package_metadata)
 
+    @staticmethod
+    def _update_package_metadata(session, package_id, metadata_updates):
+        """Update specific fields in package metadata by package ID."""
+        print("DEBUG: package_id =", package_id)
+        print("DEBUG: metadata_updates =", metadata_updates)
+
+        # Retrieve the existing package metadata
+        package_metadata = PackageMetadataModel.get_by_package_id(package_id)
+
+        if not package_metadata:
+            raise ValueError(f"Package metadata for package_id {package_id} does not exist.")
+
+        # Initialize JSON field if it is None
+        if package_metadata.json is None:
+            package_metadata.json = {}
+
+        # Merge new updates into the existing JSON
+        for key, value in metadata_updates.items():
+            package_metadata.json[key] = value
+        # Add the updated metadata back to the session
+        session.add(package_metadata)
+
     @classmethod
     def _create_package_version(cls, session, package_id, original_package_id, version=1):
         """Create a new package version."""
@@ -219,8 +241,12 @@ class PackageService:
             cls._update_mp_status(
                 package.items, ItemStatus.UNDER_REVIEW.value, session)
             cls._update_package_status(package_id, session, package)
-            session.flush()
-            session.commit()
+            new_metadata = {
+                PackageMetadataFields.REVIEW_START_DATE.value: datetime.utcnow().isoformat()
+            }
+            cls._update_package_metadata(session, package_id, new_metadata)
+        session.flush()
+        session.commit()
         return package
 
     @classmethod
@@ -231,6 +257,10 @@ class PackageService:
             cls._update_cr_status(
                 package.items, ItemStatus.UNDER_CONSULTATION_CHECK.value, session)
             cls._update_package_status(package_id, session, package)
+            new_metadata = {
+                PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: datetime.utcnow().isoformat()
+            }
+            cls._update_package_metadata(session, package_id, new_metadata)
             session.flush()
             session.commit()
         return package
