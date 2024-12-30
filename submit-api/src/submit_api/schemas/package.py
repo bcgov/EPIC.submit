@@ -49,7 +49,8 @@ class CreateUpdateRequestSchema(Schema):
 
     submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids",
                                       required=True, validate=validate.Length(min=1))
-    note = fields.Str(data_key="note", required=True, validate=validate.Length(min=1))
+    note = fields.Str(data_key="note", required=True,
+                      validate=validate.Length(min=1))
 
 
 class PackageUpdateRequestSchema(Schema):
@@ -62,7 +63,8 @@ class PackageUpdateRequestSchema(Schema):
 
     id = fields.Int(data_key="id")
     submission_package_id = fields.Int(data_key="submission_package_id")
-    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids")
+    submission_item_ids = fields.List(
+        fields.Int(), data_key="submission_item_ids")
     active = fields.Bool(data_key="active")
     note = fields.Str(data_key="note")
     created_date = fields.DateTime(data_key="created_date")
@@ -88,12 +90,14 @@ class PackageSchema(Schema):
     name = fields.Str(data_key="name")
     type = fields.Nested(PackageTypeSchema, data_key="type")
     type_id = fields.Int(data_key="type_id")
-    status = fields.List(fields.Enum(enum=PackageStatus), enum=PackageStatus, data_key="status")
+    status = fields.List(fields.Enum(enum=PackageStatus),
+                         enum=PackageStatus, data_key="status")
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Method('get_submitted_by')
     meta = fields.Method('get_meta')
     items = fields.Nested(ItemSchema, data_key="items", many=True)
-    update_requests = fields.Nested(PackageUpdateRequestSchema, data_key="update_requests", many=True)
+    update_requests = fields.Nested(
+        PackageUpdateRequestSchema, data_key="update_requests", many=True)
 
     def get_submitted_by(self, obj):
         """Get submitted by."""
@@ -115,7 +119,8 @@ class PackageSchema(Schema):
         user = UserService.get_by_auth_guid(auth_guid)
         user_type = user.type if user else None
 
-        new_status = [get_package_status(status, user_type) for status in data['status']]
+        new_status = [get_package_status(status, user_type)
+                      for status in data['status']]
         new_status = [status for status in new_status if status]
         data['status'] = new_status
 
@@ -170,6 +175,10 @@ def get_package_status(status, user_type):
         PackageStatus.UNDER_REVIEW.value: {
             UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
             UserType.STAFF: PackageStatus.UNDER_REVIEW.value
+        },
+        PackageStatus.UNDER_CONSULTATION_CHECK.value: {
+            UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
+            UserType.STAFF: PackageStatus.UNDER_CONSULTATION_CHECK.value
         },
     }
     if status in package_status_mapping:

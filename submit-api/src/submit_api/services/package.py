@@ -18,6 +18,7 @@ from submit_api.models.package_metadata import PackageMetadata as PackageMetadat
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionTypeStatus
+from submit_api.models.item_type import SubmissionItemType
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
@@ -36,14 +37,19 @@ class PackageService:
     def create_new_package_from_original(cls, original_package_id, session):
         """Create a new package version."""
         original_package = PackageModel.find_by_id(original_package_id)
-        package_version = PackageVersionModel.get_by_package_id(original_package_id)
-        all_package_versions = PackageVersionModel.get_all_by_original_package_id(original_package_id)
+        package_version = PackageVersionModel.get_by_package_id(
+            original_package_id)
+        all_package_versions = PackageVersionModel.get_all_by_original_package_id(
+            original_package_id)
         if not all_package_versions:
-            raise BadRequestError("Cannot create a new version for a package that has no versions")
+            raise BadRequestError(
+                "Cannot create a new version for a package that has no versions")
 
-        latest_version = max(package_version.version for package_version in all_package_versions)
+        latest_version = max(
+            package_version.version for package_version in all_package_versions)
         if latest_version != package_version.version:
-            raise BadRequestError("Cannot create a new version for a package that is not the latest version")
+            raise BadRequestError(
+                "Cannot create a new version for a package that is not the latest version")
 
         new_version = latest_version + 1
         new_package_data = {
@@ -122,7 +128,8 @@ class PackageService:
         }
 
         for item_type in package_type.item_types:
-            package_item_type = item_type_to_package_item_type.get(item_type.id)
+            package_item_type = item_type_to_package_item_type.get(
+                item_type.id)
             if package_item_type:
                 item = ItemModel(
                     package_id=package_id,
@@ -138,7 +145,8 @@ class PackageService:
         """Retrieve and validate that all items in the package are completed."""
         package = PackageModel.find_by_id(package_id)
         if any(item.status.value != ItemStatus.COMPLETED.value for item in package.items):
-            raise BadRequestError("All items must be completed before completing the package")
+            raise BadRequestError(
+                "All items must be completed before completing the package")
         return package
 
     @staticmethod
@@ -152,6 +160,22 @@ class PackageService:
         for item in items:
             item.status = status
             session.add(item)
+
+    @staticmethod
+    def _update_mp_status(items, status, session):
+        """Update the status of all items in the package."""
+        for item in items:
+            if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
+                item.status = status
+                session.add(item)
+
+    @staticmethod
+    def _update_cr_status(items, status, session):
+        """Update the status of all items in the package."""
+        for item in items:
+            if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
+                item.status = status
+                session.add(item)
 
     @staticmethod
     def _update_package_submission_details(package, session):
@@ -177,21 +201,35 @@ class PackageService:
         package = cls._get_and_validate_complete_package(package_id)
 
         with session_scope() as session:
-            cls._update_items_status(package.items, ItemStatus.SUBMITTED.value, session)
+            cls._update_items_status(
+                package.items, ItemStatus.SUBMITTED.value, session)
             cls._update_package_status(package_id, session, package)
             cls._update_package_submission_details(package, session)
             cls._create_email_queue_record(package, session)
             session.flush()
             session.commit()
         return package
-  
+
     @classmethod
-    def start_review(cls, package_id):
+    def start_mp_review(cls, package_id):
         """Start the review process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)
 
         with session_scope() as session:
-            cls._update_items_status(package.items, ItemStatus.UNDER_REVIEW.value, session)
+            cls._update_mp_status(
+                package.items, ItemStatus.UNDER_REVIEW.value, session)
+            cls._update_package_status(package_id, session, package)
+            session.flush()
+            session.commit()
+        return package
+
+    @classmethod
+    def start_cr_check(cls, package_id):
+        """Start the consultation check process for the package."""
+        package = cls._get_and_validate_package_for_starting_review(package_id)
+        with session_scope() as session:
+            cls._update_cr_status(
+                package.items, ItemStatus.UNDER_CONSULTATION_CHECK.value, session)
             cls._update_package_status(package_id, session, package)
             session.flush()
             session.commit()
@@ -218,7 +256,8 @@ class PackageService:
             lambda: cls._unsupported_status,
             {
                 PackageStatus.SUBMITTED.value: cls.submit_package,
-                PackageStatus.UNDER_REVIEW.value: cls.start_review,
+                PackageStatus.UNDER_REVIEW.value: cls.start_mp_review,
+                PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
             }
         )
         return state_updaters[status]
@@ -266,11 +305,14 @@ class PackageService:
         if not package:
             raise ResourceNotFoundError("Package not found")
         if not package.submitted_on:
-            raise BadRequestError("Cannot create an update request for a package that has not been submitted")
+            raise BadRequestError(
+                "Cannot create an update request for a package that has not been submitted")
         if package.status == PackageStatus.APPROVED:
-            raise BadRequestError("Cannot create an update request for a package that has been approved")
+            raise BadRequestError(
+                "Cannot create an update request for a package that has been approved")
         if package.status == PackageStatus.REJECTED:
-            raise BadRequestError("Cannot create an update request for a package that has been rejected")
+            raise BadRequestError(
+                "Cannot create an update request for a package that has been rejected")
         return package
 
     @classmethod
@@ -280,7 +322,9 @@ class PackageService:
         if not package:
             raise ResourceNotFoundError("Package not found")
         if package.status == PackageStatus.APPROVED:
-            raise BadRequestError("Cannot create a review for a package that has been approved")
+            raise BadRequestError(
+                "Cannot create a review for a package that has been approved")
         if package.status == PackageStatus.REJECTED:
-            raise BadRequestError("Cannot create a review for a package that has been rejected")
+            raise BadRequestError(
+                "Cannot create a review for a package that has been rejected")
         return package

@@ -28,6 +28,7 @@ export type PackageStatus =
   | "SUBMITTED"
   | "PARTIALLY_COMPLETED"
   | "NEW_SUBMISSION"
+  | "UNDER_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
   | "CREATED"
   | "UPDATED";
@@ -67,6 +68,10 @@ export const PACKAGE_STATUS: Record<
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
+  },
+  UNDER_CONSULTATION_CHECK: {
+    value: "UNDER_CONSULTATION_CHECK",
+    label: "Under Consultation Check",
   },
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",

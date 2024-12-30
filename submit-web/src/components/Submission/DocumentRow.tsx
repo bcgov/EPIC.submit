@@ -7,6 +7,10 @@ import { StyledTableCell } from "../Shared/Table/common";
 import { useModal } from "../Shared/Modals/modalStore";
 import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
 import { SubmissionItemTableRow } from "./types";
+import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
+import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
+import { useParams } from "@tanstack/react-router";
+import { PACKAGE_STATUS } from "@/models/Package";
 
 type DocumentRowProps = {
   documentSubmission: Submission;
@@ -17,6 +21,7 @@ export default function DocumentRow({
   documentSubmission,
   submissionItem,
 }: DocumentRowProps) {
+  const { submissionPackageId } = useParams({ strict: false });
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
   const {
@@ -24,6 +29,15 @@ export default function DocumentRow({
     version,
     submitted_by,
   } = documentSubmission;
+  const isConsultationRecord =
+    name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
+
+  const { mutate: updateStateSubmissionPackage } =
+    useUpdateStateSubmissionPackage({
+      onError: () => {
+        notify.error("Failed to update management plan");
+      },
+    });
 
   const openVerificationModal = () => {
     //todo: setup onConfirm
@@ -31,6 +45,14 @@ export default function DocumentRow({
       <ConfirmationModal
         onConfirm={() => {
           setCloseModal();
+          updateStateSubmissionPackage({
+            packageId: Number(submissionPackageId),
+            data: {
+              status: isConsultationRecord
+                ? PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value
+                : PACKAGE_STATUS.UNDER_REVIEW.value,
+            },
+          });
           downloadDocument();
         }}
         title={`Start ${submissionItem.name} Review`}
