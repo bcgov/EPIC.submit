@@ -11,6 +11,7 @@ import EmptyRow from "./EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { SubmitLink } from "@/components/Shared/SubmitLink";
+import { useMemo } from "react";
 
 interface ProjectRowProps {
   submissionPackage: SubmissionPackage;
@@ -33,7 +34,16 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     submitted_on,
   } = submissionPackage;
 
-  const { cc_completed_on, mp_review, type } = meta || {};
+  const { cc_completed_on, type, review_start_date } = meta || {};
+
+  const mp_review = useMemo(() => {
+    if (!review_start_date || !dayjs(review_start_date).isValid()) return "";
+
+    const end_of_day_review_start_date = dayjs(review_start_date).endOf("day");
+    dayjs(review_start_date).endOf("day");
+    const days = dayjs().endOf("day").diff(end_of_day_review_start_date, "day");
+    return Math.max(0, days);
+  }, [review_start_date]);
 
   return (
     <>
@@ -116,9 +126,10 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           align="right"
           sx={{
             maxWidth: "75px",
+            color: BCDesignTokens.supportBorderColorSuccess,
           }}
         >
-          {mp_review}
+          {mp_review ? `+ ${mp_review} Days` : ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="right"
