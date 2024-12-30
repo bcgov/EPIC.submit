@@ -9,7 +9,7 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "react-oidc-context";
 
-export const Route = createFileRoute("/proponent/_proponentLayout/_dashboard/profile")({
+export const Route = createFileRoute("/proponent/_proponentLayout/profile")({
   component: Profile,
   meta: () => [{ title: "Admin" }],
 });

@@ -20,7 +20,7 @@ export default function ProponentSubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const navigate = useNavigate();
   const { projectId, submissionPackageId } = useParams({
-    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
   });
 
   const { name, id, submissions, has_document, status } = item;
