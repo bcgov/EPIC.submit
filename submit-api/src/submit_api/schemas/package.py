@@ -177,7 +177,7 @@ def get_package_status(status, user_type):
             UserType.STAFF: PackageStatus.UNDER_REVIEW.value
         },
         PackageStatus.UNDER_CONSULTATION_CHECK.value: {
-            UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
+            UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
             UserType.STAFF: PackageStatus.UNDER_CONSULTATION_CHECK.value
         },
     }

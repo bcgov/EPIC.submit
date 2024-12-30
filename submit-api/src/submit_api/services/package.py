@@ -109,9 +109,6 @@ class PackageService:
     @staticmethod
     def _update_package_metadata(session, package_id, metadata_updates):
         """Update specific fields in package metadata by package ID."""
-        print("DEBUG: package_id =", package_id)
-        print("DEBUG: metadata_updates =", metadata_updates)
-
         # Retrieve the existing package metadata
         package_metadata = PackageMetadataModel.get_by_package_id(package_id)
 
@@ -189,6 +186,7 @@ class PackageService:
         for item in items:
             if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
                 item.status = status
+                item.review_start_date = datetime.utcnow()
                 session.add(item)
 
     @staticmethod
@@ -197,6 +195,7 @@ class PackageService:
         for item in items:
             if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
                 item.status = status
+                item.review_start_date = datetime.utcnow()
                 session.add(item)
 
     @staticmethod

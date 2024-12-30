@@ -51,7 +51,11 @@ export default function StaffSubmissionItemTableRow({
   const onActionClick = () => {
     if (!review_start_date && has_document) {
       openVerificationModal();
+      return;
     }
+    navigate({
+      to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+    });
   };
 
   const openVerificationModal = () => {

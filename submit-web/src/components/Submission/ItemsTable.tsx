@@ -31,7 +31,7 @@ export default function ItemsTable({
   const itemUpdateRequestMap = useMemo(() => {
     const _update_requests = update_requests.filter(
       (update_request) =>
-        update_request.type === UPDATE_REQUEST_TYPE.UPDATE.value,
+        update_request.type === UPDATE_REQUEST_TYPE.UPDATE.value
     );
     return _update_requests
       .flatMap((update_request) => update_request.submission_item_ids)
@@ -44,7 +44,7 @@ export default function ItemsTable({
   const itemRevisionRequiredMap = useMemo(() => {
     const _update_requests = update_requests.filter(
       (update_request) =>
-        update_request.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+        update_request.type === UPDATE_REQUEST_TYPE.REVIEW.value
     );
     return _update_requests
       .flatMap((update_request) => update_request.submission_item_ids)
@@ -65,17 +65,18 @@ export default function ItemsTable({
     submitted_by: subItem?.submitted_by,
     version: subItem.version,
     submissions: subItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
     ),
     has_document:
       subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
     reviewStatus: subItem.review?.status,
     isUpdateRequest: Boolean(itemUpdateRequestMap[subItem.id]),
     isRevisionRequired: Boolean(itemRevisionRequiredMap[subItem.id]),
+    review_start_date: subItem.review_start_date,
   }));
 
   const internalStaffDocuments = submissionItems.flatMap(
-    (item) => item.internal_staff_documents ?? [],
+    (item) => item.internal_staff_documents ?? []
   );
 
   return (
