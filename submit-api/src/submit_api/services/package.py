@@ -257,11 +257,12 @@ class PackageService:
                 package.items, ItemStatus.UNDER_CONSULTATION_CHECK.value, session)
             cls._update_package_status(package_id, session, package)
             new_metadata = {
+                PackageMetadataFields.REVIEW_START_DATE.value: datetime.utcnow().isoformat(),
                 PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: datetime.utcnow().isoformat()
             }
             cls._update_package_metadata(session, package_id, new_metadata)
-            session.flush()
-            session.commit()
+        session.flush()
+        session.commit()
         return package
 
     @staticmethod
