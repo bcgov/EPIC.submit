@@ -3,54 +3,67 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  TextField,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { SubmissionPackage } from "@/models/Package";
-import { CheckboxGroup } from "@/components/Shared/CheckboxGroup";
 import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import * as yup from "yup";
+import { FormProvider, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import Form from "@/components/Shared/Forms/common";
+import ControlledCheckboxGroup from "@/components/Shared/controlled/ControlledCheckboxGroup";
+import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+
+const requestUpdateSchema = yup.object().shape({
+  note: yup.string().required("Please enter your note."),
+  submissionItems: yup
+    .array()
+    .nullable()
+    .required("Please select at least one item.")
+    .of(yup.string())
+    .min(1, "Please select at least one item."),
+});
+type RequestUpdateForm = yup.InferType<typeof requestUpdateSchema>;
 
 type AddRequestSectionProps = {
-  submissionPackage: SubmissionPackage;
-  isCreatingUpdateRequest: boolean;
-  handleCreateUpdateRequest: ({
+  readonly submissionPackage: SubmissionPackage;
+  readonly isCreatingUpdateRequest: boolean;
+  readonly handleCreateUpdateRequest: ({
     note,
     submissionItems,
   }: {
     note: string;
     submissionItems: unknown[];
   }) => void;
-  handleCancelNote: () => void;
+  readonly handleCancelNote: () => void;
 };
+
 export default function AddRequestSection({
   submissionPackage,
   handleCreateUpdateRequest,
   isCreatingUpdateRequest,
   handleCancelNote,
 }: AddRequestSectionProps) {
-  const [noteText, setNoteText] = useState("");
+  const methods = useForm<RequestUpdateForm>({
+    resolver: yupResolver(requestUpdateSchema),
+    mode: "onSubmit",
+    defaultValues: {
+      note: "",
+      submissionItems: [],
+    },
+  });
 
-  const [selectedSubmissionItems, setSelectedSubmissionItems] = useState<
-    unknown[]
-  >([]);
+  const { handleSubmit } = methods;
 
-  const onCreateUpdateRequest = () => {
-    if (!noteText) {
-      notify.error("Please enter a note");
-      return;
-    }
-    if (selectedSubmissionItems.length === 0) {
-      notify.error("Please select at least one item");
-      return;
-    }
-
+  const onCreateUpdateRequest = async (data: RequestUpdateForm) => {
+    const validData = requestUpdateSchema.validateSync(data);
+    const { note, submissionItems } = validData;
     handleCreateUpdateRequest({
-      note: noteText,
-      submissionItems: selectedSubmissionItems,
+      note: note,
+      submissionItems: submissionItems,
     });
   };
 
@@ -62,47 +75,50 @@ export default function AddRequestSection({
   }, [submissionPackage.items]);
 
   return (
-    <Box>
-      <Typography variant="body1">Update requested for</Typography>
-      <CheckboxGroup onChange={(values) => setSelectedSubmissionItems(values)}>
-        {filteredItems.map((item) => (
-          <FormControlLabel
-            key={item.id}
-            control={<Checkbox value={item.id} />}
-            label={item.type.name}
-          />
-        ))}
-      </CheckboxGroup>
-      <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
-        <Typography variant="body1">Request Note</Typography>
-        <TextField
-          variant="outlined"
-          value={noteText}
-          multiline
-          fullWidth
-          minRows={4}
-          onChange={(e) => setNoteText(e.target.value)}
-          sx={{
-            "& .MuiInputBase-root": {
-              borderColor: BCDesignTokens.typographyColorDisabled,
-            },
-          }}
-        />
-        <LoadingButton
-          onClick={onCreateUpdateRequest}
-          sx={{ mr: BCDesignTokens.layoutMarginSmall }}
-          loading={isCreatingUpdateRequest}
-        >
-          Send Request to Holder
-        </LoadingButton>
-        <Button
-          color="secondary"
-          onClick={handleCancelNote}
-          sx={{ border: "0px" }}
-        >
-          Cancel
-        </Button>
-      </Box>
-    </Box>
+    <FormProvider {...methods}>
+      <Form onSubmit={handleSubmit(onCreateUpdateRequest)}>
+        <Box>
+          <Typography variant="body1">Update requested for</Typography>
+          <ControlledCheckboxGroup name="submissionItems">
+            {filteredItems.map((item) => (
+              <FormControlLabel
+                key={item.id}
+                control={<Checkbox value={item.id} />}
+                label={item.type.name}
+              />
+            ))}
+          </ControlledCheckboxGroup>
+          <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+            <Typography variant="body1">Request Note</Typography>
+            <ControlledTextField
+              name="note"
+              variant="outlined"
+              multiline
+              fullWidth
+              minRows={4}
+              sx={{
+                "& .MuiInputBase-root": {
+                  borderColor: BCDesignTokens.typographyColorDisabled,
+                },
+              }}
+            />
+            <LoadingButton
+              type="submit"
+              sx={{ mr: BCDesignTokens.layoutMarginSmall }}
+              loading={isCreatingUpdateRequest}
+            >
+              Send Request to Holder
+            </LoadingButton>
+            <Button
+              color="secondary"
+              onClick={handleCancelNote}
+              sx={{ border: "0px" }}
+            >
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      </Form>
+    </FormProvider>
   );
 }

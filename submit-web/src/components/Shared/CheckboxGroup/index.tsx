@@ -1,16 +1,26 @@
 import React, { useState } from "react";
 import { Checkbox, FormControlLabel, FormGroup } from "@mui/material";
+import { isArray, isNil } from "lodash";
+import { BCDesignTokens } from "epic.theme";
 
-type CheckboxGroupProps = {
+export type CheckboxGroupProps = {
   defaultSelectedValues?: unknown[];
   children: React.ReactNode;
-  onChange: (selectedValues: unknown[]) => void;
+  onChange?: (selectedValues: unknown[]) => void;
   errorMessage?: string;
+  disabled?: boolean;
+  value?: unknown[];
+  controlled?: boolean;
+  error?: boolean;
 };
 export const CheckboxGroup = ({
-  onChange,
-  defaultSelectedValues = [],
+  onChange = () => {},
+  disabled,
+  value: values,
   children,
+  defaultSelectedValues = [],
+  controlled = false,
+  error = false,
 }: CheckboxGroupProps) => {
   const [selectedValues, setSelectedValues] = useState(defaultSelectedValues);
 
@@ -20,27 +30,50 @@ export const CheckboxGroup = ({
       (child) => React.isValidElement(child) && child.type === FormControlLabel,
     );
   };
+
+  const currentValues =
+    controlled && !isNil(values) && isArray(values) ? values : selectedValues;
   return (
     <FormGroup>
       {getFormControlLabels().map((child) => {
         if (!React.isValidElement(child)) return null;
-        const { value } = child.props.control.props;
-        const isChecked = selectedValues.includes(value);
+        const { sx: childSx = {}, ...otherProps } = child.props;
+        const {
+          value,
+          sx: controlSx = {},
+          ...otherControlProps
+        } = child.props.control.props;
+
+        const isChecked = currentValues.includes(value);
+
         return (
           <FormControlLabel
             key={`checkbox-${value}`}
-            {...child.props}
+            sx={{
+              "& .MuiFormControlLabel-label": {
+                color: error ? BCDesignTokens.iconsColorDanger : "inherit",
+              },
+              ...childSx,
+            }}
+            {...otherProps}
             control={
               <Checkbox
+                disabled={disabled}
                 checked={isChecked}
                 onChange={() => {
                   const newSelectedValues = isChecked
-                    ? selectedValues.filter((v) => v !== value)
-                    : [...selectedValues, value];
-                  setSelectedValues(newSelectedValues);
+                    ? currentValues.filter((v) => v !== value)
+                    : [...currentValues, value];
+                  if (!controlled) {
+                    setSelectedValues(newSelectedValues);
+                  }
                   onChange(newSelectedValues);
                 }}
-                {...child.props.control.props}
+                sx={{
+                  color: error ? BCDesignTokens.iconsColorDanger : "inherit",
+                  ...controlSx,
+                }}
+                {...otherControlProps}
               />
             }
           />
