@@ -8,6 +8,7 @@ import {
 } from "@mui/material";
 import { useModal } from "./modalStore";
 import { modalStyle } from "./constants";
+import { LoadingButton } from "../LoadingButton";
 
 type ConfirmationModalProps = {
   title: string;
@@ -15,6 +16,7 @@ type ConfirmationModalProps = {
   onConfirm: () => void;
   confirmText?: string;
   cancelText?: string;
+  loading?: boolean;
 };
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -23,6 +25,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   confirmText,
   cancelText,
+  loading = false,
 }) => {
   const { setClose } = useModal();
   return (
@@ -32,9 +35,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         <DialogContentText>{description}</DialogContentText>
       </DialogContent>
       <DialogActions sx={{ padding: "1rem" }}>
-        <Button variant="contained" onClick={onConfirm} color="primary">
+        <LoadingButton
+          loading={loading}
+          variant="contained"
+          onClick={onConfirm}
+          color="primary"
+        >
           {confirmText ?? "Confirm"}
-        </Button>
+        </LoadingButton>
         <Button onClick={setClose} color="secondary">
           {cancelText ?? "Cancel"}
         </Button>
