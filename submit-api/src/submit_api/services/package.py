@@ -19,6 +19,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.models.item_type import SubmissionItemType
+from submit_api.models.update_request import UpdateRequestType
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
@@ -207,6 +208,14 @@ class PackageService:
         session.add(package)
 
     @staticmethod
+    def _deactivate_revision_required_requests(package, session):
+        """Update package submission details."""
+        revision_required_requests = [request for request in package.update_requests if request.type == UpdateRequestType.REVIEW]
+        for request in revision_required_requests:
+            request.active = False
+            session.add(request)
+
+    @staticmethod
     def _get_document_submissions_from_package(package):
         """Get submissions from package."""
         submissions = []
@@ -227,6 +236,7 @@ class PackageService:
             cls._update_package_status(package_id, session, package)
             cls._update_package_submission_details(package, session)
             cls._create_email_queue_record(package, session)
+            cls._deactivate_revision_required_requests(package, session)
             session.flush()
             session.commit()
         return package
