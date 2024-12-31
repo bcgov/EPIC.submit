@@ -181,12 +181,12 @@ class PackageService:
             session.add(item)
 
     @staticmethod
-    def _update_mp_status(items, status, session):
+    def _update_mp_item(items, data, session):
         """Update the status of all items in the package."""
         for item in items:
             if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
-                item.status = status
-                item.review_start_date = datetime.utcnow()
+                item.status = data.get('status')
+                item.review_start_date = data.get('review_start_date')
                 session.add(item)
 
     @staticmethod
@@ -232,21 +232,31 @@ class PackageService:
         return package
 
     @classmethod
-    def start_mp_review(cls, package_id):
+    def start_mp_review(cls, package_id, session=None):
         """Start the review process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)
 
-        with session_scope() as session:
-            cls._update_mp_status(
-                package.items, ItemStatus.UNDER_REVIEW.value, session)
-            cls._update_package_status(package_id, session, package)
-            new_metadata = {
-                PackageMetadataFields.REVIEW_START_DATE.value: datetime.utcnow().isoformat()
-            }
-            cls._update_package_metadata(session, package_id, new_metadata)
-        session.flush()
-        session.commit()
+        if session is None:
+            with session_scope() as session:
+                cls.start_mp_review_process(package, package_id, session)
+        else:
+            cls.start_mp_review_process(package, package_id, session)
+
         return package
+
+    @classmethod
+    def start_mp_review_process(cls, package, package_id, session):
+        """Common logic for starting the review process."""
+        item_data = {
+            'status': ItemStatus.UNDER_REVIEW.value,
+            'review_start_date': datetime.utcnow()
+        }
+        cls._update_mp_item(package.items, item_data, session)
+        cls._update_package_status(package_id, session, package)
+        new_metadata = {
+            PackageMetadataFields.REVIEW_START_DATE.value: item_data.get('review_start_date')
+        }
+        cls._update_package_metadata(session, package_id, new_metadata)
 
     @classmethod
     def start_cr_check(cls, package_id):
