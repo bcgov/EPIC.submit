@@ -194,7 +194,7 @@ export const useCreatePackageUpdateRequest = ({
       queryClient.invalidateQueries({
         queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });
-      queryClient.invalidateQueries({
+      queryClient.refetchQueries({
         queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },

@@ -36,7 +36,7 @@ export default function UpdateRequestWidget({
       options: {
         onSuccess: () => {
           notify.success("Update request created successfully");
-          setExpanded(false);
+          handleCancelNote();
         },
         onError: (error) => {
           const defaultMessage = "Failed to create update request";
