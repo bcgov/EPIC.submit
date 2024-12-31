@@ -116,14 +116,11 @@ class PackageService:
         if not package_metadata:
             raise ValueError(f"Package metadata for package_id {package_id} does not exist.")
 
-        # Initialize JSON field if it is None
-        if package_metadata.json is None:
-            package_metadata.json = {}
+        metadata = package_metadata.json or {}
+        new_metadata = {**metadata, **metadata_updates}
 
-        # Merge new updates into the existing JSON
-        for key, value in metadata_updates.items():
-            package_metadata.json[key] = value
         # Add the updated metadata back to the session
+        package_metadata.json = new_metadata
         session.add(package_metadata)
 
     @classmethod
@@ -259,7 +256,7 @@ class PackageService:
         """Common logic for starting the review process."""
         item_data = {
             'status': ItemStatus.UNDER_REVIEW.value,
-            'review_start_date': datetime.utcnow()
+            'review_start_date': datetime.utcnow().isoformat()
         }
         cls._update_mp_item(package.items, item_data, session)
         cls._update_package_status(package_id, session, package)
@@ -277,13 +274,12 @@ class PackageService:
                 package.items, ItemStatus.UNDER_CONSULTATION_CHECK.value, session)
             cls._update_package_status(package_id, session, package)
             new_metadata = {
-                PackageMetadataFields.REVIEW_START_DATE.value: datetime.utcnow().isoformat(),
                 PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: datetime.utcnow().isoformat()
             }
             cls._update_package_metadata(session, package_id, new_metadata)
-        session.flush()
-        session.commit()
-        return package
+            session.flush()
+            session.commit()
+            return package
 
     @staticmethod
     def _unsupported_status(*args, **kwargs):

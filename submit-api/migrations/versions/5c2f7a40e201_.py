@@ -1,4 +1,5 @@
-"""
+""" Add new status to package and item
+
 Revision ID: 5c2f7a40e201
 Revises: 910c8029a678
 Create Date: 2024-12-24 10:54:04.654294
