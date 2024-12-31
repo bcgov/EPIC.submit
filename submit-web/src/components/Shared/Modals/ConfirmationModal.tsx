@@ -1,7 +1,6 @@
 import {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Button,
   Box,
