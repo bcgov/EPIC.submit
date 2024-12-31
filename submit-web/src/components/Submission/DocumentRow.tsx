@@ -32,14 +32,19 @@ export default function DocumentRow({
   const isConsultationRecord =
     name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
 
-  const { mutate: updateStateSubmissionPackage } =
-    useUpdateStateSubmissionPackage({
-      onError: () => {
-        notify.error("Failed to update management plan");
-      },
-    });
+  const {
+    mutate: updateStateSubmissionPackage,
+    isPending: updatingSubmission,
+  } = useUpdateStateSubmissionPackage({
+    onError: () => {
+      notify.error("Failed to start review");
+    },
+    onSuccess: () => {
+      notify.success("Successfully started review");
+    },
+  });
 
-  const openVerificationModal = () => {
+  const openConfirmationModal = () => {
     //todo: setup onConfirm
     setOpenModal(
       <ConfirmationModal
@@ -55,6 +60,7 @@ export default function DocumentRow({
           });
           downloadDocument();
         }}
+        loading={updatingSubmission}
         title={`Start ${submissionItem.name} Review`}
         description={`Would you like to start the ${submissionItem.name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${submissionItem.name} Review`}
@@ -77,7 +83,7 @@ export default function DocumentRow({
 
   const openDocument = () => {
     if (!submissionItem.review_start_date && submissionItem.has_document) {
-      openVerificationModal();
+      openConfirmationModal();
       return;
     }
     downloadDocument();

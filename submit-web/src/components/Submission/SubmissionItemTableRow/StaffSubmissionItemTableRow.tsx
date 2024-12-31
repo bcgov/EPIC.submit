@@ -41,16 +41,21 @@ export default function StaffSubmissionItemTableRow({
   const isConsultationRecord =
     name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
 
-  const { mutate: updateStateSubmissionPackage } =
-    useUpdateStateSubmissionPackage({
-      onError: () => {
-        notify.error("Failed to update management plan");
-      },
-    });
+  const {
+    mutate: updateStateSubmissionPackage,
+    isPending: updatingSubmission,
+  } = useUpdateStateSubmissionPackage({
+    onError: () => {
+      notify.error("Failed to start review");
+    },
+    onSuccess: () => {
+      notify.success("Successfully started review");
+    },
+  });
 
   const onActionClick = () => {
-    if (!review_start_date && has_document) {
-      openVerificationModal();
+    if (review_start_date && has_document) {
+      openConfirmationModal();
       return;
     }
     navigate({
@@ -58,7 +63,7 @@ export default function StaffSubmissionItemTableRow({
     });
   };
 
-  const openVerificationModal = () => {
+  const openConfirmationModal = () => {
     setOpenModal(
       <ConfirmationModal
         onConfirm={() => {
@@ -75,6 +80,7 @@ export default function StaffSubmissionItemTableRow({
             to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
           });
         }}
+        loading={updatingSubmission}
         title={`Start ${name} Review`}
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}
