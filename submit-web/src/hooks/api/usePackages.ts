@@ -138,10 +138,9 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       if (options?.onSuccess) {
         options.onSuccess();
       }
-      queryClient.setQueryData(
-        [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage,
-      );
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+      });
       queryClient.invalidateQueries({
         queryKey: [
           QUERY_KEY.ACCOUNT_PROJECT,
@@ -195,7 +194,7 @@ export const useCreatePackageUpdateRequest = ({
       queryClient.invalidateQueries({
         queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });
-      queryClient.invalidateQueries({
+      queryClient.refetchQueries({
         queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },

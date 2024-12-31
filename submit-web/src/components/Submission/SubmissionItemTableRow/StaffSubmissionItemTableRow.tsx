@@ -13,6 +13,10 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { PACKAGE_STATUS } from "@/models/Package";
+import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -34,27 +38,54 @@ export default function StaffSubmissionItemTableRow({
   } = item;
 
   const actionLabel = has_document ? "Review" : "View";
+  const isConsultationRecord =
+    name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
+
+  const {
+    mutate: updateStateSubmissionPackage,
+    isPending: updatingSubmission,
+  } = useUpdateStateSubmissionPackage({
+    onError: () => {
+      notify.error("Failed to start review");
+    },
+    onSuccess: () => {
+      notify.success("Successfully started review");
+    },
+  });
 
   const onActionClick = () => {
-    if (!review_start_date && has_document) {
-      openVerificationModal();
+    if (review_start_date && has_document) {
+      openConfirmationModal();
+      return;
     }
+    navigate({
+      to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+    });
   };
 
-  const openVerificationModal = () => {
+  const openConfirmationModal = () => {
     setOpenModal(
       <ConfirmationModal
         onConfirm={() => {
           setCloseModal();
+          updateStateSubmissionPackage({
+            packageId: Number(submissionPackageId),
+            data: {
+              status: isConsultationRecord
+                ? PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value
+                : PACKAGE_STATUS.UNDER_REVIEW.value,
+            },
+          });
           navigate({
             to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
           });
         }}
+        loading={updatingSubmission}
         title={`Start ${name} Review`}
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}
         cancelText="Start Later"
-      />,
+      />
     );
   };
 

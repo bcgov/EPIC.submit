@@ -1,13 +1,17 @@
 import {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Button,
   Box,
+  Typography,
+  IconButton,
+  Divider,
 } from "@mui/material";
 import { useModal } from "./modalStore";
 import { modalStyle } from "./constants";
+import { LoadingButton } from "../LoadingButton";
+import CloseIcon from "@mui/icons-material/Close";
 
 type ConfirmationModalProps = {
   title: string;
@@ -15,6 +19,7 @@ type ConfirmationModalProps = {
   onConfirm: () => void;
   confirmText?: string;
   cancelText?: string;
+  loading?: boolean;
 };
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -23,21 +28,34 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   confirmText,
   cancelText,
+  loading = false,
 }) => {
   const { setClose } = useModal();
   return (
     <Box sx={modalStyle}>
-      <DialogTitle>{title}</DialogTitle>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <DialogTitle>{title}</DialogTitle>
+        <IconButton onClick={setClose}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
+      <Divider />
       <DialogContent>
-        <DialogContentText>{description}</DialogContentText>
+        <Typography variant="body1">{description}</Typography>
       </DialogContent>
+      <Divider />
       <DialogActions sx={{ padding: "1rem" }}>
-        <Button variant="contained" onClick={onConfirm} color="primary">
-          {confirmText ?? "Confirm"}
-        </Button>
-        <Button onClick={setClose} color="secondary">
+        <Button onClick={setClose} color="secondary" sx={{ border: 0 }}>
           {cancelText ?? "Cancel"}
         </Button>
+        <LoadingButton
+          loading={loading}
+          variant="contained"
+          onClick={onConfirm}
+          color="primary"
+        >
+          {confirmText ?? "Confirm"}
+        </LoadingButton>
       </DialogActions>
     </Box>
   );

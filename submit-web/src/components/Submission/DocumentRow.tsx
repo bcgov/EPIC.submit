@@ -7,6 +7,10 @@ import { StyledTableCell } from "../Shared/Table/common";
 import { useModal } from "../Shared/Modals/modalStore";
 import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
 import { SubmissionItemTableRow } from "./types";
+import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
+import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
+import { useParams } from "@tanstack/react-router";
+import { PACKAGE_STATUS } from "@/models/Package";
 
 type DocumentRowProps = {
   documentSubmission: Submission;
@@ -17,6 +21,7 @@ export default function DocumentRow({
   documentSubmission,
   submissionItem,
 }: DocumentRowProps) {
+  const { submissionPackageId } = useParams({ strict: false });
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
   const {
@@ -24,20 +29,43 @@ export default function DocumentRow({
     version,
     submitted_by,
   } = documentSubmission;
+  const isConsultationRecord =
+    name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
 
-  const openVerificationModal = () => {
+  const {
+    mutate: updateStateSubmissionPackage,
+    isPending: updatingSubmission,
+  } = useUpdateStateSubmissionPackage({
+    onError: () => {
+      notify.error("Failed to start review");
+    },
+    onSuccess: () => {
+      notify.success("Successfully started review");
+    },
+  });
+
+  const openConfirmationModal = () => {
     //todo: setup onConfirm
     setOpenModal(
       <ConfirmationModal
         onConfirm={() => {
           setCloseModal();
+          updateStateSubmissionPackage({
+            packageId: Number(submissionPackageId),
+            data: {
+              status: isConsultationRecord
+                ? PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value
+                : PACKAGE_STATUS.UNDER_REVIEW.value,
+            },
+          });
           downloadDocument();
         }}
+        loading={updatingSubmission}
         title={`Start ${submissionItem.name} Review`}
         description={`Would you like to start the ${submissionItem.name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${submissionItem.name} Review`}
         cancelText="Start Later"
-      />,
+      />
     );
   };
 
@@ -55,7 +83,7 @@ export default function DocumentRow({
 
   const openDocument = () => {
     if (!submissionItem.review_start_date && submissionItem.has_document) {
-      openVerificationModal();
+      openConfirmationModal();
       return;
     }
     downloadDocument();

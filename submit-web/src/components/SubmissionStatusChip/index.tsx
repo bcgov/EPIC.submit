@@ -20,6 +20,24 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "New Submission",
   },
+  UNDER_REVIEW: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.themeBlue100}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+    },
+    label: "Under Review",
+  },
+  UNDER_CONSULTATION_CHECK: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.themeBlue100}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+    },
+    label: "Under Consultation Check",
+  },
   COMPLETED: {
     sx: {
       borderRadius: 1,
