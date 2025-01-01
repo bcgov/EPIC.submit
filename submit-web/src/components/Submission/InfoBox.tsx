@@ -96,9 +96,6 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
     cc_start_date,
     cc_completed_on,
   } = submissionPackage.meta || {};
-  const reviewStartDateFormatted = dayjs(review_start_date).format(
-    "MMMM D, YYYY h:mm A"
-  );
   const { submitted_on, submitted_by } = submissionPackage;
 
   return (
@@ -121,7 +118,12 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem label={"Condition"} />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"CC Start Date"} value={cc_start_date} />
+        <InfoBoxItem
+          label={"CC Start Date"}
+          value={
+            cc_start_date ? dayjs(cc_start_date).format("DD-MMM-YYYY") : ""
+          }
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem label={"Submitted by"} value={submitted_by} />
@@ -145,7 +147,11 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Review Start Date"}
-          value={reviewStartDateFormatted}
+          value={
+            review_start_date
+              ? dayjs(review_start_date).format("DD-MMM-YYYY")
+              : ""
+          }
         />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>

@@ -54,7 +54,7 @@ export default function StaffSubmissionItemTableRow({
   });
 
   const onActionClick = () => {
-    if (review_start_date && has_document) {
+    if (!review_start_date && has_document) {
       openConfirmationModal();
       return;
     }
@@ -85,7 +85,7 @@ export default function StaffSubmissionItemTableRow({
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}
         cancelText="Start Later"
-      />
+      />,
     );
   };
 
