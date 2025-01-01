@@ -207,7 +207,8 @@ class PackageService:
     @staticmethod
     def _deactivate_revision_required_requests(package, session):
         """Update package submission details."""
-        revision_required_requests = [request for request in package.update_requests if request.type == UpdateRequestType.REVIEW]
+        revision_required_requests = [request for request in package.update_requests
+                                      if request.type == UpdateRequestType.REVIEW]
         for request in revision_required_requests:
             request.active = False
             session.add(request)
@@ -239,15 +240,15 @@ class PackageService:
         return package
 
     @classmethod
-    def start_mp_review(cls, package_id, session=None):
+    def start_mp_review(cls, package_id, _session=None):
         """Start the review process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)
 
-        if session is None:
+        if _session is None:
             with session_scope() as session:
                 cls.start_mp_review_process(package, package_id, session)
         else:
-            cls.start_mp_review_process(package, package_id, session)
+            cls.start_mp_review_process(package, package_id, _session)
 
         return package
 
