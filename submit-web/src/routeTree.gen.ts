@@ -22,44 +22,41 @@ import { Route as ProponentProponentLayoutImport } from './routes/proponent/_pro
 import { Route as ProponentRegistrationIndexImport } from './routes/proponent/registration/index'
 import { Route as ProponentRegistrationCreateAccountImport } from './routes/proponent/registration/create-account'
 import { Route as ProponentRegistrationCompleteImport } from './routes/proponent/registration/complete'
-import { Route as ProponentProponentLayoutAdminLoginImport } from './routes/proponent/_proponentLayout/admin-login'
-import { Route as ProponentProponentLayoutDashboardImport } from './routes/proponent/_proponentLayout/_dashboard'
+import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
-import { Route as ProponentProponentLayoutDashboardProfileImport } from './routes/proponent/_proponentLayout/_dashboard/profile'
-import { Route as ProponentProponentLayoutDashboardProjectsIndexImport } from './routes/proponent/_proponentLayout/_dashboard/projects/index'
+import { Route as ProponentProponentLayoutProjectsIndexImport } from './routes/proponent/_proponentLayout/projects/index'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/index'
-import { Route as ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout'
-import { Route as ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutIndexImport } from './routes/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/index'
-import { Route as ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutNewSubmissionImport } from './routes/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/new-submission'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/index'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
-import { Route as ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport } from './routes/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
-import { Route as ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport } from './routes/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
-import { Route as ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport } from './routes/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
 
 // Create Virtual Routes
 
 const StaffImport = createFileRoute('/staff')()
 const ProponentImport = createFileRoute('/proponent')()
+const ProponentProponentLayoutAboutpageLazyImport = createFileRoute(
+  '/proponent/_proponentLayout/aboutpage',
+)()
 const StaffStaffLayoutProjectsProjectIdImport = createFileRoute(
   '/staff/_staffLayout/projects/$projectId',
 )()
-const ProponentProponentLayoutDashboardAboutpageLazyImport = createFileRoute(
-  '/proponent/_proponentLayout/_dashboard/aboutpage',
+const ProponentProponentLayoutProjectsProjectIdImport = createFileRoute(
+  '/proponent/_proponentLayout/projects/$projectId',
 )()
-const ProponentProponentLayoutDashboardProjectsProjectIdImport =
-  createFileRoute(
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId',
-  )()
 const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport =
   createFileRoute(
     '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId',
   )()
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport =
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport =
   createFileRoute(
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId',
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId',
   )()
 
 // Create/Update Routes
@@ -111,6 +108,16 @@ const ProponentRegistrationIndexRoute = ProponentRegistrationIndexImport.update(
   } as any,
 )
 
+const ProponentProponentLayoutAboutpageLazyRoute =
+  ProponentProponentLayoutAboutpageLazyImport.update({
+    path: '/aboutpage',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any).lazy(() =>
+    import('./routes/proponent/_proponentLayout/aboutpage.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
 const ProponentRegistrationCreateAccountRoute =
   ProponentRegistrationCreateAccountImport.update({
     path: '/registration/create-account',
@@ -123,15 +130,9 @@ const ProponentRegistrationCompleteRoute =
     getParentRoute: () => ProponentRoute,
   } as any)
 
-const ProponentProponentLayoutAdminLoginRoute =
-  ProponentProponentLayoutAdminLoginImport.update({
-    path: '/admin-login',
-    getParentRoute: () => ProponentProponentLayoutRoute,
-  } as any)
-
-const ProponentProponentLayoutDashboardRoute =
-  ProponentProponentLayoutDashboardImport.update({
-    id: '/_dashboard',
+const ProponentProponentLayoutProfileRoute =
+  ProponentProponentLayoutProfileImport.update({
+    path: '/profile',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
@@ -141,38 +142,22 @@ const StaffStaffLayoutProjectsProjectIdRoute =
     getParentRoute: () => StaffStaffLayoutRoute,
   } as any)
 
+const ProponentProponentLayoutProjectsProjectIdRoute =
+  ProponentProponentLayoutProjectsProjectIdImport.update({
+    path: '/projects/$projectId',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
 const StaffStaffLayoutProjectsIndexRoute =
   StaffStaffLayoutProjectsIndexImport.update({
     path: '/projects/',
     getParentRoute: () => StaffStaffLayoutRoute,
   } as any)
 
-const ProponentProponentLayoutDashboardAboutpageLazyRoute =
-  ProponentProponentLayoutDashboardAboutpageLazyImport.update({
-    path: '/aboutpage',
-    getParentRoute: () => ProponentProponentLayoutDashboardRoute,
-  } as any).lazy(() =>
-    import(
-      './routes/proponent/_proponentLayout/_dashboard/aboutpage.lazy'
-    ).then((d) => d.Route),
-  )
-
-const ProponentProponentLayoutDashboardProfileRoute =
-  ProponentProponentLayoutDashboardProfileImport.update({
-    path: '/profile',
-    getParentRoute: () => ProponentProponentLayoutDashboardRoute,
-  } as any)
-
-const ProponentProponentLayoutDashboardProjectsProjectIdRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdImport.update({
-    path: '/projects/$projectId',
-    getParentRoute: () => ProponentProponentLayoutDashboardRoute,
-  } as any)
-
-const ProponentProponentLayoutDashboardProjectsIndexRoute =
-  ProponentProponentLayoutDashboardProjectsIndexImport.update({
+const ProponentProponentLayoutProjectsIndexRoute =
+  ProponentProponentLayoutProjectsIndexImport.update({
     path: '/projects/',
-    getParentRoute: () => ProponentProponentLayoutDashboardRoute,
+    getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
 const StaffStaffLayoutProjectsProjectIdProjectLayoutRoute =
@@ -181,18 +166,33 @@ const StaffStaffLayoutProjectsProjectIdProjectLayoutRoute =
     getParentRoute: () => StaffStaffLayoutProjectsProjectIdRoute,
   } as any)
 
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutImport.update({
+    id: '/_projectLayout',
+    getParentRoute: () => ProponentProponentLayoutProjectsProjectIdRoute,
+  } as any)
+
 const StaffStaffLayoutProjectsProjectIdProjectLayoutIndexRoute =
   StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport.update({
     path: '/',
     getParentRoute: () => StaffStaffLayoutProjectsProjectIdProjectLayoutRoute,
   } as any)
 
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutImport.update({
-    id: '/_projectLayout',
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexImport.update({
+    path: '/',
     getParentRoute: () =>
-      ProponentProponentLayoutDashboardProjectsProjectIdRoute,
+      ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
   } as any)
+
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionImport.update(
+    {
+      path: '/new-submission',
+      getParentRoute: () =>
+        ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
+    } as any,
+  )
 
 const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute =
   StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport.update(
@@ -202,30 +202,12 @@ const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmission
     } as any,
   )
 
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutIndexRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutIndexImport.update(
-    {
-      path: '/',
-      getParentRoute: () =>
-        ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutRoute,
-    } as any,
-  )
-
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutNewSubmissionRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutNewSubmissionImport.update(
-    {
-      path: '/new-submission',
-      getParentRoute: () =>
-        ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutRoute,
-    } as any,
-  )
-
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport.update(
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport.update(
     {
       path: '/submission-packages/$submissionPackageId',
       getParentRoute: () =>
-        ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutRoute,
+        ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
     } as any,
   )
 
@@ -238,6 +220,15 @@ const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmission
     } as any,
   )
 
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport.update(
+    {
+      id: '/_submissionLayout',
+      getParentRoute: () =>
+        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute,
+    } as any,
+  )
+
 const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute =
   StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport.update(
     {
@@ -247,21 +238,12 @@ const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmission
     } as any,
   )
 
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport.update(
-    {
-      id: '/_submissionLayout',
-      getParentRoute: () =>
-        ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute,
-    } as any,
-  )
-
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport.update(
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport.update(
     {
       path: '/',
       getParentRoute: () =>
-        ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
+        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
     } as any,
   )
 
@@ -274,12 +256,12 @@ const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmission
     } as any,
   )
 
-const ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute =
-  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport.update(
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport.update(
     {
       path: '/submissions/$submissionId',
       getParentRoute: () =>
-        ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
+        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
     } as any,
   )
 
@@ -343,18 +325,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OidcCallbackIndexImport
       parentRoute: typeof rootRoute
     }
-    '/proponent/_proponentLayout/_dashboard': {
-      id: '/proponent/_proponentLayout/_dashboard'
-      path: ''
-      fullPath: '/proponent'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardImport
-      parentRoute: typeof ProponentProponentLayoutImport
-    }
-    '/proponent/_proponentLayout/admin-login': {
-      id: '/proponent/_proponentLayout/admin-login'
-      path: '/admin-login'
-      fullPath: '/proponent/admin-login'
-      preLoaderRoute: typeof ProponentProponentLayoutAdminLoginImport
+    '/proponent/_proponentLayout/profile': {
+      id: '/proponent/_proponentLayout/profile'
+      path: '/profile'
+      fullPath: '/proponent/profile'
+      preLoaderRoute: typeof ProponentProponentLayoutProfileImport
       parentRoute: typeof ProponentProponentLayoutImport
     }
     '/proponent/registration/complete': {
@@ -371,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentRegistrationCreateAccountImport
       parentRoute: typeof ProponentImport
     }
+    '/proponent/_proponentLayout/aboutpage': {
+      id: '/proponent/_proponentLayout/aboutpage'
+      path: '/aboutpage'
+      fullPath: '/proponent/aboutpage'
+      preLoaderRoute: typeof ProponentProponentLayoutAboutpageLazyImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
     '/proponent/registration/': {
       id: '/proponent/registration/'
       path: '/registration'
@@ -378,19 +360,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentRegistrationIndexImport
       parentRoute: typeof ProponentImport
     }
-    '/proponent/_proponentLayout/_dashboard/profile': {
-      id: '/proponent/_proponentLayout/_dashboard/profile'
-      path: '/profile'
-      fullPath: '/proponent/profile'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProfileImport
-      parentRoute: typeof ProponentProponentLayoutDashboardImport
-    }
-    '/proponent/_proponentLayout/_dashboard/aboutpage': {
-      id: '/proponent/_proponentLayout/_dashboard/aboutpage'
-      path: '/aboutpage'
-      fullPath: '/proponent/aboutpage'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardAboutpageLazyImport
-      parentRoute: typeof ProponentProponentLayoutDashboardImport
+    '/proponent/_proponentLayout/projects/': {
+      id: '/proponent/_proponentLayout/projects/'
+      path: '/projects'
+      fullPath: '/proponent/projects'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsIndexImport
+      parentRoute: typeof ProponentProponentLayoutImport
     }
     '/staff/_staffLayout/projects/': {
       id: '/staff/_staffLayout/projects/'
@@ -398,6 +373,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff/projects'
       preLoaderRoute: typeof StaffStaffLayoutProjectsIndexImport
       parentRoute: typeof StaffStaffLayoutImport
+    }
+    '/proponent/_proponentLayout/projects/$projectId': {
+      id: '/proponent/_proponentLayout/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/proponent/projects/$projectId'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout'
+      path: '/projects/$projectId'
+      fullPath: '/proponent/projects/$projectId'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdRoute
     }
     '/staff/_staffLayout/projects/$projectId': {
       id: '/staff/_staffLayout/projects/$projectId'
@@ -413,26 +402,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutImport
       parentRoute: typeof StaffStaffLayoutProjectsProjectIdRoute
     }
-    '/proponent/_proponentLayout/_dashboard/projects/': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/'
-      path: '/projects'
-      fullPath: '/proponent/projects'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsIndexImport
-      parentRoute: typeof ProponentProponentLayoutDashboardImport
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission'
+      path: '/new-submission'
+      fullPath: '/proponent/projects/$projectId/new-submission'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
     }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/proponent/projects/$projectId'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdImport
-      parentRoute: typeof ProponentProponentLayoutDashboardImport
-    }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout'
-      path: '/projects/$projectId'
-      fullPath: '/proponent/projects/$projectId'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutImport
-      parentRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdRoute
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/'
+      path: '/'
+      fullPath: '/proponent/projects/$projectId/'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
     }
     '/staff/_staffLayout/projects/$projectId/_projectLayout/': {
       id: '/staff/_staffLayout/projects/$projectId/_projectLayout/'
@@ -441,19 +423,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport
       parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutImport
     }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/new-submission': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/new-submission'
-      path: '/new-submission'
-      fullPath: '/proponent/projects/$projectId/new-submission'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutNewSubmissionImport
-      parentRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutImport
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId'
+      path: '/submission-packages/$submissionPackageId'
+      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
     }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/'
-      path: '/'
-      fullPath: '/proponent/projects/$projectId/'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutIndexImport
-      parentRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutImport
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+      path: '/submission-packages/$submissionPackageId'
+      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute
     }
     '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId': {
       id: '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId'
@@ -469,19 +451,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
       parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute
     }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId'
-      path: '/submission-packages/$submissionPackageId'
-      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport
-      parentRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutImport
-    }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
-      path: '/submission-packages/$submissionPackageId'
-      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
-      parentRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
+      path: '/'
+      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId/'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
     }
     '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
       id: '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
@@ -490,26 +465,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport
       parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
     }
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
+      path: '/submissions/$submissionId'
+      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+    }
     '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': {
       id: '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
       path: '/submissions/$submissionId'
       fullPath: '/staff/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId'
       preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport
       parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
-    }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
-      path: '/'
-      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId/'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport
-      parentRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
-    }
-    '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': {
-      id: '/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
-      path: '/submissions/$submissionId'
-      fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId'
-      preLoaderRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport
-      parentRoute: typeof ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
     }
   }
 }
@@ -522,29 +490,24 @@ export const routeTree = rootRoute.addChildren({
   NotFoundRoute,
   ProponentRoute: ProponentRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
-      ProponentProponentLayoutDashboardRoute:
-        ProponentProponentLayoutDashboardRoute.addChildren({
-          ProponentProponentLayoutDashboardProfileRoute,
-          ProponentProponentLayoutDashboardAboutpageLazyRoute,
-          ProponentProponentLayoutDashboardProjectsIndexRoute,
-          ProponentProponentLayoutDashboardProjectsProjectIdRoute:
-            ProponentProponentLayoutDashboardProjectsProjectIdRoute.addChildren(
+      ProponentProponentLayoutProfileRoute,
+      ProponentProponentLayoutAboutpageLazyRoute,
+      ProponentProponentLayoutProjectsIndexRoute,
+      ProponentProponentLayoutProjectsProjectIdRoute:
+        ProponentProponentLayoutProjectsProjectIdRoute.addChildren({
+          ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute:
+            ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute.addChildren(
               {
-                ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutRoute:
-                  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutRoute.addChildren(
+                ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute,
+                ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute,
+                ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute:
+                  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute.addChildren(
                     {
-                      ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutNewSubmissionRoute,
-                      ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutIndexRoute,
-                      ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute:
-                        ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute.addChildren(
+                      ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute:
+                        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute.addChildren(
                           {
-                            ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute:
-                              ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute.addChildren(
-                                {
-                                  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute,
-                                  ProponentProponentLayoutDashboardProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute,
-                                },
-                              ),
+                            ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute,
+                            ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute,
                           },
                         ),
                     },
@@ -552,7 +515,6 @@ export const routeTree = rootRoute.addChildren({
               },
             ),
         }),
-      ProponentProponentLayoutAdminLoginRoute,
     }),
     ProponentRegistrationCompleteRoute,
     ProponentRegistrationCreateAccountRoute,
@@ -623,8 +585,10 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent/_proponentLayout.tsx",
       "parent": "/proponent",
       "children": [
-        "/proponent/_proponentLayout/_dashboard",
-        "/proponent/_proponentLayout/admin-login"
+        "/proponent/_proponentLayout/profile",
+        "/proponent/_proponentLayout/aboutpage",
+        "/proponent/_proponentLayout/projects/",
+        "/proponent/_proponentLayout/projects/$projectId"
       ]
     },
     "/staff": {
@@ -644,18 +608,8 @@ export const routeTree = rootRoute.addChildren({
     "/oidc-callback/": {
       "filePath": "oidc-callback/index.tsx"
     },
-    "/proponent/_proponentLayout/_dashboard": {
-      "filePath": "proponent/_proponentLayout/_dashboard.tsx",
-      "parent": "/proponent/_proponentLayout",
-      "children": [
-        "/proponent/_proponentLayout/_dashboard/profile",
-        "/proponent/_proponentLayout/_dashboard/aboutpage",
-        "/proponent/_proponentLayout/_dashboard/projects/",
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId"
-      ]
-    },
-    "/proponent/_proponentLayout/admin-login": {
-      "filePath": "proponent/_proponentLayout/admin-login.tsx",
+    "/proponent/_proponentLayout/profile": {
+      "filePath": "proponent/_proponentLayout/profile.tsx",
       "parent": "/proponent/_proponentLayout"
     },
     "/proponent/registration/complete": {
@@ -666,21 +620,37 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent/registration/create-account.tsx",
       "parent": "/proponent"
     },
+    "/proponent/_proponentLayout/aboutpage": {
+      "filePath": "proponent/_proponentLayout/aboutpage.lazy.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
     "/proponent/registration/": {
       "filePath": "proponent/registration/index.tsx",
       "parent": "/proponent"
     },
-    "/proponent/_proponentLayout/_dashboard/profile": {
-      "filePath": "proponent/_proponentLayout/_dashboard/profile.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard"
-    },
-    "/proponent/_proponentLayout/_dashboard/aboutpage": {
-      "filePath": "proponent/_proponentLayout/_dashboard/aboutpage.lazy.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard"
+    "/proponent/_proponentLayout/projects/": {
+      "filePath": "proponent/_proponentLayout/projects/index.tsx",
+      "parent": "/proponent/_proponentLayout"
     },
     "/staff/_staffLayout/projects/": {
       "filePath": "staff/_staffLayout/projects/index.tsx",
       "parent": "/staff/_staffLayout"
+    },
+    "/proponent/_proponentLayout/projects/$projectId": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId",
+      "parent": "/proponent/_proponentLayout",
+      "children": [
+        "/proponent/_proponentLayout/projects/$projectId/_projectLayout"
+      ]
+    },
+    "/proponent/_proponentLayout/projects/$projectId/_projectLayout": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout.tsx",
+      "parent": "/proponent/_proponentLayout/projects/$projectId",
+      "children": [
+        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/",
+        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId"
+      ]
     },
     "/staff/_staffLayout/projects/$projectId": {
       "filePath": "staff/_staffLayout/projects/$projectId",
@@ -697,37 +667,32 @@ export const routeTree = rootRoute.addChildren({
         "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId"
       ]
     },
-    "/proponent/_proponentLayout/_dashboard/projects/": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/index.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard"
+    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission.tsx",
+      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout"
     },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId",
-      "parent": "/proponent/_proponentLayout/_dashboard",
-      "children": [
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout"
-      ]
-    },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard/projects/$projectId",
-      "children": [
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/new-submission",
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/",
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId"
-      ]
+    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/index.tsx",
+      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout"
     },
     "/staff/_staffLayout/projects/$projectId/_projectLayout/": {
       "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/index.tsx",
       "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout"
     },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/new-submission": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/new-submission.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout"
+    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout",
+      "children": [
+        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+      ]
     },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/index.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout"
+    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout.tsx",
+      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+      "children": [
+        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
+      ]
     },
     "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId": {
       "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
@@ -744,36 +709,21 @@ export const routeTree = rootRoute.addChildren({
         "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
       ]
     },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
-      "parent": "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout",
-      "children": [
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
-      ]
-    },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
-      "children": [
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
-        "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
-      ]
+    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index.tsx",
+      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
     },
     "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/": {
       "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index.tsx",
       "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
     },
+    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId": {
+      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId.tsx",
+      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+    },
     "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId": {
       "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId.tsx",
       "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
-    },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
-    },
-    "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId": {
-      "filePath": "proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId.tsx",
-      "parent": "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
     }
   }
 }

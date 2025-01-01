@@ -1,6 +1,6 @@
 import React from "react";
 import { mount } from "cypress/react18";
-import { ProjectsPage } from "../../../src/routes/proponent/_proponentLayout/_dashboard/projects";
+import { ProjectsPage } from "../../../src/routes/proponent/_proponentLayout/projects";
 import { useAccount } from "../../../src/store/accountStore";
 import { mockZustandStore, setupTokenStorage } from "../utils";
 import { AppConfig } from "../../../src/utils/config";

@@ -29,7 +29,7 @@ import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageSt
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
