@@ -15,69 +15,11 @@ depends_on = None
 
 
 def upgrade():
-    op.execute(
-        """
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 
-                FROM pg_enum 
-                WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'packagestatus')
-                AND enumlabel = 'UNDER_REVIEW'
-            ) THEN
-                ALTER TYPE packagestatus ADD VALUE 'UNDER_REVIEW';
-            END IF;
-        END$$;
-        """
-    )
-
-    op.execute(
-        """
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 
-                FROM pg_enum 
-                WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'packagestatus')
-                AND enumlabel = 'UNDER_CONSULTATION_CHECK'
-            ) THEN
-                ALTER TYPE packagestatus ADD VALUE 'UNDER_CONSULTATION_CHECK';
-            END IF;
-        END$$;
-        """
-    )
-
-    op.execute(
-        """
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 
-                FROM pg_enum 
-                WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'itemstatus')
-                AND enumlabel = 'UNDER_REVIEW'
-            ) THEN
-                ALTER TYPE itemstatus ADD VALUE 'UNDER_REVIEW';
-            END IF;
-        END$$;
-        """
-    )
-
-    op.execute(
-        """
-        DO $$
-        BEGIN
-            IF NOT EXISTS (
-                SELECT 1 
-                FROM pg_enum 
-                WHERE enumtypid = (SELECT oid FROM pg_type WHERE typname = 'itemstatus')
-                AND enumlabel = 'UNDER_CONSULTATION_CHECK'
-            ) THEN
-                ALTER TYPE itemstatus ADD VALUE 'UNDER_CONSULTATION_CHECK';
-            END IF;
-        END$$;
-        """
-    )
+    def upgrade():
+        op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UNDER_REVIEW';")
+        op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UNDER_CONSULTATION_CHECK';")
+        op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'UNDER_REVIEW';")
+        op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'UNDER_CONSULTATION_CHECK';")
 
 
 def downgrade():
