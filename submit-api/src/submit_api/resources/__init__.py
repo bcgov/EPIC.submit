@@ -31,6 +31,7 @@ from .proponent.package import API as PACKAGE_API
 from .proponent.project import API as PROJECT_API
 from .proponent.submission import API as SUBMISSION_API
 from .proponent.user import API as USER_API
+from .proponent.invitation import API as INVITATION_API
 from .staff.internal_document import API as STAFF_INTERNAL_DOCUMENT_API
 from .staff.item import API as STAFF_ITEM_API
 from .staff.package import API as STAFF_PACKAGE_API
@@ -70,6 +71,7 @@ API.add_namespace(PROJECT_API)
 API.add_namespace(PACKAGE_API)
 API.add_namespace(ITEM_API)
 API.add_namespace(SUBMISSION_API)
+API.add_namespace(INVITATION_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,
