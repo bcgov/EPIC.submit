@@ -57,12 +57,21 @@ class InvitationsResource(Resource):
         """Generate and persist an invitation token."""
         payload = CreateInvitationSchema().load(request.json)
 
-        invitation = InvitationService.create_invitation(
-            account_id=payload["account_id"],
+        result = InvitationService.create_invitation(
+            proponent_id=payload["proponent_id"],
             project_ids=payload["project_ids"],
             email=payload.get("email"),
         )
-        return InvitationSchema().dump(invitation), HTTPStatus.CREATED
+
+        # Extract invitation and URL from result
+        invitation = result["invitation"]
+        invitation_url = result["url"]
+
+        # Return invitation data with the URL
+        response = InvitationSchema().dump(invitation)
+        response['invitation_url'] = invitation_url
+
+        return response, HTTPStatus.CREATED
 
 
 @cors_preflight("GET, DELETE, OPTIONS")
@@ -77,10 +86,10 @@ class InvitationDetailResource(Resource):
     @auth.require
     def get(token):
         """Retrieve invitation by token."""
-        invitation = InvitationService.get_by_token(token)
-        if invitation:
+        invitation, valid = InvitationService.get_valid_invitation(token)
+        if valid:
             return InvitationSchema().dump(invitation), HTTPStatus.OK
-        return {"error": "Invitation not found"}, HTTPStatus.NOT_FOUND
+        return invitation, HTTPStatus.NOT_FOUND
 
     @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Revoke invitation by token")

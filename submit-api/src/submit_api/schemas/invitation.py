@@ -8,7 +8,7 @@ from marshmallow import Schema, fields
 class CreateInvitationSchema(Schema):
     """Invitation creating schema."""
 
-    account_id = fields.Int(required=True, description="Account ID")
+    proponent_id = fields.Int(required=True, description="Proponent ID")
     project_ids = fields.List(fields.Int(), required=True, description="List of Project IDs")
     email = fields.Email(required=False, description="Optional email for client")
 
