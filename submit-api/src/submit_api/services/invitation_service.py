@@ -15,7 +15,6 @@ class InvitationService:
     @staticmethod
     def create_invitation(account_id, project_ids, email=None, created_by=None):
         """Create and persist a new invitation token."""
-
         # Generate UUID token internally
         token = InvitationService.generate_uuid_token()
 
