@@ -30,5 +30,6 @@ class UpdateRequest(BaseModel):
     active = Column(db.Boolean, nullable=False, default=True)
     created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
     created_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
-    note = Column(db.String, nullable=True)
+    reason = Column(db.String, nullable=True)
     type = Column(Enum(UpdateRequestType), nullable=False, default=UpdateRequestType.UPDATE)
+    note = Column(db.String, nullable=True)

@@ -17,12 +17,16 @@ import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import AddRequestSection from "./AddRequestSection";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
+import PermissionsGate from "@/components/Shared/PermissionGate";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
-type UpdateRequestWidgetProps = {
+type UpdateRequestWidgetProps = Readonly<{
   submissionPackage: SubmissionPackage;
-};
+  summaryBackgroundColor?: string;
+}>;
 export default function UpdateRequestWidget({
   submissionPackage,
+  summaryBackgroundColor,
 }: UpdateRequestWidgetProps) {
   const [isCreateRequestOpen, setIsCreateRequestOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -36,7 +40,7 @@ export default function UpdateRequestWidget({
       options: {
         onSuccess: () => {
           notify.success("Update request created successfully");
-          handleCancelNote();
+          handleCancelReason();
         },
         onError: (error) => {
           const defaultMessage = "Failed to create update request";
@@ -55,20 +59,20 @@ export default function UpdateRequestWidget({
   };
 
   const handleCreateUpdateRequest = async (requestData: {
-    note: string;
+    reason: string;
     submissionItems: unknown[];
   }) => {
-    const { note, submissionItems } = requestData;
+    const { reason, submissionItems } = requestData;
     createUpdateRequest({
       packageId: Number(submissionPackage.id),
       data: {
-        note: note,
+        reason: reason,
         submission_item_ids: submissionItems,
       },
     });
   };
 
-  const handleCancelNote = () => {
+  const handleCancelReason = () => {
     setIsCreateRequestOpen(false);
     setExpanded(false);
   };
@@ -81,7 +85,6 @@ export default function UpdateRequestWidget({
       elevation={0}
       sx={{
         borderRadius: "4px",
-        border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
         mb: BCDesignTokens.layoutMarginLarge,
         p: 0,
         width: "100%",
@@ -92,11 +95,18 @@ export default function UpdateRequestWidget({
         expandIcon={null}
         aria-controls="panel1-content"
         id="panel1-header"
-        sx={{
-          py: 0,
-          borderRadius: "4px",
-          border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-        }}
+        sx={[
+          {
+            py: 0,
+            borderRadius: "4px",
+            backgroundColor: summaryBackgroundColor,
+            border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+          },
+          expanded && {
+            borderBottomLeftRadius: 0,
+            borderBottomRightRadius: 0,
+          },
+        ]}
       >
         <Box
           sx={{
@@ -148,32 +158,46 @@ export default function UpdateRequestWidget({
               sx={{ color: "#38598A", p: 0 }}
             />
           </Box>
-          <Box onClick={handleIsCreateRequestOpen}>
-            <Typography
-              variant="body1"
-              color={BCDesignTokens.typographyColorLink}
-              sx={{ cursor: "pointer", width: "100%" }}
-            >
-              + Request an Update
-            </Typography>
-          </Box>
+          <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+            <Box onClick={handleIsCreateRequestOpen}>
+              <Typography
+                variant="body1"
+                color={BCDesignTokens.typographyColorLink}
+                sx={{ cursor: "pointer", width: "100%" }}
+              >
+                + Request an Update
+              </Typography>
+            </Box>
+          </PermissionsGate>
         </Box>
       </AccordionSummary>
-      <AccordionDetails sx={{ pb: 0 }}>
-        <Collapse in={isCreateRequestOpen} unmountOnExit>
-          <AddRequestSection
-            submissionPackage={submissionPackage}
-            handleCreateUpdateRequest={handleCreateUpdateRequest}
-            isCreatingUpdateRequest={isCreatingUpdateRequest}
-            handleCancelNote={handleCancelNote}
-          />
-        </Collapse>
+      <AccordionDetails
+        sx={{
+          pb: 0,
+          border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+          borderTop: "none",
+          borderRadius: "4px",
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
+        }}
+      >
+        <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+          <Collapse in={isCreateRequestOpen} unmountOnExit>
+            <AddRequestSection
+              submissionPackage={submissionPackage}
+              handleCreateUpdateRequest={handleCreateUpdateRequest}
+              isCreatingUpdateRequest={isCreatingUpdateRequest}
+              handleCancelReason={handleCancelReason}
+            />
+          </Collapse>
+        </PermissionsGate>
         <When condition={Boolean(updateRequests)}>
           {updateRequests.length > 0 ? (
             updateRequests.map((updateRequest) => (
               <RequestSection
                 key={updateRequest.id}
                 updateRequest={updateRequest}
+                submissionPackage={submissionPackage}
               />
             ))
           ) : (

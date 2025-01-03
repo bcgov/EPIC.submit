@@ -22,3 +22,4 @@ class EpicSubmitRole(Enum):
     EAO_VIEW = "eao_view"
     EAO_CREATE = "eao_create"
     EXTENDED_EAO_EDIT = "extended_eao_edit"
+    PROPONENT_CREATE = "proponent_create"

@@ -18,7 +18,7 @@ import ControlledCheckboxGroup from "@/components/Shared/controlled/ControlledCh
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 
 const requestUpdateSchema = yup.object().shape({
-  note: yup.string().required("Please enter your note."),
+  reason: yup.string().required("Please enter the reason."),
   submissionItems: yup
     .array()
     .nullable()
@@ -32,26 +32,26 @@ type AddRequestSectionProps = {
   readonly submissionPackage: SubmissionPackage;
   readonly isCreatingUpdateRequest: boolean;
   readonly handleCreateUpdateRequest: ({
-    note,
+    reason,
     submissionItems,
   }: {
-    note: string;
+    reason: string;
     submissionItems: unknown[];
   }) => void;
-  readonly handleCancelNote: () => void;
+  readonly handleCancelReason: () => void;
 };
 
 export default function AddRequestSection({
   submissionPackage,
   handleCreateUpdateRequest,
   isCreatingUpdateRequest,
-  handleCancelNote,
+  handleCancelReason,
 }: AddRequestSectionProps) {
   const methods = useForm<RequestUpdateForm>({
     resolver: yupResolver(requestUpdateSchema),
     mode: "onSubmit",
     defaultValues: {
-      note: "",
+      reason: "",
       submissionItems: [],
     },
   });
@@ -60,9 +60,9 @@ export default function AddRequestSection({
 
   const onCreateUpdateRequest = async (data: RequestUpdateForm) => {
     const validData = requestUpdateSchema.validateSync(data);
-    const { note, submissionItems } = validData;
+    const { reason, submissionItems } = validData;
     handleCreateUpdateRequest({
-      note: note,
+      reason: reason,
       submissionItems: submissionItems,
     });
   };
@@ -89,9 +89,9 @@ export default function AddRequestSection({
             ))}
           </ControlledCheckboxGroup>
           <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
-            <Typography variant="body1">Request Note</Typography>
+            <Typography variant="body1">Request reason</Typography>
             <ControlledTextField
-              name="note"
+              name="reason"
               variant="outlined"
               multiline
               fullWidth
@@ -111,7 +111,7 @@ export default function AddRequestSection({
             </LoadingButton>
             <Button
               color="secondary"
-              onClick={handleCancelNote}
+              onClick={handleCancelReason}
               sx={{ border: "0px" }}
             >
               Cancel

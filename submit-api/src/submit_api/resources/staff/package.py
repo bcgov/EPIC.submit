@@ -19,7 +19,8 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateRequestSchema, StaffPackageSchema
+from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateRequestSchema, StaffPackageSchema, \
+    CreateUpdateRequestNoteSchema
 from submit_api.services.package import PackageService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
@@ -35,6 +36,10 @@ package_model = ApiHelper.convert_ma_schema_to_restx_model(
 
 create_update_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CreateUpdateRequestSchema(), "CreateUpdateRequest"
+)
+
+create_update_request_note_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CreateUpdateRequestNoteSchema(), "CreateUpdateRequestNote"
 )
 
 update_request_model = ApiHelper.convert_ma_schema_to_restx_model(
@@ -76,7 +81,7 @@ class PackageUpdateRequest(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Create an update request for a package")
     @API.expect(create_update_request_model)
     @API.response(
-        code=HTTPStatus.CREATED, model=update_request_model, description="Update Request"
+        code=HTTPStatus.CREATED, model=package_model, description="Update Request"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
@@ -85,5 +90,32 @@ class PackageUpdateRequest(Resource):
     def post(package_id):
         """Create an update request."""
         create_update_request_data = CreateUpdateRequestSchema().load(API.payload)
-        created_update_request = PackageService.create_update_request(package_id, create_update_request_data)
-        return StaffPackageSchema().dump(created_update_request), HTTPStatus.CREATED
+        package_with_created_update_request = PackageService.create_update_request(
+            package_id, create_update_request_data)
+        return StaffPackageSchema().dump(package_with_created_update_request), HTTPStatus.CREATED
+
+
+@cors_preflight("POST, OPTIONS")
+@API.route(
+    "/<int:package_id>/update-requests/<int:update_request_id>/note",
+    methods=["POST", "OPTIONS"],
+)
+class PackageUpdateRequestNote(Resource):
+    """Resource for managing a package's update request's note."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Create an update request note for a package")
+    @API.expect(create_update_request_note_model)
+    @API.response(
+        code=HTTPStatus.CREATED, model=package_model, description="Create Update Request Note"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    # @auth.has_one_of_roles([EpicSubmitRole.PROPONENT_CREATE.value])
+    @cors.crossdomain(origin="*")
+    def post(package_id, update_request_id):
+        """Create an update request note."""
+        create_update_request_data = CreateUpdateRequestNoteSchema().load(API.payload)
+        package_with_update_request_note = PackageService.create_update_request_note(
+            package_id, update_request_id, create_update_request_data)
+        return StaffPackageSchema().dump(package_with_update_request_note), HTTPStatus.CREATED
