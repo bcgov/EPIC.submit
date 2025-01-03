@@ -235,7 +235,7 @@ export const useCreatePackageUpdateRequesNote = ({
       }
 
       queryClient.setQueryData(
-        [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         submissionPackage,
       );
     },

@@ -2,26 +2,34 @@ import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dayjs from "dayjs";
 import { UpdateRequest } from "@/models/UpdateRequest";
-import { SubmissionItem } from "@/models/SubmissionItem";
 import { Unless, When } from "react-if";
-import PermissionsGate from "@/components/Shared/PermissionGate";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
-import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
+import { SubmissionPackage } from "@/models/Package";
+import { SUBMISSION_STATUS } from "@/models/Submission";
+import { checkIfEAO } from "@/components/Shared/PermissionGate/utils";
+import { useAccount } from "@/store/accountStore";
 
 type UpdateRequestProps = Readonly<{
   updateRequest: UpdateRequest;
-  submissionItems: SubmissionItem[];
+  submissionPackage: SubmissionPackage;
 }>;
 
 export default function RequestSection({
   updateRequest,
-  submissionItems,
+  submissionPackage,
 }: UpdateRequestProps) {
   const { reason, created_date, created_by, note } = updateRequest;
   const createdDate = dayjs(created_date).format("DD-MMM-YYYY");
 
-  const isStaff = checkIfStaff();
+  const { roles } = useAccount();
+  const isEAO = checkIfEAO(roles || []);
+
+  const submissionItems = submissionPackage.items;
+
+  const showNoteSection =
+    (isEAO &&
+      submissionPackage.status.includes(SUBMISSION_STATUS.SUBMITTED.value)) ||
+    (!isEAO && Boolean(note));
 
   return (
     <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
@@ -55,7 +63,7 @@ export default function RequestSection({
         {reason}
       </Typography>
 
-      <When condition={Boolean(note)}>
+      <When condition={showNoteSection}>
         <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
           Note to EAO
         </Typography>
@@ -63,7 +71,7 @@ export default function RequestSection({
           {note}
         </Typography>
       </When>
-      <Unless condition={isStaff}>
+      <Unless condition={isEAO}>
         <AddRequestNoteSection updateRequest={updateRequest} />
       </Unless>
     </Box>

@@ -176,6 +176,9 @@ export default function UpdateRequestWidget({
           pb: 0,
           border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
           borderTop: "none",
+          borderRadius: "4px",
+          borderTopLeftRadius: 0,
+          borderTopRightRadius: 0,
         }}
       >
         <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
@@ -194,7 +197,7 @@ export default function UpdateRequestWidget({
               <RequestSection
                 key={updateRequest.id}
                 updateRequest={updateRequest}
-                submissionItems={submissionPackage.items}
+                submissionPackage={submissionPackage}
               />
             ))
           ) : (

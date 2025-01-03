@@ -1,10 +1,12 @@
 import { LoadingButton } from "@/components/Shared/LoadingButton";
+import { checkIfProponent } from "@/components/Shared/PermissionGate/utils";
 import { useCreatePackageUpdateRequesNote } from "@/hooks/api/usePackages";
 import { UpdateRequest } from "@/models/UpdateRequest";
+import { useAccount } from "@/store/accountStore";
 import { Box, Button, Collapse, Stack, TextField } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useState } from "react";
-import { Unless } from "react-if";
+import { When } from "react-if";
 
 type AddRequestNoteSectionProps = Readonly<{
   updateRequest: UpdateRequest;
@@ -24,6 +26,8 @@ export const AddRequestNoteSection = ({
       packageId: updateRequest.submission_package_id,
     });
 
+  const { roles } = useAccount();
+  const isProponent = checkIfProponent(roles);
   return (
     <Box mt="1em">
       <Collapse in={isAddingNote && !updateRequest.note}>
@@ -65,7 +69,7 @@ export const AddRequestNoteSection = ({
           </Button>
         </Stack>
       </Collapse>
-      <Unless condition={Boolean(updateRequest.note)}>
+      <When condition={!updateRequest.note && !isAddingNote && isProponent}>
         <Button
           color="primary"
           variant="outlined"
@@ -74,7 +78,7 @@ export const AddRequestNoteSection = ({
         >
           Add Note
         </Button>
-      </Unless>
+      </When>
     </Box>
   );
 };
