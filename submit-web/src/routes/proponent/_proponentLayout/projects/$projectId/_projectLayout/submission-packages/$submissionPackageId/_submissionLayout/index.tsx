@@ -28,6 +28,8 @@ import { When } from "react-if";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
+import { useMounted } from "@/hooks/common";
+import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -62,12 +64,11 @@ export default function SubmissionPage() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
+  useMounted(() => {
     return () => {
       reset();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
   const submitPackage = () => {
     if (!submissionPackage) {
@@ -76,7 +77,11 @@ export default function SubmissionPage() {
 
     if (
       submissionPackage.items.some(
-        (item) => item.status !== SUBMISSION_STATUS.COMPLETED.value,
+        (item) =>
+          !isSubmissionItemReadyToSubmit({
+            submissionItem: item,
+            updateRequests: submissionPackage.update_requests,
+          }),
       )
     ) {
       setIsValidating(true);
@@ -95,9 +100,9 @@ export default function SubmissionPage() {
     return <Navigate to={"/error"} />;
   }
 
-  const isPackageSubmitted = submissionPackage.status.includes(
-    PACKAGE_STATUS.SUBMITTED.value,
-  );
+  const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
+  const isSubmitDisabled =
+    isPackageSubmitted && submissionPackage.update_requests.length === 0;
 
   return (
     <PageGrid>
@@ -200,7 +205,7 @@ export default function SubmissionPage() {
                 <Button
                   onClick={submitPackage}
                   loading={isSubmittingPackage}
-                  disabled={isPackageSubmitted}
+                  disabled={isSubmitDisabled}
                 >
                   Submit to EAO
                 </Button>

@@ -20,6 +20,7 @@ import InternalDocumentsRows from "../SubmissionItem/InternalDocuments/Rows";
 import { SubmissionPackage } from "@/models/Package";
 import { useMemo } from "react";
 import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import { isSubmissionItemReadyToSubmit } from "./utils";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
@@ -115,7 +116,10 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
               item={subItem}
               error={
                 isValidating &&
-                subItem.status !== SUBMISSION_STATUS.COMPLETED.value
+                !isSubmissionItemReadyToSubmit({
+                  submissionItem: subItem,
+                  updateRequests: update_requests,
+                })
               }
             />
           ))}

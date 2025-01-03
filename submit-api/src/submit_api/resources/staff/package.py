@@ -111,7 +111,7 @@ class PackageUpdateRequestNote(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    # @auth.has_one_of_roles([EpicSubmitRole.PROPONENT_CREATE.value])
+    @auth.require
     @cors.crossdomain(origin="*")
     def post(package_id, update_request_id):
         """Create an update request note."""
