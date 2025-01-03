@@ -47,6 +47,14 @@ export default function RequestSection({
       <Typography variant="body1" sx={{ mb: 1 }}>
         {reason}
       </Typography>
+
+      <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+        Note to EAO
+      </Typography>
+
+      <Typography variant="body1" sx={{ mb: 1 }}>
+        {reason}
+      </Typography>
     </Box>
   );
 }

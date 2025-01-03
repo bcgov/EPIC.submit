@@ -22,4 +22,5 @@ export type UpdateRequest = {
   submission_package_id: number;
   active: boolean;
   type: UpdateRequestType;
+  note: string;
 };
