@@ -52,7 +52,7 @@ export default function DocumentRow({
 
   useEffect(() => {
     setIsLoading(updatingSubmission);
-  }, [updatingSubmission]);
+  }, [updatingSubmission, setIsLoading]);
 
   const openConfirmationModal = () => {
     setOpenModal(
