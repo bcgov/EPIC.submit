@@ -19,7 +19,6 @@ type ConfirmationModalProps = {
   onConfirm: () => void;
   confirmText?: string;
   cancelText?: string;
-  loading?: boolean;
 };
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -28,9 +27,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   confirmText,
   cancelText,
-  loading = false,
 }) => {
-  const { setClose } = useModal();
+  const { setClose, isLoading } = useModal();
+
   return (
     <Box sx={modalStyle}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -49,7 +48,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           {cancelText ?? "Cancel"}
         </Button>
         <LoadingButton
-          loading={loading}
+          loading={isLoading}
           variant="contained"
           onClick={onConfirm}
           color="primary"

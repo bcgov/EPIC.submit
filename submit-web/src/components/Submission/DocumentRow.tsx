@@ -1,6 +1,6 @@
 import { Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "../Shared/Table/utils";
 import { StyledTableCell } from "../Shared/Table/common";
@@ -23,7 +23,11 @@ export default function DocumentRow({
 }: DocumentRowProps) {
   const { submissionPackageId } = useParams({ strict: false });
   const [pendingGetObject, setPendingGetObject] = useState(false);
-  const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
+  const {
+    setOpen: setOpenModal,
+    setClose: setCloseModal,
+    setIsLoading,
+  } = useModal();
   const {
     submitted_document: { name, url },
     version,
@@ -37,19 +41,23 @@ export default function DocumentRow({
     isPending: updatingSubmission,
   } = useUpdateStateSubmissionPackage({
     onError: () => {
+      setCloseModal();
       notify.error("Failed to start review");
     },
     onSuccess: () => {
+      setCloseModal();
       notify.success("Successfully started review");
     },
   });
 
+  useEffect(() => {
+    setIsLoading(updatingSubmission);
+  }, [updatingSubmission, setIsLoading]);
+
   const openConfirmationModal = () => {
-    //todo: setup onConfirm
     setOpenModal(
       <ConfirmationModal
         onConfirm={() => {
-          setCloseModal();
           updateStateSubmissionPackage({
             packageId: Number(submissionPackageId),
             data: {
@@ -60,7 +68,6 @@ export default function DocumentRow({
           });
           downloadDocument();
         }}
-        loading={updatingSubmission}
         title={`Start ${submissionItem.name} Review`}
         description={`Would you like to start the ${submissionItem.name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${submissionItem.name} Review`}

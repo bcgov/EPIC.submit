@@ -7,6 +7,8 @@ interface ModalStore {
   handleClose: (() => void) | null;
   setOpen: (modal: React.ReactNode, handleClose?: () => void) => Promise<void>;
   setClose: () => void;
+  isLoading: boolean;
+  setIsLoading: (loading: boolean) => void;
 }
 
 // Create the Zustand store
@@ -14,6 +16,10 @@ export const useModal = create<ModalStore>((set) => ({
   isOpen: false,
   modalContent: null,
   handleClose: null,
+  isLoading: false,
+  setIsLoading: (loading) => {
+    set(() => ({ isLoading: loading }));
+  },
 
   setOpen: async (modal, handleClose = () => {}) => {
     if (modal) {
