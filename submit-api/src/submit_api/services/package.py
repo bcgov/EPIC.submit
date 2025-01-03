@@ -330,7 +330,7 @@ class PackageService:
         update_request = UpdateRequestModel(
             submission_package_id=package.id,
             submission_item_ids=request_data.get("submission_item_ids"),
-            note=request_data.get("note"),
+            note=request_data.get("reason"),
             created_by=TokenInfo.get_id()
         )
         update_request.save()

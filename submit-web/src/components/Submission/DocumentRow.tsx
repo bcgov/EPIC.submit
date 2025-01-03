@@ -45,7 +45,6 @@ export default function DocumentRow({
   });
 
   const openConfirmationModal = () => {
-    //todo: setup onConfirm
     setOpenModal(
       <ConfirmationModal
         onConfirm={() => {
@@ -65,7 +64,7 @@ export default function DocumentRow({
         description={`Would you like to start the ${submissionItem.name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${submissionItem.name} Review`}
         cancelText="Start Later"
-      />
+      />,
     );
   };
 
