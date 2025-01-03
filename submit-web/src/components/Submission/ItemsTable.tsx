@@ -11,7 +11,7 @@ import { BCDesignTokens } from "epic.theme";
 import SubmissionItemTableRow from "./SubmissionItemTableRow";
 import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
 import { StyledTableHeadCell } from "../Shared/Table/common";
-import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 import { usePackageTableStore } from "./packageTableStore";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
@@ -118,7 +118,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
                 isValidating &&
                 !isSubmissionItemReadyToSubmit({
                   submissionItem: subItem,
-                  updateRequests: update_requests,
+                  submissionPackage: submissionPackage,
                 })
               }
             />

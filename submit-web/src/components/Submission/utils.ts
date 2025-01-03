@@ -1,17 +1,20 @@
+import { SubmissionPackage } from "@/models/Package";
 import { SUBMISSION_STATUS, SubmissionStatus } from "@/models/Submission";
-import { UpdateRequest } from "@/models/UpdateRequest";
 
 export const isSubmissionItemReadyToSubmit = ({
   submissionItem,
-  updateRequests,
+  submissionPackage,
 }: {
-  updateRequests: UpdateRequest[];
+  submissionPackage: SubmissionPackage;
   submissionItem: {
     id: number;
     status: SubmissionStatus;
   };
 }) => {
-  if (updateRequests.length > 0) {
+  if (
+    submissionPackage.submitted_on &&
+    submissionPackage.update_requests.length > 0
+  ) {
     return true;
   }
   const isSubmissionItemCompleted =

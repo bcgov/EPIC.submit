@@ -12,14 +12,12 @@ import {
 } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { SUBMISSION_STATUS } from "@/models/Submission";
 import { InfoBox } from "@/components/Submission/InfoBox";
 import {
   useGetSubmissionPackage,
   useUpdateStateSubmissionPackage,
 } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { useEffect } from "react";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -80,7 +78,7 @@ export default function SubmissionPage() {
         (item) =>
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
-            updateRequests: submissionPackage.update_requests,
+            submissionPackage: submissionPackage,
           }),
       )
     ) {
