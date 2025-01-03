@@ -6,7 +6,6 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
-import { SUBMISSION_STATUS } from "@/models/Submission";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "../DocumentRow";
 import { Unless, When } from "react-if";
