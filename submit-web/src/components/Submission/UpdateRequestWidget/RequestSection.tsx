@@ -5,8 +5,9 @@ import { UpdateRequest } from "@/models/UpdateRequest";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { Unless, When } from "react-if";
 import PermissionsGate from "@/components/Shared/PermissionGate";
-import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
 
 type UpdateRequestProps = Readonly<{
   updateRequest: UpdateRequest;
@@ -62,7 +63,7 @@ export default function RequestSection({
           {note}
         </Typography>
       </When>
-      <Unless condition={Boolean(note) || isStaff}>
+      <Unless condition={isStaff}>
         <AddRequestNoteSection updateRequest={updateRequest} />
       </Unless>
     </Box>

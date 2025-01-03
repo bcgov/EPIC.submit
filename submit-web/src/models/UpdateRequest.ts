@@ -14,7 +14,7 @@ export const UPDATE_REQUEST_TYPE = Object.freeze<
 });
 
 export type UpdateRequest = {
-  id: string;
+  id: number;
   submission_item_ids: number[];
   reason: string;
   created_date: string;

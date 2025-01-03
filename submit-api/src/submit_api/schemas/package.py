@@ -53,6 +53,17 @@ class CreateUpdateRequestSchema(Schema):
                         validate=validate.Length(min=1))
 
 
+class CreateUpdateRequestNoteSchema(Schema):
+    """create update request note schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    note = fields.Str(data_key="note", validate=validate.Length(max=500))
+
+
 class PackageUpdateRequestSchema(Schema):
     """package update request schema."""
 

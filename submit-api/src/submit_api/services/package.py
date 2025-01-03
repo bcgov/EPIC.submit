@@ -375,3 +375,17 @@ class PackageService:
             raise BadRequestError(
                 "Cannot create a review for a package that has been rejected")
         return package
+
+    @classmethod
+    def create_update_request_note(cls, package_id, update_request_id, request_data):
+        """Create a note for an update request."""
+        update_request = UpdateRequestModel.find_by_id(update_request_id)
+        if not update_request:
+            raise ResourceNotFoundError("Update request not found")
+        if update_request.submission_package_id != package_id:
+            raise BadRequestError(
+                "Update request does not belong to the specified package")
+        update_request.note = request_data.get("note")
+        update_request.save()
+        package = cls.get_package_by_id(package_id)
+        return package

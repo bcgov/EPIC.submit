@@ -53,6 +53,7 @@ class Package(BaseModel):
         backref='submission_package',
         lazy='joined',
         primaryjoin='and_(UpdateRequest.submission_package_id == Package.id, UpdateRequest.active.is_(True))',
+        order_by='UpdateRequest.created_date',
         foreign_keys='UpdateRequest.submission_package_id')
 
     version = db.relationship(

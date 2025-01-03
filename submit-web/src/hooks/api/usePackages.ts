@@ -200,3 +200,44 @@ export const useCreatePackageUpdateRequest = ({
     },
   });
 };
+
+const createPackageUpdateRequesNote = ({
+  packageId,
+  updateRequestId,
+  data,
+}: {
+  packageId: number;
+  updateRequestId: number;
+  data: Record<string, unknown>;
+}) => {
+  return submitRequest<SubmissionPackage>({
+    url: `/staff/packages/${packageId}/update-requests/${updateRequestId}/note`,
+    method: "post",
+    data,
+  });
+};
+
+type UseCreatePackageUpdateRequestNoteParams = {
+  packageId: number;
+  options?: Options;
+};
+export const useCreatePackageUpdateRequesNote = ({
+  packageId,
+  options = {},
+}: UseCreatePackageUpdateRequestNoteParams) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createPackageUpdateRequesNote,
+    ...options,
+    onSuccess: (submissionPackage) => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+
+      queryClient.setQueryData(
+        [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        submissionPackage,
+      );
+    },
+  });
+};
