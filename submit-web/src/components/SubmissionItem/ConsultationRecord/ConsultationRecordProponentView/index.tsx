@@ -1,5 +1,4 @@
-import { ContentBox } from "@/components/Shared/ContentBox";
-import { Box, Grid, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -9,10 +8,6 @@ import { useEffect, useMemo } from "react";
 import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { CardInnerBox } from "@/components/Projects/Project";
-import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import BarTitle from "@/components/Shared/Text/BarTitle";
 import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
@@ -27,6 +22,7 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
+import { ConsultationRecordFormContainer } from "../ConsultationRecordFormContainer";
 
 export const ConsultationRecordProponentView = () => {
   const {
@@ -187,55 +183,18 @@ export const ConsultationRecordProponentView = () => {
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
-    <Grid item xs={12}>
-      <ContentBox
-        mainLabel={"Copper Mine"}
-        label={
-          accountProject?.project.ea_certificate &&
-          `EAC #${accountProject?.project.ea_certificate}`
-        }
-      >
-        <Box
-          sx={{
-            borderRadius: "4px",
-            p: BCDesignTokens.layoutPaddingMedium,
-            border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-          }}
-        >
-          <CardInnerBox sx={{ pl: 0, pb: BCDesignTokens.layoutPaddingMedium }}>
-            <Typography variant="h4" fontWeight={400}>
-              Management Plans
-            </Typography>
-            <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
-          </CardInnerBox>
-          <Box
-            sx={{
-              p: BCDesignTokens.layoutPaddingMedium,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              borderRadius: "4px",
-              border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              gap: BCDesignTokens.layoutPaddingLarge,
-            }}
-          >
-            <BarTitle
-              title={accountProject.project.name + " Management Plan"}
-            />
-            <FormProvider {...methods}>
-              <Form onSubmit={handleSubmit(handleCompleteForm)}>
-                <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-                  <FormFieldSection errors={errors} methods={methods} />
-                  <Grid item xs={12}>
-                    <DocumentUploadSection />
-                  </Grid>
-                  <ActionButtons saveAndClose={saveAndClose} />
-                </Grid>
-              </Form>
-            </FormProvider>
-          </Box>
-        </Box>
-      </ContentBox>
-    </Grid>
+    <ConsultationRecordFormContainer>
+      <FormProvider {...methods}>
+        <Form onSubmit={handleSubmit(handleCompleteForm)}>
+          <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
+            <FormFieldSection errors={errors} methods={methods} />
+            <Grid item xs={12}>
+              <DocumentUploadSection />
+            </Grid>
+            <ActionButtons saveAndClose={saveAndClose} />
+          </Grid>
+        </Form>
+      </FormProvider>
+    </ConsultationRecordFormContainer>
   );
 };

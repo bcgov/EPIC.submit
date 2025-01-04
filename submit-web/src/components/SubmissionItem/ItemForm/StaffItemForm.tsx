@@ -2,15 +2,15 @@ import {
   SUBMISSION_ITEM_TYPE,
   SubmissionItem as TypeSubmissionItem,
 } from "@/models/SubmissionItem";
-import { Case, Default, Switch } from "react-if";
-import { ContactInformation } from "./ContactInformation";
-import { ManagementPlanSubmission } from "./ManagementPlanSubmission";
-import { ConsultationRecord } from "./ConsultationRecord";
+import { Case, Switch } from "react-if";
+import { ContactInformation } from "../ContactInformation";
+import { ManagementPlanSubmissionStaffView } from "../ManagementPlanSubmission/ManagementPlanStaffView";
+import { ConsultationRecordStaffView } from "../ConsultationRecord/ConsultationRecordStaffView";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
 };
-export const ItemForm = ({ submissionItem }: ItemFormProps) => {
+export const StaffItemForm = ({ submissionItem }: ItemFormProps) => {
   return (
     <Switch>
       <Case
@@ -25,18 +25,15 @@ export const ItemForm = ({ submissionItem }: ItemFormProps) => {
           submissionItem.type.name === SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN
         }
       >
-        <ManagementPlanSubmission />
+        <ManagementPlanSubmissionStaffView />
       </Case>
       <Case
         condition={
           submissionItem.type.name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD
         }
       >
-        <ConsultationRecord />
+        <ConsultationRecordStaffView />
       </Case>
-      <Default>
-        <div>Default</div>
-      </Default>
     </Switch>
   );
 };

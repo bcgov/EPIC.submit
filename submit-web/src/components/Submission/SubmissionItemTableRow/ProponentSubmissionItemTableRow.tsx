@@ -10,14 +10,14 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "../DocumentRow";
 import { Unless, When } from "react-if";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
-import {
-  PackageTableRow,
-  SubmissionItemTableCell,
-  SubmissionItemTableRowProps,
-} from ".";
+import { SubmissionItemTableRowProps } from ".";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
+import {
+  SubmitPrimaryRowTableCell,
+  SubmitTablePrimaryRow,
+} from "@/components/Shared/Table/common";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -47,8 +47,8 @@ export default function ProponentSubmissionItemTableRow({
 
   return (
     <>
-      <PackageTableRow key={`row-${item.name}`} error={error}>
-        <SubmissionItemTableCell>
+      <SubmitTablePrimaryRow key={`row-${item.name}`} error={error}>
+        <SubmitPrimaryRowTableCell>
           <MuiLink
             color="inherit"
             sx={{
@@ -66,15 +66,15 @@ export default function ProponentSubmissionItemTableRow({
               {name}
             </Typography>
           </MuiLink>
-        </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right" colSpan={2} />
-        <SubmissionItemTableCell align="right">
+        </SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell align="right" colSpan={2} />
+        <SubmitPrimaryRowTableCell align="right">
           <SubmissionStatusChipStack
             status={status}
             isUpdateRequested={isUpdateRequest}
           />
-        </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right">
+        </SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell align="right">
           <Unless
             condition={
               submissionPackage?.submitted_on &&
@@ -95,8 +95,8 @@ export default function ProponentSubmissionItemTableRow({
               {actionLabel}
             </Typography>
           </Unless>
-        </SubmissionItemTableCell>
-      </PackageTableRow>
+        </SubmitPrimaryRowTableCell>
+      </SubmitTablePrimaryRow>
       {submissions.map((submission) => (
         <DocumentRow
           key={`doc-row-${submission.id}`}

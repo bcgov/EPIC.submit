@@ -3,7 +3,7 @@ import { useState } from "react";
 import { InternalStaffDocument } from "@/models/SubmissionItem";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { StyledTableCell } from "@/components/Shared/Table/common";
+import { SubmitTableCell } from "@/components/Shared/Table/common";
 
 type RowProps = {
   internalStaffDocument: InternalStaffDocument;
@@ -27,7 +27,7 @@ export default function Row({ internalStaffDocument, numColumns }: RowProps) {
   };
   return (
     <TableRow>
-      <StyledTableCell>
+      <SubmitTableCell>
         <Typography
           variant="body1"
           color="inherit"
@@ -40,8 +40,8 @@ export default function Row({ internalStaffDocument, numColumns }: RowProps) {
         >
           <MuiLink onClick={downloadDocument}>{name}</MuiLink>
         </Typography>
-      </StyledTableCell>
-      <StyledTableCell align="right" colSpan={numColumns - 1}></StyledTableCell>
+      </SubmitTableCell>
+      <SubmitTableCell align="right" colSpan={numColumns - 1}></SubmitTableCell>
     </TableRow>
   );
 }

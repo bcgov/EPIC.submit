@@ -9,7 +9,7 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { InternalStaffDocument } from "@/models/SubmissionItem";
 
-import { StyledTableHeadCell } from "@/components/Shared/Table/common";
+import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import Rows from "./Rows";
 
 export default function Table({
@@ -28,7 +28,7 @@ export default function Table({
           }}
         >
           <TableRow>
-            <StyledTableHeadCell>
+            <SubmitTableHeadCell>
               <Typography
                 variant="body2"
                 sx={{
@@ -40,10 +40,10 @@ export default function Table({
               >
                 Form/Document
               </Typography>
-            </StyledTableHeadCell>
-            <StyledTableHeadCell align="right">Uploaded by</StyledTableHeadCell>
-            <StyledTableHeadCell align="right">Version</StyledTableHeadCell>
-            <StyledTableHeadCell align="center">Actions</StyledTableHeadCell>
+            </SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
