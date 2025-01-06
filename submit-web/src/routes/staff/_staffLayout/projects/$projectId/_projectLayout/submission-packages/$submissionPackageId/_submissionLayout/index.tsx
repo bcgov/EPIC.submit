@@ -43,10 +43,11 @@ export default function SubmissionPage() {
   });
   const submissionPackageId = Number(submissionPackageIdParam);
   const [packageId, setPackageId] = useState<number>(submissionPackageId);
-  const { data: submissionPackage } = useGetStaffSubmissionPackage({
-    packageId: packageId,
-    enabled: Boolean(accountProject?.id),
-  });
+  const { data: submissionPackage, isLoading: isPackageUpdating } =
+    useGetStaffSubmissionPackage({
+      packageId: packageId,
+      enabled: Boolean(accountProject?.id),
+    });
 
   const navigate = useNavigate();
 
@@ -119,6 +120,7 @@ export default function SubmissionPage() {
                     </Typography>
                     <VersionGroup
                       packageId={packageId}
+                      isPackageUpdating={isPackageUpdating}
                       updatePackageId={setPackageId}
                     />
                   </Stack>
