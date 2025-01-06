@@ -135,6 +135,7 @@ class PackageService:
 
     @classmethod
     def get_all_package_versions(cls, package_id):
+        """Get all package versions by package ID."""
         package_version = PackageVersionModel.get_by_package_id(package_id)
         all_package_versions = PackageVersionModel.get_all_by_original_package_id(package_version.original_package_id)
         sorted_package_versions = sorted(all_package_versions, key=lambda x: x.version, reverse=True)
