@@ -1,6 +1,6 @@
-import { useGetPackageVersions } from "@/hooks/api/usePackages";
+import { useGetPackageVersionsByPackageId } from "@/hooks/api/usePackages";
 import { Backdrop, Button, CircularProgress } from "@mui/material";
-import { useParams, useRouter } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 
 export default function VersionGroup({
@@ -13,10 +13,9 @@ export default function VersionGroup({
   updatePackageId: (newPackageId: number) => void;
 }) {
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
-  const router = useRouter();
   const [updatingPackageVersion, setUpdatingPackageVersion] = useState(false);
-
-  const { data: packageVersions } = useGetPackageVersions({
+  const navigate = useNavigate();
+  const { data: packageVersions } = useGetPackageVersionsByPackageId({
     packageId: packageId,
     enabled: Boolean(packageId),
   });
@@ -24,7 +23,7 @@ export default function VersionGroup({
   function handleUpdatePackageId(newPackageId: number) {
     setUpdatingPackageVersion(true);
     updatePackageId(newPackageId);
-    router.navigate({
+    navigate({
       to: `/staff/projects/${accountProjectIdParam}/submission-packages/${newPackageId}`,
       replace: true,
     });

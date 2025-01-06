@@ -72,7 +72,7 @@ const getStaffSubmissionPackageById = ({
   });
 };
 
-const getPackageVersionsById = ({
+const getPackageVersionsByPackageId = ({
   packageId,
 }: GetSubmissionPackageByIdParams) => {
   return submitRequest<PackageVersion[]>({
@@ -107,13 +107,13 @@ export const getStaffSubmissionPackageQueryOptions = ({
     ...defaultUseQueryOptions,
   });
 
-export const getPackageVersionsQueryOptions = ({
+export const getPackageVersionsByPackageIdQueryOptions = ({
   packageId,
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) =>
   queryOptions({
     queryKey: [QUERY_KEY.PACKAGE_VERSIONS, packageId],
-    queryFn: () => getPackageVersionsById({ packageId }),
+    queryFn: () => getPackageVersionsByPackageId({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,
   });
@@ -134,11 +134,14 @@ export const useGetStaffSubmissionPackage = ({
   return useQuery(options);
 };
 
-export const useGetPackageVersions = ({
+export const useGetPackageVersionsByPackageId = ({
   packageId,
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) => {
-  const options = getPackageVersionsQueryOptions({ packageId, enabled });
+  const options = getPackageVersionsByPackageIdQueryOptions({
+    packageId,
+    enabled,
+  });
   return useQuery(options);
 };
 

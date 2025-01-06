@@ -22,7 +22,6 @@ import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { useState } from "react";
-import VersionGroup from "@/components/Submission/VersionGroup";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
@@ -114,16 +113,6 @@ export default function SubmissionPage() {
                   <Typography variant="h5">
                     {submissionPackage?.name}
                   </Typography>
-                  <Stack direction={"row"} spacing={1}>
-                    <Typography color={BCDesignTokens.themeGray70}>
-                      Version:{" "}
-                    </Typography>
-                    <VersionGroup
-                      packageId={packageId}
-                      isPackageUpdating={isPackageUpdating}
-                      updatePackageId={setPackageId}
-                    />
-                  </Stack>
                 </Stack>
                 <Box flexDirection={"row"} sx={{ display: "flex" }}>
                   <Typography
@@ -138,7 +127,11 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <InfoBox submissionPackage={submissionPackage} />
+              <InfoBox
+                isPackageUpdating={isPackageUpdating}
+                setPackageId={setPackageId}
+                submissionPackage={submissionPackage}
+              />
               <Box
                 sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,
