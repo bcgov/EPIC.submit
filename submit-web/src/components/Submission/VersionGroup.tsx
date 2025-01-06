@@ -1,15 +1,43 @@
-import { Button, ButtonGroup } from "@mui/material";
+import { Button } from "@mui/material";
+import { useEffect } from "react";
 
 export default function VersionGroup({
+  packageId,
   updatePackageId,
 }: {
-  updatePackageId: number;
+  packageId: number;
+  updatePackageId: (num: number) => void;
 }) {
+  useEffect(() => {
+    // getPackageVersions(packageId);
+  }, [packageId]);
+
+  function handleUpdatePackageId(num: number) {
+    //setup backdrop
+    //update url
+    updatePackageId(num);
+  }
+
   return (
-    <ButtonGroup>
-      <Button>1</Button>
-      <Button>2</Button>
-      <Button>3</Button>
-    </ButtonGroup>
+    <>
+      <Button
+        color={packageId === 1 ? "primary" : "secondary"}
+        onClick={() => handleUpdatePackageId(1)}
+      >
+        1
+      </Button>
+      <Button
+        color={packageId === 2 ? "primary" : "secondary"}
+        onClick={() => handleUpdatePackageId(1)}
+      >
+        2
+      </Button>
+      <Button
+        color={packageId === 3 ? "primary" : "secondary"}
+        onClick={() => handleUpdatePackageId(1)}
+      >
+        3
+      </Button>
+    </>
   );
 }

@@ -135,6 +135,14 @@ class PackageService:
         )
         session.add(package_version)
 
+    @classmethod
+    def get_all_package_versions(cls, session, package_id):
+        package_version = PackageVersionModel.get_by_package_id(package_id)
+        print(package_version)
+        all_package_versions = PackageVersionModel.get_all_by_original_package_id(package_version.original_package_id)
+        print(all_package_versions)
+        return all_package_versions
+
     @staticmethod
     def _create_items(session, package_id, package_type):
         """Create items for the package."""

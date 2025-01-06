@@ -2,7 +2,7 @@ import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCar
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { YellowBar } from "@/components/Shared/YellowBar";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import {
   createFileRoute,
   Navigate,
@@ -109,8 +109,20 @@ export default function SubmissionPage() {
                   mb: BCDesignTokens.layoutMarginXlarge,
                 }}
               >
-                <Typography variant="h5">{submissionPackage?.name}</Typography>
-                <VersionGroup updatePackageId={setPackageId} />
+                <Stack>
+                  <Typography variant="h5">
+                    {submissionPackage?.name}
+                  </Typography>
+                  <Stack direction={"row"} spacing={1}>
+                    <Typography color={BCDesignTokens.themeGray70}>
+                      Version:{" "}
+                    </Typography>
+                    <VersionGroup
+                      packageId={packageId}
+                      updatePackageId={setPackageId}
+                    />
+                  </Stack>
+                </Stack>
                 <Box flexDirection={"row"} sx={{ display: "flex" }}>
                   <Typography
                     color={BCDesignTokens.themeGray70}
@@ -131,7 +143,7 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable version={0} submissionPackage={submissionPackage} />
+                <ItemsTable submissionPackage={submissionPackage} />
               </Box>
               <UpdateRequestWidget submissionPackage={submissionPackage} />
               <Box

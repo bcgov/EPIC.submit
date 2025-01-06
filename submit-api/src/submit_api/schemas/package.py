@@ -148,6 +148,20 @@ class StaffPackageSchema(PackageSchema):
         return None
 
 
+class PackageAllVersionSchema(Schema):
+    """package version schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    id = fields.Int(data_key="id")
+    package_id = fields.Int(data_key="package_id")
+    original_package_id = fields.Int(data_key="original_package_id")
+    version = fields.Int(data_key="version")
+
+
 def get_package_status(status, user_type):
     """Get the local (Pacific Timezone) datetime."""
     if not status:

@@ -62,6 +62,28 @@ class Package(Resource):
         """Get a package."""
         package = PackageService.get_package_by_id(package_id)
         return StaffPackageSchema().dump(package), HTTPStatus.OK
+    
+    
+@cors_preflight("GET, OPTIONS")
+@API.route(
+    "/<int:package_id>",
+    methods=["GET", "OPTIONS"],
+)
+class PackageVersions(Resource):
+    """Resource for managing a packages versions."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get package versions")
+    @API.response(
+        code=HTTPStatus.OK, model=package_model, description="Get package versions"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
+    @cors.crossdomain(origin="*")
+    def get(package_id):
+        """Get a package."""
+        package = PackageService.get_all_package_versions(package_id)
+        return StaffPackageSchema().dump(package), HTTPStatus.OK
 
 
 @cors_preflight("POST, OPTIONS")
