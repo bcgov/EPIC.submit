@@ -27,11 +27,14 @@ function OidcCallback() {
   }
 
   if (getUserError) {
+    console.log("error in getting user data", getUserError);
     if (isAxiosError(getUserError)) {
+      console.log("axios error", getUserError.response);
       if (
         getUserError.response?.status === HTTP_STATUS.NOT_FOUND &&
         proponent_id
       ) {
+        console.log("redirecting to registration");
         return (
           <Navigate
             to="/proponent/registration/create-account"
@@ -43,11 +46,17 @@ function OidcCallback() {
           />
         );
       } else {
+        console.log(
+          "error is not 404 or proponent_id not found",
+          getUserError.response,
+          proponent_id,
+        );
         notify.error(getUserError.response?.data?.message || ERROR_MESSAGE);
         return <Navigate to="/error" />;
       }
     }
     notify.error(ERROR_MESSAGE);
+    console.log("error is not axios error", getUserError);
     return <Navigate to="/error" />;
   }
 
