@@ -48,3 +48,5 @@ cdogs:
   apiEndpoint: https://cdogs-test.api.gov.bc.ca/api/v2
   clientId:
   clientSecret:
+cors:
+  origin: "http://localhost:3000"
