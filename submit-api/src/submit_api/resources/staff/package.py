@@ -88,8 +88,6 @@ class PackageVersions(Resource):
     def get(package_id):
         """Get a package."""
         package_versions = PackageService.get_all_package_versions(package_id)
-        print(package_versions)
-        print(package_versions[0].__dict__)
         return PackageVersionSchema(many=True).dump(package_versions), HTTPStatus.OK
 
 

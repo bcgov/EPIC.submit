@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Options } from "./types";
-import { SubmissionPackage } from "@/models/Package";
+import { PackageVersion, SubmissionPackage } from "@/models/Package";
 import {
   defaultUseQueryOptions,
   QUERY_KEY,
@@ -75,7 +75,7 @@ const getStaffSubmissionPackageById = ({
 const getPackageVersionsById = ({
   packageId,
 }: GetSubmissionPackageByIdParams) => {
-  return submitRequest<SubmissionPackage>({
+  return submitRequest<PackageVersion[]>({
     url: `staff/packages/${packageId}/versions`,
   });
 };

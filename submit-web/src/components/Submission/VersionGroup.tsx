@@ -1,6 +1,6 @@
 import { useGetPackageVersions } from "@/hooks/api/usePackages";
 import { Button } from "@mui/material";
-import { useEffect } from "react";
+import { BCDesignTokens } from "epic.theme";
 
 export default function VersionGroup({
   packageId,
@@ -14,11 +14,6 @@ export default function VersionGroup({
     enabled: Boolean(packageId),
   });
 
-  useEffect(() => {
-    console.log(packageId);
-    console.log(packageVersions);
-  }, [packageId, packageVersions]);
-
   function handleUpdatePackageId(num: number) {
     //setup backdrop
     //update url
@@ -30,6 +25,11 @@ export default function VersionGroup({
       {packageVersions?.map((version) => (
         <Button
           key={version.id}
+          color={packageId === version.package_id ? "primary" : "secondary"}
+          sx={{
+            p: BCDesignTokens.layoutPaddingSmall,
+            minWidth: `${BCDesignTokens.layoutPaddingXsmall}px`,
+          }}
           onClick={() => handleUpdatePackageId(version.package_id)}
         >
           {version.version}

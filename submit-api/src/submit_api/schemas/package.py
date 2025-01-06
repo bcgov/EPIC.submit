@@ -169,16 +169,6 @@ class PackageVersionSchema(Schema):
     version = fields.Int(data_key="version")
 
 
-class PackageAllVersionsSchema(Schema):
-    """Package schema returning all versions as an array."""
-    
-    class Meta:
-        unknown = EXCLUDE
-    
-    # You can add additional fields here if needed
-    versions = fields.List(fields.Nested(PackageVersionSchema)) 
-
-
 def get_package_status(status, user_type):
     """Get the local (Pacific Timezone) datetime."""
     if not status:

@@ -104,3 +104,10 @@ export type SubmissionPackage = {
   review_status?: NonCanonicalPackageStatus;
   update_requests: Array<UpdateRequest>;
 };
+
+export type PackageVersion = {
+  id: number;
+  package_id: number;
+  version: string;
+  original_package_id: number;
+};
