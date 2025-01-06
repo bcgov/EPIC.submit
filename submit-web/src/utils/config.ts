@@ -42,11 +42,13 @@ export const AppConfig = {
   clientId: CLIENT_ID,
 };
 
+const trimmedAppUrl = APP_URL?.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;
+
 export const OidcConfig = {
   authority: OIDC_AUTHORITY,
   client_id: CLIENT_ID,
-  redirect_uri: `${APP_URL}/oidc-callback`,
-  post_logout_redirect_uri: `${APP_URL}/`,
+  redirect_uri: `${trimmedAppUrl}/oidc-callback`,
+  post_logout_redirect_uri: `${trimmedAppUrl}/`,
   scope: "openid profile email",
   revokeTokensOnSignout: true,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
