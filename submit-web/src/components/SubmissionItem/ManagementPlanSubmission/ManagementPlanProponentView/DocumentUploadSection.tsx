@@ -19,7 +19,7 @@ import { camelCase } from "lodash";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
-    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();

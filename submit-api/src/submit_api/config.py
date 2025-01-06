@@ -86,6 +86,11 @@ class _Config():  # pylint: disable=too-few-public-methods
     KEYCLOAK_ADMIN_USERNAME = os.getenv('MET_ADMIN_CLIENT_ID')
     KEYCLOAK_ADMIN_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
 
+    BASE_APP_URL = os.getenv('BASE_APP_URL')
+    SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH')
+
+    INVITATION_EXPIRY_DAYS = int(os.getenv('INVITATION_EXPIRY_DAYS', '7'))  # Default to 7 days
+
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
     """Dev Config."""

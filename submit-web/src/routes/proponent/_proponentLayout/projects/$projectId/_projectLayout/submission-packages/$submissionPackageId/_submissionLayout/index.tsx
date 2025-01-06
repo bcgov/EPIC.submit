@@ -27,9 +27,10 @@ import { SuccessBox } from "@/components/Submission/SuccessBox";
 import { When } from "react-if";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
+import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -162,6 +163,13 @@ export default function SubmissionPage() {
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />
+
+              <Box mt="1em" width="100%">
+                <UpdateRequestWidget
+                  submissionPackage={submissionPackage}
+                  summaryBackgroundColor="#FEF8E8"
+                />
+              </Box>
               <Box
                 sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,

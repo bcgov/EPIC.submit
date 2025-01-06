@@ -30,8 +30,7 @@ class Account(BaseModel):
             proponent_id=account_data.get('proponent_id', None),
         )
         if session:
-            session.add(account)
-            session.commit()
+            account.flush()
         else:
             account.save()
         return account

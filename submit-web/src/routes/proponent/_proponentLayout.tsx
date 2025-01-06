@@ -1,7 +1,11 @@
+import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
+import SideNavBar from "@/components/Shared/layout/SideNav/SideNavBar";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useGetUserByGuid } from "@/hooks/api/useAccounts";
+import { useIsMobile } from "@/hooks/common";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
+import { Box } from "@mui/material";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
@@ -44,6 +48,7 @@ function ProponentLayout() {
     userData,
     isLoading,
   ]);
+  const isMobile = useIsMobile();
 
   if (isLoading) {
     return <PageLoader />;
@@ -53,5 +58,13 @@ function ProponentLayout() {
     return <Navigate to={"/not-found"} />;
   }
 
-  return <Outlet />;
+  return (
+    <div>
+      <BreadcrumbNav />
+      <Box flexDirection={"row"} display={"flex"}>
+        {!isMobile && <SideNavBar />}
+        <Outlet />
+      </Box>
+    </div>
+  );
 }

@@ -21,17 +21,16 @@ import { SubmissionPackage } from "@/models/Package";
 import { useMemo } from "react";
 import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
 
-export default function ItemsTable({
-  submissionPackage,
-}: {
+type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
-}) {
+}>;
+export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   const { items: submissionItems, update_requests } = submissionPackage;
 
   const itemUpdateRequestMap = useMemo(() => {
     const _update_requests = update_requests.filter(
       (update_request) =>
-        update_request.type === UPDATE_REQUEST_TYPE.UPDATE.value
+        update_request.type === UPDATE_REQUEST_TYPE.UPDATE.value,
     );
     return _update_requests
       .flatMap((update_request) => update_request.submission_item_ids)
@@ -44,7 +43,7 @@ export default function ItemsTable({
   const itemRevisionRequiredMap = useMemo(() => {
     const _update_requests = update_requests.filter(
       (update_request) =>
-        update_request.type === UPDATE_REQUEST_TYPE.REVIEW.value
+        update_request.type === UPDATE_REQUEST_TYPE.REVIEW.value,
     );
     return _update_requests
       .flatMap((update_request) => update_request.submission_item_ids)
@@ -65,7 +64,7 @@ export default function ItemsTable({
     submitted_by: subItem?.submitted_by,
     version: subItem.version,
     submissions: subItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
     ),
     has_document:
       subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
@@ -76,7 +75,7 @@ export default function ItemsTable({
   }));
 
   const internalStaffDocuments = submissionItems.flatMap(
-    (item) => item.internal_staff_documents ?? []
+    (item) => item.internal_staff_documents ?? [],
   );
 
   return (

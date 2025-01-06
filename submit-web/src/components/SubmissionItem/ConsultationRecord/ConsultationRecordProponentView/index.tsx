@@ -34,7 +34,7 @@ export const ConsultationRecordProponentView = () => {
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
-    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   const accountProjectId = Number(accountProjectIdParam);
   const { data: accountProject } = useGetAccountProject({

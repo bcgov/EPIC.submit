@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { SubmissionStatusChip } from "../../SubmissionStatusChip";
+import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { SUBMISSION_STATUS } from "@/models/Submission";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "../DocumentRow";
@@ -20,10 +20,10 @@ export default function ProponentSubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const navigate = useNavigate();
   const { projectId, submissionPackageId } = useParams({
-    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
   });
 
-  const { name, id, submissions, has_document, status } = item;
+  const { name, id, submissions, has_document, status, isUpdateRequest } = item;
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
@@ -57,9 +57,10 @@ export default function ProponentSubmissionItemTableRow({
         </SubmissionItemTableCell>
         <SubmissionItemTableCell align="right" colSpan={2} />
         <SubmissionItemTableCell align="right">
-          <When condition={SUBMISSION_STATUS.NEW_SUBMISSION.value !== status}>
-            <SubmissionStatusChip status={status} />
-          </When>
+          <SubmissionStatusChipStack
+            status={status}
+            isUpdateRequested={isUpdateRequest}
+          />
         </SubmissionItemTableCell>
         <SubmissionItemTableCell align="right">
           <Unless condition={status === SUBMISSION_STATUS.SUBMITTED.value}>
@@ -83,6 +84,7 @@ export default function ProponentSubmissionItemTableRow({
         <DocumentRow
           key={`doc-row-${submission.id}`}
           documentSubmission={submission}
+          submissionItem={item}
         />
       ))}
       <When condition={error}>

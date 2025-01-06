@@ -23,7 +23,7 @@ export default function PendingDocumentRow({
   folder: s3Folder,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
-    from: "/proponent/_proponentLayout/_dashboard/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();

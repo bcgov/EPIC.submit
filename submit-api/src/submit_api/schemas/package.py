@@ -49,8 +49,19 @@ class CreateUpdateRequestSchema(Schema):
 
     submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids",
                                       required=True, validate=validate.Length(min=1))
-    note = fields.Str(data_key="note", required=True,
-                      validate=validate.Length(min=1))
+    reason = fields.Str(data_key="reason", required=True,
+                        validate=validate.Length(min=1))
+
+
+class CreateUpdateRequestNoteSchema(Schema):
+    """create update request note schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    note = fields.Str(data_key="note", validate=validate.Length(max=500))
 
 
 class PackageUpdateRequestSchema(Schema):
@@ -66,10 +77,11 @@ class PackageUpdateRequestSchema(Schema):
     submission_item_ids = fields.List(
         fields.Int(), data_key="submission_item_ids")
     active = fields.Bool(data_key="active")
-    note = fields.Str(data_key="note")
+    reason = fields.Str(data_key="reason")
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Method('get_created_by')
     type = fields.Enum(data_key="type", enum=UpdateRequestType)
+    note = fields.Str(data_key="note")
 
     def get_created_by(self, obj):
         """Get created by user."""

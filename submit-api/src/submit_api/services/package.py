@@ -19,6 +19,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.models.item_type import SubmissionItemType
+from submit_api.models.update_request import UpdateRequestType
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
@@ -115,14 +116,11 @@ class PackageService:
         if not package_metadata:
             raise ValueError(f"Package metadata for package_id {package_id} does not exist.")
 
-        # Initialize JSON field if it is None
-        if package_metadata.json is None:
-            package_metadata.json = {}
+        metadata = package_metadata.json or {}
+        new_metadata = {**metadata, **metadata_updates}
 
-        # Merge new updates into the existing JSON
-        for key, value in metadata_updates.items():
-            package_metadata.json[key] = value
         # Add the updated metadata back to the session
+        package_metadata.json = new_metadata
         session.add(package_metadata)
 
     @classmethod
@@ -189,12 +187,12 @@ class PackageService:
             session.add(item)
 
     @staticmethod
-    def _update_mp_status(items, status, session):
+    def _update_mp_item(items, data, session):
         """Update the status of all items in the package."""
         for item in items:
             if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
-                item.status = status
-                item.review_start_date = datetime.utcnow()
+                item.status = data.get('status')
+                item.review_start_date = data.get('review_start_date')
                 session.add(item)
 
     @staticmethod
@@ -213,6 +211,15 @@ class PackageService:
         package.submitted_by = TokenInfo.get_id()
 
         session.add(package)
+
+    @staticmethod
+    def _deactivate_revision_required_requests(package, session):
+        """Update package submission details."""
+        revision_required_requests = [request for request in package.update_requests
+                                      if request.type == UpdateRequestType.REVIEW]
+        for request in revision_required_requests:
+            request.active = False
+            session.add(request)
 
     @staticmethod
     def _get_document_submissions_from_package(package):
@@ -235,26 +242,37 @@ class PackageService:
             cls._update_package_status(package_id, session, package)
             cls._update_package_submission_details(package, session)
             cls._create_email_queue_record(package, session)
+            cls._deactivate_revision_required_requests(package, session)
             session.flush()
             session.commit()
         return package
 
     @classmethod
-    def start_mp_review(cls, package_id):
+    def start_mp_review(cls, package_id, _session=None):
         """Start the review process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)
 
-        with session_scope() as session:
-            cls._update_mp_status(
-                package.items, ItemStatus.UNDER_REVIEW.value, session)
-            cls._update_package_status(package_id, session, package)
-            new_metadata = {
-                PackageMetadataFields.REVIEW_START_DATE.value: datetime.utcnow().isoformat()
-            }
-            cls._update_package_metadata(session, package_id, new_metadata)
-        session.flush()
-        session.commit()
+        if _session is None:
+            with session_scope() as session:
+                cls.start_mp_review_process(package, package_id, session)
+        else:
+            cls.start_mp_review_process(package, package_id, _session)
+
         return package
+
+    @classmethod
+    def start_mp_review_process(cls, package, package_id, session):
+        """Common logic for starting the review process."""
+        item_data = {
+            'status': ItemStatus.UNDER_REVIEW.value,
+            'review_start_date': datetime.utcnow().isoformat()
+        }
+        cls._update_mp_item(package.items, item_data, session)
+        cls._update_package_status(package_id, session, package)
+        new_metadata = {
+            PackageMetadataFields.REVIEW_START_DATE.value: item_data.get('review_start_date')
+        }
+        cls._update_package_metadata(session, package_id, new_metadata)
 
     @classmethod
     def start_cr_check(cls, package_id):
@@ -265,13 +283,12 @@ class PackageService:
                 package.items, ItemStatus.UNDER_CONSULTATION_CHECK.value, session)
             cls._update_package_status(package_id, session, package)
             new_metadata = {
-                PackageMetadataFields.REVIEW_START_DATE.value: datetime.utcnow().isoformat(),
                 PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: datetime.utcnow().isoformat()
             }
             cls._update_package_metadata(session, package_id, new_metadata)
-        session.flush()
-        session.commit()
-        return package
+            session.flush()
+            session.commit()
+            return package
 
     @staticmethod
     def _unsupported_status(*args, **kwargs):
@@ -321,7 +338,7 @@ class PackageService:
         update_request = UpdateRequestModel(
             submission_package_id=package.id,
             submission_item_ids=request_data.get("submission_item_ids"),
-            note=request_data.get("note"),
+            reason=request_data.get("reason"),
             created_by=TokenInfo.get_id()
         )
         update_request.save()
@@ -366,3 +383,27 @@ class PackageService:
             raise BadRequestError(
                 "Cannot create a review for a package that has been rejected")
         return package
+
+    @classmethod
+    def create_update_request_note(cls, package_id, update_request_id, request_data):
+        """Create a note for an update request."""
+        update_request = UpdateRequestModel.find_by_id(update_request_id)
+        cls._validate_create_update_request_note(package_id, update_request)
+        update_request.note = request_data.get("note")
+        update_request.save()
+        package = cls.get_package_by_id(package_id)
+        return package
+
+    @classmethod
+    def _validate_create_update_request_note(cls, package_id, update_request):
+        """Validate the creation of an update request note."""
+        if not update_request:
+            raise ResourceNotFoundError("Update request not found")
+        if update_request.submission_package_id != package_id:
+            raise BadRequestError(
+                "Update request does not belong to the specified package")
+        if update_request.note:
+            raise BadRequestError(
+                "Note already exists for the update request")
+        if not update_request.active:
+            raise BadRequestError("Update request is not active")

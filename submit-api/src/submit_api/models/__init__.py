@@ -39,3 +39,5 @@ from .submitted_document import SubmittedDocument
 from .submitted_form import SubmittedForm
 from .update_request import UpdateRequest
 from .user import User
+from .invitations import Invitations
+from .submission_item_note import SubmissionItemNote

@@ -17,13 +17,18 @@ import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
+import { useEffect } from "react";
 
 export default function StaffSubmissionItemTableRow({
   item,
   error = false,
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
-  const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
+  const {
+    setOpen: setOpenModal,
+    setClose: setCloseModal,
+    setIsLoading,
+  } = useModal();
   const navigate = useNavigate();
   const {
     name,
@@ -46,9 +51,11 @@ export default function StaffSubmissionItemTableRow({
     isPending: updatingSubmission,
   } = useUpdateStateSubmissionPackage({
     onError: () => {
+      setCloseModal();
       notify.error("Failed to start review");
     },
     onSuccess: () => {
+      setCloseModal();
       notify.success("Successfully started review");
     },
   });
@@ -63,11 +70,14 @@ export default function StaffSubmissionItemTableRow({
     });
   };
 
+  useEffect(() => {
+    setIsLoading(updatingSubmission);
+  }, [updatingSubmission, setIsLoading]);
+
   const openConfirmationModal = () => {
     setOpenModal(
       <ConfirmationModal
         onConfirm={() => {
-          setCloseModal();
           updateStateSubmissionPackage({
             packageId: Number(submissionPackageId),
             data: {
@@ -80,7 +90,6 @@ export default function StaffSubmissionItemTableRow({
             to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
           });
         }}
-        loading={updatingSubmission}
         title={`Start ${name} Review`}
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}

@@ -14,12 +14,13 @@ export const UPDATE_REQUEST_TYPE = Object.freeze<
 });
 
 export type UpdateRequest = {
-  id: string;
+  id: number;
   submission_item_ids: number[];
-  note: string;
+  reason: string;
   created_date: string;
   created_by: string;
   submission_package_id: number;
   active: boolean;
   type: UpdateRequestType;
+  note: string;
 };
