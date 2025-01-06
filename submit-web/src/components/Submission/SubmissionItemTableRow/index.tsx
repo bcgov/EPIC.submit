@@ -64,10 +64,10 @@ export const PackageTableRow = ({
   );
 };
 
-export type SubmissionItemTableRowProps = {
+export type SubmissionItemTableRowProps = Readonly<{
   item: SubmissionItemTableRowType;
   error?: boolean;
-};
+}>;
 
 export default function SubmissionItemTableRow({
   item,

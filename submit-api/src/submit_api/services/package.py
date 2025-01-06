@@ -2,9 +2,11 @@
 from collections import defaultdict
 from datetime import datetime
 
+from flask import current_app
+
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.models import Item as ItemModel
+from submit_api.models import Item as ItemModel, User
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
 from submit_api.models import PackageVersion as PackageVersionModel
@@ -20,6 +22,7 @@ from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.update_request import UpdateRequestType
+from submit_api.models.user import UserType
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
@@ -157,13 +160,33 @@ class PackageService:
 
         session.flush()
 
-    @staticmethod
-    def _get_and_validate_complete_package(package_id) -> PackageModel:
+    @classmethod
+    def _get_and_validate_complete_package(cls, package_id) -> PackageModel:
         """Retrieve and validate that all items in the package are completed."""
         package = PackageModel.find_by_id(package_id)
+        if package.submitted_on:
+            return cls._validate_package_for_resubmit(package)
+
         if any(item.status.value != ItemStatus.COMPLETED.value for item in package.items):
-            raise BadRequestError(
-                "All items must be completed before completing the package")
+            current_app.logger.info(f"Package {package_id} has incomplete items")
+            raise BadRequestError("All items must be completed before completing the package")
+
+        current_app.logger.info(f"Package {package_id} is ready to submit")
+        return package
+
+    @classmethod
+    def _validate_package_for_resubmit(cls, package) -> PackageModel:
+        """Validate that the package is in a state that allows resubmission."""
+        current_app.logger.info(f"Validating package {package.id} for resubmission")
+        if not package.submitted_on:
+            raise BadRequestError("Cannot resubmit a package that has not been submitted")
+        if package.status == PackageStatus.APPROVED:
+            raise BadRequestError("Cannot resubmit a package that has been approved")
+        if package.status == PackageStatus.REJECTED:
+            raise BadRequestError("Cannot resubmit a package that has been rejected")
+        if not package.update_requests:
+            raise BadRequestError("Cannot resubmit a package that has no update requests")
+        current_app.logger.info(f"Package {package.id} is ready to resubmit")
         return package
 
     @staticmethod
@@ -226,9 +249,10 @@ class PackageService:
     @classmethod
     def submit_package(cls, package_id):
         """Submit the package by updating its status and items."""
-        package = cls._get_and_validate_complete_package(package_id)
+        cls._validate_account_user()
 
         with session_scope() as session:
+            package = cls._get_and_validate_complete_package(package_id)
             cls._update_items_status(
                 package.items, ItemStatus.SUBMITTED.value, session)
             cls._update_package_status(package_id, session, package)
@@ -387,6 +411,14 @@ class PackageService:
         return package
 
     @classmethod
+    def _validate_account_user(cls):
+        """Validate the account user."""
+        auth_guid = TokenInfo.get_id()
+        user = User.get_by_guid(auth_guid)
+        if not user or not user.type == UserType.PROPONENT:
+            raise BadRequestError("User is not an account user")
+
+    @classmethod
     def _validate_create_update_request_note(cls, package_id, update_request):
         """Validate the creation of an update request note."""
         if not update_request:
@@ -399,3 +431,4 @@ class PackageService:
                 "Note already exists for the update request")
         if not update_request.active:
             raise BadRequestError("Update request is not active")
+        cls._validate_account_user()

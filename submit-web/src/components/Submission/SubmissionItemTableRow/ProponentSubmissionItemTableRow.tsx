@@ -6,13 +6,18 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
-import { SUBMISSION_STATUS } from "@/models/Submission";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "../DocumentRow";
 import { Unless, When } from "react-if";
-import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
-import { PackageTableRow } from ".";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
+import {
+  PackageTableRow,
+  SubmissionItemTableCell,
+  SubmissionItemTableRowProps,
+} from ".";
+import { useQueryClient } from "@tanstack/react-query";
+import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { SubmissionPackage } from "@/models/Package";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -24,6 +29,13 @@ export default function ProponentSubmissionItemTableRow({
   });
 
   const { name, id, submissions, has_document, status, isUpdateRequest } = item;
+  const queryClient = useQueryClient();
+
+  const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
+    getSubmissionPackageQueryOptions({
+      packageId: Number(submissionPackageId),
+    }).queryKey,
+  );
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
@@ -63,7 +75,12 @@ export default function ProponentSubmissionItemTableRow({
           />
         </SubmissionItemTableCell>
         <SubmissionItemTableCell align="right">
-          <Unless condition={status === SUBMISSION_STATUS.SUBMITTED.value}>
+          <Unless
+            condition={
+              submissionPackage?.submitted_on &&
+              submissionPackage.update_requests.length === 0
+            }
+          >
             <Typography
               variant="body2"
               sx={{
