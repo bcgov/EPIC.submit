@@ -1,7 +1,7 @@
 import { useGetPackageVersionsByPackageId } from "@/hooks/api/usePackages";
 import { Backdrop, Button, CircularProgress } from "@mui/material";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function VersionGroup({
   packageId,
@@ -13,28 +13,33 @@ export default function VersionGroup({
   updatePackageId: (newPackageId: number) => void;
 }) {
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
-  const [updatingPackageVersion, setUpdatingPackageVersion] = useState(false);
   const navigate = useNavigate();
   const { data: packageVersions } = useGetPackageVersionsByPackageId({
     packageId: packageId,
     enabled: Boolean(packageId),
   });
+  const [showBackdrop, setShowBackdrop] = useState(false);
+
+  useEffect(() => {
+    if (showBackdrop && !isPackageUpdating) {
+      setShowBackdrop(isPackageUpdating);
+    }
+  }, [isPackageUpdating, showBackdrop]);
 
   function handleUpdatePackageId(newPackageId: number) {
-    setUpdatingPackageVersion(true);
+    setShowBackdrop(true);
     updatePackageId(newPackageId);
     navigate({
       to: `/staff/projects/${accountProjectIdParam}/submission-packages/${newPackageId}`,
       replace: true,
     });
-    setUpdatingPackageVersion(false);
   }
 
   return (
     <>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-        open={isPackageUpdating && updatingPackageVersion}
+        open={showBackdrop}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
