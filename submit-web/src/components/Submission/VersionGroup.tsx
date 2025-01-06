@@ -1,3 +1,4 @@
+import { useGetPackageVersions } from "@/hooks/api/usePackages";
 import { Button } from "@mui/material";
 import { useEffect } from "react";
 
@@ -8,9 +9,15 @@ export default function VersionGroup({
   packageId: number;
   updatePackageId: (num: number) => void;
 }) {
+  const { data: packageVersions } = useGetPackageVersions({
+    packageId: packageId,
+    enabled: Boolean(packageId),
+  });
+
   useEffect(() => {
-    // getPackageVersions(packageId);
-  }, [packageId]);
+    console.log(packageId);
+    console.log(packageVersions);
+  }, [packageId, packageVersions]);
 
   function handleUpdatePackageId(num: number) {
     //setup backdrop
@@ -20,24 +27,14 @@ export default function VersionGroup({
 
   return (
     <>
-      <Button
-        color={packageId === 1 ? "primary" : "secondary"}
-        onClick={() => handleUpdatePackageId(1)}
-      >
-        1
-      </Button>
-      <Button
-        color={packageId === 2 ? "primary" : "secondary"}
-        onClick={() => handleUpdatePackageId(1)}
-      >
-        2
-      </Button>
-      <Button
-        color={packageId === 3 ? "primary" : "secondary"}
-        onClick={() => handleUpdatePackageId(1)}
-      >
-        3
-      </Button>
+      {packageVersions?.map((version) => (
+        <Button
+          key={version.id}
+          onClick={() => handleUpdatePackageId(version.package_id)}
+        >
+          {version.version}
+        </Button>
+      ))}
     </>
   );
 }

@@ -160,18 +160,23 @@ class StaffPackageSchema(PackageSchema):
         return None
 
 
-class PackageAllVersionSchema(Schema):
-    """package version schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
+class PackageVersionSchema(Schema):
+    """Schema for serializing individual package versions."""
 
     id = fields.Int(data_key="id")
     package_id = fields.Int(data_key="package_id")
     original_package_id = fields.Int(data_key="original_package_id")
     version = fields.Int(data_key="version")
+
+
+class PackageAllVersionsSchema(Schema):
+    """Package schema returning all versions as an array."""
+    
+    class Meta:
+        unknown = EXCLUDE
+    
+    # You can add additional fields here if needed
+    versions = fields.List(fields.Nested(PackageVersionSchema)) 
 
 
 def get_package_status(status, user_type):

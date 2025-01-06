@@ -20,7 +20,7 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateRequestSchema, StaffPackageSchema, \
-    CreateUpdateRequestNoteSchema
+    CreateUpdateRequestNoteSchema, PackageVersionSchema
 from submit_api.services.package import PackageService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
@@ -67,11 +67,11 @@ class Package(Resource):
         """Get a package."""
         package = PackageService.get_package_by_id(package_id)
         return StaffPackageSchema().dump(package), HTTPStatus.OK
-    
-    
+
+
 @cors_preflight("GET, OPTIONS")
 @API.route(
-    "/<int:package_id>",
+    "/<int:package_id>/versions",
     methods=["GET", "OPTIONS"],
 )
 class PackageVersions(Resource):
@@ -87,8 +87,10 @@ class PackageVersions(Resource):
     @cors.crossdomain(origin="*")
     def get(package_id):
         """Get a package."""
-        package = PackageService.get_all_package_versions(package_id)
-        return StaffPackageSchema().dump(package), HTTPStatus.OK
+        package_versions = PackageService.get_all_package_versions(package_id)
+        print(package_versions)
+        print(package_versions[0].__dict__)
+        return PackageVersionSchema(many=True).dump(package_versions), HTTPStatus.OK
 
 
 @cors_preflight("POST, OPTIONS")
