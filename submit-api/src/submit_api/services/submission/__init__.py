@@ -1,5 +1,5 @@
 """Service for submission management."""
-
+from submit_api.models.db import session_scope
 from submit_api.models.submission import Submission as SubmissionModel
 from submit_api.models.submission import SubmissionTypeStatus
 from submit_api.services.item import ItemService
@@ -37,10 +37,12 @@ class SubmissionService:
         submission_type = request_data.get("type")
         if not submission_type:
             raise ValueError("Submission type is required.")
-        submission_creator = cls.make_submission_creator(submission_type)
-        submission_data = request_data.get("data")
-        submission = submission_creator.create(item_id, submission_data)
-        return submission
+        with session_scope() as session:
+            submission_creator = cls.make_submission_creator(submission_type)
+            submission_data = request_data.get("data")
+            submission = submission_creator.create(item_id, submission_data, session)
+            cls.update_submission_item_status(item_id, request_data.get("status"), session)
+            return submission
 
     @classmethod
     def get_submission_by_id_and_validate_edit(cls, submission_id):
@@ -64,9 +66,8 @@ class SubmissionService:
         return submission
 
     @classmethod
-    def update_submission_item_status(cls, item_id, status):
+    def update_submission_item_status(cls, item_id, status, session):
         """Update the status of the submission item."""
-        if status is None:
-            raise ValueError("Status is required.")
-        update_data = {"status": status}
-        ItemService.update_submission_item(item_id, update_data)
+        if not status:
+            return
+        ItemService.update_submission_item_status(item_id, status, session)

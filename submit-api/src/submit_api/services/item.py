@@ -47,6 +47,18 @@ class ItemService:
         current_app.logger.info(f"Submission item {submission_item.id} updated successfully.")
         return submission_item
 
+    @classmethod
+    def update_submission_item_status(cls, item_id, status, session):
+        """Update the status of the submission item."""
+        submission_item = cls.get_item_by_id(item_id)
+        existing_status = submission_item.status
+        if existing_status != status:
+            submission_item.status = status
+            session.add(submission_item)
+            session.flush()
+            cls._update_package_status(submission_item.package_id, session)
+            current_app.logger.info(f"Submission item {item_id} status updated to {status}.")
+
     @staticmethod
     def _update_package_status(package_id, session):
         """Update the status of the package based on the statuses of its items."""

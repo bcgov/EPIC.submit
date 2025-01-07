@@ -10,9 +10,9 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 type FormType = Record<string, unknown>;
-export const editSubmission = (id: number, data: FormType) => {
+export const editSubmissionForm = (id: number, data: FormType) => {
   return submitRequest<Submission>({
-    url: `/submissions/${id}`,
+    url: `/submissions/${id}/form`,
     method: "patch",
     data,
   });
@@ -60,7 +60,7 @@ export const useSaveSubmission = ({
         (submission) => submission.type === SUBMISSION_TYPE.FORM,
       );
       if (formSubmission) {
-        return editSubmission(formSubmission.id, data);
+        return editSubmissionForm(formSubmission.id, data);
       }
       return createSubmission(submissionItem.id, data);
     },
@@ -115,5 +115,32 @@ export const useGetSubmissionsByItemIdAndType = ({
     queryFn: () => getSubmissionsByItemIdAndType({ itemId }),
     enabled: enabled && Boolean(itemId),
     ...defaultUseQueryOptions,
+  });
+};
+
+type ReplaceSubmissionParams = {
+  submissionId: number;
+  data: FormType;
+};
+export const replacteSubmission = ({
+  submissionId,
+  data,
+}: ReplaceSubmissionParams) => {
+  return submitRequest<Submission>({
+    url: `/submissions/${submissionId}/document`,
+    method: "post",
+    data,
+  });
+};
+
+export const useReplaceSubmussion = (options?: Options) => {
+  return useMutation({
+    mutationFn: (params: ReplaceSubmissionParams) => replacteSubmission(params),
+    ...options,
+    onSuccess: (data) => {
+      if (options?.onSuccess) {
+        options.onSuccess(data);
+      }
+    },
   });
 };

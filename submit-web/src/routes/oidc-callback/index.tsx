@@ -27,7 +27,6 @@ function OidcCallback() {
   }
 
   if (getUserError) {
-    console.error("A", getUserError);
     if (isAxiosError(getUserError)) {
       if (
         getUserError.response?.status === HTTP_STATUS.NOT_FOUND &&
