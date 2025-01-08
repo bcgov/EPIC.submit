@@ -133,14 +133,25 @@ export const replacteSubmission = ({
   });
 };
 
-export const useReplaceSubmussion = (options?: Options) => {
+type UseReplaceSubmissionParams = {
+  submissionPackageId: number;
+} & Options;
+export const useReplaceSubmussion = ({
+  submissionPackageId,
+  ...options
+}: UseReplaceSubmissionParams) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options;
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (params: ReplaceSubmissionParams) => replacteSubmission(params),
-    ...options,
     onSuccess: (data) => {
-      if (options?.onSuccess) {
-        options.onSuccess(data);
+      if (_onSuccess) {
+        _onSuccess(data);
       }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackageId],
+      });
     },
+    ...restOptions,
   });
 };

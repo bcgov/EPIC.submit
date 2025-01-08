@@ -1,5 +1,6 @@
 import {
   Table as MuiTable,
+  Skeleton,
   TableBody,
   TableRow,
   Typography,
@@ -12,27 +13,33 @@ import {
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
 import { useParams } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEY } from "@/hooks/api/constants";
-import { SubmissionItem } from "@/models/SubmissionItem";
 import Row from "./Row";
 import { SUBMISSION_TYPE } from "@/models/Submission";
+import { useGetSubmissionItem } from "@/hooks/api/useItems";
+import { useMemo } from "react";
 
 export default function DocumentsTable() {
   const { submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
-  const queryClient = useQueryClient();
-  const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    QUERY_KEY.SUBMISSION_ITEM,
-    submissionItemId,
-  ]);
+  const { data: submissionItem, isPending: isItemLoading } =
+    useGetSubmissionItem({
+      itemId: Number(submissionItemId),
+    });
 
-  const documentSubmissions =
-    submissionItem?.submissions.filter(
+  const documentSubmissions = useMemo(() => {
+    if (!submissionItem) {
+      return [];
+    }
+    return submissionItem.submissions.filter(
       (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
-    ) || [];
+    );
+  }, [submissionItem]);
+
+  if (isItemLoading) {
+    return <Skeleton variant="rectangular" height={200} />;
+  }
 
   if (!submissionItem) {
     return null;

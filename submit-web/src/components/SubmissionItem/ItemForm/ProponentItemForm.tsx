@@ -2,38 +2,31 @@ import {
   SUBMISSION_ITEM_TYPE,
   SubmissionItem as TypeSubmissionItem,
 } from "@/models/SubmissionItem";
-import { Case, Switch } from "react-if";
 import { ContactInformation } from "../ContactInformation";
 import { ManagementPlanSubmissionProponentView } from "../ManagementPlanSubmission/ManagementPlanProponentView";
 import { ConsultationRecordUpdateForm } from "../ConsultationRecord/ConsultationRecordUpdateForm";
+import { ConsultationRecordProponentView } from "../ConsultationRecord/ConsultationRecordProponentView";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
 };
+
+const createFormMap = {
+  [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: ContactInformation,
+  [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: ManagementPlanSubmissionProponentView,
+  [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: ConsultationRecordProponentView,
+};
+
 export const ProponentItemForm = ({ submissionItem }: ItemFormProps) => {
-  return (
-    <Switch>
-      <Case
-        condition={
-          submissionItem.type.name === SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION
-        }
-      >
-        <ContactInformation />
-      </Case>
-      <Case
-        condition={
-          submissionItem.type.name === SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN
-        }
-      >
-        <ManagementPlanSubmissionProponentView />
-      </Case>
-      <Case
-        condition={
-          submissionItem.type.name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD
-        }
-      >
-        <ConsultationRecordUpdateForm />
-      </Case>
-    </Switch>
-  );
+  const Component = createFormMap[submissionItem.type.name];
+  return Component ? <Component /> : null;
+};
+
+const updateFormMap = {
+  [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: ConsultationRecordUpdateForm,
+};
+
+export const ProponentItemUpdateForm = ({ submissionItem }: ItemFormProps) => {
+  const Component = updateFormMap[submissionItem.type.name];
+  return Component ? <Component /> : null;
 };

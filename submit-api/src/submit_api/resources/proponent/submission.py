@@ -82,8 +82,8 @@ class Submissions(Resource):
         return SubmissionSchema().dump(edited_submission), HTTPStatus.OK
 
 
-@cors_preflight("GET, OPTIONS, PATCH")
-@API.route("/<int:submission_id>/document", methods=["PATCH", "GET", "OPTIONS"])
+@cors_preflight("OPTIONS, POST")
+@API.route("/<int:submission_id>/document", methods=["POST", "OPTIONS"])
 class DocumentSubmission(Resource):
     """Resource for managing a document submission."""
 
@@ -96,12 +96,8 @@ class DocumentSubmission(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
     @auth.require
-    def patch(submission_id):
+    def post(submission_id):
         """Replace a submission document."""
-        edit_submission_data = CreateSubmissionRequestSchema().load(API.payload)
-        edited_submission = SubmissionService.edit_submission_form(submission_id, edit_submission_data)
-        item_id = edit_submission_data.get("item_id")
-        status = edit_submission_data.get("status")
-        if status:
-            SubmissionService.update_submission_item_status(item_id, status)
-        return SubmissionSchema().dump(edited_submission), HTTPStatus.OK
+        new_submission_data = CreateSubmissionRequestSchema().load(API.payload)
+        created_submission = SubmissionService.replace_submission(submission_id, new_submission_data)
+        return SubmissionSchema().dump(created_submission), HTTPStatus.CREATED

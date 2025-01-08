@@ -1,4 +1,5 @@
 """Service for submission management."""
+
 from submit_api.models.db import session_scope
 from submit_api.models.submission import Submission as SubmissionModel
 from submit_api.models.submission import SubmissionTypeStatus
@@ -13,9 +14,6 @@ class SubmissionService:
     @classmethod
     def make_submission_creator(cls, submission_type) -> SubmissionCreatorFactory:
         """Make a new submission creator."""
-        if not submission_type:
-            raise ValueError("Submission type is required.")
-
         submission_creators = {
             SubmissionTypeStatus.FORM.value: FormSubmissionCreator(),
             SubmissionTypeStatus.DOCUMENT.value: DocumentSubmissionCreator()
@@ -34,15 +32,25 @@ class SubmissionService:
     @classmethod
     def create_submission(cls, item_id, request_data):
         """Create a new submission."""
-        submission_type = request_data.get("type")
-        if not submission_type:
-            raise ValueError("Submission type is required.")
         with session_scope() as session:
+            submission_type = request_data.get("type")
             submission_creator = cls.make_submission_creator(submission_type)
+
             submission_data = request_data.get("data")
             submission = submission_creator.create(item_id, submission_data, session)
-            cls.update_submission_item_status(item_id, request_data.get("status"), session)
+
+            status = request_data.get("status")
+            cls.update_submission_item_status(item_id, status, session)
             return submission
+
+    @classmethod
+    def replace_submission(cls, submission_id, request_data):
+        """Create a new submission."""
+        submission_type = request_data.get("type")
+        submission_creator = cls.make_submission_creator(submission_type)
+        submission_data = request_data.get("data")
+        submission = submission_creator.replace(submission_id, submission_data)
+        return submission
 
     @classmethod
     def get_submission_by_id_and_validate_edit(cls, submission_id):

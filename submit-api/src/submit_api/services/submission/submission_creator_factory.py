@@ -99,8 +99,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 original_submission_id=submission.id
             )
             submission.active = False
-            session.commit()
-            session.flush()
+            session.add(submission)
             return new_submission
 
     @classmethod
