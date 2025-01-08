@@ -2,7 +2,7 @@ import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCar
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { YellowBar } from "@/components/Shared/YellowBar";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import {
   createFileRoute,
   Navigate,
@@ -21,9 +21,10 @@ import ItemsTable from "@/components/Submission/ItemsTable";
 import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
+import { useState } from "react";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -34,16 +35,18 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey,
+      .queryKey
   );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
   });
   const submissionPackageId = Number(submissionPackageIdParam);
-  const { data: submissionPackage } = useGetStaffSubmissionPackage({
-    packageId: submissionPackageId,
-    enabled: Boolean(accountProject?.id),
-  });
+  const [packageId, setPackageId] = useState<number>(submissionPackageId);
+  const { data: submissionPackage, isLoading: isPackageUpdating } =
+    useGetStaffSubmissionPackage({
+      packageId: packageId,
+      enabled: Boolean(accountProject?.id),
+    });
 
   const navigate = useNavigate();
 
@@ -106,7 +109,11 @@ export default function SubmissionPage() {
                   mb: BCDesignTokens.layoutMarginXlarge,
                 }}
               >
-                <Typography variant="h5">{submissionPackage?.name}</Typography>
+                <Stack>
+                  <Typography variant="h5">
+                    {submissionPackage?.name}
+                  </Typography>
+                </Stack>
                 <Box flexDirection={"row"} sx={{ display: "flex" }}>
                   <Typography
                     color={BCDesignTokens.themeGray70}
@@ -120,7 +127,11 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <InfoBox submissionPackage={submissionPackage} />
+              <InfoBox
+                isPackageUpdating={isPackageUpdating}
+                setPackageId={setPackageId}
+                submissionPackage={submissionPackage}
+              />
               <Box
                 sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,

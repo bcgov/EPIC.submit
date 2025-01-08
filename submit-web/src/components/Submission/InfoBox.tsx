@@ -1,11 +1,12 @@
 import { SubmissionPackage } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import { ReactNode } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
 import { Case, Switch } from "react-if";
+import VersionGroup from "./VersionGroup";
 
 type InfoBoxItemProps = {
   label?: string;
@@ -26,23 +27,41 @@ const InfoBoxItem = ({ label = "", value = "" }: InfoBoxItemProps) => {
 
 type InfoBoxProps = {
   submissionPackage: SubmissionPackage;
+  isPackageUpdating: boolean;
+  setPackageId: (newPackageId: number) => void;
 };
-export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
+export const InfoBox = ({
+  submissionPackage,
+  isPackageUpdating,
+  setPackageId,
+}: InfoBoxProps) => {
   const { userType } = useAccount();
 
   return (
     <Switch>
       <Case condition={userType === USER_TYPE.STAFF}>
-        <StaffInfoBox submissionPackage={submissionPackage} />
+        <StaffInfoBox
+          setPackageId={setPackageId}
+          isPackageUpdating={isPackageUpdating}
+          submissionPackage={submissionPackage}
+        />
       </Case>
       <Case condition={userType === USER_TYPE.PROPONENT}>
-        <ProponentInfoBox submissionPackage={submissionPackage} />
+        <ProponentInfoBox
+          setPackageId={setPackageId}
+          isPackageUpdating={isPackageUpdating}
+          submissionPackage={submissionPackage}
+        />
       </Case>
     </Switch>
   );
 };
 
-const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
+const ProponentInfoBox = ({
+  submissionPackage,
+  isPackageUpdating,
+  setPackageId,
+}: InfoBoxProps) => {
   const {
     submitted_on,
     date_review_completed,
@@ -60,6 +79,14 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       }}
       rowSpacing={1}
     >
+      <Stack direction={"row"} spacing={1}>
+        <Typography color={BCDesignTokens.themeGray70}>Version: </Typography>
+        <VersionGroup
+          packageId={submissionPackage.id}
+          isPackageUpdating={isPackageUpdating}
+          updatePackageId={setPackageId}
+        />
+      </Stack>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem label={"Condition"} value={condition} />
       </Grid>
@@ -88,7 +115,11 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
   );
 };
 
-const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
+const StaffInfoBox = ({
+  submissionPackage,
+  isPackageUpdating,
+  setPackageId,
+}: InfoBoxProps) => {
   const {
     review_start_date,
     supporting_condition,
@@ -108,6 +139,27 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       }}
       rowSpacing={1}
     >
+      <Grid
+        item
+        xs={12}
+        lg={12}
+        container
+        alignContent={"flex-end"}
+        justifyContent={"flex-end"}
+      >
+        <Stack
+          direction={"row"}
+          spacing={1}
+          pr={BCDesignTokens.layoutPaddingMedium}
+        >
+          <Typography color={BCDesignTokens.themeGray70}>Version: </Typography>
+          <VersionGroup
+            packageId={submissionPackage.id}
+            isPackageUpdating={isPackageUpdating}
+            updatePackageId={setPackageId}
+          />
+        </Stack>
+      </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted on"}

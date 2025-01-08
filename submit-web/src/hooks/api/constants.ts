@@ -13,6 +13,7 @@ export const QUERY_KEY = Object.freeze({
   PROJECTS: "projects",
   SUBMISSIONS: "submissions",
   USERS: "users",
+  PACKAGE_VERSIONS: "package-versions",
 });
 
 export const STAFF_QUERY_KEY = Object.freeze({

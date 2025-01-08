@@ -160,6 +160,15 @@ class StaffPackageSchema(PackageSchema):
         return None
 
 
+class PackageVersionSchema(Schema):
+    """Schema for serializing individual package versions."""
+
+    id = fields.Int(data_key="id")
+    package_id = fields.Int(data_key="package_id")
+    original_package_id = fields.Int(data_key="original_package_id")
+    version = fields.Int(data_key="version")
+
+
 def get_package_status(status, user_type):
     """Get the local (Pacific Timezone) datetime."""
     if not status:
