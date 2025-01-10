@@ -26,10 +26,10 @@ class SubmissionCreatorFactory(Protocol):
 class FormSubmissionCreator(SubmissionCreatorFactory):
     """Form submission creator."""
 
-    def create(self, item_id, request_data, session=None):
+    def create(self, item_id, request_data, _session=None):
         """Create a new form submission."""
-        if session:
-            return self._create(item_id, request_data, session)
+        if _session:
+            return self._create(item_id, request_data, _session)
 
         with session_scope() as session:
             return self._create(item_id, request_data, session)
@@ -73,10 +73,10 @@ class FormSubmissionCreator(SubmissionCreatorFactory):
 class DocumentSubmissionCreator(SubmissionCreatorFactory):
     """Document submission creator."""
 
-    def create(self, item_id, request_data, session=None):
+    def create(self, item_id, request_data, _session=None):
         """Create a new document submission."""
-        if session:
-            return self._create(item_id, request_data, session)
+        if _session:
+            return self._create(item_id, request_data, _session)
 
         with session_scope() as session:
             return self._create(item_id, request_data, session)
