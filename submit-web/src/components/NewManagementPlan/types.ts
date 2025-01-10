@@ -5,13 +5,12 @@ export type NewMPFormDataFieldData<T> = {
   value: T;
 };
 export type NewMPFormData = {
-  main_condition?: Condition;
-  supporting_conditions?: NewMPFormDataFieldData<number[] | Condition[]>;
+  main_condition: Condition;
+  supporting_conditions?: Condition[];
 };
 
 export type NewManagementPlanForm = {
   name: NewMPFormDataFieldData<string>;
-  [otherFields: string]: NewMPFormDataFieldData<
-    number | number[] | string | string[]
-  >;
+  main_condition: Condition;
+  supporting_conditions?: Condition[];
 };

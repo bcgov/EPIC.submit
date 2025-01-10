@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -34,10 +34,11 @@ export const Conditions = () => {
     formData?.main_condition || null
   );
 
-  const [supportingConditions, setSupportingConditions] = useState(
-    Array.from(formData.supporting_conditions?.value || [])
+  const [supportingConditions, setSupportingConditions] = useState<number[]>(
+    Array.from(formData.supporting_conditions || []).map(
+      (condition: Condition) => condition.condition_number ?? 0
+    )
   );
-
   const isConditionSelected = (condition: Condition) =>
     mainCondition?.condition_number === condition?.condition_number ||
     supportingConditions.some((c) => c === condition.condition_number);
@@ -52,10 +53,9 @@ export const Conditions = () => {
     setFormData({
       ...formData,
       main_condition: mainCondition,
-      supporting_conditions: {
-        label: "Supporting Conditions",
-        value: supportingConditions,
-      },
+      supporting_conditions: conditions?.filter((c) =>
+        supportingConditions.includes(c.condition_number!)
+      ),
     });
 
     setStep(Math.min(step + 1, NUM_STEPS - 1));
@@ -65,12 +65,15 @@ export const Conditions = () => {
     reset();
   };
 
+  useEffect(() => {
+    setErrorText(null);
+  }, [mainCondition, supportingConditions]);
+
   const handleAnotherSupportingCondition = (
     currentInput: number,
     conditionName: string
   ) => {
     if (supportingConditions.length >= MAX_SUPPORTING_CONDITIONS) return;
-
     const newCondition = conditions?.find(
       (c) => c.condition_name === conditionName
     );
@@ -85,6 +88,10 @@ export const Conditions = () => {
   };
 
   const handleNewCondition = () => {
+    if (supportingConditions.includes(0)) {
+      setErrorText("Please select a condition for each input");
+      return;
+    }
     setSupportingConditions([...supportingConditions, 0]);
   };
 
@@ -124,37 +131,41 @@ export const Conditions = () => {
             Please note: you can only submit one Management Plan per submission
           </Typography>
         </Grid>
-        <TextField
-          select
-          fullWidth
-          sx={{ marginBottom: "10px" }}
-          onChange={(e) => {
-            setMainCondition(
-              conditions?.find((c) => c.condition_name === e.target.value) ||
-                null
-            );
-            if (errorText) {
-              setErrorText(null);
-            }
-          }}
-          value={mainCondition?.condition_name || ""}
-        >
-          {conditions?.map((condition) => (
-            <MenuItem
-              key={condition.condition_name || ""}
-              value={condition.condition_name || ""}
-              disabled={isConditionSelected(condition)}
-            >
-              {condition.condition_name}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Typography
-          variant="body1"
-          sx={{ marginTop: BCDesignTokens.layoutMarginMedium }}
-        >
-          What are the supporting conditions for this management plan?
-        </Typography>
+        <Grid item xs md={6} lg={4}>
+          <TextField
+            select
+            fullWidth
+            sx={{ marginBottom: "10px" }}
+            onChange={(e) => {
+              setMainCondition(
+                conditions?.find((c) => c.condition_name === e.target.value) ||
+                  null
+              );
+              if (errorText) {
+                setErrorText(null);
+              }
+            }}
+            value={mainCondition?.condition_name || ""}
+          >
+            {conditions?.map((condition) => (
+              <MenuItem
+                key={condition.condition_name || ""}
+                value={condition.condition_name || ""}
+                disabled={isConditionSelected(condition)}
+              >
+                {condition.condition_name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography
+            variant="body1"
+            sx={{ marginTop: BCDesignTokens.layoutMarginMedium }}
+          >
+            What are the supporting conditions for this management plan?
+          </Typography>
+        </Grid>
         {supportingConditions.map((input) => (
           <Grid key={`input-${input}`} item xs={12} container spacing={1}>
             <Grid item xs md={6} lg={4} key={input}>
