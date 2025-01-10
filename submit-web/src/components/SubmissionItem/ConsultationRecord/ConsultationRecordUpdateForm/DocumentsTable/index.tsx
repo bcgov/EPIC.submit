@@ -14,14 +14,17 @@ import {
 } from "@/components/Shared/Table/common";
 import { useParams } from "@tanstack/react-router";
 import Row from "./Row";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { useGetSubmissionItem } from "@/hooks/api/useItems";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { AddDocumentActionButton } from "./AddDocumentActionButton";
 
 export default function DocumentsTable() {
   const { submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
+
+  const [addedSubmissions, setAddedSubmissions] = useState<Submission[]>([]);
 
   const { data: submissionItem, isPending: isItemLoading } =
     useGetSubmissionItem({
@@ -30,16 +33,21 @@ export default function DocumentsTable() {
 
   const documentSubmissions = useMemo(() => {
     if (!submissionItem) {
-      return [];
+      return addedSubmissions;
     }
-    return submissionItem.submissions.filter(
+    const submissions = submissionItem.submissions.filter(
       (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
     );
-  }, [submissionItem]);
+    return [...submissions, ...addedSubmissions];
+  }, [submissionItem, addedSubmissions]);
 
   if (isItemLoading) {
     return <Skeleton variant="rectangular" height={200} />;
   }
+
+  const handleAddSubmission = (submission: Submission) => {
+    setAddedSubmissions((prev) => [...prev, submission]);
+  };
 
   if (!submissionItem) {
     return null;
@@ -64,7 +72,12 @@ export default function DocumentsTable() {
                 {submissionItem.type.name}
               </Typography>
             </SubmitPrimaryRowTableCell>
-            <SubmitPrimaryRowTableCell colSpan={3}></SubmitPrimaryRowTableCell>
+            <SubmitPrimaryRowTableCell colSpan={2} />
+            <SubmitPrimaryRowTableCell align="right">
+              <AddDocumentActionButton
+                handleAddDocument={handleAddSubmission}
+              />
+            </SubmitPrimaryRowTableCell>
           </SubmitTablePrimaryRow>
           {documentSubmissions.map((documentSubmission) => (
             <Row
