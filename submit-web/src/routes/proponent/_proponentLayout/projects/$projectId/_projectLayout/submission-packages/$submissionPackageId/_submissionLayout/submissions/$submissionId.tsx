@@ -1,11 +1,20 @@
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { ItemForm } from "@/components/SubmissionItem/ItemForm";
+import {
+  ProponentItemForm,
+  ProponentItemUpdateForm,
+} from "@/components/SubmissionItem/ItemForm/ProponentItemForm";
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
+import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
+const LoadingSkeleton = () => (
+  <PageGrid>
+    <ContentBoxSkeleton />
+  </PageGrid>
+);
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
 )({
@@ -15,29 +24,57 @@ export const Route = createFileRoute(
       getSubmissionItemQueryOptions({ itemId: Number(submissionId) }),
     ),
   errorComponent: () => <Navigate to="/error" />,
-  pendingComponent: () => (
-    <PageGrid>
-      <ContentBoxSkeleton />
-    </PageGrid>
-  ),
+  pendingComponent: LoadingSkeleton,
   meta: ({ loaderData: submissionItem }) => [
     { title: submissionItem.type.name },
   ],
 });
 
 export function Submission() {
-  const { submissionId: subItemId } = Route.useParams();
-  const { data: submissionItem } = useSuspenseQuery(
+  const {
+    submissionId: subItemId,
+    submissionPackageId,
+    projectId,
+  } = Route.useParams();
+  const { data: submissionItem, isLoading: isItemLoading } = useSuspenseQuery(
     getSubmissionItemQueryOptions({ itemId: Number(subItemId) }),
   );
+
+  const { data: submissionPackage, isLoading: isPackageLoading } =
+    useSuspenseQuery(
+      getSubmissionPackageQueryOptions({
+        packageId: Number(submissionPackageId),
+      }),
+    );
+
+  const hasPackageUpdateRequest =
+    submissionPackage?.update_requests?.length > 0;
+  const isPackageSubmitted = submissionPackage?.submitted_on;
+
+  if (isItemLoading || isPackageLoading) {
+    return <LoadingSkeleton />;
+  }
+
+  if (isPackageSubmitted && !hasPackageUpdateRequest) {
+    return (
+      <Navigate
+        to={`/proponent/projects/${projectId}/submission-packages/${submissionPackageId}`}
+      />
+    );
+  }
 
   if (!submissionItem) {
     notify.error("Failed to load submission item");
     return <Navigate to="/error" />;
   }
+
   return (
     <PageGrid>
-      <ItemForm submissionItem={submissionItem} />
+      {isPackageSubmitted ? (
+        <ProponentItemUpdateForm submissionItem={submissionItem} />
+      ) : (
+        <ProponentItemForm submissionItem={submissionItem} />
+      )}
     </PageGrid>
   );
 }

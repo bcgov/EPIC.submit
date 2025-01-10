@@ -7,8 +7,7 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import DocumentRow from "../DocumentRow";
 import { When } from "react-if";
-import { SubmissionItemTableCell, SubmissionItemTableRowProps } from ".";
-import { PackageTableRow } from ".";
+import { SubmissionItemTableRowProps } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { useModal } from "@/components/Shared/Modals/modalStore";
@@ -18,6 +17,10 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { useEffect } from "react";
+import {
+  SubmitPrimaryRowTableCell,
+  SubmitTablePrimaryRow,
+} from "@/components/Shared/Table/common";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -94,18 +97,18 @@ export default function StaffSubmissionItemTableRow({
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}
         cancelText="Start Later"
-      />
+      />,
     );
   };
 
   return (
     <>
-      <PackageTableRow
+      <SubmitTablePrimaryRow
         key={`row-${item.name}`}
         error={error}
         onClick={onActionClick}
       >
-        <SubmissionItemTableCell>
+        <SubmitPrimaryRowTableCell>
           <MuiLink
             color="inherit"
             sx={{
@@ -123,18 +126,18 @@ export default function StaffSubmissionItemTableRow({
               {name}
             </Typography>
           </MuiLink>
-        </SubmissionItemTableCell>
-        <SubmissionItemTableCell align="right" colSpan={2} />
-        <SubmissionItemTableCell align="right">
+        </SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell align="right" colSpan={2} />
+        <SubmitPrimaryRowTableCell align="right">
           <SubmissionStatusChipStack
             status={status}
             reviewStatus={reviewStatus}
             isUpdateRequested={isUpdateRequest}
             isRevisionRequired={isRevisionRequired}
           />
-        </SubmissionItemTableCell>
+        </SubmitPrimaryRowTableCell>
 
-        <SubmissionItemTableCell align="center">
+        <SubmitPrimaryRowTableCell align="center">
           <Typography
             variant="body2"
             sx={{
@@ -148,8 +151,8 @@ export default function StaffSubmissionItemTableRow({
           >
             {actionLabel}
           </Typography>
-        </SubmissionItemTableCell>
-      </PackageTableRow>
+        </SubmitPrimaryRowTableCell>
+      </SubmitTablePrimaryRow>
       {submissions.map((submission) => (
         <DocumentRow
           submissionItem={item}

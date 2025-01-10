@@ -1,6 +1,6 @@
 import { TableHead, TableRow } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { StyledTableHeadCell } from "@/components/Shared/Table/common";
+import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 
 export default function StaffTableHead() {
   return (
@@ -13,31 +13,31 @@ export default function StaffTableHead() {
       }}
     >
       <TableRow>
-        <StyledTableHeadCell
+        <SubmitTableHeadCell
           sx={{
             minWidth: "250px",
             flexGrow: 1,
           }}
         >
           Submission Name
-        </StyledTableHeadCell>
-        <StyledTableHeadCell
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
           align="right"
           sx={{
             maxWidth: "75px",
           }}
         >
           Type
-        </StyledTableHeadCell>
-        <StyledTableHeadCell
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
           align="right"
           sx={{
             maxWidth: "75px",
           }}
         >
           Submitted On
-        </StyledTableHeadCell>
-        <StyledTableHeadCell
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
           align="right"
           sx={{
             maxWidth: "80px",
@@ -47,24 +47,24 @@ export default function StaffTableHead() {
           }}
         >
           Days since submission
-        </StyledTableHeadCell>
-        <StyledTableHeadCell
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
           align="right"
           sx={{
             maxWidth: "75px",
           }}
         >
           CC Completed On
-        </StyledTableHeadCell>
-        <StyledTableHeadCell
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
           align="right"
           sx={{
             maxWidth: "75px",
           }}
         >
           MP Review
-        </StyledTableHeadCell>
-        <StyledTableHeadCell align="center">Status</StyledTableHeadCell>
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
       </TableRow>
     </TableHead>
   );

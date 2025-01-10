@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { StyledTableHeadCell } from "../Shared/Table/common";
+import { SubmitTableHeadCell } from "../Shared/Table/common";
 import { Submission } from "@/models/Submission";
 import DocumentTableRow, {
   StyledHeadTableCell,
@@ -40,7 +40,7 @@ export default function DocumentTable({
           }}
         >
           <TableRow>
-            <StyledTableHeadCell colSpan={2}>
+            <SubmitTableHeadCell colSpan={2}>
               <Typography
                 variant="body2"
                 sx={{
@@ -52,10 +52,10 @@ export default function DocumentTable({
               >
                 Form/Document
               </Typography>
-            </StyledTableHeadCell>
-            <StyledTableHeadCell align="right">Uploaded by</StyledTableHeadCell>
-            <StyledTableHeadCell align="right">Version</StyledTableHeadCell>
-            <StyledTableHeadCell align="center">Actions</StyledTableHeadCell>
+            </SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>

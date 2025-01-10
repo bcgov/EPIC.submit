@@ -1,6 +1,6 @@
 import { TableHead, TableRow } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { StyledTableHeadCell } from "@/components/Shared/Table/common";
+import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 
 export default function ProponentTableHead() {
   return (
@@ -13,10 +13,10 @@ export default function ProponentTableHead() {
       }}
     >
       <TableRow>
-        <StyledTableHeadCell>Submission Name</StyledTableHeadCell>
-        <StyledTableHeadCell align="right">Date Submitted</StyledTableHeadCell>
-        <StyledTableHeadCell align="right">Submitted By</StyledTableHeadCell>
-        <StyledTableHeadCell align="center">Status</StyledTableHeadCell>
+        <SubmitTableHeadCell>Submission Name</SubmitTableHeadCell>
+        <SubmitTableHeadCell align="right">Date Submitted</SubmitTableHeadCell>
+        <SubmitTableHeadCell align="right">Submitted By</SubmitTableHeadCell>
+        <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
       </TableRow>
     </TableHead>
   );

@@ -10,7 +10,7 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import SubmissionItemTableRow from "./SubmissionItemTableRow";
 import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
-import { StyledTableHeadCell } from "../Shared/Table/common";
+import { SubmitTableHeadCell } from "../Shared/Table/common";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { usePackageTableStore } from "./packageTableStore";
 import { useAccount } from "@/store/accountStore";
@@ -90,7 +90,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
           }}
         >
           <TableRow>
-            <StyledTableHeadCell>
+            <SubmitTableHeadCell>
               <Typography
                 variant="body2"
                 sx={{
@@ -102,11 +102,11 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
               >
                 Form/Document
               </Typography>
-            </StyledTableHeadCell>
-            <StyledTableHeadCell align="right">Uploaded by</StyledTableHeadCell>
-            <StyledTableHeadCell align="right">Version</StyledTableHeadCell>
-            <StyledTableHeadCell align="center">Status</StyledTableHeadCell>
-            <StyledTableHeadCell align="center">Actions</StyledTableHeadCell>
+            </SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>

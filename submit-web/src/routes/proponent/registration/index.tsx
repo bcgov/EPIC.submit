@@ -29,9 +29,9 @@ function Registration() {
     return <PageLoader />;
   }
 
-  if (!proponent_id) {
-    return <Navigate to={"/error"} />;
-  }
+  // if (!proponent_id) {
+  //   return <Navigate to={"/error"} />;
+  // }
 
   return (
     <Navigate

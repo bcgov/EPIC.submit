@@ -1,6 +1,6 @@
 import {
   NON_CANONICAL_SUBMISSION_STATUS,
-  SubmissionStatus,
+  SubmissionItemStatus,
 } from "@/models/Submission";
 import { Box, Chip, Stack } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
@@ -136,7 +136,7 @@ export function SubmissionStatusChip({ status }: { status: string }) {
 }
 
 type SubmissionStatusChipStackProps = {
-  status: SubmissionStatus;
+  status: SubmissionItemStatus;
   reviewStatus?: string;
   isUpdateRequested?: boolean;
   isRevisionRequired?: boolean;
