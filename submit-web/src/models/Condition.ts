@@ -6,11 +6,14 @@ export type Condition = {
 };
 
 export type ConditionAttribute = {
-  parties_required_to_be_consulted: string;
   deliverable_name: string;
-  fn_consultation_required: string;
+  milestone_related_to_plan_submission: string;
+  parties_required_to_be_consulted: string;
+  requires_consultation: string;
+  requires_management_plan: string;
+  submitted_to_eao_for: string;
+  time_associated_with_submission_milestone: string;
 };
-
 export type ConditionsLibraryResponse = {
   conditions: Condition[];
 };

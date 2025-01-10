@@ -93,7 +93,8 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
         </Grid>
         <When
           condition={
-            mainCondition?.condition_attributes?.fn_consultation_required
+            mainCondition?.condition_attributes?.requires_consultation ===
+            "true"
           }
         >
           <Grid item xs={12}>
