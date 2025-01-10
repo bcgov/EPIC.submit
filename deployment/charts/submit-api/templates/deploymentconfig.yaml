@@ -176,6 +176,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Chart.Name }}
                   key: CONNECT_TIMEOUT
+            - name: CORS_ORIGIN
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Chart.Name }}
+                  key: CORS_ORIGIN
           ports:
             - containerPort: 8080
               protocol: TCP

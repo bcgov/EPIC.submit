@@ -32,8 +32,8 @@ class PackageVersion(db.Model):
 
     @classmethod
     def get_all_by_original_package_id(cls, original_package_id: int):
-        """Return all package versions by original package id."""
-        return cls.query.filter_by(original_package_id=original_package_id).all()
+        """Return all package versions by original package id, sorted by version in decreasing order."""
+        return cls.query.filter_by(original_package_id=original_package_id).order_by(cls.version.desc()).all()
 
     @classmethod
     def get_latest_versions(cls):

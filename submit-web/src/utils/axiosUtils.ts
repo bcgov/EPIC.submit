@@ -8,6 +8,9 @@ export type OnSuccessType = (data: any) => void;
 
 const submitClient = axios.create({ baseURL: AppConfig.apiUrl });
 const documentClient = axios.create({ baseURL: AppConfig.documentUrl });
+const conditionLibraryClient = axios.create({
+  baseURL: AppConfig.conditionsLibraryUrl,
+});
 
 function getUser() {
   const oidcStorage = sessionStorage.getItem(
@@ -38,6 +41,13 @@ export const submitRequest = async <T = any>({ ...options }) => {
   setAuthToken(submitClient);
 
   const response = await submitClient.request<T>(options);
+  return response.data;
+};
+
+export const conditionLibraryRequest = async <T = any>({ ...options }) => {
+  setAuthToken(conditionLibraryClient);
+
+  const response = await conditionLibraryClient.request<T>(options);
   return response.data;
 };
 

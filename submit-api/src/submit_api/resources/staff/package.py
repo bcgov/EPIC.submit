@@ -20,7 +20,7 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateRequestSchema, StaffPackageSchema, \
-    CreateUpdateRequestNoteSchema
+    CreateUpdateRequestNoteSchema, PackageVersionSchema
 from submit_api.services.package import PackageService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
@@ -67,6 +67,28 @@ class Package(Resource):
         """Get a package."""
         package = PackageService.get_package_by_id(package_id)
         return StaffPackageSchema().dump(package), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route(
+    "/<int:package_id>/versions",
+    methods=["GET", "OPTIONS"],
+)
+class PackageVersions(Resource):
+    """Resource for managing a packages versions."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get package versions")
+    @API.response(
+        code=HTTPStatus.OK, model=package_model, description="Get package versions"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
+    @cors.crossdomain(origin="*")
+    def get(package_id):
+        """Get a package."""
+        package_versions = PackageService.get_all_package_versions(package_id)
+        return PackageVersionSchema(many=True).dump(package_versions), HTTPStatus.OK
 
 
 @cors_preflight("POST, OPTIONS")

@@ -6,7 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { Options } from "./types";
-import { SubmissionPackage } from "@/models/Package";
+import { PackageVersion, SubmissionPackage } from "@/models/Package";
 import {
   defaultUseQueryOptions,
   QUERY_KEY,
@@ -72,6 +72,14 @@ const getStaffSubmissionPackageById = ({
   });
 };
 
+const getPackageVersionsByPackageId = ({
+  packageId,
+}: GetSubmissionPackageByIdParams) => {
+  return submitRequest<PackageVersion[]>({
+    url: `staff/packages/${packageId}/versions`,
+  });
+};
+
 type UseGetSubmissionPackageByIdParams = {
   packageId: number;
   enabled?: boolean;
@@ -99,6 +107,17 @@ export const getStaffSubmissionPackageQueryOptions = ({
     ...defaultUseQueryOptions,
   });
 
+export const getPackageVersionsByPackageIdQueryOptions = ({
+  packageId,
+  enabled = true,
+}: UseGetSubmissionPackageByIdParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.PACKAGE_VERSIONS, packageId],
+    queryFn: () => getPackageVersionsByPackageId({ packageId }),
+    enabled: enabled && Boolean(packageId),
+    ...defaultUseQueryOptions,
+  });
+
 export const useGetSubmissionPackage = ({
   packageId,
   enabled = true,
@@ -112,6 +131,17 @@ export const useGetStaffSubmissionPackage = ({
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) => {
   const options = getStaffSubmissionPackageQueryOptions({ packageId, enabled });
+  return useQuery(options);
+};
+
+export const useGetPackageVersionsByPackageId = ({
+  packageId,
+  enabled = true,
+}: UseGetSubmissionPackageByIdParams) => {
+  const options = getPackageVersionsByPackageIdQueryOptions({
+    packageId,
+    enabled,
+  });
   return useQuery(options);
 };
 
