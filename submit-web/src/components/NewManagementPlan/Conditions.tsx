@@ -9,39 +9,55 @@ import {
   TextField,
   Typography,
   IconButton,
+  Skeleton,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useManagementPlanForm } from "./formStore";
-import { dummyConditions, MANAGEMENT_PLAN_FORM_STEPS } from "./constants";
+import { MANAGEMENT_PLAN_FORM_STEPS } from "./constants";
 import CloseIcon from "@mui/icons-material/Close";
 import { Unless } from "react-if";
+import { useGetConditions } from "@/hooks/useConditions";
+import { Condition } from "@/models/Condition";
 
-const MAX_CONDITIONS = 5;
+const MAX_SUPPORTING_CONDITIONS = 4;
 const NUM_STEPS = Object.keys(MANAGEMENT_PLAN_FORM_STEPS).length;
 export const Conditions = () => {
-  const { step, setStep, reset, setFormData, formData } =
+  const { data: conditions, isLoading } = useGetConditions({
+    projectId: "588511d0aaecd9001b826192",
+    includeAttributes: true,
+  });
+
+  const { step, setStep, reset, formData, setFormData } =
     useManagementPlanForm();
 
-  const [conditionInputs, setConditionInputs] = useState(
-    Array.from(formData.conditions?.value || [0], (_, i) => i),
+  const [mainCondition, setMainCondition] = useState<Condition | null>(
+    formData?.main_condition || null
   );
-  const [conditions, setConditions] = useState<
-    { key: number; value: number }[]
-  >(formData.conditions?.value.map((c, i) => ({ key: i, value: c })) || []);
+
+  const [supportingConditions, setSupportingConditions] = useState(
+    Array.from(formData.supporting_conditions?.value || [])
+  );
+
+  const isConditionSelected = (condition: Condition) =>
+    mainCondition?.condition_number === condition?.condition_number ||
+    supportingConditions.some((c) => c === condition.condition_number);
+
   const [errorText, setErrorText] = useState<string | null>(null);
 
   const handleNext = () => {
-    if (conditions.length !== conditionInputs.length) {
+    if (mainCondition == null || supportingConditions.includes(0)) {
       setErrorText("Please select a condition for each input");
       return;
     }
-    const data = {
-      conditions: {
-        label: "Condition(s)",
-        value: conditions.map((c) => c.value),
+    setFormData({
+      ...formData,
+      main_condition: mainCondition,
+      supporting_conditions: {
+        label: "Supporting Conditions",
+        value: supportingConditions,
       },
-    };
-    setFormData({ ...formData, ...data });
+    });
+
     setStep(Math.min(step + 1, NUM_STEPS - 1));
   };
 
@@ -49,8 +65,27 @@ export const Conditions = () => {
     reset();
   };
 
-  const handleAnotherCondition = () => {
-    setConditionInputs([...conditionInputs, Math.max(...conditionInputs) + 1]);
+  const handleAnotherSupportingCondition = (
+    currentInput: number,
+    conditionName: string
+  ) => {
+    if (supportingConditions.length >= MAX_SUPPORTING_CONDITIONS) return;
+
+    const newCondition = conditions?.find(
+      (c) => c.condition_name === conditionName
+    );
+
+    if (newCondition?.condition_number != null) {
+      setSupportingConditions((prev) =>
+        prev.map((c) =>
+          c === currentInput ? newCondition.condition_number! : c
+        )
+      );
+    }
+  };
+
+  const handleNewCondition = () => {
+    setSupportingConditions([...supportingConditions, 0]);
   };
 
   return (
@@ -89,59 +124,95 @@ export const Conditions = () => {
             Please note: you can only submit one Management Plan per submission
           </Typography>
         </Grid>
-        {conditionInputs.map((input) => (
+        <TextField
+          select
+          fullWidth
+          sx={{ marginBottom: "10px" }}
+          onChange={(e) => {
+            setMainCondition(
+              conditions?.find((c) => c.condition_name === e.target.value) ||
+                null
+            );
+            if (errorText) {
+              setErrorText(null);
+            }
+          }}
+          value={mainCondition?.condition_name || ""}
+        >
+          {conditions?.map((condition) => (
+            <MenuItem
+              key={condition.condition_name || ""}
+              value={condition.condition_name || ""}
+              disabled={isConditionSelected(condition)}
+            >
+              {condition.condition_name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <Typography
+          variant="body1"
+          sx={{ marginTop: BCDesignTokens.layoutMarginMedium }}
+        >
+          What are the supporting conditions for this management plan?
+        </Typography>
+        {supportingConditions.map((input) => (
           <Grid key={`input-${input}`} item xs={12} container spacing={1}>
             <Grid item xs md={6} lg={4} key={input}>
-              <TextField
-                select
-                fullWidth
-                sx={{ marginBottom: "10px" }}
-                onChange={(e) => {
-                  const prev = conditions.filter((c) => c.key !== input);
-                  setConditions([
-                    ...prev,
-                    { key: input, value: parseInt(e.target.value) },
-                  ]);
-                  if (errorText) {
-                    setErrorText(null);
-                  }
-                }}
-                value={conditions.find((c) => c.key === input)?.value || ""}
-              >
-                {dummyConditions.map((condition) => (
-                  <MenuItem
-                    key={condition.id}
-                    value={condition.id}
-                    disabled={conditions.some((c) => c.value === condition.id)}
-                  >
-                    {condition.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-            {input > 0 && (
-              <Grid item>
-                <IconButton
-                  onClick={() => {
-                    setConditionInputs(
-                      conditionInputs.filter((c) => c !== input),
-                    );
-                    setConditions(conditions.filter((c) => c.key !== input));
+              {isLoading && !conditions ? (
+                <Box width={300}>
+                  <Skeleton animation="wave" />
+                </Box>
+              ) : (
+                <TextField
+                  select
+                  fullWidth
+                  sx={{ marginBottom: "10px" }}
+                  onChange={(e) => {
+                    handleAnotherSupportingCondition(input, e.target.value);
+                    if (errorText) {
+                      setErrorText(null);
+                    }
                   }}
+                  value={
+                    conditions?.find((c) => c.condition_number === input)
+                      ?.condition_name || ""
+                  }
                 >
-                  <CloseIcon />
-                </IconButton>
-              </Grid>
-            )}
+                  {conditions?.map((condition) => (
+                    <MenuItem
+                      key={condition.condition_name || ""}
+                      value={condition.condition_name || ""}
+                      disabled={isConditionSelected(condition)}
+                    >
+                      {condition.condition_name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            </Grid>
+
+            <Grid item>
+              <IconButton
+                onClick={() => {
+                  setSupportingConditions(
+                    supportingConditions.filter((c) => c !== input)
+                  );
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Grid>
           </Grid>
         ))}
-        <Unless condition={conditionInputs.length >= MAX_CONDITIONS}>
+        <Unless
+          condition={supportingConditions.length >= MAX_SUPPORTING_CONDITIONS}
+        >
           <Grid item xs={12}>
             <MuiLink
               sx={{
                 cursor: "pointer",
               }}
-              onClick={handleAnotherCondition}
+              onClick={handleNewCondition}
             >
               + Add another condition
             </MuiLink>

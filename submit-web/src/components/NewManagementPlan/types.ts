@@ -1,17 +1,12 @@
+import { Condition } from "@/models/Condition";
+
 export type NewMPFormDataFieldData<T> = {
   label: string;
   value: T;
 };
 export type NewMPFormData = {
-  conditions?: NewMPFormDataFieldData<number[]>;
-};
-
-export type Condition = {
-  id: number;
-  name: string;
-  deliverable_name?: string;
-  stakeholders_to_consult?: string[];
-  fn_consultation_required?: boolean;
+  main_condition?: Condition;
+  supporting_conditions?: NewMPFormDataFieldData<number[] | Condition[]>;
 };
 
 export type NewManagementPlanForm = {
