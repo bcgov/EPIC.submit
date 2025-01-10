@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Link as MuiLink,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { useState } from "react";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";

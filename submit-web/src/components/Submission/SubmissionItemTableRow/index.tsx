@@ -1,6 +1,3 @@
-import React from "react";
-import { styled, TableCell, TableRow, TableRowProps } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
 import { SubmissionItemTableRow as SubmissionItemTableRowType } from "../types";
 import { Case, Switch } from "react-if";
 import { USER_TYPE } from "@/models/User";
