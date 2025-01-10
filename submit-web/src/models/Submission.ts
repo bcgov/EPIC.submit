@@ -12,7 +12,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   REVISION_REQUIRED: "REVISION_REQUIRED",
 });
 
-export type SubmissionStatus =
+export type SubmissionItemStatus =
   | "NEW_SUBMISSION"
   | "COMPLETED"
   | "PARTIALLY_COMPLETED"
@@ -21,8 +21,8 @@ export type SubmissionStatus =
   | "PASSED_CONSULTATION_CHECK";
 
 export const SUBMISSION_STATUS: Record<
-  SubmissionStatus,
-  { value: SubmissionStatus; label: string }
+  SubmissionItemStatus,
+  { value: SubmissionItemStatus; label: string }
 > = {
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
@@ -71,6 +71,12 @@ export type DocumentSubmission = {
   url: string;
   folder: string;
 };
+
+export type SubmissionStatus =
+  | "SUBMITTED"
+  | "REJECTED"
+  | "APPROVED"
+  | "PENDING";
 
 export type Submission = {
   id: number;

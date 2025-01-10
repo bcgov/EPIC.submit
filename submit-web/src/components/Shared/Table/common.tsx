@@ -16,6 +16,7 @@ export const SubmitTableHeadCell = styled(TableCell)(() => ({
     color: BCDesignTokens.surfaceColorMenusHover,
   },
   border: "none",
+  padding: BCDesignTokens.layoutPaddingXsmall,
 }));
 
 export const SubmitTableCell = styled(TableCell)(() => ({
@@ -34,11 +35,7 @@ export const SubmitTableCell = styled(TableCell)(() => ({
   },
 }));
 
-export const SubmitTableHead = styled(TableHead)(() => ({
-  ".MuiTableCell-root": {
-    p: BCDesignTokens.layoutPaddingXsmall,
-  },
-}));
+export const SubmitTableHead = styled(TableHead)(() => ({}));
 
 export const SubmitTableContainer = styled(TableContainer)(() => ({
   height: "100%",

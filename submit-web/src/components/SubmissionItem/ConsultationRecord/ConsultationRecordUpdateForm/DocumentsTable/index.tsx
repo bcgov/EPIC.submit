@@ -60,7 +60,9 @@ export default function DocumentsTable() {
         <TableBody>
           <SubmitTablePrimaryRow>
             <SubmitPrimaryRowTableCell>
-              <Typography>Management Plan</Typography>
+              <Typography fontWeight={"bold"}>
+                {submissionItem.type.name}
+              </Typography>
             </SubmitPrimaryRowTableCell>
             <SubmitPrimaryRowTableCell colSpan={3}></SubmitPrimaryRowTableCell>
           </SubmitTablePrimaryRow>

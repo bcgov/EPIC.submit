@@ -75,10 +75,6 @@ class Submissions(Resource):
         """Edit a submission."""
         edit_submission_data = CreateSubmissionRequestSchema().load(API.payload)
         edited_submission = SubmissionService.edit_submission_form(submission_id, edit_submission_data)
-        item_id = edit_submission_data.get("item_id")
-        status = edit_submission_data.get("status")
-        if status:
-            SubmissionService.update_submission_item_status(item_id, status)
         return SubmissionSchema().dump(edited_submission), HTTPStatus.OK
 
 

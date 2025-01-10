@@ -8,12 +8,12 @@ import { ProjectStatus } from "@/components/registration/addProjects/ProjectStat
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 
-type ConsultationRecordFormContainerProps = {
+type SubmissionFormContainerProps = {
   children: React.ReactNode;
 };
-export const ConsultationRecordFormContainer = ({
+export const SubmissionFormContainer = ({
   children,
-}: ConsultationRecordFormContainerProps) => {
+}: SubmissionFormContainerProps) => {
   const { projectId: accountProjectIdParam } = useParams({
     strict: false,
   });
@@ -61,7 +61,11 @@ export const ConsultationRecordFormContainer = ({
             <BarTitle
               title={accountProject.project.name + " Management Plan"}
             />
-            <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
+            <Grid
+              container
+              spacing={BCDesignTokens.layoutMarginMedium}
+              padding="16px"
+            >
               {children}
             </Grid>
           </Box>

@@ -1,22 +1,22 @@
 import {
+  Box,
   Button,
   CircularProgress,
   Link as MuiLink,
   TableRow,
   Typography,
 } from "@mui/material";
-import { Submission } from "@/models/Submission";
+import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { useState } from "react";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { useReplaceSubmussion } from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
-import { saveObject } from "@/hooks/api/useObjectStorage";
+import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { useQueryClient } from "@tanstack/react-query";
-import { VisuallyHiddenInput } from "@/components/Shared/VisuallyHiddenInput";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import { FileUploadButton } from "@/components/Shared/FileUploadButton";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -67,9 +67,7 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
   };
 
   const replaceDocument = async (files: FileList | null) => {
-    console.log("called replaceDocument");
     if (!files || files.length === 0) {
-      console.log("no files");
       return;
     }
     const fileToUpload = files[0];
@@ -82,11 +80,16 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
         },
       });
 
+      const documentData = {
+        name: fileToUpload.name,
+        url: uploadedFile.filepath,
+        folder: S3_FOLDER.CONSULTATION_RECORDS,
+      };
       await replaceSubmission({
         submissionId: currentSubmission.id,
         data: {
-          name: fileToUpload.name,
-          url: uploadedFile.filepath,
+          type: SUBMISSION_TYPE.DOCUMENT,
+          data: documentData,
         },
       });
 
@@ -113,29 +116,25 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
             mx: 0.5,
           }}
         >
-          <MuiLink onClick={openDocument}>{name}</MuiLink>
+          <MuiLink
+            onClick={openDocument}
+            sx={{
+              textDecoration: "none",
+            }}
+          >
+            {name}
+          </MuiLink>
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
       <SubmitTableCell align="right">{version}</SubmitTableCell>
       <SubmitTableCell align="right">
-        {isReplacingDocument ? (
-          <CircularProgress size={20} />
-        ) : (
-          <Button
-            component="label"
-            role={undefined}
-            variant="text"
-            tabIndex={-1}
-          >
-            Replace
-            <VisuallyHiddenInput
-              type="file"
-              onChange={(event) => replaceDocument(event.target.files)}
-              multiple
-            />
-          </Button>
-        )}
+        <FileUploadButton
+          onChange={replaceDocument}
+          loading={isReplacingDocument}
+        >
+          Replace
+        </FileUploadButton>
       </SubmitTableCell>
     </TableRow>
   );

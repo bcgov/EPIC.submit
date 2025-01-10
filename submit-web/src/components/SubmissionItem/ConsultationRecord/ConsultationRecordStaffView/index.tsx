@@ -6,7 +6,7 @@ import InternalDocumentSection from "./InternalDocumentSection";
 import FormFieldSection from "./FormFieldSection";
 import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
 import ReviewSection from "./ReviewSection";
-import { ConsultationRecordFormContainer } from "../ConsultationRecordFormContainer";
+import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 
 export const ConsultationRecordStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
@@ -49,10 +49,10 @@ export const ConsultationRecordStaffView = () => {
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
-    <ConsultationRecordFormContainer>
+    <SubmissionFormContainer>
       <FormFieldSection formData={formData} />
       <InternalDocumentSection />
       <ReviewSection />
-    </ConsultationRecordFormContainer>
+    </SubmissionFormContainer>
   );
 };

@@ -12,12 +12,21 @@ from .base_model import BaseModel
 from .db import db
 
 
-class SubmissionTypeStatus(enum.Enum):
+class SubmissionType(enum.Enum):
     """Enum for submission type."""
 
     FORM = 'FORM'
     DOCUMENT = 'DOCUMENT'
     BUSINESS_DATA = 'BUSINESS_DATA'
+
+
+class SubmissionStatus(enum.Enum):
+    """Enum for submission status."""
+
+    SUBMITTED = 'SUBMITTED'
+    REJECTED = 'REJECTED'
+    APPROVED = 'APPROVED'
+    PENDING = 'PENDING'
 
 
 class Submission(BaseModel):
@@ -28,7 +37,7 @@ class Submission(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     submitted_form_id = Column(db.Integer, ForeignKey('submitted_forms.id'), nullable=True)
     item_id = Column(db.Integer, ForeignKey('items.id'), nullable=False)
-    type = Column(Enum(SubmissionTypeStatus), nullable=False)
+    type = Column(Enum(SubmissionType), nullable=False)
     submitted_document_id = Column(db.Integer, ForeignKey('submitted_documents.id'), nullable=True)
     submitted_form = db.relationship('SubmittedForm', foreign_keys=[submitted_form_id], lazy='joined')
     submitted_document = db.relationship('SubmittedDocument', foreign_keys=[submitted_document_id], lazy='joined')
@@ -37,6 +46,7 @@ class Submission(BaseModel):
     major_version = Column(db.Integer, nullable=False, default=1)
     minor_version = Column(db.Integer, nullable=False, default=1)
     active = Column(db.Boolean, nullable=False, default=True)
+    status = Column(Enum(SubmissionStatus), nullable=True, default=SubmissionStatus.PENDING)
 
     Index('idx_submissions_type_item_id', type, item_id)
 
@@ -46,6 +56,6 @@ class Submission(BaseModel):
         return f'{self.major_version}.{self.minor_version}'
 
     @classmethod
-    def find_latest_by_type_and_item_id(cls, item_id: int, submission_type: SubmissionTypeStatus):
+    def find_latest_by_type_and_item_id(cls, item_id: int, submission_type: SubmissionType):
         """Return model by item id."""
         return cls.query.filter_by(item_id=item_id, type=submission_type).order_by(cls.created_date.asc()).first()

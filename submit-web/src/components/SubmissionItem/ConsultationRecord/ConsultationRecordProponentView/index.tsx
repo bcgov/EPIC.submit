@@ -13,7 +13,7 @@ import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
   SUBMISSION_STATUS,
   SUBMISSION_TYPE,
-  SubmissionStatus,
+  SubmissionItemStatus,
 } from "@/models/Submission";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
@@ -22,7 +22,7 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
-import { ConsultationRecordFormContainer } from "../ConsultationRecordFormContainer";
+import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 
 export const ConsultationRecordProponentView = () => {
   const {
@@ -132,7 +132,7 @@ export const ConsultationRecordProponentView = () => {
 
   const saveSubmission = async (
     formData: ConsultationRecordForm,
-    status: SubmissionStatus,
+    status: SubmissionItemStatus,
   ) => {
     const {
       consultedParties,
@@ -183,7 +183,7 @@ export const ConsultationRecordProponentView = () => {
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
-    <ConsultationRecordFormContainer>
+    <SubmissionFormContainer>
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(handleCompleteForm)}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
@@ -195,6 +195,6 @@ export const ConsultationRecordProponentView = () => {
           </Grid>
         </Form>
       </FormProvider>
-    </ConsultationRecordFormContainer>
+    </SubmissionFormContainer>
   );
 };

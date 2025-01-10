@@ -13,6 +13,7 @@ from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
+from submit_api.models.submission import SubmissionStatus
 from submit_api.models.submission_review import SubmissionReview, SubmissionReviewStatus
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
@@ -40,6 +41,20 @@ class SubmissionReviewService:
         """Update the status of the package based on the statuses of its items."""
         PackageQueries.update_package_status(package_id, session)
         current_app.logger.info(f"Package status updated for package ID: {package_id}")
+
+    @staticmethod
+    def _update_item_submissions_status(status, session, item=None, item_id=None):
+        """Update the status of the package based on the statuses of its items."""
+        if not item_id and not item:
+            current_app.logger.error("Item ID or item is required.")
+            raise UnprocessableEntityError("Item ID or item is required.")
+        if not item:
+            item = ItemModel.find_by_id(item_id)
+        submissions = item.submissions
+        for submission in submissions:
+            submission.status = status
+            session.add(submission)
+        current_app.logger.info(f"Submissions status updated for item ID: {item_id} to {status}")
 
     @classmethod
     def _get_submission_item_by_id(cls, item_id) -> ItemModel:
@@ -153,6 +168,7 @@ class SubmissionReviewService:
         approval_processor = cls._get_submission_item_approval_processor(item)
         approval_processor(item, session)
         cls._update_package_status(item.package_id, session)
+        cls._update_item_submissions_status(SubmissionStatus.APPROVED, session, item=item)
         current_app.logger.info(f"Submission item {item.id} approved.")
         return item
 
@@ -187,6 +203,7 @@ class SubmissionReviewService:
         rejection_processor = cls._get_submission_item_rejection_processor(item)
         rejection_processor(item, session)
         cls._update_package_status(item.package_id, session)
+        cls._update_item_submissions_status(SubmissionStatus.REJECTED, session, item=item)
         current_app.logger.info(f"Submission item {item.id} rejected.")
         return item
 

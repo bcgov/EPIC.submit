@@ -2,7 +2,7 @@
 
 from submit_api.models.db import session_scope
 from submit_api.models.submission import Submission as SubmissionModel
-from submit_api.models.submission import SubmissionTypeStatus
+from submit_api.models.submission import SubmissionType
 from submit_api.services.item import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
@@ -15,8 +15,8 @@ class SubmissionService:
     def make_submission_creator(cls, submission_type) -> SubmissionCreatorFactory:
         """Make a new submission creator."""
         submission_creators = {
-            SubmissionTypeStatus.FORM.value: FormSubmissionCreator(),
-            SubmissionTypeStatus.DOCUMENT.value: DocumentSubmissionCreator()
+            SubmissionType.FORM.value: FormSubmissionCreator(),
+            SubmissionType.DOCUMENT.value: DocumentSubmissionCreator()
         }
         submission_creator = submission_creators.get(submission_type)
         if not submission_creator:
@@ -58,7 +58,7 @@ class SubmissionService:
         submission = cls.get_submission_by_id(submission_id)
         if not submission:
             raise ValueError("Submission not found.")
-        if submission.type != SubmissionTypeStatus.FORM:
+        if submission.type != SubmissionType.FORM:
             raise ValueError("Submission type is not supported.")
 
         if not submission.submitted_form:
@@ -68,10 +68,15 @@ class SubmissionService:
     @classmethod
     def edit_submission_form(cls, submission_id, request):
         """Edit a submission form."""
-        submission = cls.get_submission_by_id_and_validate_edit(submission_id)
-        submission.submitted_form.submission_json = request.get('data')
-        submission.submitted_form.save()
-        return submission
+        with session_scope() as session:
+            submission = cls.get_submission_by_id_and_validate_edit(submission_id)
+            submission.submitted_form.submission_json = request.get('data')
+            session.add(submission.submitted_form)
+
+            status = request.get("status")
+            item_id = submission.item_id
+            SubmissionService.update_submission_item_status(item_id, status, session)
+            return submission
 
     @classmethod
     def update_submission_item_status(cls, item_id, status, session):

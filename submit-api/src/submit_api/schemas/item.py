@@ -6,7 +6,7 @@ Manages the item schema
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.models.submission import SubmissionTypeStatus
+from submit_api.models.submission import SubmissionType
 from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
@@ -24,7 +24,7 @@ class ItemSubmissionSchema(Schema):
 
     id = fields.Int(data_key="id")
     item_id = fields.Int(data_key="item_id")
-    type = fields.Enum(data_key="type", enum=SubmissionTypeStatus)
+    type = fields.Enum(data_key="type", enum=SubmissionType)
     submitted_document_id = fields.Int(data_key="submitted_document_id")
     submitted_form_id = fields.Int(data_key="submitted_form_id")
     submitted_form = fields.Nested(SubmittedFormSchema, data_key="submitted_form")
