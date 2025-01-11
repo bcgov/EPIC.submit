@@ -21,7 +21,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionType
 from submit_api.models.item_type import SubmissionItemType
-from submit_api.models.update_request import UpdateRequestType
+from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
@@ -251,6 +251,17 @@ class PackageService:
                                       if request.type == UpdateRequestType.REVIEW]
         for request in revision_required_requests:
             request.active = False
+            request.status = UpdateRequestStatus.CLOSED
+            session.add(request)
+
+    @staticmethod
+    def _update_update_requests(session, package, status, active=True):
+        """Update package submission details."""
+        revision_required_requests = [request for request in package.update_requests
+                                      if request.type == UpdateRequestType.UPDATE]
+        for request in revision_required_requests:
+            request.status = status
+            request.active = active
             session.add(request)
 
     @staticmethod
@@ -277,6 +288,7 @@ class PackageService:
             cls.update_submission_status(package, ItemStatus.SUBMITTED.value, session)
             cls._create_email_queue_record(package, session)
             cls._deactivate_revision_required_requests(package, session)
+            cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
             session.flush()
             session.commit()
         return package

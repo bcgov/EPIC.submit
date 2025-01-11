@@ -19,7 +19,10 @@ import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import { useMemo, useState } from "react";
 import { AddDocumentActionButton } from "./AddDocumentActionButton";
 
-export default function DocumentsTable() {
+type DocumentsTableProps = Readonly<{
+  folder: string;
+}>;
+export default function DocumentsTable({ folder }: DocumentsTableProps) {
   const { submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -75,6 +78,7 @@ export default function DocumentsTable() {
             <SubmitPrimaryRowTableCell colSpan={2} />
             <SubmitPrimaryRowTableCell align="right">
               <AddDocumentActionButton
+                folder={folder}
                 handleAddDocument={handleAddSubmission}
               />
             </SubmitPrimaryRowTableCell>
