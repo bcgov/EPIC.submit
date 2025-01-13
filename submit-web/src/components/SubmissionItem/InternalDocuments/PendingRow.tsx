@@ -4,7 +4,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { StyledTableCell } from "@/components/Shared/Table/common";
+import { SubmitTableCell } from "@/components/Shared/Table/common";
 import {
   UploadObject,
   useObjectUploadStore,
@@ -82,7 +82,7 @@ export default function PendingRow({
 
   return (
     <TableRow>
-      <StyledTableCell>
+      <SubmitTableCell>
         <Typography
           variant="body1"
           color="inherit"
@@ -95,10 +95,10 @@ export default function PendingRow({
         >
           <MuiLink>{name}</MuiLink>
         </Typography>
-      </StyledTableCell>
-      <StyledTableCell align="left" colSpan={numColumns - 1}>
+      </SubmitTableCell>
+      <SubmitTableCell align="left" colSpan={numColumns - 1}>
         <CircularProgress size={20} />
-      </StyledTableCell>
+      </SubmitTableCell>
     </TableRow>
   );
 }

@@ -27,12 +27,16 @@ class Item(BaseModel):
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String(255), nullable=True)
     version = Column(db.Integer, nullable=False, default=1)
-    submissions = db.relationship('Submission', lazy='joined')
     internal_staff_documents = db.relationship('InternalStaffDocument', backref='item', lazy='select')
     reviews = db.relationship('SubmissionReview', backref='item', lazy='select')
     notes = db.relationship('SubmissionItemNote', backref='item', lazy='select')
     reviewed_on = Column(db.DateTime, nullable=True)
     review_start_date = Column(db.DateTime, nullable=True)
+    submissions = db.relationship(
+        'Submission',
+        lazy='joined',
+        primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True))'
+    )
 
     # add unique constraint package_id and type_id
     __table_args__ = (db.UniqueConstraint('package_id', 'type_id'),)

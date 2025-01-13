@@ -1,7 +1,7 @@
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { ItemForm } from "@/components/SubmissionItem/ItemForm";
+import { StaffItemForm } from "@/components/SubmissionItem/ItemForm/StaffItemForm";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
@@ -37,7 +37,7 @@ export function Submission() {
   }
   return (
     <PageGrid>
-      <ItemForm submissionItem={submissionItem} />
+      <StaffItemForm submissionItem={submissionItem} />
     </PageGrid>
   );
 }

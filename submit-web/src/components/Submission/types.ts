@@ -1,10 +1,10 @@
-import { Submission, SubmissionStatus } from "@/models/Submission";
+import { Submission, SubmissionItemStatus } from "@/models/Submission";
 
 export type SubmissionItemTableRow = {
   id: number;
   name: string;
   submitted_by: string;
-  status: SubmissionStatus;
+  status: SubmissionItemStatus;
   version: number;
   submissions: Array<Submission>;
   has_document: boolean;

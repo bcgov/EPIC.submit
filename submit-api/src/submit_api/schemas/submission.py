@@ -5,6 +5,8 @@ Manages the submission schema
 
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
+from submit_api.models.submission import SubmissionStatus
+
 
 class SubmittedFormSchema(Schema):
     """submitted form schema."""
@@ -54,6 +56,7 @@ class SubmissionSchema(Schema):
     created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
+    status = fields.Enum(data_key="status", enum=SubmissionStatus)
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):

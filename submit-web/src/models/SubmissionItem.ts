@@ -1,5 +1,5 @@
 import { Note } from "@/components/SubmissionItem/Note";
-import { Submission, SubmissionStatus } from "./Submission";
+import { Submission, SubmissionItemStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
 
 type SubmissionItemTypeName =
@@ -32,7 +32,7 @@ export interface SubmissionItem {
   id: number;
   package_id: number;
   sort_order: number;
-  status: SubmissionStatus;
+  status: SubmissionItemStatus;
   submitted_by: string;
   submitted_on: string;
   type: SubmissionItemType;

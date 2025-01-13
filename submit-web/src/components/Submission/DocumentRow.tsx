@@ -3,7 +3,7 @@ import { Submission } from "@/models/Submission";
 import { useEffect, useState } from "react";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "../Shared/Table/utils";
-import { StyledTableCell } from "../Shared/Table/common";
+import { SubmitTableCell } from "../Shared/Table/common";
 import { useModal } from "../Shared/Modals/modalStore";
 import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
 import { SubmissionItemTableRow } from "./types";
@@ -98,7 +98,7 @@ export default function DocumentRow({
 
   return (
     <TableRow>
-      <StyledTableCell>
+      <SubmitTableCell>
         <Typography
           variant="body1"
           color="inherit"
@@ -111,10 +111,10 @@ export default function DocumentRow({
         >
           <MuiLink onClick={openDocument}>{name}</MuiLink>
         </Typography>
-      </StyledTableCell>
-      <StyledTableCell align="right">{submitted_by || ""}</StyledTableCell>
-      <StyledTableCell align="right">{version}</StyledTableCell>
-      <StyledTableCell align="right" colSpan={2}></StyledTableCell>
+      </SubmitTableCell>
+      <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
+      <SubmitTableCell align="right">{version}</SubmitTableCell>
+      <SubmitTableCell align="right" colSpan={2}></SubmitTableCell>
     </TableRow>
   );
 }

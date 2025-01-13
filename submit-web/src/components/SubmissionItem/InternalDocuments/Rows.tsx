@@ -1,13 +1,13 @@
 import { Link as MuiLink, Typography } from "@mui/material";
-import {
-  SubmissionItemTableCell,
-  PackageTableRow,
-} from "../../Submission/SubmissionItemTableRow";
 import { InternalStaffDocument } from "@/models/SubmissionItem";
 import Row from "./Row";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
 import { useObjectUploadStore } from "@/store/documentUploadStore";
 import PendingRow from "./PendingRow";
+import {
+  SubmitPrimaryRowTableCell,
+  SubmitTablePrimaryRow,
+} from "@/components/Shared/Table/common";
 
 type InternalDocumentsProps = {
   internalStaffDocuments: Array<InternalStaffDocument>;
@@ -29,8 +29,8 @@ export default function Rows({
 
   return (
     <>
-      <PackageTableRow>
-        <SubmissionItemTableCell>
+      <SubmitTablePrimaryRow>
+        <SubmitPrimaryRowTableCell>
           <MuiLink
             color="inherit"
             sx={{
@@ -48,12 +48,9 @@ export default function Rows({
               EAO Internal Documents
             </Typography>
           </MuiLink>
-        </SubmissionItemTableCell>
-        <SubmissionItemTableCell
-          align="right"
-          colSpan={numColumns - 1}
-        ></SubmissionItemTableCell>
-      </PackageTableRow>
+        </SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell align="right" colSpan={numColumns - 1} />
+      </SubmitTablePrimaryRow>
       {internalStaffDocuments.map((document) => (
         <Row
           key={`doc-row-${document.id}`}

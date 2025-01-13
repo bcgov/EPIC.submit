@@ -1,32 +1,44 @@
 """Service for submission management."""
 from typing import Protocol
 
+from submit_api.exceptions import BadRequestError
 from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
-from submit_api.models.submission import Submission as SubmissionModel
-from submit_api.models.submission import SubmissionTypeStatus
+from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
+from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
 
 
 class SubmissionCreatorFactory(Protocol):
     """Submission creator factory protocol."""
 
-    def create(self, item_id, request_data) -> SubmissionModel:
+    def create(self, item_id, request_data, session=None) -> SubmissionModel:
         """Create a new submission."""
         return SubmissionModel()
+
+    def replace(self, submission_id, request_data) -> SubmissionModel:
+        """Replace a submission."""
+        raise BadRequestError("Replace not supported for this submission type.")
 
 
 class FormSubmissionCreator(SubmissionCreatorFactory):
     """Form submission creator."""
 
-    def create(self, item_id, request_data):
+    def create(self, item_id, request_data, _session=None):
         """Create a new form submission."""
+        if _session:
+            return self._create(item_id, request_data, _session)
+
         with session_scope() as session:
-            submitted_form = self._create_submitted_form(session, request_data)
-            submission = self._create_submission(session, item_id, submitted_form.id)
-            return submission
+            return self._create(item_id, request_data, session)
+
+    def _create(self, item_id, request_data, session):
+        """Create a new form submission."""
+        submitted_form = self._create_submitted_form(session, request_data)
+        submission = self._create_submission(session, item_id, submitted_form.id)
+        return submission
 
     @staticmethod
     def _create_submitted_form(session, request_data):
@@ -43,13 +55,13 @@ class FormSubmissionCreator(SubmissionCreatorFactory):
     def _create_submission(session, item_id, submitted_form_id):
         """Create a new submission."""
         previous_submission = SubmissionModel.find_latest_by_type_and_item_id(
-            item_id, SubmissionTypeStatus.FORM.value)
+            item_id, SubmissionType.FORM.value)
         if previous_submission:
             raise ValueError("Form submission already created.")
 
         submission = SubmissionModel(
             item_id=item_id,
-            type=SubmissionTypeStatus.FORM.value,
+            type=SubmissionType.FORM.value,
             submitted_form_id=submitted_form_id,
         )
         session.add(submission)
@@ -61,12 +73,36 @@ class FormSubmissionCreator(SubmissionCreatorFactory):
 class DocumentSubmissionCreator(SubmissionCreatorFactory):
     """Document submission creator."""
 
-    def create(self, item_id, request_data):
+    def create(self, item_id, request_data, _session=None):
         """Create a new document submission."""
+        if _session:
+            return self._create(item_id, request_data, _session)
+
         with session_scope() as session:
+            return self._create(item_id, request_data, session)
+
+    def _create(self, item_id, request_data, session):
+        """Create a new document submission."""
+        submitted_document = self._create_submitted_document(session, request_data)
+        submission = self._create_submission(session, item_id, submitted_document.id)
+        return submission
+
+    def replace(self, submission_id, request_data):
+        """Replace a document submission."""
+        with session_scope() as session:
+            submission = SubmissionModel.find_by_id(submission_id)
+            if not submission.status == SubmissionStatus.SUBMITTED:
+                raise BadRequestError("Cannot replace an unsubmitted document.")
             submitted_document = self._create_submitted_document(session, request_data)
-            submission = self._create_submission(session, item_id, submitted_document.id)
-            return submission
+            new_submission = self._create_submission(
+                session=session,
+                item_id=submission.item_id,
+                submitted_document_id=submitted_document.id,
+                original_submission_id=submission.id
+            )
+            submission.active = False
+            session.add(submission)
+            return new_submission
 
     @classmethod
     def get_document_version(cls, item_id, original_submission_id=None):
@@ -94,22 +130,19 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             folder=request_data.get('folder')
         )
         session.add(submitted_document)
-        session.commit()
         session.flush()
         return submitted_document
 
     @staticmethod
-    def _create_submission(session, item_id, submitted_document_id):
+    def _create_submission(session, item_id, submitted_document_id, original_submission_id=None):
         """Create a new submission."""
-        major_version, minor_version = DocumentSubmissionCreator.get_document_version(item_id)
+        major_version, minor_version = DocumentSubmissionCreator.get_document_version(item_id, original_submission_id)
         submission = SubmissionModel(
             item_id=item_id,
-            type=SubmissionTypeStatus.DOCUMENT,
+            type=SubmissionType.DOCUMENT,
             submitted_document_id=submitted_document_id,
             major_version=major_version,
             minor_version=minor_version
         )
         session.add(submission)
-        session.commit()
-        session.flush()
         return submission

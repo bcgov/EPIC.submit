@@ -1,5 +1,5 @@
 import { SubmissionPackage } from "@/models/Package";
-import { SUBMISSION_STATUS, SubmissionStatus } from "@/models/Submission";
+import { SUBMISSION_STATUS, SubmissionItemStatus } from "@/models/Submission";
 
 export const isSubmissionItemReadyToSubmit = ({
   submissionItem,
@@ -8,7 +8,7 @@ export const isSubmissionItemReadyToSubmit = ({
   submissionPackage: SubmissionPackage;
   submissionItem: {
     id: number;
-    status: SubmissionStatus;
+    status: SubmissionItemStatus;
   };
 }) => {
   if (

@@ -12,7 +12,7 @@ import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import {
   SUBMISSION_STATUS,
   SUBMISSION_TYPE,
-  SubmissionStatus,
+  SubmissionItemStatus,
 } from "@/models/Submission";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { CardInnerBox } from "@/components/Projects/Project";
@@ -162,7 +162,7 @@ export const ManagementPlanSubmissionProponentView = () => {
 
   const saveSubmission = async (
     formData: ManagementPlanSubmissionForm,
-    status: SubmissionStatus,
+    status: SubmissionItemStatus,
   ) => {
     const {
       conditionSatisfied,
