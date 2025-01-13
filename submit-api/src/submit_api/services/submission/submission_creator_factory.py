@@ -9,6 +9,7 @@ from submit_api.models.db import session_scope
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
+from submit_api.utils.token_info import TokenInfo
 
 
 class SubmissionCreatorFactory(Protocol):
@@ -63,6 +64,7 @@ class FormSubmissionCreator(SubmissionCreatorFactory):
             item_id=item_id,
             type=SubmissionType.FORM.value,
             submitted_form_id=submitted_form_id,
+            created_by=TokenInfo.get_id()
         )
         session.add(submission)
         session.commit()
@@ -142,7 +144,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             type=SubmissionType.DOCUMENT,
             submitted_document_id=submitted_document_id,
             major_version=major_version,
-            minor_version=minor_version
+            minor_version=minor_version,
+            created_by=TokenInfo.get_id()
+
         )
         session.add(submission)
         return submission

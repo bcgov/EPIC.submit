@@ -6,6 +6,7 @@ import { ContactInformation } from "../ContactInformation";
 import { ManagementPlanSubmissionProponentView } from "../ManagementPlanSubmission/ManagementPlanProponentView";
 import { ConsultationRecordUpdateForm } from "../ConsultationRecord/ConsultationRecordUpdateForm";
 import { ConsultationRecordProponentView } from "../ConsultationRecord/ConsultationRecordProponentView";
+import { ManagementPlanUpdateForm } from "../ManagementPlanSubmission/ManagementPlanUpdateForm";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
@@ -24,6 +25,7 @@ export const ProponentItemForm = ({ submissionItem }: ItemFormProps) => {
 
 const updateFormMap = {
   [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: ConsultationRecordUpdateForm,
+  [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: ManagementPlanUpdateForm,
 };
 
 export const ProponentItemUpdateForm = ({ submissionItem }: ItemFormProps) => {
