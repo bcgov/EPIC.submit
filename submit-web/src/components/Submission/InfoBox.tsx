@@ -1,7 +1,7 @@
 import { SubmissionPackage } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { Grid, Stack, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { ReactNode } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
