@@ -7,10 +7,12 @@ export default function VersionGroup({
   packageId,
   isPackageUpdating,
   updatePackageId,
+  proponent = false,
 }: {
   packageId: number;
   isPackageUpdating: boolean;
   updatePackageId: (newPackageId: number) => void;
+  proponent?: boolean;
 }) {
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const navigate = useNavigate();
@@ -30,7 +32,7 @@ export default function VersionGroup({
     setShowBackdrop(true);
     updatePackageId(newPackageId);
     navigate({
-      to: `/staff/projects/${accountProjectIdParam}/submission-packages/${newPackageId}`,
+      to: `/${proponent ? "proponent" : "staff"}/projects/${accountProjectIdParam}/submission-packages/${newPackageId}`,
       replace: true,
     });
   }

@@ -28,9 +28,10 @@ import { usePackageTableStore } from "@/components/Submission/packageTableStore"
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
+import { useState } from "react";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -46,10 +47,12 @@ export default function SubmissionPage() {
     strict: false,
   });
   const submissionPackageId = Number(submissionPackageIdParam);
-  const { data: submissionPackage } = useGetSubmissionPackage({
-    packageId: submissionPackageId,
-    enabled: Boolean(accountProject?.id),
-  });
+  const [packageId, setPackageId] = useState<number>(submissionPackageId);
+  const { data: submissionPackage, isLoading: isPackageUpdating } =
+    useGetSubmissionPackage({
+      packageId,
+      enabled: Boolean(accountProject?.id),
+    });
 
   const {
     mutate: updateStateSubmissionPackage,
@@ -79,7 +82,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          }),
+          })
       )
     ) {
       setIsValidating(true);
@@ -165,7 +168,11 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <InfoBox submissionPackage={submissionPackage} />
+              <InfoBox
+                isPackageUpdating={isPackageUpdating}
+                setPackageId={setPackageId}
+                submissionPackage={submissionPackage}
+              />
 
               <Box mt="1em" width="100%">
                 <UpdateRequestWidget
