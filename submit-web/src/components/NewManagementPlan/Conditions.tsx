@@ -18,12 +18,22 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Unless } from "react-if";
 import { useGetConditions } from "@/hooks/useConditions";
 import { Condition } from "@/models/Condition";
+import { useParams } from "@tanstack/react-router";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 
 const MAX_SUPPORTING_CONDITIONS = 4;
 const NUM_STEPS = Object.keys(MANAGEMENT_PLAN_FORM_STEPS).length;
 export const Conditions = () => {
+  const { projectId } = useParams({
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+  });
+
+  const { data: accountProject } = useGetAccountProject({
+    accountProjectId: Number(projectId),
+  });
+
   const { data: conditions, isLoading } = useGetConditions({
-    projectId: "588511d0aaecd9001b826192",
+    projectId: accountProject?.project.epic_guid || "",
     includeAttributes: true,
   });
 

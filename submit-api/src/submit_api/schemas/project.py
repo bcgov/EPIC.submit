@@ -22,6 +22,7 @@ class ProjectSchema(Schema):
     proponent_id = fields.Int(data_key="proponent_id")
     proponent_name = fields.Str(data_key="proponent_name")
     ea_certificate = fields.Str(data_key="ea_certificate")
+    epic_guid = fields.Str(data_key="epic_guid")
 
 
 class AddProjectSchema(Schema):
