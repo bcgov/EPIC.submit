@@ -21,6 +21,7 @@ import { SubmissionPackage } from "@/models/Package";
 import { useMemo } from "react";
 import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
 import { isSubmissionItemReadyToSubmit } from "./utils";
+import { filterOpenUpdateRequests } from "@/utils";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
@@ -29,10 +30,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   const { items: submissionItems, update_requests } = submissionPackage;
 
   const itemUpdateRequestMap = useMemo(() => {
-    const _update_requests = update_requests.filter(
-      (update_request) =>
-        update_request.type === UPDATE_REQUEST_TYPE.UPDATE.value,
-    );
+    const _update_requests = filterOpenUpdateRequests(update_requests);
     return _update_requests
       .flatMap((update_request) => update_request.submission_item_ids)
       .reduce((acc: { [key: number]: boolean }, id) => {
@@ -58,22 +56,22 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
 
   const { isValidating } = usePackageTableStore();
 
-  const sortedSubmissionItems = submissionItems.map((subItem) => ({
-    id: subItem.id,
-    name: subItem.type.name,
-    status: subItem.status,
-    submitted_by: subItem?.submitted_by,
-    version: subItem.version,
-    submissions: subItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
-    ),
-    has_document:
-      subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
-    reviewStatus: subItem.review?.status,
-    isUpdateRequest: Boolean(itemUpdateRequestMap[subItem.id]),
-    isRevisionRequired: Boolean(itemRevisionRequiredMap[subItem.id]),
-    review_start_date: subItem.review_start_date,
-  }));
+  // const sortedSubmissionItems = submissionItems.map((subItem) => ({
+  //   id: subItem.id,
+  //   name: subItem.type.name,
+  //   status: subItem.status,
+  //   submitted_by: subItem?.submitted_by,
+  //   version: subItem.version,
+  //   submissions: subItem.submissions.filter(
+  //     (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+  //   ),
+  //   has_document:
+  //     subItem.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+  //   reviewStatus: subItem.review?.status,
+  //   isUpdateRequest: Boolean(itemUpdateRequestMap[subItem.id]),
+  //   isRevisionRequired: Boolean(itemRevisionRequiredMap[subItem.id]),
+  //   review_start_date: subItem.review_start_date,
+  // }));
 
   const internalStaffDocuments = submissionItems.flatMap(
     (item) => item.internal_staff_documents ?? [],
@@ -110,9 +108,9 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {sortedSubmissionItems?.map((subItem) => (
+          {submissionItems?.map((subItem) => (
             <SubmissionItemTableRow
-              key={`custom-row-${subItem.name}`}
+              key={`custom-row-${subItem.type.name}`}
               item={subItem}
               error={
                 isValidating &&

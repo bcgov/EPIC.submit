@@ -1,12 +1,12 @@
-import { SubmissionItemTableRow as SubmissionItemTableRowType } from "../types";
 import { Case, Switch } from "react-if";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import ProponentSubmissionItemTableRow from "./ProponentSubmissionItemTableRow";
 import StaffSubmissionItemTableRow from "./StaffSubmissionItemTableRow";
+import { SubmissionItem } from "@/models/SubmissionItem";
 
 export type SubmissionItemTableRowProps = Readonly<{
-  item: SubmissionItemTableRowType;
+  item: SubmissionItem;
   error?: boolean;
 }>;
 

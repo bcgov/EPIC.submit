@@ -18,6 +18,9 @@ import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
+import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
+import { useMemo } from "react";
+import { filterOpenUpdateRequests } from "@/utils";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -28,7 +31,11 @@ export default function ProponentSubmissionItemTableRow({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
   });
 
-  const { name, id, submissions, has_document, status, isUpdateRequest } = item;
+  const { id, submissions, status } = item;
+  const name = item.type.name;
+  const has_document =
+    item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+
   const queryClient = useQueryClient();
 
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
@@ -36,6 +43,13 @@ export default function ProponentSubmissionItemTableRow({
       packageId: Number(submissionPackageId),
     }).queryKey,
   );
+
+  const isUpdateRequest = useMemo(() => {
+    if (!submissionPackage) return false;
+    return filterOpenUpdateRequests(submissionPackage.update_requests)
+      .flatMap((updateRequest) => updateRequest.submission_item_ids)
+      .includes(id);
+  }, [submissionPackage, id]);
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
@@ -47,7 +61,7 @@ export default function ProponentSubmissionItemTableRow({
 
   return (
     <>
-      <SubmitTablePrimaryRow key={`row-${item.name}`} error={error}>
+      <SubmitTablePrimaryRow key={`row-${name}`} error={error}>
         <SubmitPrimaryRowTableCell>
           <MuiLink
             color="inherit"
@@ -120,7 +134,7 @@ export default function ProponentSubmissionItemTableRow({
                 color: BCDesignTokens.typographyColorDanger,
               }}
             >
-              Please complete the {item.name} section.
+              Please complete the {name} section.
             </Typography>
           </TableCell>
         </TableRow>

@@ -12,15 +12,24 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
-import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
+import {
+  getStaffSubmissionPackageQueryOptions,
+  useUpdateStateSubmissionPackage,
+} from "@/hooks/api/usePackages";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { PACKAGE_STATUS } from "@/models/Package";
-import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
-import { useEffect } from "react";
+import {
+  SUBMISSION_ITEM_METHOD,
+  SUBMISSION_ITEM_TYPE,
+} from "@/models/SubmissionItem";
+import { useEffect, useMemo } from "react";
 import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { filterOpenUpdateRequests } from "@/utils";
+import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -33,19 +42,36 @@ export default function StaffSubmissionItemTableRow({
     setIsLoading,
   } = useModal();
   const navigate = useNavigate();
-  const {
-    name,
-    submissions,
-    has_document,
-    id,
-    status,
-    reviewStatus,
-    review_start_date,
-    isUpdateRequest,
-    isRevisionRequired,
-  } = item;
 
-  const actionLabel = has_document ? "Review" : "View";
+  const { data: submissionPackage, isPending: isPackagePending } =
+    useSuspenseQuery(
+      getStaffSubmissionPackageQueryOptions({
+        packageId: Number(submissionPackageId),
+      }),
+    );
+
+  const { submissions, id, status, review, review_start_date } = item;
+
+  const name = item.type.name;
+  const hasDocument =
+    item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+
+  const isUpdateRequest = useMemo(() => {
+    if (!submissionPackage) return false;
+    return filterOpenUpdateRequests(submissionPackage.update_requests)
+      .flatMap((updateRequest) => updateRequest.submission_item_ids)
+      .includes(id);
+  }, [submissionPackage, id]);
+
+  const isRevisionRequired = useMemo(() => {
+    if (!submissionPackage) return false;
+    return submissionPackage.update_requests.some(
+      (updateRequest) =>
+        updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+    );
+  }, [submissionPackage, id]);
+
+  const actionLabel = hasDocument ? "Review" : "View";
   const isConsultationRecord =
     name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
 
@@ -64,7 +90,7 @@ export default function StaffSubmissionItemTableRow({
   });
 
   const onActionClick = () => {
-    if (review_start_date && has_document) {
+    if (review_start_date && hasDocument) {
       openConfirmationModal();
       return;
     }
@@ -101,10 +127,14 @@ export default function StaffSubmissionItemTableRow({
     );
   };
 
+  if (isPackagePending) {
+    return null;
+  }
+
   return (
     <>
       <SubmitTablePrimaryRow
-        key={`row-${item.name}`}
+        key={`row-${name}`}
         error={error}
         onClick={onActionClick}
       >
@@ -131,7 +161,7 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="right">
           <SubmissionStatusChipStack
             status={status}
-            reviewStatus={reviewStatus}
+            reviewStatus={review?.status}
             isUpdateRequested={isUpdateRequest}
             isRevisionRequired={isRevisionRequired}
           />
@@ -176,7 +206,7 @@ export default function StaffSubmissionItemTableRow({
                 color: BCDesignTokens.typographyColorDanger,
               }}
             >
-              Please complete the {item.name} section.
+              Please complete the {name} section.
             </Typography>
           </TableCell>
         </TableRow>

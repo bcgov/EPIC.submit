@@ -7,6 +7,7 @@ import {
 } from "@/components/SubmissionItem/ItemForm/ProponentItemForm";
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { filterOpenUpdateRequests } from "@/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
@@ -48,7 +49,7 @@ export function Submission() {
     );
 
   const hasPackageUpdateRequest =
-    submissionPackage?.update_requests?.length > 0;
+    filterOpenUpdateRequests(submissionPackage?.update_requests).length > 0;
   const isPackageSubmitted = submissionPackage?.submitted_on;
 
   if (isItemLoading || isPackageLoading) {
