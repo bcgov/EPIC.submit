@@ -10,7 +10,6 @@ export const modalStyle = {
   maxHeight: "95vh",
   bgcolor: BCDesignTokens.surfaceColorBackgroundWhite,
   boxShadow: 10,
-  p: BCDesignTokens.layoutPaddingLarge,
   borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
   m: 1,
   overflowY: "scroll",
