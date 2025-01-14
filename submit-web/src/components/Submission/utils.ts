@@ -1,5 +1,8 @@
 import { SubmissionPackage } from "@/models/Package";
-import { SUBMISSION_STATUS, SubmissionItemStatus } from "@/models/Submission";
+import {
+  SUBMISSION_ITEM_STATUS,
+  SubmissionItemStatus,
+} from "@/models/Submission";
 
 export const isSubmissionItemReadyToSubmit = ({
   submissionItem,
@@ -18,6 +21,6 @@ export const isSubmissionItemReadyToSubmit = ({
     return true;
   }
   const isSubmissionItemCompleted =
-    submissionItem.status === SUBMISSION_STATUS.COMPLETED.value;
+    submissionItem.status === SUBMISSION_ITEM_STATUS.COMPLETED.value;
   return isSubmissionItemCompleted;
 };

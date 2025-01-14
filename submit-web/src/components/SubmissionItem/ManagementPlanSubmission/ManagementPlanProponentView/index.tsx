@@ -10,7 +10,7 @@ import { useEffect, useMemo } from "react";
 import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import {
-  SUBMISSION_STATUS,
+  SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
   SubmissionItemStatus,
 } from "@/models/Submission";
@@ -157,7 +157,7 @@ export const ManagementPlanSubmissionProponentView = () => {
   }, [isCreatingSubmissionPending, setIsOpen]);
 
   const handleCompleteForm = (formData: ManagementPlanSubmissionForm) => {
-    saveSubmission(formData, SUBMISSION_STATUS.COMPLETED.value); // Add default status here
+    saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value); // Add default status here
   };
 
   const saveSubmission = async (
@@ -196,7 +196,7 @@ export const ManagementPlanSubmissionProponentView = () => {
       ...methods.getValues(),
     };
 
-    saveSubmission(formData, SUBMISSION_STATUS.PARTIALLY_COMPLETED.value);
+    saveSubmission(formData, SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value);
   };
 
   if (!accountProject) return <Navigate to="/error" />;

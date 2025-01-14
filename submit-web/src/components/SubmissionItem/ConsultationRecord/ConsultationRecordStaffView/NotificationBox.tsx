@@ -3,7 +3,7 @@ import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { SubmissionStatusChip } from "@/components/SubmissionStatusChip";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
-import { SUBMISSION_STATUS } from "@/models/Submission";
+import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import {
   SUBMISSION_REVIEW_ENTRY_TYPE,
@@ -62,7 +62,7 @@ export const NotificationBox = () => {
             The submission has been completed as:
           </Typography>
           <SubmissionStatusChip
-            status={SUBMISSION_STATUS.PASSED_CONSULTATION_CHECK.value}
+            status={SUBMISSION_ITEM_STATUS.PASSED_CONSULTATION_CHECK.value}
           />
         </Stack>
         <Grid container color={"inherit"}>

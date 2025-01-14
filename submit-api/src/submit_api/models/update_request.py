@@ -19,6 +19,14 @@ class UpdateRequestType(enum.Enum):
     UPDATE = 'UPDATE'
 
 
+class UpdateRequestStatus(enum.Enum):
+    """Enum for update request statuses."""
+
+    OPEN = 'OPEN'
+    PENDING_REVIEW = 'PENDING_REVIEW'
+    CLOSED = 'CLOSED'
+
+
 class UpdateRequest(BaseModel):
     """Definition of update request entity."""
 
@@ -33,3 +41,4 @@ class UpdateRequest(BaseModel):
     reason = Column(db.String, nullable=True)
     type = Column(Enum(UpdateRequestType), nullable=False, default=UpdateRequestType.UPDATE)
     note = Column(db.String, nullable=True)
+    status = Column(db.String, nullable=False, default=UpdateRequestStatus.OPEN)

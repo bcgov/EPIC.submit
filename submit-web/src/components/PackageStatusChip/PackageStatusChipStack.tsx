@@ -7,6 +7,7 @@ import PackageStatusChip from ".";
 import { When } from "react-if";
 import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
 import { useMemo } from "react";
+import { filterOpenUpdateRequests } from "@/utils";
 
 type PackageStatusChipStackProps = {
   submissionPackage: SubmissionPackage;
@@ -20,10 +21,7 @@ export const PackageStatusChipStack = ({
 
   const isUpdateRequested = useMemo(() => {
     return (
-      submissionPackage.update_requests.filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value,
-      ).length > 0
+      filterOpenUpdateRequests(submissionPackage.update_requests).length > 0
     );
   }, [submissionPackage.update_requests]);
 

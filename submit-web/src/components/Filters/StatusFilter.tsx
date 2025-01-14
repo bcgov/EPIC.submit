@@ -7,7 +7,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useProjectFilters } from "./projectFilterStore";
-import { SUBMISSION_STATUS } from "@/models/Submission";
+import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import { SubmissionStatusChip } from "../SubmissionStatusChip";
 import { BCDesignTokens } from "epic.theme";
 
@@ -18,7 +18,9 @@ function StatusFilter() {
     const value = event.target.value as string[];
     if (value.includes("all")) {
       setFilters({
-        status: Object.values(SUBMISSION_STATUS).map((status) => status.value),
+        status: Object.values(SUBMISSION_ITEM_STATUS).map(
+          (status) => status.value,
+        ),
       });
     } else if (value.length <= 2) {
       setFilters({ status: value });
@@ -69,7 +71,7 @@ function StatusFilter() {
           );
         }}
       >
-        {Object.values(SUBMISSION_STATUS).map((status) => (
+        {Object.values(SUBMISSION_ITEM_STATUS).map((status) => (
           <MenuItem key={status.value} value={status.value}>
             <SubmissionStatusChip status={status.value} />
           </MenuItem>

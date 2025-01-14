@@ -6,16 +6,19 @@ import { getObjectFromS3 } from "../Shared/Table/utils";
 import { SubmitTableCell } from "../Shared/Table/common";
 import { useModal } from "../Shared/Modals/modalStore";
 import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
-import { SubmissionItemTableRow } from "./types";
-import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
+import {
+  SUBMISSION_ITEM_METHOD,
+  SUBMISSION_ITEM_TYPE,
+  SubmissionItem,
+} from "@/models/SubmissionItem";
 import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useParams } from "@tanstack/react-router";
 import { PACKAGE_STATUS } from "@/models/Package";
 
-type DocumentRowProps = {
+type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
-  submissionItem: SubmissionItemTableRow;
-};
+  submissionItem: SubmissionItem;
+}>;
 
 export default function DocumentRow({
   documentSubmission,
@@ -35,6 +38,8 @@ export default function DocumentRow({
   } = documentSubmission;
   const isConsultationRecord =
     name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
+
+  const subItemName = submissionItem.type.name;
 
   const {
     mutate: updateStateSubmissionPackage,
@@ -68,9 +73,9 @@ export default function DocumentRow({
           });
           downloadDocument();
         }}
-        title={`Start ${submissionItem.name} Review`}
-        description={`Would you like to start the ${submissionItem.name} review now? This will start the counter for the Review.`}
-        confirmText={`Start ${submissionItem.name} Review`}
+        title={`Start ${subItemName} Review`}
+        description={`Would you like to start the ${subItemName} review now? This will start the counter for the Review.`}
+        confirmText={`Start ${subItemName} Review`}
         cancelText="Start Later"
       />,
     );
@@ -89,7 +94,11 @@ export default function DocumentRow({
   };
 
   const openDocument = () => {
-    if (!submissionItem.review_start_date && submissionItem.has_document) {
+    if (
+      !submissionItem.review_start_date &&
+      submissionItem.type.submission_method ===
+        SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
+    ) {
       openConfirmationModal();
       return;
     }

@@ -74,15 +74,6 @@ const statusStyles: Record<
     },
     label: "New",
   },
-  UPDATED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${EAOColors.DecisionDark}`,
-      background: EAOColors.DecisionLight,
-      height: "24px",
-    },
-    label: "Updated",
-  },
   PENDING_MANAGER_REVIEW: {
     sx: {
       borderRadius: 1,
@@ -150,13 +141,21 @@ const statusStyles: Record<
     },
     label: "Under Consultation Check",
   },
+  UPDATED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #9B6BDA`,
+      background: "#F6E4FF",
+      height: "24px",
+    },
+    label: "Updated",
+  },
 };
 
-export default function PackageStatusChip({
-  status,
-}: {
+type PackageStatusChipProps = Readonly<{
   status: PackageStatus | NonCanonicalPackageStatus;
-}) {
+}>;
+export default function PackageStatusChip({ status }: PackageStatusChipProps) {
   const style = statusStyles[status];
 
   if (!style) {

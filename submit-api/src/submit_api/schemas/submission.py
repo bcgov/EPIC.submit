@@ -53,7 +53,6 @@ class SubmissionSchema(Schema):
     submitted_form = fields.Nested(SubmittedFormSchema, data_key="submitted_form")
     submitted_document = fields.Nested(SubmittedDocumentSchema, data_key="submitted_document")
     created_date = fields.DateTime(data_key="created_date")
-    created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
     status = fields.Enum(data_key="status", enum=SubmissionStatus)

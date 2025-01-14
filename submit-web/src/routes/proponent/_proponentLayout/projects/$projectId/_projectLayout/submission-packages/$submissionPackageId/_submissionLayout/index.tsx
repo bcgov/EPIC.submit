@@ -1,9 +1,3 @@
-import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import { ContentBox } from "@/components/Shared/ContentBox";
-import { YellowBar } from "@/components/Shared/YellowBar";
-import ItemsTable from "@/components/Submission/ItemsTable";
-import { Box, Grid, Typography } from "@mui/material";
 import {
   createFileRoute,
   Navigate,
@@ -29,9 +23,16 @@ import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
 import { useState } from "react";
+import { filterOpenUpdateRequests } from "@/utils";
+import { Box, Grid, Typography } from "@mui/material";
+import { ContentBox } from "@/components/Shared/ContentBox";
+import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
+import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
+import { YellowBar } from "@/components/Shared/YellowBar";
+import ItemsTable from "@/components/Submission/ItemsTable";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -82,7 +83,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          })
+          }),
       )
     ) {
       setIsValidating(true);
@@ -103,7 +104,8 @@ export default function SubmissionPage() {
 
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
   const isSubmitDisabled =
-    isPackageSubmitted && submissionPackage.update_requests.length === 0;
+    isPackageSubmitted &&
+    filterOpenUpdateRequests(submissionPackage.update_requests).length === 0;
 
   return (
     <PageGrid>

@@ -82,6 +82,7 @@ class PackageUpdateRequestSchema(Schema):
     created_by = fields.Method('get_created_by')
     type = fields.Enum(data_key="type", enum=UpdateRequestType)
     note = fields.Str(data_key="note")
+    status = fields.Str(data_key="status")
 
     def get_created_by(self, obj):
         """Get created by user."""
