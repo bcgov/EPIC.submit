@@ -78,7 +78,7 @@ export default function StaffSubmissionItemTableRow({
         ),
       ),
     );
-  }, [item]);
+  }, [item, submissionPackage.update_requests]);
 
   const isUpdateRequest = useMemo(() => {
     if (!submissionPackage) return false;
@@ -93,7 +93,7 @@ export default function StaffSubmissionItemTableRow({
       (updateRequest) =>
         updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
     );
-  }, [submissionPackage, id]);
+  }, [submissionPackage]);
 
   const actionLabel = hasDocument ? "Review" : "View";
   const isConsultationRecord =

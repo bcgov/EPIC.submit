@@ -7,7 +7,7 @@ from marshmallow import EXCLUDE, Schema, fields, post_dump, validate
 
 from submit_api.models.package import PackageStatus
 from submit_api.models.submission_review import SubmissionReviewStatus
-from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
+from submit_api.models.update_request import UpdateRequestType
 from submit_api.models.user import UserType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
