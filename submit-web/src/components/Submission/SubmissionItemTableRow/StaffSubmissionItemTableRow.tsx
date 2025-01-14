@@ -34,6 +34,7 @@ import {
   UPDATE_REQUEST_TYPE,
 } from "@/models/UpdateRequest";
 import dayjs from "dayjs";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -207,13 +208,15 @@ export default function StaffSubmissionItemTableRow({
           </Typography>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
-      {submissions.map((submission) => (
-        <DocumentRow
-          submissionItem={item}
-          key={`doc-row-${submission.id}`}
-          documentSubmission={submission}
-        />
-      ))}
+      {submissions
+        .filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
+        .map((submission) => (
+          <DocumentRow
+            submissionItem={item}
+            key={`doc-row-${submission.id}`}
+            documentSubmission={submission}
+          />
+        ))}
       <When condition={error}>
         <TableRow key={`row-${name}-divider`}>
           <TableCell

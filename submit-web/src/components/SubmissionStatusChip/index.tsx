@@ -122,6 +122,7 @@ const statusStyles: Record<string, StyleProps> = {
       border: `1px solid #9B6BDA`,
       background: "#F6E4FF",
       height: "24px",
+      width: "79px",
     },
     label: "Updated",
   },
@@ -180,6 +181,11 @@ export const SubmissionStatusChipStack = ({
         {isRevisionRequired && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.REVISION_REQUIRED}
+          />
+        )}
+        {isUpdated && (
+          <SubmissionStatusChip
+            status={NON_CANONICAL_SUBMISSION_STATUS.UPDATED}
           />
         )}
       </Stack>

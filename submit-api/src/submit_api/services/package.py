@@ -294,6 +294,7 @@ class PackageService:
         cls._update_package_submission_details(package, session)
         cls.update_submission_status(package, ItemStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
+        return package
 
     @classmethod
     def _resubmit_package(cls, package, session):
@@ -302,6 +303,7 @@ class PackageService:
         cls._create_email_queue_record(package, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
+        return package
 
     @classmethod
     def start_mp_review(cls, package_id, _session=None):

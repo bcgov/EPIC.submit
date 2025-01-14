@@ -21,9 +21,9 @@ import {
 import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
-import { SUBMISSION_STATUS } from "@/models/Submission";
 import dayjs from "dayjs";
 import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -57,7 +57,6 @@ export default function ProponentSubmissionItemTableRow({
       .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
 
     if (!last_update_request) return false;
-
     return Boolean(
       item.submissions.find((submission) =>
         dayjs(submission.created_date).isAfter(
@@ -116,7 +115,8 @@ export default function ProponentSubmissionItemTableRow({
           <Unless
             condition={
               submissionPackage?.submitted_on &&
-              submissionPackage.update_requests.length === 0
+              filterOpenUpdateRequests(submissionPackage.update_requests)
+                .length === 0
             }
           >
             <Typography
@@ -135,13 +135,15 @@ export default function ProponentSubmissionItemTableRow({
           </Unless>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
-      {submissions.map((submission) => (
-        <DocumentRow
-          key={`doc-row-${submission.id}`}
-          documentSubmission={submission}
-          submissionItem={item}
-        />
-      ))}
+      {submissions
+        .filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
+        .map((submission) => (
+          <DocumentRow
+            key={`doc-row-${submission.id}`}
+            documentSubmission={submission}
+            submissionItem={item}
+          />
+        ))}
       <When condition={error}>
         <TableRow key={`row-${name}-divider`}>
           <TableCell

@@ -28,6 +28,7 @@ import { usePackageTableStore } from "@/components/Submission/packageTableStore"
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
+import { filterOpenUpdateRequests } from "@/utils";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -100,7 +101,8 @@ export default function SubmissionPage() {
 
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
   const isSubmitDisabled =
-    isPackageSubmitted && submissionPackage.update_requests.length === 0;
+    isPackageSubmitted &&
+    filterOpenUpdateRequests(submissionPackage.update_requests).length === 0;
 
   return (
     <PageGrid>
