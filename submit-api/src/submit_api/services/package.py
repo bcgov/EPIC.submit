@@ -218,12 +218,12 @@ class PackageService:
                 session.add(item)
 
     @staticmethod
-    def _update_cr_status(items, status, session):
+    def _update_cr_status(items, data, session):
         """Update the status of all items in the package."""
         for item in items:
             if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
-                item.status = status
-                item.review_start_date = datetime.utcnow()
+                item.status = data.get('status')
+                item.review_start_date = data.get('review_start_date')
                 session.add(item)
 
     @staticmethod
@@ -340,12 +340,16 @@ class PackageService:
     def start_cr_check(cls, package_id):
         """Start the consultation check process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)
+        item_data = {
+            'status': ItemStatus.UNDER_CONSULTATION_CHECK.value,
+            'review_start_date': datetime.utcnow().isoformat()
+        }
         with session_scope() as session:
             cls._update_cr_status(
-                package.items, ItemStatus.UNDER_CONSULTATION_CHECK.value, session)
+                package.items, item_data, session)
             cls._update_package_status(package_id, session, package)
             new_metadata = {
-                PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: datetime.utcnow().isoformat()
+                PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: item_data.get('review_start_date')
             }
             cls._update_package_metadata(session, package_id, new_metadata)
             session.flush()

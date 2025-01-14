@@ -77,7 +77,7 @@ export default function DocumentRow({
         description={`Would you like to start the ${subItemName} review now? This will start the counter for the Review.`}
         confirmText={`Start ${subItemName} Review`}
         cancelText="Start Later"
-      />,
+      />
     );
   };
 
