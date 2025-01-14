@@ -1,8 +1,3 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/')({
-  component: () => <div>Hello /proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/!</div>
-})Typography } from "@mui/material";
 import {
   createFileRoute,
   Navigate,
@@ -31,7 +26,7 @@ import { useState } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -82,7 +77,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          })
+          }),
       )
     ) {
       setIsValidating(true);
