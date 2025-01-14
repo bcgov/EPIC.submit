@@ -223,7 +223,7 @@ class PackageService:
         for item in items:
             if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
                 item.status = status
-                item.review_start_date = datetime.utcnow()
+                item.review_start_date = datetime.utcnow().isoformat()
                 session.add(item)
 
     @staticmethod
