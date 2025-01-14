@@ -3,6 +3,11 @@ app:
   url: submit-web-{{ .Release.Namespace }}.apps.gold.devops.gov.bc.ca
   api: https://submit-api-{{ .Release.Namespace }}.apps.gold.devops.gov.bc.ca
   env: dev
+  title: EPIC.Submit
+  objectStorageUrl: https://epic-document-{{ .Release.Namespace }}.apps.gold.devops.gov.bc.ca/api
+  oidcAuthority: https://dev.oidc.gov.bc.ca/auth/realms/eao
+  clientId: epic-submit
+  conditionsLibraryUrl: https://condition-api-{{ .Release.Namespace }}.gold.devops.gov.bc.ca/api
 resources:
   cpu:
     limit: 200m
