@@ -29,7 +29,11 @@ import {
 } from "@/components/Shared/Table/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { filterOpenUpdateRequests } from "@/utils";
-import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import {
+  UPDATE_REQUEST_STATUS,
+  UPDATE_REQUEST_TYPE,
+} from "@/models/UpdateRequest";
+import dayjs from "dayjs";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -55,6 +59,25 @@ export default function StaffSubmissionItemTableRow({
   const name = item.type.name;
   const hasDocument =
     item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+
+  const isUpdated = useMemo(() => {
+    const last_update_request = submissionPackage.update_requests
+      .filter(
+        (updateRequest) =>
+          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
+          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value,
+      )
+      .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
+
+    if (!last_update_request) return false;
+    return Boolean(
+      item.submissions.find((submission) =>
+        dayjs(submission.created_date).isAfter(
+          last_update_request.created_date,
+        ),
+      ),
+    );
+  }, [item]);
 
   const isUpdateRequest = useMemo(() => {
     if (!submissionPackage) return false;
@@ -164,6 +187,7 @@ export default function StaffSubmissionItemTableRow({
             reviewStatus={review?.status}
             isUpdateRequested={isUpdateRequest}
             isRevisionRequired={isRevisionRequired}
+            isUpdated={isUpdated}
           />
         </SubmitPrimaryRowTableCell>
 

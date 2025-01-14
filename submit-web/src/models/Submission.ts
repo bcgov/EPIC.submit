@@ -2,6 +2,7 @@
 export type NonCanonicalSubmissionStatus =
   | "PENDING_MANAGER_REVIEW"
   | "REVISION_REQUIRED"
+  | "UPDATED"
   | "UPDATE_REQUESTED";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
@@ -10,6 +11,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
   UPDATE_REQUESTED: "UPDATE_REQUESTED",
   REVISION_REQUIRED: "REVISION_REQUIRED",
+  UPDATED: "UPDATED",
 });
 
 export type SubmissionItemStatus =
@@ -20,7 +22,7 @@ export type SubmissionItemStatus =
   | "REVIEW_REJECTED"
   | "PASSED_CONSULTATION_CHECK";
 
-export const SUBMISSION_STATUS: Record<
+export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
   { value: SubmissionItemStatus; label: string }
 > = {
@@ -78,6 +80,15 @@ export type SubmissionStatus =
   | "APPROVED"
   | "PENDING";
 
+export const SUBMISSION_STATUS = Object.freeze<
+  Record<SubmissionStatus, SubmissionStatus>
+>({
+  SUBMITTED: "SUBMITTED",
+  REJECTED: "REJECTED",
+  APPROVED: "APPROVED",
+  PENDING: "PENDING",
+});
+
 export type Submission = {
   id: number;
   item_id: number;
@@ -87,4 +98,5 @@ export type Submission = {
   submitted_form: SubmittedForm;
   created_date: string;
   submitted_by: string;
+  status: SubmissionStatus;
 };

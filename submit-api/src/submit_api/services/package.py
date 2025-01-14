@@ -281,17 +281,27 @@ class PackageService:
 
         with session_scope() as session:
             package = cls._get_and_validate_complete_package(package_id)
-            cls._update_items_status(
-                package.items, ItemStatus.SUBMITTED.value, session)
-            cls._update_package_status(package_id, session, package)
-            cls._update_package_submission_details(package, session)
-            cls.update_submission_status(package, ItemStatus.SUBMITTED.value, session)
-            cls._create_email_queue_record(package, session)
-            cls._deactivate_revision_required_requests(package, session)
-            cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
-            session.flush()
-            session.commit()
-        return package
+            if package.submitted_on:
+                return cls._resubmit_package(package, session)
+            return cls._submit_package(package, session)
+
+    @classmethod
+    def _submit_package(cls, package, session):
+        """Submit the package by updating its status and items."""
+        cls._update_items_status(
+            package.items, ItemStatus.SUBMITTED.value, session)
+        cls._update_package_status(package.id, session, package)
+        cls._update_package_submission_details(package, session)
+        cls.update_submission_status(package, ItemStatus.SUBMITTED.value, session)
+        cls._create_email_queue_record(package, session)
+
+    @classmethod
+    def _resubmit_package(cls, package, session):
+        """Submit the package by updating its status and items."""
+        cls._update_package_submission_details(package, session)
+        cls._create_email_queue_record(package, session)
+        cls._deactivate_revision_required_requests(package, session)
+        cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
 
     @classmethod
     def start_mp_review(cls, package_id, _session=None):

@@ -10,6 +10,7 @@ export type PackageType = {
 export type NonCanonicalPackageStatus =
   | "PENDING_MANAGER_REVIEW"
   | "REVISION_REQUIRED"
+  | "UPDATED"
   | "UPDATE_REQUESTED";
 export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   Record<NonCanonicalPackageStatus, NonCanonicalPackageStatus>
@@ -17,6 +18,7 @@ export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
   UPDATE_REQUESTED: "UPDATE_REQUESTED",
   REVISION_REQUIRED: "REVISION_REQUIRED",
+  UPDATED: "UPDATED",
 });
 
 export type PackageStatus =
@@ -30,8 +32,7 @@ export type PackageStatus =
   | "NEW_SUBMISSION"
   | "UNDER_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
-  | "CREATED"
-  | "UPDATED";
+  | "CREATED";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -76,10 +77,6 @@ export const PACKAGE_STATUS: Record<
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
-  },
-  UPDATED: {
-    value: "UPDATED",
-    label: "Updated",
   },
   CREATED: {
     value: "CREATED",

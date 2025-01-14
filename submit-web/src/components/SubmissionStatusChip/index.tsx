@@ -116,6 +116,15 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Revision Required",
   },
+  UPDATED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #9B6BDA`,
+      background: "#F6E4FF",
+      height: "24px",
+    },
+    label: "Updated",
+  },
 };
 
 export function SubmissionStatusChip({ status }: { status: string }) {
@@ -140,12 +149,14 @@ type SubmissionStatusChipStackProps = {
   reviewStatus?: string;
   isUpdateRequested?: boolean;
   isRevisionRequired?: boolean;
+  isUpdated?: boolean;
 };
 export const SubmissionStatusChipStack = ({
   status,
   reviewStatus,
   isUpdateRequested = false,
   isRevisionRequired = false,
+  isUpdated = false,
 }: SubmissionStatusChipStackProps) => {
   return (
     <Box sx={{ display: "inline-block" }}>

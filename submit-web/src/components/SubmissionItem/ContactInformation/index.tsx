@@ -10,7 +10,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useEffect, useMemo } from "react";
 import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
-import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_ITEM_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { CardInnerBox } from "@/components/Projects/Project";
@@ -76,7 +76,7 @@ export const ContactInformation = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -118,7 +118,7 @@ export const ContactInformation = () => {
     const request = {
       type: SUBMISSION_TYPE.FORM,
       data: formData,
-      status: SUBMISSION_STATUS.COMPLETED.value,
+      status: SUBMISSION_ITEM_STATUS.COMPLETED.value,
       item_id: submissionItem.id,
     };
     saveSubmission({

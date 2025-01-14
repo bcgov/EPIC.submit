@@ -5,7 +5,7 @@ import { UpdateRequest } from "@/models/UpdateRequest";
 import { Unless, When } from "react-if";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
 import { SubmissionPackage } from "@/models/Package";
-import { SUBMISSION_STATUS } from "@/models/Submission";
+import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import { checkIfEAO } from "@/components/Shared/PermissionGate/utils";
 import { useAccount } from "@/store/accountStore";
 
@@ -28,7 +28,9 @@ export default function RequestSection({
 
   const showNoteSection =
     (isEAO &&
-      submissionPackage.status.includes(SUBMISSION_STATUS.SUBMITTED.value)) ||
+      submissionPackage.status.includes(
+        SUBMISSION_ITEM_STATUS.SUBMITTED.value,
+      )) ||
     (!isEAO && Boolean(note));
 
   return (
