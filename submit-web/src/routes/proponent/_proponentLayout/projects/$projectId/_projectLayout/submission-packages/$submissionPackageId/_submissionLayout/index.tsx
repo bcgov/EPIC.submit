@@ -24,6 +24,12 @@ import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
 import { useState } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
+import { Box, Grid, Typography } from "@mui/material";
+import { ContentBox } from "@/components/Shared/ContentBox";
+import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
+import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
+import { YellowBar } from "@/components/Shared/YellowBar";
+import ItemsTable from "@/components/Submission/ItemsTable";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
