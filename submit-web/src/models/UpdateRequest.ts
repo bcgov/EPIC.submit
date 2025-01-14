@@ -13,6 +13,23 @@ export const UPDATE_REQUEST_TYPE = Object.freeze<
   },
 });
 
+export type UpdateRequestStatus = "OPEN" | "PENDING_REVIEW" | "CLOSED";
+export const UPDATE_REQUEST_STATUS = Object.freeze<
+  Record<UpdateRequestStatus, { value: UpdateRequestStatus; label: string }>
+>({
+  OPEN: {
+    value: "OPEN",
+    label: "Open",
+  },
+  PENDING_REVIEW: {
+    value: "PENDING_REVIEW",
+    label: "Pending Review",
+  },
+  CLOSED: {
+    value: "CLOSED",
+    label: "Closed",
+  },
+});
 export type UpdateRequest = {
   id: number;
   submission_item_ids: number[];
@@ -23,4 +40,5 @@ export type UpdateRequest = {
   active: boolean;
   type: UpdateRequestType;
   note: string;
+  status: UpdateRequestStatus;
 };

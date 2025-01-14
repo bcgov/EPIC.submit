@@ -11,7 +11,7 @@ import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
-  SUBMISSION_STATUS,
+  SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
   SubmissionItemStatus,
 } from "@/models/Submission";
@@ -127,7 +127,7 @@ export const ConsultationRecordProponentView = () => {
   } = methods;
 
   const handleCompleteForm = (formData: ConsultationRecordForm) => {
-    saveSubmission(formData, SUBMISSION_STATUS.COMPLETED.value); // Add default status here
+    saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value); // Add default status here
   };
 
   const saveSubmission = async (
@@ -172,7 +172,7 @@ export const ConsultationRecordProponentView = () => {
       ...methods.getValues(),
     };
 
-    saveSubmission(formData, SUBMISSION_STATUS.PARTIALLY_COMPLETED.value);
+    saveSubmission(formData, SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value);
   };
 
   useEffect(() => {

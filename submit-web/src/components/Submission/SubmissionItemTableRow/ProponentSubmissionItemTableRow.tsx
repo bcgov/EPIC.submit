@@ -18,6 +18,12 @@ import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
+import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
+import { useMemo } from "react";
+import { filterOpenUpdateRequests } from "@/utils";
+import dayjs from "dayjs";
+import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -28,7 +34,11 @@ export default function ProponentSubmissionItemTableRow({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
   });
 
-  const { name, id, submissions, has_document, status, isUpdateRequest } = item;
+  const { id, submissions, status } = item;
+  const name = item.type.name;
+  const has_document =
+    item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+
   const queryClient = useQueryClient();
 
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
@@ -36,6 +46,32 @@ export default function ProponentSubmissionItemTableRow({
       packageId: Number(submissionPackageId),
     }).queryKey,
   );
+
+  const isUpdated = useMemo(() => {
+    if (!submissionPackage) return false;
+    const last_update_request = submissionPackage.update_requests
+      .filter(
+        (updateRequest) =>
+          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value,
+      )
+      .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
+
+    if (!last_update_request) return false;
+    return Boolean(
+      item.submissions.find((submission) =>
+        dayjs(submission.created_date).isAfter(
+          last_update_request?.created_date,
+        ),
+      ),
+    );
+  }, [item, submissionPackage]);
+
+  const isUpdateRequest = useMemo(() => {
+    if (!submissionPackage || isUpdated) return false;
+    return filterOpenUpdateRequests(submissionPackage.update_requests)
+      .flatMap((updateRequest) => updateRequest.submission_item_ids)
+      .includes(id);
+  }, [submissionPackage, id, isUpdated]);
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
@@ -47,7 +83,7 @@ export default function ProponentSubmissionItemTableRow({
 
   return (
     <>
-      <SubmitTablePrimaryRow key={`row-${item.name}`} error={error}>
+      <SubmitTablePrimaryRow key={`row-${name}`} error={error}>
         <SubmitPrimaryRowTableCell>
           <MuiLink
             color="inherit"
@@ -72,13 +108,15 @@ export default function ProponentSubmissionItemTableRow({
           <SubmissionStatusChipStack
             status={status}
             isUpdateRequested={isUpdateRequest}
+            isUpdated={isUpdated}
           />
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="right">
           <Unless
             condition={
               submissionPackage?.submitted_on &&
-              submissionPackage.update_requests.length === 0
+              filterOpenUpdateRequests(submissionPackage.update_requests)
+                .length === 0
             }
           >
             <Typography
@@ -97,13 +135,15 @@ export default function ProponentSubmissionItemTableRow({
           </Unless>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
-      {submissions.map((submission) => (
-        <DocumentRow
-          key={`doc-row-${submission.id}`}
-          documentSubmission={submission}
-          submissionItem={item}
-        />
-      ))}
+      {submissions
+        .filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
+        .map((submission) => (
+          <DocumentRow
+            key={`doc-row-${submission.id}`}
+            documentSubmission={submission}
+            submissionItem={item}
+          />
+        ))}
       <When condition={error}>
         <TableRow key={`row-${name}-divider`}>
           <TableCell
@@ -120,7 +160,7 @@ export default function ProponentSubmissionItemTableRow({
                 color: BCDesignTokens.typographyColorDanger,
               }}
             >
-              Please complete the {item.name} section.
+              Please complete the {name} section.
             </Typography>
           </TableCell>
         </TableRow>

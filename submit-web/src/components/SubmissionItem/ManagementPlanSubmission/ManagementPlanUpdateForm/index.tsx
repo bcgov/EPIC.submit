@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import DocumentsTable from "../../DocumentsTable";
 
-export const ConsultationRecordUpdateForm = () => {
+export const ManagementPlanUpdateForm = () => {
   const navigate = useNavigate();
   const { projectId, submissionPackageId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",

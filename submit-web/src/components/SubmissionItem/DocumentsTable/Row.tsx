@@ -6,7 +6,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { useReplaceSubmussion } from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
-import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
+import { saveObject } from "@/hooks/api/useObjectStorage";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
@@ -38,7 +38,7 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
   const queryClient = useQueryClient();
 
   const {
-    submitted_document: { name, url },
+    submitted_document: { name, url, folder },
     version,
     submitted_by,
   } = currentSubmission;
@@ -76,7 +76,7 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
       const documentData = {
         name: fileToUpload.name,
         url: uploadedFile.filepath,
-        folder: S3_FOLDER.CONSULTATION_RECORDS,
+        folder: folder,
       };
       await replaceSubmission({
         submissionId: currentSubmission.id,
