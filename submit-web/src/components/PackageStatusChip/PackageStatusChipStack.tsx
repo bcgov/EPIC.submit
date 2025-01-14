@@ -5,7 +5,10 @@ import {
 import { Box, Stack } from "@mui/material";
 import PackageStatusChip from ".";
 import { When } from "react-if";
-import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import {
+  UPDATE_REQUEST_STATUS,
+  UPDATE_REQUEST_TYPE,
+} from "@/models/UpdateRequest";
 import { useMemo } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
 
@@ -30,6 +33,16 @@ export const PackageStatusChipStack = ({
       submissionPackage.update_requests.filter(
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+      ).length > 0
+    );
+  }, [submissionPackage.update_requests]);
+
+  const isUpdated = useMemo(() => {
+    return (
+      submissionPackage.update_requests.filter(
+        (updateRequest) =>
+          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
+          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value,
       ).length > 0
     );
   }, [submissionPackage.update_requests]);
@@ -60,6 +73,9 @@ export const PackageStatusChipStack = ({
           <PackageStatusChip
             status={NON_CANONICAL_PACKAGE_STATUS.REVISION_REQUIRED}
           />
+        </When>
+        <When condition={isUpdated}>
+          <PackageStatusChip status={NON_CANONICAL_PACKAGE_STATUS.UPDATED} />
         </When>
       </Stack>
     </Box>

@@ -300,7 +300,7 @@ class PackageService:
     def _resubmit_package(cls, package, session):
         """Submit the package by updating its status and items."""
         open_update_requests = [request for request in package.update_requests
-                                if request.status == UpdateRequestStatus.OPEN]
+                                if request.status == UpdateRequestStatus.OPEN.value]
         if not open_update_requests:
             raise BadRequestError("Cannot resubmit a package that has no open update requests")
         cls._update_package_submission_details(package, session)
