@@ -4,35 +4,49 @@ import { QUERY_KEY } from "./api/constants";
 import { ConditionsLibraryResponse } from "@/models/Condition";
 
 type GetConditionParams = {
-  conditionId: number;
+  projectId: string;
+  includeAttributes: boolean;
 };
 
-const getCondition = ({ conditionId }: GetConditionParams) => {
-  return conditionLibraryRequest<ConditionsLibraryResponse>({
-    //replace with conditions api
-    url: `conditions/${conditionId}`,
+const getConditions = async ({
+  projectId,
+  includeAttributes,
+}: GetConditionParams) => {
+  const response = await conditionLibraryRequest<ConditionsLibraryResponse>({
+    url: `/conditions/project/${projectId}?include_attributes=${includeAttributes}`,
   });
+
+  // Extract and return only the `conditions` array
+  return response.conditions;
 };
 
 type UseGetConditionParams = {
-  conditionId: number;
+  projectId: string;
   enabled?: boolean;
+  includeAttributes?: boolean;
 };
 
-export const getConditionQueryOptions = ({
-  conditionId,
+export const getConditionsQueryOptions = ({
+  projectId,
+  includeAttributes = false,
   enabled = true,
 }: UseGetConditionParams) =>
   queryOptions({
-    queryKey: [QUERY_KEY.SUBMISSION_ITEM, conditionId],
-    queryFn: () => getCondition({ conditionId }),
-    enabled: enabled && Boolean(conditionId),
+    queryKey: [QUERY_KEY.SUBMISSION_ITEM, projectId],
+    queryFn: () =>
+      getConditions({ projectId, includeAttributes: includeAttributes }),
+    enabled: enabled && Boolean(projectId),
   });
 
-export const useGetCondition = ({
-  conditionId,
+export const useGetConditions = ({
+  projectId,
+  includeAttributes = false,
   enabled = true,
 }: UseGetConditionParams) => {
-  const options = getConditionQueryOptions({ conditionId, enabled });
+  const options = getConditionsQueryOptions({
+    projectId,
+    enabled,
+    includeAttributes,
+  });
   return useQuery(options);
 };

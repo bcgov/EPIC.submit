@@ -11,7 +11,6 @@ import {
   Typography,
 } from "@mui/material";
 import { TabBox } from "./TabBox";
-import { dummyFullCondition } from "./constants";
 import { When } from "react-if";
 import { useState } from "react";
 import { useManagementPlanForm } from "./formStore";
@@ -44,8 +43,16 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
     setStep(Math.min(step - 1, 0));
   };
 
+  const mainCondition = formData.main_condition;
+
+  const consultedParties =
+    mainCondition?.condition_attributes?.parties_required_to_be_consulted.split(
+      ","
+    );
+
   const handleCreateSubmission = () => {
-    const managementPlanName = dummyFullCondition.deliverable_name || "";
+    const managementPlanName =
+      mainCondition?.condition_attributes?.deliverable_name || "";
     onSubmit({
       name: {
         label: managementPlanName,
@@ -73,7 +80,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
             variant="body1"
             fontWeight={theme.typography.fontWeightBold}
           >
-            {dummyFullCondition.deliverable_name}
+            {mainCondition?.condition_attributes?.deliverable_name}
           </Typography>
         </Grid>
         <Grid item xs={12}>
@@ -81,10 +88,15 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
             variant="body2"
             fontWeight={theme.typography.fontWeightBold}
           >
-            Condition {dummyFullCondition.name}
+            Condition {mainCondition?.condition_name}
           </Typography>
         </Grid>
-        <When condition={dummyFullCondition.fn_consultation_required}>
+        <When
+          condition={
+            mainCondition?.condition_attributes?.requires_consultation ===
+            "true"
+          }
+        >
           <Grid item xs={12}>
             <Typography
               variant="body2"
@@ -94,7 +106,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
             </Typography>
           </Grid>
         </When>
-        {dummyFullCondition.stakeholders_to_consult && (
+        {consultedParties && (
           <Grid item xs={12}>
             <Typography
               variant="body2"
@@ -111,7 +123,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
                 fontWeight: theme.typography.fontWeightBold,
               }}
             >
-              {dummyFullCondition.stakeholders_to_consult.map((stakeholder) => (
+              {consultedParties.map((stakeholder: string) => (
                 <li key={stakeholder}>{stakeholder}</li>
               ))}
             </ul>
