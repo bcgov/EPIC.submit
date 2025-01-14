@@ -1,7 +1,7 @@
 import { SubmissionPackage } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { Grid, Stack, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { ReactNode } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
@@ -79,14 +79,23 @@ const ProponentInfoBox = ({
       }}
       rowSpacing={1}
     >
-      <Stack direction={"row"} spacing={1}>
-        <Typography color={BCDesignTokens.themeGray70}>Version: </Typography>
+      <Grid
+        item
+        xs={12}
+        container
+        alignContent={"flex-end"}
+        justifyContent={"flex-end"}
+      >
+        <Typography color={BCDesignTokens.themeGray70} sx={{ mr: 1 }}>
+          Version:{" "}
+        </Typography>
         <VersionGroup
+          proponent
           packageId={submissionPackage.id}
           isPackageUpdating={isPackageUpdating}
           updatePackageId={setPackageId}
         />
-      </Stack>
+      </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem label={"Condition"} value={condition} />
       </Grid>
@@ -142,23 +151,18 @@ const StaffInfoBox = ({
       <Grid
         item
         xs={12}
-        lg={12}
         container
         alignContent={"flex-end"}
         justifyContent={"flex-end"}
       >
-        <Stack
-          direction={"row"}
-          spacing={1}
-          pr={BCDesignTokens.layoutPaddingMedium}
-        >
-          <Typography color={BCDesignTokens.themeGray70}>Version: </Typography>
-          <VersionGroup
-            packageId={submissionPackage.id}
-            isPackageUpdating={isPackageUpdating}
-            updatePackageId={setPackageId}
-          />
-        </Stack>
+        <Typography color={BCDesignTokens.themeGray70} sx={{ mr: 1 }}>
+          Version:{" "}
+        </Typography>
+        <VersionGroup
+          packageId={submissionPackage.id}
+          isPackageUpdating={isPackageUpdating}
+          updatePackageId={setPackageId}
+        />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem

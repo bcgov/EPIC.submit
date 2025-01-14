@@ -22,6 +22,7 @@ class Project(db.Model):
     proponent_id = Column(db.Integer(), nullable=False, unique=True)
     proponent_name = Column(db.String(), nullable=False)
     ea_certificate = Column(db.String(255), nullable=True, default=None)
+    epic_guid = Column(db.String(255), nullable=True, default=None)
 
     __table_args__ = (
         db.Index('ix_projects_proponent_id', 'proponent_id'),

@@ -6,6 +6,7 @@ export type Project = {
   proponent_id: number;
   proponent_name: string;
   ea_certificate?: string;
+  epic_guid: string;
 };
 
 export type AccountProject = {
@@ -25,6 +26,7 @@ export const createDefaultAccountProject = (): AccountProject => ({
     name: "",
     proponent_id: 0,
     proponent_name: "",
+    epic_guid: "",
   },
   packages: [],
 });
