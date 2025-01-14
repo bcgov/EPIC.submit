@@ -1,16 +1,16 @@
-""" Add status column to update_requests table
+""" Add status column to update_requests
 
-Revision ID: f48c2afae65f
-Revises: e9463a63a3e0
-Create Date: 2025-01-10 17:39:17.441141
+Revision ID: 1056f5daad12
+Revises: a6aa74a8e7c4
+Create Date: 2025-01-14 09:47:22.694555
 
 """
 from alembic import op
 import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
-revision = 'f48c2afae65f'
-down_revision = 'e9463a63a3e0'
+revision = '1056f5daad12'
+down_revision = 'a6aa74a8e7c4'
 branch_labels = None
 depends_on = None
 
@@ -35,3 +35,4 @@ def downgrade():
     # Drop the enum type
     op.execute("DROP TYPE updaterequeststatus")
     # ### end Alembic commands ###
+
