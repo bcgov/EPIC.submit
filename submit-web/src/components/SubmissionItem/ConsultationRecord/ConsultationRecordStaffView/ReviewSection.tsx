@@ -27,12 +27,14 @@ import {
 } from "@/components/Shared/PermissionGate/utils";
 import { NotificationBox } from "./NotificationBox";
 import NotesSection from "../../NotesSection";
+import AddRequestSection from "./AddRequestSection";
+import { When } from "react-if";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
 const getAnswersByType = (
   review: SubmissionReview,
-  type: SubmissionReviewEntryType
+  type: SubmissionReviewEntryType,
 ) => {
   if (!review?.entries) return {};
   return review.entries?.find((entry) => entry.type === type)?.entry;
@@ -50,7 +52,7 @@ export default function ReviewSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey
+      .queryKey,
   );
 
   const defaultValues = useMemo(() => {
@@ -59,19 +61,32 @@ export default function ReviewSection() {
     const review = submissionItem.review;
     const staffAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
     );
     const managerAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
     );
+
+    const updateRequest = managerAnswers?.request_update ||
+      staffAnswers?.request_update || {
+        reason: "",
+        submission_item_ids: [],
+      };
 
     return {
       staff: {
-        ...staffAnswers,
+        passedConsultationCheck: staffAnswers?.passedConsultationCheck
+          ? String(staffAnswers.passedConsultationCheck)
+          : "",
       },
       manager: {
-        ...managerAnswers,
+        passedConsultationCheck: managerAnswers?.passedConsultationCheck
+          ? String(managerAnswers.passedConsultationCheck)
+          : "",
+      },
+      update_request: {
+        ...updateRequest,
       },
     };
   }, [submissionItem]);
@@ -81,6 +96,16 @@ export default function ReviewSection() {
     mode: "onChange",
     defaultValues,
   });
+
+  const { getValues } = methods;
+
+  // geet staff and manager answers
+  const staffAnswers = getValues([
+    "staff.passedConsultationCheck",
+    "manager.passedConsultationCheck",
+  ]);
+  console.log(staffAnswers);
+  const failedConsultationCheck = staffAnswers.includes(RadioOptions.NO.value);
 
   const isFormDisabled =
     (isStaff &&
@@ -153,6 +178,9 @@ export default function ReviewSection() {
               </>
             </PermissionsGate>
             <NotesSection />
+            <When condition={failedConsultationCheck}>
+              <AddRequestSection />
+            </When>
             <NotificationBox />
             <ActionButtons />
           </form>
