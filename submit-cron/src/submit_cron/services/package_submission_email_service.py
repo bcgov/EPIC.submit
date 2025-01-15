@@ -6,7 +6,7 @@ from submit_api.models.project import Project as ProjectModel
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.user import User as UserModel
 from submit_api.models.account_user import AccountUser as AccountUserModel
-from submit_api.models.submission import SubmissionTypeStatus
+from submit_api.models.submission import SubmissionType
 
 from submit_cron.utils import constants
 from submit_cron.models import db
@@ -61,7 +61,7 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
         """Retrieve document submissions from the package."""
         submissions = [
             submission for item in package.items for submission in item.submissions
-            if submission.type == SubmissionTypeStatus.DOCUMENT
+            if submission.type == SubmissionType.DOCUMENT
         ]
         return submissions
 
