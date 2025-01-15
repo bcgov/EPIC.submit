@@ -4,7 +4,7 @@ name: SUBMIT CRON  CD
 on:
   push:
     branches:
-      - cron
+      - develop
     paths:
       - "submit-cron/**"
       - "submit-api/**"
