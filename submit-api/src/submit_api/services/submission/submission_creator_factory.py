@@ -93,8 +93,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         """Replace a document submission."""
         with session_scope() as session:
             submission = SubmissionModel.find_by_id(submission_id)
-            if not submission.status == SubmissionStatus.SUBMITTED:
-                raise BadRequestError("Cannot replace an unsubmitted document.")
+            if status := submission.status not in [SubmissionStatus.SUBMITTED, SubmissionStatus.REJECTED]:
+                raise BadRequestError(f"Cannot replace a document with status {status}.")
             submitted_document = self._create_submitted_document(session, request_data)
             new_submission = self._create_submission(
                 session=session,
