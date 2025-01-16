@@ -51,6 +51,7 @@ export default function VersionGroup({
           color={packageId === version.package_id ? "primary" : "secondary"}
           sx={{
             p: 0,
+            mr: 1,
             minWidth: `35px`,
           }}
           onClick={() => handleUpdatePackageId(version.package_id)}
