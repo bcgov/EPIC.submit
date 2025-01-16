@@ -18,6 +18,7 @@ import { theme } from "@/styles/theme";
 import { NewManagementPlanForm } from "./types";
 import WarningBox from "../Shared/WarningBox";
 import { BCDesignTokens } from "epic.theme";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 const YES = "yes";
 const NO = "no";
@@ -28,7 +29,10 @@ type PlanDetailsProps = {
 export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   const { step, setStep, reset, formData } = useManagementPlanForm();
   const [isCorrect, setIsCorrect] = useState<string>(YES);
-
+  const navigate = useNavigate();
+  const { projectId } = useParams({
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+  });
   const handleIsCorrectChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -36,6 +40,9 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   };
 
   const handleCancel = () => {
+    navigate({
+      to: `/proponent/projects/${projectId}`,
+    });
     reset();
   };
 
@@ -46,9 +53,9 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   const mainCondition = formData.main_condition;
 
   const consultedParties =
-    mainCondition?.condition_attributes?.parties_required_to_be_consulted.split(
+    mainCondition?.condition_attributes?.parties_required_to_be_consulted?.split(
       ","
-    );
+    ) || [];
 
   const handleCreateSubmission = () => {
     const managementPlanName =
