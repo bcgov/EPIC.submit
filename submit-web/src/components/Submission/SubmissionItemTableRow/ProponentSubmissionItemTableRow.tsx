@@ -84,7 +84,7 @@ export default function ProponentSubmissionItemTableRow({
           updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
       )
       .some((updateRequest) => updateRequest.submission_item_ids.includes(id));
-  }, [submissionPackage]);
+  }, [submissionPackage, id]);
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 

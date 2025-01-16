@@ -37,8 +37,6 @@ export const Conditions = () => {
     includeAttributes: true,
   });
 
-  console.log("conditions", isLoading);
-
   const { step, setStep, reset, formData, setFormData } =
     useManagementPlanForm();
 

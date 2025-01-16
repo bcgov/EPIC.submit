@@ -95,7 +95,7 @@ export default function StaffSubmissionItemTableRow({
           updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
       )
       .some((updateRequest) => updateRequest.submission_item_ids.includes(id));
-  }, [submissionPackage]);
+  }, [submissionPackage, id]);
 
   const actionLabel = hasDocument ? "Review" : "View";
   const isConsultationRecord =
