@@ -59,7 +59,8 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
 
   const handleCreateSubmission = () => {
     const managementPlanName =
-      mainCondition?.condition_attributes?.deliverable_name || "";
+      mainCondition?.condition_attributes?.deliverable_name ||
+      mainCondition.condition_name;
     onSubmit({
       name: {
         label: managementPlanName,
