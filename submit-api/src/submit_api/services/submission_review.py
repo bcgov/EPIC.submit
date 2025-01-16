@@ -144,7 +144,6 @@ class SubmissionReviewService:
             cls.process_review_status(review, status, session)
             session.add(review)
             current_app.logger.info(f"Submission review saved for item {item_id}.")
-            # raise UnprocessableEntityError("Fake Error.")
             return review
 
     @classmethod
@@ -225,13 +224,8 @@ class SubmissionReviewService:
         """Reject consultation record."""
         cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
         update_request_data = cls._prepare_update_request_data(item)
-        print(update_request_data)
         cls._create_update_request(update_request_data, session)
-        print("After update request")
-        print(session)
         session.flush()
-        print("After printing session")
-        # session.flush()
         return item
 
     @classmethod
@@ -248,7 +242,6 @@ class SubmissionReviewService:
         manager_review_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(
             item_review.id, SubmissionReviewEntryType.MANAGER_CONFIRMATION
         )
-        print(manager_review_entry)
         return {
             'package_id': item.package_id,
             'item_ids': manager_review_entry.entry.get('submission_item_ids') if manager_review_entry else None,
@@ -324,7 +317,6 @@ class SubmissionReviewService:
     @classmethod
     def _create_update_request(cls, data, session):
         """Create an update request."""
-        print(data)
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
             submission_item_ids=data.get('item_ids'),
@@ -332,6 +324,5 @@ class SubmissionReviewService:
             reason=data.get('reason'),
             type=data.get('type')
         )
-        print(update_request)
         session.add(update_request)
         current_app.logger.info(f"Update request created for new package {data.get('package_id')}.")
