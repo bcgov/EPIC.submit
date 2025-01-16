@@ -18,7 +18,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Unless } from "react-if";
 import { useGetConditions } from "@/hooks/useConditions";
 import { Condition } from "@/models/Condition";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 
 const MAX_SUPPORTING_CONDITIONS = 4;
@@ -27,7 +27,7 @@ export const Conditions = () => {
   const { projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
   });
-
+  const navigate = useNavigate();
   const { data: accountProject } = useGetAccountProject({
     accountProjectId: Number(projectId),
   });
@@ -72,6 +72,9 @@ export const Conditions = () => {
   };
 
   const handleCancel = () => {
+    navigate({
+      to: `/proponent/projects/${projectId}`,
+    });
     reset();
   };
 

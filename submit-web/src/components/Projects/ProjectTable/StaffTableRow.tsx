@@ -94,10 +94,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             lineHeight: 1.2,
             wordWrap: "break-word",
             textAlign: "right",
-            color:
-              days_since_submission > 4
-                ? BCDesignTokens.typographyColorDanger
-                : BCDesignTokens.supportBorderColorSuccess,
+            color: BCDesignTokens.typographyFontSizeBody,
           }}
         >
           {submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
