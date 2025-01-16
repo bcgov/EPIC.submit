@@ -22,7 +22,10 @@ import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
 import dayjs from "dayjs";
-import { UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import {
+  UPDATE_REQUEST_STATUS,
+  UPDATE_REQUEST_TYPE,
+} from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export default function ProponentSubmissionItemTableRow({
@@ -73,6 +76,16 @@ export default function ProponentSubmissionItemTableRow({
       .includes(id);
   }, [submissionPackage, id, isUpdated]);
 
+  const isRevisionRequired = useMemo(() => {
+    if (!submissionPackage) return false;
+    return submissionPackage.update_requests
+      .filter(
+        (updateRequest) =>
+          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+      )
+      .some((updateRequest) => updateRequest.submission_item_ids.includes(id));
+  }, [submissionPackage]);
+
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
   const onActionClick = () => {
@@ -109,14 +122,17 @@ export default function ProponentSubmissionItemTableRow({
             status={status}
             isUpdateRequested={isUpdateRequest}
             isUpdated={isUpdated}
+            isRevisionRequired={isRevisionRequired}
           />
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="right">
           <Unless
             condition={
               submissionPackage?.submitted_on &&
-              filterOpenUpdateRequests(submissionPackage.update_requests)
-                .length === 0
+              submissionPackage.update_requests.filter(
+                (updateRequest) =>
+                  updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value,
+              ).length === 0
             }
           >
             <Typography
