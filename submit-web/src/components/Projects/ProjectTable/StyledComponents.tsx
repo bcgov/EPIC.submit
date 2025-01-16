@@ -6,18 +6,21 @@ export const StyledProjectTableRow = styled(TableRow)(() => ({
   "&:hover": {
     backgroundColor: BCDesignTokens.surfaceColorMenusHover,
   },
+  padding: BCDesignTokens.layoutPaddingSmall,
+  maxHeight: "40px",
   cursor: "pointer",
 }));
 
 export const StyledProjectTableCell = styled(TableCell)(() => ({
   borderTop: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
   borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-  py: BCDesignTokens.layoutPaddingXsmall,
   "&:first-of-type": {
     borderLeft: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
     borderTopLeftRadius: 5,
     borderBottomLeftRadius: 5,
   },
+  padding: BCDesignTokens.layoutPaddingSmall,
+  maxHeight: "40px",
   "&:last-of-type": {
     borderRight: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
     borderTopRightRadius: 5,
