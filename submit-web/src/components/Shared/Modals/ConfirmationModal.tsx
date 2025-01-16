@@ -12,6 +12,7 @@ import { useModal } from "./modalStore";
 import { modalStyle } from "./constants";
 import { LoadingButton } from "../LoadingButton";
 import CloseIcon from "@mui/icons-material/Close";
+import { useEffect } from "react";
 
 type ConfirmationModalProps = {
   title: string;
@@ -29,6 +30,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   cancelText,
 }) => {
   const { setClose, isLoading } = useModal();
+
+  useEffect(() => {}, [isLoading]);
 
   return (
     <Box sx={modalStyle}>
