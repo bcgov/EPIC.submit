@@ -17,14 +17,14 @@ export const consultationSchema = yup.object().shape({
       ["staff.passedConsultationCheck", "manager.passedConsultationCheck"],
       (values: string[], schema: yup.AnyObject) => {
         const [staff, manager] = values;
-        return staff === "NO" || manager === "NO"
+        return staff === "NO" && manager !== "YES"
           ? schema.shape({
-              reason: yup.string().required("Update request is required"),
+              reason: yup.string().required("Reason is required"),
               submission_item_ids: yup
                 .array()
                 .nullable()
                 .required("Submission items are required")
-                .of(yup.string())
+                .of(yup.number())
                 .min(1, "Please select at least one item"),
             })
           : schema;

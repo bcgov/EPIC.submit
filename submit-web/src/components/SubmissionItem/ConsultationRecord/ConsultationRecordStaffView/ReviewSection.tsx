@@ -68,12 +68,6 @@ export default function ReviewSection() {
       SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
     );
 
-    const updateRequest = managerAnswers?.request_update ||
-      staffAnswers?.request_update || {
-        reason: "",
-        submission_item_ids: [],
-      };
-
     return {
       staff: {
         passedConsultationCheck: staffAnswers?.passedConsultationCheck
@@ -86,7 +80,11 @@ export default function ReviewSection() {
           : "",
       },
       update_request: {
-        ...updateRequest,
+        reason: managerAnswers?.reason || staffAnswers?.reason || "",
+        submission_item_ids:
+          managerAnswers?.submission_item_ids ||
+          staffAnswers?.submission_item_ids ||
+          [],
       },
     };
   }, [submissionItem]);
@@ -100,12 +98,12 @@ export default function ReviewSection() {
   const { getValues } = methods;
 
   // geet staff and manager answers
-  const staffAnswers = getValues([
-    "staff.passedConsultationCheck",
-    "manager.passedConsultationCheck",
-  ]);
-  console.log(staffAnswers);
-  const failedConsultationCheck = staffAnswers.includes(RadioOptions.NO.value);
+  const staffAnswer = getValues("staff.passedConsultationCheck");
+  const managerAnswer = getValues("manager.passedConsultationCheck");
+
+  const failedConsultationCheck =
+    staffAnswer === RadioOptions.NO.value &&
+    managerAnswer !== RadioOptions.YES.value;
 
   const isFormDisabled =
     (isStaff &&

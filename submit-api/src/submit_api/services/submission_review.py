@@ -120,33 +120,31 @@ class SubmissionReviewService:
     def submission_item_post_review(cls, review, session):
         """Post review of submission item."""
         if review.status == SubmissionReviewStatus.APPROVED.value:
-            cls.approve_submission(review, session)
+            cls.approve_submission(review.item_id, session)
         elif review.status == SubmissionReviewStatus.REJECTED.value:
-            cls.reject_submission(review, session)
+            cls.reject_submission(review.item_id, session)
 
     @classmethod
     def save_submission_review(cls, item_id, review_data):
         """Save submission item review."""
-        review = cls.get_or_create_active_item_review(item_id)
-        review.flush()
-        item = ItemModel.find_by_id(item_id)
-        package = PackageModel.find_by_id(item.package_id)
-        if not package.submitted_on:
-            current_app.logger.error(f"Package {package.id} has not been submitted.")
-            raise UnprocessableEntityError("Package has not been submitted.")
-
-        if review.status == SubmissionReviewStatus.APPROVED:
-            current_app.logger.error(f"Item {item_id} already approved.")
-            raise UnprocessableEntityError("Item has already been approved.")
-
         with session_scope() as session:
+            review = cls.get_or_create_active_item_review(item_id)
+            review.flush()
+            item = ItemModel.find_by_id(item_id)
+            package = PackageModel.find_by_id(item.package_id)
+            if not package.submitted_on:
+                current_app.logger.error(f"Package {package.id} has not been submitted.")
+                raise UnprocessableEntityError("Package has not been submitted.")
+
+            if review.status == SubmissionReviewStatus.APPROVED:
+                current_app.logger.error(f"Item {item_id} already approved.")
+                raise UnprocessableEntityError("Item has already been approved.")
             cls._save_submission_review_answers(review, review_data, session)
             status = review_data.get('status')
             cls.process_review_status(review, status, session)
             session.add(review)
-            session.flush()
-            session.commit()
             current_app.logger.info(f"Submission review saved for item {item_id}.")
+            # raise UnprocessableEntityError("Fake Error.")
             return review
 
     @classmethod
@@ -200,7 +198,7 @@ class SubmissionReviewService:
     @classmethod
     def reject_submission(cls, item_id, session):
         """Reject submission item."""
-        item = cls._get_submission_item_by_id(item_id)
+        item = ItemModel.find_by_id(item_id)
         rejection_processor = cls._get_submission_item_rejection_processor(item)
         rejection_processor(item, session)
         cls._update_package_status(item.package_id, session)
@@ -227,8 +225,13 @@ class SubmissionReviewService:
         """Reject consultation record."""
         cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
         update_request_data = cls._prepare_update_request_data(item)
+        print(update_request_data)
         cls._create_update_request(update_request_data, session)
+        print("After update request")
+        print(session)
         session.flush()
+        print("After printing session")
+        # session.flush()
         return item
 
     @classmethod
@@ -241,9 +244,11 @@ class SubmissionReviewService:
     @classmethod
     def _prepare_update_request_data(cls, item):
         """Prepare the update request data."""
+        item_review = SubmissionReview.get_active_review_by_item_id(item.id)
         manager_review_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(
-            item.submission_review.id, SubmissionReviewEntryType.MANAGER_CONFIRMATION
+            item_review.id, SubmissionReviewEntryType.MANAGER_CONFIRMATION
         )
+        print(manager_review_entry)
         return {
             'package_id': item.package_id,
             'item_ids': manager_review_entry.entry.get('submission_item_ids') if manager_review_entry else None,
@@ -319,6 +324,7 @@ class SubmissionReviewService:
     @classmethod
     def _create_update_request(cls, data, session):
         """Create an update request."""
+        print(data)
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
             submission_item_ids=data.get('item_ids'),
@@ -326,5 +332,6 @@ class SubmissionReviewService:
             reason=data.get('reason'),
             type=data.get('type')
         )
+        print(update_request)
         session.add(update_request)
         current_app.logger.info(f"Update request created for new package {data.get('package_id')}.")

@@ -1,8 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dayjs from "dayjs";
-import { UpdateRequest } from "@/models/UpdateRequest";
-import { Unless, When } from "react-if";
+import { UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
+import { Case, Switch, Unless, When } from "react-if";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
 import { SubmissionPackage } from "@/models/Package";
 import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
@@ -18,13 +18,16 @@ export default function RequestSection({
   updateRequest,
   submissionPackage,
 }: UpdateRequestProps) {
-  const { reason, created_date, created_by, note } = updateRequest;
+  const { reason, created_date, created_by, note, type, submission_item_ids } =
+    updateRequest;
   const createdDate = dayjs(created_date).format("DD-MMM-YYYY");
 
   const { roles } = useAccount();
   const isEAO = checkIfEAO(roles || []);
 
-  const submissionItems = submissionPackage.items;
+  const submissionItems = submissionPackage.items.filter((item) =>
+    submission_item_ids.includes(item.id),
+  );
 
   const showNoteSection =
     (isEAO &&
@@ -50,7 +53,14 @@ export default function RequestSection({
       </Box>
 
       <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
-        Update requested for
+        <Switch>
+          <Case condition={type === UPDATE_REQUEST_TYPE.REVIEW.value}>
+            Revision required for
+          </Case>
+          <Case condition={type === UPDATE_REQUEST_TYPE.UPDATE.value}>
+            Update requested for
+          </Case>
+        </Switch>
       </Typography>
 
       <Typography variant="subtitle1">

@@ -1,4 +1,10 @@
-import { Box, Checkbox, FormControlLabel, Typography } from "@mui/material";
+import {
+  Box,
+  Checkbox,
+  FormControlLabel,
+  FormHelperText,
+  Typography,
+} from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
 import { SubmissionPackage } from "@/models/Package";
@@ -29,8 +35,18 @@ export default function AddRequestSection() {
   }, [submissionPackage?.items]);
 
   return (
-    <Box mt="20px">
-      <Typography variant="body1">Revision Required for</Typography>
+    <Box
+      mt="20px"
+      sx={{
+        border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+        backgroundColor: "#FFF",
+        padding: "8px 16px",
+        borderRadius: "4px",
+      }}
+    >
+      <Typography variant="body1" fontWeight={"bold"}>
+        Revision Required for
+      </Typography>
       <ControlledCheckboxGroup name="update_request.submission_item_ids">
         {filteredItems.map((item) => (
           <FormControlLabel
@@ -41,7 +57,9 @@ export default function AddRequestSection() {
         ))}
       </ControlledCheckboxGroup>
       <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
-        <Typography variant="body1">Request reason</Typography>
+        <Typography variant="body1" fontWeight={"bold"}>
+          Request reason
+        </Typography>
         <ControlledTextField
           name="update_request.reason"
           variant="outlined"
@@ -52,8 +70,13 @@ export default function AddRequestSection() {
             "& .MuiInputBase-root": {
               borderColor: BCDesignTokens.typographyColorDisabled,
             },
+            marginBottom: 0,
           }}
         />
+        <FormHelperText>
+          This request will be sent to the Holder after a Manager confirms the
+          decision.
+        </FormHelperText>
       </Box>
     </Box>
   );

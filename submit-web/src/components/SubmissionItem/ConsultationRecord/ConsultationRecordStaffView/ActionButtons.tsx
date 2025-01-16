@@ -118,7 +118,6 @@ export default function ActionButtons() {
         "update_request",
         getValues(),
       );
-      console.log("updateRequestData", updateRequestData);
 
       const requestBody = {
         status: SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
@@ -197,7 +196,7 @@ export default function ActionButtons() {
   }, [isStaff, submissionReview]);
 
   return (
-    <Grid item xs={12} container spacing={2}>
+    <Grid item xs={12} container spacing={2} mt="20px">
       <When condition={isStaff || isManager}>
         <Grid item xs={12} sm="auto">
           <LoadingButton
