@@ -24,11 +24,6 @@ class PackageVersion(db.Model):
     )
 
     @classmethod
-    def get_by_package_id(cls, package_id: int):
-        """Return model by package id."""
-        return cls.query.filter_by(package_id=package_id).first()
-
-    @classmethod
     def get_by_id(cls, _id: int):
         """Return model by package id."""
         return cls.query.filter_by(id=_id).first()

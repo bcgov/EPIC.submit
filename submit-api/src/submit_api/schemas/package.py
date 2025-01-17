@@ -15,6 +15,15 @@ from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 
 
+class PackageVersionSchema(Schema):
+    """Schema for serializing individual package versions."""
+
+    id = fields.Int(data_key="id")
+    package_id = fields.Int(data_key="package_id")
+    original_package_id = fields.Int(data_key="original_package_id")
+    version = fields.Int(data_key="version")
+
+
 class PostPackageRequestSchema(Schema):
     """package schema."""
 
@@ -111,6 +120,7 @@ class PackageSchema(Schema):
     items = fields.Nested(ItemSchema, data_key="items", many=True)
     update_requests = fields.Nested(
         PackageUpdateRequestSchema, data_key="update_requests", many=True)
+    version = fields.Nested(PackageVersionSchema, data_key="version")
 
     def get_submitted_by(self, obj):
         """Get submitted by."""
@@ -159,15 +169,6 @@ class StaffPackageSchema(PackageSchema):
         if pending_manager_review:
             return SubmissionReviewStatus.PENDING_MANAGER_REVIEW.value
         return None
-
-
-class PackageVersionSchema(Schema):
-    """Schema for serializing individual package versions."""
-
-    id = fields.Int(data_key="id")
-    package_id = fields.Int(data_key="package_id")
-    original_package_id = fields.Int(data_key="original_package_id")
-    version = fields.Int(data_key="version")
 
 
 def get_package_status(status, user_type):
