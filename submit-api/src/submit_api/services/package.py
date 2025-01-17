@@ -307,7 +307,16 @@ class PackageService:
         cls._create_email_queue_record(package, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
+        cls._deactivate_reviews(package, session)
         return package
+
+    @classmethod
+    def _deactivate_reviews(cls, package, session):
+        """Deactivate all reviews for the package."""
+        reviews = [item.review for item in package.items if item.review]
+        for review in reviews:
+            review.active = False
+            session.add(review)
 
     @classmethod
     def start_mp_review(cls, package_id, _session=None):

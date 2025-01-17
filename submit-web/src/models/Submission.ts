@@ -20,6 +20,7 @@ export type SubmissionItemStatus =
   | "PARTIALLY_COMPLETED"
   | "SUBMITTED"
   | "REVIEW_REJECTED"
+  | "FAILED_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK";
 
 export const SUBMISSION_ITEM_STATUS: Record<
@@ -49,6 +50,10 @@ export const SUBMISSION_ITEM_STATUS: Record<
   REVIEW_REJECTED: {
     value: "REVIEW_REJECTED",
     label: "Review Rejected",
+  },
+  FAILED_CONSULTATION_CHECK: {
+    value: "FAILED_CONSULTATION_CHECK",
+    label: "Failed Consultation Check",
   },
 };
 

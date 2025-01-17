@@ -1,11 +1,6 @@
+import { useEffect, useState } from "react";
 import { Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
-import { useEffect, useState } from "react";
-import { notify } from "../Shared/Snackbar/snackbarStore";
-import { getObjectFromS3 } from "../Shared/Table/utils";
-import { SubmitTableCell } from "../Shared/Table/common";
-import { useModal } from "../Shared/Modals/modalStore";
-import ConfirmationModal from "../Shared/Modals/ConfirmationModal";
 import {
   SUBMISSION_ITEM_METHOD,
   SUBMISSION_ITEM_TYPE,
@@ -14,6 +9,12 @@ import {
 import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useParams } from "@tanstack/react-router";
 import { PACKAGE_STATUS } from "@/models/Package";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import { getObjectFromS3 } from "@/components/Shared/Table/utils";
+import { SubmitTableCell } from "@/components/Shared/Table/common";
+import { StatusCell } from "./StatusCell";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -78,7 +79,7 @@ export default function DocumentRow({
         description={`Would you like to start the ${subItemName} review now? This will start the counter for the Review.`}
         confirmText={`Start ${subItemName} Review`}
         cancelText="Start Later"
-      />
+      />,
     );
   };
 
@@ -124,7 +125,13 @@ export default function DocumentRow({
       </SubmitTableCell>
       <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
       <SubmitTableCell align="right">{version}</SubmitTableCell>
-      <SubmitTableCell align="right" colSpan={2}></SubmitTableCell>
+      <SubmitTableCell align="right">
+        <StatusCell
+          submissionItem={submissionItem}
+          submittedDocument={documentSubmission}
+        />
+      </SubmitTableCell>
+      <SubmitTableCell align="right" colSpan={1}></SubmitTableCell>
     </TableRow>
   );
 }

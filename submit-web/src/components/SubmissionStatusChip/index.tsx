@@ -126,6 +126,16 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Updated",
   },
+  FAILED_CONSULTATION_CHECK: {
+    label: "Failed Consultaion Check",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+      background: BCDesignTokens.supportSurfaceColorDanger,
+      height: "24px",
+      // width: "125px",
+    },
+  },
 };
 
 export function SubmissionStatusChip({ status }: { status: string }) {
