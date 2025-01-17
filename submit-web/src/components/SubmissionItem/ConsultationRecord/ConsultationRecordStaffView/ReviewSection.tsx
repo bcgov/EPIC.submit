@@ -109,7 +109,8 @@ export default function ReviewSection() {
     (isStaff &&
       submissionItem?.review?.status ===
         SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
-    submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED;
+    submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED ||
+    submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.REJECTED;
 
   return (
     <Grid item container>
@@ -177,7 +178,7 @@ export default function ReviewSection() {
             </PermissionsGate>
             <NotesSection />
             <When condition={failedConsultationCheck}>
-              <AddRequestSection />
+              <AddRequestSection disabled={isFormDisabled} />
             </When>
             <NotificationBox />
             <ActionButtons />
