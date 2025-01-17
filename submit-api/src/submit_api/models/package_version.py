@@ -16,7 +16,7 @@ class PackageVersion(db.Model):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False)
-    original_package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False)
+    original_package_id = Column(db.Integer, nullable=False)
     version = Column(db.Integer, nullable=False)
 
     __table_args__ = (
