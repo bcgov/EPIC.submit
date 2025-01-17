@@ -48,18 +48,18 @@ class Package(BaseModel):
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
 
-    _update_requests = db.relationship(
-        'UpdateRequest',
-        backref='package',
-        lazy='joined')
-
-    # version = db.relationship(
-    #     'PackageVersion',
+    # _update_requests = db.relationship(
+    #     'UpdateRequest',
     #     backref='package',
-    #     lazy='joined',
-    #     uselist=False,
-    #     primaryjoin='Package.id == PackageVersion.package_id',
-    #     foreign_keys='PackageVersion.package_id')
+    #     lazy='joined')
+
+    version = db.relationship(
+        'PackageVersion',
+        backref='package',
+        lazy='joined',
+        uselist=False,
+        primaryjoin='Package.id == PackageVersion.package_id',
+        foreign_keys='PackageVersion.package_id')
 
     @property
     def update_requests(self):
