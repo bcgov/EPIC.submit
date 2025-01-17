@@ -53,13 +53,16 @@ class Package(BaseModel):
     #     backref='package',
     #     lazy='joined')
 
-    version = db.relationship(
+    versions = db.relationship(
         'PackageVersion',
         backref='package',
         lazy='joined',
-        uselist=False,
         primaryjoin='Package.id == PackageVersion.package_id',
         foreign_keys='PackageVersion.package_id')
+
+    @property
+    def version(self):
+        return self.versions[0] if self.versions else None
 
     @property
     def update_requests(self):
