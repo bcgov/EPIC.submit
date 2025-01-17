@@ -48,13 +48,10 @@ class Package(BaseModel):
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
 
-    update_requests = db.relationship(
+    _update_requests = db.relationship(
         'UpdateRequest',
-        backref='submission_package',
-        lazy='joined',
-        primaryjoin='and_(UpdateRequest.submission_package_id == Package.id, UpdateRequest.active.is_(True))',
-        order_by='UpdateRequest.created_date',
-        foreign_keys='UpdateRequest.submission_package_id')
+        backref='package',
+        lazy='joined')
 
     version = db.relationship(
         'PackageVersion',
@@ -63,6 +60,11 @@ class Package(BaseModel):
         uselist=False,
         primaryjoin='Package.id == PackageVersion.package_id',
         foreign_keys='PackageVersion.package_id')
+
+    @property
+    def update_requests(self):
+        """Get the active update requests for the package."""
+        return [ur for ur in self._update_requests if ur.active]
 
     @classmethod
     def get_package_by_id_with_items(cls, package_id: int):
