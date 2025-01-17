@@ -53,13 +53,13 @@ class Package(BaseModel):
         backref='package',
         lazy='joined')
 
-    version = db.relationship(
-        'PackageVersion',
-        backref='package',
-        lazy='joined',
-        uselist=False,
-        primaryjoin='Package.id == PackageVersion.package_id',
-        foreign_keys='PackageVersion.package_id')
+    # version = db.relationship(
+    #     'PackageVersion',
+    #     backref='package',
+    #     lazy='joined',
+    #     uselist=False,
+    #     primaryjoin='Package.id == PackageVersion.package_id',
+    #     foreign_keys='PackageVersion.package_id')
 
     @property
     def update_requests(self):
