@@ -45,8 +45,8 @@ class PackageService:
     def create_new_package_from_original(cls, original_package_id, session):
         """Create a new package version."""
         original_package = PackageModel.find_by_id(original_package_id)
-        package_version = PackageVersionModel.get_by_package_id(
-            original_package_id)
+        package_version = PackageVersionModel.get_by_id(
+            original_package.version_id)
         all_package_versions = PackageVersionModel.get_all_by_original_package_id(
             original_package_id)
         if not all_package_versions:
@@ -66,8 +66,10 @@ class PackageService:
         package_type = original_package.type
         new_package = cls._create_package(
             session, original_package.account_project_id, new_package_data, package_type)
-        cls._create_package_version(
-            session, package_id=new_package.id, original_package_id=original_package.id, version=new_version)
+        new_version = cls._create_package_version(
+            session, original_package_id=original_package.id, version=new_version)
+        new_package.version_id = new_version.id
+        session.add(new_package)
         new_metadata = {
             PackageMetadataFields.CONDITION.value: original_package.meta.json.get(
                 PackageMetadataFields.CONDITION.value, None),
@@ -85,8 +87,10 @@ class PackageService:
                 request_data.get("type"))
             package = cls._create_package(
                 session, account_project_id, request_data, package_type)
-            cls._create_package_version(
-                session, package_id=package.id, original_package_id=package.id, version=1)
+            package_version = cls._create_package_version(
+                session, original_package_id=package.id, version=1)
+            package.version_id = package_version.id
+            session.add(package)
             cls._create_package_metadata(
                 session, package.id, request_data.get("metadata"))
             cls._create_items(session, package.id, package_type)
@@ -131,19 +135,21 @@ class PackageService:
         session.add(package_metadata)
 
     @classmethod
-    def _create_package_version(cls, session, package_id, original_package_id, version=1):
+    def _create_package_version(cls, session, original_package_id, version=1):
         """Create a new package version."""
         package_version = PackageVersionModel(
-            package_id=package_id,
             original_package_id=original_package_id,
             version=version
         )
         session.add(package_version)
+        session.flush()
+        return package_version
 
     @classmethod
     def get_all_package_versions(cls, package_id):
         """Get all package versions by package ID."""
-        package_version = PackageVersionModel.get_by_package_id(package_id)
+        package = PackageModel.find_by_id(package_id)
+        package_version = PackageVersionModel.get_by_id(package.version_id)
         all_package_versions = PackageVersionModel.get_all_by_original_package_id(package_version.original_package_id)
         return all_package_versions
 

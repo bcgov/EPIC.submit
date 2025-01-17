@@ -15,13 +15,11 @@ class PackageVersion(db.Model):
     __tablename__ = 'package_versions'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False)
     original_package_id = Column(db.Integer, nullable=False)
     version = Column(db.Integer, nullable=False)
 
     __table_args__ = (
         db.Index('idx_package_versions_original_package_id', original_package_id),
-        db.Index('idx_package_versions_package_id', package_id),
         db.UniqueConstraint('version', 'original_package_id'),
     )
 
@@ -31,29 +29,11 @@ class PackageVersion(db.Model):
         return cls.query.filter_by(package_id=package_id).first()
 
     @classmethod
+    def get_by_id(cls, _id: int):
+        """Return model by package id."""
+        return cls.query.filter_by(id=_id).first()
+
+    @classmethod
     def get_all_by_original_package_id(cls, original_package_id: int):
         """Return all package versions by original package id, sorted by version in decreasing order."""
         return cls.query.filter_by(original_package_id=original_package_id).order_by(cls.version.desc()).all()
-
-    @classmethod
-    def get_latest_versions(cls):
-        """Return the latest versions."""
-        subquery = (
-            db.session.query(
-                cls.original_package_id,
-                func.max(cls.version).label('max_version')
-            )
-            .group_by(cls.original_package_id)
-            .subquery()
-        )
-
-        latest_versions = (
-            db.session.query(cls.package_id)
-            .join(subquery, db.and_(
-                cls.original_package_id == subquery.c.original_package_id,
-                cls.version == subquery.c.max_version
-            ))
-            .all()
-        )
-
-        return latest_versions

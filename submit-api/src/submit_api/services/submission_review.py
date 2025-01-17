@@ -297,7 +297,8 @@ class SubmissionReviewService:
     @classmethod
     def _create_new_package_version(cls, item, session):
         """Create a new package version and retrieve new management plan item for rejection."""
-        package_version = PackageVersion.get_by_package_id(item.package_id)
+        package = PackageModel.find_by_id(item.package_id)
+        package_version = PackageVersion.get_by_id(package.version_id)
         if not package_version:
             current_app.logger.error(f"Package version not found for item {item.id}.")
             raise ResourceNotFoundError(f"Package version not found for item {item.id}.")

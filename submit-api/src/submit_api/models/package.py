@@ -47,20 +47,13 @@ class Package(BaseModel):
     items = db.relationship('Item', backref='package', lazy='joined', order_by='Item.sort_order')
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
+    version_id = Column(db.Integer, ForeignKey('package_versions.id'), nullable=True)
+    version = db.relationship('PackageVersion', foreign_keys=[version_id], lazy='joined')
 
     _update_requests = db.relationship(
         'UpdateRequest',
         backref='package',
         lazy='joined')
-
-    versions = db.relationship(
-        'PackageVersion',
-        backref='package',
-        lazy='joined')
-
-    @property
-    def version(self):
-        return self.versions[0] if self.versions else None
 
     @property
     def update_requests(self):
