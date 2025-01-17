@@ -21,9 +21,9 @@ const defaultFormData = {
   consultationRecords: [],
 };
 
-interface FormFieldSectionProps {
-  formData: Partial<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
-}
+type FormFieldSectionProps = Readonly<{
+  formData: Partial<ConsultationRecordForm>;
+}>;
 
 export default function FormFieldSection({
   formData = defaultFormData,

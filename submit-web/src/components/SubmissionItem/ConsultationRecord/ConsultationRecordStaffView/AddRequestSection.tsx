@@ -15,7 +15,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 
-export default function AddRequestSection() {
+type AddRequestSectionProps = {
+  disabled?: boolean;
+};
+export default function AddRequestSection({
+  disabled = false,
+}: AddRequestSectionProps) {
   const { submissionPackageId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -47,7 +52,10 @@ export default function AddRequestSection() {
       <Typography variant="body1" fontWeight={"bold"}>
         Revision Required for
       </Typography>
-      <ControlledCheckboxGroup name="update_request.submission_item_ids">
+      <ControlledCheckboxGroup
+        name="update_request.submission_item_ids"
+        disabled={disabled}
+      >
         {filteredItems.map((item) => (
           <FormControlLabel
             key={item.id}
@@ -72,6 +80,7 @@ export default function AddRequestSection() {
             },
             marginBottom: 0,
           }}
+          disabled={disabled}
         />
         <FormHelperText>
           This request will be sent to the Holder after a Manager confirms the
