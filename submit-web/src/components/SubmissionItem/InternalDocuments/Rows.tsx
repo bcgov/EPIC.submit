@@ -9,10 +9,10 @@ import {
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
 
-type InternalDocumentsProps = {
+type InternalDocumentsProps = Readonly<{
   internalStaffDocuments: Array<InternalStaffDocument>;
   numColumns?: number;
-};
+}>;
 export default function Rows({
   internalStaffDocuments,
   numColumns = 4,

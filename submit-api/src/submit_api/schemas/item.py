@@ -6,7 +6,7 @@ Manages the item schema
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.models.submission import SubmissionType
+from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.schemas.internal_staff_document import InternalStaffDocument
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
@@ -33,6 +33,7 @@ class ItemSubmissionSchema(Schema):
     created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
+    status = fields.Enum(data_key="status", enum=SubmissionStatus)
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
