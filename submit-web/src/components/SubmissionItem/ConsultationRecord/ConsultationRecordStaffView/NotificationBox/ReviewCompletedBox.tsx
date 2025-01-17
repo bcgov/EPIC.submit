@@ -48,14 +48,14 @@ export const ReviewCompletedNotification = ({
             <Grid item xs={12}>
               <LabelValuePair
                 label="Decision recommended by"
-                value={""}
+                value={staffRecommendation?.updated_by ?? ""}
                 labelProps={{ color: "inherit", width: "220px" }}
               />
             </Grid>
             <Grid item xs={12}>
               <LabelValuePair
                 label="Confirmed by"
-                value=""
+                value={managerConfirmation?.updated_by ?? ""}
                 labelProps={{ color: "inherit", width: "220px" }}
               />
             </Grid>

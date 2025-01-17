@@ -21,9 +21,16 @@ class SubmissionReviewEntrySchema(Schema):
     review_id = fields.Int(data_key="review_id")
     type = fields.Enum(data_key="type", enum=SubmissionReviewEntryType)
     created_by = fields.Str(data_key="created_by")
+    updated_by = fields.Method("get_updated_by")
     created_date = fields.DateTime(data_key="created_date")
     updated_date = fields.DateTime(data_key="updated_date")
     entry = fields.Dict(data_key="entry")
+
+    def get_updated_by(self, obj):
+        """Get submitted by."""
+        updated_by = obj.updated_by_user.staff_user.full_name \
+            if obj.updated_by_user and obj.updated_by_user.staff_user else None
+        return updated_by
 
 
 class SubmissionReviewSchema(Schema):
