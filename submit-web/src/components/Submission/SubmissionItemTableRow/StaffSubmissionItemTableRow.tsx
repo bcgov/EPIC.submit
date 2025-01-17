@@ -52,7 +52,7 @@ export default function StaffSubmissionItemTableRow({
     useSuspenseQuery(
       getStaffSubmissionPackageQueryOptions({
         packageId: Number(submissionPackageId),
-      }),
+      })
     );
 
   const { submissions, id, status, review, review_start_date } = item;
@@ -66,17 +66,15 @@ export default function StaffSubmissionItemTableRow({
       .filter(
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
-          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value,
+          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value
       )
       .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
 
     if (!last_update_request) return false;
     return Boolean(
       item.submissions.find((submission) =>
-        dayjs(submission.created_date).isAfter(
-          last_update_request.created_date,
-        ),
-      ),
+        dayjs(submission.created_date).isAfter(last_update_request.created_date)
+      )
     );
   }, [item, submissionPackage.update_requests]);
 
@@ -92,7 +90,7 @@ export default function StaffSubmissionItemTableRow({
     return submissionPackage.update_requests
       .filter(
         (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
       )
       .some((updateRequest) => updateRequest.submission_item_ids.includes(id));
   }, [submissionPackage, id]);
@@ -149,7 +147,7 @@ export default function StaffSubmissionItemTableRow({
         description={`Would you like to start the ${name} review now? This will start the counter for the Review.`}
         confirmText={`Start ${name} Review`}
         cancelText="Start Later"
-      />,
+      />
     );
   };
 
