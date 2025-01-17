@@ -251,7 +251,7 @@ class PackageService:
                                       if request.type == UpdateRequestType.REVIEW]
         for request in revision_required_requests:
             request.active = False
-            request.status = UpdateRequestStatus.CLOSED
+            request.status = UpdateRequestStatus.CLOSED.value
             session.add(request)
 
     @staticmethod
