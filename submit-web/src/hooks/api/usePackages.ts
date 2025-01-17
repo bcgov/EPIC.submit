@@ -165,9 +165,6 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
     mutationFn: updateStateSubmissionPackage,
     ...options,
     onSuccess: (submissionPackage) => {
-      if (options?.onSuccess) {
-        options.onSuccess();
-      }
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
       });
@@ -180,6 +177,9 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
     },
   });
 };

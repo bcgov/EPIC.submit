@@ -111,6 +111,9 @@ export default function StaffSubmissionItemTableRow({
     },
     onSuccess: () => {
       setCloseModal();
+      navigate({
+        to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
+      });
       notify.success("Successfully started review");
     },
   });
@@ -140,9 +143,6 @@ export default function StaffSubmissionItemTableRow({
                 ? PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value
                 : PACKAGE_STATUS.UNDER_REVIEW.value,
             },
-          });
-          navigate({
-            to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
           });
         }}
         title={`Start ${name} Review`}

@@ -31,6 +31,7 @@ export default function DocumentRow({
     setClose: setCloseModal,
     setIsLoading,
   } = useModal();
+
   const {
     submitted_document: { name, url },
     version,
@@ -51,6 +52,7 @@ export default function DocumentRow({
     },
     onSuccess: () => {
       setCloseModal();
+      downloadDocument();
       notify.success("Successfully started review");
     },
   });
@@ -71,7 +73,6 @@ export default function DocumentRow({
                 : PACKAGE_STATUS.UNDER_REVIEW.value,
             },
           });
-          downloadDocument();
         }}
         title={`Start ${subItemName} Review`}
         description={`Would you like to start the ${subItemName} review now? This will start the counter for the Review.`}
