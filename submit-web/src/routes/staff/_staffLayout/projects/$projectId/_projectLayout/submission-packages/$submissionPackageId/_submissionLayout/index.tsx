@@ -21,7 +21,7 @@ import ItemsTable from "@/components/Submission/ItemsTable";
 import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
@@ -55,6 +55,8 @@ export default function SubmissionPage() {
       reset();
     };
   });
+
+  useEffect(() => {}, [submissionPackage]);
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;

@@ -125,7 +125,7 @@ export default function StaffSubmissionItemTableRow({
 
   useEffect(() => {
     setIsLoading(updatingSubmission);
-  }, [updatingSubmission, setIsLoading]);
+  }, [updatingSubmission, setIsLoading, submissionPackage]);
 
   const openConfirmationModal = () => {
     setOpenModal(
