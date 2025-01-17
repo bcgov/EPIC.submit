@@ -15,7 +15,7 @@ class ProjectService:
         return AccountProjectModel.find_by_id(account_project_id)
 
     @classmethod
-    def get_projects_by_account_id(cls, account_id, search_options=AccountProjectSearchOptions):
+    def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions):
         """Get projects by account id."""
         return ProjectQueries.get_projects_by_account_id(account_id, search_options)
 
