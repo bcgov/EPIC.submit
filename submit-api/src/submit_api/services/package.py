@@ -33,6 +33,7 @@ class PackageService:
 
     @classmethod
     def get_all(cls):
+        """Get all packages."""
         return PackageModel.get_all()
 
     @classmethod
