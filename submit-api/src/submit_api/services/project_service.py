@@ -37,7 +37,7 @@ class ProjectService:
     @classmethod
     def get_all_account_projects(cls):
         """Get projects by proponent id."""
-        return []
+        return AccountProjectModel.get_all()
 
     @classmethod
     def get_all_account_projects_with_latest_packages(cls):
