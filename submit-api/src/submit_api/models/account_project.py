@@ -22,8 +22,7 @@ class AccountProject(BaseModel):
     _packages = db.relationship(
         'Package',
         primaryjoin='Package.account_project_id==AccountProject.id',
-        lazy='select',
-        viewonly=True)
+        lazy='select')
 
     @property
     def latest_packages(self):
