@@ -166,16 +166,16 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
     ...options,
     onSuccess: (submissionPackage) => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+        queryKey: [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
       });
       queryClient.invalidateQueries({
         queryKey: [
-          QUERY_KEY.ACCOUNT_PROJECT,
+          STAFF_QUERY_KEY.ACCOUNT_PROJECT,
           submissionPackage.account_project_id,
         ],
       });
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
       });
       if (options?.onSuccess) {
         options.onSuccess();
