@@ -138,7 +138,12 @@ const statusStyles: Record<string, StyleProps> = {
   },
 };
 
-export function SubmissionStatusChip({ status }: { status: string }) {
+type SubmissionStatusChipProps = Readonly<{
+  status?: string;
+}>;
+export function SubmissionStatusChip({
+  status = "",
+}: SubmissionStatusChipProps) {
   const style = statusStyles[status];
 
   if (!style) {
@@ -156,15 +161,15 @@ export function SubmissionStatusChip({ status }: { status: string }) {
 }
 
 type SubmissionStatusChipStackProps = {
-  status: SubmissionItemStatus;
+  status?: SubmissionItemStatus;
   reviewStatus?: string;
   isUpdateRequested?: boolean;
   isRevisionRequired?: boolean;
   isUpdated?: boolean;
 };
 export const SubmissionStatusChipStack = ({
-  status,
   reviewStatus,
+  status,
   isUpdateRequested = false,
   isRevisionRequired = false,
   isUpdated = false,
