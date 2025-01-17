@@ -75,9 +75,19 @@ export default function ActionButtons() {
     const validateAtKey = isStaff ? "staff" : "manager";
     const data = getValues();
     try {
-      const validData = consultationSchema.validateSyncAt(validateAtKey, data);
+      const decisionData = consultationSchema.validateSyncAt(
+        validateAtKey,
+        data,
+      );
+      const updateRequestData = consultationSchema.validateSyncAt(
+        "update_request",
+        data,
+      );
       const requestBody = {
-        form_answers: validData,
+        form_answers: {
+          ...decisionData,
+          ...updateRequestData,
+        },
         type: isStaff
           ? SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
           : SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
@@ -100,10 +110,21 @@ export default function ActionButtons() {
   const handleSendToManager = async () => {
     try {
       setIsSendingToManager(true);
-      const validData = consultationSchema.validateSyncAt("staff", getValues());
+      const staffDecision = consultationSchema.validateSyncAt(
+        "staff",
+        getValues(),
+      );
+      const updateRequestData = consultationSchema.validateSyncAt(
+        "update_request",
+        getValues(),
+      );
+
       const requestBody = {
         status: SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
-        form_answers: validData,
+        form_answers: {
+          ...staffDecision,
+          ...updateRequestData,
+        },
         type: SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
       };
       await saveSubmissionReview(requestBody);
@@ -120,17 +141,24 @@ export default function ActionButtons() {
   const handleCompletingConsultationCheck = async () => {
     try {
       setIsCompletingConsultationCheck(true);
-      const validData = consultationSchema.validateSyncAt(
+      const managerDecision = consultationSchema.validateSyncAt(
         "manager",
         getValues(),
       );
+      const updateRequestData = consultationSchema.validateSyncAt(
+        "update_request",
+        getValues(),
+      );
       const passed =
-        validData.passedConsultationCheck === RadioOptions.YES.value;
+        managerDecision.passedConsultationCheck === RadioOptions.YES.value;
       const requestBody = {
         status: passed
           ? SUBMISSION_REVIEW_STATUS.APPROVED
           : SUBMISSION_REVIEW_STATUS.REJECTED,
-        form_answers: validData,
+        form_answers: {
+          ...managerDecision,
+          ...updateRequestData,
+        },
         type: SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
       };
       await saveSubmissionReview(requestBody);
@@ -168,7 +196,7 @@ export default function ActionButtons() {
   }, [isStaff, submissionReview]);
 
   return (
-    <Grid item xs={12} container spacing={2}>
+    <Grid item xs={12} container spacing={2} mt="20px">
       <When condition={isStaff || isManager}>
         <Grid item xs={12} sm="auto">
           <LoadingButton

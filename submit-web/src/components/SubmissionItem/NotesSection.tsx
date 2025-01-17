@@ -13,7 +13,6 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import EventNoteIcon from "@mui/icons-material/EventNote";
 import Note, { Note as NoteType } from "./Note";
-import { When } from "react-if";
 import { useEffect, useState } from "react";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useParams } from "@tanstack/react-router";
@@ -33,10 +32,10 @@ export default function NotesSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey
+      .queryKey,
   );
 
-  const { notes } = submissionItem;
+  const notes = submissionItem?.notes;
 
   useEffect(() => {
     setNoteText("");
@@ -122,7 +121,7 @@ export default function NotesSection() {
             >
               View Notes
             </Typography>
-            <When condition={notes && notes.length > 0}>
+            {notes && notes.length > 0 && (
               <Chip
                 sx={{
                   backgroundColor: "#F18A15",
@@ -141,7 +140,7 @@ export default function NotesSection() {
                 }}
                 label={`${notes.length}`}
               />
-            </When>
+            )}
             <KeyboardArrowRightIcon
               fontSize="medium"
               sx={{ color: "#38598A", p: 0 }}
@@ -193,15 +192,13 @@ export default function NotesSection() {
             </Button>
           </Box>
         </Collapse>
-        <When condition={notes}>
-          {notes.length > 0 ? (
-            notes.map((note: NoteType) => <Note key={note.id} note={note} />)
-          ) : (
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              No notes have been added yet.
-            </Typography>
-          )}
-        </When>
+        {notes && notes.length > 0 ? (
+          notes.map((note: NoteType) => <Note key={note.id} note={note} />)
+        ) : (
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            No notes have been added yet.
+          </Typography>
+        )}
       </AccordionDetails>
     </Accordion>
   );

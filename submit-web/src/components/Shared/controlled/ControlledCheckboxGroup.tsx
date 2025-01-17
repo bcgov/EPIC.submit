@@ -18,14 +18,14 @@ const ControlledCheckboxGroup: FC<IFormInputProps> = ({
     formState: { defaultValues, errors },
   } = useFormContext();
 
-  const error = get(errors, name);
+  const error = get(errors, name, "");
 
   return (
     <FormControl error={Boolean(error)}>
       <Controller
         control={control}
         name={name}
-        defaultValue={defaultValues?.[name] || ""}
+        defaultValue={get(defaultValues, name, "")}
         render={({ field }) => {
           return (
             <CheckboxGroup

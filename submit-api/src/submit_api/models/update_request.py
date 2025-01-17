@@ -41,4 +41,4 @@ class UpdateRequest(BaseModel):
     reason = Column(db.String, nullable=True)
     type = Column(Enum(UpdateRequestType), nullable=False, default=UpdateRequestType.UPDATE)
     note = Column(db.String, nullable=True)
-    status = Column(db.String, nullable=False, default=UpdateRequestStatus.OPEN)
+    status = Column(db.String, nullable=False, default=UpdateRequestStatus.OPEN.value)

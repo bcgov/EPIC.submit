@@ -99,6 +99,7 @@ class SubmissionReviewService:
         review_entry.entry = form_answers
         review_entry.updated_by = TokenInfo.get_id()
         session.add(review_entry)
+        session.flush()
         current_app.logger.debug(f"Submission review answers saved for review {review.id}.")
         return review
 
@@ -126,25 +127,22 @@ class SubmissionReviewService:
     @classmethod
     def save_submission_review(cls, item_id, review_data):
         """Save submission item review."""
-        review = cls.get_or_create_active_item_review(item_id)
-        review.flush()
-        item = ItemModel.find_by_id(item_id)
-        package = PackageModel.find_by_id(item.package_id)
-        if not package.submitted_on:
-            current_app.logger.error(f"Package {package.id} has not been submitted.")
-            raise UnprocessableEntityError("Package has not been submitted.")
-
-        if review.status == SubmissionReviewStatus.APPROVED:
-            current_app.logger.error(f"Item {item_id} already approved.")
-            raise UnprocessableEntityError("Item has already been approved.")
-
         with session_scope() as session:
+            review = cls.get_or_create_active_item_review(item_id)
+            review.flush()
+            item = ItemModel.find_by_id(item_id)
+            package = PackageModel.find_by_id(item.package_id)
+            if not package.submitted_on:
+                current_app.logger.error(f"Package {package.id} has not been submitted.")
+                raise UnprocessableEntityError("Package has not been submitted.")
+
+            if review.status == SubmissionReviewStatus.APPROVED:
+                current_app.logger.error(f"Item {item_id} already approved.")
+                raise UnprocessableEntityError("Item has already been approved.")
             cls._save_submission_review_answers(review, review_data, session)
             status = review_data.get('status')
             cls.process_review_status(review, status, session)
             session.add(review)
-            session.flush()
-            session.commit()
             current_app.logger.info(f"Submission review saved for item {item_id}.")
             return review
 
@@ -199,7 +197,7 @@ class SubmissionReviewService:
     @classmethod
     def reject_submission(cls, item_id, session):
         """Reject submission item."""
-        item = cls._get_submission_item_by_id(item_id)
+        item = ItemModel.find_by_id(item_id)
         rejection_processor = cls._get_submission_item_rejection_processor(item)
         rejection_processor(item, session)
         cls._update_package_status(item.package_id, session)
@@ -215,10 +213,41 @@ class SubmissionReviewService:
             lambda: cls._unsupported_submission_item_type,
             {
                 SubmissionItemType.MANAGEMENT_PLAN_FORM.value: cls.reject_management_plan_form,
+                SubmissionItemType.CONSULTATION_RECORD.value: cls.reject_consultation_record,
             }
         )
         current_app.logger.debug(f"Rejection processor retrieved for item {item.id} of type {item_type}")
         return status_processor_map[item_type]
+
+    @classmethod
+    def reject_consultation_record(cls, item, session):
+        """Reject consultation record."""
+        cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
+        update_request_data = cls._prepare_update_request_data(item)
+        cls._create_update_request(update_request_data, session)
+        session.flush()
+        return item
+
+    @classmethod
+    def _update_submissions_status(cls, item, status, session):
+        """Update the status of submissions."""
+        for submission in item.submissions:
+            submission.status = status
+            session.add(submission)
+
+    @classmethod
+    def _prepare_update_request_data(cls, item):
+        """Prepare the update request data."""
+        item_review = SubmissionReview.get_active_review_by_item_id(item.id)
+        manager_review_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(
+            item_review.id, SubmissionReviewEntryType.MANAGER_CONFIRMATION
+        )
+        return {
+            'package_id': item.package_id,
+            'item_ids': manager_review_entry.entry.get('submission_item_ids') if manager_review_entry else None,
+            'reason': manager_review_entry.entry.get('reason') if manager_review_entry else None,
+            'type': UpdateRequestType.REVIEW,
+        }
 
     @classmethod
     def reject_management_plan_form(cls, item, session):
@@ -226,7 +255,13 @@ class SubmissionReviewService:
         cls._update_item_status_mp_rejection(item)
         cls._update_package_metadata_mp_rejection(item, session)
         new_package, new_item = cls._create_new_package_version(item, session)
-        cls._create_update_request_mp_rejection(new_package, new_item, session)
+        update_request_data = {
+            'package_id': new_package.id,
+            'item_ids': [new_item.id],
+            'reason': 'Revision required for the Management Plan.',
+            'type': UpdateRequestType.REVIEW,
+        }
+        cls._create_update_request(update_request_data, session)
         return item
 
     @classmethod
@@ -280,14 +315,14 @@ class SubmissionReviewService:
         return new_package, new_item
 
     @classmethod
-    def _create_update_request_mp_rejection(cls, new_package, new_management_plan_item, session):
-        """Create an update request for the new package version for rejection."""
+    def _create_update_request(cls, data, session):
+        """Create an update request."""
         update_request = UpdateRequest(
-            submission_package_id=new_package.id,
-            submission_item_ids=[new_management_plan_item.id],
+            submission_package_id=data.get('package_id'),
+            submission_item_ids=data.get('item_ids'),
             created_by=TokenInfo.get_id(),
-            note="Revision required for Management Plan",
-            type=UpdateRequestType.REVIEW
+            reason=data.get('reason'),
+            type=data.get('type')
         )
         session.add(update_request)
-        current_app.logger.info(f"Update request created for new package {new_package.id}.")
+        current_app.logger.info(f"Update request created for new package {data.get('package_id')}.")
