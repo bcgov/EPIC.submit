@@ -162,4 +162,4 @@ class PackagesTest(Resource):
     def get():
         """Get packages."""
         packages = PackageService.get_all()
-        return StaffPackageSchema().dump(packages, many=True), HTTPStatus.OK
+        return StaffPackageSchema(many=True).dump(packages), HTTPStatus.OK
