@@ -48,13 +48,13 @@ class Package(BaseModel):
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
 
-    update_requests = db.relationship(
-        'UpdateRequest',
-        backref='submission_package',
-        lazy='joined',
-        primaryjoin='and_(UpdateRequest.submission_package_id == Package.id, UpdateRequest.active.is_(True))',
-        order_by='UpdateRequest.created_date',
-        foreign_keys='UpdateRequest.submission_package_id')
+    # update_requests = db.relationship(
+    #     'UpdateRequest',
+    #     backref='submission_package',
+    #     lazy='joined',
+    #     primaryjoin='and_(UpdateRequest.submission_package_id == Package.id, UpdateRequest.active.is_(True))',
+    #     order_by='UpdateRequest.created_date',
+    #     foreign_keys='UpdateRequest.submission_package_id')
 
     version = db.relationship(
         'PackageVersion',
@@ -68,3 +68,8 @@ class Package(BaseModel):
     def get_package_by_id_with_items(cls, package_id: int):
         """Return model by package id."""
         return cls.query.filter_by(id=package_id).options(joinedload(Package.items)).first()
+
+    @classmethod
+    def get_all(cls):
+        """Get all packages."""
+        return cls.query.all()

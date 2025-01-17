@@ -28,17 +28,17 @@ class AccountProject(BaseModel):
     @property
     def latest_packages(self):
         """Get the latest packages by versions for the account project."""
-        # version_by_package = {}
-        #
-        # for package in self._packages:
-        #     original_package_id = package.version.original_package_id
-        #     if original_package_id not in version_by_package:
-        #         version_by_package[original_package_id] = package
-        #     else:
-        #         if package.version.version > version_by_package[original_package_id].version.version:
-        #             version_by_package[original_package_id] = package
+        version_by_package = {}
 
-        return self._packages
+        for package in self._packages:
+            original_package_id = package.version.original_package_id
+            if original_package_id not in version_by_package:
+                version_by_package[original_package_id] = package
+            else:
+                if package.version.version > version_by_package[original_package_id].version.version:
+                    version_by_package[original_package_id] = package
+
+        return list(version_by_package.values())
 
     @classmethod
     def add_projects_bulk(cls, projects):

@@ -32,6 +32,10 @@ class PackageService:
     """Package management service."""
 
     @classmethod
+    def get_all(cls):
+        return PackageModel.get_all()
+
+    @classmethod
     def get_package_by_id(cls, package_id):
         """Get package by id."""
         package = PackageModel.get_package_by_id_with_items(package_id)
