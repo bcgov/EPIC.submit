@@ -22,7 +22,6 @@ import { usePackageTableStore } from "@/components/Submission/packageTableStore"
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
-import { useState } from "react";
 import { Box, Grid, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
@@ -48,12 +47,10 @@ export default function SubmissionPage() {
     strict: false,
   });
   const submissionPackageId = Number(submissionPackageIdParam);
-  const [packageId, setPackageId] = useState<number>(submissionPackageId);
-  const { data: submissionPackage, isLoading: isPackageUpdating } =
-    useGetSubmissionPackage({
-      packageId,
-      enabled: Boolean(accountProject?.id),
-    });
+  const { data: submissionPackage } = useGetSubmissionPackage({
+    packageId: submissionPackageId,
+    enabled: Boolean(accountProject?.id),
+  });
 
   const {
     mutate: updateStateSubmissionPackage,
