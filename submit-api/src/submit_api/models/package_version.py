@@ -4,7 +4,7 @@ Manages the package
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, ForeignKey, func
+from sqlalchemy import Column
 
 from .db import db
 

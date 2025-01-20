@@ -8,7 +8,6 @@ import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { InfoBox } from "@/components/Submission/InfoBox";
 import {
-  getSubmissionPackageQueryOptions,
   useGetSubmissionPackage,
   useUpdateStateSubmissionPackage,
 } from "@/hooks/api/usePackages";
@@ -31,7 +30,6 @@ import { ProjectStatus } from "@/components/registration/addProjects/ProjectStat
 import { YellowBar } from "@/components/Shared/YellowBar";
 import ItemsTable from "@/components/Submission/ItemsTable";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
-import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -51,21 +49,11 @@ export default function SubmissionPage() {
   });
   const submissionPackageId = Number(submissionPackageIdParam);
   const [packageId, setPackageId] = useState<number>(submissionPackageId);
-  // const { data: submissionPackage, isLoading: isPackageUpdating } =
-  //   useGetSubmissionPackage({
-  //     packageId: submissionPackageId,
-  //     enabled: Boolean(accountProject?.id),
-  //   });
-
-  const queryClient = useQueryClient();
-
-  const submissionPackage = queryClient.getQueryData(
-    getSubmissionPackageQueryOptions({
-      packageId: submissionPackageId,
-    }).queryKey,
-  );
-
-  console.log(submissionPackage);
+  const { data: submissionPackage, isLoading: isPackageUpdating } =
+    useGetSubmissionPackage({
+      packageId,
+      enabled: Boolean(accountProject?.id),
+    });
 
   const {
     mutate: updateStateSubmissionPackage,
@@ -185,11 +173,7 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <InfoBox
-                isPackageUpdating={false}
-                setPackageId={setPackageId}
-                submissionPackage={submissionPackage}
-              />
+              <InfoBox submissionPackage={submissionPackage} />
 
               <Box mt="1em" width="100%">
                 <UpdateRequestWidget
