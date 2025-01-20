@@ -71,7 +71,7 @@ class Package(Resource):
 
 @cors_preflight("GET, OPTIONS")
 @API.route(
-    "/<int:package_id>/versions",
+    "/<int:original_package_id>/versions",
     methods=["GET", "OPTIONS"],
 )
 class PackageVersions(Resource):
@@ -85,9 +85,9 @@ class PackageVersions(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
-    def get(package_id):
+    def get(original_package_id):
         """Get a package."""
-        package_versions = PackageService.get_all_package_versions(package_id)
+        package_versions = PackageService.get_all_package_versions_by_original_package_id(original_package_id)
         return PackageVersionSchema(many=True).dump(package_versions), HTTPStatus.OK
 
 

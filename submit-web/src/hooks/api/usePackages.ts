@@ -7,11 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { Options } from "./types";
 import { PackageVersion, SubmissionPackage } from "@/models/Package";
-import {
-  defaultUseQueryOptions,
-  QUERY_KEY,
-  STAFF_QUERY_KEY,
-} from "./constants";
+import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 const createSubmissionPackage = ({
   accountProjectId,
@@ -56,7 +52,7 @@ export const useCreateSubmissionPackage = (options?: Options) => {
 type GetSubmissionPackageByIdParams = {
   packageId: number;
 };
-const getSubmissionPackageById = ({
+export const getSubmissionPackageById = ({
   packageId,
 }: GetSubmissionPackageByIdParams) => {
   return submitRequest<SubmissionPackage>({
@@ -64,19 +60,11 @@ const getSubmissionPackageById = ({
   });
 };
 
-const getStaffSubmissionPackageById = ({
+export const getStaffSubmissionPackageById = ({
   packageId,
 }: GetSubmissionPackageByIdParams) => {
   return submitRequest<SubmissionPackage>({
     url: `staff/packages/${packageId}`,
-  });
-};
-
-const getPackageVersionsByPackageId = ({
-  packageId,
-}: GetSubmissionPackageByIdParams) => {
-  return submitRequest<PackageVersion[]>({
-    url: `staff/packages/${packageId}/versions`,
   });
 };
 
@@ -101,19 +89,8 @@ export const getStaffSubmissionPackageQueryOptions = ({
   enabled = true,
 }: UseGetSubmissionPackageByIdParams) =>
   queryOptions({
-    queryKey: [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+    queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
     queryFn: () => getStaffSubmissionPackageById({ packageId }),
-    enabled: enabled && Boolean(packageId),
-    ...defaultUseQueryOptions,
-  });
-
-export const getPackageVersionsByPackageIdQueryOptions = ({
-  packageId,
-  enabled = true,
-}: UseGetSubmissionPackageByIdParams) =>
-  queryOptions({
-    queryKey: [QUERY_KEY.PACKAGE_VERSIONS, packageId],
-    queryFn: () => getPackageVersionsByPackageId({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,
   });
@@ -134,12 +111,38 @@ export const useGetStaffSubmissionPackage = ({
   return useQuery(options);
 };
 
-export const useGetPackageVersionsByPackageId = ({
-  packageId,
+type GetPackageVersionsByOriginalPackageId = {
+  originalPackageId: number;
+};
+const getPackageVersionsByOriginalPackageId = ({
+  originalPackageId,
+}: GetPackageVersionsByOriginalPackageId) => {
+  return submitRequest<PackageVersion[]>({
+    url: `staff/packages/${originalPackageId}/versions`,
+  });
+};
+
+type UseGetPackageVersionsByOriginalPackageIdParams = {
+  originalPackageId: number;
+  enabled?: boolean;
+};
+export const getPackageVersionsByOriginalPackageIdQueryOptions = ({
+  originalPackageId,
   enabled = true,
-}: UseGetSubmissionPackageByIdParams) => {
-  const options = getPackageVersionsByPackageIdQueryOptions({
-    packageId,
+}: UseGetPackageVersionsByOriginalPackageIdParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.PACKAGE_VERSIONS, originalPackageId],
+    queryFn: () => getPackageVersionsByOriginalPackageId({ originalPackageId }),
+    enabled: enabled && Boolean(originalPackageId),
+    ...defaultUseQueryOptions,
+  });
+
+export const useGetPackageVersionsByOriginalPackageId = ({
+  originalPackageId,
+  enabled = true,
+}: UseGetPackageVersionsByOriginalPackageIdParams) => {
+  const options = getPackageVersionsByOriginalPackageIdQueryOptions({
+    originalPackageId,
     enabled,
   });
   return useQuery(options);
@@ -166,16 +169,16 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
     ...options,
     onSuccess: (submissionPackage) => {
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
       });
       queryClient.invalidateQueries({
         queryKey: [
-          STAFF_QUERY_KEY.ACCOUNT_PROJECT,
+          QUERY_KEY.ACCOUNT_PROJECT,
           submissionPackage.account_project_id,
         ],
       });
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
       if (options?.onSuccess) {
         options.onSuccess();
@@ -218,14 +221,14 @@ export const useCreatePackageUpdateRequest = ({
       }
 
       queryClient.setQueryData(
-        [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         submissionPackage,
       );
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });
       queryClient.refetchQueries({
-        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
   });

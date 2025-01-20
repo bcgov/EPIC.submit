@@ -19,9 +19,13 @@ class PackageVersionSchema(Schema):
     """Schema for serializing individual package versions."""
 
     id = fields.Int(data_key="id")
-    package_id = fields.Int(data_key="package_id")
+    package_id = fields.Method('get_package')
     original_package_id = fields.Int(data_key="original_package_id")
     version = fields.Int(data_key="version")
+
+    def get_package(self, obj):
+        """Get package."""
+        return obj.package.id if obj.package else None
 
 
 class PostPackageRequestSchema(Schema):
@@ -120,7 +124,7 @@ class PackageSchema(Schema):
     items = fields.Nested(ItemSchema, data_key="items", many=True)
     update_requests = fields.Nested(
         PackageUpdateRequestSchema, data_key="update_requests", many=True)
-    version = fields.Nested(PackageVersionSchema, data_key="version")
+    version = fields.Nested(PackageVersionSchema, data_key="version", exclude=["package_id"])
 
     def get_submitted_by(self, obj):
         """Get submitted by."""

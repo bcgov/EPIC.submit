@@ -6,7 +6,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { QUERY_KEY, STAFF_QUERY_KEY } from "./constants";
+import { QUERY_KEY } from "./constants";
 import { SubmissionReview } from "@/models/SubmissionReview";
 
 type GetSubmissionItemByIdParams = {
@@ -62,7 +62,7 @@ export const getSubmissionItemForStaffQueryOptions = ({
   enabled = true,
 }: UseGetSubmissionItemByIdForStaffParams) =>
   queryOptions({
-    queryKey: [STAFF_QUERY_KEY.SUBMISSION_ITEM, itemId],
+    queryKey: [QUERY_KEY.SUBMISSION_ITEM, itemId],
     queryFn: () => getSubmissionItemByIdForStaff({ itemId }),
     enabled: enabled && Boolean(itemId),
   });
@@ -106,16 +106,16 @@ export const useSaveSubmissionReview = ({
       saveSubmissionReview(itemId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.SUBMISSION_ITEM, itemId],
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, itemId],
       });
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
       });
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });
       queryClient.removeQueries({
-        queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS],
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
   });

@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { submitRequest } from "@/utils/axiosUtils";
-import { STAFF_QUERY_KEY } from "./constants";
+import { QUERY_KEY } from "./constants";
 import { StaffUser } from "@/models/User";
 
 type CreateStaffRequest = {
@@ -24,7 +24,7 @@ const addStaffUser = (data: CreateStaffRequest) => {
 
 export const useStaffUserById = (userId?: string) => {
   return useQuery({
-    queryKey: [STAFF_QUERY_KEY.STAFF_USER, userId],
+    queryKey: [QUERY_KEY.STAFF_USER, userId],
     queryFn: () => fetchStaffUserByGUID(userId),
     enabled: !!userId,
   });

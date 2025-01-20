@@ -1,47 +1,79 @@
-import { useGetPackageVersionsByPackageId } from "@/hooks/api/usePackages";
-import { Backdrop, Button, CircularProgress } from "@mui/material";
+import { QUERY_KEY } from "@/hooks/api/constants";
+import {
+  getStaffSubmissionPackageById,
+  getSubmissionPackageById,
+  useGetPackageVersionsByOriginalPackageId,
+} from "@/hooks/api/usePackages";
+import { PackageVersion, SubmissionPackage } from "@/models/Package";
+import {
+  Backdrop,
+  Button,
+  CircularProgress,
+  Skeleton,
+  Stack,
+} from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-export default function VersionGroup({
-  packageId,
-  isPackageUpdating,
-  updatePackageId,
-  proponent = false,
-}: {
-  packageId: number;
-  isPackageUpdating: boolean;
-  updatePackageId: (newPackageId: number) => void;
+type VersionGroupProps = Readonly<{
+  currentPackageVersion: PackageVersion;
   proponent?: boolean;
-}) {
-  const { projectId: accountProjectIdParam } = useParams({ strict: false });
-  const navigate = useNavigate();
-  const { data: packageVersions } = useGetPackageVersionsByPackageId({
-    packageId: packageId,
-    enabled: Boolean(packageId),
+}>;
+export default function VersionGroup({
+  currentPackageVersion,
+  proponent = false,
+}: VersionGroupProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const { projectId: accountProjectIdParam, submissionPackageId } = useParams({
+    strict: false,
   });
-  const [showBackdrop, setShowBackdrop] = useState(false);
+  const packageId = Number(submissionPackageId);
 
-  useEffect(() => {
-    if (showBackdrop && !isPackageUpdating) {
-      setShowBackdrop(isPackageUpdating);
+  const navigate = useNavigate();
+  const { data: packageVersions, isPending: isVersionsLoading } =
+    useGetPackageVersionsByOriginalPackageId({
+      originalPackageId: currentPackageVersion.original_package_id,
+    });
+
+  const queryClient = useQueryClient();
+  const loadNewPackage = async (packageId: number) => {
+    try {
+      setIsLoading(true);
+      await queryClient.ensureQueryData<SubmissionPackage>({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        queryFn: () =>
+          proponent
+            ? getSubmissionPackageById({ packageId })
+            : getStaffSubmissionPackageById({ packageId }),
+      });
+      navigate({
+        to: `/${proponent ? "proponent" : "staff"}/projects/${accountProjectIdParam}/submission-packages/${packageId}`,
+        replace: true,
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [isPackageUpdating, showBackdrop]);
+  };
 
   function handleUpdatePackageId(newPackageId: number) {
-    setShowBackdrop(true);
-    updatePackageId(newPackageId);
-    navigate({
-      to: `/${proponent ? "proponent" : "staff"}/projects/${accountProjectIdParam}/submission-packages/${newPackageId}`,
-      replace: true,
-    });
+    loadNewPackage(newPackageId);
+  }
+
+  if (isVersionsLoading) {
+    return (
+      <Stack direction="row" spacing={1}>
+        <Skeleton variant="rectangular" width={35} height={35} />
+        <Skeleton variant="rectangular" width={35} height={35} />
+      </Stack>
+    );
   }
 
   return (
     <>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
-        open={showBackdrop}
+        open={isLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
