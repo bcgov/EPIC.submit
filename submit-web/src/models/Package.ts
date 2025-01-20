@@ -86,6 +86,13 @@ export const PACKAGE_STATUS: Record<
 
 export type SubmissionPackageMeta = Record<string, number | string>;
 
+export type PackageVersion = {
+  id: number;
+  package_id: number;
+  version: string;
+  original_package_id: number;
+};
+
 export type SubmissionPackage = {
   id: number;
   name: string;
@@ -100,11 +107,5 @@ export type SubmissionPackage = {
   days_since_submission?: number;
   review_status?: NonCanonicalPackageStatus;
   update_requests: Array<UpdateRequest>;
-};
-
-export type PackageVersion = {
-  id: number;
-  package_id: number;
-  version: string;
-  original_package_id: number;
+  version: PackageVersion;
 };

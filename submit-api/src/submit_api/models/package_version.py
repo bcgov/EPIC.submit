@@ -4,7 +4,7 @@ Manages the package
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, ForeignKey, func
+from sqlalchemy import Column
 
 from .db import db
 
@@ -17,6 +17,7 @@ class PackageVersion(db.Model):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     original_package_id = Column(db.Integer, nullable=False)
     version = Column(db.Integer, nullable=False)
+    package = db.relationship('Package', backref='versions', lazy='select', uselist=False)
 
     __table_args__ = (
         db.Index('idx_package_versions_original_package_id', original_package_id),

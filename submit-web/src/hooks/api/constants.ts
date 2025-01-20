@@ -14,12 +14,5 @@ export const QUERY_KEY = Object.freeze({
   SUBMISSIONS: "submissions",
   USERS: "users",
   PACKAGE_VERSIONS: "package-versions",
-});
-
-export const STAFF_QUERY_KEY = Object.freeze({
-  ACCOUNT_PROJECTS: "staff/account-projects",
-  ACCOUNT_PROJECT: "staff/account-project",
-  SUBMISSION_PACKAGE: "staff/package",
-  SUBMISSION_ITEM: "staff/item",
   STAFF_USER: "staff/staff-user",
 });

@@ -2,11 +2,7 @@ import { AccountProject, Project } from "@/models/Project";
 import { submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { Options } from "./types";
-import {
-  defaultUseQueryOptions,
-  QUERY_KEY,
-  STAFF_QUERY_KEY,
-} from "./constants";
+import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 const loadProjectsByProponentId = (proponentId?: number) => {
   if (!proponentId) {
@@ -143,7 +139,7 @@ export const getAccountProjectForStaffQueryOptions = (
   accountProjectId: number,
 ) =>
   queryOptions({
-    queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
     queryFn: () => getAccountProjectByIdForStaff({ accountProjectId }),
     enabled: Boolean(accountProjectId),
     ...defaultUseQueryOptions,
@@ -179,7 +175,7 @@ export const getAccountProjectsForStaffQueryOptions = ({
   searchOptions,
 }: UseGetProjectsForStaffParams) =>
   queryOptions({
-    queryKey: [STAFF_QUERY_KEY.ACCOUNT_PROJECTS, searchOptions],
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions],
     queryFn: () => getAccountProjectsForStaff({ searchOptions }),
     ...defaultUseQueryOptions,
   });

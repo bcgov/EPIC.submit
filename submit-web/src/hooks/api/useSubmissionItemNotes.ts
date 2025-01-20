@@ -1,7 +1,7 @@
 import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
-import { STAFF_QUERY_KEY } from "./constants";
+import { QUERY_KEY } from "./constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Note } from "@/components/SubmissionItem/Note";
 
@@ -37,10 +37,10 @@ export const useCreateNote = ({
       }
       notify.success("Note added successfully");
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.SUBMISSION_ITEM, itemId],
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, itemId],
       });
       queryClient.invalidateQueries({
-        queryKey: [STAFF_QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
       });
     },
   });

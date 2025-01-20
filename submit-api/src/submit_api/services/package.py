@@ -32,10 +32,6 @@ class PackageService:
     """Package management service."""
 
     @classmethod
-    def get_all(cls):
-        return PackageModel.get_all()
-
-    @classmethod
     def get_package_by_id(cls, package_id):
         """Get package by id."""
         package = PackageModel.get_package_by_id_with_items(package_id)
@@ -146,11 +142,9 @@ class PackageService:
         return package_version
 
     @classmethod
-    def get_all_package_versions(cls, package_id):
-        """Get all package versions by package ID."""
-        package = PackageModel.find_by_id(package_id)
-        package_version = PackageVersionModel.get_by_id(package.version_id)
-        all_package_versions = PackageVersionModel.get_all_by_original_package_id(package_version.original_package_id)
+    def get_all_package_versions_by_original_package_id(cls, original_package_id):
+        """Get all package versions by original package id."""
+        all_package_versions = PackageVersionModel.get_all_by_original_package_id(original_package_id)
         return all_package_versions
 
     @staticmethod

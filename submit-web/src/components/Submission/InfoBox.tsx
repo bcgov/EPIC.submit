@@ -27,41 +27,23 @@ const InfoBoxItem = ({ label = "", value = "" }: InfoBoxItemProps) => {
 
 type InfoBoxProps = {
   submissionPackage: SubmissionPackage;
-  isPackageUpdating: boolean;
-  setPackageId: (newPackageId: number) => void;
 };
-export const InfoBox = ({
-  submissionPackage,
-  isPackageUpdating,
-  setPackageId,
-}: InfoBoxProps) => {
+export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const { userType } = useAccount();
 
   return (
     <Switch>
       <Case condition={userType === USER_TYPE.STAFF}>
-        <StaffInfoBox
-          setPackageId={setPackageId}
-          isPackageUpdating={isPackageUpdating}
-          submissionPackage={submissionPackage}
-        />
+        <StaffInfoBox submissionPackage={submissionPackage} />
       </Case>
       <Case condition={userType === USER_TYPE.PROPONENT}>
-        <ProponentInfoBox
-          setPackageId={setPackageId}
-          isPackageUpdating={isPackageUpdating}
-          submissionPackage={submissionPackage}
-        />
+        <ProponentInfoBox submissionPackage={submissionPackage} />
       </Case>
     </Switch>
   );
 };
 
-const ProponentInfoBox = ({
-  submissionPackage,
-  isPackageUpdating,
-  setPackageId,
-}: InfoBoxProps) => {
+const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const {
     submitted_on,
     date_review_completed,
@@ -90,10 +72,8 @@ const ProponentInfoBox = ({
           Version:{" "}
         </Typography>
         <VersionGroup
+          currentPackageVersion={submissionPackage.version}
           proponent
-          packageId={submissionPackage.id}
-          isPackageUpdating={isPackageUpdating}
-          updatePackageId={setPackageId}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -124,11 +104,7 @@ const ProponentInfoBox = ({
   );
 };
 
-const StaffInfoBox = ({
-  submissionPackage,
-  isPackageUpdating,
-  setPackageId,
-}: InfoBoxProps) => {
+const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const {
     review_start_date,
     supporting_condition,
@@ -136,7 +112,7 @@ const StaffInfoBox = ({
     cc_start_date,
     cc_completed_on,
   } = submissionPackage.meta || {};
-  const { submitted_on, submitted_by } = submissionPackage;
+  const { submitted_on, submitted_by, version } = submissionPackage;
 
   return (
     <Grid
@@ -158,11 +134,7 @@ const StaffInfoBox = ({
         <Typography color={BCDesignTokens.themeGray70} sx={{ mr: 1 }}>
           Version:{" "}
         </Typography>
-        <VersionGroup
-          packageId={submissionPackage.id}
-          isPackageUpdating={isPackageUpdating}
-          updatePackageId={setPackageId}
-        />
+        <VersionGroup currentPackageVersion={version} />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
