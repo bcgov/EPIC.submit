@@ -28,6 +28,23 @@ export const SUBMISSION_ITEM_TYPE: Record<string, SubmissionItemTypeName> =
     CONSULTATION_RECORD: "Consultation Record(s)",
   });
 
+export const SUBMISSION_ITEM_MODAL_CONTENT: Record<
+  string,
+  { title: string; description: string; confirmText: string }
+> = {
+  [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: {
+    title: "Start Management Plan Review",
+    description:
+      "Would you like to start the Management Plan review now? This will start the counter for the MP Review.",
+    confirmText: "Start MP Review",
+  },
+  [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: {
+    title: "Start Consultation Check",
+    description: "Would you like to start the Consultation Check now?",
+    confirmText: "Start Consultation Check",
+  },
+};
+
 export interface SubmissionItem {
   id: number;
   package_id: number;

@@ -3,6 +3,7 @@ import { Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import {
   SUBMISSION_ITEM_METHOD,
+  SUBMISSION_ITEM_MODAL_CONTENT,
   SUBMISSION_ITEM_TYPE,
   SubmissionItem,
 } from "@/models/SubmissionItem";
@@ -63,6 +64,14 @@ export default function DocumentRow({
   }, [updatingSubmission, setIsLoading]);
 
   const openConfirmationModal = () => {
+    const { title, description, confirmText } = SUBMISSION_ITEM_MODAL_CONTENT[
+      submissionItem.type.name
+    ] || {
+      title: `Start ${subItemName} Review`,
+      description: `Would you like to start the ${subItemName} review now? This will begin the review counter.`,
+      confirmText: `Start ${subItemName} Review`,
+    };
+
     setOpenModal(
       <ConfirmationModal
         onConfirm={() => {
@@ -75,11 +84,11 @@ export default function DocumentRow({
             },
           });
         }}
-        title={`Start ${subItemName} Review`}
-        description={`Would you like to start the ${subItemName} review now? This will start the counter for the Review.`}
-        confirmText={`Start ${subItemName} Review`}
+        title={title}
+        description={description}
+        confirmText={confirmText}
         cancelText="Start Later"
-      />,
+      />
     );
   };
 
