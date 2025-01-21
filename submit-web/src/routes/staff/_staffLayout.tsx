@@ -3,7 +3,6 @@ import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
 import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useGetUserByGuid } from "@/hooks/api/useAccounts";
-import { useStaffAddUser } from "@/hooks/api/useStaffUser";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
@@ -28,9 +27,6 @@ function Staff() {
     signinRedirect,
     isLoading: isAuthLoading,
   } = useAuth();
-
-  const { mutate: addStaffUser, isPending: isCreatingStaffUserPending } =
-    useStaffAddUser();
 
   const {
     data: userData,
@@ -81,21 +77,6 @@ function Staff() {
     }
   }, [handleUser, isAuthLoading]);
 
-  useEffect(() => {
-    if (userData && kcUser && !isCreatingStaffUserPending) {
-      if (!userData.staff_user) {
-        console.log(userData);
-        const staffUser = {
-          auth_guid: kcUser.profile.sub,
-          first_name: kcUser.profile.given_name,
-          last_name: kcUser.profile.family_name,
-          work_email_address: kcUser.profile.email ?? "",
-        };
-        addStaffUser(staffUser);
-      }
-    }
-  }, [userData, kcUser, addStaffUser, isCreatingStaffUserPending]);
-
   if (isLoading) {
     return <PageLoader />;
   }
@@ -104,7 +85,7 @@ function Staff() {
     return <Navigate to="/error" />;
   }
 
-  if (userData?.type !== USER_TYPE.STAFF) {
+  if (userData?.type !== USER_TYPE.STAFF || !userData.staff_user) {
     return <Navigate to="/not-found" />;
   }
 
