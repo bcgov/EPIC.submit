@@ -83,7 +83,6 @@ class PackageVersions(Resource):
         code=HTTPStatus.OK, model=package_model, description="Get package versions"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get(original_package_id):
         """Get a package."""
