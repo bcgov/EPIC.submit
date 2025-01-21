@@ -95,15 +95,16 @@ export default function ReviewSection() {
     defaultValues,
   });
 
-  const { getValues } = methods;
+  const { watch } = methods;
 
   // geet staff and manager answers
-  const staffAnswer = getValues("staff.passedConsultationCheck");
-  const managerAnswer = getValues("manager.passedConsultationCheck");
+  const staffAnswer = watch("staff.passedConsultationCheck");
+  const managerAnswer = watch("manager.passedConsultationCheck");
 
   const failedConsultationCheck =
-    staffAnswer === RadioOptions.NO.value &&
-    managerAnswer !== RadioOptions.YES.value;
+    managerAnswer === RadioOptions.NO.value ||
+    (staffAnswer === RadioOptions.NO.value &&
+      managerAnswer !== RadioOptions.YES.value);
 
   const isFormDisabled =
     (isStaff &&
