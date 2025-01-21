@@ -84,6 +84,7 @@ function Staff() {
   useEffect(() => {
     if (userData && kcUser && !isCreatingStaffUserPending) {
       if (!userData.staff_user) {
+        console.log(userData);
         const staffUser = {
           auth_guid: kcUser.profile.sub,
           first_name: kcUser.profile.given_name,
