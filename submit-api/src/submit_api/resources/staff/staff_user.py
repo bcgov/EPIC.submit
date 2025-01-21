@@ -20,7 +20,7 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.staff_user import StaffUserSchema, CreateStaffUserRequest
+from submit_api.schemas.staff_user import StaffUserSchema
 from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
@@ -53,24 +53,3 @@ class StaffUser(Resource):
         if not staff:
             return ResourceNotFoundError(f"User with guid {guid} not found")
         return StaffUserSchema().dump(staff), HTTPStatus.OK
-
-
-@cors_preflight("OPTIONS, POST")
-@API.route("", methods=["POST", "OPTIONS"])
-class StaffUsers(Resource):
-    """Resource for managing a list of accounts"""
-
-    @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Create a staff user")
-    @API.expect(user_model)
-    @API.response(
-        code=HTTPStatus.CREATED, model=user_model, description="Created Staff User"
-    )
-    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
-    def post():
-        """Create a staff user."""
-        request_data = CreateStaffUserRequest().load(API.payload)
-        staff = StaffUserService.create_staff_user_if_missing(request_data)
-        return StaffUserSchema().dump(staff), HTTPStatus.CREATED
