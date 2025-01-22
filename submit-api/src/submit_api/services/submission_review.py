@@ -309,7 +309,7 @@ class SubmissionReviewService:
         if not package_version:
             current_app.logger.error(f"Package version not found for item {item.id}.")
             raise ResourceNotFoundError(f"Package version not found for item {item.id}.")
-        new_package = PackageService.create_new_package_from_original(package_version.original_package_id, session)
+        new_package = PackageService.create_new_package_from_original(package.id, session)
         current_app.logger.info(f"New package version created for item {item.id}.")
         new_items = new_package.items
         new_item = next((i for i in new_items if i.type.name == item.type.name), None)
