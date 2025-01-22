@@ -136,6 +136,16 @@ const statusStyles: Record<string, StyleProps> = {
       // width: "125px",
     },
   },
+  APPROVED: {
+    label: "Approved",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+      // width: "125px",
+    },
+  },
 };
 
 type SubmissionStatusChipProps = Readonly<{
