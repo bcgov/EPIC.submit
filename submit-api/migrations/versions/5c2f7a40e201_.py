@@ -15,11 +15,10 @@ depends_on = None
 
 
 def upgrade():
-    def upgrade():
-        op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UNDER_REVIEW';")
-        op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UNDER_CONSULTATION_CHECK';")
-        op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'UNDER_REVIEW';")
-        op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'UNDER_CONSULTATION_CHECK';")
+    op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UNDER_REVIEW';")
+    op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UNDER_CONSULTATION_CHECK';")
+    op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'UNDER_REVIEW';")
+    op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'UNDER_CONSULTATION_CHECK';")
 
 
 def downgrade():
