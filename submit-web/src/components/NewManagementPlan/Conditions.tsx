@@ -41,14 +41,15 @@ export const Conditions = () => {
     useManagementPlanForm();
 
   const [mainCondition, setMainCondition] = useState<Condition | null>(
-    formData?.main_condition || null,
+    formData?.main_condition || null
   );
 
   const [supportingConditions, setSupportingConditions] = useState<number[]>(
     Array.from(formData.supporting_conditions || []).map(
-      (condition: Condition) => condition.condition_number ?? 0,
-    ),
+      (condition: Condition) => condition.condition_number ?? 0
+    )
   );
+
   const isConditionSelected = (condition: Condition) =>
     mainCondition?.condition_number === condition?.condition_number ||
     supportingConditions.some((c) => c === condition.condition_number);
@@ -64,7 +65,7 @@ export const Conditions = () => {
       ...formData,
       main_condition: mainCondition,
       supporting_conditions: conditions?.filter((c) =>
-        supportingConditions.includes(c.condition_number!),
+        supportingConditions.includes(c.condition_number!)
       ),
     });
 
@@ -84,18 +85,18 @@ export const Conditions = () => {
 
   const handleAnotherSupportingCondition = (
     currentInput: number,
-    conditionName: string,
+    conditionName: string
   ) => {
     if (supportingConditions.length >= MAX_SUPPORTING_CONDITIONS) return;
     const newCondition = conditions?.find(
-      (c) => c.condition_name === conditionName,
+      (c) => c.condition_name === conditionName
     );
 
     if (newCondition?.condition_number != null) {
       setSupportingConditions((prev) =>
         prev.map((c) =>
-          c === currentInput ? newCondition.condition_number! : c,
-        ),
+          c === currentInput ? newCondition.condition_number! : c
+        )
       );
     }
   };
@@ -152,7 +153,7 @@ export const Conditions = () => {
             onChange={(e) => {
               setMainCondition(
                 conditions?.find((c) => c.condition_name === e.target.value) ||
-                  null,
+                  null
               );
               if (errorText) {
                 setErrorText(null);
@@ -160,15 +161,19 @@ export const Conditions = () => {
             }}
             value={mainCondition?.condition_name || ""}
           >
-            {conditions?.map((condition) => (
-              <MenuItem
-                key={condition.condition_name || ""}
-                value={condition.condition_name || ""}
-                disabled={isConditionSelected(condition)}
-              >
-                {condition.condition_name}
-              </MenuItem>
-            ))}
+            {conditions?.map((condition) => {
+              const MPName = condition.condition_attributes?.deliverable_name;
+
+              return (
+                <MenuItem
+                  key={condition.condition_name || ""}
+                  value={condition.condition_name || ""}
+                  disabled={isConditionSelected(condition)}
+                >
+                  {MPName || condition.condition_name}
+                </MenuItem>
+              );
+            })}
           </TextField>
         </Grid>
         <Grid item xs={12}>
@@ -219,7 +224,7 @@ export const Conditions = () => {
               <IconButton
                 onClick={() => {
                   setSupportingConditions(
-                    supportingConditions.filter((c) => c !== input),
+                    supportingConditions.filter((c) => c !== input)
                   );
                 }}
               >
