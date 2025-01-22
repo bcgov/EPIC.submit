@@ -40,6 +40,7 @@ class PackageService:
     @classmethod
     def create_new_package_from_original(cls, original_package_id, session):
         """Create a new package version."""
+        current_app.logger.info(f"Creating a new package version for package {original_package_id}")
         original_package = PackageModel.find_by_id(original_package_id)
         package_version = PackageVersionModel.get_by_id(
             original_package.version_id)
@@ -48,14 +49,15 @@ class PackageService:
         if not all_package_versions:
             raise BadRequestError(
                 "Cannot create a new version for a package that has no versions")
-
+        current_app.logger.info(f"Original package {original_package_id} has {len(all_package_versions)} versions")
         latest_version = max(
             package_version.version for package_version in all_package_versions)
+        current_app.logger.info(f"Latest version for package {original_package_id} is {latest_version}")
         if latest_version != package_version.version:
             raise BadRequestError(
                 "Cannot create a new version for a package that is not the latest version")
-
         new_version = latest_version + 1
+        current_app.logger.info(f"Creating new version {new_version} for package {original_package_id}")
         new_package_data = {
             "name": original_package.name,
         }
@@ -65,6 +67,7 @@ class PackageService:
         new_version = cls._create_package_version(
             session, original_package_id=original_package.id, version=new_version)
         new_package.version_id = new_version.id
+        current_app.logger.info(f"Created new package {new_package.id} for package {original_package_id}")
         session.add(new_package)
         new_metadata = {
             PackageMetadataFields.CONDITION.value: original_package.meta.json.get(
@@ -73,6 +76,7 @@ class PackageService:
         cls._create_package_metadata(
             session, new_package.id, new_metadata)
         cls._create_items(session, new_package.id, package_type)
+        current_app.logger.info(f"Created new version {new_version.id} for package {original_package_id}")
         return new_package
 
     @classmethod
@@ -96,6 +100,7 @@ class PackageService:
     @staticmethod
     def _create_package(session, account_project_id, request_data, package_type):
         """Create a new package."""
+        current_app.logger.info(f"Creating a new package for account project {account_project_id}")
         package_data = {
             "account_project_id": account_project_id,
             "name": request_data.get("name"),
@@ -104,15 +109,18 @@ class PackageService:
         package = PackageModel(**package_data)
         session.add(package)
         session.flush()
+        current_app.logger.info(f"Created package {package.id} for account project {account_project_id}")
         return package
 
     @staticmethod
     def _create_package_metadata(session, package_id, metadata):
         """Create package metadata."""
+        current_app.logger.info(f"Creating metadata for package {package_id}")
         package_metadata = PackageMetadataModel(
             package_id=package_id, json=metadata
         )
         session.add(package_metadata)
+        current_app.logger.info(f"Created metadata for package {package_id}")
 
     @staticmethod
     def _update_package_metadata(session, package_id, metadata_updates):
@@ -133,12 +141,14 @@ class PackageService:
     @classmethod
     def _create_package_version(cls, session, original_package_id, version=1):
         """Create a new package version."""
+        current_app.logger.info(f"Creating a new package version for package {original_package_id}")
         package_version = PackageVersionModel(
             original_package_id=original_package_id,
             version=version
         )
         session.add(package_version)
         session.flush()
+        current_app.logger.info(f"Created package version {package_version.id} for package {original_package_id}")
         return package_version
 
     @classmethod
@@ -150,6 +160,7 @@ class PackageService:
     @staticmethod
     def _create_items(session, package_id, package_type):
         """Create items for the package."""
+        current_app.logger.info(f"Creating items for package {package_id}")
         package_item_types = session.query(PackageItemTypeModel).filter_by(
             package_type_id=package_type.id,
         ).all()
@@ -159,6 +170,7 @@ class PackageService:
         }
 
         for item_type in package_type.item_types:
+            current_app.logger.info(f"Creating item for package {package_id} with item type {item_type.name}")
             package_item_type = item_type_to_package_item_type.get(
                 item_type.id)
             if package_item_type:
@@ -168,7 +180,9 @@ class PackageService:
                     sort_order=package_item_type.sort_order
                 )
                 session.add(item)
-
+                (current_app.logger
+                 .info(f"Created item {item.id} for package {package_id} with item type {item_type.name}"))
+        current_app.logger.info(f"Created items for package {package_id}")
         session.flush()
 
     @classmethod
