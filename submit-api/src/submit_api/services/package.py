@@ -49,7 +49,8 @@ class PackageService:
         if not all_package_versions:
             raise BadRequestError(
                 "Cannot create a new version for a package that has no versions")
-        current_app.logger.info(f"Original package {package_version.original_package_id} has {len(all_package_versions)} versions")
+        (current_app.logger
+         .info(f"Original package {package_version.original_package_id} has {len(all_package_versions)} versions"))
         latest_version = max(
             package_version.version for package_version in all_package_versions)
         current_app.logger.info(f"Latest version for package {current_package_id} is {latest_version}")
