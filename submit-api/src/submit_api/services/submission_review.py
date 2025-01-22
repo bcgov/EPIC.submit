@@ -262,11 +262,13 @@ class SubmissionReviewService:
             'type': UpdateRequestType.REVIEW,
         }
         cls._create_update_request(update_request_data, session)
+        current_app.logger.info(f"Management plan form rejected for item {item.id}.")
         return item
 
     @classmethod
     def _update_item_status_mp_rejection(cls, item):
         """Update the status and review date of the item for rejection."""
+        current_app.logger.info(f"Rejecting management plan form for item {item.id}.")
         item.status = ItemStatus.REVIEW_REJECTED.value
         reviewed_on = datetime.utcnow()
         item.reviewed_on = reviewed_on
@@ -275,6 +277,7 @@ class SubmissionReviewService:
     @classmethod
     def _update_package_metadata_mp_rejection(cls, item, session):
         """Update package metadata with review completion date for rejection."""
+        current_app.logger.info(f"Updating package metadata for package {item.package_id}.")
         package_metadata = cls._get_or_create_package_metadata_mp_rejection(item.package_id)
         reviewed_on = item.reviewed_on
         existing_json = package_metadata.json if package_metadata.json else {}
@@ -285,25 +288,29 @@ class SubmissionReviewService:
 
         session.add(item)
         session.add(package_metadata)
+        current_app.logger.info(f"Package metadata updated for package {item.package_id}.")
 
     @classmethod
     def _get_or_create_package_metadata_mp_rejection(cls, package_id):
         """Retrieve or create package metadata for rejection."""
+        current_app.logger.info(f"Retrieving package metadata for package {package_id}.")
         package_metadata = PackageMetadata.get_by_package_id(package_id)
         if not package_metadata:
+            current_app.logger.info(f"Creating package metadata for package {package_id}.")
             package_metadata = PackageMetadata(package_id=package_id, json={})
         return package_metadata
 
     @classmethod
     def _create_new_package_version(cls, item, session):
         """Create a new package version and retrieve new management plan item for rejection."""
+        current_app.logger.info(f"Creating new package version for item {item.id}.")
         package = PackageModel.find_by_id(item.package_id)
         package_version = PackageVersion.get_by_id(package.version_id)
         if not package_version:
             current_app.logger.error(f"Package version not found for item {item.id}.")
             raise ResourceNotFoundError(f"Package version not found for item {item.id}.")
         new_package = PackageService.create_new_package_from_original(package_version.original_package_id, session)
-
+        current_app.logger.info(f"New package version created for item {item.id}.")
         new_items = new_package.items
         new_item = next((i for i in new_items if i.type.name == item.type.name), None)
         if not new_item:
@@ -318,6 +325,7 @@ class SubmissionReviewService:
     @classmethod
     def _create_update_request(cls, data, session):
         """Create an update request."""
+        current_app.logger.info(f"Creating update request for new package {data.get('package_id')}.")
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
             submission_item_ids=data.get('item_ids'),
