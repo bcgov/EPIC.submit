@@ -4,10 +4,7 @@ Manages the account project
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, event
-from sqlalchemy.exc import ArgumentError, IntegrityError
-
-from submit_api.exceptions import PermissionDeniedError
+from sqlalchemy import Column
 
 from .db import db
 
@@ -27,6 +24,7 @@ class Project(db.Model):
     __table_args__ = (
         db.Index('ix_projects_proponent_id', 'proponent_id'),
     )
+
     @classmethod
     def get_all_projects_in_ids(cls, project_ids):
         """Get all projects in the given project ids."""
@@ -36,5 +34,3 @@ class Project(db.Model):
     def get_one_by_proponent_id(cls, proponent_id):
         """Fetch project by proponent id."""
         return cls.query.filter_by(proponent_id=proponent_id).first()
-
-
