@@ -143,7 +143,10 @@ export default function ReviewSection() {
               Consultation Check?
             </Typography>
 
-            <ControlledRadioGroup name="staff.passedConsultationCheck">
+            <ControlledRadioGroup
+              name="staff.passedConsultationCheck"
+              hideError={isManager}
+            >
               <SubmitRadio
                 label={RadioOptions.YES.label}
                 value={RadioOptions.YES.value}

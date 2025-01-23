@@ -8,7 +8,7 @@ import { SubmitRadio } from "@/components/Shared/SubmitRadio";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import {
   SUBMISSION_REVIEW_ENTRY_TYPE,
@@ -126,7 +126,10 @@ export default function ReviewSection() {
               Management Plan Review for the {submissionPackage?.name}?
             </Typography>
 
-            <ControlledRadioGroup name="staff.passedReview">
+            <ControlledRadioGroup
+              name="staff.passedReview"
+              hideError={isManager}
+            >
               <SubmitRadio
                 label={RadioOptions.YES.label}
                 value={RadioOptions.YES.value}
