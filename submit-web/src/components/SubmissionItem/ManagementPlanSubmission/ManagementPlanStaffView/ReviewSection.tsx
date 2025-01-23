@@ -126,7 +126,10 @@ export default function ReviewSection() {
               Management Plan Review for the {submissionPackage?.name}?
             </Typography>
 
-            <ControlledRadioGroup name="staff.passedReview">
+            <ControlledRadioGroup
+              name="staff.passedReview"
+              hideError={isManager}
+            >
               <SubmitRadio
                 label={RadioOptions.YES.label}
                 value={RadioOptions.YES.value}

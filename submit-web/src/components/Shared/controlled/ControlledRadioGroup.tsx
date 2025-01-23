@@ -10,10 +10,12 @@ import { get } from "lodash";
 
 type IFormInputProps = {
   name: string;
+  hideError?: boolean;
 } & RadioGroupProps;
 
 const ControlledRadioGroup: FC<IFormInputProps> = ({
   name,
+  hideError = false,
   children,
   ...otherProps
 }) => {
@@ -45,7 +47,9 @@ const ControlledRadioGroup: FC<IFormInputProps> = ({
           );
         }}
       />
-      {error && <FormHelperText>{error.message?.toString()}</FormHelperText>}
+      {error && !hideError && (
+        <FormHelperText>{error.message?.toString()}</FormHelperText>
+      )}
     </FormControl>
   );
 };
