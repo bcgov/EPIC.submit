@@ -31,7 +31,7 @@ import ItemsTable from "@/components/Submission/ItemsTable";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });

@@ -30,7 +30,7 @@ export default function PendingRow({
   } = pendingDocument;
 
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const { triggerPending, removeObject, completeObject } =

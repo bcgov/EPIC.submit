@@ -25,38 +25,48 @@ import { Route as ProponentRegistrationCompleteImport } from './routes/proponent
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
 import { Route as ProponentProponentLayoutProjectsIndexImport } from './routes/proponent/_proponentLayout/projects/index'
-import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout'
-import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout'
-import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/index'
-import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/index'
-import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission'
-import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
-import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
-import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
-import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
-import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
-import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
+import { Route as StaffStaffLayoutProjectsAllProjectsLayoutImport } from './routes/staff/_staffLayout/projects/_allProjectsLayout'
+import { Route as ProponentProponentLayoutProjectsAllProjectsLayoutImport } from './routes/proponent/_proponentLayout/projects/_allProjectsLayout'
+import { Route as StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport } from './routes/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout'
+import { Route as ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout'
+import { Route as StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexImport } from './routes/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/index'
+import { Route as ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexImport } from './routes/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/index'
+import { Route as ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutNewSubmissionImport } from './routes/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission'
+import { Route as StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport } from './routes/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+import { Route as ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport } from './routes/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+import { Route as StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport } from './routes/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
+import { Route as ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport } from './routes/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
+import { Route as StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport } from './routes/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
+import { Route as ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport } from './routes/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
 
 // Create Virtual Routes
 
 const StaffImport = createFileRoute('/staff')()
 const ProponentImport = createFileRoute('/proponent')()
+const StaffStaffLayoutProjectsImport = createFileRoute(
+  '/staff/_staffLayout/projects',
+)()
+const ProponentProponentLayoutProjectsImport = createFileRoute(
+  '/proponent/_proponentLayout/projects',
+)()
 const ProponentProponentLayoutAboutpageLazyImport = createFileRoute(
   '/proponent/_proponentLayout/aboutpage',
 )()
-const StaffStaffLayoutProjectsProjectIdImport = createFileRoute(
-  '/staff/_staffLayout/projects/$projectId',
-)()
-const ProponentProponentLayoutProjectsProjectIdImport = createFileRoute(
-  '/proponent/_proponentLayout/projects/$projectId',
-)()
-const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport =
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdImport =
   createFileRoute(
-    '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId',
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId',
   )()
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport =
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdImport =
   createFileRoute(
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId',
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId',
+  )()
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport =
+  createFileRoute(
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId',
+  )()
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport =
+  createFileRoute(
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId',
   )()
 
 // Create/Update Routes
@@ -101,6 +111,17 @@ const ProponentProponentLayoutRoute = ProponentProponentLayoutImport.update({
   getParentRoute: () => ProponentRoute,
 } as any)
 
+const StaffStaffLayoutProjectsRoute = StaffStaffLayoutProjectsImport.update({
+  path: '/projects',
+  getParentRoute: () => StaffStaffLayoutRoute,
+} as any)
+
+const ProponentProponentLayoutProjectsRoute =
+  ProponentProponentLayoutProjectsImport.update({
+    path: '/projects',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
 const ProponentRegistrationIndexRoute = ProponentRegistrationIndexImport.update(
   {
     path: '/registration/',
@@ -136,132 +157,155 @@ const ProponentProponentLayoutProfileRoute =
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
-const StaffStaffLayoutProjectsProjectIdRoute =
-  StaffStaffLayoutProjectsProjectIdImport.update({
-    path: '/projects/$projectId',
-    getParentRoute: () => StaffStaffLayoutRoute,
-  } as any)
-
-const ProponentProponentLayoutProjectsProjectIdRoute =
-  ProponentProponentLayoutProjectsProjectIdImport.update({
-    path: '/projects/$projectId',
-    getParentRoute: () => ProponentProponentLayoutRoute,
-  } as any)
-
 const StaffStaffLayoutProjectsIndexRoute =
   StaffStaffLayoutProjectsIndexImport.update({
-    path: '/projects/',
-    getParentRoute: () => StaffStaffLayoutRoute,
+    path: '/',
+    getParentRoute: () => StaffStaffLayoutProjectsRoute,
   } as any)
 
 const ProponentProponentLayoutProjectsIndexRoute =
   ProponentProponentLayoutProjectsIndexImport.update({
-    path: '/projects/',
-    getParentRoute: () => ProponentProponentLayoutRoute,
-  } as any)
-
-const StaffStaffLayoutProjectsProjectIdProjectLayoutRoute =
-  StaffStaffLayoutProjectsProjectIdProjectLayoutImport.update({
-    id: '/_projectLayout',
-    getParentRoute: () => StaffStaffLayoutProjectsProjectIdRoute,
-  } as any)
-
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutImport.update({
-    id: '/_projectLayout',
-    getParentRoute: () => ProponentProponentLayoutProjectsProjectIdRoute,
-  } as any)
-
-const StaffStaffLayoutProjectsProjectIdProjectLayoutIndexRoute =
-  StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport.update({
     path: '/',
-    getParentRoute: () => StaffStaffLayoutProjectsProjectIdProjectLayoutRoute,
+    getParentRoute: () => ProponentProponentLayoutProjectsRoute,
   } as any)
 
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexImport.update({
-    path: '/',
+const StaffStaffLayoutProjectsAllProjectsLayoutRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutImport.update({
+    id: '/_allProjectsLayout',
+    getParentRoute: () => StaffStaffLayoutProjectsRoute,
+  } as any)
+
+const ProponentProponentLayoutProjectsAllProjectsLayoutRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutImport.update({
+    id: '/_allProjectsLayout',
+    getParentRoute: () => ProponentProponentLayoutProjectsRoute,
+  } as any)
+
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdImport.update({
+    path: '/$projectId',
+    getParentRoute: () => StaffStaffLayoutProjectsAllProjectsLayoutRoute,
+  } as any)
+
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdImport.update({
+    path: '/$projectId',
     getParentRoute: () =>
-      ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
+      ProponentProponentLayoutProjectsAllProjectsLayoutRoute,
   } as any)
 
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionImport.update(
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport.update({
+    id: '/_projectLayout',
+    getParentRoute: () =>
+      StaffStaffLayoutProjectsAllProjectsLayoutProjectIdRoute,
+  } as any)
+
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport.update(
+    {
+      id: '/_projectLayout',
+      getParentRoute: () =>
+        ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdRoute,
+    } as any,
+  )
+
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexImport.update(
+    {
+      path: '/',
+      getParentRoute: () =>
+        StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute,
+    } as any,
+  )
+
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexImport.update(
+    {
+      path: '/',
+      getParentRoute: () =>
+        ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute,
+    } as any,
+  )
+
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutNewSubmissionRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutNewSubmissionImport.update(
     {
       path: '/new-submission',
       getParentRoute: () =>
-        ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
+        ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute,
     } as any,
   )
 
-const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute =
-  StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport.update(
-    {
-      path: '/submission-packages/$submissionPackageId',
-      getParentRoute: () => StaffStaffLayoutProjectsProjectIdProjectLayoutRoute,
-    } as any,
-  )
-
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport.update(
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport.update(
     {
       path: '/submission-packages/$submissionPackageId',
       getParentRoute: () =>
-        ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
+        StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute,
     } as any,
   )
 
-const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute =
-  StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport.update(
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport.update(
+    {
+      path: '/submission-packages/$submissionPackageId',
+      getParentRoute: () =>
+        ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute,
+    } as any,
+  )
+
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport.update(
     {
       id: '/_submissionLayout',
       getParentRoute: () =>
-        StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute,
+        StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute,
     } as any,
   )
 
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport.update(
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport.update(
     {
       id: '/_submissionLayout',
       getParentRoute: () =>
-        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute,
+        ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute,
     } as any,
   )
 
-const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute =
-  StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport.update(
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport.update(
     {
       path: '/',
       getParentRoute: () =>
-        StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
+        StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
     } as any,
   )
 
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport.update(
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport.update(
     {
       path: '/',
       getParentRoute: () =>
-        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
+        ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
     } as any,
   )
 
-const StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute =
-  StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport.update(
+const StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute =
+  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport.update(
     {
       path: '/submissions/$submissionId',
       getParentRoute: () =>
-        StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
+        StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
     } as any,
   )
 
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport.update(
+const ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute =
+  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport.update(
     {
       path: '/submissions/$submissionId',
       getParentRoute: () =>
-        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
+        ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute,
     } as any,
   )
 
@@ -360,124 +404,152 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentRegistrationIndexImport
       parentRoute: typeof ProponentImport
     }
-    '/proponent/_proponentLayout/projects/': {
-      id: '/proponent/_proponentLayout/projects/'
+    '/proponent/_proponentLayout/projects': {
+      id: '/proponent/_proponentLayout/projects'
       path: '/projects'
       fullPath: '/proponent/projects'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsIndexImport
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsImport
       parentRoute: typeof ProponentProponentLayoutImport
+    }
+    '/proponent/_proponentLayout/projects/_allProjectsLayout': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout'
+      path: '/projects'
+      fullPath: '/proponent/projects'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutImport
+      parentRoute: typeof ProponentProponentLayoutProjectsRoute
+    }
+    '/staff/_staffLayout/projects': {
+      id: '/staff/_staffLayout/projects'
+      path: '/projects'
+      fullPath: '/staff/projects'
+      preLoaderRoute: typeof StaffStaffLayoutProjectsImport
+      parentRoute: typeof StaffStaffLayoutImport
+    }
+    '/staff/_staffLayout/projects/_allProjectsLayout': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout'
+      path: '/projects'
+      fullPath: '/staff/projects'
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutImport
+      parentRoute: typeof StaffStaffLayoutProjectsRoute
+    }
+    '/proponent/_proponentLayout/projects/': {
+      id: '/proponent/_proponentLayout/projects/'
+      path: '/'
+      fullPath: '/proponent/projects/'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsIndexImport
+      parentRoute: typeof ProponentProponentLayoutProjectsImport
     }
     '/staff/_staffLayout/projects/': {
       id: '/staff/_staffLayout/projects/'
-      path: '/projects'
-      fullPath: '/staff/projects'
+      path: '/'
+      fullPath: '/staff/projects/'
       preLoaderRoute: typeof StaffStaffLayoutProjectsIndexImport
-      parentRoute: typeof StaffStaffLayoutImport
+      parentRoute: typeof StaffStaffLayoutProjectsImport
     }
-    '/proponent/_proponentLayout/projects/$projectId': {
-      id: '/proponent/_proponentLayout/projects/$projectId'
-      path: '/projects/$projectId'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId'
+      path: '/$projectId'
       fullPath: '/proponent/projects/$projectId'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdImport
-      parentRoute: typeof ProponentProponentLayoutImport
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutImport
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout'
-      path: '/projects/$projectId'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout'
+      path: '/$projectId'
       fullPath: '/proponent/projects/$projectId'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
-      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdRoute
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdRoute
     }
-    '/staff/_staffLayout/projects/$projectId': {
-      id: '/staff/_staffLayout/projects/$projectId'
-      path: '/projects/$projectId'
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout/$projectId'
+      path: '/$projectId'
       fullPath: '/staff/projects/$projectId'
-      preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdImport
-      parentRoute: typeof StaffStaffLayoutImport
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdImport
+      parentRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutImport
     }
-    '/staff/_staffLayout/projects/$projectId/_projectLayout': {
-      id: '/staff/_staffLayout/projects/$projectId/_projectLayout'
-      path: '/projects/$projectId'
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout'
+      path: '/$projectId'
       fullPath: '/staff/projects/$projectId'
-      preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutImport
-      parentRoute: typeof StaffStaffLayoutProjectsProjectIdRoute
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport
+      parentRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdRoute
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission'
       path: '/new-submission'
       fullPath: '/proponent/projects/$projectId/new-submission'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionImport
-      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutNewSubmissionImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/'
       path: '/'
       fullPath: '/proponent/projects/$projectId/'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexImport
-      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport
     }
-    '/staff/_staffLayout/projects/$projectId/_projectLayout/': {
-      id: '/staff/_staffLayout/projects/$projectId/_projectLayout/'
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/'
       path: '/'
       fullPath: '/staff/projects/$projectId/'
-      preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport
-      parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutImport
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexImport
+      parentRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId'
       path: '/submission-packages/$submissionPackageId'
       fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport
-      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutImport
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
       path: '/submission-packages/$submissionPackageId'
       fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
-      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute
     }
-    '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId': {
-      id: '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId'
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId'
       path: '/submission-packages/$submissionPackageId'
       fullPath: '/staff/projects/$projectId/submission-packages/$submissionPackageId'
-      preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport
-      parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutImport
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdImport
+      parentRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutImport
     }
-    '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': {
-      id: '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
       path: '/submission-packages/$submissionPackageId'
       fullPath: '/staff/projects/$projectId/submission-packages/$submissionPackageId'
-      preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
-      parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+      parentRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
       path: '/'
       fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId/'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport
-      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
     }
-    '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
-      id: '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
       path: '/'
       fullPath: '/staff/projects/$projectId/submission-packages/$submissionPackageId/'
-      preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport
-      parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexImport
+      parentRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
+    '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': {
+      id: '/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
       path: '/submissions/$submissionId'
       fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport
-      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport
+      parentRoute: typeof ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
     }
-    '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': {
-      id: '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
+    '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': {
+      id: '/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
       path: '/submissions/$submissionId'
       fullPath: '/staff/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId'
-      preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport
-      parentRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
+      preLoaderRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdImport
+      parentRoute: typeof StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutImport
     }
   }
 }
@@ -492,28 +564,36 @@ export const routeTree = rootRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
       ProponentProponentLayoutProfileRoute,
       ProponentProponentLayoutAboutpageLazyRoute,
-      ProponentProponentLayoutProjectsIndexRoute,
-      ProponentProponentLayoutProjectsProjectIdRoute:
-        ProponentProponentLayoutProjectsProjectIdRoute.addChildren({
-          ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute:
-            ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute.addChildren(
-              {
-                ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute,
-                ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute,
-                ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute:
-                  ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute.addChildren(
-                    {
-                      ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute:
-                        ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute.addChildren(
-                          {
-                            ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute,
-                            ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute,
-                          },
-                        ),
-                    },
-                  ),
-              },
-            ),
+      ProponentProponentLayoutProjectsRoute:
+        ProponentProponentLayoutProjectsRoute.addChildren({
+          ProponentProponentLayoutProjectsAllProjectsLayoutRoute:
+            ProponentProponentLayoutProjectsAllProjectsLayoutRoute.addChildren({
+              ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdRoute:
+                ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdRoute.addChildren(
+                  {
+                    ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute:
+                      ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute.addChildren(
+                        {
+                          ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutNewSubmissionRoute,
+                          ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexRoute,
+                          ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute:
+                            ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute.addChildren(
+                              {
+                                ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute:
+                                  ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute.addChildren(
+                                    {
+                                      ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute,
+                                      ProponentProponentLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute,
+                                    },
+                                  ),
+                              },
+                            ),
+                        },
+                      ),
+                  },
+                ),
+            }),
+          ProponentProponentLayoutProjectsIndexRoute,
         }),
     }),
     ProponentRegistrationCompleteRoute,
@@ -522,26 +602,35 @@ export const routeTree = rootRoute.addChildren({
   }),
   StaffRoute: StaffRoute.addChildren({
     StaffStaffLayoutRoute: StaffStaffLayoutRoute.addChildren({
-      StaffStaffLayoutProjectsIndexRoute,
-      StaffStaffLayoutProjectsProjectIdRoute:
-        StaffStaffLayoutProjectsProjectIdRoute.addChildren({
-          StaffStaffLayoutProjectsProjectIdProjectLayoutRoute:
-            StaffStaffLayoutProjectsProjectIdProjectLayoutRoute.addChildren({
-              StaffStaffLayoutProjectsProjectIdProjectLayoutIndexRoute,
-              StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute:
-                StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute.addChildren(
-                  {
-                    StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute:
-                      StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute.addChildren(
-                        {
-                          StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute,
-                          StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute,
-                        },
-                      ),
-                  },
-                ),
-            }),
-        }),
+      StaffStaffLayoutProjectsRoute: StaffStaffLayoutProjectsRoute.addChildren({
+        StaffStaffLayoutProjectsAllProjectsLayoutRoute:
+          StaffStaffLayoutProjectsAllProjectsLayoutRoute.addChildren({
+            StaffStaffLayoutProjectsAllProjectsLayoutProjectIdRoute:
+              StaffStaffLayoutProjectsAllProjectsLayoutProjectIdRoute.addChildren(
+                {
+                  StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute:
+                    StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutRoute.addChildren(
+                      {
+                        StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutIndexRoute,
+                        StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute:
+                          StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdRoute.addChildren(
+                            {
+                              StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute:
+                                StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute.addChildren(
+                                  {
+                                    StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute,
+                                    StaffStaffLayoutProjectsAllProjectsLayoutProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute,
+                                  },
+                                ),
+                            },
+                          ),
+                      },
+                    ),
+                },
+              ),
+          }),
+        StaffStaffLayoutProjectsIndexRoute,
+      }),
     }),
   }),
   OidcCallbackIndexRoute,
@@ -587,8 +676,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/proponent/_proponentLayout/profile",
         "/proponent/_proponentLayout/aboutpage",
-        "/proponent/_proponentLayout/projects/",
-        "/proponent/_proponentLayout/projects/$projectId"
+        "/proponent/_proponentLayout/projects"
       ]
     },
     "/staff": {
@@ -601,8 +689,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "staff/_staffLayout.tsx",
       "parent": "/staff",
       "children": [
-        "/staff/_staffLayout/projects/",
-        "/staff/_staffLayout/projects/$projectId"
+        "/staff/_staffLayout/projects"
       ]
     },
     "/oidc-callback/": {
@@ -628,102 +715,132 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent/registration/index.tsx",
       "parent": "/proponent"
     },
+    "/proponent/_proponentLayout/projects": {
+      "filePath": "proponent/_proponentLayout/projects",
+      "parent": "/proponent/_proponentLayout",
+      "children": [
+        "/proponent/_proponentLayout/projects/_allProjectsLayout",
+        "/proponent/_proponentLayout/projects/"
+      ]
+    },
+    "/proponent/_proponentLayout/projects/_allProjectsLayout": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout.tsx",
+      "parent": "/proponent/_proponentLayout/projects",
+      "children": [
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId"
+      ]
+    },
+    "/staff/_staffLayout/projects": {
+      "filePath": "staff/_staffLayout/projects",
+      "parent": "/staff/_staffLayout",
+      "children": [
+        "/staff/_staffLayout/projects/_allProjectsLayout",
+        "/staff/_staffLayout/projects/"
+      ]
+    },
+    "/staff/_staffLayout/projects/_allProjectsLayout": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout.tsx",
+      "parent": "/staff/_staffLayout/projects",
+      "children": [
+        "/staff/_staffLayout/projects/_allProjectsLayout/$projectId"
+      ]
+    },
     "/proponent/_proponentLayout/projects/": {
       "filePath": "proponent/_proponentLayout/projects/index.tsx",
-      "parent": "/proponent/_proponentLayout"
+      "parent": "/proponent/_proponentLayout/projects"
     },
     "/staff/_staffLayout/projects/": {
       "filePath": "staff/_staffLayout/projects/index.tsx",
-      "parent": "/staff/_staffLayout"
+      "parent": "/staff/_staffLayout/projects"
     },
-    "/proponent/_proponentLayout/projects/$projectId": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId",
-      "parent": "/proponent/_proponentLayout",
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout",
       "children": [
-        "/proponent/_proponentLayout/projects/$projectId/_projectLayout"
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout"
       ]
     },
-    "/proponent/_proponentLayout/projects/$projectId/_projectLayout": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout.tsx",
-      "parent": "/proponent/_proponentLayout/projects/$projectId",
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout.tsx",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId",
       "children": [
-        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
-        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/",
-        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId"
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission",
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/",
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId"
       ]
     },
-    "/staff/_staffLayout/projects/$projectId": {
-      "filePath": "staff/_staffLayout/projects/$projectId",
-      "parent": "/staff/_staffLayout",
+    "/staff/_staffLayout/projects/_allProjectsLayout/$projectId": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout/$projectId",
+      "parent": "/staff/_staffLayout/projects/_allProjectsLayout",
       "children": [
-        "/staff/_staffLayout/projects/$projectId/_projectLayout"
+        "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout"
       ]
     },
-    "/staff/_staffLayout/projects/$projectId/_projectLayout": {
-      "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout.tsx",
-      "parent": "/staff/_staffLayout/projects/$projectId",
+    "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout.tsx",
+      "parent": "/staff/_staffLayout/projects/_allProjectsLayout/$projectId",
       "children": [
-        "/staff/_staffLayout/projects/$projectId/_projectLayout/",
-        "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId"
+        "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/",
+        "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId"
       ]
     },
-    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission.tsx",
-      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout"
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission.tsx",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout"
     },
-    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/index.tsx",
-      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout"
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/index.tsx",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout"
     },
-    "/staff/_staffLayout/projects/$projectId/_projectLayout/": {
-      "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/index.tsx",
-      "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout"
+    "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/index.tsx",
+      "parent": "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout"
     },
-    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
-      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout",
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout",
       "children": [
-        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
       ]
     },
-    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout.tsx",
-      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout.tsx",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId",
       "children": [
-        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
-        "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+        "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
       ]
     },
-    "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId": {
-      "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
-      "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout",
+    "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+      "parent": "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout",
       "children": [
-        "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+        "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
       ]
     },
-    "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout": {
-      "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout.tsx",
-      "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout.tsx",
+      "parent": "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId",
       "children": [
-        "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
-        "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
+        "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+        "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId"
       ]
     },
-    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index.tsx",
-      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index.tsx",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
     },
-    "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/": {
-      "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index.tsx",
-      "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+    "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index.tsx",
+      "parent": "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
     },
-    "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId": {
-      "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId.tsx",
-      "parent": "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+    "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId": {
+      "filePath": "proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId.tsx",
+      "parent": "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
     },
-    "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId": {
-      "filePath": "staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId.tsx",
-      "parent": "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
+    "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId": {
+      "filePath": "staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId.tsx",
+      "parent": "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
     }
   }
 }

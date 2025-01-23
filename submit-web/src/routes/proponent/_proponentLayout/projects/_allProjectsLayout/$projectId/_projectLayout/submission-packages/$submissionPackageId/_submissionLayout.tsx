@@ -1,7 +1,7 @@
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
+import { QUERY_KEY } from "@/hooks/api/constants";
+import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { Grid } from "@mui/material";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -11,14 +11,14 @@ import {
   useParams,
 } from "@tanstack/react-router";
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
+  "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout"
 )({
   component: SubmissionLayout,
   loader: ({ context: { queryClient }, params: { submissionPackageId } }) =>
     queryClient.ensureQueryData(
-      getStaffSubmissionPackageQueryOptions({
+      getSubmissionPackageQueryOptions({
         packageId: Number(submissionPackageId),
-      }),
+      })
     ),
   pendingComponent: () => (
     <PageGrid>
@@ -27,9 +27,7 @@ export const Route = createFileRoute(
       </Grid>
     </PageGrid>
   ),
-  errorComponent: () => {
-    return <Navigate to={"/error"} />;
-  },
+  errorComponent: () => <Navigate to="/error" />,
   meta: ({ loaderData: submissionPackage }) => [
     { title: submissionPackage.name },
   ],
@@ -41,18 +39,19 @@ export default function SubmissionLayout() {
     projectId: accountProjectIdParam,
     submissionPackageId: submissionPackageIdParam,
   } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
+    from: "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
   });
   const accountProjectId = Number(accountProjectIdParam);
-  const accountProject = queryClient.getQueryData(
-    getAccountProjectForStaffQueryOptions(accountProjectId).queryKey,
-  );
+  const accountProject = queryClient.getQueryData([
+    QUERY_KEY.ACCOUNT_PROJECT,
+    accountProjectId,
+  ]);
 
   const submissionPackageId = Number(submissionPackageIdParam);
   const { data: submissionPackage } = useSuspenseQuery(
-    getStaffSubmissionPackageQueryOptions({
+    getSubmissionPackageQueryOptions({
       packageId: submissionPackageId,
-    }),
+    })
   );
 
   if (!accountProject || !submissionPackage) {

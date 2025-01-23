@@ -17,7 +17,7 @@ const LoadingSkeleton = () => (
   </PageGrid>
 );
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
 )({
   component: Submission,
   loader: ({ context: { queryClient }, params: { submissionId } }) =>

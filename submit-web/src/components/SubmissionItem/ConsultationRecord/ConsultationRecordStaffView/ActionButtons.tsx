@@ -29,13 +29,13 @@ export default function ActionButtons() {
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
   const submissionReview = submissionItem?.review;
 
@@ -77,11 +77,11 @@ export default function ActionButtons() {
     try {
       const decisionData = consultationSchema.validateSyncAt(
         validateAtKey,
-        data,
+        data
       );
       const updateRequestData = consultationSchema.validateSyncAt(
         "update_request",
-        data,
+        data
       );
       const requestBody = {
         form_answers: {
@@ -112,11 +112,11 @@ export default function ActionButtons() {
       setIsSendingToManager(true);
       const staffDecision = consultationSchema.validateSyncAt(
         "staff",
-        getValues(),
+        getValues()
       );
       const updateRequestData = consultationSchema.validateSyncAt(
         "update_request",
-        getValues(),
+        getValues()
       );
 
       const requestBody = {
@@ -143,11 +143,11 @@ export default function ActionButtons() {
       setIsCompletingConsultationCheck(true);
       const managerDecision = consultationSchema.validateSyncAt(
         "manager",
-        getValues(),
+        getValues()
       );
       const updateRequestData = consultationSchema.validateSyncAt(
         "update_request",
-        getValues(),
+        getValues()
       );
       const passed =
         managerDecision.passedConsultationCheck === RadioOptions.YES.value;

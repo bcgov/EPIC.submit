@@ -26,13 +26,13 @@ export default function NotesSection() {
   const [expanded, setExpanded] = useState(false);
   const [noteText, setNoteText] = useState("");
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
 
   const notes = submissionItem?.notes;

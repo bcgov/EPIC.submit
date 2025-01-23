@@ -18,7 +18,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+  "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission",
 )({
   component: NewManagementPlan,
   meta: () => [{ title: "New Submission Package" }],

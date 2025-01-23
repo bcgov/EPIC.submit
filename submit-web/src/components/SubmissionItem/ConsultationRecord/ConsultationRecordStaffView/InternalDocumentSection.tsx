@@ -20,12 +20,12 @@ export default function InternalDocumentSection() {
   const [link, setLink] = useState("");
 
   const { submissionId: subItemId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
-      .queryKey,
+      .queryKey
   );
   const internalStaffDocuments = submissionItem?.internal_staff_documents || [];
 

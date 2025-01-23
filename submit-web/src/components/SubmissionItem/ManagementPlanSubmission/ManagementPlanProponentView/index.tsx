@@ -53,7 +53,7 @@ export const ManagementPlanSubmissionProponentView = () => {
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const { setIsOpen } = useLoaderBackdrop();
@@ -71,7 +71,7 @@ export const ManagementPlanSubmissionProponentView = () => {
   ]);
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
   const defaultFormValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -79,22 +79,22 @@ export const ManagementPlanSubmissionProponentView = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       conditionSatisfied: booleanToString(
-        formSubmission.submitted_form.submission_json.conditionSatisfied,
+        formSubmission.submitted_form.submission_json.conditionSatisfied
       ),
       allRequirementsAddressed: booleanToString(
-        formSubmission.submitted_form.submission_json.allRequirementsAddressed,
+        formSubmission.submitted_form.submission_json.allRequirementsAddressed
       ),
       requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear,
+        formSubmission.submitted_form.submission_json.requirementsClear
       ),
       informationAccurate: booleanToString(
-        formSubmission.submitted_form.submission_json.informationAccurate,
+        formSubmission.submitted_form.submission_json.informationAccurate
       ),
     };
   }, [formSubmission]);
 
   const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
@@ -104,14 +104,14 @@ export const ManagementPlanSubmissionProponentView = () => {
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN
         )
         .map((submission) => submission.submitted_document.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
         )
         .map((submission) => submission.submitted_document.url),
     };
@@ -162,7 +162,7 @@ export const ManagementPlanSubmissionProponentView = () => {
 
   const saveSubmission = async (
     formData: ManagementPlanSubmissionForm,
-    status: SubmissionItemStatus,
+    status: SubmissionItemStatus
   ) => {
     const {
       conditionSatisfied,

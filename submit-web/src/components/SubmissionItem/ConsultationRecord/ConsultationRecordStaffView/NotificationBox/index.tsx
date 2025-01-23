@@ -14,12 +14,12 @@ export const NotificationBox = () => {
   const queryClient = useQueryClient();
   const { roles } = useAccount();
   const { submissionId: submissionItemId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
 
   const submissionReview = submissionItem?.review;

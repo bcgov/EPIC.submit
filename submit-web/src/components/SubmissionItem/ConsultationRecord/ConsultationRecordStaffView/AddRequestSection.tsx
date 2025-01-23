@@ -22,20 +22,20 @@ export default function AddRequestSection({
   disabled = false,
 }: AddRequestSectionProps) {
   const { submissionPackageId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getStaffSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey,
+    }).queryKey
   );
   const filteredItems = useMemo(() => {
     if (!submissionPackage?.items) return [];
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
     );
   }, [submissionPackage?.items]);
 

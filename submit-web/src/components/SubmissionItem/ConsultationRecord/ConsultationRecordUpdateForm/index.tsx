@@ -7,7 +7,7 @@ import DocumentsTable from "../../DocumentsTable";
 export const ConsultationRecordUpdateForm = () => {
   const navigate = useNavigate();
   const { projectId, submissionPackageId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   return (
     <SubmissionFormContainer>

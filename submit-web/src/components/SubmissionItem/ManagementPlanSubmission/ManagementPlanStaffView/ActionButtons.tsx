@@ -29,13 +29,13 @@ export default function ActionButtons() {
     submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
   const submissionReview = submissionItem?.review;
 
@@ -76,7 +76,7 @@ export default function ActionButtons() {
     try {
       const validData = managementPlanReviewSchema.validateSyncAt(
         validateAtKey,
-        data,
+        data
       );
       const requestBody = {
         form_answers: validData,
@@ -104,7 +104,7 @@ export default function ActionButtons() {
       setIsSendingToManager(true);
       const validData = managementPlanReviewSchema.validateSyncAt(
         "staff",
-        getValues(),
+        getValues()
       );
       const requestBody = {
         status: SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
@@ -127,7 +127,7 @@ export default function ActionButtons() {
       setIsCompletingReview(true);
       const validData = managementPlanReviewSchema.validateSyncAt(
         "manager",
-        getValues(),
+        getValues()
       );
       const passed = [
         RadioOptions.YES.value,

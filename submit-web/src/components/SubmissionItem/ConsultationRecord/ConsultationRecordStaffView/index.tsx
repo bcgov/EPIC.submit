@@ -11,7 +11,7 @@ import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 export const ConsultationRecordStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
     useParams({
-      from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+      from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
     });
   const accountProjectId = Number(accountProjectIdParam);
   const submissionId = Number(submissionItemId);
@@ -24,7 +24,7 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
 
   const formData = useMemo(() => {

@@ -31,7 +31,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   const [isCorrect, setIsCorrect] = useState<string>(YES);
   const navigate = useNavigate();
   const { projectId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+    from: "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission",
   });
   const handleIsCorrectChange = (
     event: React.ChangeEvent<HTMLInputElement>

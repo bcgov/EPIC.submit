@@ -34,7 +34,7 @@ type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
 const getAnswersByType = (
   review: SubmissionReview,
-  type: SubmissionReviewEntryType,
+  type: SubmissionReviewEntryType
 ) => {
   if (!review?.entries) return {};
   return review.entries?.find((entry) => entry.type === type)?.entry;
@@ -46,13 +46,13 @@ export default function ReviewSection() {
   const isManager = checkIfManager(roles);
 
   const { submissionId: submissionItemId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/staff/_staffLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
 
   const defaultValues = useMemo(() => {
@@ -61,11 +61,11 @@ export default function ReviewSection() {
     const review = submissionItem.review;
     const staffAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
     );
     const managerAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION
     );
 
     return {

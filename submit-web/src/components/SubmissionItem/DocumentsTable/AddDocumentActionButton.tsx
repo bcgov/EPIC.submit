@@ -17,7 +17,7 @@ export const AddDocumentActionButton = ({
   folder,
 }: AddDocumentActionButtonProps) => {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   const [isAddingDocument, setIsAddingDocument] = useState(false);
   const queryClient = useQueryClient();

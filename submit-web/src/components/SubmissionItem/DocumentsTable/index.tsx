@@ -24,7 +24,7 @@ type DocumentsTableProps = Readonly<{
 }>;
 export default function DocumentsTable({ folder }: DocumentsTableProps) {
   const { submissionId: submissionItemId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+    from: "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
   const [addedSubmissions, setAddedSubmissions] = useState<Submission[]>([]);
@@ -39,7 +39,7 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
       return addedSubmissions;
     }
     const submissions = submissionItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
     );
     return [...submissions, ...addedSubmissions];
   }, [submissionItem, addedSubmissions]);

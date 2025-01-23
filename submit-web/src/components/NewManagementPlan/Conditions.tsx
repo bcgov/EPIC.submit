@@ -25,7 +25,7 @@ const MAX_SUPPORTING_CONDITIONS = 4;
 const NUM_STEPS = Object.keys(MANAGEMENT_PLAN_FORM_STEPS).length;
 export const Conditions = () => {
   const { projectId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+    from: "/proponent/_proponentLayout/projects/_allProjectsLayout/$projectId/_projectLayout/new-submission",
   });
   const navigate = useNavigate();
   const { data: accountProject } = useGetAccountProject({
