@@ -52,13 +52,18 @@ export default function RequestSection({
         <Typography variant="body1">{createdDate}</Typography>
       </Box>
 
-      <Typography variant="body1" sx={{ mb: 1, fontWeight: "bold" }}>
+      <Typography
+        variant="body1"
+        sx={{ mb: 1, fontWeight: BCDesignTokens.typographyFontWeightsBold }}
+      >
         <Switch>
           <Case condition={type === UPDATE_REQUEST_TYPE.REVIEW.value}>
-            Revision required for {submissionItems[0]?.type.name}
+            Revision required for{" "}
+            {submissionItems.map((item) => item.type.name).join(", ")}
           </Case>
           <Case condition={type === UPDATE_REQUEST_TYPE.UPDATE.value}>
-            Update requested for {submissionItems[0]?.type.name}
+            Update requested for{" "}
+            {submissionItems.map((item) => item.type.name).join(", ")}
           </Case>
         </Switch>
       </Typography>
@@ -68,7 +73,10 @@ export default function RequestSection({
       </Typography>
 
       <When condition={showNoteSection}>
-        <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ mb: 1, fontWeight: BCDesignTokens.typographyFontWeightsBold }}
+        >
           Note to EAO
         </Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>

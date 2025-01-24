@@ -88,6 +88,9 @@ export default function UpdateRequestWidget({
         mb: BCDesignTokens.layoutMarginLarge,
         p: 0,
         width: "100%",
+        "& MuiPaper-root": {
+          color: "white",
+        },
       }}
       expanded={expanded}
     >
@@ -185,14 +188,16 @@ export default function UpdateRequestWidget({
         </Box>
       </AccordionSummary>
       <AccordionDetails
-        sx={{
-          pb: 0,
-          border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-          borderTop: "none",
-          borderRadius: "4px",
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: 0,
-        }}
+        sx={[
+          {
+            pb: 0,
+            border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+            borderTop: `${0}px solid ${BCDesignTokens.supportBorderColorWarning}`,
+            borderRadius: "4px",
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+          },
+        ]}
       >
         <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
           <Collapse in={isCreateRequestOpen} unmountOnExit>
