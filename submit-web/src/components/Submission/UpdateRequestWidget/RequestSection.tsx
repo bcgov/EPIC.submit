@@ -1,4 +1,4 @@
-import { Box, Divider, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dayjs from "dayjs";
 import { UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
@@ -38,7 +38,6 @@ export default function RequestSection({
 
   return (
     <Box sx={{ my: BCDesignTokens.layoutMarginLarge }}>
-      <Divider sx={{ mb: BCDesignTokens.layoutMarginMedium }} />
       <Box
         sx={{
           display: "flex",
@@ -47,32 +46,21 @@ export default function RequestSection({
           mb: BCDesignTokens.layoutMarginSmall,
         }}
       >
-        <Typography
-          variant="subtitle1"
-          sx={{ fontWeight: BCDesignTokens.typographyBoldBody }}
-        >
+        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
           {created_by}
         </Typography>
-        <Typography variant="subtitle1">{createdDate}</Typography>
+        <Typography variant="body1">{createdDate}</Typography>
       </Box>
 
-      <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+      <Typography variant="body1" sx={{ mb: 1, fontWeight: "bold" }}>
         <Switch>
           <Case condition={type === UPDATE_REQUEST_TYPE.REVIEW.value}>
-            Revision required for
+            Revision required for {submissionItems[0]?.type.name}
           </Case>
           <Case condition={type === UPDATE_REQUEST_TYPE.UPDATE.value}>
-            Update requested for
+            Update requested for {submissionItems[0]?.type.name}
           </Case>
         </Switch>
-      </Typography>
-
-      <Typography variant="subtitle1">
-        <ul>
-          {submissionItems.map((item) => (
-            <li key={item.id}>{item.type.name}</li>
-          ))}
-        </ul>
       </Typography>
 
       <Typography variant="body1" sx={{ mb: 1 }}>
