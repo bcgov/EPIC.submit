@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Divider, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dayjs from "dayjs";
 import { UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
@@ -26,18 +26,19 @@ export default function RequestSection({
   const isEAO = checkIfEAO(roles || []);
 
   const submissionItems = submissionPackage.items.filter((item) =>
-    submission_item_ids.includes(item.id),
+    submission_item_ids.includes(item.id)
   );
 
   const showNoteSection =
     (isEAO &&
       submissionPackage.status.includes(
-        SUBMISSION_ITEM_STATUS.SUBMITTED.value,
+        SUBMISSION_ITEM_STATUS.SUBMITTED.value
       )) ||
     (!isEAO && Boolean(note));
 
   return (
-    <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+    <Box sx={{ my: BCDesignTokens.layoutMarginLarge }}>
+      <Divider sx={{ mb: BCDesignTokens.layoutMarginMedium }} />
       <Box
         sx={{
           display: "flex",
@@ -46,7 +47,10 @@ export default function RequestSection({
           mb: BCDesignTokens.layoutMarginSmall,
         }}
       >
-        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ fontWeight: BCDesignTokens.typographyBoldBody }}
+        >
           {created_by}
         </Typography>
         <Typography variant="subtitle1">{createdDate}</Typography>

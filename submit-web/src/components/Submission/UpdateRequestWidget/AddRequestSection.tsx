@@ -70,7 +70,7 @@ export default function AddRequestSection({
   const filteredItems = useMemo(() => {
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
     );
   }, [submissionPackage.items]);
 
@@ -78,18 +78,36 @@ export default function AddRequestSection({
     <FormProvider {...methods}>
       <Form onSubmit={handleSubmit(onCreateUpdateRequest)}>
         <Box>
-          <Typography variant="body1">Update requested for</Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              pt: BCDesignTokens.layoutPaddingLarge,
+              fontWeight: BCDesignTokens.typographyBoldBody,
+              mb: BCDesignTokens.layoutMarginSmall,
+            }}
+          >
+            Update requested for
+          </Typography>
           <ControlledCheckboxGroup name="submissionItems">
             {filteredItems.map((item) => (
               <FormControlLabel
                 key={item.id}
-                control={<Checkbox value={item.id} />}
+                control={<Checkbox value={item.id} sx={{ py: 0 }} />}
                 label={item.type.name}
               />
             ))}
           </ControlledCheckboxGroup>
           <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
-            <Typography variant="body1">Request reason</Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: BCDesignTokens.typographyBoldBody,
+                pt: BCDesignTokens.layoutPaddingLarge,
+                mb: BCDesignTokens.layoutMarginSmall,
+              }}
+            >
+              Request reason
+            </Typography>
             <ControlledTextField
               name="reason"
               variant="outlined"
@@ -100,6 +118,7 @@ export default function AddRequestSection({
                 "& .MuiInputBase-root": {
                   borderColor: BCDesignTokens.typographyColorDisabled,
                 },
+                mb: BCDesignTokens.layoutMarginSmall,
               }}
             />
             <LoadingButton

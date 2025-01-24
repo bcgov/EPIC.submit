@@ -47,7 +47,7 @@ export default function UpdateRequestWidget({
           notify.error(
             isAxiosError(error)
               ? (error.response?.data.message ?? defaultMessage)
-              : defaultMessage,
+              : defaultMessage
           );
         },
       },
@@ -129,9 +129,11 @@ export default function UpdateRequestWidget({
               variant="h6"
               sx={{
                 color: "#38598A",
+                mr: BCDesignTokens.layoutMarginSmall,
+                fontWeight: BCDesignTokens.typographyBoldBody,
               }}
             >
-              Submission/Update Request
+              Update Requests
             </Typography>
             <When condition={updateRequests && updateRequests.length > 0}>
               <Chip
@@ -161,9 +163,12 @@ export default function UpdateRequestWidget({
           <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
             <Box onClick={handleIsCreateRequestOpen}>
               <Typography
-                variant="body1"
+                variant="body2"
                 color={BCDesignTokens.typographyColorLink}
-                sx={{ cursor: "pointer", width: "100%" }}
+                sx={{
+                  cursor: "pointer",
+                  width: "100%",
+                }}
               >
                 + Request an Update
               </Typography>
