@@ -1,5 +1,4 @@
 import { CircularProgress, Link as MuiLink, Typography } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
 import { PackageTableRow, DocumentTableCell } from "./DocumentTableRow";
 import { createSubmission } from "@/hooks/api/useSubmissions";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";

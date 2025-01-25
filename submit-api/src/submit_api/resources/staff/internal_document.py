@@ -75,7 +75,7 @@ class InternalStaffDocuments(Resource):
 
 @cors_preflight("OPTIONS, DELETE")
 @API.route("/<int:internal_staff_document_id>", methods=["OPTIONS", "DELETE"])
-class InternalStaffDocuments(Resource):
+class InternalStaffDocument(Resource):
     """Resource for managing projects."""
 
     @staticmethod

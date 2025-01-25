@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useObjectUploadStore } from "@/store/documentUploadStore";
-import { When } from "react-if";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
