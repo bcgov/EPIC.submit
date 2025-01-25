@@ -12,7 +12,7 @@ import { deleteDocument, downloadObject } from "@/hooks/api/useObjectStorage";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { Submission } from "@/models/Submission";
 import { LoadingButton } from "../Shared/LoadingButton";
-import { deleteSubmission } from "@/hooks/api/useSubmissions";
+import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
 
 export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   ({ error }) => ({
@@ -98,6 +98,10 @@ export default function DocumentTableRow({
   const { submitted_by, version, submitted_document } = documentItem;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
+
+  const { mutateAsync: deleteSubmission } = useDeleteSubmission({
+    submissionItemId: documentItem.item_id,
+  });
 
   const getObjectFromS3 = async () => {
     try {

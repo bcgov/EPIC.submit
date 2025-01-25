@@ -4,14 +4,38 @@ import { InternalStaffDocument } from "@/models/SubmissionItem";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
+import { BCDesignTokens } from "epic.theme";
+import { useDeleteInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
+import { useParams } from "@tanstack/react-router";
+import { deleteDocument } from "@/hooks/api/useObjectStorage";
+import { Unless } from "react-if";
 
 type RowProps = {
   internalStaffDocument: InternalStaffDocument;
   numColumns: number;
+  setDocuments: React.Dispatch<React.SetStateAction<InternalStaffDocument[]>>;
+  hideAction?: boolean;
 };
 
-export default function Row({ internalStaffDocument, numColumns }: RowProps) {
+export default function Row({
+  internalStaffDocument,
+  numColumns,
+  setDocuments,
+  hideAction = false,
+}: RowProps) {
+  const { submissionPackageId, submissionId: submissionItemId } = useParams({
+    strict: false,
+  });
   const [pendingGetObject, setPendingGetObject] = useState(false);
+  const [isRemovingDocument, setIsRemovingDocument] = useState(false);
+
+  const { mutateAsync: deleteInternalStaffSubmission } =
+    useDeleteInternalStaffDocument({
+      packageId: Number(submissionPackageId),
+      itemId: Number(submissionItemId),
+    });
+
   const { name, url } = internalStaffDocument;
 
   const downloadDocument = async () => {
@@ -23,6 +47,23 @@ export default function Row({ internalStaffDocument, numColumns }: RowProps) {
       notify.error("Failed to download document");
     } finally {
       setPendingGetObject(false);
+    }
+  };
+
+  const onRemoveClick = async () => {
+    try {
+      setIsRemovingDocument(true);
+      await deleteDocument({ filepath: internalStaffDocument.url });
+      await deleteInternalStaffSubmission({
+        documentId: internalStaffDocument.id,
+      });
+      setDocuments((prev) =>
+        prev.filter((sub) => sub.id !== internalStaffDocument.id),
+      );
+    } catch (e) {
+      notify.error("Failed to remove document");
+    } finally {
+      setIsRemovingDocument(false);
     }
   };
   return (
@@ -41,7 +82,27 @@ export default function Row({ internalStaffDocument, numColumns }: RowProps) {
           <MuiLink onClick={downloadDocument}>{name}</MuiLink>
         </Typography>
       </SubmitTableCell>
-      <SubmitTableCell align="right" colSpan={numColumns - 1}></SubmitTableCell>
+      <SubmitTableCell align="right" colSpan={numColumns - 2}></SubmitTableCell>
+      <SubmitTableCell align="right">
+        <Unless condition={hideAction}>
+          <LoadingButton
+            onClick={onRemoveClick}
+            loading={isRemovingDocument}
+            variant="text"
+            sx={{
+              color: BCDesignTokens.typographyColorLink,
+              "&:hover": {
+                backgroundColor: "transparent",
+              },
+              "&:focus": {
+                outline: "none",
+              },
+            }}
+          >
+            Remove
+          </LoadingButton>
+        </Unless>
+      </SubmitTableCell>
     </TableRow>
   );
 }

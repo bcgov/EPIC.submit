@@ -162,3 +162,26 @@ export const deleteSubmission = (submissionId: number) => {
     method: "delete",
   });
 };
+
+type UseDeleteSubmissionParams = {
+  submissionItemId: number;
+} & Options;
+export const useDeleteSubmission = ({
+  submissionItemId,
+  ...options
+}: UseDeleteSubmissionParams) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteSubmission,
+    onSuccess: (data) => {
+      if (_onSuccess) {
+        _onSuccess(data);
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, submissionItemId],
+      });
+    },
+    ...restOptions,
+  });
+};
