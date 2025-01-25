@@ -155,3 +155,10 @@ export const useReplaceSubmussion = ({
     ...restOptions,
   });
 };
+
+export const deleteSubmission = (submissionId: number) => {
+  return submitRequest<Submission>({
+    url: `/submissions/${submissionId}/document`,
+    method: "delete",
+  });
+};

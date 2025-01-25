@@ -84,3 +84,13 @@ class SubmissionService:
         if not status:
             return
         ItemService.update_submission_item_status(item_id, status, session)
+
+    @classmethod
+    def delete_submission(cls, submission_id):
+        """Delete a submission."""
+        with session_scope() as session:
+            submission = SubmissionModel.find_by_id(submission_id)
+            if not submission:
+                raise ValueError("Submission not found.")
+            submission.delete()
+            return submission

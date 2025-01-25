@@ -2,7 +2,7 @@ import { CircularProgress, Link as MuiLink, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { PackageTableRow, DocumentTableCell } from "./DocumentTableRow";
 import { createSubmission } from "@/hooks/api/useSubmissions";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { useEffect } from "react";
@@ -16,11 +16,13 @@ type DocumentTableRowProps = {
   documentItem: UploadObject;
   error?: boolean;
   folder?: string;
+  setDocumentSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
 };
 export default function PendingDocumentRow({
   documentItem,
   error = false,
   folder: s3Folder,
+  setDocumentSubmissions,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -28,11 +30,8 @@ export default function PendingDocumentRow({
 
   const queryClient = useQueryClient();
 
-  const {
-    triggerPending,
-    completeObject: completeDocument,
-    removeObject: removeDocument,
-  } = useObjectUploadStore();
+  const { triggerPending, removeObject: removeDocument } =
+    useObjectUploadStore();
 
   useEffect(() => {
     triggerPending(documentItem.id);
@@ -59,7 +58,8 @@ export default function PendingDocumentRow({
         data: documentData,
       });
 
-      completeDocument(documentItem.id, documentSubmission.id);
+      removeDocument(documentItem.id);
+      setDocumentSubmissions((prev) => [...prev, documentSubmission]);
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_ITEM, documentSubmission.item_id],
       });
@@ -75,8 +75,6 @@ export default function PendingDocumentRow({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [documentItem.pending]);
-
-  const onActionClick = () => {};
 
   return (
     <PackageTableRow key={`row-${documentItem.file.name}`} error={error}>
@@ -100,21 +98,7 @@ export default function PendingDocumentRow({
       <DocumentTableCell align="center" colSpan={2}>
         <CircularProgress size={"16px"} />
       </DocumentTableCell>
-      <DocumentTableCell align="center">
-        <Typography
-          variant="body2"
-          sx={{
-            color: BCDesignTokens.typographyColorLink,
-            "&:hover": {
-              cursor: "pointer",
-              textDecoration: "underline",
-            },
-          }}
-          onClick={onActionClick}
-        >
-          Remove
-        </Typography>
-      </DocumentTableCell>
+      <DocumentTableCell align="center"></DocumentTableCell>
     </PackageTableRow>
   );
 }

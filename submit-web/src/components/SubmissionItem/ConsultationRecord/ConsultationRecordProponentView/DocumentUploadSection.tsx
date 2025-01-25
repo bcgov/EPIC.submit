@@ -1,11 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { When } from "react-if";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledFileUpload";
 import { CONSULTATION_RECORD_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,11 +21,19 @@ export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
-
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) })
       .queryKey,
+  );
+  const getDocumentSubmissions = () => {
+    if (!submissionItem) return [];
+    return submissionItem.submissions.filter(
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    );
+  };
+  const [documentSubmissions, setDocumentSubmissions] = useState<Submission[]>(
+    getDocumentSubmissions,
   );
 
   const accountProject = queryClient.getQueryData<AccountProject>(
@@ -56,21 +64,7 @@ export const DocumentUploadSection = () => {
     return <Navigate to="/error" />;
   }
 
-  const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
-  );
-
-  const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
-  );
-
-  const pendingDocuments = documents.filter(
-    (document) =>
-      !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
-  );
-
-  const projectName = camelCase(accountProject?.project.name || "");
+  const projectName = camelCase(accountProject?.project.name ?? "");
 
   if (!accountProject) {
     notify.error("Failed to load project");
@@ -127,20 +121,15 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
-        <When
-          condition={Boolean(
-            documentSubmissions?.length || pendingDocuments?.length,
-          )}
-        >
-          <Box my={BCDesignTokens.layoutMarginLarge}>
-            <DocumentTable
-              documents={documentSubmissions}
-              pendingDocuments={pendingDocuments}
-              header={"Consultation Record(s)"}
-              folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS}`}
-            />
-          </Box>
-        </When>
+        <Box my={BCDesignTokens.layoutMarginLarge}>
+          <DocumentTable
+            documents={documentSubmissions}
+            pendingDocuments={documents}
+            header={"Consultation Record(s)"}
+            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS}`}
+            setDocumentSubmissions={setDocumentSubmissions}
+          />
+        </Box>
       </Grid>
     </Grid>
   );

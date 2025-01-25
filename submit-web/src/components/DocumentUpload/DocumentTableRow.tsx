@@ -8,9 +8,11 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { downloadObject } from "@/hooks/api/useObjectStorage";
+import { deleteDocument, downloadObject } from "@/hooks/api/useObjectStorage";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { Submission } from "@/models/Submission";
+import { LoadingButton } from "../Shared/LoadingButton";
+import { deleteSubmission } from "@/hooks/api/useSubmissions";
 
 export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   ({ error }) => ({
@@ -83,18 +85,19 @@ export const PackageTableRow = ({
   return <StyledTableRow {...otherProps}>{childrenWithProps}</StyledTableRow>;
 };
 
-type DocumentTableRowProps = {
+type DocumentTableRowProps = Readonly<{
   documentItem: Submission;
   error?: boolean;
-};
+  setDocumentSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
+}>;
 export default function DocumentTableRow({
   documentItem,
+  setDocumentSubmissions,
   error = false,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
-
-  const onActionClick = () => {};
   const [pendingGetObject, setPendingGetObject] = useState(false);
+  const [isRemovingDocument, setIsRemovingDocument] = useState(false);
 
   const getObjectFromS3 = async () => {
     try {
@@ -111,9 +114,24 @@ export default function DocumentTableRow({
       document.body.appendChild(link);
       link.click();
     } catch (e) {
-      notify.error("Failed to download documentItem");
+      notify.error("Failed to download submission");
     } finally {
       setPendingGetObject(false);
+    }
+  };
+
+  const onRemoveClick = async () => {
+    try {
+      setIsRemovingDocument(true);
+      await deleteDocument({ filepath: submitted_document.url });
+      await deleteSubmission(documentItem.id);
+      setDocumentSubmissions((prev) =>
+        prev.filter((sub) => sub.id !== documentItem.id),
+      );
+    } catch (e) {
+      notify.error("Failed to remove document");
+    } finally {
+      setIsRemovingDocument(false);
     }
   };
 
@@ -142,19 +160,22 @@ export default function DocumentTableRow({
       <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>
       <DocumentTableCell align="right">{version}</DocumentTableCell>
       <DocumentTableCell align="center">
-        <Typography
-          variant="body2"
+        <LoadingButton
+          onClick={onRemoveClick}
+          loading={isRemovingDocument}
+          variant="text"
           sx={{
             color: BCDesignTokens.typographyColorLink,
             "&:hover": {
-              cursor: "pointer",
-              textDecoration: "underline",
+              backgroundColor: "transparent",
+            },
+            "&:focus": {
+              outline: "none",
             },
           }}
-          onClick={onActionClick}
         >
           Remove
-        </Typography>
+        </LoadingButton>
       </DocumentTableCell>
     </PackageTableRow>
   );
