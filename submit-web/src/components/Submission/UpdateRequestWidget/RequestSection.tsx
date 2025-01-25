@@ -26,18 +26,18 @@ export default function RequestSection({
   const isEAO = checkIfEAO(roles || []);
 
   const submissionItems = submissionPackage.items.filter((item) =>
-    submission_item_ids.includes(item.id),
+    submission_item_ids.includes(item.id)
   );
 
   const showNoteSection =
     (isEAO &&
       submissionPackage.status.includes(
-        SUBMISSION_ITEM_STATUS.SUBMITTED.value,
+        SUBMISSION_ITEM_STATUS.SUBMITTED.value
       )) ||
     (!isEAO && Boolean(note));
 
   return (
-    <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+    <Box sx={{ my: BCDesignTokens.layoutMarginLarge }}>
       <Box
         sx={{
           display: "flex",
@@ -46,29 +46,26 @@ export default function RequestSection({
           mb: BCDesignTokens.layoutMarginSmall,
         }}
       >
-        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+        <Typography variant="body1" sx={{ fontWeight: "bold" }}>
           {created_by}
         </Typography>
-        <Typography variant="subtitle1">{createdDate}</Typography>
+        <Typography variant="body1">{createdDate}</Typography>
       </Box>
 
-      <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+      <Typography
+        variant="body1"
+        sx={{ mb: 1, fontWeight: BCDesignTokens.typographyFontWeightsBold }}
+      >
         <Switch>
           <Case condition={type === UPDATE_REQUEST_TYPE.REVIEW.value}>
-            Revision required for
+            Revision required for{" "}
+            {submissionItems.map((item) => item.type.name).join(", ")}
           </Case>
           <Case condition={type === UPDATE_REQUEST_TYPE.UPDATE.value}>
-            Update requested for
+            Update requested for{" "}
+            {submissionItems.map((item) => item.type.name).join(", ")}
           </Case>
         </Switch>
-      </Typography>
-
-      <Typography variant="subtitle1">
-        <ul>
-          {submissionItems.map((item) => (
-            <li key={item.id}>{item.type.name}</li>
-          ))}
-        </ul>
       </Typography>
 
       <Typography variant="body1" sx={{ mb: 1 }}>
@@ -76,7 +73,10 @@ export default function RequestSection({
       </Typography>
 
       <When condition={showNoteSection}>
-        <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+        <Typography
+          variant="subtitle1"
+          sx={{ mb: 1, fontWeight: BCDesignTokens.typographyFontWeightsBold }}
+        >
           Note to EAO
         </Typography>
         <Typography variant="body1" sx={{ mb: 1 }}>

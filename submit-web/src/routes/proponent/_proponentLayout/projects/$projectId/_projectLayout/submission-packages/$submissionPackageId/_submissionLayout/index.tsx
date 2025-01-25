@@ -31,7 +31,7 @@ import ItemsTable from "@/components/Submission/ItemsTable";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -80,7 +80,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          }),
+          })
       )
     ) {
       setIsValidating(true);
@@ -104,7 +104,7 @@ export default function SubmissionPage() {
     isPackageSubmitted &&
     submissionPackage.update_requests.filter(
       (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value,
+        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value
     ).length === 0;
 
   return (
@@ -171,13 +171,14 @@ export default function SubmissionPage() {
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />
-
-              <Box mt="1em" width="100%">
-                <UpdateRequestWidget
-                  submissionPackage={submissionPackage}
-                  summaryBackgroundColor="#FEF8E8"
-                />
-              </Box>
+              {submissionPackage?.update_requests && (
+                <Box mt="1em" width="100%">
+                  <UpdateRequestWidget
+                    submissionPackage={submissionPackage}
+                    summaryBackgroundColor="#FEF8E8"
+                  />
+                </Box>
+              )}
               <Box
                 sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,
