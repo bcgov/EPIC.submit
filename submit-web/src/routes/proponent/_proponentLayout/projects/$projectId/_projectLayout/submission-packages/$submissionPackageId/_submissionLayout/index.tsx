@@ -26,9 +26,9 @@ import { Box, Grid, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import { YellowBar } from "@/components/Shared/YellowBar";
 import ItemsTable from "@/components/Submission/ItemsTable";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
+import BarTitle from "@/components/Shared/Text/BarTitle";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
@@ -146,7 +146,6 @@ export default function SubmissionPage() {
                 border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               }}
             >
-              <YellowBar />
               <Box
                 sx={{
                   width: "100%",
@@ -156,7 +155,7 @@ export default function SubmissionPage() {
                   mb: BCDesignTokens.layoutMarginXlarge,
                 }}
               >
-                <Typography variant="h5">{submissionPackage?.name}</Typography>
+                <BarTitle title={submissionPackage.name} />
                 <Box flexDirection={"row"} sx={{ display: "flex" }}>
                   <Typography
                     color={BCDesignTokens.themeGray70}
@@ -171,7 +170,7 @@ export default function SubmissionPage() {
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />
-              {submissionPackage?.update_requests && (
+              {submissionPackage?.update_requests.length > 0 && (
                 <Box mt="1em" width="100%">
                   <UpdateRequestWidget
                     submissionPackage={submissionPackage}

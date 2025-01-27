@@ -9,6 +9,7 @@ export const ManagementPlanUpdateForm = () => {
   const { projectId, submissionPackageId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
+
   return (
     <SubmissionFormContainer>
       <Box width={"100%"}>
