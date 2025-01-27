@@ -7,8 +7,6 @@ import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { useReplaceSubmussion } from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
 import { saveObject } from "@/hooks/api/useObjectStorage";
-import { QUERY_KEY } from "@/hooks/api/constants";
-import { useQueryClient } from "@tanstack/react-query";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
 
 type DocumentRowProps = Readonly<{
@@ -34,8 +32,6 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
     },
     submissionPackageId: Number(submissionPackageId),
   });
-
-  const queryClient = useQueryClient();
 
   const {
     submitted_document: { name, url, folder },
@@ -84,10 +80,6 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
           type: SUBMISSION_TYPE.DOCUMENT,
           data: documentData,
         },
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackageId],
       });
     } catch (e) {
       notify.error("Failed to replace document");
