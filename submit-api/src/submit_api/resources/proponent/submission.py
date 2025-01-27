@@ -78,8 +78,8 @@ class Submissions(Resource):
         return SubmissionSchema().dump(edited_submission), HTTPStatus.OK
 
 
-@cors_preflight("OPTIONS, POST")
-@API.route("/<int:submission_id>/document", methods=["POST", "OPTIONS"])
+@cors_preflight("OPTIONS, POST, DELETE")
+@API.route("/<int:submission_id>/document", methods=["POST", "OPTIONS", "DELETE"])
 class DocumentSubmission(Resource):
     """Resource for managing a document submission."""
 
@@ -97,3 +97,17 @@ class DocumentSubmission(Resource):
         new_submission_data = CreateSubmissionRequestSchema().load(API.payload)
         created_submission = SubmissionService.replace_submission(submission_id, new_submission_data)
         return SubmissionSchema().dump(created_submission), HTTPStatus.CREATED
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Delete a document submission")
+    @API.expect(create_submission_model)
+    @API.response(
+        code=HTTPStatus.OK, model=submission_model, description="Submission"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cors.crossdomain(origin="*")
+    @auth.require
+    def delete(submission_id):
+        """Delete a submission document."""
+        deleted_submission = SubmissionService.delete_submission(submission_id)
+        return SubmissionSchema().dump(deleted_submission), HTTPStatus.OK

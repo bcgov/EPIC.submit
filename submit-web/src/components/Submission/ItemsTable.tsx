@@ -80,6 +80,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
             <InternalDocumentsRows
               internalStaffDocuments={internalStaffDocuments}
               numColumns={5}
+              hideAction
             />
           </When>
         </TableBody>

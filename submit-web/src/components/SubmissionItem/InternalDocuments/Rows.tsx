@@ -8,20 +8,24 @@ import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
+import { useState } from "react";
 
 type InternalDocumentsProps = Readonly<{
   internalStaffDocuments: Array<InternalStaffDocument>;
   numColumns?: number;
+  hideAction?: boolean;
 }>;
 export default function Rows({
   internalStaffDocuments,
   numColumns = 4,
+  hideAction = false,
 }: InternalDocumentsProps) {
+  const [documents, setDocuments] = useState<Array<InternalStaffDocument>>(
+    internalStaffDocuments,
+  );
   const { uploadObjects: pendingDocuments } = useObjectUploadStore();
 
-  const internalStaffDocumentsIds = new Set(
-    internalStaffDocuments.map((doc) => doc.id),
-  );
+  const internalStaffDocumentsIds = new Set(documents.map((doc) => doc.id));
 
   const filteredPendingDocuments = pendingDocuments.filter(
     (doc) => !internalStaffDocumentsIds.has(doc.submissionId ?? 0),
@@ -56,6 +60,8 @@ export default function Rows({
           key={`doc-row-${document.id}`}
           internalStaffDocument={document}
           numColumns={5}
+          setDocuments={setDocuments}
+          hideAction={hideAction}
         />
       ))}
       {filteredPendingDocuments.map((pendingDocument) => (

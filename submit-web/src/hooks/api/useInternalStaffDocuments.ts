@@ -46,3 +46,43 @@ export const useCreateInternalStaffDocument = ({
     },
   });
 };
+
+type DeleteInternalStaffDocumentProps = {
+  documentId: number;
+};
+export const deleteInternalStaffDocument = ({
+  documentId,
+}: DeleteInternalStaffDocumentProps) => {
+  return submitRequest<void>({
+    url: `/staff/internal-staff-documents/${documentId}`,
+    method: "delete",
+  });
+};
+
+type UseDeleteInternalStaffDocumentProps = {
+  itemId: number;
+  packageId: number;
+  options?: Options;
+};
+export const useDeleteInternalStaffDocument = ({
+  itemId,
+  packageId,
+  options,
+}: UseDeleteInternalStaffDocumentProps) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteInternalStaffDocument,
+    ...options,
+    onSuccess: () => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, itemId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+    },
+  });
+};

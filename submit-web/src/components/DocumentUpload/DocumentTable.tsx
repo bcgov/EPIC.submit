@@ -17,18 +17,30 @@ import DocumentTableRow, {
 import { UploadObject } from "@/store/documentUploadStore";
 import PendingDocumentRow from "./PendingDocumentRow";
 
-type DocumentTableProps = {
+type DocumentTableProps = Readonly<{
   header: string;
   documents?: Array<Submission>;
   pendingDocuments: Array<UploadObject>;
   folder?: string;
-};
+  setDocumentSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
+}>;
+
 export default function DocumentTable({
   header,
   documents = [],
-  pendingDocuments,
+  pendingDocuments = [],
   folder: s3Folder,
+  setDocumentSubmissions,
 }: DocumentTableProps) {
+  if (documents.length === 0 && pendingDocuments.length === 0) {
+    return null;
+  }
+
+  const documentIds = documents.map((document) => document.id);
+  const filteredPendingDocuments = pendingDocuments.filter(
+    (document) => !documentIds.includes(document.id),
+  );
+
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table sx={{ tableLayout: "fixed" }}>
@@ -75,13 +87,15 @@ export default function DocumentTable({
             <DocumentTableRow
               key={`custom-row-${document.id}`}
               documentItem={document}
+              setDocumentSubmissions={setDocumentSubmissions}
             />
           ))}
-          {pendingDocuments?.map((document) => (
+          {filteredPendingDocuments?.map((document) => (
             <PendingDocumentRow
               key={`pending-row-${document.file.name}`}
               documentItem={document}
               folder={s3Folder}
+              setDocumentSubmissions={setDocumentSubmissions}
             />
           ))}
         </TableBody>

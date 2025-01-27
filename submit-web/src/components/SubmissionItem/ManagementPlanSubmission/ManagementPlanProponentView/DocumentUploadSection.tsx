@@ -1,11 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useObjectUploadStore } from "@/store/documentUploadStore";
-import { When } from "react-if";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledFileUpload";
 import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
@@ -27,6 +26,16 @@ export const DocumentUploadSection = () => {
     QUERY_KEY.SUBMISSION_ITEM,
     Number(submissionItemId),
   ]);
+
+  const getDocumentSubmissions = () => {
+    if (!submissionItem) return [];
+    return submissionItem.submissions.filter(
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    );
+  };
+  const [documentSubmissions, setDocumentSubmissions] = useState<Submission[]>(
+    getDocumentSubmissions,
+  );
 
   const accountProject = queryClient.getQueryData<AccountProject>(
     getAccountProjectQueryOptions(Number(projectId)).queryKey,
@@ -52,10 +61,6 @@ export const DocumentUploadSection = () => {
     notify.error("Failed to load submission item");
     return <Navigate to="/error" />;
   }
-
-  const documentSubmissions = submissionItem?.submissions.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
-  );
 
   const documentSubmissionIds = documentSubmissions?.map(
     (submission) => submission.id,
@@ -88,7 +93,7 @@ export const DocumentUploadSection = () => {
     (document) =>
       document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
   );
-  const projectName = camelCase(accountProject?.project.name || "");
+  const projectName = camelCase(accountProject?.project.name ?? "");
 
   if (!accountProject) {
     notify.error("Failed to load project");
@@ -151,21 +156,15 @@ export const DocumentUploadSection = () => {
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
 
-        <When
-          condition={Boolean(
-            managementPlanDocuments?.length ||
-              pendingManagementPlanDocuments?.length,
-          )}
-        >
-          <Box my={BCDesignTokens.layoutMarginLarge}>
-            <DocumentTable
-              header={"Management Plan"}
-              documents={managementPlanDocuments}
-              pendingDocuments={pendingManagementPlanDocuments}
-              folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}`}
-            />
-          </Box>
-        </When>
+        <Box my={BCDesignTokens.layoutMarginLarge}>
+          <DocumentTable
+            header={"Management Plan"}
+            documents={managementPlanDocuments}
+            pendingDocuments={pendingManagementPlanDocuments}
+            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}`}
+            setDocumentSubmissions={setDocumentSubmissions}
+          />
+        </Box>
       </Grid>
       <Grid item xs={12}>
         <Box sx={{ flexDirection: "column", display: "flex" }}>
@@ -203,20 +202,15 @@ export const DocumentUploadSection = () => {
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
         </Typography>
 
-        <When
-          condition={Boolean(
-            supportingDocuments?.length || pendingSupportingDocuments?.length,
-          )}
-        >
-          <Box my={BCDesignTokens.layoutMarginLarge}>
-            <DocumentTable
-              header={"Supporting Documents"}
-              documents={supportingDocuments}
-              pendingDocuments={pendingSupportingDocuments}
-              folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}`}
-            />
-          </Box>
-        </When>
+        <Box my={BCDesignTokens.layoutMarginLarge}>
+          <DocumentTable
+            header={"Supporting Documents"}
+            documents={supportingDocuments}
+            pendingDocuments={pendingSupportingDocuments}
+            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}`}
+            setDocumentSubmissions={setDocumentSubmissions}
+          />
+        </Box>
       </Grid>
     </Grid>
   );

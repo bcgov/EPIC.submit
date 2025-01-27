@@ -39,3 +39,12 @@ class InternalStaffDocumentService:
         )
         internal_staff_document.save()
         return internal_staff_document
+
+    @classmethod
+    def delete_internal_staff_document(cls, internal_staff_document_id):
+        """Delete internal staff document."""
+        internal_staff_document = InternalStaffDocumentModel.find_by_id(internal_staff_document_id)
+        if not internal_staff_document:
+            raise ResourceNotFoundError("Internal staff document not found")
+        internal_staff_document.delete()
+        return internal_staff_document

@@ -35,6 +35,17 @@ const createAuthHeaders = (data: AuthHeaderRequestData) => {
   });
 };
 
+type DeleteDocumentProps = {
+  filepath: string;
+};
+export const deleteDocument = (data: DeleteDocumentProps) => {
+  return documentRequest({
+    url: `/objects`,
+    method: "delete",
+    data,
+  });
+};
+
 const uploadObject = (
   headerDetails: ObjectStorageHeaderDetails,
   file: File,
@@ -82,6 +93,14 @@ export const downloadObject = async (file: AuthHeaderRequestData) => {
 export const useSaveObject = (options?: Options) => {
   return useMutation({
     mutationFn: saveObject,
+    ...options,
+    retry: 0,
+  });
+};
+
+export const useDeleteObject = (options?: Options) => {
+  return useMutation({
+    mutationFn: deleteDocument,
     ...options,
     retry: 0,
   });
