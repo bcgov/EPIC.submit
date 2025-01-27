@@ -23,12 +23,11 @@ import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
-import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 
 export const ConsultationRecordProponentView = () => {
   const {
     projectId: accountProjectIdParam,
-    submissionPackageId: submissionPackageIdParam,
+    submissionPackageId,
     submissionId: submissionItemId,
   } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -36,11 +35,6 @@ export const ConsultationRecordProponentView = () => {
   const accountProjectId = Number(accountProjectIdParam);
   const { data: accountProject } = useGetAccountProject({
     accountProjectId,
-  });
-  const submissionPackageId = Number(submissionPackageIdParam);
-  const { data: submissionPackage } = useGetSubmissionPackage({
-    packageId: submissionPackageId,
-    enabled: Boolean(accountProject?.id),
   });
 
   const { setIsOpen } = useLoaderBackdrop();
