@@ -170,13 +170,14 @@ export default function SubmissionPage() {
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />
-
-              <Box mt="1em" width="100%">
-                <UpdateRequestWidget
-                  submissionPackage={submissionPackage}
-                  summaryBackgroundColor="#FEF8E8"
-                />
-              </Box>
+              {submissionPackage?.update_requests && (
+                <Box mt="1em" width="100%">
+                  <UpdateRequestWidget
+                    submissionPackage={submissionPackage}
+                    summaryBackgroundColor="#FEF8E8"
+                  />
+                </Box>
+              )}
               <Box
                 sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,

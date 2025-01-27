@@ -5,6 +5,7 @@ import {
   Box,
   Chip,
   Collapse,
+  Divider,
   Typography,
 } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -47,7 +48,7 @@ export default function UpdateRequestWidget({
           notify.error(
             isAxiosError(error)
               ? (error.response?.data.message ?? defaultMessage)
-              : defaultMessage,
+              : defaultMessage
           );
         },
       },
@@ -74,7 +75,6 @@ export default function UpdateRequestWidget({
 
   const handleCancelReason = () => {
     setIsCreateRequestOpen(false);
-    setExpanded(false);
   };
 
   if (!updateRequests) return null;
@@ -88,6 +88,9 @@ export default function UpdateRequestWidget({
         mb: BCDesignTokens.layoutMarginLarge,
         p: 0,
         width: "100%",
+        "& MuiPaper-root": {
+          color: "white",
+        },
       }}
       expanded={expanded}
     >
@@ -101,6 +104,7 @@ export default function UpdateRequestWidget({
             borderRadius: "4px",
             backgroundColor: summaryBackgroundColor,
             border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+            background: BCDesignTokens.themeGold10,
           },
           expanded && {
             borderBottomLeftRadius: 0,
@@ -129,9 +133,11 @@ export default function UpdateRequestWidget({
               variant="h6"
               sx={{
                 color: "#38598A",
+                mr: BCDesignTokens.layoutMarginSmall,
+                fontWeight: BCDesignTokens.typographyBoldBody,
               }}
             >
-              Submission/Update Request
+              Update Requests
             </Typography>
             <When condition={updateRequests && updateRequests.length > 0}>
               <Chip
@@ -159,11 +165,21 @@ export default function UpdateRequestWidget({
             />
           </Box>
           <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
-            <Box onClick={handleIsCreateRequestOpen}>
+            <Box
+              onClick={handleIsCreateRequestOpen}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <Typography
-                variant="body1"
+                variant="body2"
                 color={BCDesignTokens.typographyColorLink}
-                sx={{ cursor: "pointer", width: "100%" }}
+                sx={{
+                  cursor: "pointer",
+                  width: "100%",
+                }}
               >
                 + Request an Update
               </Typography>
@@ -172,14 +188,16 @@ export default function UpdateRequestWidget({
         </Box>
       </AccordionSummary>
       <AccordionDetails
-        sx={{
-          pb: 0,
-          border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-          borderTop: "none",
-          borderRadius: "4px",
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: 0,
-        }}
+        sx={[
+          {
+            pb: 0,
+            border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+            borderTop: `${0}px solid ${BCDesignTokens.supportBorderColorWarning}`,
+            borderRadius: "4px",
+            borderTopLeftRadius: 0,
+            borderTopRightRadius: 0,
+          },
+        ]}
       >
         <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
           <Collapse in={isCreateRequestOpen} unmountOnExit>
@@ -193,12 +211,15 @@ export default function UpdateRequestWidget({
         </PermissionsGate>
         <When condition={Boolean(updateRequests)}>
           {updateRequests.length > 0 ? (
-            updateRequests.map((updateRequest) => (
-              <RequestSection
-                key={updateRequest.id}
-                updateRequest={updateRequest}
-                submissionPackage={submissionPackage}
-              />
+            updateRequests.map((updateRequest, index) => (
+              <>
+                <RequestSection
+                  key={updateRequest.id}
+                  updateRequest={updateRequest}
+                  submissionPackage={submissionPackage}
+                />
+                {index !== updateRequests.length - 1 && <Divider />}
+              </>
             ))
           ) : (
             <Typography variant="body1" sx={{ mb: 1 }}>
