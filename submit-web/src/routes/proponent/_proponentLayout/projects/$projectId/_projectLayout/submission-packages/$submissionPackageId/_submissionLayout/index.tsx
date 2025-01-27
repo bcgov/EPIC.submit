@@ -170,7 +170,7 @@ export default function SubmissionPage() {
                 </Box>
               </Box>
               <InfoBox submissionPackage={submissionPackage} />
-              {submissionPackage?.update_requests && (
+              {submissionPackage?.update_requests.length > 0 && (
                 <Box mt="1em" width="100%">
                   <UpdateRequestWidget
                     submissionPackage={submissionPackage}
