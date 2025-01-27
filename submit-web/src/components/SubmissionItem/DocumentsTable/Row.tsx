@@ -85,10 +85,6 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
           data: documentData,
         },
       });
-
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackageId],
-      });
     } catch (e) {
       notify.error("Failed to replace document");
     } finally {

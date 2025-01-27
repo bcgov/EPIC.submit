@@ -47,7 +47,7 @@ export const AddDocumentActionButton = ({
       });
 
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackageId],
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, Number(submissionPackageId)],
       });
       handleAddDocument(addedSubmission);
     } catch (e) {
