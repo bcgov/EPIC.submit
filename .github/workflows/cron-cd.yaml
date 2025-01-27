@@ -6,8 +6,7 @@ on:
     branches:
       - develop
     paths:
-      - "submit-cron/**"
-      - "submit-api/**"
+      - "epic-cron/**"
   workflow_dispatch:
     inputs:
       environment:
