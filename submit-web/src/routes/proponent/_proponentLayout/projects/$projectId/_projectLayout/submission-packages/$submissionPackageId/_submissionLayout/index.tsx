@@ -26,12 +26,12 @@ import { Box, Grid, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import { YellowBar } from "@/components/Shared/YellowBar";
 import ItemsTable from "@/components/Submission/ItemsTable";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
+import BarTitle from "@/components/Shared/Text/BarTitle";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -80,7 +80,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          }),
+          })
       )
     ) {
       setIsValidating(true);
@@ -104,7 +104,7 @@ export default function SubmissionPage() {
     isPackageSubmitted &&
     submissionPackage.update_requests.filter(
       (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value,
+        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value
     ).length === 0;
 
   return (
@@ -146,7 +146,6 @@ export default function SubmissionPage() {
                 border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               }}
             >
-              <YellowBar />
               <Box
                 sx={{
                   width: "100%",
@@ -156,7 +155,7 @@ export default function SubmissionPage() {
                   mb: BCDesignTokens.layoutMarginXlarge,
                 }}
               >
-                <Typography variant="h5">{submissionPackage?.name}</Typography>
+                <BarTitle title={submissionPackage.name} />
                 <Box flexDirection={"row"} sx={{ display: "flex" }}>
                   <Typography
                     color={BCDesignTokens.themeGray70}

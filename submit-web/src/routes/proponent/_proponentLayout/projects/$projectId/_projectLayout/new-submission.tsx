@@ -7,8 +7,8 @@ import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSke
 import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import BarTitle from "@/components/Shared/Text/BarTitle";
 import { SUBMISSION_PACKAGE_TYPE } from "@/components/Shared/types";
-import { YellowBar } from "@/components/Shared/YellowBar";
 import { useCreateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionPackage } from "@/models/Package";
@@ -18,7 +18,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission"
 )({
   component: NewManagementPlan,
   meta: () => [{ title: "New Submission Package" }],
@@ -107,7 +107,7 @@ export function NewManagementPlan() {
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
             <Box
               sx={{
-                padding: "24px 16px 16px 16px",
+                padding: "8px 16px 16px 16px",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "flex-start",
@@ -116,8 +116,7 @@ export function NewManagementPlan() {
                 gap: BCDesignTokens.layoutPaddingSmall,
               }}
             >
-              <YellowBar />
-              <Typography variant="h5">New Submission</Typography>
+              <BarTitle title="New Submission" />
               <Form onSubmit={onCreateSubmissionPackage} />
             </Box>
           </Box>

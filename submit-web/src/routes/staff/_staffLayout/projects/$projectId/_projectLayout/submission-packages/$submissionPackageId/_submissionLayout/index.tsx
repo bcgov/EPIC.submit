@@ -1,8 +1,7 @@
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { ContentBox } from "@/components/Shared/ContentBox";
-import { YellowBar } from "@/components/Shared/YellowBar";
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import {
   createFileRoute,
   Navigate,
@@ -21,9 +20,10 @@ import ItemsTable from "@/components/Submission/ItemsTable";
 import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
+import BarTitle from "@/components/Shared/Text/BarTitle";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -34,7 +34,7 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey,
+      .queryKey
   );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
@@ -97,21 +97,16 @@ export default function SubmissionPage() {
                 border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               }}
             >
-              <YellowBar />
               <Box
                 sx={{
                   width: "100%",
                   display: "flex",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                   justifyContent: "space-between",
                   mb: BCDesignTokens.layoutMarginXlarge,
                 }}
               >
-                <Stack>
-                  <Typography variant="h5">
-                    {submissionPackage?.name}
-                  </Typography>
-                </Stack>
+                <BarTitle title={submissionPackage?.name} />
                 <Box flexDirection={"row"} sx={{ display: "flex" }}>
                   <Typography
                     color={BCDesignTokens.themeGray70}

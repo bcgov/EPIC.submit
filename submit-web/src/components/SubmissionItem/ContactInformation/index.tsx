@@ -1,5 +1,4 @@
-import { ContentBox } from "@/components/Shared/ContentBox";
-import { Box, Button, Divider, Grid, Typography } from "@mui/material";
+import { Button, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -12,14 +11,11 @@ import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropSt
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_ITEM_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
-import BarTitle from "@/components/Shared/Text/BarTitle";
-import { CardInnerBox } from "@/components/Projects/Project";
-import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
+import { SubmissionFormContainer } from "../SubmissionFormContainer";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -76,7 +72,7 @@ export const ContactInformation = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -140,214 +136,182 @@ export const ContactInformation = () => {
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
-    <Grid item xs={12}>
-      <ContentBox mainLabel={"Copper Mine"}>
-        <Box
-          sx={{
-            borderRadius: "4px",
-            p: BCDesignTokens.layoutPaddingMedium,
-            border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-          }}
-        >
-          <CardInnerBox sx={{ pl: 0, pb: BCDesignTokens.layoutPaddingMedium }}>
-            <Typography variant="h4" fontWeight={400}>
-              Management Plans
-            </Typography>
-            <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
-          </CardInnerBox>
-          <Box
-            sx={{
-              p: BCDesignTokens.layoutPaddingMedium,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              borderRadius: "4px",
-              border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              gap: BCDesignTokens.layoutPaddingLarge,
-            }}
-          >
-            <BarTitle
-              title={accountProject.project.name + " Management Plan"}
-            />
-
-            <FormProvider {...methods}>
-              <Form onSubmit={handleSubmit(onSubmitHandler)}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography
-                      variant="h5"
-                      fontWeight={400}
-                      sx={{ color: BCDesignTokens.typographyColorDisabled }}
-                    >
-                      Contact Information
-                    </Typography>
-                    <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+    <SubmissionFormContainer>
+      <FormProvider {...methods}>
+        <Form onSubmit={handleSubmit(onSubmitHandler)}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography
+                variant="h5"
+                fontWeight={400}
+                sx={{ color: BCDesignTokens.typographyColorDisabled }}
+              >
+                Contact Information
+              </Typography>
+              <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
+                Primary Contact
+              </Typography>
+            </Grid>
+            <Grid
+              item
+              container
+              sx={{
+                width: {
+                  xs: "100%", // width for extra-small screens
+                  md: "390px", // width for medium screens and up
+                },
+              }}
+            >
+              <Grid item xs={12}>
+                <ControlledTextField
+                  name="primaryContact.givenName"
+                  label="Given Name"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <ControlledTextField
+                  name="primaryContact.surname"
+                  label="Surname"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <ControlledTextField
+                  name="primaryContact.company"
+                  label="Company Name"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <ControlledTextField
+                  name="primaryContact.position"
+                  label="Position/Role"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12} container spacing={1}>
+                <Grid item xs={8}>
+                  <ControlledInputMask
+                    name="primaryContact.workPhoneNumber"
+                    mask="(999) 999-9999"
+                    label="Work Phone Number"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <ControlledInputMask
+                    name="primaryContact.extensionNumber"
+                    mask="9999"
+                    label="Ext."
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <ControlledTextField
+                  name="primaryContact.workEmailAddress"
+                  label="Work Email Address"
+                  fullWidth
+                />
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
+                Secondary Contact
+              </Typography>
+            </Grid>
+            <Grid item md={4} xs={12} container>
+              <Grid
+                container
+                sx={{
+                  width: {
+                    xs: "100%", // width for extra-small screens
+                    md: "390px", // width for medium screens and up
+                  },
+                }}
+              >
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="secondaryContact.givenName"
+                    label="Given Name"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="secondaryContact.surname"
+                    label="Surname"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="secondaryContact.company"
+                    label="Company Name"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="secondaryContact.position"
+                    label="Position/Role"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} container spacing={1}>
+                  <Grid item xs={8}>
+                    <ControlledInputMask
+                      name="secondaryContact.workPhoneNumber"
+                      mask="(999) 999-9999"
+                      label="Work Phone Number"
+                      fullWidth
+                    />
                   </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Primary Contact
-                    </Typography>
-                  </Grid>
-                  <Grid
-                    item
-                    container
-                    sx={{
-                      width: {
-                        xs: "100%", // width for extra-small screens
-                        md: "390px", // width for medium screens and up
-                      },
-                    }}
-                  >
-                    <Grid item xs={12}>
-                      <ControlledTextField
-                        name="primaryContact.givenName"
-                        label="Given Name"
-                        fullWidth
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <ControlledTextField
-                        name="primaryContact.surname"
-                        label="Surname"
-                        fullWidth
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <ControlledTextField
-                        name="primaryContact.company"
-                        label="Company Name"
-                        fullWidth
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <ControlledTextField
-                        name="primaryContact.position"
-                        label="Position/Role"
-                        fullWidth
-                      />
-                    </Grid>
-                    <Grid item xs={12} container spacing={1}>
-                      <Grid item xs={8}>
-                        <ControlledInputMask
-                          name="primaryContact.workPhoneNumber"
-                          mask="(999) 999-9999"
-                          label="Work Phone Number"
-                          fullWidth
-                        />
-                      </Grid>
-                      <Grid item xs={4}>
-                        <ControlledInputMask
-                          name="primaryContact.extensionNumber"
-                          mask="9999"
-                          label="Ext."
-                          fullWidth
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <ControlledTextField
-                        name="primaryContact.workEmailAddress"
-                        label="Work Email Address"
-                        fullWidth
-                      />
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Secondary Contact
-                    </Typography>
-                  </Grid>
-                  <Grid item md={4} xs={12} container>
-                    <Grid
-                      container
-                      sx={{
-                        width: {
-                          xs: "100%", // width for extra-small screens
-                          md: "390px", // width for medium screens and up
-                        },
-                      }}
-                    >
-                      <Grid item xs={12}>
-                        <ControlledTextField
-                          name="secondaryContact.givenName"
-                          label="Given Name"
-                          fullWidth
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <ControlledTextField
-                          name="secondaryContact.surname"
-                          label="Surname"
-                          fullWidth
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <ControlledTextField
-                          name="secondaryContact.company"
-                          label="Company Name"
-                          fullWidth
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <ControlledTextField
-                          name="secondaryContact.position"
-                          label="Position/Role"
-                          fullWidth
-                        />
-                      </Grid>
-                      <Grid item xs={12} container spacing={1}>
-                        <Grid item xs={8}>
-                          <ControlledInputMask
-                            name="secondaryContact.workPhoneNumber"
-                            mask="(999) 999-9999"
-                            label="Work Phone Number"
-                            fullWidth
-                          />
-                        </Grid>
-                        <Grid item xs={4}>
-                          <ControlledInputMask
-                            name="secondaryContact.extensionNumber"
-                            mask="9999"
-                            label="Ext."
-                            fullWidth
-                          />
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={12}>
-                        <ControlledTextField
-                          name="secondaryContact.workEmailAddress"
-                          label="Work Email Address"
-                          fullWidth
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={12} container spacing={2}>
-                    <Grid item xs={12} sm="auto">
-                      <Button color="secondary" onClick={handleCancel}>
-                        Close
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} sm="auto">
-                      <Button type="submit">Save</Button>
-                    </Grid>
+                  <Grid item xs={4}>
+                    <ControlledInputMask
+                      name="secondaryContact.extensionNumber"
+                      mask="9999"
+                      label="Ext."
+                      fullWidth
+                    />
                   </Grid>
                 </Grid>
-              </Form>
-            </FormProvider>
-          </Box>
-        </Box>
-      </ContentBox>
-    </Grid>
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="secondaryContact.workEmailAddress"
+                    label="Work Email Address"
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12} container spacing={2}>
+              <Grid item xs={12} sm="auto">
+                <Button color="secondary" onClick={handleCancel}>
+                  Close
+                </Button>
+              </Grid>
+              <Grid item xs={12} sm="auto">
+                <Button type="submit">Save</Button>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Form>
+      </FormProvider>
+    </SubmissionFormContainer>
   );
 };
