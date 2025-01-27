@@ -24,7 +24,7 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
 
   const formData = useMemo(() => {

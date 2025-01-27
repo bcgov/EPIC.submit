@@ -24,7 +24,6 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
-
 const managementPlanSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
   allRequirementsAddressed: yup
@@ -196,7 +195,6 @@ export const ManagementPlanSubmissionProponentView = () => {
   };
 
   if (!accountProject) return <Navigate to="/error" />;
-
   return (
     <SubmissionFormContainer>
       <FormProvider {...methods}>

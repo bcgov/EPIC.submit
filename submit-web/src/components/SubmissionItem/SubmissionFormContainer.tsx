@@ -7,6 +7,7 @@ import { CardInnerBox } from "@/components/Projects/Project";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import BarTitle from "@/components/Shared/Text/BarTitle";
+import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 
 type SubmissionFormContainerProps = {
   children: React.ReactNode;
@@ -14,12 +15,17 @@ type SubmissionFormContainerProps = {
 export const SubmissionFormContainer = ({
   children,
 }: SubmissionFormContainerProps) => {
-  const { projectId: accountProjectIdParam } = useParams({
+  const { projectId: accountProjectIdParam, submissionPackageId } = useParams({
     strict: false,
   });
   const accountProjectId = Number(accountProjectIdParam);
   const { data: accountProject, isPending } = useGetAccountProject({
     accountProjectId,
+  });
+
+  const { data: submissionPackage } = useGetSubmissionPackage({
+    packageId: Number(submissionPackageId),
+    enabled: Boolean(accountProject?.id),
   });
 
   if (isPending) return <Skeleton variant="rectangular" height={400} />;
@@ -28,7 +34,7 @@ export const SubmissionFormContainer = ({
   return (
     <Grid item xs={12}>
       <ContentBox
-        mainLabel={"Copper Mine"}
+        mainLabel={accountProject?.project.name}
         label={
           accountProject?.project.ea_certificate &&
           `EAC #${accountProject?.project.ea_certificate}`
@@ -59,9 +65,7 @@ export const SubmissionFormContainer = ({
               gap: BCDesignTokens.layoutPaddingLarge,
             }}
           >
-            <BarTitle
-              title={accountProject.project.name + " Management Plan"}
-            />
+            <BarTitle title={submissionPackage?.name || ""} />
             <Grid
               container
               spacing={BCDesignTokens.layoutMarginMedium}

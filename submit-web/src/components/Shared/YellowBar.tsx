@@ -7,7 +7,7 @@ export const YellowBar = () => {
       sx={{
         height: "5px",
         width: "50px",
-        mb: BCDesignTokens.layoutMarginSmall,
+        mb: 0,
         backgroundColor: BCDesignTokens.themeGold100,
       }}
     />
