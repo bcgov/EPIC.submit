@@ -15,6 +15,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { AppConfig } from "@/utils/config";
 import { When } from "react-if";
+import ScrollToTop from "@/components/ScrollToTop";
 
 type RouterContext = {
   authentication: AuthContextProps;
@@ -34,6 +35,7 @@ function Layout() {
       getResetKey={() => "reset"}
       onCatch={(error) => notify.error(error.message)}
     >
+      <ScrollToTop />
       <EAOAppBar />
       <DrawerProvider />
       <Box minHeight={"calc(100vh - 88px)"}>
