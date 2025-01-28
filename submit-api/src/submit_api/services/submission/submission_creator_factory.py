@@ -93,7 +93,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         """Replace a document submission."""
         with session_scope() as session:
             submission = SubmissionModel.find_by_id(submission_id)
-            if status := submission.status not in [SubmissionStatus.SUBMITTED, SubmissionStatus.REJECTED]:
+            if status := submission.status not in [SubmissionStatus.SUBMITTED,
+                                                   SubmissionStatus.REJECTED, SubmissionStatus.PENDING]:
                 raise BadRequestError(f"Cannot replace a document with status {status}.")
             submitted_document = self._create_submitted_document(session, request_data)
             new_submission = self._create_submission(
@@ -119,6 +120,10 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             return major_version, minor_version
 
         original_submission = SubmissionModel.find_by_id(original_submission_id)
+        if original_submission.status == SubmissionStatus.PENDING:
+            minor_version = original_submission.minor_version
+            return major_version, minor_version
+
         minor_version = original_submission.minor_version + 1
 
         return major_version, minor_version
