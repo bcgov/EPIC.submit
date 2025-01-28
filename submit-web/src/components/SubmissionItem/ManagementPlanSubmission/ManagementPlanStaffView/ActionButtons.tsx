@@ -65,7 +65,7 @@ export default function ActionButtons() {
   const navigate = useNavigate();
 
   const handleSaveAndClose = async () => {
-    if (!isDirty) {
+    if (!isDirty || isSaveDisabled) {
       navigate({
         to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}`,
       });
@@ -184,7 +184,7 @@ export default function ActionButtons() {
           <LoadingButton
             color="secondary"
             onClick={handleSaveAndClose}
-            disabled={isLoading || isSaveDisabled}
+            disabled={isLoading}
             loading={isSavingAndClosing}
           >
             Save & Exit
