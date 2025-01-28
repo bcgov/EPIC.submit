@@ -92,7 +92,7 @@ spec:
           - name: WEB_URL
             valueFrom:
               configMapKeyRef:
-                name: {{ .Values.name }}
+                name: {{ .Values.name }}-config
                 key: WEB_URL
           - name: DATABASE_NAME
             value: "{{ .Values.database.username }}"
