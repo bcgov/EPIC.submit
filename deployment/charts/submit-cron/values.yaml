@@ -23,3 +23,6 @@ chesSecrets:
   apiEndPoint: "https://ches-dev.api.gov.bc.ca"
   clientId: ""
   clientSecret: ""
+
+web:
+  url: ""

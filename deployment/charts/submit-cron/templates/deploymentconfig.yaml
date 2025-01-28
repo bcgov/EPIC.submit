@@ -88,7 +88,12 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: ches-secrets
-                key: CHES_CLIENT_SECRET           
+                key: CHES_CLIENT_SECRET
+          - name: WEB_URL
+            valueFrom:
+              configMapKeyRef:
+                name: {{ .Values.name }}-config
+                key: WEB_URL
           - name: DATABASE_NAME
             value: "{{ .Values.database.username }}"
           - name: DATABASE_HOST

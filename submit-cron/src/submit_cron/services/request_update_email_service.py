@@ -1,4 +1,4 @@
-
+from flask import current_app
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
 from submit_api.models.package import Package as PackageModel
@@ -25,9 +25,11 @@ class RequestUpdateEmailService:  # pylint: disable=too-few-public-methods
         if not sender_name:
             raise BadRequestError(f"Sender name not found for package type: {package.type.name}")
 
+        web_url = current_app.config.get('WEB_URL')
         email_details = EmailDetails(
             template_name=MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
             body_args={
+                'epic_submit_link': web_url,
                 'submitter_name': submitter.full_name,
                 'package_name': package.name,
                 'sender_name': sender_name,
