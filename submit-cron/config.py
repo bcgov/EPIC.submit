@@ -90,6 +90,7 @@ class _Config():  # pylint: disable=too-few-public-methods
     CHES_CLIENT_ID = os.getenv('CHES_CLIENT_ID')
     CHES_CLIENT_SECRET = os.getenv('CHES_CLIENT_SECRET')
     CHES_BASE_URL = os.getenv('CHES_BASE_URL')
+    WEB_URL = os.getenv('WEB_URL')
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
