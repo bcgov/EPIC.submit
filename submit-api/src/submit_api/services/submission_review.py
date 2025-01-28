@@ -316,7 +316,7 @@ class SubmissionReviewService:
         if not new_item:
             current_app.logger.error(f"{item.type.name} item not found in new package {new_package.id}.")
             raise ResourceNotFoundError(f"{item.type.name} item not found in new package {new_package.id}.")
-
+        new_package.status = []
         session.add(new_package)
         session.flush()
         current_app.logger.info(f"New package version created for {new_package.name}.")
