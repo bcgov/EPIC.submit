@@ -8,6 +8,7 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, PackageVersion, UpdateRequest
 from submit_api.models import Package as PackageModel
+from submit_api.models.package import PackageStatus
 from submit_api.models import PackageMetadata, SubmissionReviewEntry
 from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionItemType
@@ -316,7 +317,7 @@ class SubmissionReviewService:
         if not new_item:
             current_app.logger.error(f"{item.type.name} item not found in new package {new_package.id}.")
             raise ResourceNotFoundError(f"{item.type.name} item not found in new package {new_package.id}.")
-        new_package.status = []
+        new_package.status = [PackageStatus.REJECTED]
         session.add(new_package)
         session.flush()
         current_app.logger.info(f"New package version created for {new_package.name}.")
