@@ -11,7 +11,7 @@ import {
   UPDATE_REQUEST_STATUS,
   UPDATE_REQUEST_TYPE,
 } from "@/models/UpdateRequest";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
 
 type PackageStatusChipStackProps = {
@@ -49,22 +49,29 @@ export const PackageStatusChipStack = ({
     );
   }, [submissionPackage.update_requests]);
 
-  const hideStatus = (status: PackageStatus) => {
-    const isNewOrCreated = [
-      PACKAGE_STATUS.CREATED.value,
-      PACKAGE_STATUS.NEW_SUBMISSION.value,
-    ].includes(status);
+  const hideStatus = useCallback(
+    (status: PackageStatus) => {
+      const isNewOrCreated = [
+        PACKAGE_STATUS.CREATED.value,
+        PACKAGE_STATUS.NEW_SUBMISSION.value,
+      ].includes(status);
 
-    if (isNewOrCreated && isRevisionRequired) {
-      return true;
-    }
-    const notFirstVersion = submissionPackage.version.version > 1;
-    const alreadySubmitted = Boolean(submissionPackage.submitted_on);
-    if (isNewOrCreated && (notFirstVersion || alreadySubmitted)) {
-      return true;
-    }
-    return false;
-  };
+      if (isNewOrCreated && isRevisionRequired) {
+        return true;
+      }
+      const notFirstVersion = submissionPackage.version.version > 1;
+      const alreadySubmitted = Boolean(submissionPackage.submitted_on);
+      if (isNewOrCreated && (notFirstVersion || alreadySubmitted)) {
+        return true;
+      }
+      return false;
+    },
+    [
+      submissionPackage.submitted_on,
+      submissionPackage.version.version,
+      isRevisionRequired,
+    ],
+  );
 
   const hideStatusMap: Record<PackageStatus, boolean> = useMemo(() => {
     const entries = submissionPackage.status.map((status) => [
