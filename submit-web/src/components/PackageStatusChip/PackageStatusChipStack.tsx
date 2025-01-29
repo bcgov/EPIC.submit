@@ -1,10 +1,12 @@
 import {
   NON_CANONICAL_PACKAGE_STATUS,
+  PACKAGE_STATUS,
+  PackageStatus,
   SubmissionPackage,
 } from "@/models/Package";
 import { Box, Stack } from "@mui/material";
 import PackageStatusChip from ".";
-import { When } from "react-if";
+import { Unless, When } from "react-if";
 import {
   UPDATE_REQUEST_STATUS,
   UPDATE_REQUEST_TYPE,
@@ -47,11 +49,38 @@ export const PackageStatusChipStack = ({
     );
   }, [submissionPackage.update_requests]);
 
+  const hideStatus = (status: PackageStatus) => {
+    const isNewOrCreated = [
+      PACKAGE_STATUS.CREATED.value,
+      PACKAGE_STATUS.NEW_SUBMISSION.value,
+    ].includes(status);
+
+    if (isNewOrCreated && isRevisionRequired) {
+      return true;
+    }
+    const notFirstVersion = submissionPackage.version.version > 1;
+    const alreadySubmitted = Boolean(submissionPackage.submitted_on);
+    if (isNewOrCreated && (notFirstVersion || alreadySubmitted)) {
+      return true;
+    }
+    return false;
+  };
+
+  const hideStatusMap: Record<PackageStatus, boolean> = useMemo(() => {
+    const entries = submissionPackage.status.map((status) => [
+      status,
+      hideStatus(status),
+    ]);
+    return Object.fromEntries(entries);
+  }, [isRevisionRequired, isUpdateRequested]);
+
   return (
     <Box sx={{ display: "inline-block", width: "fit-content" }}>
       <Stack direction="column" spacing={1} alignItems={"flex-end"}>
         {status.map((value) => (
-          <PackageStatusChip key={value} status={value} />
+          <Unless condition={hideStatusMap[value]} key={value}>
+            <PackageStatusChip key={value} status={value} />
+          </Unless>
         ))}
         <When
           condition={

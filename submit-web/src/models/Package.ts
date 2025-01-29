@@ -89,7 +89,7 @@ export type SubmissionPackageMeta = Record<string, number | string>;
 export type PackageVersion = {
   id: number;
   package_id: number;
-  version: string;
+  version: number;
   original_package_id: number;
 };
 
