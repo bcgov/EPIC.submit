@@ -26,7 +26,6 @@ class RequestUpdateEmailService:  # pylint: disable=too-few-public-methods
             raise BadRequestError(f"Sender name not found for package type: {package.type.name}")
 
         web_url = current_app.config.get('WEB_URL')
-        print(f'web_url: {web_url}')
         email_details = EmailDetails(
             template_name=MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
             body_args={
