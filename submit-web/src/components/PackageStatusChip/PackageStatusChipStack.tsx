@@ -72,12 +72,7 @@ export const PackageStatusChipStack = ({
       hideStatus(status),
     ]);
     return Object.fromEntries(entries);
-  }, [
-    isRevisionRequired,
-    isUpdateRequested,
-    submissionPackage.status,
-    hideStatus,
-  ]);
+  }, [submissionPackage.status, hideStatus]);
 
   return (
     <Box sx={{ display: "inline-block", width: "fit-content" }}>
