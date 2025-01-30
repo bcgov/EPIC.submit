@@ -26,6 +26,7 @@ class SubmissionItemType(enum.Enum):
 
     CONSULTATION_RECORD = 'Consultation Record(s)'
     MANAGEMENT_PLAN_FORM = 'Management Plan'
+    CONTACT_INFORMATION = 'Contact Information Form'
 
 
 class ItemType(BaseModel):
@@ -34,6 +35,6 @@ class ItemType(BaseModel):
     __tablename__ = "item_types"
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    name = Column(db.String(255), nullable=False)
+    name = Column(db.String(255), nullable=False, unique=True)
     submission_method = Column(Enum(SubmissionMethod), nullable=False)
     package_types = relationship('PackageType', secondary='package_item_types', back_populates='item_types')

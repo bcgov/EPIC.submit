@@ -13,11 +13,13 @@ from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
-from submit_api.models.submission import SubmissionStatus
+from submit_api.models.submission import SubmissionStatus, SubmissionType
 from submit_api.models.submission_review import SubmissionReview, SubmissionReviewStatus
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
+from submit_api.schemas.submission import CreateSubmissionRequestSchema
 from submit_api.services.package import PackageService
+from submit_api.services.submission import SubmissionService
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -310,6 +312,7 @@ class SubmissionReviewService:
             current_app.logger.error(f"Package version not found for item {item.id}.")
             raise ResourceNotFoundError(f"Package version not found for item {item.id}.")
         new_package = PackageService.create_new_package_from_original(package.id, session)
+        cls._copy_contact_information_from_old_version(package, new_package)
         current_app.logger.info(f"New package version created for item {item.id}.")
         new_items = new_package.items
         new_item = next((i for i in new_items if i.type.name == item.type.name), None)
@@ -320,6 +323,25 @@ class SubmissionReviewService:
         session.flush()
         current_app.logger.info(f"New package version created for {new_package.name}.")
         return new_package, new_item
+
+    @classmethod
+    def _copy_contact_information_from_old_version(cls, old_package, new_package):
+        """Copy contact information from old version."""
+        current_app.logger.info(f"Copying contact information from old version.")
+        old_contact_info_item = next((item for item in old_package.items if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
+        new_contact_info_item = next((item for item in new_package.items if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
+        old_submission = next((submission for submission in old_contact_info_item.submissions if submission.type == SubmissionType.FORM), None)
+        if not old_submission or not old_submission.submitted_form:
+            current_app.logger.error(f"Old contact information form not found and could not be copied.")
+            return
+        new_submission_data = {
+            'type': SubmissionItemType.CONTACT_INFORMATION.value,
+            'status': SubmissionStatus.PENDING.value,
+            'item_id': new_contact_info_item.id,
+            'data': old_submission.submitted_form.submission_json,
+        }
+        new_submission_schema = CreateSubmissionRequestSchema().dump(new_submission_data)
+        SubmissionService.create_submission(new_contact_info_item.id, new_submission_schema)
 
     @classmethod
     def _create_update_request(cls, data, session):
