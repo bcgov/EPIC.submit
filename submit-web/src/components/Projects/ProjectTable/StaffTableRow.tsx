@@ -63,7 +63,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
               textDecoration: "none",
             }}
             onClick={onSubmissionClick}
-            disabled={status.includes(PACKAGE_STATUS.CREATED.value)}
+            disabled={!submitted_on}
           >
             <Stack direction="row" spacing={1} alignItems={"center"}>
               <Typography
