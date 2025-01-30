@@ -1,7 +1,7 @@
 import { ArrowForwardIos } from "@mui/icons-material";
 import { Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { PACKAGE_STATUS, SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage } from "@/models/Package";
 import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
 import {
   StyledProjectTableCell,
@@ -31,7 +31,6 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     name,
     meta,
     days_since_submission = 0,
-    status,
     submitted_on,
   } = submissionPackage;
 
