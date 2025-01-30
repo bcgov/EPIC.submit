@@ -32,7 +32,7 @@ export const PackageStatusChipStack = ({
     return (
       submissionPackage.update_requests.filter(
         (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
       ).length > 0
     );
   }, [submissionPackage.update_requests]);
@@ -42,14 +42,14 @@ export const PackageStatusChipStack = ({
       submissionPackage.update_requests.filter(
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
-          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value,
+          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value
       ).length > 0
     );
   }, [submissionPackage.update_requests]);
 
   return (
     <Box sx={{ display: "inline-block", width: "fit-content" }}>
-      <Stack direction="column" spacing={1} alignItems={"flex-end"}>
+      <Stack direction="column" spacing={1.5} alignItems={"flex-end"}>
         {status.map((value) => (
           <PackageStatusChip key={value} status={value} />
         ))}

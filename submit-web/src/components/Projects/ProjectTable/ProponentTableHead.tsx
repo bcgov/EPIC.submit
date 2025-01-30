@@ -13,10 +13,37 @@ export default function ProponentTableHead() {
       }}
     >
       <TableRow>
-        <SubmitTableHeadCell>Submission Name</SubmitTableHeadCell>
-        <SubmitTableHeadCell align="right">Date Submitted</SubmitTableHeadCell>
-        <SubmitTableHeadCell align="right">Submitted By</SubmitTableHeadCell>
-        <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
+        <SubmitTableHeadCell
+          sx={{
+            width: "50%",
+          }}
+        >
+          Submission Name
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "15%",
+          }}
+        >
+          Date Submitted
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "15%",
+          }}
+        >
+          Submitted By
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "15%",
+          }}
+        >
+          Status
+        </SubmitTableHeadCell>
       </TableRow>
     </TableHead>
   );
