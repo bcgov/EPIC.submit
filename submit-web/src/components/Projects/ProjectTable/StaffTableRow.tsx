@@ -47,13 +47,14 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
 
   return (
     <>
-      <StyledProjectTableRow sx={{ maxHeight: "40px", py: 0 }}>
+      <StyledProjectTableRow>
         <StyledProjectTableCell
           sx={{
             minWidth: "150px",
             flexGrow: 1,
             py: 0,
           }}
+          align="left"
         >
           <SubmitLink
             sx={{
@@ -77,7 +78,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           </SubmitLink>
         </StyledProjectTableCell>
         <StyledProjectTableCell
-          align="right"
+          align="left"
           sx={{
             maxWidth: "75px",
             overflow: "hidden",
@@ -88,12 +89,10 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           {type}
         </StyledProjectTableCell>
         <StyledProjectTableCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "80px",
             lineHeight: 1.2,
             wordWrap: "break-word",
-            textAlign: "right",
             color: BCDesignTokens.typographyFontSizeBody,
           }}
         >

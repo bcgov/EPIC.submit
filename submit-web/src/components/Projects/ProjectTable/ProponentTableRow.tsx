@@ -25,7 +25,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
   return (
     <>
       <StyledProjectTableRow>
-        <StyledProjectTableCell>
+        <StyledProjectTableCell sx={{ py: 0 }}>
           <Link
             sx={{
               color: BCDesignTokens.themeBlue90,
@@ -46,15 +46,20 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
             <ArrowForwardIos fontSize="small" />
           </Link>
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
+        <StyledProjectTableCell align="left">
           {subPackage.submitted_on
             ? dayjs(subPackage.submitted_on).format("DD-MMM-YYYY")
             : ""}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="right">
+        <StyledProjectTableCell align="left">
           {subPackage.submitted_by ?? ""}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="center">
+        <StyledProjectTableCell
+          align="right"
+          sx={{
+            pr: BCDesignTokens.layoutPaddingSmall,
+          }}
+        >
           <PackageStatusChipStack
             submissionPackage={subPackage}
             hideReviewStatus

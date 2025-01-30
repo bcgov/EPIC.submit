@@ -14,57 +14,63 @@ export default function StaffTableHead() {
     >
       <TableRow>
         <SubmitTableHeadCell
+          align="left"
           sx={{
-            minWidth: "250px",
-            flexGrow: 1,
+            width: "42%",
           }}
         >
           Submission Name
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "75px",
+            width: "8%",
           }}
         >
           Type
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "75px",
+            width: "12%",
           }}
         >
           Submitted On
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "80px",
+            width: "8%",
             lineHeight: 1.2,
             wordWrap: "break-word",
-            textAlign: "right",
           }}
         >
           Days since submission
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "75px",
+            width: "12%",
           }}
         >
           CC Completed On
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "75px",
+            width: "8%",
           }}
         >
           MP Review
         </SubmitTableHeadCell>
-        <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "20%",
+          }}
+        >
+          Status
+        </SubmitTableHeadCell>
       </TableRow>
     </TableHead>
   );
