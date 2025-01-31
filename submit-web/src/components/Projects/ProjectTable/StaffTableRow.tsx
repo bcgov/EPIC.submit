@@ -1,4 +1,5 @@
 import { ArrowForwardIos } from "@mui/icons-material";
+import dateutils from "@/utils/dateUtils";
 import { Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
@@ -96,7 +97,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             color: BCDesignTokens.typographyFontSizeBody,
           }}
         >
-          {submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
+          {dateutils.formatDate(String(submitted_on))}
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="right"
@@ -116,7 +117,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             maxWidth: "75px",
           }}
         >
-          {cc_completed_on ? dayjs(cc_completed_on).format("DD-MMM-YYYY") : ""}
+          {dateutils.formatDate(cc_completed_on)}
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="right"

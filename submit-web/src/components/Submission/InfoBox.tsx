@@ -1,3 +1,4 @@
+import dateUtils from "@/utils/dateUtils";
 import { SubmissionPackage } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
@@ -82,13 +83,13 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted on"}
-          value={submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
+          value={dateUtils.formatDate(submitted_on)}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Date Review Completed"}
-          value={date_review_completed}
+          value={dateUtils.formatDate(date_review_completed)}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -139,7 +140,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted on"}
-          value={submitted_on ? dayjs(submitted_on).format("DD-MMM-YYYY") : ""}
+          value={dateUtils.formatDate(String(submitted_on))}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -149,7 +150,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem
           label={"CC Start Date"}
           value={
-            cc_start_date ? dayjs(cc_start_date).format("DD-MMM-YYYY") : ""
+            dateUtils.formatDate(cc_start_date)
           }
         />
       </Grid>
@@ -166,7 +167,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem
           label={"CC Completed"}
           value={
-            cc_completed_on ? dayjs(cc_completed_on).format("DD-MMM-YYYY") : ""
+            dateUtils.formatDate(cc_completed_on)
           }
         />
       </Grid>
@@ -176,9 +177,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem
           label={"Review Start Date"}
           value={
-            review_start_date
-              ? dayjs(review_start_date).format("DD-MMM-YYYY")
-              : ""
+              dateUtils.formatDate(review_start_date)
           }
         />
       </Grid>
@@ -194,9 +193,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <InfoBoxItem
           label={"Review Completed"}
           value={
-            review_completed_on
-              ? dayjs(review_completed_on).format("DD-MMM-YYYY")
-              : ""
+            dateUtils.formatDate(review_completed_on)
           }
         />
       </Grid>

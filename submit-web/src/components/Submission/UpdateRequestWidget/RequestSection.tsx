@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import dayjs from "dayjs";
+import dateUtils from "@/utils/dateUtils";
 import { UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
 import { Case, Switch, Unless, When } from "react-if";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
@@ -20,7 +20,7 @@ export default function RequestSection({
 }: UpdateRequestProps) {
   const { reason, created_date, created_by, note, type, submission_item_ids } =
     updateRequest;
-  const createdDate = dayjs(created_date).format("DD-MMM-YYYY");
+  const createdDate = dateUtils.formatDate(created_date)
 
   const { roles } = useAccount();
   const isEAO = checkIfEAO(roles || []);
