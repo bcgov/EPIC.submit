@@ -4,7 +4,6 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Grid, Typography } from "@mui/material";
 import { ReactNode } from "@tanstack/react-router";
-import dayjs from "dayjs";
 import { BCDesignTokens } from "epic.theme";
 import { Case, Switch } from "react-if";
 import VersionGroup from "./VersionGroup";
