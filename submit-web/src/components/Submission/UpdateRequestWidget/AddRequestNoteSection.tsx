@@ -3,10 +3,17 @@ import { checkIfProponent } from "@/components/Shared/PermissionGate/utils";
 import { useCreatePackageUpdateRequesNote } from "@/hooks/api/usePackages";
 import { UpdateRequest } from "@/models/UpdateRequest";
 import { useAccount } from "@/store/accountStore";
-import { Box, Button, Collapse, Stack, TextField } from "@mui/material";
+import {
+  Box,
+  Button,
+  Collapse,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useState } from "react";
-import { When } from "react-if";
+import { Unless, When } from "react-if";
 
 type AddRequestNoteSectionProps = Readonly<{
   updateRequest: UpdateRequest;
@@ -27,10 +34,17 @@ export const AddRequestNoteSection = ({
     });
 
   const { roles } = useAccount();
-  const isProponent = checkIfProponent(roles);
+  const isProponent = checkIfProponent(roles || []);
+
   return (
     <Box mt="1em">
       <Collapse in={isAddingNote && !updateRequest.note}>
+        <Typography
+          variant="body1"
+          sx={{ mb: 1, fontWeight: BCDesignTokens.typographyFontWeightsBold }}
+        >
+          Note for the EAO
+        </Typography>
         <TextField
           onChange={handleNoteChange}
           value={note}
@@ -69,7 +83,7 @@ export const AddRequestNoteSection = ({
           </Button>
         </Stack>
       </Collapse>
-      <When condition={!updateRequest.note && !isAddingNote && isProponent}>
+      <When condition={isProponent && !updateRequest.note && !isAddingNote}>
         <Button
           color="primary"
           variant="outlined"
