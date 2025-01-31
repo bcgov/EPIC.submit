@@ -14,9 +14,9 @@ import dayjs from "dayjs";
 import { SubmitLink } from "@/components/Shared/SubmitLink";
 import { useMemo } from "react";
 
-interface ProjectRowProps {
+type ProjectRowProps = Readonly<{
   submissionPackage: SubmissionPackage;
-}
+}>;
 
 export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
   const navigate = useNavigate();
