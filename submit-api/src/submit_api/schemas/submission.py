@@ -60,7 +60,7 @@ class SubmissionSchema(Schema):
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
         """Get submitted by."""
-        obj.submitted_by = obj.submitted_by_user.account_user.full_name if obj.submitted_by_user else None
+        obj.submitted_by = obj.submitted_by_user.account_user.full_name if obj.submitted_by_user and obj.submitted_by_user.account_user else None
         return obj
 
 
@@ -76,3 +76,4 @@ class CreateSubmissionRequestSchema(Schema):
     status = fields.Str(data_key="status")
     data = fields.Dict(data_key="data")
     item_id = fields.Int(data_key="item_id")
+    created_by = fields.Str(data_key="created_by", required=False)

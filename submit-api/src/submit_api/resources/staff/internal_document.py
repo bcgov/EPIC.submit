@@ -19,7 +19,7 @@ from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.internal_staff_document import InternalStaffDocument, PostInternalStaffDocument
+from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema, PostInternalStaffDocument
 from submit_api.services.internal_staff_document_service import InternalStaffDocumentService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
@@ -33,7 +33,7 @@ create_internal_document = ApiHelper.convert_ma_schema_to_restx_model(
     API, PostInternalStaffDocument(), "Create an internal staff document"
 )
 internal_document = ApiHelper.convert_ma_schema_to_restx_model(
-    API, InternalStaffDocument(), "Internal Staff Document"
+    API, InternalStaffDocumentSchema(), "Internal Staff Document"
 )
 
 
@@ -56,7 +56,7 @@ class InternalStaffDocuments(Resource):
         create_document_data = PostInternalStaffDocument().load(API.payload)
         created_document = (InternalStaffDocumentService
                             .create_internal_staff_document(submission_item_id, create_document_data))
-        return InternalStaffDocument().dump(created_document), HTTPStatus.CREATED
+        return InternalStaffDocumentSchema().dump(created_document), HTTPStatus.CREATED
 
     @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Delete an internal staff document")
@@ -70,7 +70,7 @@ class InternalStaffDocuments(Resource):
         """Delete an internal staff document."""
         deleted_document = (InternalStaffDocumentService
                             .delete_internal_staff_document(internal_staff_document_id))
-        return InternalStaffDocument().dump(deleted_document), HTTPStatus.OK
+        return InternalStaffDocumentSchema().dump(deleted_document), HTTPStatus.OK
 
 
 @cors_preflight("OPTIONS, DELETE")
@@ -90,4 +90,4 @@ class InternalStaffDocument(Resource):
         """Delete an internal staff document."""
         deleted_document = (InternalStaffDocumentService
                             .delete_internal_staff_document(internal_staff_document_id))
-        return InternalStaffDocument().dump(deleted_document), HTTPStatus.OK
+        return InternalStaffDocumentSchema().dump(deleted_document), HTTPStatus.OK

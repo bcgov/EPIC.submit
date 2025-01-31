@@ -333,15 +333,16 @@ class SubmissionReviewService:
         old_submission = next((submission for submission in old_contact_info_item.submissions if submission.type == SubmissionType.FORM), None)
         if not old_submission or not old_submission.submitted_form:
             current_app.logger.error(f"Old contact information form not found and could not be copied.")
-            return
         new_submission_data = {
-            'type': SubmissionItemType.CONTACT_INFORMATION.value,
-            'status': SubmissionStatus.PENDING.value,
+            'type': SubmissionType.FORM.value,
             'item_id': new_contact_info_item.id,
             'data': old_submission.submitted_form.submission_json,
+            'created_by': old_submission.created_by,
         }
-        new_submission_schema = CreateSubmissionRequestSchema().dump(new_submission_data)
-        SubmissionService.create_submission(new_contact_info_item.id, new_submission_schema)
+        new_submission_schema = CreateSubmissionRequestSchema().load(new_submission_data)
+        new_submission = SubmissionService.create_submission(new_contact_info_item.id, new_submission_schema)
+        new_submission.created_by = old_submission.created_by
+        current_app.logger.info(f"Contact information form copied from old version.")
 
     @classmethod
     def _create_update_request(cls, data, session):
