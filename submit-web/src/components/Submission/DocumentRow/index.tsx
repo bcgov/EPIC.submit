@@ -60,7 +60,7 @@ export default function DocumentRow({
             onClick={openDocument}
             bypass={Boolean(submissionItem.review_start_date)}
           >
-            <MuiLink onClick={openDocument}>{name}</MuiLink>
+            <MuiLink>{name}</MuiLink>
           </SubmissionItemReviewConfirmation>
         </Typography>
       </SubmitTableCell>
