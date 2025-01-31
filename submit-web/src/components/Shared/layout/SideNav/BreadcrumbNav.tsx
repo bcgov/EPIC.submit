@@ -16,6 +16,7 @@ const BreadcrumbNav: React.FC = () => {
       .flatMap((match) => {
         if (!match.meta) return [];
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return match.meta.map((meta: any) => ({
           title: meta.title,
           path: meta.path || match.pathname,
