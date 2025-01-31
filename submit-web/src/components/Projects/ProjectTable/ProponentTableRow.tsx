@@ -1,8 +1,8 @@
 import { ArrowForwardIos } from "@mui/icons-material";
+import dateUtils from "@/utils/dateUtils";
 import { Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
-import dayjs from "dayjs";
 import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
 import {
   StyledProjectTableCell,
@@ -47,9 +47,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
           </Link>
         </StyledProjectTableCell>
         <StyledProjectTableCell align="left">
-          {subPackage.submitted_on
-            ? dayjs(subPackage.submitted_on).format("DD-MMM-YYYY")
-            : ""}
+          {dateUtils.formatDate(String(subPackage.submitted_on))}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="left">
           {subPackage.submitted_by ?? ""}
