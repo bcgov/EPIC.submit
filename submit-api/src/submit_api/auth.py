@@ -48,14 +48,14 @@ class Auth:  # pylint: disable=too-few-public-methods
         """Check that at least one of the realm roles are in the token.
 
         Args:
-            roles [str,]: Comma separated list of valid roles
+            roles (list[str]): List of valid roles
         """
 
         def decorated(f):
             @Auth.require
             @wraps(f)
             def wrapper(*args, **kwargs):
-                if jwt.contains_role(roles):
+                if jwt.contains_role(roles):  # pylint: disable=no-value-for-parameter
                     return f(*args, **kwargs)
 
                 raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
@@ -65,6 +65,4 @@ class Auth:  # pylint: disable=too-few-public-methods
         return decorated
 
 
-auth = (
-    Auth()
-)
+auth = Auth()

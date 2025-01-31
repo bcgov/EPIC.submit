@@ -8,7 +8,7 @@ from marshmallow import EXCLUDE, Schema, fields
 from submit_api.models.internal_staff_document import InternalStaffDocumentType
 
 
-class InternalStaffDocument(Schema):
+class InternalStaffDocumentSchema(Schema):
     """internal staff document schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
