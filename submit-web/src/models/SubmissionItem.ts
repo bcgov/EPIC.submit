@@ -2,7 +2,7 @@ import { Note } from "@/components/SubmissionItem/Note";
 import { Submission, SubmissionItemStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
 
-type SubmissionItemTypeName =
+export type SubmissionItemTypeName =
   | "Contact Information Form"
   | "Management Plan"
   | "Consultation Record(s)";

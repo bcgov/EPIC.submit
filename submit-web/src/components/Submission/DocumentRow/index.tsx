@@ -1,21 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
-import {
-  SUBMISSION_ITEM_METHOD,
-  SUBMISSION_ITEM_MODAL_CONTENT,
-  SUBMISSION_ITEM_TYPE,
-  SubmissionItem,
-} from "@/models/SubmissionItem";
-import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
-import { useParams } from "@tanstack/react-router";
-import { PACKAGE_STATUS } from "@/models/Package";
-import { useModal } from "@/components/Shared/Modals/modalStore";
+import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { StatusCell } from "./StatusCell";
+import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -26,71 +17,13 @@ export default function DocumentRow({
   documentSubmission,
   submissionItem,
 }: DocumentRowProps) {
-  const { submissionPackageId } = useParams({ strict: false });
   const [pendingGetObject, setPendingGetObject] = useState(false);
-  const {
-    setOpen: setOpenModal,
-    setClose: setCloseModal,
-    setIsLoading,
-  } = useModal();
 
   const {
     submitted_document: { name, url },
     version,
     submitted_by,
   } = documentSubmission;
-  const isConsultationRecord =
-    name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD;
-
-  const subItemName = submissionItem.type.name;
-
-  const {
-    mutate: updateStateSubmissionPackage,
-    isPending: updatingSubmission,
-  } = useUpdateStateSubmissionPackage({
-    onError: () => {
-      setCloseModal();
-      notify.error("Failed to start review");
-    },
-    onSuccess: () => {
-      setCloseModal();
-      downloadDocument();
-      notify.success("Successfully started review");
-    },
-  });
-
-  useEffect(() => {
-    setIsLoading(updatingSubmission);
-  }, [updatingSubmission, setIsLoading]);
-
-  const openConfirmationModal = () => {
-    const { title, description, confirmText } = SUBMISSION_ITEM_MODAL_CONTENT[
-      submissionItem.type.name
-    ] || {
-      title: `Start ${subItemName} Review`,
-      description: `Would you like to start the ${subItemName} review now? This will begin the review counter.`,
-      confirmText: `Start ${subItemName} Review`,
-    };
-
-    setOpenModal(
-      <ConfirmationModal
-        onConfirm={() => {
-          updateStateSubmissionPackage({
-            packageId: Number(submissionPackageId),
-            data: {
-              status: isConsultationRecord
-                ? PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value
-                : PACKAGE_STATUS.UNDER_REVIEW.value,
-            },
-          });
-        }}
-        title={title}
-        description={description}
-        confirmText={confirmText}
-        cancelText="Start Later"
-      />
-    );
-  };
 
   const downloadDocument = async () => {
     try {
@@ -105,14 +38,6 @@ export default function DocumentRow({
   };
 
   const openDocument = () => {
-    if (
-      !submissionItem.review_start_date &&
-      submissionItem.type.submission_method ===
-        SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
-    ) {
-      openConfirmationModal();
-      return;
-    }
     downloadDocument();
   };
 
@@ -129,7 +54,14 @@ export default function DocumentRow({
             mx: 0.5,
           }}
         >
-          <MuiLink onClick={openDocument}>{name}</MuiLink>
+          <SubmissionItemReviewConfirmation
+            packageId={submissionItem.package_id}
+            itemType={submissionItem.type.name}
+            onClick={openDocument}
+            bypass={Boolean(submissionItem.review_start_date)}
+          >
+            <MuiLink onClick={openDocument}>{name}</MuiLink>
+          </SubmissionItemReviewConfirmation>
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
