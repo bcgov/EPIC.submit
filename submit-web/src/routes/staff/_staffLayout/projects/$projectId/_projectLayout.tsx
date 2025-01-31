@@ -17,7 +17,13 @@ export const Route = createFileRoute(
       getAccountProjectForStaffQueryOptions(Number(projectId)),
     ),
   component: ProjectLayout,
-  meta: ({ loaderData }) => [{ title: loaderData.project.name }],
+  meta: ({ loaderData, params }) => [
+    { title: "All Projects", path: "/staff/projects/" },
+    {
+      title: loaderData.project.name,
+      path: `/staff/projects/${params.projectId}`,
+    },
+  ],
   pendingComponent: () => (
     <PageGrid>
       <ProjectsSkeleton />
