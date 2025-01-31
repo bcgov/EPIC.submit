@@ -60,7 +60,8 @@ class SubmissionSchema(Schema):
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
         """Get submitted by."""
-        obj.submitted_by = obj.submitted_by_user.account_user.full_name if obj.submitted_by_user and obj.submitted_by_user.account_user else None
+        obj.submitted_by = obj.submitted_by_user.account_user.full_name\
+            if obj.submitted_by_user and obj.submitted_by_user.account_user else None
         return obj
 
 
