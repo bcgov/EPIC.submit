@@ -327,12 +327,12 @@ class SubmissionReviewService:
     @classmethod
     def _copy_contact_information_from_old_version(cls, old_package, new_package):
         """Copy contact information from old version."""
-        current_app.logger.info(f"Copying contact information from old version.")
+        current_app.logger.info("Copying contact information from old version.")
         old_contact_info_item = next((item for item in old_package.items if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
         new_contact_info_item = next((item for item in new_package.items if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
         old_submission = next((submission for submission in old_contact_info_item.submissions if submission.type == SubmissionType.FORM), None)
         if not old_submission or not old_submission.submitted_form:
-            current_app.logger.error(f"Old contact information form not found and could not be copied.")
+            current_app.logger.error("Old contact information form not found and could not be copied.")
         new_submission_data = {
             'type': SubmissionType.FORM.value,
             'item_id': new_contact_info_item.id,
@@ -342,7 +342,7 @@ class SubmissionReviewService:
         new_submission_schema = CreateSubmissionRequestSchema().load(new_submission_data)
         new_submission = SubmissionService.create_submission(new_contact_info_item.id, new_submission_schema)
         new_submission.created_by = old_submission.created_by
-        current_app.logger.info(f"Contact information form copied from old version.")
+        current_app.logger.info("Contact information form copied from old version.")
 
     @classmethod
     def _create_update_request(cls, data, session):
