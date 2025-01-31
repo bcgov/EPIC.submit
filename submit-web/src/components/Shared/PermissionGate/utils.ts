@@ -30,9 +30,10 @@ export const checkIfStaff = (roles?: string[]) => {
 };
 
 export const checkIfProponent = (roles?: string[]) => {
-  if (!roles) {
+  if (!roles || roles.length === 0) {
     return true;
   }
+  return false;
 };
 
 export const hasPermission = ({

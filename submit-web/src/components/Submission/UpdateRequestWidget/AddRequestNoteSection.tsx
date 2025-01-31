@@ -34,7 +34,7 @@ export const AddRequestNoteSection = ({
     });
 
   const { roles } = useAccount();
-  const isProponent = checkIfProponent(roles || []);
+  const isProponent = checkIfProponent(roles);
 
   return (
     <Box mt="1em">
