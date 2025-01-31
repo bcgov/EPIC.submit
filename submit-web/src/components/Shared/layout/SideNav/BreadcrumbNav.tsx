@@ -13,15 +13,13 @@ const BreadcrumbNav: React.FC = () => {
 
   const breadcrumbs = useMemo(() => {
     return matches
-      .map((match) => {
-        const { meta, pathname } = match;
-        if (meta && meta[0]?.title && pathname) {
-          return {
-            title: meta[0].title,
-            path: pathname,
-          };
-        }
-        return null;
+      .flatMap((match) => {
+        if (!match.meta) return [];
+
+        return match.meta.map((meta: any) => ({
+          title: meta.title,
+          path: meta.path || match.pathname,
+        }));
       })
       .filter(Boolean) as RouteSegment[];
   }, [matches]);
