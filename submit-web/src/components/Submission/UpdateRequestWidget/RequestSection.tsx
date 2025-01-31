@@ -74,7 +74,7 @@ export default function RequestSection({
 
       <When condition={showNoteSection}>
         <Typography
-          variant="subtitle1"
+          variant="body1"
           sx={{ mb: 1, fontWeight: BCDesignTokens.typographyFontWeightsBold }}
         >
           Note to EAO
