@@ -48,7 +48,7 @@ class Auth:  # pylint: disable=too-few-public-methods
         """Check that at least one of the realm roles are in the token.
 
         Args:
-            roles [str,]: Comma separated list of valid roles
+            roles (list[str]): List of valid roles
         """
 
         def decorated(f):
@@ -65,6 +65,4 @@ class Auth:  # pylint: disable=too-few-public-methods
         return decorated
 
 
-auth = (
-    Auth()
-)
+auth = Auth()
