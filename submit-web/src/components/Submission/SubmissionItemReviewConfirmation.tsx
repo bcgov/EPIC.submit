@@ -105,7 +105,7 @@ export default function SubmissionItemReviewConfirmation({
 
   const childrenWithProps = React.Children.map(children, (child) => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child as React.ReactElement<any>, {
+      return React.cloneElement(child as React.ReactElement, {
         onClick: bypass ? handleBypassClick : handleConfirmationClick,
       });
     }
