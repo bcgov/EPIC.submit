@@ -61,12 +61,12 @@ export default function DocumentRow({
               packageId={submissionItem.package_id}
               itemType={submissionItem.type.name}
               onClick={openDocument}
-              bypass={Boolean(submissionItem.review_start_date) || staff}
+              bypass={Boolean(submissionItem.review_start_date)}
             >
               <MuiLink>{name}</MuiLink>
             </SubmissionItemReviewConfirmation>
           ) : (
-            <MuiLink>{name}</MuiLink>
+            <MuiLink onClick={openDocument}>{name}</MuiLink>
           )}
         </Typography>
       </SubmitTableCell>

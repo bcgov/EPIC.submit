@@ -9,8 +9,6 @@ import { useModal } from "@/components/Shared/Modals/modalStore";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { PACKAGE_STATUS } from "@/models/Package";
-import { useAccount } from "@/store/accountStore";
-import { USER_TYPE } from "@/models/User";
 
 const acceptedSubmissionItemTypes = [
   SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD,
@@ -38,7 +36,6 @@ export default function SubmissionItemReviewConfirmation({
   packageId,
   bypass = false,
 }: SubmissionItemReviewConfirmationProps) {
-  const { userType } = useAccount();
   const {
     setOpen: setOpenModal,
     setClose: setCloseModal,
@@ -114,10 +111,6 @@ export default function SubmissionItemReviewConfirmation({
     }
     return child;
   });
-
-  if (userType !== USER_TYPE.STAFF) {
-    return <>{children}</>;
-  }
 
   return <>{childrenWithProps}</>;
 }
