@@ -159,6 +159,7 @@ export default function StaffSubmissionItemTableRow({
             submissionItem={item}
             key={`doc-row-${submission.id}`}
             documentSubmission={submission}
+            staff
           />
         ))}
       <When condition={error}>

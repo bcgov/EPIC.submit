@@ -11,11 +11,13 @@ import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmatio
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
   submissionItem: SubmissionItem;
+  staff?: boolean;
 }>;
 
 export default function DocumentRow({
   documentSubmission,
   submissionItem,
+  staff = false,
 }: DocumentRowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
 
@@ -54,14 +56,18 @@ export default function DocumentRow({
             mx: 0.5,
           }}
         >
-          <SubmissionItemReviewConfirmation
-            packageId={submissionItem.package_id}
-            itemType={submissionItem.type.name}
-            onClick={openDocument}
-            bypass={Boolean(submissionItem.review_start_date)}
-          >
-            <MuiLink>{name}</MuiLink>
-          </SubmissionItemReviewConfirmation>
+          {staff ? (
+            <SubmissionItemReviewConfirmation
+              packageId={submissionItem.package_id}
+              itemType={submissionItem.type.name}
+              onClick={openDocument}
+              bypass={Boolean(submissionItem.review_start_date)}
+            >
+              <MuiLink>{name}</MuiLink>
+            </SubmissionItemReviewConfirmation>
+          ) : (
+            <MuiLink onClick={openDocument}>{name}</MuiLink>
+          )}
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
