@@ -8,7 +8,7 @@ import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type InternalDocumentsProps = Readonly<{
   internalStaffDocuments: Array<InternalStaffDocument>;
@@ -25,10 +25,17 @@ export default function Rows({
   );
   const { uploadObjects: pendingDocuments } = useObjectUploadStore();
 
-  const internalStaffDocumentsIds = new Set(documents.map((doc) => doc.id));
+  const internalStaffDocumentsIds = useMemo(() => {
+    return new Set(documents.map((doc) => doc.id));
+  }, [documents]);
+
+  useEffect(() => {
+    setDocuments(internalStaffDocuments);
+  }, [internalStaffDocuments]);
 
   const filteredPendingDocuments = pendingDocuments.filter(
-    (doc) => !internalStaffDocumentsIds.has(doc.submissionId ?? 0),
+    (doc) =>
+      !doc.submissionId || !internalStaffDocumentsIds.has(doc.submissionId),
   );
 
   return (
