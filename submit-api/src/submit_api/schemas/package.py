@@ -165,7 +165,7 @@ class StaffPackageSchema(PackageSchema):
     items = fields.Nested(StaffItemSchema, data_key="items", many=True)
     review_status = fields.Method('get_review_status')
     update_requests = fields.Nested(
-        PackageUpdateRequestSchema, data_key="all_update_requests", many=True)
+        PackageUpdateRequestSchema, data_key="update_requests", many=True, attribute="all_update_requests")
 
     def get_review_status(self, package):
         """Add review status."""
