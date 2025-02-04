@@ -8,7 +8,6 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import { SubmissionFormContainer } from "../SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { get } from "lodash";
-import SubmitInputMask from "@/components/SubmitInputMask";
 
 export const ContactInformationStaffView = () => {
   const {
@@ -112,24 +111,22 @@ export const ContactInformationStaffView = () => {
           </Grid>
           <Grid item xs={12} container spacing={1}>
             <Grid item xs={8}>
-              <SubmitInputMask
-                mask="(999) 999-9999"
-                // value={String(
-                //   get(contactInfo, "primaryContact.workPhoneNumber", ""),
-                // )}
+              <TextField
+                value={String(
+                  get(contactInfo, "primaryContact.workPhoneNumber", ""),
+                )}
+                fullWidth
+                label="Work Phone Number"
               />
             </Grid>
             <Grid item xs={4}>
-              {/* <SubmitInputMask
-                mask="9999"
+              <TextField
                 value={String(
                   get(contactInfo, "primaryContact.extensionNumber", ""),
                 )}
-                inputProps={{
-                  fullWidth: true,
-                  label: "Ext.",
-                }}
-              /> */}
+                fullWidth
+                label="Ext."
+              />
             </Grid>
           </Grid>
           <Grid item xs={12}>
@@ -195,28 +192,22 @@ export const ContactInformationStaffView = () => {
             </Grid>
             <Grid item xs={12} container spacing={1}>
               <Grid item xs={8}>
-                {/* <SubmitInputMask
-                  mask="(999) 999-9999"
+                <TextField
                   value={String(
                     get(contactInfo, "secondaryContact.workPhoneNumber", ""),
                   )}
-                  inputProps={{
-                    fullWidth: true,
-                    label: "Work Phone Number",
-                  }}
-                /> */}
+                  fullWidth
+                  label="Work Phone Number"
+                />
               </Grid>
               <Grid item xs={4}>
-                {/* <SubmitInputMask
-                  mask="9999"
+                <TextField
                   value={String(
                     get(contactInfo, "secondaryContact.extensionNumber", ""),
                   )}
-                  inputProps={{
-                    fullWidth: true,
-                    label: "Ext.",
-                  }}
-                /> */}
+                  fullWidth
+                  label="Ext."
+                />
               </Grid>
             </Grid>
             <Grid item xs={12}>
