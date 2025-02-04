@@ -37,7 +37,7 @@ function ProjectsPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProjectFilters />
+        <ProjectFilters userType='staff'/>
         <If condition={isProjectsLoading}>
           <Then>
             <ProjectsSkeleton />

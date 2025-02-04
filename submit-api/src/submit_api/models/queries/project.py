@@ -13,6 +13,7 @@
 # limitations under the License.
 """Model to handle all complex operations related to User."""
 
+from sqlalchemy import or_
 from submit_api.models import AccountProject, Project, db
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
@@ -33,11 +34,13 @@ class ProjectQueries:
         return query.all()
 
     @classmethod
-    def get_projects_by_account_id(cls, account_id: int, search_options: AccountProjectSearchOptions = None):
+    def get_filtered_projects(cls, account_id: int = None, search_options: AccountProjectSearchOptions = None):
         """Find projects by account_id with optional search and pagination."""
-        query = db.session.query(AccountProject).filter(
-            AccountProject.account_id == account_id,
-        ).join(AccountProject.project)
+        query = db.session.query(AccountProject).join(AccountProject.project)
+
+        # Apply account_id filter only if provided
+        if account_id is not None:
+            query = query.filter(AccountProject.account_id == account_id)
 
         # Apply search filters if provided
         if search_options and any(bool(search_option) for search_option in search_options.__dict__.values()):
@@ -52,7 +55,7 @@ class ProjectQueries:
         package_query = db.session.query(Package)
 
         if search_options.search_text:
-            package_query = cls._filter_by_submission_name(package_query, search_options.search_text)
+            package_query = cls._filter_by_search_text(package_query, search_options.search_text)
         if search_options.status:
             package_query = cls._filter_by_submission_status(package_query, search_options.status)
         if search_options.submitted_on_start or search_options.submitted_on_end:
@@ -65,14 +68,19 @@ class ProjectQueries:
 
         project_query = project_query.join(Package).filter(
             Package.id.in_(filtered_package_ids)).options(
-            db.contains_eager(AccountProject.packages))
+            db.contains_eager(AccountProject._packages))
 
         return project_query
 
     @classmethod
-    def _filter_by_submission_name(cls, query, search_text):
+    def _filter_by_search_text(cls, query, search_text):
         """Filter by search text across package name."""
-        return query.filter(Package.name.ilike(f"%{search_text}%"))
+        return query.filter(
+            or_(
+                Package.name.ilike(f"%{search_text}%"),
+                Project.name.ilike(f"%{search_text}%")
+            )
+        )
 
     @classmethod
     def _filter_by_submission_status(cls, query, statuses):

@@ -4,7 +4,7 @@ import { Search, Clear } from "@mui/icons-material";
 import { useProjectFilters } from "./projectFilterStore";
 import { BCDesignTokens } from "epic.theme";
 
-export const SearchFilter = () => {
+export const SearchFilter = ({userType}: {userType: string;}) => {
   const { filters, setFilters } = useProjectFilters();
   const [searchText, setSearchText] = useState(filters.search_text);
 
@@ -27,13 +27,16 @@ export const SearchFilter = () => {
     <TextField
       fullWidth
       variant="outlined"
-      placeholder="Search Submissions"
+      placeholder={userType === "proponent"? "Search Submissions" : "Search Projects/Submissions by Name"}
       value={searchText}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
       InputProps={{
         startAdornment: (
-          <InputAdornment position="start">
+          <InputAdornment
+            position="start"
+            sx={{ width: "auto", minWidth: "unset", mx: 0 }}
+          >
             <Search htmlColor={BCDesignTokens.typographyColorPlaceholder} />
           </InputAdornment>
         ),

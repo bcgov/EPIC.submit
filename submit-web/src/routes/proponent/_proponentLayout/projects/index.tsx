@@ -42,7 +42,7 @@ export function ProjectsPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProjectFilters />
+        <ProjectFilters userType='proponent'/>
         <If condition={isProjectsLoading}>
           <Then>
             <ProjectsSkeleton />
