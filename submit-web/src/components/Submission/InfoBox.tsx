@@ -7,6 +7,8 @@ import { ReactNode } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { Case, Switch } from "react-if";
 import VersionGroup from "./VersionGroup";
+import { get, isArray } from "lodash";
+import { useMemo } from "react";
 
 type InfoBoxItemProps = {
   label?: string;
@@ -44,13 +46,23 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
 };
 
 const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
-  const {
-    submitted_on,
-    date_review_completed,
-    supporting_condition,
-    submitted_by,
-    condition,
-  } = submissionPackage.meta || {};
+  const { submitted_on, date_review_completed, submitted_by } =
+    submissionPackage.meta || {};
+
+  const condition = useMemo(() => {
+    return get(submissionPackage, "meta.main_condition.condition_number", "");
+  }, [submissionPackage]);
+
+  const supportingConditions = useMemo(() => {
+    const conditions = get(submissionPackage, "meta.supporting_conditions");
+    if (!conditions || !isArray(conditions)) return "";
+
+    return conditions
+      .map((condition) => condition.condition_number)
+      .filter(Boolean)
+      .join(", ");
+  }, [submissionPackage]);
+
   return (
     <Grid
       container
@@ -94,7 +106,7 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Supporting Conditions"}
-          value={supporting_condition}
+          value={supportingConditions}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -107,12 +119,29 @@ const ProponentInfoBox = ({ submissionPackage }: InfoBoxProps) => {
 const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const {
     review_start_date,
-    supporting_condition,
     review_completed_on,
     cc_start_date,
     cc_completed_on,
   } = submissionPackage.meta || {};
   const { submitted_on, submitted_by, version } = submissionPackage;
+
+  const condition = useMemo(() => {
+    if (!submissionPackage.meta) return "";
+    const condition = get(submissionPackage, "meta.main_condition");
+
+    return get(condition, "condition_number", "");
+  }, [submissionPackage]);
+
+  const supportingConditions = useMemo(() => {
+    if (!submissionPackage.meta) return "";
+    const conditions = get(submissionPackage, "meta.supporting_conditions");
+    if (!conditions || !isArray(conditions)) return "";
+
+    return conditions
+      .map((condition) => condition.condition_number)
+      .filter(Boolean)
+      .join(", ");
+  }, [submissionPackage]);
 
   return (
     <Grid
@@ -143,7 +172,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Condition"} />
+        <InfoBoxItem label={"Condition"} value={condition} />
       </Grid>
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
@@ -157,7 +186,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Supporting Conditions"}
-          value={supporting_condition}
+          value={supportingConditions}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>

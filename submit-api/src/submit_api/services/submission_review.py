@@ -290,6 +290,7 @@ class SubmissionReviewService:
 
         session.add(item)
         session.add(package_metadata)
+        session.flush()
         current_app.logger.info(f"Package metadata updated for package {item.package_id}.")
 
     @classmethod

@@ -1,4 +1,4 @@
-import { SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage, SubmissionPackageMeta } from "@/models/Package";
 import {
   SUBMISSION_ITEM_STATUS,
   SubmissionItemStatus,
@@ -23,4 +23,12 @@ export const isSubmissionItemReadyToSubmit = ({
   const isSubmissionItemCompleted =
     submissionItem.status === SUBMISSION_ITEM_STATUS.COMPLETED.value;
   return isSubmissionItemCompleted;
+};
+
+export const getConditionFromPackageMeta = (
+  submissionPackageMeta: SubmissionPackageMeta,
+) => {
+  const condition = submissionPackageMeta?.main_condition;
+
+  return condition;
 };
