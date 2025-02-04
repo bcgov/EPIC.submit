@@ -306,15 +306,16 @@ class PackageService:
         with session_scope() as session:
             package = cls._get_and_validate_complete_package(package_id)
             if package.submitted_on:
-                submitted_package = cls._resubmit_package(package, session)
+                submitted_package:PackageModel = cls._resubmit_package(package, session)
             else:
-                submitted_package = cls._submit_package(package, session)
+                submitted_package:PackageModel = cls._submit_package(package, session)
 
             ActivityLogService.log_activity(
                 entity_id=package.id,
                 action=ActivityActionType.ORIGINAL_SUBMISSION.value,
                 actor_id=TokenInfo.get_id(),
                 actor_type=ActorTypeEnum.USER.value,
+                entity_version=submitted_package.version_id,
                 visibility=VisibilityTypeEnum.PUBLIC.value,
                 session=session
             )
