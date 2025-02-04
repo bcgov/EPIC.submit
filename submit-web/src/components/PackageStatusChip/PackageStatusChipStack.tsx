@@ -34,7 +34,8 @@ export const PackageStatusChipStack = ({
     return (
       submissionPackage.update_requests.filter(
         (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
+          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value &&
+          updateRequest.active,
       ).length > 0
     );
   }, [submissionPackage.update_requests]);
@@ -44,7 +45,8 @@ export const PackageStatusChipStack = ({
       submissionPackage.update_requests.filter(
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
-          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value
+          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
+          updateRequest.active,
       ).length > 0
     );
   }, [submissionPackage.update_requests]);

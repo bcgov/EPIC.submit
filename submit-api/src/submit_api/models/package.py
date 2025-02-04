@@ -60,6 +60,11 @@ class Package(BaseModel):
         """Get the active update requests for the package."""
         return [ur for ur in self._update_requests if ur.active]
 
+    @property
+    def all_update_requests(self):
+        """Get all update requests for the package."""
+        return self._update_requests
+
     @classmethod
     def get_package_by_id_with_items(cls, package_id: int):
         """Return model by package id."""

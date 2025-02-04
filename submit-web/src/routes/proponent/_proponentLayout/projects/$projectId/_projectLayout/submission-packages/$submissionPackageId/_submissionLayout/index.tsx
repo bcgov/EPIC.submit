@@ -31,7 +31,7 @@ import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -80,7 +80,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          })
+          }),
       )
     ) {
       setIsValidating(true);
@@ -104,7 +104,8 @@ export default function SubmissionPage() {
     isPackageSubmitted &&
     submissionPackage.update_requests.filter(
       (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value
+        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+        updateRequest.active,
     ).length === 0;
 
   return (
