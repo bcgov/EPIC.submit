@@ -135,7 +135,7 @@ export default function StaffSubmissionItemTableRow({
             onClick={handleClick}
             itemType={name}
             packageId={Number(submissionPackageId)}
-            bypass={Boolean(review_start_date)}
+            bypass={!hasDocument || Boolean(review_start_date)}
           >
             <Typography
               variant="body2"

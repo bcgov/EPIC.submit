@@ -16,6 +16,7 @@ import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { SubmissionFormContainer } from "../SubmissionFormContainer";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -49,7 +50,7 @@ const contactInformationSchema = yup.object().shape({
 });
 
 type ContactInformationForm = yup.InferType<typeof contactInformationSchema>;
-export const ContactInformation = () => {
+export const ContactInformationEntityView = () => {
   const {
     projectId: accountProjectIdParam,
     submissionPackageId,
@@ -60,7 +61,7 @@ export const ContactInformation = () => {
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    "item",
+    QUERY_KEY.SUBMISSION_ITEM,
     Number(submissionId),
   ]);
   const accountProjectId = Number(accountProjectIdParam);
@@ -72,7 +73,7 @@ export const ContactInformation = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
