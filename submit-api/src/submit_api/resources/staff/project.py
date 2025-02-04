@@ -14,10 +14,13 @@
 """API endpoints for managing a project resource."""
 
 from http import HTTPStatus
+from flask import request
 
 from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
+from submit_api.models.account_project_search_options import AccountProjectSearchOptions
+from submit_api.models.package import PackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
@@ -52,7 +55,19 @@ class AccountProjects(Resource):
     @cors.crossdomain(origin="*")
     def get():
         """Get all account projects."""
-        account_projects = ProjectService.get_all_account_projects()
+        args = request.args
+        search_text = args.get('search_text')
+        submitted_on_start = args.get('submitted_on_start')
+        submitted_on_end = args.get('submitted_on_end')
+        status = list(map(PackageStatus, args.getlist('status[]')))
+        search_options = AccountProjectSearchOptions(
+            search_text=search_text,
+            submitted_on_start=submitted_on_start,
+            submitted_on_end=submitted_on_end,
+            status=status,
+        )
+
+        account_projects = ProjectService.get_all_account_projects(search_options)
         return StaffAccountProjectSchema(many=True).dump(account_projects), HTTPStatus.OK
 
 

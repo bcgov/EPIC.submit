@@ -9,6 +9,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import ProjectFilters from "@/components/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/Filters/projectFilterStore";
+import { USER_TYPE } from "@/models/User";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/",
@@ -42,7 +43,7 @@ export function ProjectsPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProjectFilters />
+        <ProjectFilters userType={USER_TYPE.PROPONENT}/>
         <If condition={isProjectsLoading}>
           <Then>
             <ProjectsSkeleton />

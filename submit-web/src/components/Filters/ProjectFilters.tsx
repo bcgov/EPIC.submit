@@ -7,7 +7,7 @@ import { useProjectFilters } from "./projectFilterStore";
 import DateSubmittedFromFilter from "./DateSubmittedFromFilter";
 import DateSubmittedToFilter from "./DateSubmittedToFilter";
 
-function ProjectFilters() {
+function ProjectFilters({userType}: {userType: string;}) {
   const { resetFilters } = useProjectFilters();
 
   return (
@@ -17,7 +17,7 @@ function ProjectFilters() {
       sx={{ maxWidth: "1448px", justifyContent: "space-between" }}
     >
       <Grid item xs={2.5}>
-        <SearchFilter />
+        <SearchFilter userType={userType}/>
       </Grid>
       <Grid item xs={3.5}>
         <StatusFilter />

@@ -22,7 +22,7 @@ function StatusFilter() {
           (status) => status.value,
         ),
       });
-    } else if (value.length <= 2) {
+    } else if (value.length <= 3) {
       setFilters({ status: value });
     }
   };
