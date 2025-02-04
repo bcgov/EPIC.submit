@@ -4,6 +4,7 @@ from datetime import datetime
 
 from flask import current_app
 
+from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType, VisibilityTypeEnum
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, User
@@ -23,6 +24,7 @@ from submit_api.models.submission import SubmissionType
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
+from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
@@ -304,8 +306,21 @@ class PackageService:
         with session_scope() as session:
             package = cls._get_and_validate_complete_package(package_id)
             if package.submitted_on:
-                return cls._resubmit_package(package, session)
-            return cls._submit_package(package, session)
+                submitted_package: PackageModel = cls._resubmit_package(package, session)
+            else:
+                submitted_package: PackageModel = cls._submit_package(package, session)
+
+            ActivityLogService.log_activity(
+                entity_id=package.id,
+                action=ActivityActionType.ORIGINAL_SUBMISSION.value,
+                actor_id=TokenInfo.get_id(),
+                actor_type=ActorTypeEnum.USER.value,
+                entity_version=submitted_package.version_id,
+                visibility=VisibilityTypeEnum.PUBLIC.value,
+                session=session
+            )
+
+            return submitted_package
 
     @classmethod
     def _submit_package(cls, package, session):

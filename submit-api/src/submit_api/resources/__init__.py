@@ -38,7 +38,7 @@ from .staff.package import API as STAFF_PACKAGE_API
 from .staff.project import API as STAFF_PROJECT_API
 from .staff.staff_user import API as STAFF_USER_API
 from .staff.submission_item_note import API as STAFF_SUBMISSION_ITEM_NOTE_API
-
+from .staff.activity_log import API as ACTIVITY_LOG_API
 
 __all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT', 'STAFF_API_BLUEPRINT')
 
@@ -73,6 +73,7 @@ API.add_namespace(ITEM_API)
 API.add_namespace(SUBMISSION_API)
 API.add_namespace(INVITATION_API)
 
+
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,
     title='STAFF SUBMIT API',
@@ -86,3 +87,4 @@ STAFF_API.add_namespace(STAFF_ITEM_API)
 STAFF_API.add_namespace(STAFF_INTERNAL_DOCUMENT_API)
 STAFF_API.add_namespace(STAFF_SUBMISSION_ITEM_NOTE_API)
 STAFF_API.add_namespace(STAFF_USER_API)
+STAFF_API.add_namespace(ACTIVITY_LOG_API)
