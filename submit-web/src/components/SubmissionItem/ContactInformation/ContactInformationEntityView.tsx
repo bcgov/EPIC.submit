@@ -50,7 +50,7 @@ const contactInformationSchema = yup.object().shape({
 });
 
 type ContactInformationForm = yup.InferType<typeof contactInformationSchema>;
-export const ContactInformation = () => {
+export const ContactInformationEntityView = () => {
   const {
     projectId: accountProjectIdParam,
     submissionPackageId,

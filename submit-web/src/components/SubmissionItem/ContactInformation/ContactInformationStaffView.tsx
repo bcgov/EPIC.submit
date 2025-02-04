@@ -41,7 +41,7 @@ export const ContactInformationStaffView = () => {
   };
 
   const contactInfo = formSubmission?.submitted_form?.submission_json;
-  console.log("Bla");
+
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
