@@ -3,6 +3,7 @@ import { InputAdornment, IconButton, TextField } from "@mui/material";
 import { Search, Clear } from "@mui/icons-material";
 import { useProjectFilters } from "./projectFilterStore";
 import { BCDesignTokens } from "epic.theme";
+import { USER_TYPE } from "@/models/User";
 
 export const SearchFilter = ({userType}: {userType: string;}) => {
   const { filters, setFilters } = useProjectFilters();
@@ -27,7 +28,8 @@ export const SearchFilter = ({userType}: {userType: string;}) => {
     <TextField
       fullWidth
       variant="outlined"
-      placeholder={userType === "proponent"? "Search Submissions" : "Search Projects/Submissions by Name"}
+      placeholder={userType === USER_TYPE.PROPONENT
+        ? "Search Submissions" : "Search Projects/Submissions by Name"}
       value={searchText}
       onChange={handleChange}
       onKeyDown={handleKeyDown}

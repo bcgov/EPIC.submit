@@ -8,6 +8,7 @@ import { Grid } from "@mui/material";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
+import { USER_TYPE } from "@/models/User";
 
 export const Route = createFileRoute("/staff/_staffLayout/projects/")({
   component: ProjectsPage,
@@ -37,7 +38,7 @@ function ProjectsPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProjectFilters userType='staff'/>
+        <ProjectFilters userType={USER_TYPE.STAFF}/>
         <If condition={isProjectsLoading}>
           <Then>
             <ProjectsSkeleton />
