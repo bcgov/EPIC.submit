@@ -17,7 +17,8 @@ class PackageMetadataFields(enum.Enum):
 
     CONSULTATION_CHECK_COMPLETED_ON = 'cc_completed_on'
     CONSULTATION_CHECK_START_DATE = 'cc_start_date'
-    CONDITION = 'condition'
+    CONDITION = 'main_condition'
+    SUPPORTING_CONDITIONS = 'supporting_conditions'
     REVIEW_COMPLETED_ON = 'review_completed_on'
     REVIEW_START_DATE = 'review_start_date'
 

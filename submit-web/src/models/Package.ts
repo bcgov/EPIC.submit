@@ -84,7 +84,7 @@ export const PACKAGE_STATUS: Record<
   },
 };
 
-export type SubmissionPackageMeta = Record<string, number | string>;
+export type SubmissionPackageMeta = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 export type PackageVersion = {
   id: number;

@@ -75,6 +75,8 @@ class PackageService:
         new_metadata = {
             PackageMetadataFields.CONDITION.value: current_package.meta.json.get(
                 PackageMetadataFields.CONDITION.value, None),
+            PackageMetadataFields.SUPPORTING_CONDITIONS.value: current_package.meta.json.get(
+                PackageMetadataFields.SUPPORTING_CONDITIONS.value, None),
         }
         cls._create_package_metadata(
             session, new_package.id, new_metadata)

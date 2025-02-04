@@ -47,7 +47,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
           </Link>
         </StyledProjectTableCell>
         <StyledProjectTableCell align="left">
-          {dateUtils.formatDate(String(subPackage.submitted_on))}
+          {dateUtils.formatDate(subPackage.submitted_on)}
         </StyledProjectTableCell>
         <StyledProjectTableCell align="left">
           {subPackage.submitted_by ?? ""}
