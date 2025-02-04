@@ -97,7 +97,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             color: BCDesignTokens.typographyFontSizeBody,
           }}
         >
-          {dateutils.formatDate(String(submitted_on))}
+          {dateutils.formatDate(submitted_on)}
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="right"

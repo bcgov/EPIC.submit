@@ -139,7 +139,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Submitted on"}
-          value={dateUtils.formatDate(String(submitted_on))}
+          value={dateUtils.formatDate(submitted_on)}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -148,9 +148,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"CC Start Date"}
-          value={
-            dateUtils.formatDate(cc_start_date)
-          }
+          value={dateUtils.formatDate(cc_start_date)}
         />
       </Grid>
       <Grid item xs={12} lg={4} container>
@@ -165,9 +163,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"CC Completed"}
-          value={
-            dateUtils.formatDate(cc_completed_on)
-          }
+          value={dateUtils.formatDate(cc_completed_on)}
         />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>
@@ -175,9 +171,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       <Grid item xs={12} lg={4} container>
         <InfoBoxItem
           label={"Review Start Date"}
-          value={
-              dateUtils.formatDate(review_start_date)
-          }
+          value={dateUtils.formatDate(review_start_date)}
         />
       </Grid>
       <Grid item xs={12} lg={4} container></Grid>
@@ -191,9 +185,7 @@ const StaffInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       >
         <InfoBoxItem
           label={"Review Completed"}
-          value={
-            dateUtils.formatDate(review_completed_on)
-          }
+          value={dateUtils.formatDate(review_completed_on)}
         />
       </Grid>
     </Grid>
