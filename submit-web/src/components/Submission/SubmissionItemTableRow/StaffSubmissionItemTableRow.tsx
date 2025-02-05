@@ -54,7 +54,8 @@ export default function StaffSubmissionItemTableRow({
       .filter(
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
-          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value,
+          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
+          updateRequest.active,
       )
       .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
 
@@ -80,7 +81,8 @@ export default function StaffSubmissionItemTableRow({
     return submissionPackage.update_requests
       .filter(
         (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value &&
+          updateRequest.active,
       )
       .some((updateRequest) => updateRequest.submission_item_ids.includes(id));
   }, [submissionPackage, id]);

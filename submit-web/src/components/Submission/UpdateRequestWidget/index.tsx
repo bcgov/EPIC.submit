@@ -11,7 +11,7 @@ import {
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { SubmissionPackage } from "@/models/Package";
 import RequestSection from "./RequestSection";
 import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
@@ -32,7 +32,10 @@ export default function UpdateRequestWidget({
   const [isCreateRequestOpen, setIsCreateRequestOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  const updateRequests = submissionPackage?.update_requests || [];
+  const updateRequests = useMemo(() => {
+    if (!submissionPackage?.update_requests) return [];
+    return submissionPackage.update_requests;
+  }, [submissionPackage?.update_requests]);
 
   const { mutate: createUpdateRequest, isPending: isCreatingUpdateRequest } =
     useCreatePackageUpdateRequest({
@@ -48,7 +51,7 @@ export default function UpdateRequestWidget({
           notify.error(
             isAxiosError(error)
               ? (error.response?.data.message ?? defaultMessage)
-              : defaultMessage
+              : defaultMessage,
           );
         },
       },
@@ -76,6 +79,11 @@ export default function UpdateRequestWidget({
   const handleCancelReason = () => {
     setIsCreateRequestOpen(false);
   };
+
+  const activeRequests = useMemo(() => {
+    if (!updateRequests) return [];
+    return updateRequests.filter((request) => request.active);
+  }, [updateRequests]);
 
   if (!updateRequests) return null;
 
@@ -139,7 +147,7 @@ export default function UpdateRequestWidget({
             >
               Update Requests
             </Typography>
-            <When condition={updateRequests && updateRequests.length > 0}>
+            <When condition={activeRequests.length > 0}>
               <Chip
                 sx={{
                   backgroundColor: "#F18A15",
@@ -156,7 +164,7 @@ export default function UpdateRequestWidget({
                     justifyContent: "center",
                   },
                 }}
-                label={`${updateRequests.length}`}
+                label={`${activeRequests.length}`}
               />
             </When>
             <KeyboardArrowRightIcon
