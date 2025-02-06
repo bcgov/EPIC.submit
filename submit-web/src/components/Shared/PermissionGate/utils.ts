@@ -1,11 +1,5 @@
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
-export const checkIfEAO = (roles: string[]) => {
-  if (!roles) {
-    return false;
-  }
-  return roles.length > 0;
-};
 export const checkIfManager = (roles?: string[]) => {
   if (!roles) {
     return false;
@@ -27,13 +21,6 @@ export const checkIfStaff = (roles?: string[]) => {
       scopes: [EPIC_SUBMIT_ROLE.eao_view],
     })
   );
-};
-
-export const checkIfProponent = (roles?: string[]) => {
-  if (!roles || roles.length === 0) {
-    return true;
-  }
-  return false;
 };
 
 export const hasPermission = ({

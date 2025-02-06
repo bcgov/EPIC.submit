@@ -1,7 +1,7 @@
 import { LoadingButton } from "@/components/Shared/LoadingButton";
-import { checkIfProponent } from "@/components/Shared/PermissionGate/utils";
 import { useCreatePackageUpdateRequesNote } from "@/hooks/api/usePackages";
 import { UpdateRequest } from "@/models/UpdateRequest";
+import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import {
   Box,
@@ -33,8 +33,8 @@ export const AddRequestNoteSection = ({
       packageId: updateRequest.submission_package_id,
     });
 
-  const { roles } = useAccount();
-  const isProponent = checkIfProponent(roles);
+  const { userType } = useAccount();
+  const isProponent = userType === USER_TYPE.PROPONENT;
 
   return (
     <Box mt="1em">
