@@ -2,11 +2,11 @@ import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dateUtils from "@/utils/dateUtils";
 import { UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
-import { Case, Switch, Unless, When } from "react-if";
+import { Case, Switch, When } from "react-if";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
-import { PACKAGE_STATUS, SubmissionPackage } from "@/models/Package";
-import { checkIfEAO } from "@/components/Shared/PermissionGate/utils";
+import { SubmissionPackage } from "@/models/Package";
 import { useAccount } from "@/store/accountStore";
+import { USER_TYPE } from "@/models/User";
 
 type UpdateRequestProps = Readonly<{
   updateRequest: UpdateRequest;
@@ -21,18 +21,11 @@ export default function RequestSection({
     updateRequest;
   const createdDate = dateUtils.formatDate(created_date);
 
-  const { roles } = useAccount();
-  const isEAO = checkIfEAO(roles || []);
+  const { userType } = useAccount();
 
   const submissionItems = submissionPackage.items.filter((item) =>
     submission_item_ids.includes(item.id),
   );
-
-  const showNoteSection =
-    (isEAO &&
-      submissionPackage.status.includes(PACKAGE_STATUS.SUBMITTED.value)) ||
-    (!isEAO && Boolean(note));
-
   return (
     <Box sx={{ my: BCDesignTokens.layoutMarginLarge }}>
       <Box
@@ -69,7 +62,7 @@ export default function RequestSection({
         {reason}
       </Typography>
 
-      <When condition={showNoteSection}>
+      <When condition={Boolean(note)}>
         <Typography
           variant="body1"
           sx={{ mb: 1, fontWeight: BCDesignTokens.typographyFontWeightsBold }}
@@ -80,9 +73,9 @@ export default function RequestSection({
           {note}
         </Typography>
       </When>
-      <Unless condition={isEAO}>
+      <When condition={userType === USER_TYPE.PROPONENT}>
         <AddRequestNoteSection updateRequest={updateRequest} />
-      </Unless>
+      </When>
     </Box>
   );
 }
