@@ -17,7 +17,7 @@ class ActivityTypeEnum(enum.Enum):
 class ActorTypeEnum(enum.Enum):
     """Enum for activity type statuses."""
 
-    USER = 'USER'
+    ENTITY = 'ENTITY'
     STAFF = "STAFF"
 
 
@@ -33,10 +33,10 @@ class ActivityActionType(enum.Enum):
 
     ORIGINAL_SUBMISSION = "Original Submission"
     START_CONSULTATION_CHECK = "Start Consultation Check"
-    UPDATED_SUBMISSION_UPDATE_REQUESTED = "Updated Submission (Update Requested)"
+    UPDATE_REQUESTED = "Update Requested"
     PASSED_CONSULTATION_CHECK = "Passed Consultation Check"
     FAILED_CONSULTATION_CHECK = "Failed Consultation Check"
     START_MP_REVIEW = "Start MP Review"
     MP_APPROVED = "MP Accepted/Approved/Satisfied"
     MP_REVIEW_REJECTED = "MP Review Rejected"
-    UPDATED_SUBMISSION_REVISION_REQUIRED = "Updated Submission (Revision Required)"
+    REVISION_REQUIRED = "Revision Required"
