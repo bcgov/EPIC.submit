@@ -11,6 +11,7 @@ from typing import Optional
 from submit_api.enums.activity_type import ActivityTypeEnum, VisibilityTypeEnum, ActorTypeEnum
 from submit_api.models.activity_log import ActivityLog
 from submit_api.models.db import session_scope
+from submit_api.utils.token_info import TokenInfo
 
 
 class ActivityLogService:
@@ -20,7 +21,7 @@ class ActivityLogService:
     def log_activity(  # pylint: disable=too-many-arguments
             entity_id: int,
             action: str,
-            actor_id: int,
+            actor_id: int = TokenInfo.get_id(),
             actor_type: str = ActorTypeEnum.STAFF.value,
             entity_type=ActivityTypeEnum.SUBMISSION.value,
             entity_version: int = 1,
@@ -62,7 +63,7 @@ class ActivityLogService:
         query = ActivityLog.query.filter_by(entity_type=entity_type, entity_id=entity_id)
 
         if not for_staff:
-            query = query.filter(ActivityLog.visibility == "public")
+            query = query.filter(ActivityLog.visibility == VisibilityTypeEnum.PUBLIC.value)
 
         logs = query.order_by(ActivityLog.activity_at.desc()).all()
         return logs

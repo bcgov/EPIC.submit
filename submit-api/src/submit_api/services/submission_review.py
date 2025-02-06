@@ -4,6 +4,7 @@ from datetime import datetime
 
 from flask import current_app
 
+from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, PackageVersion, UpdateRequest
@@ -18,6 +19,7 @@ from submit_api.models.submission_review import SubmissionReview, SubmissionRevi
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.schemas.submission import CreateSubmissionRequestSchema
+from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.package import PackageService
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.token_info import TokenInfo
@@ -169,6 +171,7 @@ class SubmissionReviewService:
         approval_processor(item, session)
         cls._update_package_status(item.package_id, session)
         cls._update_item_submissions_status(SubmissionStatus.APPROVED, session, item=item)
+
         current_app.logger.info(f"Submission item {item.id} approved.")
         return item
 
@@ -188,6 +191,7 @@ class SubmissionReviewService:
         }
         session.add(item)
         session.add(package_metadata)
+        cls._log_activity_consultation_check(item, session, success=True)
         current_app.logger.info(f"Consultation record approved for item {item.id}.")
 
         current_app.logger.info(f"Starting MP review for package {item.package_id}.")
@@ -195,6 +199,38 @@ class SubmissionReviewService:
         current_app.logger.info(f"MP review started for package {item.package_id}.")
 
         return item
+
+    @staticmethod
+    def _log_activity_consultation_check(item, session, success=True):
+        """Log activity for passing or failing the consultation check."""
+        action_type = (
+            ActivityActionType.PASSED_CONSULTATION_CHECK.value
+            if success else
+            ActivityActionType.FAILED_CONSULTATION_CHECK.value
+        )
+
+        ActivityLogService.log_activity(
+            entity_id=item.id,
+            action=action_type,
+            entity_version=item.package.version_id,
+            session=session
+        )
+
+    @staticmethod
+    def _log_activity_mp_review(item, session, approved=True):
+        """Log activity for approving or rejecting the Management Plan review."""
+        action_type = (
+            ActivityActionType.MP_APPROVED.value
+            if approved else
+            ActivityActionType.MP_REVIEW_REJECTED.value
+        )
+
+        ActivityLogService.log_activity(
+            entity_id=item.id,
+            action=action_type,
+            entity_version=item.package.version_id,
+            session=session
+        )
 
     @classmethod
     def reject_submission(cls, item_id, session):
@@ -227,6 +263,7 @@ class SubmissionReviewService:
         cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
         update_request_data = cls._prepare_update_request_data(item)
         cls._create_update_request(update_request_data, session)
+        cls._log_activity_consultation_check(item, session, success=False)
         session.flush()
         return item
 

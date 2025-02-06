@@ -4,7 +4,7 @@ from datetime import datetime
 
 from flask import current_app
 
-from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType, VisibilityTypeEnum
+from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, User
@@ -312,17 +312,20 @@ class PackageService:
             else:
                 submitted_package: PackageModel = cls._submit_package(package, session)
 
-            ActivityLogService.log_activity(
-                entity_id=package.id,
-                action=ActivityActionType.ORIGINAL_SUBMISSION.value,
-                actor_id=TokenInfo.get_id(),
-                actor_type=ActorTypeEnum.USER.value,
-                entity_version=submitted_package.version_id,
-                visibility=VisibilityTypeEnum.PUBLIC.value,
-                session=session
-            )
+            cls._log_activity_submission(package, submitted_package, session)
 
             return submitted_package
+
+    @staticmethod
+    def _log_activity_submission(package, submitted_package, session):
+        """Log activity for package submission."""
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=ActivityActionType.ORIGINAL_SUBMISSION.value,
+            actor_type=ActorTypeEnum.ENTITY.value,
+            entity_version=submitted_package.version_id,
+            session=session
+        )
 
     @classmethod
     def _submit_package(cls, package, session):
@@ -386,6 +389,17 @@ class PackageService:
             PackageMetadataFields.REVIEW_START_DATE.value: item_data.get('review_start_date')
         }
         cls._update_package_metadata(session, package_id, new_metadata)
+        cls._log_activity_start_mp_review(package, session)
+
+    @staticmethod
+    def _log_activity_start_mp_review(package, session):
+        """Log activity for starting management plan review."""
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=ActivityActionType.START_MP_REVIEW.value,
+            entity_version=package.version_id,
+            session=session
+        )
 
     @classmethod
     def start_cr_check(cls, package_id):
@@ -403,9 +417,20 @@ class PackageService:
                 PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: item_data.get('review_start_date')
             }
             cls._update_package_metadata(session, package_id, new_metadata)
+            cls._log_activity_start_consultation_check(package, session)
             session.flush()
             session.commit()
             return package
+
+    @staticmethod
+    def _log_activity_start_consultation_check(package, session):
+        """Log activity for starting consultation check."""
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=ActivityActionType.START_CONSULTATION_CHECK.value,
+            entity_version=package.version_id,
+            session=session
+        )
 
     @staticmethod
     def _unsupported_status(*args, **kwargs):
@@ -447,6 +472,7 @@ class PackageService:
         """Create an update request for the package."""
         package = cls._get_and_validate_package_for_update_request(package_id)
         cls._create_update_request(package, request_data)
+        cls._log_activity_update_request(package)
         cls._update_request_creation_email_queue(package.id)
         return package
 
@@ -470,6 +496,15 @@ class PackageService:
             template_name=MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE
         )
         email_queue.save()
+
+    @staticmethod
+    def _log_activity_update_request(package):
+        """Log activity for update request creation."""
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=ActivityActionType.UPDATE_REQUESTED.value,
+            entity_version=package.version_id,
+        )
 
     @classmethod
     def _get_and_validate_package_for_update_request(cls, package_id):
