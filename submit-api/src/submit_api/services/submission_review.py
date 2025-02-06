@@ -171,8 +171,6 @@ class SubmissionReviewService:
         approval_processor(item, session)
         cls._update_package_status(item.package_id, session)
         cls._update_item_submissions_status(SubmissionStatus.APPROVED, session, item=item)
-        if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
-            cls._log_activity_mp_review(item, session, approved=True)
 
         current_app.logger.info(f"Submission item {item.id} approved.")
         return item
