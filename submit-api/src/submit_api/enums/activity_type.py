@@ -12,6 +12,7 @@ class ActivityTypeEnum(enum.Enum):
 
     SUBMISSION = 'SUBMISSION'
     USER = 'USER'
+    PACKAGE = 'PACKAGE'
 
 
 class ActorTypeEnum(enum.Enum):

@@ -15,4 +15,5 @@ export const QUERY_KEY = Object.freeze({
   USERS: "users",
   PACKAGE_VERSIONS: "package-versions",
   STAFF_USER: "staff/staff-user",
+  ACTIVITY_LOGS: "activity-logs",
 });
