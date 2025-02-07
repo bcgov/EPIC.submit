@@ -21,7 +21,7 @@ class ActivityLogService:
     def log_activity(  # pylint: disable=too-many-arguments
             entity_id: int,
             action: str,
-            actor_id: int = TokenInfo.get_id(),
+            actor_id: str = '',
             actor_type: str = ActorTypeEnum.STAFF.value,
             entity_type=ActivityTypeEnum.PACKAGE.value,
             entity_version: int = 1,
@@ -41,9 +41,14 @@ class ActivityLogService:
                     entity_version=entity_version,
                     visibility=visibility
                 )
-
         new_activity = ActivityLogService._create_activity_log_object(
-            entity_type, entity_id, entity_version, action, actor_id, actor_type, visibility
+            entity_type=entity_type,
+            entity_id=entity_id,
+            entity_version=entity_version,
+            action=action,
+            actor_id=actor_id,
+            actor_type=actor_type,
+            visibility=visibility
         )
 
         session.add(new_activity)
@@ -73,12 +78,13 @@ class ActivityLogService:
             entity_type, entity_id, entity_version, action, actor_id, actor_type, visibility
     ) -> ActivityLog:
         """Creates an ActivityLog object without adding it to a session."""
+        print(actor_id)
         return ActivityLog(
             entity_type=entity_type,
             entity_id=entity_id,
             entity_version=entity_version,
             action=action,
-            actor_id=actor_id,
+            actor_id=actor_id or TokenInfo.get_id(),
             actor_type=actor_type,
             visibility=visibility,
             activity_at=datetime.utcnow()
