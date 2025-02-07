@@ -23,7 +23,7 @@ class ActivityLogService:
             action: str,
             actor_id: int = TokenInfo.get_id(),
             actor_type: str = ActorTypeEnum.STAFF.value,
-            entity_type=ActivityTypeEnum.SUBMISSION.value,
+            entity_type=ActivityTypeEnum.PACKAGE.value,
             entity_version: int = 1,
             visibility: str = VisibilityTypeEnum.STAFF.value,
             session=None,
