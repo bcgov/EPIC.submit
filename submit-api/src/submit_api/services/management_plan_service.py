@@ -33,7 +33,7 @@ class ManagementPlanService:
             'reason': 'Revision required for the Management Plan.',
             'type': UpdateRequestType.REVIEW,
         }
-        cls._create_update_request(update_request_data, session)
+        cls._create_mp_update_request(update_request_data, session)
         current_app.logger.info(f"Management plan form rejected for item {item.id}.")
         return item
 
@@ -119,9 +119,9 @@ class ManagementPlanService:
         current_app.logger.info("Contact information form copied from old version.")
 
     @classmethod
-    def _create_update_request(cls, data, session):
+    def _create_mp_update_request(cls, data, session):
         """Create an update request."""
-        current_app.logger.info(f"Creating update request for new package {data.get('package_id')}.")
+        current_app.logger.info(f"Creating update request for new management plan {data.get('package_id')}.")
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
             submission_item_ids=data.get('item_ids'),
@@ -130,4 +130,4 @@ class ManagementPlanService:
             type=data.get('type')
         )
         session.add(update_request)
-        current_app.logger.info(f"Update request created for new package {data.get('package_id')}.")
+        current_app.logger.info(f"Update request created for new management plan {data.get('package_id')}.")
