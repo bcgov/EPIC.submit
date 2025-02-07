@@ -3,7 +3,9 @@ from datetime import datetime
 
 from flask import current_app
 
+from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.management_plan import ManagementPlanSubmissionPurpose
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import PackageVersion
 from submit_api.models import Package as PackageModel
@@ -13,6 +15,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.submission import SubmissionType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequest
 from submit_api.schemas.submission import CreateSubmissionRequestSchema
+from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.package import PackageService
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.token_info import TokenInfo
@@ -131,3 +134,76 @@ class ManagementPlanService:
         )
         session.add(update_request)
         current_app.logger.info(f"Update request created for new management plan {data.get('package_id')}.")
+
+    @classmethod
+    def approve_management_plan(cls, item, session):
+        """Approve management plan."""
+        package = PackageModel.find_by_id(item.package_id)
+        cls._update_item_status_mp_approval(item, package, session)
+        cls._update_package_for_completion(item, package, session)
+        cls._log_activity_mp_approval(package, session)
+        current_app.logger.info(f"Management plan form approved for item {item.id}.")
+        return item
+
+    @classmethod
+    def _get_package_submitted_to_eao_for(cls, package):
+        """Get the condition from the package."""
+        current_app.logger.info(f"Retrieving submitted_to_eao_for for package {package.id}.")
+        package_metadata = package.meta
+        condition = package_metadata.json.get(PackageMetadataFields.CONDITION.value)
+        if not condition:
+            raise ResourceNotFoundError(f"Condition not found for package {package.id}.")
+        submitted_to_eao_for = condition.get('submitted_to_eao_for')
+        if not submitted_to_eao_for:
+            raise ResourceNotFoundError(f"submitted_to_eao_for key not found for package {package.id}.")
+        current_app.logger.info(f"Retrieved submitted_to_eao_for for package {package.id}.")
+        return submitted_to_eao_for
+
+    @classmethod
+    def _update_item_status_mp_approval(cls, item, package, session):
+        """Update the status of the item for approval."""
+        current_app.logger.info(f"Approving management plan form for item {item.id}.")
+        submitted_to_eao_for = cls._get_package_submitted_to_eao_for(package)
+
+        mp_purpose_status_map = {
+            ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ItemStatus.ACCEPTED,
+            ManagementPlanSubmissionPurpose.APPROVAL.value: ItemStatus.APPROVED,
+            ManagementPlanSubmissionPurpose.SATISFACTION.value: ItemStatus.SATISFIED,
+        }
+        status = mp_purpose_status_map.get(submitted_to_eao_for)
+        if not status:
+            raise ResourceNotFoundError(f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
+        item.status = status
+        session.add(item)
+        session.flush()
+        current_app.logger.info(f"Management plan form {status.value} for item {item.id}.")
+
+    @classmethod
+    def _update_package_for_completion(cls, item, package, session):
+        """Update package for completion."""
+        current_app.logger.info(f"Updating package for completion for item {item.id}.")
+        package.completed_on = datetime.utcnow()
+        session.add(package)
+        session.flush()
+        current_app.logger.info(f"Package updated for completion for item {item.id}.")
+
+    @classmethod
+    def _log_activity_mp_approval(cls, package, session):
+        """Log activity for management plan approval."""
+        current_app.logger.info(f"Logging activity for management plan approval for package {package.id}.")
+        submitted_to_eao_for = cls._get_package_submitted_to_eao_for(package)
+        activity_type_condition_map = {
+            ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ActivityActionType.MP_ACCEPTED.value,
+            ManagementPlanSubmissionPurpose.APPROVAL.value: ActivityActionType.MP_APPROVED.value,
+            ManagementPlanSubmissionPurpose.SATISFACTION.value: ActivityActionType.MP_SATISFIED.value,
+        }
+        action_type = activity_type_condition_map.get(submitted_to_eao_for)
+        if not action_type:
+            raise ResourceNotFoundError(f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=action_type,
+            entity_version=package.version.version,
+            session=session
+        )
+        current_app.logger.info(f"Activity logged for management plan approval for package {package.id}.")

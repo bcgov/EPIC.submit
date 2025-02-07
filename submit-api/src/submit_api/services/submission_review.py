@@ -153,6 +153,7 @@ class SubmissionReviewService:
             lambda: cls._unsupported_submission_item_type,
             {
                 SubmissionItemType.CONSULTATION_RECORD.value: ConsultationRecordService.approve_consultation_record,
+                SubmissionItemType.MANAGEMENT_PLAN_FORM.value: ManagementPlanService.approve_management_plan,
             }
         )
         current_app.logger.debug(f"Approval processor retrieved for item {item.id} of type {item_type}")

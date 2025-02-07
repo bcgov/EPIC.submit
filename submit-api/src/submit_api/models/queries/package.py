@@ -43,6 +43,8 @@ class PackageQueries:
     @classmethod
     def _add_passed_consultation_check(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that passed consultation check"""
+        if any(status in [ItemStatus.ACCEPTED.value, ItemStatus.APPROVED.value, ItemStatus.SATISFIED.value] for status in statuses):
+            return
         if any(status == ItemStatus.PASSED_CONSULTATION_CHECK.value for status in statuses):
             aggregated_statuses.add(PackageStatus.PASSED_CONSULTATION_CHECK.value)
 
@@ -65,12 +67,25 @@ class PackageQueries:
             aggregated_statuses.add(PackageStatus.UNDER_CONSULTATION_CHECK.value)
 
     @classmethod
+    def _add_mp_approved(cls, aggregated_statuses: set, statuses: list[str]):
+        """Find packages that have been rejected during review"""
+        if any(status == ItemStatus.APPROVED.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.APPROVED.value)
+        elif any(status == ItemStatus.ACCEPTED.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.ACCEPTED.value)
+        elif any(status == ItemStatus.SATISFIED.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.SATISFIED.value)
+
+    @classmethod
     def aggregate_item_statuses(cls, items: list):
         """Aggregate item statuses"""
         statuses = [item.status.value if isinstance(item.status, ItemStatus)
                     else item.status
                     for item in items]
         aggregated_statuses = set()
+        cls._add_mp_approved(aggregated_statuses, statuses)
+        if aggregated_statuses:
+            return list(aggregated_statuses)
         cls._add_partially_completed_status(aggregated_statuses, statuses)
         cls._add_completed_status(aggregated_statuses, statuses)
         cls._add_submitted_status(aggregated_statuses, statuses)
