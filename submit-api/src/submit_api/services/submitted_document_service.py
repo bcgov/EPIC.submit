@@ -1,6 +1,6 @@
 """Service for submitted document management."""
 
-from sqlalchemy import func, cast, or_, String 
+from sqlalchemy import cast, func, or_, String
 from submit_api.models.account_project import AccountProject
 from submit_api.models.account_project_search_options import DocumentSearchOptions
 from submit_api.models.db import db
@@ -28,7 +28,7 @@ class DocumentService:
             # TODO once document version is captured this logic needs to be revisited
             func.concat(
                 cast(Submission.major_version, String), ".", cast(Submission.minor_version, String)
-            ).label("version"),
+            ).label("version"), # pylint: disable=not-callable
             Package.submitted_on
         )
 
