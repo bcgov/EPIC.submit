@@ -44,3 +44,4 @@ class ActivityActionType(enum.Enum):
     MP_SATISFIED = "MP Satisfied"
     MP_REVIEW_REJECTED = "MP Review Rejected"
     REVISION_REQUIRED = "Revision Required"
+    MP_REVIEW_FAILED = "MP Review Failed"
