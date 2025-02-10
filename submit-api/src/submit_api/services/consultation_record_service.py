@@ -5,39 +5,20 @@ from flask import current_app
 
 from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.item_status import ItemStatus
-from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
-from submit_api.models import Item as ItemModel, PackageVersion, UpdateRequest
-from submit_api.models import Package as PackageModel
+from submit_api.models import UpdateRequest
 from submit_api.models import PackageMetadata, SubmissionReviewEntry
-from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
-from submit_api.models.submission import SubmissionStatus, SubmissionType
+from submit_api.models.submission import SubmissionStatus
 from submit_api.models.submission_review import SubmissionReview
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
-from submit_api.schemas.submission import CreateSubmissionRequestSchema
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.package import PackageService
-from submit_api.services.submission import SubmissionService
 from submit_api.utils.token_info import TokenInfo
 
 
 class ConsultationRecordService:
     """Consultation record review service."""
-
-    @staticmethod
-    def _update_item_submissions_status(status, session, item=None, item_id=None):
-        """Update the status of the package based on the statuses of its items."""
-        if not item_id and not item:
-            current_app.logger.error("Item ID or item is required.")
-            raise UnprocessableEntityError("Item ID or item is required.")
-        if not item:
-            item = ItemModel.find_by_id(item_id)
-        submissions = item.submissions
-        for submission in submissions:
-            submission.status = status
-            session.add(submission)
-        current_app.logger.info(f"Submissions status updated for item ID: {item_id} to {status}")
 
     @classmethod
     def approve_consultation_record(cls, item, session):
