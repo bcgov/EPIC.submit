@@ -24,6 +24,7 @@ import { Route as ProponentRegistrationCreateAccountImport } from './routes/prop
 import { Route as ProponentRegistrationCompleteImport } from './routes/proponent/registration/complete'
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
+import { Route as StaffStaffLayoutDocumentsIndexImport } from './routes/staff/_staffLayout/documents/index'
 import { Route as ProponentProponentLayoutProjectsIndexImport } from './routes/proponent/_proponentLayout/projects/index'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout'
@@ -151,6 +152,12 @@ const ProponentProponentLayoutProjectsProjectIdRoute =
 const StaffStaffLayoutProjectsIndexRoute =
   StaffStaffLayoutProjectsIndexImport.update({
     path: '/projects/',
+    getParentRoute: () => StaffStaffLayoutRoute,
+  } as any)
+
+const StaffStaffLayoutDocumentsIndexRoute =
+  StaffStaffLayoutDocumentsIndexImport.update({
+    path: '/documents/',
     getParentRoute: () => StaffStaffLayoutRoute,
   } as any)
 
@@ -367,6 +374,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentProponentLayoutProjectsIndexImport
       parentRoute: typeof ProponentProponentLayoutImport
     }
+    '/staff/_staffLayout/documents/': {
+      id: '/staff/_staffLayout/documents/'
+      path: '/documents'
+      fullPath: '/staff/documents'
+      preLoaderRoute: typeof StaffStaffLayoutDocumentsIndexImport
+      parentRoute: typeof StaffStaffLayoutImport
+    }
     '/staff/_staffLayout/projects/': {
       id: '/staff/_staffLayout/projects/'
       path: '/projects'
@@ -522,6 +536,7 @@ export const routeTree = rootRoute.addChildren({
   }),
   StaffRoute: StaffRoute.addChildren({
     StaffStaffLayoutRoute: StaffStaffLayoutRoute.addChildren({
+      StaffStaffLayoutDocumentsIndexRoute,
       StaffStaffLayoutProjectsIndexRoute,
       StaffStaffLayoutProjectsProjectIdRoute:
         StaffStaffLayoutProjectsProjectIdRoute.addChildren({
@@ -601,6 +616,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "staff/_staffLayout.tsx",
       "parent": "/staff",
       "children": [
+        "/staff/_staffLayout/documents/",
         "/staff/_staffLayout/projects/",
         "/staff/_staffLayout/projects/$projectId"
       ]
@@ -631,6 +647,10 @@ export const routeTree = rootRoute.addChildren({
     "/proponent/_proponentLayout/projects/": {
       "filePath": "proponent/_proponentLayout/projects/index.tsx",
       "parent": "/proponent/_proponentLayout"
+    },
+    "/staff/_staffLayout/documents/": {
+      "filePath": "staff/_staffLayout/documents/index.tsx",
+      "parent": "/staff/_staffLayout"
     },
     "/staff/_staffLayout/projects/": {
       "filePath": "staff/_staffLayout/projects/index.tsx",
