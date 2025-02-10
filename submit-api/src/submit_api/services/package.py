@@ -312,20 +312,7 @@ class PackageService:
             else:
                 submitted_package: PackageModel = cls._submit_package(package, session)
 
-            cls._log_activity_submission(package, submitted_package, session)
-
             return submitted_package
-
-    @staticmethod
-    def _log_activity_submission(package, submitted_package, session):
-        """Log activity for package submission."""
-        ActivityLogService.log_activity(
-            entity_id=package.id,
-            action=ActivityActionType.ORIGINAL_SUBMISSION.value,
-            actor_type=ActorTypeEnum.ENTITY.value,
-            entity_version=submitted_package.version.version,
-            session=session
-        )
 
     @classmethod
     def _submit_package(cls, package, session):
@@ -337,6 +324,7 @@ class PackageService:
         cls.update_submission_status(package, ItemStatus.SUBMITTED.value, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._create_email_queue_record(package, session)
+        cls._log_activity_submission(package, ActivityActionType.ORIGINAL_SUBMISSION.value, session)
         return package
 
     @classmethod
@@ -352,7 +340,19 @@ class PackageService:
         cls._deactivate_revision_required_requests(package, session)
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
         cls._deactivate_reviews(package, session)
+        cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
         return package
+
+    @staticmethod
+    def _log_activity_submission(package, action, session):
+        """Log activity for package submission."""
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=action,
+            actor_type=ActorTypeEnum.ENTITY.value,
+            entity_version=package.version.version,
+            session=session
+        )
 
     @classmethod
     def _deactivate_reviews(cls, package, session):

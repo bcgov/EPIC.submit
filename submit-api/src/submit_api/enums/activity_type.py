@@ -33,6 +33,7 @@ class ActivityActionType(enum.Enum):
     """Enum for activity type statuses."""
 
     ORIGINAL_SUBMISSION = "Original Submission"
+    UPDATED_SUBMISSION = "Updated Submission"
     START_CONSULTATION_CHECK = "Start Consultation Check"
     UPDATE_REQUESTED = "Update Requested"
     PASSED_CONSULTATION_CHECK = "Passed Consultation Check"

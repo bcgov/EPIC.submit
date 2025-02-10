@@ -65,12 +65,7 @@ class ActivityLogService:
 
         Returns a list of logs.
         """
-        query = ActivityLog.query.filter_by(entity_type=entity_type, entity_id=entity_id)
-
-        if not for_staff:
-            query = query.filter(ActivityLog.visibility == VisibilityTypeEnum.PUBLIC.value)
-
-        logs = query.order_by(ActivityLog.activity_at.desc()).all()
+        logs = ActivityLog.get_activity_logs(entity_type, entity_id, for_staff)
         return logs
 
     @staticmethod
@@ -78,7 +73,6 @@ class ActivityLogService:
             entity_type, entity_id, entity_version, action, actor_id, actor_type, visibility
     ) -> ActivityLog:
         """Creates an ActivityLog object without adding it to a session."""
-        print(actor_id)
         return ActivityLog(
             entity_type=entity_type,
             entity_id=entity_id,
