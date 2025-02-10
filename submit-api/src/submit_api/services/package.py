@@ -232,13 +232,11 @@ class PackageService:
             session.add(item)
 
     @staticmethod
-    def _update_mp_item(items, data, session):
+    def _update_mp_item(mp_item, data, session):
         """Update the status of all items in the package."""
-        for item in items:
-            if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
-                item.status = data.get('status')
-                item.review_start_date = data.get('review_start_date')
-                session.add(item)
+        mp_item.status = data.get('status')
+        mp_item.review_start_date = data.get('review_start_date')
+        session.add(mp_item)
 
     @staticmethod
     def _update_cr_status(items, data, session):
@@ -379,11 +377,19 @@ class PackageService:
     @classmethod
     def start_mp_review_process(cls, package, package_id, session):
         """Common logic for starting the review process."""
+        mp_item = next((item for item in package.items
+                        if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value), None)
+        if not mp_item:
+            current_app.logger.info(f"Management plan form not found in package {package_id}")
+            raise BadRequestError("Management plan form not found in package")
+        if mp_item.status == ItemStatus.UNDER_REVIEW:
+            current_app.logger.info(f"Management plan form {mp_item.id} is already under review")
+            return
         item_data = {
             'status': ItemStatus.UNDER_REVIEW.value,
             'review_start_date': datetime.utcnow().isoformat()
         }
-        cls._update_mp_item(package.items, item_data, session)
+        cls._update_mp_item(mp_item, item_data, session)
         cls._update_package_status(package_id, session, package)
         new_metadata = {
             PackageMetadataFields.REVIEW_START_DATE.value: item_data.get('review_start_date')

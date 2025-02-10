@@ -170,7 +170,6 @@ class SubmissionReviewService:
         approval_processor(item, session)
         cls._update_package_status(item.package_id, session)
         cls._update_item_submissions_status(SubmissionStatus.APPROVED, session, item=item)
-        cls._log_activity_mp_review(item, ActivityActionType.MP_APPROVED.value, session)
         current_app.logger.info(f"Submission item {item.id} approved.")
         return item
 
@@ -182,7 +181,6 @@ class SubmissionReviewService:
         rejection_processor(item, session)
         cls._update_package_status(item.package_id, session)
         cls._update_item_submissions_status(SubmissionStatus.REJECTED, session, item=item)
-        cls._log_activity_mp_review(item, ActivityActionType.MP_REVIEW_REJECTED.value, session)
         current_app.logger.info(f"Submission item {item.id} rejected.")
         return item
 

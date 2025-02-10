@@ -4,7 +4,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 
 type GetAcitivityLogForAdminByIdParams = {
-  id: string;
+  id: number;
   entityType: string;
 };
 const getAcitivityLogForAdminById = ({
@@ -17,7 +17,7 @@ const getAcitivityLogForAdminById = ({
 };
 
 type UseGetAcitivityLogForAdminByIdParams = {
-  id: string;
+  id: number;
   entityType: string;
   enabled?: boolean;
 };

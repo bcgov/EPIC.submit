@@ -37,14 +37,15 @@ class ManagementPlanService:
             'type': UpdateRequestType.REVIEW,
         }
         cls._create_mp_update_request(update_request_data, session)
-        cls._log_management_plan_rejection_activity(new_package, session)
+        cls._log_management_plan_rejection_activity(item, session)
         current_app.logger.info(f"Management plan form rejected for item {item.id}.")
         return item
 
     @classmethod
-    def _log_management_plan_rejection_activity(cls, package, session):
+    def _log_management_plan_rejection_activity(cls, item, session):
         """Log activity for management plan rejection."""
-        current_app.logger.info(f"Logging activity for management plan rejection for package {package.id}.")
+        current_app.logger.info(f"Logging activity for management plan rejection for package {item.package_id}.")
+        package = PackageModel.find_by_id(item.package_id)
         ActivityLogService.log_activity(
             entity_id=package.id,
             action=ActivityActionType.MP_REVIEW_FAILED.value,

@@ -92,7 +92,7 @@ type HistoryTableProps = {
 export const HistoryTable = ({ packageId }: HistoryTableProps) => {
   const { data: activityLogs, isPending: isLoading } =
     useGetAcitivityLogForAdmin({
-      id: packageId,
+      id: Number(packageId),
       entityType: ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
     });
 
