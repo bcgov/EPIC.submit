@@ -13,11 +13,32 @@ const statusStyles: Record<
   APPROVED: {
     sx: {
       borderRadius: 1,
-      border: `2px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
       background: BCDesignTokens.supportSurfaceColorSuccess,
       height: "24px",
+      width: "86px",
     },
-    label: "Approved",
+    label: "Satisfied",
+  },
+  ACCEPTED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+      width: "83px",
+    },
+    label: "Accepted",
+  },
+  SATISFIED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+      width: "78px",
+    },
+    label: "Satisfied",
   },
   IN_REVIEW: {
     sx: {

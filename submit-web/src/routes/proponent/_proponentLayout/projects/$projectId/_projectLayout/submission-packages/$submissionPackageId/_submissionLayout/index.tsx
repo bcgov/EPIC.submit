@@ -16,7 +16,7 @@ import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SuccessBox } from "@/components/Submission/SuccessBox";
-import { When } from "react-if";
+import { Unless, When } from "react-if";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
@@ -206,13 +206,15 @@ export default function SubmissionPage() {
                 >
                   Save & Close
                 </Button>
-                <Button
-                  onClick={submitPackage}
-                  loading={isSubmittingPackage}
-                  disabled={isSubmitDisabled}
-                >
-                  Submit to EAO
-                </Button>
+                <Unless condition={submissionPackage.completed_on}>
+                  <Button
+                    onClick={submitPackage}
+                    loading={isSubmittingPackage}
+                    disabled={isSubmitDisabled}
+                  >
+                    Submit to EAO
+                  </Button>
+                </Unless>
               </Box>
             </Box>
           </Box>

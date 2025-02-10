@@ -153,7 +153,10 @@ class ManagementPlanService:
         condition = package_metadata.json.get(PackageMetadataFields.CONDITION.value)
         if not condition:
             raise ResourceNotFoundError(f"Condition not found for package {package.id}.")
-        submitted_to_eao_for = condition.get('submitted_to_eao_for')
+        attributes = condition.get('condition_attributes')
+        if not attributes:
+            raise ResourceNotFoundError(f"condition_attributes key not found for package {package.id}.")
+        submitted_to_eao_for = attributes.get('submitted_to_eao_for')
         if not submitted_to_eao_for:
             raise ResourceNotFoundError(f"submitted_to_eao_for key not found for package {package.id}.")
         current_app.logger.info(f"Retrieved submitted_to_eao_for for package {package.id}.")

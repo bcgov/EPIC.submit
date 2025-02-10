@@ -5,7 +5,6 @@ import { ProjectStatus } from "../registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "../registration/addProjects/ProjectCard/constants";
 import ProjectTable from "./ProjectTable";
 import { AccountProject } from "@/models/Project";
-import { PACKAGE_STATUS } from "@/models/Package";
 import { useNavigate } from "@tanstack/react-router";
 import { ContentBox } from "../Shared/ContentBox";
 import { When } from "react-if";
@@ -30,19 +29,10 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const { userType } = useAccount();
 
   const activeSubmissionPackages = accountProject.packages.filter(
-    (subPackage) =>
-      !subPackage.status.some(
-        (status) =>
-          status === PACKAGE_STATUS.APPROVED.value ||
-          status === PACKAGE_STATUS.REVIEW_REJECTED.value
-      )
+    (subPackage) => !subPackage.completed_on,
   );
   const pastSubmissionPackages = accountProject.packages.filter((subPackage) =>
-    subPackage.status.some(
-      (status) =>
-        status === PACKAGE_STATUS.APPROVED.value ||
-        status === PACKAGE_STATUS.REVIEW_REJECTED.value
-    )
+    Boolean(subPackage.completed_on),
   );
 
   const { name, ea_certificate } = accountProject.project;
