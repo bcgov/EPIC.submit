@@ -43,7 +43,8 @@ class PackageQueries:
     @classmethod
     def _add_passed_consultation_check(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that passed consultation check"""
-        if any(status in [ItemStatus.ACCEPTED.value, ItemStatus.APPROVED.value, ItemStatus.SATISFIED.value] for status in statuses):
+        if any(status in [ItemStatus.ACCEPTED.value, ItemStatus.APPROVED.value,
+                          ItemStatus.SATISFIED.value] for status in statuses):
             return
         if any(status == ItemStatus.PASSED_CONSULTATION_CHECK.value for status in statuses):
             aggregated_statuses.add(PackageStatus.PASSED_CONSULTATION_CHECK.value)
