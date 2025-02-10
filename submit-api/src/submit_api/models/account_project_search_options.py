@@ -15,6 +15,7 @@ class AccountProjectSearchOptions:  # pylint: disable=too-many-instance-attribut
     submitted_on_start: str
     submitted_on_end: str
 
+
 @dataclass
 class DocumentSearchOptions:  # pylint: disable=too-many-instance-attributes
     """Used to store document search options."""

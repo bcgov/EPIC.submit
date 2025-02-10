@@ -54,14 +54,14 @@ export const AdminInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       </Grid>
 
       <Grid item xs={12} lg={4} container>
-        <Stack direction={"row"}>
+        <Stack direction={"row"} spacing={2}>
           <Typography color={BCDesignTokens.themeGray70}>Condition:</Typography>
           <Typography color={"inherit"}>{condition}</Typography>
         </Stack>
       </Grid>
 
       <Grid item xs={12} lg={4} container>
-        <Stack direction={"row"}>
+        <Stack direction={"row"} spacing={2}>
           <Typography color={BCDesignTokens.themeGray70}>
             Supporting Conditions:
           </Typography>

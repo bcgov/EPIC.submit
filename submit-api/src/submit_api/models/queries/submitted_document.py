@@ -63,11 +63,11 @@ class DocumentQueries:
         return query.all()
 
     @classmethod
-    def filter_by_search_criteria(cls, document_query, search_options: DocumentSearchOptions):
+    def filter_by_search_criteria(cls, query, search_options: DocumentSearchOptions):
         """Apply various filters based on search options."""
-
         if search_options.search_text:
-            document_query = cls._filter_by_search_text(document_query, search_options.search_text)
+            query = cls._filter_by_search_text(query, search_options.search_text)
+        return query
 
     @classmethod
     def _filter_by_search_text(cls, query, search_text):

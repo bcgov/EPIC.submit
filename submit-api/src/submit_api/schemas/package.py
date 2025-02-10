@@ -120,6 +120,7 @@ class PackageSchema(Schema):
                          enum=PackageStatus, data_key="status")
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Method('get_submitted_by')
+    completed_on = fields.DateTime(data_key="completed_on")
     meta = fields.Method('get_meta')
     items = fields.Nested(ItemSchema, data_key="items", many=True)
     update_requests = fields.Nested(

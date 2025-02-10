@@ -25,6 +25,8 @@ export type PackageStatus =
   | "IN_REVIEW"
   | "UNDER_REVIEW"
   | "APPROVED"
+  | "ACCEPTED"
+  | "SATISFIED"
   | "REVIEW_REJECTED"
   | "COMPLETED"
   | "SUBMITTED"
@@ -82,6 +84,14 @@ export const PACKAGE_STATUS: Record<
     value: "CREATED",
     label: "Created",
   },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
+  },
+  SATISFIED: {
+    value: "SATISFIED",
+    label: "Satisfied",
+  },
 };
 
 export type SubmissionPackageMeta = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -98,6 +108,7 @@ export type SubmissionPackage = {
   name: string;
   status: PackageStatus[];
   submitted_on?: string;
+  completed_on?: string;
   submitted_by?: string;
   type_id: number;
   type: PackageType;

@@ -323,7 +323,7 @@ class PackageService:
             entity_id=package.id,
             action=ActivityActionType.ORIGINAL_SUBMISSION.value,
             actor_type=ActorTypeEnum.ENTITY.value,
-            entity_version=submitted_package.version_id,
+            entity_version=submitted_package.version.version,
             session=session
         )
 
@@ -397,7 +397,7 @@ class PackageService:
         ActivityLogService.log_activity(
             entity_id=package.id,
             action=ActivityActionType.START_MP_REVIEW.value,
-            entity_version=package.version_id,
+            entity_version=package.version.version,
             session=session
         )
 
@@ -428,7 +428,7 @@ class PackageService:
         ActivityLogService.log_activity(
             entity_id=package.id,
             action=ActivityActionType.START_CONSULTATION_CHECK.value,
-            entity_version=package.version_id,
+            entity_version=package.version.version,
             session=session
         )
 
@@ -503,7 +503,7 @@ class PackageService:
         ActivityLogService.log_activity(
             entity_id=package.id,
             action=ActivityActionType.UPDATE_REQUESTED.value,
-            entity_version=package.version_id,
+            entity_version=package.version.version,
         )
 
     @classmethod

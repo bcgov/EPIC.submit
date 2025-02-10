@@ -80,6 +80,7 @@ class CreateSubmissionRequestSchema(Schema):
     item_id = fields.Int(data_key="item_id")
     created_by = fields.Str(data_key="created_by", required=False)
 
+
 class SubmittedDocumentByProjectSchema(Schema):
     """Submitted document schema."""
 
