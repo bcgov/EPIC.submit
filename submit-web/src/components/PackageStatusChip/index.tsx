@@ -18,7 +18,7 @@ const statusStyles: Record<
       height: "24px",
       width: "86px",
     },
-    label: "Satisfied",
+    label: "Approved",
   },
   ACCEPTED: {
     sx: {

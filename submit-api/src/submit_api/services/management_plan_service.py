@@ -141,6 +141,7 @@ class ManagementPlanService:
         package = PackageModel.find_by_id(item.package_id)
         cls._update_item_status_mp_approval(item, package, session)
         cls._update_package_for_completion(item, package, session)
+        cls._deactivate_update_requests(package, session)
         cls._log_activity_mp_approval(package, session)
         current_app.logger.info(f"Management plan form approved for item {item.id}.")
         return item
@@ -210,3 +211,14 @@ class ManagementPlanService:
             session=session
         )
         current_app.logger.info(f"Activity logged for management plan approval for package {package.id}.")
+
+    @classmethod
+    def _deactivate_update_requests(cls, package, session):
+        """Deactivate all update requests for the package."""
+        current_app.logger.info(f"Deactivating update requests for package {package.id}.")
+        update_requests = package.update_requests
+        for update_request in update_requests:
+            update_request.active = False
+            session.add(update_request)
+        session.flush()
+        current_app.logger.info(f"Update requests deactivated for package {package.id}.")
