@@ -1,6 +1,7 @@
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import { useGetAcitivityLogForAdmin } from "@/hooks/api/useActivtyLog";
 import { AcitivityLog, ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
+import dateUtils from "@/utils/dateUtils";
 import {
   Box,
   TableBody,
@@ -72,7 +73,9 @@ const HistoryTableBody = ({
       {activityLogs.map((log) => (
         <TableRow key={log.id}>
           <HistoryTableCell>{log.action}</HistoryTableCell>
-          <HistoryTableCell align="left">{log.activity_at}</HistoryTableCell>
+          <HistoryTableCell align="left">
+            {dateUtils.formatDate(log.activity_at)}
+          </HistoryTableCell>
           <HistoryTableCell align="right">
             {log.entity_version}
           </HistoryTableCell>

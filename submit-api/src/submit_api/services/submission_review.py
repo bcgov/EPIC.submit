@@ -138,6 +138,9 @@ class SubmissionReviewService:
             if review.status == SubmissionReviewStatus.APPROVED:
                 current_app.logger.error(f"Item {item_id} already approved.")
                 raise UnprocessableEntityError("Item has already been approved.")
+            if package.completed_on:
+                current_app.logger.error(f"Package {package.id} has already been completed.")
+                raise UnprocessableEntityError("Package has already been completed.")
             cls._save_submission_review_answers(review, review_data, session)
             status = review_data.get('status')
             cls.process_review_status(review, status, session)
