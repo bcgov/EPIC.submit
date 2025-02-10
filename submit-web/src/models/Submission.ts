@@ -105,3 +105,13 @@ export type Submission = {
   submitted_by: string;
   status: SubmissionStatus;
 };
+
+export type SubmittedDocument = {
+  id: number;
+  name: string;
+  url: string;
+  project_name: string;
+  status: string;
+  submitted_on: string;
+  version: string;
+};

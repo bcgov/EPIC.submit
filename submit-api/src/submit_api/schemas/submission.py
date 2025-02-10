@@ -5,6 +5,7 @@ Manages the submission schema
 
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
+from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionStatus
 
 
@@ -78,3 +79,19 @@ class CreateSubmissionRequestSchema(Schema):
     data = fields.Dict(data_key="data")
     item_id = fields.Int(data_key="item_id")
     created_by = fields.Str(data_key="created_by", required=False)
+
+class SubmittedDocumentByProjectSchema(Schema):
+    """Submitted document schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    id = fields.Int(data_key="id")
+    name = fields.Str(data_key="name")
+    url = fields.Str(data_key="url")
+    project_name = fields.Str(data_key="project_name")
+    status = fields.Enum(data_key="status", enum=ItemStatus)
+    submitted_on = fields.DateTime(data_key="submitted_on")
+    version = fields.Str(data_key="version")
