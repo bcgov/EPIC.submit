@@ -57,7 +57,7 @@ class ConsultationRecordService:
         ActivityLogService.log_activity(
             entity_id=item.id,
             action=action_type,
-            entity_version=item.package.version_id,
+            entity_version=item.package.version.version,
             actor_id= TokenInfo.get_id(),
             session=session
         )
