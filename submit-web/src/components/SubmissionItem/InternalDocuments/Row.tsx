@@ -10,18 +10,17 @@ import { useDeleteInternalStaffDocument } from "@/hooks/api/useInternalStaffDocu
 import { useParams } from "@tanstack/react-router";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import { Unless } from "react-if";
+import { useFileStore } from "@/store/fileStore";
 
 type RowProps = {
   internalStaffDocument: InternalStaffDocument;
   numColumns: number;
-  setDocuments: React.Dispatch<React.SetStateAction<InternalStaffDocument[]>>;
   hideAction?: boolean;
 };
 
 export default function Row({
   internalStaffDocument,
   numColumns,
-  setDocuments,
   hideAction = false,
 }: RowProps) {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
@@ -35,6 +34,8 @@ export default function Row({
       packageId: Number(submissionPackageId),
       itemId: Number(submissionItemId),
     });
+
+  const { removeFile } = useFileStore();
 
   const { name, url } = internalStaffDocument;
 
@@ -57,9 +58,7 @@ export default function Row({
       await deleteInternalStaffSubmission({
         documentId: internalStaffDocument.id,
       });
-      setDocuments((prev) =>
-        prev.filter((sub) => sub.id !== internalStaffDocument.id),
-      );
+      removeFile(internalStaffDocument.id);
     } catch (e) {
       notify.error("Failed to remove document");
     } finally {

@@ -7,16 +7,11 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { InternalStaffDocument } from "@/models/SubmissionItem";
 
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import Rows from "./Rows";
 
-export default function Table({
-  internalStaffDocuments,
-}: {
-  internalStaffDocuments: Array<InternalStaffDocument>;
-}) {
+export default function Table() {
   return (
     <TableContainer sx={{ height: "100%", cursor: "pointer" }}>
       <MuiTable>
@@ -47,10 +42,7 @@ export default function Table({
           </TableRow>
         </TableHead>
         <TableBody>
-          <Rows
-            internalStaffDocuments={internalStaffDocuments}
-            numColumns={5}
-          />
+          <Rows numColumns={5} />
         </TableBody>
       </MuiTable>
     </TableContainer>

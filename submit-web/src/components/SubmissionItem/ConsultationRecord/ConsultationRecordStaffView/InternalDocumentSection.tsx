@@ -1,5 +1,4 @@
 import FileUpload from "@/components/FileUpload";
-import { useObjectUploadStore } from "@/store/documentUploadStore";
 import {
   Button,
   Divider,
@@ -14,20 +13,27 @@ import InternalDocumentsTable from "../../InternalDocuments/Table";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useParams } from "@tanstack/react-router";
+import { useFileStore } from "@/store/fileStore";
 
 export default function InternalDocumentSection() {
-  const { reset, handleAddObjects, uploadObjects } = useObjectUploadStore();
-  const [link, setLink] = useState("");
-
   const { submissionId: subItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
+
+  const { reset, addPendingFile, pendingFiles, initializeFiles } =
+    useFileStore();
+  const [link, setLink] = useState("");
+
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
       .queryKey,
   );
   const internalStaffDocuments = submissionItem?.internal_staff_documents || [];
+
+  useEffect(() => {
+    initializeFiles(internalStaffDocuments);
+  }, [submissionItem]);
 
   useEffect(() => {
     return () => {
@@ -46,11 +52,10 @@ export default function InternalDocumentSection() {
   };
 
   const handleFileDrop = (acceptedFiles: File[]) => {
-    const pendingObjects = uploadObjects.filter((obj) => obj.pending);
-    if (pendingObjects.length > 0) {
+    if (pendingFiles.length > 0) {
       return;
     }
-    handleAddObjects(acceptedFiles[0]);
+    addPendingFile(acceptedFiles[0]);
   };
 
   return (
@@ -111,9 +116,7 @@ export default function InternalDocumentSection() {
         </Stack>
       </Grid>
       <Grid item xs={12} mt="32px">
-        <InternalDocumentsTable
-          internalStaffDocuments={internalStaffDocuments}
-        />
+        <InternalDocumentsTable />
       </Grid>
     </Grid>
   );
