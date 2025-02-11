@@ -3,7 +3,6 @@ from collections import defaultdict
 
 from flask import current_app
 
-from submit_api.enums.activity_type import ActivityActionType
 from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel

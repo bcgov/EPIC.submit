@@ -5,7 +5,7 @@ from flask import current_app
 
 from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.item_status import ItemStatus
-from submit_api.models import UpdateRequest, PackageVersion, Package
+from submit_api.models import UpdateRequest, Package
 from submit_api.models import PackageMetadata, SubmissionReviewEntry
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.submission import SubmissionStatus
