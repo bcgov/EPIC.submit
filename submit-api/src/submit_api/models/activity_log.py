@@ -10,6 +10,7 @@ from datetime import datetime
 
 from .base_model import BaseModel
 from .db import db
+from ..enums.activity_type import VisibilityTypeEnum
 
 
 class ActivityLog(BaseModel):
@@ -39,3 +40,22 @@ class ActivityLog(BaseModel):
             "actor_type": self.actor_type,
             "visibility": self.visibility
         }
+
+    @classmethod
+    def get_activity_logs(cls, entity_type: str, entity_id: int, for_staff: bool = True) -> list:
+        """
+        Retrieve activity logs for a specific entity type and ID.
+
+        - `entity_type`: The type of entity (e.g., 'submission', 'file_upload').
+        - `entity_id`: The specific entity ID.
+        - `for_staff`: If False, only public logs are returned.
+
+        Returns a list of logs.
+        """
+        query = cls.query.filter_by(entity_type=entity_type, entity_id=entity_id)
+
+        if not for_staff:
+            query = query.filter(cls.visibility == VisibilityTypeEnum.PUBLIC.value)
+
+        logs = query.order_by(cls.activity_at.asc()).all()
+        return logs

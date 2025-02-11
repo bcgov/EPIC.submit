@@ -8,6 +8,7 @@ import {
 import { Options } from "./types";
 import { PackageVersion, SubmissionPackage } from "@/models/Package";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
+import { ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
 
 const createSubmissionPackage = ({
   accountProjectId,
@@ -179,6 +180,13 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.ACTIVITY_LOGS,
+          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+          submissionPackage.id,
+        ],
       });
       if (options?.onSuccess) {
         options.onSuccess();

@@ -33,6 +33,7 @@ class ActivityActionType(enum.Enum):
     """Enum for activity type statuses."""
 
     ORIGINAL_SUBMISSION = "Original Submission"
+    UPDATED_SUBMISSION = "Updated Submission"
     START_CONSULTATION_CHECK = "Start Consultation Check"
     UPDATE_REQUESTED = "Update Requested"
     PASSED_CONSULTATION_CHECK = "Passed Consultation Check"
@@ -43,3 +44,4 @@ class ActivityActionType(enum.Enum):
     MP_SATISFIED = "MP Satisfied"
     MP_REVIEW_REJECTED = "MP Review Rejected"
     REVISION_REQUIRED = "Revision Required"
+    MP_REVIEW_FAILED = "MP Review Failed"

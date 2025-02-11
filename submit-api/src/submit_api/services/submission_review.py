@@ -3,7 +3,6 @@ from collections import defaultdict
 
 from flask import current_app
 
-from submit_api.enums.activity_type import ActivityActionType
 from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
@@ -170,25 +169,8 @@ class SubmissionReviewService:
         approval_processor(item, session)
         cls._update_package_status(item.package_id, session)
         cls._update_item_submissions_status(SubmissionStatus.APPROVED, session, item=item)
-
         current_app.logger.info(f"Submission item {item.id} approved.")
         return item
-
-    @staticmethod
-    def _log_activity_mp_review(item, session, approved=True):
-        """Log activity for approving or rejecting the Management Plan review."""
-        action_type = (
-            ActivityActionType.MP_APPROVED.value
-            if approved else
-            ActivityActionType.MP_REVIEW_REJECTED.value
-        )
-
-        ActivityLogService.log_activity(
-            entity_id=item.id,
-            action=action_type,
-            entity_version=item.package.version_id,
-            session=session
-        )
 
     @classmethod
     def reject_submission(cls, item_id, session):
@@ -214,3 +196,14 @@ class SubmissionReviewService:
         )
         current_app.logger.debug(f"Rejection processor retrieved for item {item.id} of type {item_type}")
         return status_processor_map[item_type]
+
+    @staticmethod
+    def _log_activity_mp_review(item, action, session):
+        """Log activity for approving or rejecting the Management Plan review."""
+        package = PackageModel.find_by_id(item.package_id)
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=action,
+            entity_version=package.version.version,
+            session=session
+        )

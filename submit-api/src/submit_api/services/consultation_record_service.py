@@ -5,7 +5,7 @@ from flask import current_app
 
 from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.item_status import ItemStatus
-from submit_api.models import UpdateRequest
+from submit_api.models import UpdateRequest, Package
 from submit_api.models import PackageMetadata, SubmissionReviewEntry
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.submission import SubmissionStatus
@@ -36,7 +36,14 @@ class ConsultationRecordService:
         }
         session.add(item)
         session.add(package_metadata)
-        cls._log_activity_consultation_check(item, session, success=True)
+        package = Package.find_by_id(item.package_id)
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
+            entity_version=package.version.version,
+            actor_id=TokenInfo.get_id(),
+            session=session
+        )
         current_app.logger.info(f"Consultation record approved for item {item.id}.")
 
         current_app.logger.info(f"Starting MP review for package {item.package_id}.")
@@ -45,30 +52,20 @@ class ConsultationRecordService:
 
         return item
 
-    @staticmethod
-    def _log_activity_consultation_check(item, session, success=True):
-        """Log activity for passing or failing the consultation check."""
-        action_type = (
-            ActivityActionType.PASSED_CONSULTATION_CHECK.value
-            if success else
-            ActivityActionType.FAILED_CONSULTATION_CHECK.value
-        )
-
-        ActivityLogService.log_activity(
-            entity_id=item.id,
-            action=action_type,
-            entity_version=item.package.version.version,
-            actor_id=TokenInfo.get_id(),
-            session=session
-        )
-
     @classmethod
     def reject_consultation_record(cls, item, session):
         """Reject consultation record."""
         cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
         update_request_data = cls._prepare_update_request_data(item)
         cls._create_update_request(update_request_data, session)
-        cls._log_activity_consultation_check(item, session, success=False)
+        package = Package.find_by_id(item.package_id)
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
+            entity_version=package.version.version,
+            actor_id=TokenInfo.get_id(),
+            session=session
+        )
         session.flush()
         return item
 

@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 import { SubmissionReview } from "@/models/SubmissionReview";
+import { ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
 
 type GetSubmissionItemByIdParams = {
   itemId: number;
@@ -116,6 +117,13 @@ export const useSaveSubmissionReview = ({
       });
       queryClient.removeQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.ACTIVITY_LOGS,
+          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+          packageId,
+        ],
       });
     },
   });
