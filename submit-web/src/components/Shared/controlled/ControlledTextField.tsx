@@ -26,7 +26,7 @@ const ControlledTextField: FC<IFormInputProps> = ({
   } = useFormContext();
 
   const error = get(errors, name);
-  const helperText = error?.message ?? "";
+  const helperText = error?.message ?? " ";
   return (
     <Controller
       control={control}

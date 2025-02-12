@@ -15,10 +15,10 @@ import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
 import { useFileStore } from "@/store/fileStore";
 import { useMounted } from "@/hooks/common";
 
-type RowProps = {
+type RowProps = Readonly<{
   pendingDocument: UploadObject;
   numColumns?: number;
-};
+}>;
 
 export default function PendingRow({
   pendingDocument,

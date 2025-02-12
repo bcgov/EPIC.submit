@@ -1,19 +1,13 @@
 import FileUpload from "@/components/FileUpload";
-import {
-  Button,
-  Divider,
-  Grid,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import { useEffect, useState } from "react";
-import InternalDocumentsTable from "../../InternalDocuments/Table";
+import { useEffect } from "react";
+import InternalDocumentsTable from "./InternalDocuments/Table";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useParams } from "@tanstack/react-router";
 import { useFileStore } from "@/store/fileStore";
+import AddFileLinkSection from "./AddFileLinkSection";
 
 export default function InternalDocumentSection() {
   const { submissionId: subItemId } = useParams({
@@ -22,7 +16,6 @@ export default function InternalDocumentSection() {
 
   const { reset, addPendingFile, pendingFiles, initializeFiles } =
     useFileStore();
-  const [link, setLink] = useState("");
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
@@ -40,16 +33,6 @@ export default function InternalDocumentSection() {
       reset();
     };
   }, [reset]);
-
-  const handleChangeLinkText = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLink(event.target.value);
-  };
-
-  const handleSaveLinkText = () => {
-    if (!link) {
-      return;
-    }
-  };
 
   const handleFileDrop = (acceptedFiles: File[]) => {
     if (pendingFiles.length > 0) {
@@ -99,21 +82,7 @@ export default function InternalDocumentSection() {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Stack direction="row" spacing={2}>
-          <TextField
-            onChange={handleChangeLinkText}
-            sx={{
-              width: "600px",
-            }}
-          />
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleSaveLinkText}
-          >
-            Save Link
-          </Button>
-        </Stack>
+        <AddFileLinkSection submissionItemId={Number(subItemId)} />
       </Grid>
       <Grid item xs={12} mt="32px">
         <InternalDocumentsTable />

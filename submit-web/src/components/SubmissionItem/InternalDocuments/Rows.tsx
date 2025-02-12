@@ -1,5 +1,4 @@
 import { Link as MuiLink, Typography } from "@mui/material";
-import { InternalStaffDocument } from "@/models/SubmissionItem";
 import Row from "./Row";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
 import PendingRow from "./PendingRow";
