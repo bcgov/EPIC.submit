@@ -30,7 +30,7 @@ class ManagementPlanService:
         """Reject management plan form."""
         cls._update_item_status_mp_rejection(item)
         cls._update_package_metadata_mp_rejection(item, session)
-        new_package, new_item = cls._create_new_package_version(item, session)
+        _, new_item = cls._create_new_package_version(item, session)
         update_request_data = cls._prepare_update_request_data(new_item, item)
         cls._create_mp_update_request(update_request_data, session)
         cls._log_management_plan_rejection_activity(item, session)
@@ -46,7 +46,8 @@ class ManagementPlanService:
         )
         return {
             'package_id': new_item.package_id,
-            'submission_item_types': manager_review_entry.entry.get('submission_item_types') if manager_review_entry else None,
+            'submission_item_types': manager_review_entry.entry.get('submission_item_types')
+            if manager_review_entry else None,
             'reason': manager_review_entry.entry.get('reason') if manager_review_entry else None,
             'type': UpdateRequestType.REVIEW,
         }
