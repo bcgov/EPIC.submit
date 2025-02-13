@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledFileUpload";
 import { CONSULTATION_RECORD_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,6 +14,7 @@ import { AccountProject } from "@/models/Project";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { camelCase } from "lodash";
+import { useFileStore } from "@/store/fileStore";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
@@ -25,25 +25,23 @@ export const DocumentUploadSection = () => {
     getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) })
       .queryKey,
   );
-  const getDocumentSubmissions = () => {
+  const getDocumentSubmissions = useCallback(() => {
     if (!submissionItem) return [];
     return submissionItem.submissions.filter(
       (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
     );
-  };
-  const [documentSubmissions, setDocumentSubmissions] = useState<Submission[]>(
-    getDocumentSubmissions,
-  );
+  }, [submissionItem]);
 
   const accountProject = queryClient.getQueryData<AccountProject>(
     getAccountProjectQueryOptions(Number(projectId)).queryKey,
   );
 
-  const {
-    reset,
-    handleAddObjects: handleAddDocuments,
-    uploadObjects: documents,
-  } = useObjectUploadStore();
+  const { reset, addPendingFile, initializeFiles, files, pendingFiles } =
+    useFileStore();
+
+  useEffect(() => {
+    initializeFiles(getDocumentSubmissions());
+  }, [submissionItem, initializeFiles, getDocumentSubmissions]);
 
   useEffect(() => {
     return () => {
@@ -52,8 +50,10 @@ export const DocumentUploadSection = () => {
   }, [reset]);
 
   const handleOnDrop = (acceptedFiles: File[]) => {
-    handleAddDocuments(
-      acceptedFiles[0],
+    const file = acceptedFiles[0];
+
+    addPendingFile(
+      file,
       CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
     );
   };
@@ -122,11 +122,10 @@ export const DocumentUploadSection = () => {
         </Typography>
         <Box my={BCDesignTokens.layoutMarginLarge}>
           <DocumentTable
-            documents={documentSubmissions}
-            pendingDocuments={documents}
+            documents={files}
+            pendingDocuments={pendingFiles}
             header={"Consultation Record(s)"}
             folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS}`}
-            setDocumentSubmissions={setDocumentSubmissions}
           />
         </Box>
       </Grid>

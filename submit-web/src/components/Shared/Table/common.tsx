@@ -59,7 +59,7 @@ export const SubmitTablePrimaryRow = ({
   // pass error to every child
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
-      ? React.cloneElement(child, { error } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+      ? React.cloneElement(child, { error } as any)
       : child,
   );
 

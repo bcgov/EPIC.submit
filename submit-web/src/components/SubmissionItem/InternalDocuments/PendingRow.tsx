@@ -5,26 +5,26 @@ import {
   Typography,
 } from "@mui/material";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
-import {
-  UploadObject,
-  useObjectUploadStore,
-} from "@/store/documentUploadStore";
-import { useEffect } from "react";
+import { UploadObject } from "@/store/documentUploadStore";
+import { useEffect, useState } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
 import { useCreateInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 import { useParams } from "@tanstack/react-router";
 import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
+import { useFileStore } from "@/store/fileStore";
+import { useMounted } from "@/hooks/common";
 
-type RowProps = {
+type RowProps = Readonly<{
   pendingDocument: UploadObject;
   numColumns?: number;
-};
+}>;
 
 export default function PendingRow({
   pendingDocument,
   numColumns = 4,
 }: RowProps) {
+  const [pendingUpload, setPendingUpload] = useState(false);
   const {
     file: { name },
   } = pendingDocument;
@@ -33,18 +33,17 @@ export default function PendingRow({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
-  const { triggerPending, removeObject, completeObject } =
-    useObjectUploadStore();
+  const { completeFileUpload, removePendingFile } = useFileStore();
+
   const { mutateAsync: createInternalStaffDocument } =
     useCreateInternalStaffDocument({
       itemId: Number(submissionItemId),
       packageId: Number(submissionPackageId),
     });
 
-  useEffect(() => {
-    triggerPending(pendingDocument.id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useMounted(() => {
+    setPendingUpload(true);
+  });
 
   const uploadObject = async () => {
     try {
@@ -66,19 +65,19 @@ export default function PendingRow({
         document: documentData,
       });
 
-      completeObject(pendingDocument.id, createdInternalStaff.id);
+      completeFileUpload(pendingDocument.id, createdInternalStaff);
     } catch (error) {
       notify.error("Failed to upload document");
-      removeObject(pendingDocument.id);
+      removePendingFile(pendingDocument.id);
     }
   };
 
   useEffect(() => {
-    if (pendingDocument.pending) {
+    if (pendingUpload) {
       uploadObject();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingDocument.pending]);
+  }, [pendingUpload]);
 
   return (
     <TableRow>

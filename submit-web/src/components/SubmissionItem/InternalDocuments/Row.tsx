@@ -1,6 +1,9 @@
-import { Link as MuiLink, TableRow, Typography } from "@mui/material";
+import { Box, Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { useState } from "react";
-import { InternalStaffDocument } from "@/models/SubmissionItem";
+import {
+  INTERNAL_STAFF_DOCUMENT_TYPE,
+  InternalStaffDocument,
+} from "@/models/SubmissionItem";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
@@ -10,18 +13,18 @@ import { useDeleteInternalStaffDocument } from "@/hooks/api/useInternalStaffDocu
 import { useParams } from "@tanstack/react-router";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import { Unless } from "react-if";
+import { useFileStore } from "@/store/fileStore";
+import LinkIcon from "@mui/icons-material/Link";
 
-type RowProps = {
+type RowProps = Readonly<{
   internalStaffDocument: InternalStaffDocument;
   numColumns: number;
-  setDocuments: React.Dispatch<React.SetStateAction<InternalStaffDocument[]>>;
   hideAction?: boolean;
-};
+}>;
 
 export default function Row({
   internalStaffDocument,
   numColumns,
-  setDocuments,
   hideAction = false,
 }: RowProps) {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
@@ -36,7 +39,21 @@ export default function Row({
       itemId: Number(submissionItemId),
     });
 
-  const { name, url } = internalStaffDocument;
+  const { removeFile } = useFileStore();
+
+  const { name, url, type } = internalStaffDocument;
+
+  const handleDocumentClick = () => {
+    if (type === INTERNAL_STAFF_DOCUMENT_TYPE.S3) {
+      downloadDocument();
+    } else if (type === INTERNAL_STAFF_DOCUMENT_TYPE.LINK) {
+      navigateToLink();
+    }
+  };
+
+  const navigateToLink = () => {
+    window.open(url, "_blank");
+  };
 
   const downloadDocument = async () => {
     try {
@@ -53,13 +70,13 @@ export default function Row({
   const onRemoveClick = async () => {
     try {
       setIsRemovingDocument(true);
-      await deleteDocument({ filepath: internalStaffDocument.url });
+      if (internalStaffDocument.type === INTERNAL_STAFF_DOCUMENT_TYPE.S3) {
+        await deleteDocument({ filepath: internalStaffDocument.url });
+      }
       await deleteInternalStaffSubmission({
         documentId: internalStaffDocument.id,
       });
-      setDocuments((prev) =>
-        prev.filter((sub) => sub.id !== internalStaffDocument.id),
-      );
+      removeFile(internalStaffDocument.id);
     } catch (e) {
       notify.error("Failed to remove document");
     } finally {
@@ -69,18 +86,23 @@ export default function Row({
   return (
     <TableRow>
       <SubmitTableCell>
-        <Typography
-          variant="body1"
-          color="inherit"
-          sx={{
-            overflow: "clip",
-            textOverflow: "ellipsis",
-            cursor: "pointer",
-            mx: 0.5,
-          }}
-        >
-          <MuiLink onClick={downloadDocument}>{name}</MuiLink>
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Typography
+            variant="body1"
+            color="inherit"
+            sx={{
+              overflow: "clip",
+              textOverflow: "ellipsis",
+              cursor: "pointer",
+              mx: 0.5,
+            }}
+          >
+            <MuiLink onClick={handleDocumentClick}>{name}</MuiLink>
+          </Typography>
+          {type === INTERNAL_STAFF_DOCUMENT_TYPE.LINK && (
+            <LinkIcon htmlColor={BCDesignTokens.typographyColorLink} />
+          )}
+        </Box>
       </SubmitTableCell>
       <SubmitTableCell align="right" colSpan={numColumns - 2}></SubmitTableCell>
       <SubmitTableCell align="right">

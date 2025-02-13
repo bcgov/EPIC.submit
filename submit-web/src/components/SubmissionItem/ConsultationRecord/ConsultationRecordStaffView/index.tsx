@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import InternalDocumentSection from "./InternalDocumentSection";
+import InternalDocumentSection from "../../InternalDocumentSection";
 import FormFieldSection from "./FormFieldSection";
 import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
 import ReviewSection from "./ReviewSection";
@@ -24,7 +24,7 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const formData = useMemo(() => {

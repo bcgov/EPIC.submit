@@ -1,33 +1,30 @@
 import FileUpload from "@/components/FileUpload";
-import { useObjectUploadStore } from "@/store/documentUploadStore";
-import {
-  Button,
-  Divider,
-  Grid,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import { useEffect, useState } from "react";
-import InternalDocumentsTable from "../../InternalDocuments/Table";
+import { useEffect, useMemo } from "react";
+import InternalDocumentsTable from "./InternalDocuments/Table";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { useParams } from "@tanstack/react-router";
+import { useFileStore } from "@/store/fileStore";
+import AddFileLinkSection from "./AddFileLinkSection";
 
 export default function InternalDocumentSection() {
-  const { reset, handleAddObjects, uploadObjects } = useObjectUploadStore();
-  const [link, setLink] = useState("");
-
   const { submissionId: subItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
+
+  const { reset, addPendingFile, pendingFiles, initializeFiles } =
+    useFileStore();
+
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
       .queryKey,
   );
-  const internalStaffDocuments = submissionItem?.internal_staff_documents || [];
+  const internalStaffDocuments = useMemo(() => {
+    return submissionItem?.internal_staff_documents || [];
+  }, [submissionItem]);
 
   useEffect(() => {
     return () => {
@@ -35,22 +32,15 @@ export default function InternalDocumentSection() {
     };
   }, [reset]);
 
-  const handleChangeLinkText = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setLink(event.target.value);
-  };
-
-  const handleSaveLinkText = () => {
-    if (!link) {
-      return;
-    }
-  };
+  useEffect(() => {
+    initializeFiles(internalStaffDocuments);
+  }, [internalStaffDocuments, initializeFiles]);
 
   const handleFileDrop = (acceptedFiles: File[]) => {
-    const pendingObjects = uploadObjects.filter((obj) => obj.pending);
-    if (pendingObjects.length > 0) {
+    if (pendingFiles.length > 0) {
       return;
     }
-    handleAddObjects(acceptedFiles[0]);
+    addPendingFile(acceptedFiles[0]);
   };
 
   return (
@@ -94,26 +84,10 @@ export default function InternalDocumentSection() {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Stack direction="row" spacing={2}>
-          <TextField
-            onChange={handleChangeLinkText}
-            sx={{
-              width: "600px",
-            }}
-          />
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={handleSaveLinkText}
-          >
-            Save Link
-          </Button>
-        </Stack>
+        <AddFileLinkSection submissionItemId={Number(subItemId)} />
       </Grid>
       <Grid item xs={12} mt="32px">
-        <InternalDocumentsTable
-          internalStaffDocuments={internalStaffDocuments}
-        />
+        <InternalDocumentsTable />
       </Grid>
     </Grid>
   );

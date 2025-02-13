@@ -6,7 +6,7 @@ import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { booleanToString } from "@/utils";
 import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
 import FormFieldSection from "./FormFieldSection";
-import InternalDocumentSection from "../../ConsultationRecord/ConsultationRecordStaffView/InternalDocumentSection";
+import InternalDocumentSection from "../../InternalDocumentSection";
 import ReviewSection from "./ReviewSection";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 
@@ -45,7 +45,7 @@ export const ManagementPlanSubmissionStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const formData = useMemo(() => {
@@ -54,16 +54,16 @@ export const ManagementPlanSubmissionStaffView = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       conditionSatisfied: booleanToString(
-        formSubmission.submitted_form.submission_json.conditionSatisfied
+        formSubmission.submitted_form.submission_json.conditionSatisfied,
       ),
       allRequirementsAddressed: booleanToString(
-        formSubmission.submitted_form.submission_json.allRequirementsAddressed
+        formSubmission.submitted_form.submission_json.allRequirementsAddressed,
       ),
       requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear
+        formSubmission.submitted_form.submission_json.requirementsClear,
       ),
       informationAccurate: booleanToString(
-        formSubmission.submitted_form.submission_json.informationAccurate
+        formSubmission.submitted_form.submission_json.informationAccurate,
       ),
     };
   }, [formSubmission]);
