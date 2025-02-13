@@ -37,6 +37,7 @@ export default function AddFileLinkSection({
   const handleSaveLinkText = async (data: AddDocumentLinkSchema) => {
     const { link, documentName } = addDocumentLinkSchema.validateSync(data);
     try {
+      setAddingLink(true);
       const documentData = {
         name: documentName,
         url: link,
@@ -48,7 +49,9 @@ export default function AddFileLinkSection({
       });
       addFile(createdInternalStaff);
       reset();
+      setAddingLink(false);
     } catch (error) {
+      setAddingLink(false);
       notify.error("Failed to save link");
     }
   };

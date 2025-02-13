@@ -1,7 +1,7 @@
 import FileUpload from "@/components/FileUpload";
 import { Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import InternalDocumentsTable from "./InternalDocuments/Table";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
@@ -22,10 +22,8 @@ export default function InternalDocumentSection() {
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
       .queryKey,
   );
-  const internalStaffDocuments = submissionItem?.internal_staff_documents || [];
-
-  useEffect(() => {
-    initializeFiles(internalStaffDocuments);
+  const internalStaffDocuments = useMemo(() => {
+    return submissionItem?.internal_staff_documents || [];
   }, [submissionItem]);
 
   useEffect(() => {
@@ -33,6 +31,10 @@ export default function InternalDocumentSection() {
       reset();
     };
   }, [reset]);
+
+  useEffect(() => {
+    initializeFiles(internalStaffDocuments);
+  }, [internalStaffDocuments, initializeFiles]);
 
   const handleFileDrop = (acceptedFiles: File[]) => {
     if (pendingFiles.length > 0) {

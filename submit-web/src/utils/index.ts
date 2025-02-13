@@ -25,7 +25,7 @@ export const booleanToString = (value: boolean | string | unknown): string => {
 
 export const getUserRolesFromToken = (token?: string) => {
   if (!token) return [];
-  const tokenData: any = jwtDecode(token); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const tokenData: any = jwtDecode(token);
   const appName = AppConfig.clientId;
   return tokenData?.resource_access?.[appName]?.roles || [];
 };

@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { Box, Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledFileUpload";
 import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
@@ -15,6 +14,7 @@ import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { AccountProject } from "@/models/Project";
 import { camelCase } from "lodash";
+import { useFileStore } from "@/store/fileStore";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
@@ -27,25 +27,19 @@ export const DocumentUploadSection = () => {
     Number(submissionItemId),
   ]);
 
-  const getDocumentSubmissions = () => {
+  const getDocumentSubmissions = useCallback(() => {
     if (!submissionItem) return [];
     return submissionItem.submissions.filter(
       (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
     );
-  };
-  const [documentSubmissions, setDocumentSubmissions] = useState<Submission[]>(
-    getDocumentSubmissions,
-  );
+  }, [submissionItem]);
 
   const accountProject = queryClient.getQueryData<AccountProject>(
     getAccountProjectQueryOptions(Number(projectId)).queryKey,
   );
 
-  const {
-    reset,
-    handleAddObjects: handleAddDocuments,
-    uploadObjects: documents,
-  } = useObjectUploadStore();
+  const { reset, files, addPendingFile, pendingFiles, initializeFiles } =
+    useFileStore();
 
   useEffect(() => {
     return () => {
@@ -53,8 +47,12 @@ export const DocumentUploadSection = () => {
     };
   }, [reset]);
 
+  useEffect(() => {
+    initializeFiles(getDocumentSubmissions());
+  }, [submissionItem, getDocumentSubmissions, initializeFiles]);
+
   const handleOnDrop = (acceptedFiles: File[], folder: string) => {
-    handleAddDocuments(acceptedFiles[0], folder);
+    addPendingFile(acceptedFiles[0], folder);
   };
 
   if (!submissionItemId) {
@@ -62,34 +60,24 @@ export const DocumentUploadSection = () => {
     return <Navigate to="/error" />;
   }
 
-  const documentSubmissionIds = documentSubmissions?.map(
-    (submission) => submission.id,
-  );
-
-  const managementPlanDocuments = documentSubmissions?.filter(
+  const managementPlanDocuments = files?.filter(
     (submission) =>
       submission.submitted_document.folder ===
       MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
   );
 
-  const supportingDocuments = documentSubmissions?.filter(
+  const supportingDocuments = files?.filter(
     (submission) =>
       submission.submitted_document.folder ===
       MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
   );
 
-  const pendingDocuments = documents.filter(
-    (document) =>
-      !document.submissionId ||
-      !documentSubmissionIds?.includes(document.submissionId),
-  );
-
-  const pendingManagementPlanDocuments = pendingDocuments.filter(
+  const pendingManagementPlanDocuments = pendingFiles.filter(
     (document) =>
       document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
   );
 
-  const pendingSupportingDocuments = pendingDocuments.filter(
+  const pendingSupportingDocuments = pendingFiles.filter(
     (document) =>
       document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
   );
@@ -162,7 +150,6 @@ export const DocumentUploadSection = () => {
             documents={managementPlanDocuments}
             pendingDocuments={pendingManagementPlanDocuments}
             folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}`}
-            setDocumentSubmissions={setDocumentSubmissions}
           />
         </Box>
       </Grid>
@@ -208,7 +195,6 @@ export const DocumentUploadSection = () => {
             documents={supportingDocuments}
             pendingDocuments={pendingSupportingDocuments}
             folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}`}
-            setDocumentSubmissions={setDocumentSubmissions}
           />
         </Box>
       </Grid>

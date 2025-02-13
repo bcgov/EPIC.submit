@@ -7,7 +7,9 @@ import { CardInnerBox } from "@/components/Projects/Project";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEY } from "@/hooks/api/constants";
+import { SubmissionPackage } from "@/models/Package";
 
 type SubmissionFormContainerProps = {
   children: React.ReactNode;
@@ -23,12 +25,15 @@ export const SubmissionFormContainer = ({
     accountProjectId,
   });
 
-  const { data: submissionPackage } = useGetSubmissionPackage({
-    packageId: Number(submissionPackageId),
-    enabled: Boolean(accountProject?.id),
-  });
+  const queryClient = useQueryClient();
 
-  if (isPending) return <Skeleton variant="rectangular" height={400} />;
+  const submissionPackage = queryClient.getQueryData<SubmissionPackage>([
+    QUERY_KEY.SUBMISSION_PACKAGE,
+    Number(submissionPackageId),
+  ]);
+
+  if (isPending || !submissionPackage)
+    return <Skeleton variant="rectangular" height={400} />;
   if (!accountProject) return <Navigate to="/error" />;
 
   return (

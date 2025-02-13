@@ -17,21 +17,26 @@ import { When } from "react-if";
 import InternalDocumentsRows from "../SubmissionItem/InternalDocuments/Rows";
 import { SubmissionPackage } from "@/models/Package";
 import { isSubmissionItemReadyToSubmit } from "./utils";
+import { useFileStore } from "@/store/fileStore";
+import { useEffect } from "react";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
 }>;
 export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
+  const { initializeFiles } = useFileStore();
   const { items: submissionItems } = submissionPackage;
 
   const { userType } = useAccount();
 
   const { isValidating } = usePackageTableStore();
 
-  const internalStaffDocuments = submissionItems.flatMap(
-    (item) => item.internal_staff_documents ?? [],
-  );
-
+  useEffect(() => {
+    const internalStaffDocuments = submissionItems
+      .map((item) => item.internal_staff_documents || [])
+      .flat();
+    initializeFiles(internalStaffDocuments);
+  }, [submissionItems, initializeFiles]);
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table sx={{ tableLayout: "fixed" }}>
@@ -77,11 +82,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
             />
           ))}
           <When condition={userType === USER_TYPE.STAFF}>
-            <InternalDocumentsRows
-              internalStaffDocuments={internalStaffDocuments}
-              numColumns={5}
-              hideAction
-            />
+            <InternalDocumentsRows numColumns={5} hideAction />
           </When>
         </TableBody>
       </Table>

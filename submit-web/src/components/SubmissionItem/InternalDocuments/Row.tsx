@@ -43,6 +43,18 @@ export default function Row({
 
   const { name, url, type } = internalStaffDocument;
 
+  const handleDocumentClick = () => {
+    if (type === INTERNAL_STAFF_DOCUMENT_TYPE.S3) {
+      downloadDocument();
+    } else if (type === INTERNAL_STAFF_DOCUMENT_TYPE.LINK) {
+      navigateToLink();
+    }
+  };
+
+  const navigateToLink = () => {
+    window.open(url, "_blank");
+  };
+
   const downloadDocument = async () => {
     try {
       if (pendingGetObject) return;
@@ -85,7 +97,7 @@ export default function Row({
               mx: 0.5,
             }}
           >
-            <MuiLink onClick={downloadDocument}>{name}</MuiLink>
+            <MuiLink onClick={handleDocumentClick}>{name}</MuiLink>
           </Typography>
           {type === INTERNAL_STAFF_DOCUMENT_TYPE.LINK && (
             <LinkIcon htmlColor={BCDesignTokens.typographyColorLink} />

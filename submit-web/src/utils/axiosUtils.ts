@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AppConfig, OidcConfig } from "@/utils/config";
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { User } from "oidc-client-ts";

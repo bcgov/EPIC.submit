@@ -1,41 +1,46 @@
 import { CircularProgress, Link as MuiLink, Typography } from "@mui/material";
 import { PackageTableRow, DocumentTableCell } from "./DocumentTableRow";
 import { createSubmission } from "@/hooks/api/useSubmissions";
-import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "../Shared/Snackbar/snackbarStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { saveObject } from "@/hooks/api/useObjectStorage";
-import { useObjectUploadStore } from "@/store/documentUploadStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { UploadObject } from "@/store/documentUploadStore";
+import { useMounted } from "@/hooks/common";
+import { useFileStore } from "@/store/fileStore";
 
-type DocumentTableRowProps = {
-  documentItem: UploadObject;
+type DocumentTableRowProps = Readonly<{
+  documentItem: any;
   error?: boolean;
   folder?: string;
-  setDocumentSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
-};
+}>;
 export default function PendingDocumentRow({
   documentItem,
   error = false,
   folder: s3Folder,
-  setDocumentSubmissions,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
+  const [isPending, setIsPending] = useState(false);
+
   const queryClient = useQueryClient();
 
-  const { triggerPending, removeObject: removeDocument } =
-    useObjectUploadStore();
+  const { completeFileUpload, removePendingFile } = useFileStore();
+
+  useMounted(() => {
+    setIsPending(true);
+  });
 
   useEffect(() => {
-    triggerPending(documentItem.id);
+    if (isPending) {
+      uploadObject();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isPending]);
 
   const uploadObject = async () => {
     try {
@@ -57,23 +62,16 @@ export default function PendingDocumentRow({
         data: documentData,
       });
 
-      removeDocument(documentItem.id);
-      setDocumentSubmissions((prev) => [...prev, documentSubmission]);
+      completeFileUpload(documentItem.id, documentSubmission);
+
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_ITEM, documentSubmission.item_id],
       });
     } catch (error) {
       notify.error("Failed to upload document");
-      removeDocument(documentItem.id);
+      removePendingFile(documentItem.id);
     }
   };
-
-  useEffect(() => {
-    if (documentItem.pending) {
-      uploadObject();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [documentItem.pending]);
 
   return (
     <PackageTableRow key={`row-${documentItem.file.name}`} error={error}>

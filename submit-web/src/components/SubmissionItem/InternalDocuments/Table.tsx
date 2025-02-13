@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import Rows from "./Rows";
 

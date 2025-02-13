@@ -13,6 +13,7 @@ import { notify } from "../Shared/Snackbar/snackbarStore";
 import { Submission } from "@/models/Submission";
 import { LoadingButton } from "../Shared/LoadingButton";
 import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
+import { useFileStore } from "@/store/fileStore";
 
 export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   ({ error }) => ({
@@ -78,7 +79,7 @@ export const PackageTableRow = ({
   // pass error to every child
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
-      ? React.cloneElement(child, { error } as any) // eslint-disable-line @typescript-eslint/no-explicit-any
+      ? React.cloneElement(child, { error } as any)
       : child,
   );
 
@@ -88,16 +89,16 @@ export const PackageTableRow = ({
 type DocumentTableRowProps = Readonly<{
   documentItem: Submission;
   error?: boolean;
-  setDocumentSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
 }>;
 export default function DocumentTableRow({
   documentItem,
-  setDocumentSubmissions,
   error = false,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
+
+  const { removeFile } = useFileStore();
 
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
     submissionItemId: documentItem.item_id,
@@ -129,9 +130,7 @@ export default function DocumentTableRow({
       setIsRemovingDocument(true);
       await deleteDocument({ filepath: submitted_document.url });
       await deleteSubmission(documentItem.id);
-      setDocumentSubmissions((prev) =>
-        prev.filter((sub) => sub.id !== documentItem.id),
-      );
+      removeFile(documentItem.id);
     } catch (e) {
       notify.error("Failed to remove document");
     } finally {

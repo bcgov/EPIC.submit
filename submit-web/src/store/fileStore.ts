@@ -1,9 +1,15 @@
 import { create } from "zustand";
 
+export type pendingFile = {
+  id: number;
+  file: File;
+  folder?: string;
+};
+
 interface FileStoreState {
   files: any[];
-  pendingFiles: any[];
-  addPendingFile: (file: any) => void;
+  pendingFiles: pendingFile[];
+  addPendingFile: (file: File, folder?: string) => void;
   removeFile: (fileId: number) => void;
   completeFileUpload: (fileId: number, file: any) => void;
   initializeFiles: (files: any[]) => void;
@@ -15,10 +21,10 @@ interface FileStoreState {
 export const useFileStore = create<FileStoreState>((set) => ({
   files: [],
   pendingFiles: [],
-  addPendingFile: (file) => {
+  addPendingFile: (file, folder) => {
     set((prev) => {
       const id = Math.max(...prev.files.map((doc) => doc.id), 0) + 1;
-      const document = { id, file };
+      const document = { id, file, folder };
       return { pendingFiles: [...prev.pendingFiles, document] };
     });
   },
