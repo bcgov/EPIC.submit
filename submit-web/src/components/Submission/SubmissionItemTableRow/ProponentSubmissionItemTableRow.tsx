@@ -37,7 +37,7 @@ export default function ProponentSubmissionItemTableRow({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
   });
 
-  const { id, submissions, status } = item;
+  const { id, submissions, status, type_id } = item;
   const name = item.type.name;
   const has_document =
     item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
@@ -72,9 +72,9 @@ export default function ProponentSubmissionItemTableRow({
   const isUpdateRequest = useMemo(() => {
     if (!submissionPackage || isUpdated) return false;
     return filterOpenUpdateRequests(submissionPackage.update_requests)
-      .flatMap((updateRequest) => updateRequest.submission_item_ids)
-      .includes(id);
-  }, [submissionPackage, id, isUpdated]);
+      .flatMap((updateRequest) => updateRequest.submission_item_types)
+      .includes(type_id);
+  }, [submissionPackage, type_id, isUpdated]);
 
   const isRevisionRequired = useMemo(() => {
     if (!submissionPackage) return false;
@@ -83,8 +83,10 @@ export default function ProponentSubmissionItemTableRow({
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
       )
-      .some((updateRequest) => updateRequest.submission_item_ids.includes(id));
-  }, [submissionPackage, id]);
+      .some((updateRequest) =>
+        updateRequest.submission_item_types.includes(type_id),
+      );
+  }, [submissionPackage, type_id]);
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 

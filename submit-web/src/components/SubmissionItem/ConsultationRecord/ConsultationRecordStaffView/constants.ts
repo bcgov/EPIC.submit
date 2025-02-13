@@ -20,7 +20,7 @@ export const consultationSchema = yup.object().shape({
         return staff === "NO" && manager !== "YES"
           ? schema.shape({
               reason: yup.string().required("Reason is required"),
-              submission_item_ids: yup
+              submission_item_types: yup
                 .array()
                 .nullable()
                 .required("Submission items are required")

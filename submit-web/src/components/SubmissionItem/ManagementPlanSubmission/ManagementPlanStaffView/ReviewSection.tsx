@@ -28,6 +28,8 @@ import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import ActionButtons from "./ActionButtons";
 import NotesSection from "../../NotesSection";
+import { When } from "react-if";
+import AddRequestSection from "../../AddRequestSection";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema
@@ -76,10 +78,21 @@ export default function ReviewSection() {
 
     return {
       staff: {
-        ...staffAnswers,
+        passedReview: staffAnswers?.passedReview
+          ? String(staffAnswers.passedReview)
+          : "",
       },
       manager: {
-        ...managerAnswers,
+        passedReview: managerAnswers?.passedReview
+          ? String(managerAnswers.passedReview)
+          : "",
+      },
+      update_request: {
+        reason: managerAnswers?.reason || staffAnswers?.reason || "",
+        submission_item_types:
+          managerAnswers?.submission_item_types ||
+          staffAnswers?.submission_item_types ||
+          [],
       },
     };
   }, [submissionItem]);
@@ -89,6 +102,17 @@ export default function ReviewSection() {
     mode: "onChange",
     defaultValues,
   });
+
+  const { watch } = methods;
+
+  // geet staff and manager answers
+  const staffAnswer = watch("staff.passedReview");
+  const managerAnswer = watch("manager.passedReview");
+
+  const failedManagementPlan =
+    managerAnswer === RadioOptions.NO.value ||
+    (staffAnswer === RadioOptions.NO.value &&
+      managerAnswer !== RadioOptions.YES.value);
 
   const isFormDisabled =
     (isStaff &&
@@ -174,6 +198,9 @@ export default function ReviewSection() {
               </>
             </PermissionsGate>
             <NotesSection />
+            <When condition={failedManagementPlan}>
+              <AddRequestSection disabled={isFormDisabled} />
+            </When>
             <ActionButtons />
           </form>
         </FormProvider>
