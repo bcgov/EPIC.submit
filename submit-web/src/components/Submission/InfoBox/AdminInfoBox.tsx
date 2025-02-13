@@ -36,23 +36,10 @@ export const AdminInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       sx={{
         borderRadius: "4px",
         border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-        p: BCDesignTokens.layoutPaddingSmall,
+        p: "16px",
       }}
-      rowSpacing={1}
+      rowSpacing={"24px"}
     >
-      <Grid
-        item
-        xs={12}
-        container
-        alignContent={"flex-end"}
-        justifyContent={"flex-end"}
-      >
-        <Typography color={BCDesignTokens.themeGray70} sx={{ mr: 1 }}>
-          Version:{" "}
-        </Typography>
-        <VersionGroup currentPackageVersion={version} />
-      </Grid>
-
       <Grid item xs={12} lg={4} container>
         <Stack direction={"row"} spacing={2}>
           <Typography color={BCDesignTokens.themeGray70}>Condition:</Typography>
@@ -67,6 +54,20 @@ export const AdminInfoBox = ({ submissionPackage }: InfoBoxProps) => {
           </Typography>
           <Typography color={"inherit"}>{supportingConditions}</Typography>
         </Stack>
+      </Grid>
+
+      <Grid
+        item
+        xs={12}
+        lg={4}
+        container
+        alignContent={{ xs: "flex-start", lg: "flex-end" }}
+        justifyContent={{ xs: "flex-start", lg: "flex-end" }}
+      >
+        <Typography color={BCDesignTokens.themeGray70} sx={{ mr: 1 }}>
+          Version:{" "}
+        </Typography>
+        <VersionGroup currentPackageVersion={version} />
       </Grid>
       <Grid item xs={12} container>
         <SubmissionHistory submissionPackageId={String(submissionPackage.id)} />

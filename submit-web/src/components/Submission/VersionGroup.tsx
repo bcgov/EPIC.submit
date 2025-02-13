@@ -84,7 +84,7 @@ export default function VersionGroup({
           sx={{
             p: 0,
             mr: 1,
-            minWidth: `35px`,
+            minWidth: `34px`,
           }}
           onClick={() => handleUpdatePackageId(version.package_id)}
         >
