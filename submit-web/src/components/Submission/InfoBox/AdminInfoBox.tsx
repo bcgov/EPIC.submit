@@ -36,9 +36,8 @@ export const AdminInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       sx={{
         borderRadius: "4px",
         border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-        p: "16px",
+        p: "16px 16px 16px 16px",
       }}
-      rowSpacing={"24px"}
     >
       <Grid item xs={12} lg={4} container>
         <Stack direction={"row"} spacing={2}>
@@ -69,7 +68,7 @@ export const AdminInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         </Typography>
         <VersionGroup currentPackageVersion={version} />
       </Grid>
-      <Grid item xs={12} container>
+      <Grid item xs={12} container mt={"24px"}>
         <SubmissionHistory submissionPackageId={String(submissionPackage.id)} />
       </Grid>
     </Grid>
