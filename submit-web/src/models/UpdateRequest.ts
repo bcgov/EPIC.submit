@@ -32,7 +32,7 @@ export const UPDATE_REQUEST_STATUS = Object.freeze<
 });
 export type UpdateRequest = {
   id: number;
-  submission_item_ids: number[];
+  submission_item_types: number[];
   reason: string;
   created_date: string;
   created_by: string;

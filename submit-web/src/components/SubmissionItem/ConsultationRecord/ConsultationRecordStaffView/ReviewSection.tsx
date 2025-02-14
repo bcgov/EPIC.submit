@@ -27,7 +27,7 @@ import {
 } from "@/components/Shared/PermissionGate/utils";
 import { NotificationBox } from "./NotificationBox";
 import NotesSection from "../../NotesSection";
-import AddRequestSection from "./AddRequestSection";
+import AddRequestSection from "../../AddRequestSection";
 import { When } from "react-if";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
@@ -81,9 +81,9 @@ export default function ReviewSection() {
       },
       update_request: {
         reason: managerAnswers?.reason || staffAnswers?.reason || "",
-        submission_item_ids:
-          managerAnswers?.submission_item_ids ||
-          staffAnswers?.submission_item_ids ||
+        submission_item_types:
+          managerAnswers?.submission_item_types ||
+          staffAnswers?.submission_item_types ||
           [],
       },
     };

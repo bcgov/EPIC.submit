@@ -7,12 +7,13 @@ from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.management_plan import ManagementPlanSubmissionPurpose
 from submit_api.exceptions import ResourceNotFoundError
-from submit_api.models import PackageVersion
+from submit_api.models import PackageVersion, SubmissionReview, SubmissionReviewEntry
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageMetadata
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.submission import SubmissionType
+from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequest
 from submit_api.schemas.submission import CreateSubmissionRequestSchema
 from submit_api.services.activity_log_service import ActivityLogService
@@ -29,17 +30,27 @@ class ManagementPlanService:
         """Reject management plan form."""
         cls._update_item_status_mp_rejection(item)
         cls._update_package_metadata_mp_rejection(item, session)
-        new_package, new_item = cls._create_new_package_version(item, session)
-        update_request_data = {
-            'package_id': new_package.id,
-            'item_ids': [new_item.id],
-            'reason': 'Revision required for the Management Plan.',
-            'type': UpdateRequestType.REVIEW,
-        }
+        _, new_item = cls._create_new_package_version(item, session)
+        update_request_data = cls._prepare_update_request_data(new_item, item)
         cls._create_mp_update_request(update_request_data, session)
         cls._log_management_plan_rejection_activity(item, session)
         current_app.logger.info(f"Management plan form rejected for item {item.id}.")
         return item
+
+    @classmethod
+    def _prepare_update_request_data(cls, new_item, old_item):
+        """Prepare the update request data."""
+        item_review = SubmissionReview.get_active_review_by_item_id(old_item.id)
+        manager_review_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(
+            item_review.id, SubmissionReviewEntryType.MANAGER_CONFIRMATION
+        )
+        return {
+            'package_id': new_item.package_id,
+            'submission_item_types': manager_review_entry.entry.get('submission_item_types')
+            if manager_review_entry else None,
+            'reason': manager_review_entry.entry.get('reason') if manager_review_entry else None,
+            'type': UpdateRequestType.REVIEW,
+        }
 
     @classmethod
     def _log_management_plan_rejection_activity(cls, item, session):
@@ -141,7 +152,7 @@ class ManagementPlanService:
         current_app.logger.info(f"Creating update request for new management plan {data.get('package_id')}.")
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
-            submission_item_ids=data.get('item_ids'),
+            submission_item_types=data.get('submission_item_types'),
             created_by=TokenInfo.get_id(),
             reason=data.get('reason'),
             type=data.get('type')

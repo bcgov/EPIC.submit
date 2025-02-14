@@ -60,8 +60,8 @@ class CreateUpdateRequestSchema(Schema):
 
         unknown = EXCLUDE
 
-    submission_item_ids = fields.List(fields.Int(), data_key="submission_item_ids",
-                                      required=True, validate=validate.Length(min=1))
+    submission_item_types = fields.List(fields.Int(), data_key="submission_item_types",
+                                        required=True, validate=validate.Length(min=1))
     reason = fields.Str(data_key="reason", required=True,
                         validate=validate.Length(min=1))
 
@@ -87,8 +87,8 @@ class PackageUpdateRequestSchema(Schema):
 
     id = fields.Int(data_key="id")
     submission_package_id = fields.Int(data_key="submission_package_id")
-    submission_item_ids = fields.List(
-        fields.Int(), data_key="submission_item_ids")
+    submission_item_types = fields.List(
+        fields.Int(), data_key="submission_item_types")
     active = fields.Bool(data_key="active")
     reason = fields.Str(data_key="reason")
     created_date = fields.DateTime(data_key="created_date")

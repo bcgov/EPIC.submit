@@ -70,7 +70,7 @@ export default function AddRequestSection({
   const filteredItems = useMemo(() => {
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
     );
   }, [submissionPackage.items]);
 
@@ -92,7 +92,7 @@ export default function AddRequestSection({
             {filteredItems.map((item) => (
               <FormControlLabel
                 key={item.id}
-                control={<Checkbox value={item.id} sx={{ py: 0 }} />}
+                control={<Checkbox value={item.type_id} sx={{ py: 0 }} />}
                 label={item.type.name}
               />
             ))}

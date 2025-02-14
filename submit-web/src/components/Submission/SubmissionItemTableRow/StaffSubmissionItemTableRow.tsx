@@ -43,7 +43,7 @@ export default function StaffSubmissionItemTableRow({
       }),
     );
 
-  const { submissions, id, status, review, review_start_date } = item;
+  const { submissions, id, status, review, review_start_date, type_id } = item;
 
   const name = item.type.name;
   const hasDocument =
@@ -72,9 +72,9 @@ export default function StaffSubmissionItemTableRow({
   const isUpdateRequest = useMemo(() => {
     if (!submissionPackage) return false;
     return filterOpenUpdateRequests(submissionPackage.update_requests)
-      .flatMap((updateRequest) => updateRequest.submission_item_ids)
-      .includes(id);
-  }, [submissionPackage, id]);
+      .flatMap((updateRequest) => updateRequest.submission_item_types)
+      .includes(type_id);
+  }, [submissionPackage, type_id]);
 
   const isRevisionRequired = useMemo(() => {
     if (!submissionPackage) return false;
@@ -84,8 +84,10 @@ export default function StaffSubmissionItemTableRow({
           updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value &&
           updateRequest.active,
       )
-      .some((updateRequest) => updateRequest.submission_item_ids.includes(id));
-  }, [submissionPackage, id]);
+      .some((updateRequest) =>
+        updateRequest.submission_item_types.includes(type_id),
+      );
+  }, [submissionPackage, type_id]);
 
   const actionLabel = hasDocument ? "Review" : "View";
 

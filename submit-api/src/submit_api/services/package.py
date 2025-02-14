@@ -487,7 +487,7 @@ class PackageService:
         """Create an update request for the package."""
         update_request = UpdateRequestModel(
             submission_package_id=package.id,
-            submission_item_ids=request_data.get("submission_item_ids"),
+            submission_item_types=request_data.get("submission_item_types"),
             reason=request_data.get("reason"),
             created_by=TokenInfo.get_id()
         )
