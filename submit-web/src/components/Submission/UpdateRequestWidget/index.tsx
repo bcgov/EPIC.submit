@@ -71,7 +71,7 @@ export default function UpdateRequestWidget({
       packageId: Number(submissionPackage.id),
       data: {
         reason: reason,
-        submission_item_ids: submissionItems,
+        submission_item_types: submissionItems,
       },
     });
   };

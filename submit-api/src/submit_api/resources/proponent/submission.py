@@ -23,7 +23,6 @@ from submit_api.schemas.submission import CreateSubmissionRequestSchema, Submiss
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.util import cors_preflight
 
-
 API = Namespace("submissions", description="Endpoints for Submission Management")
 """Custom exception messages
 """
@@ -76,6 +75,29 @@ class Submissions(Resource):
         edit_submission_data = CreateSubmissionRequestSchema().load(API.payload)
         edited_submission = SubmissionService.edit_submission_form(submission_id, edit_submission_data)
         return SubmissionSchema().dump(edited_submission), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:submission_id>/versions", methods=["GET", "OPTIONS"])
+class SubmissionVersions(Resource):
+    """Resource for retrieving all versions of a submission."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get all versions of a submission")
+    @API.response(
+        code=HTTPStatus.OK,
+        model=[submission_model],
+        description="List of submission versions"
+    )
+    @API.response(HTTPStatus.NOT_FOUND, "Submission not found")
+    @cors.crossdomain(origin="*")
+    @auth.require
+    def get(submission_id):
+        """Fetch all versions of a submission based on its root submission ID."""
+        submissions = SubmissionService.get_all_versions(submission_id)
+        if not submissions:
+            return {"message": "No versions found for the given submission."}, HTTPStatus.NOT_FOUND
+        return SubmissionSchema(many=True).dump(submissions), HTTPStatus.OK
 
 
 @cors_preflight("OPTIONS, POST, DELETE")

@@ -17,14 +17,20 @@ export default function RequestSection({
   updateRequest,
   submissionPackage,
 }: UpdateRequestProps) {
-  const { reason, created_date, created_by, note, type, submission_item_ids } =
-    updateRequest;
+  const {
+    reason,
+    created_date,
+    created_by,
+    note,
+    type,
+    submission_item_types,
+  } = updateRequest;
   const createdDate = dateUtils.formatDate(created_date);
 
   const { userType } = useAccount();
 
   const submissionItems = submissionPackage.items.filter((item) =>
-    submission_item_ids.includes(item.id),
+    submission_item_types.includes(item.type_id),
   );
   return (
     <Box sx={{ my: BCDesignTokens.layoutMarginLarge }}>

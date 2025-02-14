@@ -85,7 +85,7 @@ class ConsultationRecordService:
         )
         return {
             'package_id': item.package_id,
-            'item_ids': manager_review_entry.entry.get('submission_item_ids') if manager_review_entry else None,
+            'item_types': manager_review_entry.entry.get('submission_item_types') if manager_review_entry else None,
             'reason': manager_review_entry.entry.get('reason') if manager_review_entry else None,
             'type': UpdateRequestType.REVIEW,
         }
@@ -96,7 +96,7 @@ class ConsultationRecordService:
         current_app.logger.info(f"Creating update request for new package {data.get('package_id')}.")
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
-            submission_item_ids=data.get('item_ids'),
+            submission_item_types=data.get('item_types'),
             created_by=TokenInfo.get_id(),
             reason=data.get('reason'),
             type=data.get('type')

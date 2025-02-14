@@ -93,3 +93,14 @@ class SubmissionService:
             raise ValueError("Submission not found.")
         submission.delete()
         return submission
+
+    @classmethod
+    def get_all_versions(cls, submission_id):
+        """Fetch all versions of a submission by its root submission ID."""
+        with session_scope():
+            submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
+            if not submission:
+                return None
+
+            root_submission_id = submission.root_submission_id or submission.id
+            return SubmissionModel.find_all_versions(root_submission_id)

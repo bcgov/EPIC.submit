@@ -16,7 +16,7 @@ import { useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 
 type AddRequestSectionProps = {
-  disabled?: boolean;
+  readonly disabled?: boolean;
 };
 export default function AddRequestSection({
   disabled = false,
@@ -53,13 +53,13 @@ export default function AddRequestSection({
         Revision Required for
       </Typography>
       <ControlledCheckboxGroup
-        name="update_request.submission_item_ids"
+        name="update_request.submission_item_types"
         disabled={disabled}
       >
         {filteredItems.map((item) => (
           <FormControlLabel
             key={item.id}
-            control={<Checkbox value={item.id} />}
+            control={<Checkbox value={item.type_id} />}
             label={item.type.name}
           />
         ))}
