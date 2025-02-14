@@ -156,11 +156,10 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             created_by=TokenInfo.get_id(),
             root_submission_id=root_submission_id
         )
-        session.add(submission)
-
+        submission.flush()
         # Set `root_submission_id` to its own ID if not provided
         if submission.root_submission_id is None:
             submission.root_submission_id = submission.id
-            session.commit()
+            submission.flush()
 
         return submission
