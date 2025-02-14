@@ -47,6 +47,8 @@ class Submission(BaseModel):
     minor_version = Column(db.Integer, nullable=False, default=1)
     active = Column(db.Boolean, nullable=False, default=True)
     status = Column(Enum(SubmissionStatus), nullable=True, default=SubmissionStatus.PENDING)
+    root_submission_id = Column(db.Integer, ForeignKey('submissions.id'),
+                                nullable=True)  # the base or root id of submisison
 
     Index('idx_submissions_type_item_id', type, item_id)
 
@@ -59,3 +61,9 @@ class Submission(BaseModel):
     def find_latest_by_type_and_item_id(cls, item_id: int, submission_type: SubmissionType):
         """Return model by item id."""
         return cls.query.filter_by(item_id=item_id, type=submission_type).order_by(cls.created_date.asc()).first()
+
+    @classmethod
+    def find_all_versions(cls, root_submission_id: int):
+        """Fetch all versions of a submission given its root submission ID."""
+        return cls.query.filter_by(root_submission_id=root_submission_id).order_by(cls.major_version,
+                                                                                   cls.minor_version).all()

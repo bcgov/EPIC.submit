@@ -86,13 +86,14 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     def _create(self, item_id, request_data, session):
         """Create a new document submission."""
         submitted_document = self._create_submitted_document(session, request_data)
-        submission = self._create_submission(session, item_id, submitted_document.id)
+        submission: SubmissionModel = self._create_submission(session, item_id, submitted_document.id)
+
         return submission
 
     def replace(self, submission_id, request_data):
         """Replace a document submission."""
         with session_scope() as session:
-            submission = SubmissionModel.find_by_id(submission_id)
+            submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
             if status := submission.status not in [SubmissionStatus.SUBMITTED,
                                                    SubmissionStatus.REJECTED, SubmissionStatus.PENDING]:
                 raise BadRequestError(f"Cannot replace a document with status {status}.")
@@ -101,7 +102,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 session=session,
                 item_id=submission.item_id,
                 submitted_document_id=submitted_document.id,
-                original_submission_id=submission.id
+                original_submission_id=submission.id,  # original is the immediate parent id
+                root_submission_id=submission.root_submission_id  # root id is the first submission id in the chain
             )
             submission.active = False
             session.add(submission)
@@ -141,7 +143,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         return submitted_document
 
     @staticmethod
-    def _create_submission(session, item_id, submitted_document_id, original_submission_id=None):
+    def _create_submission(session, item_id, submitted_document_id, original_submission_id=None,
+                           root_submission_id=None):
         """Create a new submission."""
         major_version, minor_version = DocumentSubmissionCreator.get_document_version(item_id, original_submission_id)
         submission = SubmissionModel(
@@ -150,8 +153,13 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             submitted_document_id=submitted_document_id,
             major_version=major_version,
             minor_version=minor_version,
-            created_by=TokenInfo.get_id()
-
+            created_by=TokenInfo.get_id(),
+            root_submission_id=root_submission_id
         )
-        session.add(submission)
+        submission.flush()
+        # Set `root_submission_id` to its own ID if not provided
+        if submission.root_submission_id is None:
+            submission.root_submission_id = submission.id
+            submission.flush()
+
         return submission
