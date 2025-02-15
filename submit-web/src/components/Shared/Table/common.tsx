@@ -95,3 +95,9 @@ export const SubmitPrimaryRowTableCell = styled(TableCell)<{ error?: boolean }>(
     },
   }),
 );
+
+export const SubmitSubTableCell = styled(TableCell)(() => ({
+  borderTop: `none`,
+  borderBottom: `none`,
+  padding: `${BCDesignTokens.layoutPaddingXsmall}`,
+}));

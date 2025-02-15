@@ -97,10 +97,10 @@ export const SUBMISSION_STATUS = Object.freeze<
 export type Submission = {
   id: number;
   item_id: number;
-  version: number;
+  version: string;
   type: SubmissionType;
   submitted_document: DocumentSubmission;
-  submitted_form: SubmittedForm;
+  submitted_form?: SubmittedForm;
   created_date: string;
   submitted_by: string;
   status: SubmissionStatus;
