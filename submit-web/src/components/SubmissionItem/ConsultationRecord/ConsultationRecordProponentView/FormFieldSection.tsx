@@ -73,24 +73,24 @@ export default function FormFieldSection({
           </Typography>
           <Grid item container xs={12} spacing={2}>
             {fields.map((field, index) => (
-                <Grid item container xs={12} key={field.id}>
-                  <Grid item xs={6}>
-                    <ControlledTextField
-                      fullWidth
-                      name={`consultedParties.${index}.consultedParty`}
-                      placeholder="Enter the name of other consulted party here"
-                      sx={{
-                        mb: 0,
-                      }}
-                    />
-                  </Grid>
-                  <When condition={fields.length > 1}>
-                    <IconButton onClick={() => remove(index)}>
-                      <CloseIcon />
-                    </IconButton>
-                  </When>
+              <Grid item container xs={12} key={field.id}>
+                <Grid item xs={6}>
+                  <ControlledTextField
+                    fullWidth
+                    name={`consultedParties.${index}.consultedParty`}
+                    placeholder="Enter the name of other consulted party here"
+                    sx={{
+                      mb: 0,
+                    }}
+                  />
                 </Grid>
-              ))}
+                <When condition={fields.length > 1}>
+                  <IconButton onClick={() => remove(index)}>
+                    <CloseIcon />
+                  </IconButton>
+                </When>
+              </Grid>
+            ))}
           </Grid>
           <Typography
             variant="body1"
