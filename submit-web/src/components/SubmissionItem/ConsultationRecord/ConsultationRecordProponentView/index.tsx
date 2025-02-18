@@ -22,6 +22,8 @@ import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { SubmissionPackage } from "@/models/Package";
 
 export const ConsultationRecordProponentView = () => {
   const {
@@ -44,6 +46,16 @@ export const ConsultationRecordProponentView = () => {
     "item",
     Number(submissionItemId),
   ]);
+
+  const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
+    getSubmissionPackageQueryOptions({
+      packageId: Number(submissionPackageId),
+    }).queryKey,
+  );
+
+  const partiesList =
+    submissionPackage?.meta?.main_condition?.condition_attributes
+      ?.parties_required_to_be_consulted?.split(", ") || [];
 
   const formSubmission = submissionItem?.submissions?.find(
     (submission) => submission.type === SUBMISSION_TYPE.FORM,
@@ -179,7 +191,7 @@ export const ConsultationRecordProponentView = () => {
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(handleCompleteForm)}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-            <FormFieldSection errors={errors} methods={methods} />
+            <FormFieldSection errors={errors} methods={methods} partiesList={partiesList} />
             <Grid item xs={12}>
               <DocumentUploadSection />
             </Grid>

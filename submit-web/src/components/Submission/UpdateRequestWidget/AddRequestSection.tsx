@@ -70,7 +70,7 @@ export default function AddRequestSection({
   const filteredItems = useMemo(() => {
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
     );
   }, [submissionPackage.items]);
 
@@ -82,7 +82,7 @@ export default function AddRequestSection({
             variant="body1"
             sx={{
               pt: BCDesignTokens.layoutPaddingLarge,
-              fontWeight: BCDesignTokens.typographyBoldBody,
+              fontWeight: 700,
               mb: BCDesignTokens.layoutMarginSmall,
             }}
           >
@@ -101,12 +101,12 @@ export default function AddRequestSection({
             <Typography
               variant="body1"
               sx={{
-                fontWeight: BCDesignTokens.typographyBoldBody,
-                pt: BCDesignTokens.layoutPaddingLarge,
+                fontWeight: 700,
+
                 mb: BCDesignTokens.layoutMarginSmall,
               }}
             >
-              Request reason
+              Request Note
             </Typography>
             <ControlledTextField
               name="reason"
