@@ -22,7 +22,7 @@ export default function DocumentsSubTable({
   const filteredSubmissions = useMemo(() => {
     if (!submissions) return [];
     return submissions.filter((sub) => sub.id !== submission.id);
-  }, [submissions]);
+  }, [submissions, submission.id]);
 
   if (isSubmissionsLoading) {
     return (
