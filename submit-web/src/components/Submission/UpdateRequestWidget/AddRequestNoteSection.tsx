@@ -34,7 +34,7 @@ export const AddRequestNoteSection = ({
     });
 
   const { userType } = useAccount();
-  const isProponent = userType === USER_TYPE.PROPONENT;
+  const isProponent = true;
 
   return (
     <Box mt="1em">
@@ -86,11 +86,14 @@ export const AddRequestNoteSection = ({
       <When condition={isProponent && !updateRequest.note && !isAddingNote}>
         <Button
           color="primary"
-          variant="outlined"
+          variant="text"
           onClick={() => setIsAddingNote(true)}
-          sx={{ mt: 2 }}
+          sx={{
+            mt: 2,
+            border: `1px solid ${BCDesignTokens.typographyColorPrimary}`,
+          }}
         >
-          Add Note
+          Add Note for EAO
         </Button>
       </When>
     </Box>
