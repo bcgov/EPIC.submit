@@ -11,11 +11,13 @@ import { ConsultationRecordForm } from "../constants";
 interface FormFieldSectionProps {
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   errors: FieldErrors<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
+  partiesList: Array<string>;
 }
 
 export default function FormFieldSection({
   methods,
   errors,
+  partiesList,
 }: FormFieldSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control: methods.control,
@@ -64,32 +66,31 @@ export default function FormFieldSection({
                 paddingLeft: BCDesignTokens.layoutPaddingSmall,
               }}
             >
-              <li>Ho’rem</li>
-              <li>Nustuk</li>
-              <li>Langkuem</li>
-              <li>Miskuuck</li>
+              {partiesList.map((stakeholder, index) => (
+                <li key={index}>{stakeholder}</li>
+              ))}
             </ul>
           </Typography>
           <Grid item container xs={12} spacing={2}>
             {fields.map((field, index) => (
-              <Grid item container xs={12} key={field.id}>
-                <Grid item xs={6}>
-                  <ControlledTextField
-                    fullWidth
-                    name={`consultedParties.${index}.consultedParty`}
-                    placeholder="Enter the name of other consulted party here"
-                    sx={{
-                      mb: 0,
-                    }}
-                  />
+                <Grid item container xs={12} key={field.id}>
+                  <Grid item xs={6}>
+                    <ControlledTextField
+                      fullWidth
+                      name={`consultedParties.${index}.consultedParty`}
+                      placeholder="Enter the name of other consulted party here"
+                      sx={{
+                        mb: 0,
+                      }}
+                    />
+                  </Grid>
+                  <When condition={fields.length > 1}>
+                    <IconButton onClick={() => remove(index)}>
+                      <CloseIcon />
+                    </IconButton>
+                  </When>
                 </Grid>
-                <When condition={fields.length > 1}>
-                  <IconButton onClick={() => remove(index)}>
-                    <CloseIcon />
-                  </IconButton>
-                </When>
-              </Grid>
-            ))}
+              ))}
           </Grid>
           <Typography
             variant="body1"
