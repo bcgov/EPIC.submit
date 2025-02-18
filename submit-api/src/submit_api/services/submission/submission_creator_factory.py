@@ -106,10 +106,11 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 root_submission_id=submission.root_submission_id  # root id is the first submission id in the chain
             )
             if submission.status == SubmissionStatus.PENDING:
-                submission.delete()
+                submission.deleted = True
+                submission.active = False
             else:
                 submission.active = False
-                session.add(submission)
+            session.add(submission)
             return new_submission
 
     @classmethod

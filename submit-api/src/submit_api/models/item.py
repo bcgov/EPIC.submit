@@ -35,7 +35,7 @@ class Item(BaseModel):
     submissions = db.relationship(
         'Submission',
         lazy='joined',
-        primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True))',
+        primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))',
         order_by='Submission.created_date.asc()'
     )
 
