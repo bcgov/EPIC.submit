@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Collapse,
-  Link as MuiLink,
-  TableCell,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Collapse, Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -13,7 +7,6 @@ import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { StatusCell } from "./StatusCell";
 import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
-import DocumentSubRow from "../ItemsTable/DocumentSubRow";
 import DocumentsSubTable from "../ItemsTable/DocumentsSubTable";
 
 type DocumentRowProps = Readonly<{

@@ -20,7 +20,7 @@ from submit_api.models.package_item_type import PackageItemType as PackageItemTy
 from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
-from submit_api.models.submission import SubmissionType
+from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
@@ -259,7 +259,7 @@ class PackageService:
     @staticmethod
     def update_submission_status(package, status, session):
         """Update package submission details."""
-        if status not in ItemStatus.__members__:
+        if status not in SubmissionStatus.__members__:
             raise BadRequestError("Invalid status")
         submissions = [submission for item in package.items for submission in item.submissions]
         for submission in submissions:
@@ -319,7 +319,7 @@ class PackageService:
             package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_package_status(package.id, session, package)
         cls._update_package_submission_details(package, session)
-        cls.update_submission_status(package, ItemStatus.SUBMITTED.value, session)
+        cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._create_email_queue_record(package, session)
         cls._log_activity_submission(package, ActivityActionType.ORIGINAL_SUBMISSION.value, session)
@@ -334,6 +334,7 @@ class PackageService:
         if not open_update_requests:
             raise BadRequestError("Cannot resubmit a package that has no open update requests")
         cls._update_package_submission_details(package, session)
+        cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)

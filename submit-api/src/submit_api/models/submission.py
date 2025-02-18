@@ -65,5 +65,5 @@ class Submission(BaseModel):
     @classmethod
     def find_all_versions(cls, root_submission_id: int):
         """Fetch all versions of a submission given its root submission ID."""
-        return cls.query.filter_by(root_submission_id=root_submission_id).order_by(cls.major_version,
-                                                                                   cls.minor_version).all()
+        return cls.query.filter_by(root_submission_id=root_submission_id).order_by(cls.major_version.desc(),
+                                                                                   cls.minor_version.desc()).all()
