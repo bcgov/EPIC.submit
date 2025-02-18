@@ -34,7 +34,7 @@ export const AddRequestNoteSection = ({
     });
 
   const { userType } = useAccount();
-  const isProponent = true;
+  const isProponent = userType === USER_TYPE.PROPONENT;
 
   return (
     <Box mt="1em">
