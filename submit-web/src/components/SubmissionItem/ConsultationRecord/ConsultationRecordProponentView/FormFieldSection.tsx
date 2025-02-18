@@ -11,11 +11,13 @@ import { ConsultationRecordForm } from "../constants";
 interface FormFieldSectionProps {
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   errors: FieldErrors<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
+  partiesList: Array<string>;
 }
 
 export default function FormFieldSection({
   methods,
   errors,
+  partiesList,
 }: FormFieldSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control: methods.control,
@@ -64,10 +66,9 @@ export default function FormFieldSection({
                 paddingLeft: BCDesignTokens.layoutPaddingSmall,
               }}
             >
-              <li>Ho’rem</li>
-              <li>Nustuk</li>
-              <li>Langkuem</li>
-              <li>Miskuuck</li>
+              {partiesList.map((stakeholder, index) => (
+                <li key={index}>{stakeholder}</li>
+              ))}
             </ul>
           </Typography>
           <Grid item container xs={12} spacing={2}>
