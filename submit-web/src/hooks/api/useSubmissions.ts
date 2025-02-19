@@ -10,34 +10,6 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 type FormType = Record<string, unknown>;
-export const editSubmissionForm = (id: number, data: FormType) => {
-  return submitRequest<Submission>({
-    url: `/submissions/${id}/form`,
-    method: "patch",
-    data,
-  });
-};
-
-export const createSubmission = (itemId: number, data: FormType) => {
-  return submitRequest<Submission>({
-    url: `/submissions/items/${itemId}`,
-    method: "post",
-    data,
-  });
-};
-
-export const useCreateSubmission = (itemId: number, options?: Options) => {
-  return useMutation({
-    mutationFn: ({ data }: { data: FormType }) =>
-      createSubmission(itemId, data),
-    ...options,
-    onSuccess: () => {
-      if (options?.onSuccess) {
-        options.onSuccess();
-      }
-    },
-  });
-};
 
 type UseSaveSubmissionParams = {
   accountProjectId: number;
@@ -85,6 +57,48 @@ export const useSaveSubmission = ({
   });
 };
 
+export const editSubmissionForm = (id: number, data: FormType) => {
+  return submitRequest<Submission>({
+    url: `/submissions/${id}/form`,
+    method: "patch",
+    data,
+  });
+};
+
+export const createSubmission = (itemId: number, data: FormType) => {
+  return submitRequest<Submission>({
+    url: `/submissions/items/${itemId}`,
+    method: "post",
+    data,
+  });
+};
+
+export const useCreateSubmission = (itemId: number, options?: Options) => {
+  return useMutation({
+    mutationFn: ({ data }: { data: FormType }) =>
+      createSubmission(itemId, data),
+    ...options,
+    onSuccess: () => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+    },
+  });
+};
+
+export const useGetSubmissionsByItemIdAndType = ({
+  itemId,
+  type,
+  enabled = true,
+}: UseGetSubmissionItemByIdParams) => {
+  return useQuery({
+    queryKey: ["submissions", type],
+    queryFn: () => getSubmissionsByItemIdAndType({ itemId }),
+    enabled: enabled && Boolean(itemId),
+    ...defaultUseQueryOptions,
+  });
+};
+
 type GetSubmissionItemByIdParams = {
   itemId: number;
 };
@@ -103,34 +117,6 @@ type UseGetSubmissionItemByIdParams = {
   itemId: number;
   type: SubmissionType;
   enabled?: boolean;
-};
-
-export const useGetSubmissionsByItemIdAndType = ({
-  itemId,
-  type,
-  enabled = true,
-}: UseGetSubmissionItemByIdParams) => {
-  return useQuery({
-    queryKey: ["submissions", type],
-    queryFn: () => getSubmissionsByItemIdAndType({ itemId }),
-    enabled: enabled && Boolean(itemId),
-    ...defaultUseQueryOptions,
-  });
-};
-
-type ReplaceSubmissionParams = {
-  submissionId: number;
-  data: FormType;
-};
-export const replacteSubmission = ({
-  submissionId,
-  data,
-}: ReplaceSubmissionParams) => {
-  return submitRequest<Submission>({
-    url: `/submissions/${submissionId}/document`,
-    method: "post",
-    data,
-  });
 };
 
 type UseReplaceSubmissionParams = {
@@ -156,10 +142,18 @@ export const useReplaceSubmussion = ({
   });
 };
 
-export const deleteSubmission = (submissionId: number) => {
+type ReplaceSubmissionParams = {
+  submissionId: number;
+  data: FormType;
+};
+export const replacteSubmission = ({
+  submissionId,
+  data,
+}: ReplaceSubmissionParams) => {
   return submitRequest<Submission>({
     url: `/submissions/${submissionId}/document`,
-    method: "delete",
+    method: "post",
+    data,
   });
 };
 
@@ -183,5 +177,27 @@ export const useDeleteSubmission = ({
       });
     },
     ...restOptions,
+  });
+};
+
+export const deleteSubmission = (submissionId: number) => {
+  return submitRequest<Submission>({
+    url: `/submissions/${submissionId}/document`,
+    method: "delete",
+  });
+};
+
+export const useGetSubmissionVersions = (submissionId: number) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.SUBMISSION_VERSIONS, submissionId],
+    queryFn: () => getSubmissionVersions(submissionId),
+    ...defaultUseQueryOptions,
+    retry: false,
+  });
+};
+
+export const getSubmissionVersions = (submissionId: number) => {
+  return submitRequest<Submission[]>({
+    url: `/submissions/${submissionId}/versions`,
   });
 };

@@ -9,14 +9,16 @@ import { TableRow } from "@mui/material";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
-interface DocumentRowProps {
+type DocumentRowProps = Readonly<{
   submittedDocument: SubmittedDocument;
-}
+}>;
 
-export default function DocumentTableRow({ submittedDocument }: DocumentRowProps) {
+export default function DocumentTableRow({
+  submittedDocument,
+}: DocumentRowProps) {
   const { name, url } = submittedDocument;
 
-  const [pendingGetObject, setPendingGetObject] = useState(false)
+  const [pendingGetObject, setPendingGetObject] = useState(false);
 
   const downloadDocument = async () => {
     try {
@@ -29,49 +31,45 @@ export default function DocumentTableRow({ submittedDocument }: DocumentRowProps
       setPendingGetObject(false);
     }
   };
-  
+
   const openDocument = () => {
     downloadDocument();
   };
 
   return (
-    <>
-      <TableRow>
-        <SubmitTableCell align="left">
-          {submittedDocument.project_name ?? ""}
-        </SubmitTableCell>
-        <SubmitTableCell>
-          <Typography
-            variant="body1"
-            color="inherit"
-            sx={{
-              overflow: "clip",
-              textOverflow: "ellipsis",
-              cursor: "pointer",
-              mx: 0.5,
-            }}
-          >
-            <MuiLink onClick={openDocument}>{submittedDocument.name}</MuiLink>
-          </Typography>
-        </SubmitTableCell>
-        <SubmitTableCell align="right">
-          {submittedDocument.version ?? ""}
-        </SubmitTableCell>
-        <SubmitTableCell align="center">
-          {dateUtils.formatDate(submittedDocument.submitted_on)}
-        </SubmitTableCell>
-        <SubmitTableCell
-          align="right"
+    <TableRow>
+      <SubmitTableCell align="left">
+        {submittedDocument.project_name ?? ""}
+      </SubmitTableCell>
+      <SubmitTableCell>
+        <Typography
+          variant="body1"
+          color="inherit"
           sx={{
-            pr: BCDesignTokens.layoutPaddingSmall,
+            overflow: "clip",
+            textOverflow: "ellipsis",
+            cursor: "pointer",
+            mx: 0.5,
           }}
         >
-          <SubmissionStatusChip status={submittedDocument.status ?? ""} />
-        </SubmitTableCell>
-        <SubmitTableCell align="center">
-          {''}
-        </SubmitTableCell>
-      </TableRow>
-    </>
+          <MuiLink onClick={openDocument}>{submittedDocument.name}</MuiLink>
+        </Typography>
+      </SubmitTableCell>
+      <SubmitTableCell align="right">
+        {submittedDocument.version ?? ""}
+      </SubmitTableCell>
+      <SubmitTableCell align="center">
+        {dateUtils.formatDate(submittedDocument.submitted_on)}
+      </SubmitTableCell>
+      <SubmitTableCell
+        align="right"
+        sx={{
+          pr: BCDesignTokens.layoutPaddingSmall,
+        }}
+      >
+        <SubmissionStatusChip status={submittedDocument.status ?? ""} />
+      </SubmitTableCell>
+      <SubmitTableCell align="center">{""}</SubmitTableCell>
+    </TableRow>
   );
 }

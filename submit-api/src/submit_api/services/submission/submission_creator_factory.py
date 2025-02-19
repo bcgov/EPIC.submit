@@ -105,7 +105,11 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 original_submission_id=submission.id,  # original is the immediate parent id
                 root_submission_id=submission.root_submission_id  # root id is the first submission id in the chain
             )
-            submission.active = False
+            if submission.status == SubmissionStatus.PENDING:
+                submission.deleted = True
+                submission.active = False
+            else:
+                submission.active = False
             session.add(submission)
             return new_submission
 
@@ -156,10 +160,11 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             created_by=TokenInfo.get_id(),
             root_submission_id=root_submission_id
         )
-        submission.flush()
+        session.add(submission)
+        session.flush()
         # Set `root_submission_id` to its own ID if not provided
         if submission.root_submission_id is None:
             submission.root_submission_id = submission.id
-            submission.flush()
+            session.flush()
 
         return submission

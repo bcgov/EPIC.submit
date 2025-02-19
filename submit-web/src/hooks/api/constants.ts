@@ -2,6 +2,7 @@ export const defaultUseQueryOptions = {
   refetchOnWindowFocus: false,
   refetchOnMount: false,
   staleTime: 1000 * 60 * 5,
+  retry: false,
 };
 
 export const QUERY_KEY = Object.freeze({
@@ -16,4 +17,5 @@ export const QUERY_KEY = Object.freeze({
   PACKAGE_VERSIONS: "package-versions",
   STAFF_USER: "staff/staff-user",
   ACTIVITY_LOGS: "activity-logs",
+  SUBMISSION_VERSIONS: "submission-versions",
 });

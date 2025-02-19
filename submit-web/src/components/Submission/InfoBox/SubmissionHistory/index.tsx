@@ -25,9 +25,12 @@ export const SubmissionHistory = ({
     >
       <AccordionSummary
         expandIcon={<SubmitLink fontSize={"14px"}>view</SubmitLink>}
+        style={{
+          height: "40px",
+          minHeight: 0,
+        }}
         sx={[
           {
-            height: "40px",
             py: 0,
             borderRadius: "4px",
             border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,

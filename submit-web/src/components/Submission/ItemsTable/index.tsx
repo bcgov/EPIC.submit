@@ -8,17 +8,17 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import SubmissionItemTableRow from "./SubmissionItemTableRow";
-import { SubmitTableHeadCell } from "../Shared/Table/common";
-import { usePackageTableStore } from "./packageTableStore";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import { When } from "react-if";
-import InternalDocumentsRows from "../SubmissionItem/InternalDocuments/Rows";
 import { SubmissionPackage } from "@/models/Package";
-import { isSubmissionItemReadyToSubmit } from "./utils";
 import { useFileStore } from "@/store/fileStore";
 import { useEffect } from "react";
+import SubmissionItemTableRow from "../SubmissionItemTableRow";
+import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
+import { isSubmissionItemReadyToSubmit } from "../utils";
+import InternalDocumentsRows from "../../SubmissionItem/InternalDocuments/Rows";
+import { usePackageTableStore } from "../packageTableStore";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
