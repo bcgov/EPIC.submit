@@ -3,7 +3,8 @@ export type NonCanonicalSubmissionStatus =
   | "PENDING_MANAGER_REVIEW"
   | "REVISION_REQUIRED"
   | "UPDATED"
-  | "UPDATE_REQUESTED";
+  | "UPDATE_REQUESTED"
+  | "FAILED";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   Record<NonCanonicalSubmissionStatus, NonCanonicalSubmissionStatus>
@@ -12,6 +13,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   UPDATE_REQUESTED: "UPDATE_REQUESTED",
   REVISION_REQUIRED: "REVISION_REQUIRED",
   UPDATED: "UPDATED",
+  FAILED: "FAILED",
 });
 
 export type SubmissionItemStatus =

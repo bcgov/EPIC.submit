@@ -1,33 +1,20 @@
 import { SubmissionStatusChip } from "@/components/SubmissionStatusChip";
 import {
+  NON_CANONICAL_SUBMISSION_STATUS,
   Submission,
-  SUBMISSION_ITEM_STATUS,
   SUBMISSION_STATUS,
 } from "@/models/Submission";
-import { SUBMISSION_ITEM_TYPE, SubmissionItem } from "@/models/SubmissionItem";
 import { Case, Default, Switch } from "react-if";
 
 type StatusCellProps = Readonly<{
   submittedDocument: Submission;
-  submissionItem: SubmissionItem;
 }>;
 
-export const StatusCell = ({
-  submittedDocument,
-  submissionItem,
-}: StatusCellProps) => {
+export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
   return (
     <Switch>
-      <Case
-        condition={
-          submissionItem.type.name ===
-            SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD &&
-          submittedDocument.status === SUBMISSION_STATUS.REJECTED
-        }
-      >
-        <SubmissionStatusChip
-          status={SUBMISSION_ITEM_STATUS.FAILED_CONSULTATION_CHECK.value}
-        />
+      <Case condition={submittedDocument.status === SUBMISSION_STATUS.REJECTED}>
+        <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.FAILED} />
       </Case>
       <Default>{null}</Default>
     </Switch>

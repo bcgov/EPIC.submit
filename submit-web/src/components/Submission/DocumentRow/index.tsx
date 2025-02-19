@@ -93,10 +93,7 @@ export default function DocumentRow({
           </IconButton>
         </SubmitTableCell>
         <SubmitTableCell align="right">
-          <StatusCell
-            submissionItem={submissionItem}
-            submittedDocument={documentSubmission}
-          />
+          <StatusCell submittedDocument={documentSubmission} />
         </SubmitTableCell>
         <SubmitTableCell align="right" colSpan={1}></SubmitTableCell>
       </TableRow>

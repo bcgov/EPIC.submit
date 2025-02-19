@@ -4,6 +4,7 @@ import { Submission } from "@/models/Submission";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { SubmitSubTableCell } from "@/components/Shared/Table/common";
+import { StatusCell } from "../DocumentRow/StatusCell";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -59,7 +60,10 @@ export default function DocumentSubRow({
         {version}
         <span style={{ marginRight: "40px" }} />
       </SubmitSubTableCell>
-      <SubmitSubTableCell align="right" colSpan={2}></SubmitSubTableCell>
+      <SubmitSubTableCell align="right">
+        <StatusCell submittedDocument={documentSubmission} />
+      </SubmitSubTableCell>
+      <SubmitSubTableCell align="right" colSpan={1}></SubmitSubTableCell>
     </TableRow>
   );
 }
