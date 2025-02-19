@@ -210,6 +210,10 @@ def get_package_status(status, user_type):
             UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
             UserType.STAFF: PackageStatus.UNDER_CONSULTATION_CHECK.value
         },
+        PackageStatus.FAILED_CONSULTATION_CHECK.value: {
+            UserType.PROPONENT: '',
+            UserType.STAFF: PackageStatus.FAILED_CONSULTATION_CHECK.value
+        },
     }
     if status in package_status_mapping:
         return package_status_mapping[status][user_type]

@@ -202,14 +202,12 @@ type SubmissionStatusChipStackProps = {
   status?: SubmissionItemStatus;
   reviewStatus?: string;
   isUpdateRequested?: boolean;
-  isRevisionRequired?: boolean;
   isUpdated?: boolean;
 };
 export const SubmissionStatusChipStack = ({
   reviewStatus,
   status,
   isUpdateRequested = false,
-  isRevisionRequired = false,
   isUpdated = false,
 }: SubmissionStatusChipStackProps) => {
   return (
@@ -229,11 +227,6 @@ export const SubmissionStatusChipStack = ({
         {isUpdateRequested && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
-          />
-        )}
-        {isRevisionRequired && (
-          <SubmissionStatusChip
-            status={NON_CANONICAL_SUBMISSION_STATUS.REVISION_REQUIRED}
           />
         )}
         {isUpdated && (

@@ -76,19 +76,6 @@ export default function StaffSubmissionItemTableRow({
       .includes(type_id);
   }, [submissionPackage, type_id]);
 
-  const isRevisionRequired = useMemo(() => {
-    if (!submissionPackage) return false;
-    return submissionPackage.update_requests
-      .filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value &&
-          updateRequest.active,
-      )
-      .some((updateRequest) =>
-        updateRequest.submission_item_types.includes(type_id),
-      );
-  }, [submissionPackage, type_id]);
-
   const actionLabel = hasDocument ? "Review" : "View";
 
   const handleClick = () => {
@@ -129,7 +116,6 @@ export default function StaffSubmissionItemTableRow({
             status={status}
             reviewStatus={review?.status}
             isUpdateRequested={isUpdateRequest}
-            isRevisionRequired={isRevisionRequired}
             isUpdated={isUpdated}
           />
         </SubmitPrimaryRowTableCell>

@@ -76,18 +76,6 @@ export default function ProponentSubmissionItemTableRow({
       .includes(type_id);
   }, [submissionPackage, type_id, isUpdated]);
 
-  const isRevisionRequired = useMemo(() => {
-    if (!submissionPackage) return false;
-    return submissionPackage.update_requests
-      .filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
-      )
-      .some((updateRequest) =>
-        updateRequest.submission_item_types.includes(type_id),
-      );
-  }, [submissionPackage, type_id]);
-
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
   const onActionClick = () => {
@@ -124,7 +112,6 @@ export default function ProponentSubmissionItemTableRow({
             status={status}
             isUpdateRequested={isUpdateRequest}
             isUpdated={isUpdated}
-            isRevisionRequired={isRevisionRequired}
           />
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="right">
