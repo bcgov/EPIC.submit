@@ -11,6 +11,7 @@ import { When } from "react-if";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
 import { useState } from "react";
+import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 
 const defaultFormData = {
   consultedParties: [],
@@ -147,6 +148,20 @@ export default function FormFieldSection({
             >
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
+          </Grid>
+          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>
+              Notes/Comments
+            </Typography>
+            <ControlledTextField
+              fullWidth
+              multiline
+              minRows={4}
+              name="notes"
+              sx={{
+                mb: 0,
+              }}
+            />
           </Grid>
         </When>
       </Grid>

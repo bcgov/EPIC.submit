@@ -11,12 +11,14 @@ import { BCDesignTokens } from "epic.theme";
 import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { useState } from "react";
 import { When } from "react-if";
+import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 
 const defaultFormData = {
   conditionSatisfied: "",
   allRequirementsAddressed: "",
   requirementsClear: "",
   informationAccurate: "",
+  notes: "",
 };
 
 interface FormFieldSectionProps {
@@ -102,6 +104,21 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
             <RadioGroup value={mergedFormData.informationAccurate}>
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
+          </Grid>
+          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>
+              Notes/Comments
+            </Typography>
+            <ControlledTextField
+              fullWidth
+              multiline
+              disabled
+              minRows={4}
+              name="notes"
+              sx={{
+                mb: 0,
+              }}
+            />
           </Grid>
         </When>
       </Grid>

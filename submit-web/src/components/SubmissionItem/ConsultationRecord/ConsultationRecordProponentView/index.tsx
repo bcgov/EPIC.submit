@@ -46,7 +46,7 @@ export const ConsultationRecordProponentView = () => {
   ]);
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
   const defaultFormValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -54,31 +54,32 @@ export const ConsultationRecordProponentView = () => {
     return {
       ...formSubmission.submitted_form.submission_json,
       allPartiesConsulted: booleanToString(
-        formSubmission.submitted_form.submission_json.allPartiesConsulted,
+        formSubmission.submitted_form.submission_json.allPartiesConsulted
       ),
       planWasReviewed: booleanToString(
-        formSubmission.submitted_form.submission_json.planWasReviewed,
+        formSubmission.submitted_form.submission_json.planWasReviewed
       ),
       writtenExplanationsProvidedToParties: booleanToString(
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToParties,
+          .writtenExplanationsProvidedToParties
       ),
       writtenExplanationsProvidedToCommenters: booleanToString(
         formSubmission.submitted_form.submission_json
-          .writtenExplanationsProvidedToCommenters,
+          .writtenExplanationsProvidedToCommenters
       ),
+      notes: formSubmission.submitted_form.submission_json.notes,
     };
   }, [formSubmission]);
 
   const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
   );
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
 
     return {
       consultationRecords: documentSubmissions.map(
-        (submission) => submission.submitted_document.url,
+        (submission) => submission.submitted_document.url
       ),
     };
   }, [documentSubmissions]);
@@ -124,7 +125,7 @@ export const ConsultationRecordProponentView = () => {
 
   const saveSubmission = async (
     formData: ConsultationRecordForm,
-    status: SubmissionItemStatus,
+    status: SubmissionItemStatus
   ) => {
     const {
       consultedParties,
@@ -132,6 +133,7 @@ export const ConsultationRecordProponentView = () => {
       planWasReviewed,
       writtenExplanationsProvidedToParties,
       writtenExplanationsProvidedToCommenters,
+      notes,
     } = formData;
     callSaveSubmission({
       data: {
@@ -143,11 +145,12 @@ export const ConsultationRecordProponentView = () => {
           allPartiesConsulted: stringToBoolean(allPartiesConsulted),
           planWasReviewed: stringToBoolean(planWasReviewed),
           writtenExplanationsProvidedToParties: stringToBoolean(
-            writtenExplanationsProvidedToParties,
+            writtenExplanationsProvidedToParties
           ),
           writtenExplanationsProvidedToCommenters: stringToBoolean(
-            writtenExplanationsProvidedToCommenters,
+            writtenExplanationsProvidedToCommenters
           ),
+          notes,
         },
       },
     });

@@ -4,6 +4,7 @@ import { Divider, Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { FieldErrors } from "react-hook-form";
+import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 
 interface FormFieldSectionProps {
   errors: FieldErrors<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
@@ -63,6 +64,20 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
         <ControlledRadioGroup name="informationAccurate">
           <YesNoRadioOptions error={Boolean(errors["informationAccurate"])} />
         </ControlledRadioGroup>
+      </Grid>
+      <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+        <Typography variant="body1" sx={{ fontWeight: 700 }}>
+          Notes/Comments
+        </Typography>
+        <ControlledTextField
+          fullWidth
+          multiline
+          minRows={4}
+          name="notes"
+          sx={{
+            mb: 0,
+          }}
+        />
       </Grid>
     </>
   );
