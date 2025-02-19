@@ -55,7 +55,10 @@ export default function DocumentSubRow({
       <SubmitSubTableCell align="right">
         {submitted_by || ""}
       </SubmitSubTableCell>
-      <SubmitSubTableCell align="right">{version}</SubmitSubTableCell>
+      <SubmitSubTableCell align="right">
+        {version}
+        <span style={{ marginRight: "40px" }} />
+      </SubmitSubTableCell>
       <SubmitSubTableCell align="right" colSpan={2}></SubmitSubTableCell>
     </TableRow>
   );

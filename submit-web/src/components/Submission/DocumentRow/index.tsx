@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Collapse, Link as MuiLink, TableRow, Typography } from "@mui/material";
+import {
+  Collapse,
+  IconButton,
+  Link as MuiLink,
+  TableRow,
+  Typography,
+} from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -8,6 +14,7 @@ import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { StatusCell } from "./StatusCell";
 import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
 import DocumentsSubTable from "../ItemsTable/DocumentsSubTable";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -74,8 +81,16 @@ export default function DocumentRow({
           </Typography>
         </SubmitTableCell>
         <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
-        <SubmitTableCell align="right" onClick={() => setExpanded(!expanded)}>
+        <SubmitTableCell align="right">
           {version}
+          <IconButton onClick={() => setExpanded(!expanded)}>
+            <ExpandMoreIcon
+              sx={{
+                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "0.3s ease-in-out",
+              }}
+            />
+          </IconButton>
         </SubmitTableCell>
         <SubmitTableCell align="right">
           <StatusCell
