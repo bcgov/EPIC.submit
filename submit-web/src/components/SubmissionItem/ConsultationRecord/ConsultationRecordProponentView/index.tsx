@@ -55,7 +55,7 @@ export const ConsultationRecordProponentView = () => {
 
   const partiesList =
     submissionPackage?.meta?.main_condition?.condition_attributes
-      ?.parties_required_to_be_consulted?.split(", ") || [];
+      ?.parties_required_to_be_consulted?.split(",") || [];
 
   const formSubmission = submissionItem?.submissions?.find(
     (submission) => submission.type === SUBMISSION_TYPE.FORM,

@@ -23,10 +23,12 @@ const defaultFormData = {
 
 type FormFieldSectionProps = Readonly<{
   formData: Partial<ConsultationRecordForm>;
+  partiesList: Array<string>;
 }>;
 
 export default function FormFieldSection({
   formData = defaultFormData,
+  partiesList,
 }: FormFieldSectionProps) {
   const [isHidden, setIsHidden] = useState(false);
   const mergedFormData = { ...defaultFormData, ...formData };
@@ -87,10 +89,9 @@ export default function FormFieldSection({
                   paddingLeft: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <li>Ho’rem</li>
-                <li>Nustuk</li>
-                <li>Langkuem</li>
-                <li>Miskuuck</li>
+                {partiesList.map((stakeholder, index) => (
+                  <li key={index}>{stakeholder}</li>
+                ))}
                 <When condition={mergedFormData?.consultedParties.length > 0}>
                   {mergedFormData?.consultedParties?.map((field, index) => (
                     <li key={index}>{field.consultedParty}</li>

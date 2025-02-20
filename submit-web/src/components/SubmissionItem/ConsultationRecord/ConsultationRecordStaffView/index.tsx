@@ -7,9 +7,16 @@ import FormFieldSection from "./FormFieldSection";
 import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
 import ReviewSection from "./ReviewSection";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { SubmissionPackage } from "@/models/Package";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const ConsultationRecordStaffView = () => {
-  const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
+  const {
+    projectId: accountProjectIdParam,
+    submissionPackageId,
+    submissionId: submissionItemId
+  } =
     useParams({
       from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
     });
@@ -46,11 +53,22 @@ export const ConsultationRecordStaffView = () => {
     };
   }, [formSubmission]);
 
+  const queryClient = useQueryClient();
+  const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
+    getSubmissionPackageQueryOptions({
+      packageId: Number(submissionPackageId),
+    }).queryKey,
+  );
+
+  const partiesList =
+    submissionPackage?.meta?.main_condition?.condition_attributes
+      ?.parties_required_to_be_consulted?.split(",") || [];
+
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
     <SubmissionFormContainer>
-      <FormFieldSection formData={formData} />
+      <FormFieldSection formData={formData} partiesList={partiesList}/>
       <InternalDocumentSection />
       <ReviewSection />
     </SubmissionFormContainer>
