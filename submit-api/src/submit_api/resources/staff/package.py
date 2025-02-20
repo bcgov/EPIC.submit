@@ -130,6 +130,7 @@ class PackageUpdateRequest(Resource):
         accept_update_request = PackageService.accept_update_request(package_id)
         return StaffPackageSchema().dump(accept_update_request), HTTPStatus.OK
 
+
 @cors_preflight("POST, OPTIONS")
 @API.route(
     "/<int:package_id>/update-requests/<int:update_request_id>/note",
