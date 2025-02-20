@@ -1,12 +1,17 @@
 import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dateUtils from "@/utils/dateUtils";
-import { UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
+import { UPDATE_REQUEST_STATUS, UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
+import { useAcceptUpdateRequest } from "@/hooks/api/usePackages";
 import { Case, Switch, When } from "react-if";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
 import { SubmissionPackage } from "@/models/Package";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
+import { UpdateRequestStatusChip } from "../../UpdateRequestStatusChip";
+import PermissionsGate from "@/components/Shared/PermissionGate";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 type UpdateRequestProps = Readonly<{
   updateRequest: UpdateRequest;
@@ -24,6 +29,7 @@ export default function RequestSection({
     note,
     type,
     submission_item_types,
+    status
   } = updateRequest;
   const createdDate = dateUtils.formatDate(created_date);
 
@@ -32,6 +38,12 @@ export default function RequestSection({
   const submissionItems = submissionPackage.items.filter((item) =>
     submission_item_types.includes(item.type_id),
   );
+
+  const { mutate: acceptUpdateRequest, isPending: isUpdating } =
+    useAcceptUpdateRequest({
+      packageId: updateRequest.submission_package_id,
+    });
+
   return (
     <Box sx={{ my: BCDesignTokens.layoutMarginLarge }}>
       <Box
@@ -64,9 +76,37 @@ export default function RequestSection({
         </Switch>
       </Typography>
 
-      <Typography variant="body1" sx={{ mb: 1 }}>
-        {reason}
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 1,
+        }}
+      >
+        <Typography variant="body1" sx={{ mb: 1 }}>
+          {reason}
+        </Typography>
+        <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+          {status === UPDATE_REQUEST_STATUS.ACCEPTED.value ? (
+            <UpdateRequestStatusChip status={UPDATE_REQUEST_STATUS.ACCEPTED.value} />
+          ) : (
+            <LoadingButton
+              variant="contained"
+              color="secondary"
+              disabled={status !== UPDATE_REQUEST_STATUS.PENDING_REVIEW.value}
+              onClick={() =>
+                acceptUpdateRequest({
+                  packageId: updateRequest.submission_package_id,
+                })
+              }
+              loading={isUpdating}
+            >
+              Accept Update
+            </LoadingButton>
+          )}
+        </PermissionsGate>
+      </Box>
 
       <When condition={Boolean(note)}>
         <Typography

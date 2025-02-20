@@ -1,3 +1,13 @@
+// NonCanonicalSubmissionStatus are just for display purpose, they are not canonical business statuses
+export type NonCanonicalSubmissionStatus =
+  | "ACCEPTED"
+
+export const NON_CANONICAL_UPDATE_REQUEST_STATUS = Object.freeze<
+  Record<NonCanonicalSubmissionStatus, NonCanonicalSubmissionStatus>
+>({
+  ACCEPTED: "ACCEPTED",
+});
+
 export type UpdateRequestType = "UPDATE" | "REVIEW";
 
 export const UPDATE_REQUEST_TYPE = Object.freeze<
@@ -13,7 +23,7 @@ export const UPDATE_REQUEST_TYPE = Object.freeze<
   },
 });
 
-export type UpdateRequestStatus = "OPEN" | "PENDING_REVIEW" | "CLOSED";
+export type UpdateRequestStatus = "OPEN" | "PENDING_REVIEW" | "CLOSED" | "ACCEPTED";
 export const UPDATE_REQUEST_STATUS = Object.freeze<
   Record<UpdateRequestStatus, { value: UpdateRequestStatus; label: string }>
 >({
@@ -28,6 +38,10 @@ export const UPDATE_REQUEST_STATUS = Object.freeze<
   CLOSED: {
     value: "CLOSED",
     label: "Closed",
+  },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
   },
 });
 export type UpdateRequest = {

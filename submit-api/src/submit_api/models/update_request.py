@@ -25,6 +25,7 @@ class UpdateRequestStatus(enum.Enum):
     OPEN = 'OPEN'
     PENDING_REVIEW = 'PENDING_REVIEW'
     CLOSED = 'CLOSED'
+    ACCEPTED = 'ACCEPTED'
 
 
 class UpdateRequest(BaseModel):
