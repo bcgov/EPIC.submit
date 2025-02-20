@@ -4,6 +4,7 @@ import {
   Grid,
   RadioGroup,
   Switch,
+  TextField,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -11,7 +12,6 @@ import { When } from "react-if";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
 import { useState } from "react";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 
 const defaultFormData = {
   consultedParties: [],
@@ -153,11 +153,12 @@ export default function FormFieldSection({
             <Typography variant="body1" sx={{ fontWeight: 700 }}>
               Notes/Comments
             </Typography>
-            <ControlledTextField
+            <TextField
               fullWidth
               multiline
               minRows={4}
-              name="notes"
+              disabled
+              value={mergedFormData.notes}
               sx={{
                 mb: 0,
               }}

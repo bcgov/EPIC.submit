@@ -5,13 +5,13 @@ import {
   Grid,
   RadioGroup,
   Switch,
+  TextField,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { useState } from "react";
 import { When } from "react-if";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 
 const defaultFormData = {
   conditionSatisfied: "",
@@ -109,12 +109,12 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
             <Typography variant="body1" sx={{ fontWeight: 700 }}>
               Notes/Comments
             </Typography>
-            <ControlledTextField
+            <TextField
               fullWidth
               multiline
               disabled
               minRows={4}
-              name="notes"
+              value={mergedFormData.notes}
               sx={{
                 mb: 0,
               }}

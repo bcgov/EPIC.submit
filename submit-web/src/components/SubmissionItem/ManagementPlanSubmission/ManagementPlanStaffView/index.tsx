@@ -66,7 +66,7 @@ export const ManagementPlanSubmissionStaffView = () => {
       informationAccurate: booleanToString(
         formSubmission.submitted_form.submission_json.informationAccurate
       ),
-      notes: formSubmission.submitted_form.submission_json.notes,
+      notes: formSubmission.submitted_form.submission_json?.notes,
     };
   }, [formSubmission]);
 
