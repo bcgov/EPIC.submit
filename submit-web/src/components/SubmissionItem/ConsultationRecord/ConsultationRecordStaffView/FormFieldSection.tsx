@@ -4,6 +4,7 @@ import {
   Grid,
   RadioGroup,
   Switch,
+  TextField,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -148,6 +149,21 @@ export default function FormFieldSection({
             >
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
+          </Grid>
+          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>
+              Notes/Comments
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              minRows={4}
+              disabled
+              value={mergedFormData.notes}
+              sx={{
+                mb: 0,
+              }}
+            />
           </Grid>
         </When>
       </Grid>

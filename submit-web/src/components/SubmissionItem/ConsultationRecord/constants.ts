@@ -19,6 +19,7 @@ export const consultationRecordSchema = yup.object().shape({
     .of(yup.string())
     .required("Please upload at least one document.")
     .min(1, "Please upload at least one document."),
+  notes: yup.string().nullable(),
 });
 
 export type ConsultationRecordForm = yup.InferType<

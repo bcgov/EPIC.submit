@@ -31,7 +31,7 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
 
   const formData = useMemo(() => {
@@ -43,13 +43,13 @@ export const ConsultationRecordStaffView = () => {
         formSubmission.submitted_form.submission_json.allPartiesConsulted,
       planWasReviewed:
         formSubmission.submitted_form.submission_json.planWasReviewed,
-
       writtenExplanationsProvidedToParties:
         formSubmission.submitted_form.submission_json
           .writtenExplanationsProvidedToParties,
       writtenExplanationsProvidedToCommenters:
         formSubmission.submitted_form.submission_json
           .writtenExplanationsProvidedToCommenters,
+      notes: formSubmission.submitted_form.submission_json.notes,
     };
   }, [formSubmission]);
 
