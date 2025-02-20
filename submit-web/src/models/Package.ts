@@ -8,14 +8,12 @@ export type PackageType = {
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus
 export type NonCanonicalPackageStatus =
-  | "PENDING_MANAGER_REVIEW"
   | "REVISION_REQUIRED"
   | "UPDATED"
   | "UPDATE_REQUESTED";
 export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   Record<NonCanonicalPackageStatus, NonCanonicalPackageStatus>
 >({
-  PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
   UPDATE_REQUESTED: "UPDATE_REQUESTED",
   REVISION_REQUIRED: "REVISION_REQUIRED",
   UPDATED: "UPDATED",
@@ -34,6 +32,7 @@ export type PackageStatus =
   | "NEW_SUBMISSION"
   | "UNDER_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
+  | "AWAITING_MANAGER_REVIEW"
   | "CREATED";
 
 export const PACKAGE_STATUS: Record<
@@ -91,6 +90,10 @@ export const PACKAGE_STATUS: Record<
   SATISFIED: {
     value: "SATISFIED",
     label: "Satisfied",
+  },
+  AWAITING_MANAGER_REVIEW: {
+    value: "AWAITING_MANAGER_REVIEW",
+    label: "Awaiting Manager Review",
   },
 };
 

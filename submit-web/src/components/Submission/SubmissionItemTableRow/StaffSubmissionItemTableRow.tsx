@@ -43,7 +43,7 @@ export default function StaffSubmissionItemTableRow({
       }),
     );
 
-  const { submissions, id, status, review, review_start_date, type_id } = item;
+  const { submissions, id, status, review_start_date, type_id } = item;
 
   const name = item.type.name;
   const hasDocument =
@@ -114,7 +114,6 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="right">
           <SubmissionStatusChipStack
             status={status}
-            reviewStatus={review?.status}
             isUpdateRequested={isUpdateRequest}
             isUpdated={isUpdated}
           />

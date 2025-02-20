@@ -95,13 +95,12 @@ const statusStyles: Record<
     },
     label: "New",
   },
-  PENDING_MANAGER_REVIEW: {
+  AWAITING_MANAGER_REVIEW: {
     sx: {
       borderRadius: 1,
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
-      width: "188px",
     },
     label: "Awaiting Manager Review",
   },

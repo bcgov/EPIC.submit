@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from flask import current_app
 
+from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
@@ -121,6 +122,17 @@ class SubmissionReviewService:
             cls.approve_submission(review.item_id, session)
         elif review.status == SubmissionReviewStatus.REJECTED.value:
             cls.reject_submission(review.item_id, session)
+        elif review.status == SubmissionReviewStatus.PENDING_MANAGER_REVIEW.value:
+            cls.send_recommendation_to_manager(review.item_id, session)
+
+    @classmethod
+    def send_recommendation_to_manager(cls, item_id, session):
+        """Send recommendation to manager."""
+        item = cls._get_submission_item_by_id(item_id)
+        item.status = ItemStatus.AWAITING_MANAGER_REVIEW
+        cls._update_package_status(item.package_id, session)
+        current_app.logger.info(f"Recommendation sent to manager for item {item_id}.")
+        return item
 
     @classmethod
     def save_submission_review(cls, item_id, review_data):

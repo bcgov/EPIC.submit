@@ -16,13 +16,11 @@ import { filterOpenUpdateRequests } from "@/utils";
 
 type PackageStatusChipStackProps = {
   submissionPackage: SubmissionPackage;
-  hideReviewStatus?: boolean;
 };
 export const PackageStatusChipStack = ({
   submissionPackage,
-  hideReviewStatus = false,
 }: PackageStatusChipStackProps) => {
-  const { status, review_status } = submissionPackage;
+  const { status } = submissionPackage;
 
   const isUpdateRequested = useMemo(() => {
     return (
@@ -62,8 +60,7 @@ export const PackageStatusChipStack = ({
         return true;
       }
       const notFirstVersion = submissionPackage.version.version > 1;
-      const alreadySubmitted = Boolean(submissionPackage.submitted_on);
-      if (isNewOrCreated && (notFirstVersion || alreadySubmitted)) {
+      if (isNewOrCreated && notFirstVersion) {
         return true;
       }
       return false;
@@ -91,17 +88,6 @@ export const PackageStatusChipStack = ({
             <PackageStatusChip key={value} status={value} />
           </Unless>
         ))}
-        <When
-          condition={
-            review_status ===
-              NON_CANONICAL_PACKAGE_STATUS.PENDING_MANAGER_REVIEW &&
-            !hideReviewStatus
-          }
-        >
-          <PackageStatusChip
-            status={NON_CANONICAL_PACKAGE_STATUS.PENDING_MANAGER_REVIEW}
-          />
-        </When>
         <When condition={isUpdateRequested}>
           <PackageStatusChip
             status={NON_CANONICAL_PACKAGE_STATUS.UPDATE_REQUESTED}
