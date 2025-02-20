@@ -209,6 +209,17 @@ const createPackageUpdateRequest = ({
   });
 };
 
+const acceptUpdateRequest = ({
+  packageId,
+}: {
+  packageId: number;
+}) => {
+  return submitRequest<SubmissionPackage>({
+    url: `/staff/packages/${packageId}/update-request`,
+    method: "patch",
+  });
+};
+
 type UseCreatePackageUpdateRequestParams = {
   packageId: number;
   accountProjectId: number;
@@ -255,6 +266,30 @@ const createPackageUpdateRequesNote = ({
     url: `/staff/packages/${packageId}/update-requests/${updateRequestId}/note`,
     method: "post",
     data,
+  });
+};
+
+type UseAcceptUpdateRequestParams = {
+  packageId: number;
+  options?: Options;
+};
+export const useAcceptUpdateRequest = ({
+  packageId,
+  options = {},
+}: UseAcceptUpdateRequestParams) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: acceptUpdateRequest,
+    ...options,
+    onSuccess: () => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+    },
   });
 };
 

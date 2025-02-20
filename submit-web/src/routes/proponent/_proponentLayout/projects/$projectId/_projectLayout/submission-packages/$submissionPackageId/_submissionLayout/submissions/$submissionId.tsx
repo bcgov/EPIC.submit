@@ -51,7 +51,7 @@ export function Submission() {
   const hasPackageUpdateRequest =
     submissionPackage?.update_requests.filter(
       (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+        updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value &&
         updateRequest.active,
     ).length > 0;
   const isPackageSubmitted = submissionPackage?.submitted_on;
