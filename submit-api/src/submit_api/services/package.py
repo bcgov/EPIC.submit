@@ -349,14 +349,14 @@ class PackageService:
             package = cls._get_and_validate_complete_package(package_id)
 
             current_app.logger.info(f"Accepting update reuqest for package {package.id}")
-            open_update_requests = [
+            pending_requests = [
                 request for request in package.update_requests
-                if request.status in {UpdateRequestStatus.OPEN.value,
-                                      UpdateRequestStatus.PENDING_REVIEW.value}
+                if request.status == UpdateRequestStatus.PENDING_REVIEW.value
             ]
-            if not open_update_requests:
-                raise BadRequestError("Cannot accept a package that has no open or pending update requests")
-            cls._update_update_requests(session, package, status=UpdateRequestStatus.ACCEPTED.value)
+            if not pending_requests:
+                raise BadRequestError("Cannot accept an update request that is not pending")
+            cls._update_update_requests(
+                session, package, status=UpdateRequestStatus.ACCEPTED.value, active=False)
             return package
 
     @staticmethod
