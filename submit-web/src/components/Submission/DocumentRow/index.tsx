@@ -6,7 +6,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Submission, SUBMISSION_ITEM_STATUS } from "@/models/Submission";
+import { Submission } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";

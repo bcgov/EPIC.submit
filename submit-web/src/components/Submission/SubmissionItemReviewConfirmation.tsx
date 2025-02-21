@@ -4,7 +4,6 @@ import {
   SUBMISSION_ITEM_MODAL_CONTENT,
   SUBMISSION_ITEM_TYPE,
   SubmissionItem,
-  SubmissionItemTypeName,
 } from "@/models/SubmissionItem";
 import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useModal } from "@/components/Shared/Modals/modalStore";
@@ -99,7 +98,7 @@ export default function SubmissionItemReviewConfirmation({
     if (!hasDocument) return true;
     if (submissionItem.status !== SUBMISSION_ITEM_STATUS.SUBMITTED.value)
       return true;
-  }, []);
+  }, [hasDocument, userType, submissionItem.status]);
 
   const handleBypassClick = () => {
     onClick();

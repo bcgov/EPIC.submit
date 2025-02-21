@@ -226,7 +226,7 @@ export const SubmissionStatusChipStack = ({
       );
     }
     return false;
-  }, [status, packageStatus]);
+  }, [status, packageStatus, userType]);
   return (
     <Box sx={{ display: "inline-block" }}>
       <Stack
