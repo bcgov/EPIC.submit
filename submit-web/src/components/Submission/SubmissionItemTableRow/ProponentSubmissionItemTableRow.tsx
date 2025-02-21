@@ -121,7 +121,7 @@ export default function ProponentSubmissionItemTableRow({
               submissionPackage?.submitted_on &&
               submissionPackage.update_requests.filter(
                 (updateRequest) =>
-                  updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value,
+                  updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value,
               ).length === 0
             }
           >

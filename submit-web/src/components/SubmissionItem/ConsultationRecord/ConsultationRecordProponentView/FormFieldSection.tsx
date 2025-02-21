@@ -152,6 +152,20 @@ export default function FormFieldSection({
             />
           </ControlledRadioGroup>
         </Grid>
+        <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Typography variant="body1" sx={{ fontWeight: 700 }}>
+            Notes/Comments
+          </Typography>
+          <ControlledTextField
+            fullWidth
+            multiline
+            minRows={4}
+            name="notes"
+            sx={{
+              mb: 0,
+            }}
+          />
+        </Grid>
       </Grid>
     </>
   );

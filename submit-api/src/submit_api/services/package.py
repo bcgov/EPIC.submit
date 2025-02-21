@@ -335,7 +335,7 @@ class PackageService:
         """Submit the package by updating its status and items."""
         current_app.logger.info(f"Resubmitting package {package.id}")
         open_update_requests = [request for request in package.update_requests
-                                if request.status == UpdateRequestStatus.OPEN.value]
+                                if request.status != UpdateRequestStatus.ACCEPTED.value]
         if not open_update_requests:
             raise BadRequestError("Cannot resubmit a package that has no open update requests")
         cls._update_items_status(
@@ -349,6 +349,23 @@ class PackageService:
         cls._deactivate_reviews(package, session)
         cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
         return package
+
+    @classmethod
+    def accept_update_request(cls, package_id):
+        """Submit the package by updating its status and items."""
+        with session_scope() as session:
+            package = cls._get_and_validate_complete_package(package_id)
+
+            current_app.logger.info(f"Accepting update reuqest for package {package.id}")
+            pending_requests = [
+                request for request in package.update_requests
+                if request.status == UpdateRequestStatus.PENDING_REVIEW.value
+            ]
+            if not pending_requests:
+                raise BadRequestError("Cannot accept an update request that is not pending")
+            cls._update_update_requests(
+                session, package, status=UpdateRequestStatus.ACCEPTED.value, active=False)
+            return package
 
     @staticmethod
     def _log_activity_submission(package, action, session):

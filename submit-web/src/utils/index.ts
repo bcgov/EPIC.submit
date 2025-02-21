@@ -34,7 +34,7 @@ export const filterOpenUpdateRequests = (updateRequests: UpdateRequest[]) => {
   if (!updateRequests) return [];
   return updateRequests.filter(
     (updateRequest) =>
-      updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+      updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value &&
       updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
       updateRequest.active,
   );

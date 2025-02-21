@@ -4,6 +4,7 @@ import {
   Grid,
   RadioGroup,
   Switch,
+  TextField,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -23,10 +24,12 @@ const defaultFormData = {
 
 type FormFieldSectionProps = Readonly<{
   formData: Partial<ConsultationRecordForm>;
+  partiesList: Array<string>;
 }>;
 
 export default function FormFieldSection({
   formData = defaultFormData,
+  partiesList,
 }: FormFieldSectionProps) {
   const [isHidden, setIsHidden] = useState(false);
   const mergedFormData = { ...defaultFormData, ...formData };
@@ -87,10 +90,9 @@ export default function FormFieldSection({
                   paddingLeft: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <li>Ho’rem</li>
-                <li>Nustuk</li>
-                <li>Langkuem</li>
-                <li>Miskuuck</li>
+                {partiesList.map((stakeholder, index) => (
+                  <li key={index}>{stakeholder}</li>
+                ))}
                 <When condition={mergedFormData?.consultedParties.length > 0}>
                   {mergedFormData?.consultedParties?.map((field, index) => (
                     <li key={index}>{field.consultedParty}</li>
@@ -147,6 +149,21 @@ export default function FormFieldSection({
             >
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
+          </Grid>
+          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+            <Typography variant="body1" sx={{ fontWeight: 700 }}>
+              Notes/Comments
+            </Typography>
+            <TextField
+              fullWidth
+              multiline
+              minRows={4}
+              disabled
+              value={mergedFormData.notes}
+              sx={{
+                mb: 0,
+              }}
+            />
           </Grid>
         </When>
       </Grid>

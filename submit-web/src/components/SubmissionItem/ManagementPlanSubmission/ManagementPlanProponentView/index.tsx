@@ -37,6 +37,7 @@ const managementPlanSubmissionSchema = yup.object().shape({
     .required("Please upload at least one document.")
     .min(1, "Please upload at least one document."),
   supportingDocuments: yup.array().of(yup.string()),
+  notes: yup.string(),
 });
 
 type ManagementPlanSubmissionForm = yup.InferType<
@@ -85,6 +86,7 @@ export const ManagementPlanSubmissionProponentView = () => {
       informationAccurate: booleanToString(
         formSubmission.submitted_form.submission_json.informationAccurate
       ),
+      notes: formSubmission.submitted_form.submission_json.notes,
     };
   }, [formSubmission]);
 
@@ -164,6 +166,7 @@ export const ManagementPlanSubmissionProponentView = () => {
       allRequirementsAddressed,
       requirementsClear,
       informationAccurate,
+      notes,
     } = formData;
     callSaveSubmission({
       data: {
@@ -175,6 +178,7 @@ export const ManagementPlanSubmissionProponentView = () => {
           allRequirementsAddressed: stringToBoolean(allRequirementsAddressed),
           requirementsClear: stringToBoolean(requirementsClear),
           informationAccurate: stringToBoolean(informationAccurate),
+          notes,
         },
       },
     });
