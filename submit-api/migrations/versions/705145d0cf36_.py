@@ -1,7 +1,7 @@
 """ Add AWAITING_MANAGER_REVIEW status to package and item
 
 Revision ID: 705145d0cf36
-Revises: 2a8e579da45c
+Revises: f9cdde365d29
 Create Date: 2025-02-19 14:31:50.754640
 
 """
@@ -9,7 +9,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '705145d0cf36'
-down_revision = '2a8e579da45c'
+down_revision = 'f9cdde365d29'
 branch_labels = None
 depends_on = None
 
