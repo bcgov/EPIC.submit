@@ -20,6 +20,7 @@ const defaultFormData = {
   planWasReviewed: "",
   writtenExplanationsProvidedToParties: "",
   consultationRecords: [],
+  notes: "",
 };
 
 type FormFieldSectionProps = Readonly<{
@@ -154,16 +155,15 @@ export default function FormFieldSection({
             <Typography variant="body1" sx={{ fontWeight: 700 }}>
               Notes/Comments
             </Typography>
-            <TextField
-              fullWidth
-              multiline
-              minRows={4}
-              disabled
-              value={mergedFormData.notes}
+            <Typography
+              variant="body2"
               sx={{
-                mb: 0,
+                whiteSpace: "pre-wrap", // Ensures new lines are preserved
+                wordBreak: "break-word", // Prevents text overflow
               }}
-            />
+            >
+              {mergedFormData.notes}
+            </Typography>
           </Grid>
         </When>
       </Grid>
