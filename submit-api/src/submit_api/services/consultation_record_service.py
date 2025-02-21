@@ -55,7 +55,6 @@ class ConsultationRecordService:
     @classmethod
     def reject_consultation_record(cls, item, session):
         """Reject consultation record."""
-        item.status = ItemStatus.FAILED_CONSULTATION_CHECK.value
         cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
         update_request_data = cls._prepare_update_request_data(item)
         cls._create_update_request(update_request_data, session)
