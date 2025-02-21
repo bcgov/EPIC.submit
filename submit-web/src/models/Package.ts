@@ -33,6 +33,7 @@ export type PackageStatus =
   | "UNDER_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
   | "AWAITING_MANAGER_REVIEW"
+  | "FAILED_CONSULTATION_CHECK"
   | "CREATED";
 
 export const PACKAGE_STATUS: Record<
@@ -94,6 +95,10 @@ export const PACKAGE_STATUS: Record<
   AWAITING_MANAGER_REVIEW: {
     value: "AWAITING_MANAGER_REVIEW",
     label: "Awaiting Manager Review",
+  },
+  FAILED_CONSULTATION_CHECK: {
+    value: "FAILED_CONSULTATION_CHECK",
+    label: "Failed Consultation Check",
   },
 };
 

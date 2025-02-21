@@ -1,17 +1,16 @@
 import {
   NON_CANONICAL_PACKAGE_STATUS,
   PACKAGE_STATUS,
-  PackageStatus,
   SubmissionPackage,
 } from "@/models/Package";
 import { Box, Stack } from "@mui/material";
 import PackageStatusChip from ".";
-import { Unless, When } from "react-if";
+import { When } from "react-if";
 import {
   UPDATE_REQUEST_STATUS,
   UPDATE_REQUEST_TYPE,
 } from "@/models/UpdateRequest";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
 
 type PackageStatusChipStackProps = {
@@ -29,6 +28,15 @@ export const PackageStatusChipStack = ({
   }, [submissionPackage.update_requests]);
 
   const isRevisionRequired = useMemo(() => {
+    if (
+      status.some((_status) =>
+        [
+          PACKAGE_STATUS.COMPLETED.value,
+          PACKAGE_STATUS.PARTIALLY_COMPLETED.value,
+        ].includes(_status),
+      )
+    )
+      return false;
     return (
       submissionPackage.update_requests.filter(
         (updateRequest) =>
@@ -36,7 +44,7 @@ export const PackageStatusChipStack = ({
           updateRequest.active,
       ).length > 0
     );
-  }, [submissionPackage.update_requests]);
+  }, [submissionPackage.update_requests, status]);
 
   const isUpdated = useMemo(() => {
     return (
@@ -49,44 +57,11 @@ export const PackageStatusChipStack = ({
     );
   }, [submissionPackage.update_requests]);
 
-  const hideStatus = useCallback(
-    (status: PackageStatus) => {
-      const isNewOrCreated = [
-        PACKAGE_STATUS.CREATED.value,
-        PACKAGE_STATUS.NEW_SUBMISSION.value,
-      ].includes(status);
-
-      if (isNewOrCreated && isRevisionRequired) {
-        return true;
-      }
-      const notFirstVersion = submissionPackage.version.version > 1;
-      if (isNewOrCreated && notFirstVersion) {
-        return true;
-      }
-      return false;
-    },
-    [
-      submissionPackage.submitted_on,
-      submissionPackage.version.version,
-      isRevisionRequired,
-    ],
-  );
-
-  const hideStatusMap: Record<PackageStatus, boolean> = useMemo(() => {
-    const entries = submissionPackage.status.map((status) => [
-      status,
-      hideStatus(status),
-    ]);
-    return Object.fromEntries(entries);
-  }, [submissionPackage.status, hideStatus]);
-
   return (
     <Box sx={{ display: "inline-block", width: "fit-content" }}>
       <Stack direction="column" spacing={1} alignItems={"flex-end"}>
         {status.map((value) => (
-          <Unless condition={hideStatusMap[value]} key={value}>
-            <PackageStatusChip key={value} status={value} />
-          </Unless>
+          <PackageStatusChip key={value} status={value} />
         ))}
         <When condition={isUpdateRequested}>
           <PackageStatusChip

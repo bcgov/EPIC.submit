@@ -1,9 +1,14 @@
+import { PackageStatus } from "@/models/Package";
 import {
   NON_CANONICAL_SUBMISSION_STATUS,
+  SUBMISSION_ITEM_STATUS,
   SubmissionItemStatus,
 } from "@/models/Submission";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import { Box, Chip, Stack } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
+import { useMemo } from "react";
 
 type StyleProps = {
   sx: Record<string, string | number>;
@@ -72,6 +77,7 @@ const statusStyles: Record<string, StyleProps> = {
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
+      width: "185px",
     },
     label: "Awaiting Manager Review",
   },
@@ -201,12 +207,26 @@ type SubmissionStatusChipStackProps = {
   status?: SubmissionItemStatus;
   isUpdateRequested?: boolean;
   isUpdated?: boolean;
+  packageStatus?: PackageStatus[];
 };
 export const SubmissionStatusChipStack = ({
   status,
   isUpdateRequested = false,
   isUpdated = false,
+  packageStatus,
 }: SubmissionStatusChipStackProps) => {
+  const { userType } = useAccount();
+  const hideStatus = useMemo(() => {
+    if (userType === USER_TYPE.STAFF) {
+      return status === SUBMISSION_ITEM_STATUS.SUBMITTED.value;
+    } else if (userType === USER_TYPE.PROPONENT) {
+      return (
+        status === SUBMISSION_ITEM_STATUS.SUBMITTED.value &&
+        !packageStatus?.includes(SUBMISSION_ITEM_STATUS.SUBMITTED.value)
+      );
+    }
+    return false;
+  }, [status, packageStatus]);
   return (
     <Box sx={{ display: "inline-block" }}>
       <Stack
@@ -215,7 +235,7 @@ export const SubmissionStatusChipStack = ({
         width={"fit-content"}
         alignItems={"flex-end"}
       >
-        {status && <SubmissionStatusChip status={status} />}
+        {!hideStatus && status && <SubmissionStatusChip status={status} />}
         {isUpdateRequested && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}

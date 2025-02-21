@@ -147,10 +147,11 @@ class PackageSchema(Schema):
         user = UserService.get_by_auth_guid(auth_guid)
         user_type = user.type if user else None
 
-        new_status = [get_package_status(status, user_type)
+        version = data['version']
+        new_status = [get_package_status(status, user_type, version)
                       for status in data['status']]
-        new_status = [status for status in new_status if status]
-        data['status'] = new_status
+        new_status = set(status for status in new_status if status)
+        data['status'] = list(new_status)
 
         return data
 
@@ -178,25 +179,26 @@ class StaffPackageSchema(PackageSchema):
         return None
 
 
-def get_package_status(status, user_type):
+def get_package_status(status, user_type, version_obj):
     """Get the local (Pacific Timezone) datetime."""
     if not status:
         return None
     if user_type not in [UserType.PROPONENT, UserType.STAFF]:
         return status
 
+    version = version_obj.get('version') if version_obj else 1
     package_status_mapping = {
         PackageStatus.NEW_SUBMISSION.value: {
-            UserType.PROPONENT: PackageStatus.NEW_SUBMISSION.value,
-            UserType.STAFF: PackageStatus.CREATED.value
+            UserType.PROPONENT: PackageStatus.NEW_SUBMISSION.value if version == 1 else '',
+            UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
         },
         PackageStatus.PARTIALLY_COMPLETED.value: {
             UserType.PROPONENT: PackageStatus.PARTIALLY_COMPLETED.value,
-            UserType.STAFF: PackageStatus.CREATED.value
+            UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
         },
         PackageStatus.COMPLETED.value: {
             UserType.PROPONENT: PackageStatus.COMPLETED.value,
-            UserType.STAFF: PackageStatus.CREATED.value
+            UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
         },
         PackageStatus.SUBMITTED.value: {
             UserType.PROPONENT: PackageStatus.SUBMITTED.value,
@@ -214,9 +216,17 @@ def get_package_status(status, user_type):
             UserType.PROPONENT: '',
             UserType.STAFF: PackageStatus.FAILED_CONSULTATION_CHECK.value
         },
-        PackageStatus.AWAITING_MANAGER_REVIEW.value: {
+        PackageStatus.CC_AWAITING_MANAGER_REVIEW.value: {
             UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
             UserType.STAFF: PackageStatus.AWAITING_MANAGER_REVIEW.value
+        },
+        PackageStatus.MP_AWAITING_MANAGER_REVIEW.value: {
+            UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
+            UserType.STAFF: PackageStatus.AWAITING_MANAGER_REVIEW.value
+        },
+        PackageStatus.REVIEW_REJECTED.value: {
+            UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,
+            UserType.STAFF: PackageStatus.REVIEW_REJECTED.value
         },
     }
     if status in package_status_mapping:

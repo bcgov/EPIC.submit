@@ -112,6 +112,7 @@ export default function ProponentSubmissionItemTableRow({
             status={status}
             isUpdateRequested={isUpdateRequest}
             isUpdated={isUpdated}
+            packageStatus={submissionPackage?.status}
           />
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="right">

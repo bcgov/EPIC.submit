@@ -43,7 +43,7 @@ export default function StaffSubmissionItemTableRow({
       }),
     );
 
-  const { submissions, id, status, review_start_date, type_id } = item;
+  const { submissions, id, status, type_id } = item;
 
   const name = item.type.name;
   const hasDocument =
@@ -116,19 +116,14 @@ export default function StaffSubmissionItemTableRow({
             status={status}
             isUpdateRequested={isUpdateRequest}
             isUpdated={isUpdated}
+            packageStatus={submissionPackage.status}
           />
         </SubmitPrimaryRowTableCell>
 
         <SubmitPrimaryRowTableCell align="center">
           <SubmissionItemReviewConfirmation
+            submissionItem={item}
             onClick={handleClick}
-            itemType={name}
-            packageId={Number(submissionPackageId)}
-            bypass={
-              !hasDocument ||
-              Boolean(review_start_date) ||
-              Boolean(submissionPackage.completed_on)
-            }
           >
             <Typography
               variant="body2"

@@ -6,7 +6,7 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { Submission } from "@/models/Submission";
+import { Submission, SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
@@ -68,10 +68,8 @@ export default function DocumentRow({
           >
             {staff ? (
               <SubmissionItemReviewConfirmation
-                packageId={submissionItem.package_id}
-                itemType={submissionItem.type.name}
+                submissionItem={submissionItem}
                 onClick={openDocument}
-                bypass={Boolean(submissionItem.review_start_date)}
               >
                 <MuiLink>{name}</MuiLink>
               </SubmissionItemReviewConfirmation>
