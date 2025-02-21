@@ -5,7 +5,6 @@ import {
   Grid,
   RadioGroup,
   Switch,
-  TextField,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -109,16 +108,15 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
             <Typography variant="body1" sx={{ fontWeight: 700 }}>
               Notes/Comments
             </Typography>
-            <TextField
-              fullWidth
-              multiline
-              disabled
-              minRows={4}
-              value={mergedFormData.notes}
+            <Typography
+              variant="body2"
               sx={{
-                mb: 0,
+                whiteSpace: "pre-wrap", // Ensures new lines are preserved
+                wordBreak: "break-word", // Prevents text overflow
               }}
-            />
+            >
+              {mergedFormData.notes}
+            </Typography>
           </Grid>
         </When>
       </Grid>
