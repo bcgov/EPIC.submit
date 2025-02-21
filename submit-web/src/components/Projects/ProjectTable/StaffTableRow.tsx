@@ -2,7 +2,7 @@ import { ArrowForwardIos } from "@mui/icons-material";
 import dateutils from "@/utils/dateUtils";
 import { Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { SubmissionPackage } from "@/models/Package";
+import { PACKAGE_STATUS, SubmissionPackage } from "@/models/Package";
 import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
 import {
   StyledProjectTableCell,
@@ -33,6 +33,8 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     meta,
     days_since_submission = 0,
     submitted_on,
+    status,
+    version,
   } = submissionPackage;
 
   const { cc_completed_on, type, review_start_date } = meta || {};
@@ -63,7 +65,10 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
               textDecoration: "none",
             }}
             onClick={onSubmissionClick}
-            disabled={!submitted_on}
+            disabled={
+              version.version === 1 &&
+              status.includes(PACKAGE_STATUS.CREATED.value)
+            }
           >
             <Stack direction="row" spacing={1} alignItems={"center"}>
               <Typography
