@@ -228,6 +228,8 @@ class PackageService:
     def _update_items_status(items, status, session):
         """Update status of all items in the package."""
         for item in items:
+            if item.status in [ItemStatus.PASSED_CONSULTATION_CHECK]:
+                continue
             item.status = status
             session.add(item)
         session.flush()
@@ -338,6 +340,8 @@ class PackageService:
                                 if request.status != UpdateRequestStatus.ACCEPTED.value]
         if not open_update_requests:
             raise BadRequestError("Cannot resubmit a package that has no open update requests")
+        if package.completed_on:
+            raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_items_status(
             package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_package_status(package.id, session, package)

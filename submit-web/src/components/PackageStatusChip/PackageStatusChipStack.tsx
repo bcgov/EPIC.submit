@@ -63,7 +63,7 @@ export const PackageStatusChipStack = ({
         {status.map((value) => (
           <PackageStatusChip key={value} status={value} />
         ))}
-        <When condition={isUpdateRequested}>
+        <When condition={isUpdateRequested && !isUpdated}>
           <PackageStatusChip
             status={NON_CANONICAL_PACKAGE_STATUS.UPDATE_REQUESTED}
           />

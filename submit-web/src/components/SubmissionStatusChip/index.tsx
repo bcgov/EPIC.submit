@@ -236,7 +236,7 @@ export const SubmissionStatusChipStack = ({
         alignItems={"flex-end"}
       >
         {!hideStatus && status && <SubmissionStatusChip status={status} />}
-        {isUpdateRequested && (
+        {isUpdateRequested && !isUpdated && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
           />
