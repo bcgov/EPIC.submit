@@ -1,9 +1,14 @@
+import { PackageStatus } from "@/models/Package";
 import {
   NON_CANONICAL_SUBMISSION_STATUS,
+  SUBMISSION_ITEM_STATUS,
   SubmissionItemStatus,
 } from "@/models/Submission";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import { Box, Chip, Stack } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
+import { useMemo } from "react";
 
 type StyleProps = {
   sx: Record<string, string | number>;
@@ -66,13 +71,13 @@ const statusStyles: Record<string, StyleProps> = {
       height: "24px",
     },
   },
-  PENDING_MANAGER_REVIEW: {
+  AWAITING_MANAGER_REVIEW: {
     sx: {
       borderRadius: 1,
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
-      width: "188px",
+      width: "185px",
     },
     label: "Awaiting Manager Review",
   },
@@ -200,18 +205,28 @@ export function SubmissionStatusChip({
 
 type SubmissionStatusChipStackProps = {
   status?: SubmissionItemStatus;
-  reviewStatus?: string;
   isUpdateRequested?: boolean;
-  isRevisionRequired?: boolean;
   isUpdated?: boolean;
+  packageStatus?: PackageStatus[];
 };
 export const SubmissionStatusChipStack = ({
-  reviewStatus,
   status,
   isUpdateRequested = false,
-  isRevisionRequired = false,
   isUpdated = false,
+  packageStatus,
 }: SubmissionStatusChipStackProps) => {
+  const { userType } = useAccount();
+  const hideStatus = useMemo(() => {
+    if (userType === USER_TYPE.STAFF) {
+      return status === SUBMISSION_ITEM_STATUS.SUBMITTED.value;
+    } else if (userType === USER_TYPE.PROPONENT) {
+      return (
+        status === SUBMISSION_ITEM_STATUS.SUBMITTED.value &&
+        !packageStatus?.includes(SUBMISSION_ITEM_STATUS.SUBMITTED.value)
+      );
+    }
+    return false;
+  }, [status, packageStatus, userType]);
   return (
     <Box sx={{ display: "inline-block" }}>
       <Stack
@@ -220,20 +235,10 @@ export const SubmissionStatusChipStack = ({
         width={"fit-content"}
         alignItems={"flex-end"}
       >
-        {status && <SubmissionStatusChip status={status} />}
-        {reviewStatus ===
-          NON_CANONICAL_SUBMISSION_STATUS.PENDING_MANAGER_REVIEW && (
-          <SubmissionStatusChip status={reviewStatus} />
-        )}
-
-        {isUpdateRequested && (
+        {!hideStatus && status && <SubmissionStatusChip status={status} />}
+        {isUpdateRequested && !isUpdated && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
-          />
-        )}
-        {isRevisionRequired && (
-          <SubmissionStatusChip
-            status={NON_CANONICAL_SUBMISSION_STATUS.REVISION_REQUIRED}
           />
         )}
         {isUpdated && (

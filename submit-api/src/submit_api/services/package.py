@@ -228,8 +228,11 @@ class PackageService:
     def _update_items_status(items, status, session):
         """Update status of all items in the package."""
         for item in items:
+            if item.status in [ItemStatus.PASSED_CONSULTATION_CHECK]:
+                continue
             item.status = status
             session.add(item)
+        session.flush()
 
     @staticmethod
     def _update_mp_item(mp_item, data, session):
@@ -241,11 +244,15 @@ class PackageService:
     @staticmethod
     def _update_cr_status(items, data, session):
         """Update the status of all items in the package."""
-        for item in items:
-            if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
-                item.status = data.get('status')
-                item.review_start_date = data.get('review_start_date')
-                session.add(item)
+        cr_item = next((item for item in items
+                        if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value), None)
+        if not cr_item:
+            raise BadRequestError("Consultation record not found in package")
+        if cr_item.status != ItemStatus.SUBMITTED:
+            raise BadRequestError("Consultation record in package is not submitted")
+        cr_item.status = data.get('status')
+        cr_item.review_start_date = data.get('review_start_date')
+        session.add(cr_item)
 
     @staticmethod
     def _update_package_submission_details(package, session):
@@ -333,6 +340,11 @@ class PackageService:
                                 if request.status != UpdateRequestStatus.ACCEPTED.value]
         if not open_update_requests:
             raise BadRequestError("Cannot resubmit a package that has no open update requests")
+        if package.completed_on:
+            raise BadRequestError("Cannot resubmit a package that has been completed")
+        cls._update_items_status(
+            package.items, ItemStatus.SUBMITTED.value, session)
+        cls._update_package_status(package.id, session, package)
         cls._update_package_submission_details(package, session)
         cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
@@ -400,8 +412,8 @@ class PackageService:
         if not mp_item:
             current_app.logger.info(f"Management plan form not found in package {package_id}")
             raise BadRequestError("Management plan form not found in package")
-        if mp_item.status == ItemStatus.UNDER_REVIEW:
-            current_app.logger.info(f"Management plan form {mp_item.id} is already under review")
+        if mp_item.status != ItemStatus.SUBMITTED:
+            current_app.logger.info(f"Management plan form in package {package_id} is not submitted")
             return
         item_data = {
             'status': ItemStatus.UNDER_REVIEW.value,

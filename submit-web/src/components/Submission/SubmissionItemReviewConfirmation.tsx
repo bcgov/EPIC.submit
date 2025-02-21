@@ -1,14 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
+  SUBMISSION_ITEM_METHOD,
   SUBMISSION_ITEM_MODAL_CONTENT,
   SUBMISSION_ITEM_TYPE,
-  SubmissionItemTypeName,
+  SubmissionItem,
 } from "@/models/SubmissionItem";
 import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { PACKAGE_STATUS } from "@/models/Package";
+import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
+import { useAccount } from "@/store/accountStore";
+import { USER_TYPE } from "@/models/User";
 
 const acceptedSubmissionItemTypes = [
   SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD,
@@ -22,20 +26,21 @@ const ItemTypePackageStatusMap = {
 };
 
 type SubmissionItemReviewConfirmationProps = Readonly<{
-  packageId: number;
-  itemType: SubmissionItemTypeName;
+  submissionItem: SubmissionItem;
   onClick: () => void;
   children: React.ReactElement;
-  bypass?: boolean;
 }>;
 
 export default function SubmissionItemReviewConfirmation({
+  submissionItem,
   children,
   onClick,
-  itemType,
-  packageId,
-  bypass = false,
 }: SubmissionItemReviewConfirmationProps) {
+  const { userType } = useAccount();
+  const { name: itemType, submission_method } = submissionItem.type;
+  const hasDocument =
+    submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+  const { package_id: packageId } = submissionItem;
   const {
     setOpen: setOpenModal,
     setClose: setCloseModal,
@@ -87,6 +92,13 @@ export default function SubmissionItemReviewConfirmation({
       />,
     );
   };
+
+  const bypass = useMemo(() => {
+    if (userType !== USER_TYPE.STAFF) return true;
+    if (!hasDocument) return true;
+    if (submissionItem.status !== SUBMISSION_ITEM_STATUS.SUBMITTED.value)
+      return true;
+  }, [hasDocument, userType, submissionItem.status]);
 
   const handleBypassClick = () => {
     onClick();

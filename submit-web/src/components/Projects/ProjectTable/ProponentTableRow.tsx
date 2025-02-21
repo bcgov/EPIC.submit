@@ -58,10 +58,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
             pr: BCDesignTokens.layoutPaddingSmall,
           }}
         >
-          <PackageStatusChipStack
-            submissionPackage={subPackage}
-            hideReviewStatus
-          />
+          <PackageStatusChipStack submissionPackage={subPackage} />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
       <EmptyRow colSpan={4} />

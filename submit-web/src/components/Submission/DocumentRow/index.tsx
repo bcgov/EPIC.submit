@@ -68,10 +68,8 @@ export default function DocumentRow({
           >
             {staff ? (
               <SubmissionItemReviewConfirmation
-                packageId={submissionItem.package_id}
-                itemType={submissionItem.type.name}
+                submissionItem={submissionItem}
                 onClick={openDocument}
-                bypass={Boolean(submissionItem.review_start_date)}
               >
                 <MuiLink>{name}</MuiLink>
               </SubmissionItemReviewConfirmation>

@@ -95,13 +95,13 @@ const statusStyles: Record<
     },
     label: "New",
   },
-  PENDING_MANAGER_REVIEW: {
+  AWAITING_MANAGER_REVIEW: {
     sx: {
       borderRadius: 1,
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
-      width: "188px",
+      width: "185px",
     },
     label: "Awaiting Manager Review",
   },
@@ -170,6 +170,15 @@ const statusStyles: Record<
       height: "24px",
     },
     label: "Updated",
+  },
+  FAILED_CONSULTATION_CHECK: {
+    label: "Failed Consultaion Check",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+      background: BCDesignTokens.supportSurfaceColorDanger,
+      height: "24px",
+    },
   },
 };
 

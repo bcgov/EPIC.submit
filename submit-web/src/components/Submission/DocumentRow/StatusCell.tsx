@@ -4,6 +4,8 @@ import {
   Submission,
   SUBMISSION_STATUS,
 } from "@/models/Submission";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import { Case, Default, Switch } from "react-if";
 
 type StatusCellProps = Readonly<{
@@ -11,8 +13,11 @@ type StatusCellProps = Readonly<{
 }>;
 
 export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
+  const { userType } = useAccount();
+  const entityUser = userType === USER_TYPE.PROPONENT;
   return (
     <Switch>
+      <Case condition={entityUser}>{null}</Case>
       <Case condition={submittedDocument.status === SUBMISSION_STATUS.REJECTED}>
         <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.FAILED} />
       </Case>

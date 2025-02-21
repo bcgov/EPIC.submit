@@ -43,7 +43,7 @@ export default function StaffSubmissionItemTableRow({
       }),
     );
 
-  const { submissions, id, status, review, review_start_date, type_id } = item;
+  const { submissions, id, status, type_id } = item;
 
   const name = item.type.name;
   const hasDocument =
@@ -74,19 +74,6 @@ export default function StaffSubmissionItemTableRow({
     return filterOpenUpdateRequests(submissionPackage.update_requests)
       .flatMap((updateRequest) => updateRequest.submission_item_types)
       .includes(type_id);
-  }, [submissionPackage, type_id]);
-
-  const isRevisionRequired = useMemo(() => {
-    if (!submissionPackage) return false;
-    return submissionPackage.update_requests
-      .filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value &&
-          updateRequest.active,
-      )
-      .some((updateRequest) =>
-        updateRequest.submission_item_types.includes(type_id),
-      );
   }, [submissionPackage, type_id]);
 
   const actionLabel = hasDocument ? "Review" : "View";
@@ -127,23 +114,16 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="right">
           <SubmissionStatusChipStack
             status={status}
-            reviewStatus={review?.status}
             isUpdateRequested={isUpdateRequest}
-            isRevisionRequired={isRevisionRequired}
             isUpdated={isUpdated}
+            packageStatus={submissionPackage.status}
           />
         </SubmitPrimaryRowTableCell>
 
         <SubmitPrimaryRowTableCell align="center">
           <SubmissionItemReviewConfirmation
+            submissionItem={item}
             onClick={handleClick}
-            itemType={name}
-            packageId={Number(submissionPackageId)}
-            bypass={
-              !hasDocument ||
-              Boolean(review_start_date) ||
-              Boolean(submissionPackage.completed_on)
-            }
           >
             <Typography
               variant="body2"
