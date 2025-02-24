@@ -8,7 +8,6 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.models import UpdateRequest, Package
 from submit_api.models import PackageMetadata, SubmissionReviewEntry
 from submit_api.models.package_metadata import PackageMetadataFields
-from submit_api.models.submission import SubmissionStatus
 from submit_api.models.submission_review import SubmissionReview
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
