@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 import {
-  Chip ,
+  Chip,
   Divider,
   Grid,
   IconButton,
@@ -90,7 +90,7 @@ export default function FormFieldSection({
                 <li key={index}>{stakeholder}</li>
               ))}
               {fields
-                .filter((field) => field.consultedParty?.trim()) // Ensure only valid values are shown
+                .filter((field) => field.consultedParty?.trim())
                 .map((field, index) => (
                   <li key={field.id}>
                     <Chip
@@ -104,7 +104,7 @@ export default function FormFieldSection({
                         marginBottom: "5px",
                         backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
                         "& .MuiChip-deleteIcon": {
-                          color: BCDesignTokens.surfaceColorBackgroundDarkBlue,  // Ensure the delete icon gets the dark blue color
+                          color: BCDesignTokens.surfaceColorBackgroundDarkBlue,
                           borderRadius: "0",
                           backgroundColor: "transparent",
                           marginLeft: "5px",
