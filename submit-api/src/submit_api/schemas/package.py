@@ -212,10 +212,6 @@ def get_package_status(status, user_type, version_obj):
             UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
             UserType.STAFF: PackageStatus.UNDER_CONSULTATION_CHECK.value
         },
-        PackageStatus.FAILED_CONSULTATION_CHECK.value: {
-            UserType.PROPONENT: '',
-            UserType.STAFF: PackageStatus.FAILED_CONSULTATION_CHECK.value
-        },
         PackageStatus.CC_AWAITING_MANAGER_REVIEW.value: {
             UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
             UserType.STAFF: PackageStatus.AWAITING_MANAGER_REVIEW.value

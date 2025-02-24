@@ -94,7 +94,7 @@ export const PACKAGE_STATUS: Record<
   },
   AWAITING_MANAGER_REVIEW: {
     value: "AWAITING_MANAGER_REVIEW",
-    label: "Awaiting Manager Review",
+    label: "Awaiting Manager Approval",
   },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",

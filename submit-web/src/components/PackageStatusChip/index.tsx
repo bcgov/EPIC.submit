@@ -103,7 +103,7 @@ const statusStyles: Record<
       height: "24px",
       width: "185px",
     },
-    label: "Awaiting Manager Review",
+    label: "Awaiting Manager Approval",
   },
   PASSED_CONSULTATION_CHECK: {
     sx: {

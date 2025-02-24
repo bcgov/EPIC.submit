@@ -55,7 +55,6 @@ class ConsultationRecordService:
     @classmethod
     def reject_consultation_record(cls, item, session):
         """Reject consultation record."""
-        cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
         update_request_data = cls._prepare_update_request_data(item)
         cls._create_update_request(update_request_data, session)
         package = Package.find_by_id(item.package_id)
@@ -66,6 +65,7 @@ class ConsultationRecordService:
             actor_id=TokenInfo.get_id(),
             session=session
         )
+        item.status = ItemStatus.UNDER_CONSULTATION_CHECK.value
         session.add(item)
         session.flush()
         return item
