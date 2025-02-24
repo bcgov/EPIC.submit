@@ -214,11 +214,11 @@ def get_package_status(status, user_type, version_obj):
         },
         PackageStatus.CC_AWAITING_MANAGER_REVIEW.value: {
             UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
-            UserType.STAFF: PackageStatus.AWAITING_MANAGER_REVIEW.value
+            UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
         },
-        PackageStatus.MP_AWAITING_MANAGER_REVIEW.value: {
+        PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value: {
             UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
-            UserType.STAFF: PackageStatus.AWAITING_MANAGER_REVIEW.value
+            UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
         },
         PackageStatus.REVIEW_REJECTED.value: {
             UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,

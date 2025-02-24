@@ -105,11 +105,11 @@ def get_item_status(status, user_type):
         },
         ItemStatus.CC_AWAITING_MANAGER_REVIEW.value: {
             UserType.PROPONENT: ItemStatus.UNDER_CONSULTATION_CHECK.value,
-            UserType.STAFF: ItemStatus.AWAITING_MANAGER_REVIEW.value
+            UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value
         },
-        ItemStatus.MP_AWAITING_MANAGER_REVIEW.value: {
+        ItemStatus.MP_AWAITING_MANAGER_APPROVAL.value: {
             UserType.PROPONENT: ItemStatus.UNDER_REVIEW.value,
-            UserType.STAFF: ItemStatus.AWAITING_MANAGER_REVIEW.value
+            UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value
         },
         ItemStatus.REVIEW_REJECTED.value: {
             UserType.PROPONENT: ItemStatus.REVISION_REQUIRED.value,

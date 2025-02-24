@@ -86,14 +86,14 @@ class PackageQueries:
     @classmethod
     def _add_awaiting_cc_manager_review(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that have been rejected during review"""
-        if any(status == ItemStatus.CC_AWAITING_MANAGER_REVIEW.value for status in statuses):
-            aggregated_statuses.add(PackageStatus.CC_AWAITING_MANAGER_REVIEW.value)
+        if any(status == ItemStatus.CC_AWAITING_MANAGER_APPROVAL.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.CC_AWAITING_MANAGER_APPROVAL.value)
 
     @classmethod
     def _add_awaiting_mp_manager_review(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that have been rejected during review"""
-        if any(status == ItemStatus.MP_AWAITING_MANAGER_REVIEW.value for status in statuses):
-            aggregated_statuses.add(PackageStatus.MP_AWAITING_MANAGER_REVIEW.value)
+        if any(status == ItemStatus.MP_AWAITING_MANAGER_APPROVAL.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value)
 
     @classmethod
     def aggregate_item_statuses(cls, items: list):
