@@ -17,7 +17,6 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("UPDATE packages SET status = array_remove(status, 'FAILED_CONSULTATION_CHECK') WHERE 'FAILED_CONSULTATION_CHECK' = ANY(status);")
     op.execute("UPDATE items SET status = 'UNDER_CONSULTATION_CHECK' WHERE status = 'FAILED_CONSULTATION_CHECK';")
 
     op.execute("ALTER TYPE packagestatus RENAME VALUE 'AWAITING_MANAGER_REVIEW' TO 'AWAITING_MANAGER_APPROVAL';")
