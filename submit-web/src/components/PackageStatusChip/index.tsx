@@ -95,7 +95,7 @@ const statusStyles: Record<
     },
     label: "New",
   },
-  AWAITING_MANAGER_REVIEW: {
+  AWAITING_MANAGER_APPROVAL: {
     sx: {
       borderRadius: 1,
       border: `1px solid #F18A15`,

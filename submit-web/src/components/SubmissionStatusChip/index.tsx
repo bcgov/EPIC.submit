@@ -71,7 +71,7 @@ const statusStyles: Record<string, StyleProps> = {
       height: "24px",
     },
   },
-  AWAITING_MANAGER_REVIEW: {
+  AWAITING_MANAGER_APPROVAL: {
     sx: {
       borderRadius: 1,
       border: `1px solid #F18A15`,
