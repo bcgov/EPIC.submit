@@ -8,7 +8,6 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.models import UpdateRequest, Package
 from submit_api.models import PackageMetadata, SubmissionReviewEntry
 from submit_api.models.package_metadata import PackageMetadataFields
-from submit_api.models.submission import SubmissionStatus
 from submit_api.models.submission_review import SubmissionReview
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
@@ -55,7 +54,6 @@ class ConsultationRecordService:
     @classmethod
     def reject_consultation_record(cls, item, session):
         """Reject consultation record."""
-        cls._update_submissions_status(item, SubmissionStatus.REJECTED, session)
         update_request_data = cls._prepare_update_request_data(item)
         cls._create_update_request(update_request_data, session)
         package = Package.find_by_id(item.package_id)
@@ -66,6 +64,7 @@ class ConsultationRecordService:
             actor_id=TokenInfo.get_id(),
             session=session
         )
+        item.status = ItemStatus.UNDER_CONSULTATION_CHECK.value
         session.add(item)
         session.flush()
         return item
