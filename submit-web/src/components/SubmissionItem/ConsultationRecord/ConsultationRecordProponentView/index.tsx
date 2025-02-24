@@ -100,7 +100,7 @@ export const ConsultationRecordProponentView = () => {
     resolver: yupResolver(consultationRecordSchema),
     mode: "onSubmit",
     defaultValues: {
-      consultedParties: [{ consultedParty: "" }],
+      consultedParties: [],
       ...defaultFormValues,
       ...defaultDocumentValues,
     },
