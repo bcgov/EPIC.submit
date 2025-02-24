@@ -40,10 +40,12 @@ export default function StaffSubmissionItemTableRow({
     useSuspenseQuery(
       getStaffSubmissionPackageQueryOptions({
         packageId: Number(submissionPackageId),
-      }),
+      })
     );
 
   const { submissions, id, status, type_id } = item;
+
+  const { submitted_on } = submissionPackage;
 
   const name = item.type.name;
   const hasDocument =
@@ -55,17 +57,15 @@ export default function StaffSubmissionItemTableRow({
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
           updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-          updateRequest.active,
+          updateRequest.active
       )
       .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
 
     if (!last_update_request) return false;
     return Boolean(
       item.submissions.find((submission) =>
-        dayjs(submission.created_date).isAfter(
-          last_update_request.created_date,
-        ),
-      ),
+        dayjs(submission.created_date).isAfter(last_update_request.created_date)
+      )
     );
   }, [item, submissionPackage.update_requests]);
 
@@ -121,35 +121,39 @@ export default function StaffSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
 
         <SubmitPrimaryRowTableCell align="center">
-          <SubmissionItemReviewConfirmation
-            submissionItem={item}
-            onClick={handleClick}
-          >
-            <Typography
-              variant="body2"
-              sx={{
-                color: BCDesignTokens.typographyColorLink,
-                "&:hover": {
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                },
-              }}
+          <When condition={submitted_on}>
+            <SubmissionItemReviewConfirmation
+              submissionItem={item}
+              onClick={handleClick}
             >
-              {actionLabel}
-            </Typography>
-          </SubmissionItemReviewConfirmation>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: BCDesignTokens.typographyColorLink,
+                  "&:hover": {
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                {actionLabel}
+              </Typography>
+            </SubmissionItemReviewConfirmation>
+          </When>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
-      {submissions
-        .filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
-        .map((submission) => (
-          <DocumentRow
-            submissionItem={item}
-            key={`doc-row-${submission.id}`}
-            documentSubmission={submission}
-            staff
-          />
-        ))}
+      <When condition={submitted_on}>
+        {submissions
+          .filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
+          .map((submission) => (
+            <DocumentRow
+              submissionItem={item}
+              key={`doc-row-${submission.id}`}
+              documentSubmission={submission}
+              staff
+            />
+          ))}
+      </When>
       <When condition={error}>
         <TableRow key={`row-${name}-divider`}>
           <TableCell
