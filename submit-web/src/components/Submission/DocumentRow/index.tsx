@@ -99,7 +99,7 @@ export default function DocumentRow({
       </TableRow>
       <TableRow>
         <SubmitTableCell
-          colSpan={5}
+          colSpan={21}
           style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
         >
           <Collapse in={expanded} mountOnEnter unmountOnExit>

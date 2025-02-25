@@ -21,7 +21,7 @@ export default function Rows({
   return (
     <>
       <SubmitTablePrimaryRow>
-        <SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell colSpan={17}>
           <MuiLink
             color="inherit"
             sx={{

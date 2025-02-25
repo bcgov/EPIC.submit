@@ -121,11 +121,7 @@ export default function StaffSubmissionItemTableRow({
           />
         </SubmitPrimaryRowTableCell>
 
-        <SubmitPrimaryRowTableCell
-          align="left"
-          colSpan={2}
-          sx={{ border: "2px solid red", pl: 1 }}
-        >
+        <SubmitPrimaryRowTableCell align="left" colSpan={2}>
           <When condition={submitted_on}>
             <SubmissionItemReviewConfirmation
               submissionItem={item}
