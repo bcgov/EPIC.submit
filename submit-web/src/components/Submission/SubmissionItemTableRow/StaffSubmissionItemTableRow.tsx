@@ -27,6 +27,7 @@ import {
 import dayjs from "dayjs";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
+import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -176,15 +177,7 @@ export default function StaffSubmissionItemTableRow({
           </TableCell>
         </TableRow>
       </When>
-      <TableRow key={`row-${name}-divider`}>
-        <TableCell
-          colSpan={5}
-          sx={{
-            py: BCDesignTokens.layoutPaddingXsmall,
-            border: 0,
-          }}
-        />
-      </TableRow>
+      <EmptyRow colSpan={5} />
     </>
   );
 }
