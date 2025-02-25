@@ -55,7 +55,7 @@ export default function DocumentRow({
   return (
     <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
-        <SubmitTableCell>
+        <SubmitTableCell colSpan={10}>
           <Typography
             variant="body1"
             color="inherit"
@@ -78,10 +78,12 @@ export default function DocumentRow({
             )}
           </Typography>
         </SubmitTableCell>
-        <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
-        <SubmitTableCell align="right">
+        <SubmitTableCell align="left" colSpan={3}>
+          {submitted_by || ""}
+        </SubmitTableCell>
+        <SubmitTableCell align="right" colSpan={2}>
           {version}
-          <IconButton onClick={() => setExpanded(!expanded)}>
+          <IconButton onClick={() => setExpanded(!expanded)} sx={{ p: 0 }}>
             <ExpandMoreIcon
               sx={{
                 transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
@@ -90,10 +92,10 @@ export default function DocumentRow({
             />
           </IconButton>
         </SubmitTableCell>
-        <SubmitTableCell align="right">
+        <SubmitTableCell align="right" colSpan={4}>
           <StatusCell submittedDocument={documentSubmission} />
         </SubmitTableCell>
-        <SubmitTableCell align="right" colSpan={1}></SubmitTableCell>
+        <SubmitTableCell align="right" colSpan={2}></SubmitTableCell>
       </TableRow>
       <TableRow>
         <SubmitTableCell

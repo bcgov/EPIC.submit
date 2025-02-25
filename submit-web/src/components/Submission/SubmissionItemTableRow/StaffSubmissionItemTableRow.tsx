@@ -91,7 +91,7 @@ export default function StaffSubmissionItemTableRow({
   return (
     <>
       <SubmitTablePrimaryRow key={`row-${name}`} error={error}>
-        <SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell colSpan={10}>
           <MuiLink
             color="inherit"
             sx={{
@@ -110,8 +110,9 @@ export default function StaffSubmissionItemTableRow({
             </Typography>
           </MuiLink>
         </SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell align="left" colSpan={3} />
         <SubmitPrimaryRowTableCell align="right" colSpan={2} />
-        <SubmitPrimaryRowTableCell align="right">
+        <SubmitPrimaryRowTableCell align="right" colSpan={4}>
           <SubmissionStatusChipStack
             status={status}
             isUpdateRequested={isUpdateRequest}
@@ -120,7 +121,11 @@ export default function StaffSubmissionItemTableRow({
           />
         </SubmitPrimaryRowTableCell>
 
-        <SubmitPrimaryRowTableCell align="center">
+        <SubmitPrimaryRowTableCell
+          align="left"
+          colSpan={2}
+          sx={{ border: "2px solid red", pl: 1 }}
+        >
           <When condition={submitted_on}>
             <SubmissionItemReviewConfirmation
               submissionItem={item}
