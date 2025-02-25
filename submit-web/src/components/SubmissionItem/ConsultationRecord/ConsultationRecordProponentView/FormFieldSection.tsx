@@ -1,8 +1,17 @@
+import { useState } from "react";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
-import { Divider, Grid, IconButton, Typography } from "@mui/material";
+import {
+  Chip,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { BCDesignTokens } from "epic.theme";
-import { When } from "react-if";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
@@ -24,8 +33,19 @@ export default function FormFieldSection({
     name: "consultedParties", // this should match the field name in the schema
   });
 
+  const [inputValue, setInputValue] = useState("");
+
   const handleAddParty = () => {
-    append({ consultedParty: "" }); // append a new field for consultedParty
+    const trimmedValue = inputValue.trim();
+    if (trimmedValue && !fields.some((field) => field.consultedParty === trimmedValue)) {
+      append({ consultedParty: trimmedValue });
+      setInputValue("");
+    }
+  };
+
+  const handleRemoveParty = (index: number) => {
+    remove(index);
+    methods.trigger("consultedParties");
   };
 
   return (
@@ -69,39 +89,71 @@ export default function FormFieldSection({
               {partiesList.map((stakeholder, index) => (
                 <li key={index}>{stakeholder}</li>
               ))}
+              {fields
+                .filter((field) => field.consultedParty?.trim())
+                .map((field, index) => (
+                  <li key={field.id}>
+                    <Chip
+                      label={field.consultedParty}
+                      onDelete={() => handleRemoveParty(index)}
+                      deleteIcon={<CloseIcon />}
+                      sx={{
+                        fontSize: "inherit",
+                        fontFamily: "inherit",
+                        verticalAlign: "middle",
+                        marginBottom: "5px",
+                        backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
+                        "& .MuiChip-deleteIcon": {
+                          color: BCDesignTokens.surfaceColorBackgroundDarkBlue,
+                          borderRadius: "0",
+                          backgroundColor: "transparent",
+                          marginLeft: "5px",
+                          fontSize: "20px",
+                        },
+                      }}
+                    />
+                  </li>
+                ))}
             </ul>
           </Typography>
           <Grid item container xs={12} spacing={2}>
-            {fields.map((field, index) => (
-              <Grid item container xs={12} key={field.id}>
-                <Grid item xs={6}>
-                  <ControlledTextField
-                    fullWidth
-                    name={`consultedParties.${index}.consultedParty`}
-                    placeholder="Enter the name of other consulted party here"
-                    sx={{
-                      mb: 0,
-                    }}
-                  />
-                </Grid>
-                <When condition={fields.length > 1}>
-                  <IconButton onClick={() => remove(index)}>
-                    <CloseIcon />
-                  </IconButton>
-                </When>
-              </Grid>
-            ))}
+            <Grid item xs={6}>
+              <TextField
+                fullWidth
+                placeholder="Enter the name of other consulted party here"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && inputValue.trim() !== "") {
+                    handleAddParty();
+                    e.preventDefault();
+                  }
+                }}
+                InputProps={{
+                  endAdornment: inputValue && inputValue !=="" ? (
+                    <InputAdornment position="end" sx={{ marginRight: "-5px" }}>
+                      <IconButton
+                        onClick={handleAddParty}
+                        sx={{
+                          padding: 0,
+                          borderRadius: "50%",
+                          backgroundColor: BCDesignTokens.surfaceColorBackgroundDarkBlue,
+                          color: "white",
+                          "&:hover": { backgroundColor: BCDesignTokens.surfaceColorBackgroundDarkBlue },
+                        }}
+                      >
+                        <AddIcon
+                          sx={{
+                            fontSize: "20px",
+                          }}
+                        />
+                      </IconButton>
+                    </InputAdornment>
+                  ) : null,
+                }}
+              />
+            </Grid>
           </Grid>
-          <Typography
-            variant="body1"
-            sx={{
-              color: BCDesignTokens.typographyColorLink,
-              cursor: "pointer",
-            }}
-            onClick={handleAddParty}
-          >
-            + Add a Consulted Party
-          </Typography>
         </Grid>
         <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
           <Typography variant="body1">

@@ -135,7 +135,6 @@ export const getPackageVersionsByOriginalPackageIdQueryOptions = ({
     queryKey: [QUERY_KEY.PACKAGE_VERSIONS, originalPackageId],
     queryFn: () => getPackageVersionsByOriginalPackageId({ originalPackageId }),
     enabled: enabled && Boolean(originalPackageId),
-    ...defaultUseQueryOptions,
   });
 
 export const useGetPackageVersionsByOriginalPackageId = ({
@@ -209,11 +208,7 @@ const createPackageUpdateRequest = ({
   });
 };
 
-const acceptUpdateRequest = ({
-  packageId,
-}: {
-  packageId: number;
-}) => {
+const acceptUpdateRequest = ({ packageId }: { packageId: number }) => {
   return submitRequest<SubmissionPackage>({
     url: `/staff/packages/${packageId}/update-request`,
     method: "patch",

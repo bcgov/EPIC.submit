@@ -71,15 +71,15 @@ const statusStyles: Record<string, StyleProps> = {
       height: "24px",
     },
   },
-  AWAITING_MANAGER_REVIEW: {
+  AWAITING_MANAGER_APPROVAL: {
     sx: {
       borderRadius: 1,
       border: `1px solid #F18A15`,
       background: "#FFDEB8",
       height: "24px",
-      width: "185px",
+      width: "196px",
     },
-    label: "Awaiting Manager Review",
+    label: "Awaiting Manager Approval",
   },
   PASSED_CONSULTATION_CHECK: {
     sx: {

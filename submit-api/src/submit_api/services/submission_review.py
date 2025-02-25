@@ -138,9 +138,9 @@ class SubmissionReviewService:
     def _get_awaiting_manager_review_status(cls, item):
         """Get the status of the item awaiting manager review."""
         if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
-            return ItemStatus.MP_AWAITING_MANAGER_REVIEW
+            return ItemStatus.MP_AWAITING_MANAGER_APPROVAL
         if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
-            return ItemStatus.CC_AWAITING_MANAGER_REVIEW
+            return ItemStatus.CC_AWAITING_MANAGER_APPROVAL
         raise UnprocessableEntityError("Item type is not supported.")
 
     @classmethod
