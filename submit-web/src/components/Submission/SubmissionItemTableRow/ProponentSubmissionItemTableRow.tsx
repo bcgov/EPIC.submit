@@ -1,4 +1,5 @@
 import {
+  Box,
   Link as MuiLink,
   TableCell,
   TableRow,
@@ -109,12 +110,14 @@ export default function ProponentSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" colSpan={3} />
         <SubmitPrimaryRowTableCell align="right" colSpan={2} />
         <SubmitPrimaryRowTableCell align="right" colSpan={4}>
-          <SubmissionStatusChipStack
-            status={status}
-            isUpdateRequested={isUpdateRequest}
-            isUpdated={isUpdated}
-            packageStatus={submissionPackage?.status}
-          />
+          <Box mr={2}>
+            <SubmissionStatusChipStack
+              status={status}
+              isUpdateRequested={isUpdateRequest}
+              isUpdated={isUpdated}
+              packageStatus={submissionPackage?.status}
+            />
+          </Box>
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" colSpan={2}>
           <Unless
