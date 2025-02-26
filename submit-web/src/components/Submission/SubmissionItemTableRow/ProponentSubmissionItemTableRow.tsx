@@ -88,7 +88,7 @@ export default function ProponentSubmissionItemTableRow({
   return (
     <>
       <SubmitTablePrimaryRow key={`row-${name}`} error={error}>
-        <SubmitPrimaryRowTableCell colSpan={10}>
+        <SubmitPrimaryRowTableCell width={"50%"}>
           <MuiLink
             color="inherit"
             sx={{
@@ -107,9 +107,9 @@ export default function ProponentSubmissionItemTableRow({
             </Typography>
           </MuiLink>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="left" colSpan={3} />
-        <SubmitPrimaryRowTableCell align="right" colSpan={2} />
-        <SubmitPrimaryRowTableCell align="right" colSpan={4}>
+        <SubmitPrimaryRowTableCell align="left" width={"10%"} />
+        <SubmitPrimaryRowTableCell align="right" width={"10%"} />
+        <SubmitPrimaryRowTableCell align="right" width={"20%"}>
           <Box mr={2}>
             <SubmissionStatusChipStack
               status={status}
@@ -119,7 +119,7 @@ export default function ProponentSubmissionItemTableRow({
             />
           </Box>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="left" colSpan={2}>
+        <SubmitPrimaryRowTableCell align="left" width={"10%"}>
           <Unless
             condition={
               submissionPackage?.submitted_on &&
@@ -157,7 +157,7 @@ export default function ProponentSubmissionItemTableRow({
       <When condition={error}>
         <TableRow key={`row-${name}-divider`}>
           <TableCell
-            colSpan={5}
+            width={"100%"}
             sx={{
               py: BCDesignTokens.layoutPaddingXsmall,
               px: 0,
