@@ -1,0 +1,42 @@
+import { TableHead, TableRow } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
+import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
+
+export default function ProponentLayoutHead() {
+  return (
+    <TableHead
+      sx={{
+        border: 0,
+        ".MuiTableCell-root": {
+          p: BCDesignTokens.layoutPaddingXsmall,
+        },
+      }}
+    >
+      <TableRow>
+        <SubmitTableHeadCell
+          sx={{
+            width: "50%",
+          }}
+        />
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "15%",
+          }}
+        />
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "15%",
+          }}
+        />
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "15%",
+          }}
+        />
+      </TableRow>
+    </TableHead>
+  );
+}
