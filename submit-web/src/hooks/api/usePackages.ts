@@ -258,7 +258,7 @@ const createPackageUpdateRequesNote = ({
   data: Record<string, unknown>;
 }) => {
   return submitRequest<SubmissionPackage>({
-    url: `/staff/packages/${packageId}/update-requests/${updateRequestId}/note`,
+    url: `/packages/${packageId}/update-requests/${updateRequestId}/note`,
     method: "post",
     data,
   });

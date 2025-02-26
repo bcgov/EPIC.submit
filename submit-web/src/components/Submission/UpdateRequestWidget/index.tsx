@@ -34,8 +34,19 @@ export default function UpdateRequestWidget({
 
   const updateRequests = useMemo(() => {
     if (!submissionPackage?.update_requests) return [];
-    return submissionPackage.update_requests;
+
+    const updateRequests = submissionPackage.update_requests;
+    return updateRequests.sort((a, b) => {
+      return (
+        new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
+      );
+    });
   }, [submissionPackage?.update_requests]);
+
+  const activeRequests = useMemo(() => {
+    if (!updateRequests) return [];
+    return updateRequests.filter((request) => request.active);
+  }, [updateRequests]);
 
   const { mutate: createUpdateRequest, isPending: isCreatingUpdateRequest } =
     useCreatePackageUpdateRequest({
@@ -79,11 +90,6 @@ export default function UpdateRequestWidget({
   const handleCancelReason = () => {
     setIsCreateRequestOpen(false);
   };
-
-  const activeRequests = useMemo(() => {
-    if (!updateRequests) return [];
-    return updateRequests.filter((request) => request.active);
-  }, [updateRequests]);
 
   if (!updateRequests) return null;
 
@@ -217,24 +223,22 @@ export default function UpdateRequestWidget({
             />
           </Collapse>
         </PermissionsGate>
-        <When condition={Boolean(updateRequests)}>
-          {updateRequests.length > 0 ? (
-            updateRequests.map((updateRequest, index) => (
-              <>
-                <RequestSection
-                  key={updateRequest.id}
-                  updateRequest={updateRequest}
-                  submissionPackage={submissionPackage}
-                />
-                {index !== updateRequests.length - 1 && <Divider />}
-              </>
-            ))
-          ) : (
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              No requests have been made yet.
-            </Typography>
-          )}
-        </When>
+        {updateRequests.length > 0 ? (
+          updateRequests.map((updateRequest, index) => (
+            <>
+              <RequestSection
+                key={updateRequest.id}
+                updateRequest={updateRequest}
+                submissionPackage={submissionPackage}
+              />
+              {index !== updateRequests.length - 1 && <Divider />}
+            </>
+          ))
+        ) : (
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            No requests have been made yet.
+          </Typography>
+        )}
       </AccordionDetails>
     </Accordion>
   );

@@ -1,7 +1,11 @@
 import { Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import dateUtils from "@/utils/dateUtils";
-import { UPDATE_REQUEST_STATUS, UPDATE_REQUEST_TYPE, UpdateRequest } from "@/models/UpdateRequest";
+import {
+  UPDATE_REQUEST_STATUS,
+  UPDATE_REQUEST_TYPE,
+  UpdateRequest,
+} from "@/models/UpdateRequest";
 import { useAcceptUpdateRequest } from "@/hooks/api/usePackages";
 import { Case, Switch, When } from "react-if";
 import { AddRequestNoteSection } from "./AddRequestNoteSection";
@@ -29,7 +33,7 @@ export default function RequestSection({
     note,
     type,
     submission_item_types,
-    status
+    status,
   } = updateRequest;
   const createdDate = dateUtils.formatDate(created_date);
 
@@ -87,25 +91,31 @@ export default function RequestSection({
         <Typography variant="body1" sx={{ mb: 1 }}>
           {reason}
         </Typography>
-        <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
-          {status === UPDATE_REQUEST_STATUS.ACCEPTED.value ? (
-            <UpdateRequestStatusChip status={UPDATE_REQUEST_STATUS.ACCEPTED.value} />
-          ) : (
-            <LoadingButton
-              variant="contained"
-              color="secondary"
-              disabled={status !== UPDATE_REQUEST_STATUS.PENDING_REVIEW.value}
-              onClick={() =>
-                acceptUpdateRequest({
-                  packageId: updateRequest.submission_package_id,
-                })
-              }
-              loading={isUpdating}
-            >
-              Accept Update
-            </LoadingButton>
-          )}
-        </PermissionsGate>
+        <When
+          condition={updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value}
+        >
+          <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+            {status === UPDATE_REQUEST_STATUS.ACCEPTED.value ? (
+              <UpdateRequestStatusChip
+                status={UPDATE_REQUEST_STATUS.ACCEPTED.value}
+              />
+            ) : (
+              <LoadingButton
+                variant="contained"
+                color="secondary"
+                disabled={status !== UPDATE_REQUEST_STATUS.PENDING_REVIEW.value}
+                onClick={() =>
+                  acceptUpdateRequest({
+                    packageId: updateRequest.submission_package_id,
+                  })
+                }
+                loading={isUpdating}
+              >
+                Accept Update
+              </LoadingButton>
+            )}
+          </PermissionsGate>
+        </When>
       </Box>
 
       <When condition={Boolean(note)}>
