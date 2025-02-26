@@ -48,7 +48,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
           }}
         >
           <TableRow>
-            <SubmitTableHeadCell>
+            <SubmitTableHeadCell width={"50%"}>
               <Typography
                 variant="body2"
                 sx={{
@@ -61,10 +61,18 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
                 Form/Document
               </Typography>
             </SubmitTableHeadCell>
-            <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
-            <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
-            <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
-            <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
+            <SubmitTableHeadCell width={"10%"} align="left">
+              Uploaded by
+            </SubmitTableHeadCell>
+            <SubmitTableHeadCell width={"10%"} align="right">
+              Version
+            </SubmitTableHeadCell>
+            <SubmitTableHeadCell width={"20%"} align="center">
+              Status
+            </SubmitTableHeadCell>
+            <SubmitTableHeadCell width={"10%"} align="left">
+              Actions
+            </SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
