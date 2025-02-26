@@ -91,7 +91,7 @@ class PackageVersions(Resource):
     "/<int:package_id>/update-request",
     methods=["POST", "PATCH", "OPTIONS"],
 )
-class PackageUpdateRequest(Resource):
+class PackageUpdateRequests(Resource):
     """Resource for managing a package's update request."""
 
     @staticmethod
