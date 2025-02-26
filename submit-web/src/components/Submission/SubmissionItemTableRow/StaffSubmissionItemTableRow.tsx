@@ -1,4 +1,5 @@
 import {
+  Box,
   Link as MuiLink,
   TableCell,
   TableRow,
@@ -27,6 +28,7 @@ import {
 import dayjs from "dayjs";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
+import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -91,7 +93,7 @@ export default function StaffSubmissionItemTableRow({
   return (
     <>
       <SubmitTablePrimaryRow key={`row-${name}`} error={error}>
-        <SubmitPrimaryRowTableCell>
+        <SubmitPrimaryRowTableCell width={"50%"}>
           <MuiLink
             color="inherit"
             sx={{
@@ -110,17 +112,20 @@ export default function StaffSubmissionItemTableRow({
             </Typography>
           </MuiLink>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="right" colSpan={2} />
-        <SubmitPrimaryRowTableCell align="right">
-          <SubmissionStatusChipStack
-            status={status}
-            isUpdateRequested={isUpdateRequest}
-            isUpdated={isUpdated}
-            packageStatus={submissionPackage.status}
-          />
+        <SubmitPrimaryRowTableCell align="left" width={"10%"} />
+        <SubmitPrimaryRowTableCell align="right" width={"10%"} />
+        <SubmitPrimaryRowTableCell align="right" width={"20%"}>
+          <Box mr={2}>
+            <SubmissionStatusChipStack
+              status={status}
+              isUpdateRequested={isUpdateRequest}
+              isUpdated={isUpdated}
+              packageStatus={submissionPackage.status}
+            />
+          </Box>
         </SubmitPrimaryRowTableCell>
 
-        <SubmitPrimaryRowTableCell align="center">
+        <SubmitPrimaryRowTableCell align="left" width={"10%"}>
           <When condition={submitted_on}>
             <SubmissionItemReviewConfirmation
               submissionItem={item}
@@ -157,7 +162,7 @@ export default function StaffSubmissionItemTableRow({
       <When condition={error}>
         <TableRow key={`row-${name}-divider`}>
           <TableCell
-            colSpan={5}
+            width={"100%"}
             sx={{
               py: BCDesignTokens.layoutPaddingXsmall,
               px: 0,
@@ -175,15 +180,7 @@ export default function StaffSubmissionItemTableRow({
           </TableCell>
         </TableRow>
       </When>
-      <TableRow key={`row-${name}-divider`}>
-        <TableCell
-          colSpan={5}
-          sx={{
-            py: BCDesignTokens.layoutPaddingXsmall,
-            border: 0,
-          }}
-        />
-      </TableRow>
+      <EmptyRow colSpan={5} />
     </>
   );
 }
