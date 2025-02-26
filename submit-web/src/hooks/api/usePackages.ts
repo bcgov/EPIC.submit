@@ -208,9 +208,15 @@ const createPackageUpdateRequest = ({
   });
 };
 
-const acceptUpdateRequest = ({ packageId }: { packageId: number }) => {
+const acceptUpdateRequest = ({
+  packageId,
+  updateRequestId,
+}: {
+  packageId: number;
+  updateRequestId: number;
+}) => {
   return submitRequest<SubmissionPackage>({
-    url: `/staff/packages/${packageId}/update-request`,
+    url: `/staff/packages/${packageId}/update-request/${updateRequestId}`,
     method: "patch",
   });
 };
@@ -276,14 +282,15 @@ export const useAcceptUpdateRequest = ({
   return useMutation({
     mutationFn: acceptUpdateRequest,
     ...options,
-    onSuccess: () => {
+    onSuccess: (submissionPackage) => {
       if (options?.onSuccess) {
         options.onSuccess();
       }
 
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-      });
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        submissionPackage,
+      );
     },
   });
 };

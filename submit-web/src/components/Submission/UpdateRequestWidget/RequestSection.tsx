@@ -107,6 +107,7 @@ export default function RequestSection({
                 onClick={() =>
                   acceptUpdateRequest({
                     packageId: updateRequest.submission_package_id,
+                    updateRequestId: updateRequest.id,
                   })
                 }
                 loading={isUpdating}
