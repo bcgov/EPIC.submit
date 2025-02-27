@@ -8,7 +8,7 @@ export default function StaffLayoutHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "39%",
+            width: "40%",
           }}
         ></SubmitTableHeadCell>
         <SubmitTableHeadCell
@@ -26,7 +26,7 @@ export default function StaffLayoutHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "8%",
+            width: "5%",
             lineHeight: 1.2,
             wordWrap: "break-word",
           }}
@@ -34,19 +34,19 @@ export default function StaffLayoutHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "12%",
+            width: "10%",
           }}
         ></SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "8%",
+            width: "10%",
           }}
         ></SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "20%",
+            width: "15%",
           }}
         ></SubmitTableHeadCell>
       </TableRow>
