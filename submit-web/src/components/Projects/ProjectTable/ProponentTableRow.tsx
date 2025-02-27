@@ -25,7 +25,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
   return (
     <>
       <StyledProjectTableRow>
-        <StyledProjectTableCell sx={{ py: 0 }}>
+        <StyledProjectTableCell sx={{ py: 0 }} width={"55%"}>
           <Link
             sx={{
               color: BCDesignTokens.themeBlue90,
@@ -46,13 +46,14 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
             <ArrowForwardIos fontSize="small" />
           </Link>
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="left">
+        <StyledProjectTableCell align="left" width={"15%"}>
           {dateUtils.formatDate(subPackage.submitted_on)}
         </StyledProjectTableCell>
-        <StyledProjectTableCell align="left">
+        <StyledProjectTableCell align="left" width={"15%"}>
           {subPackage.submitted_by ?? ""}
         </StyledProjectTableCell>
         <StyledProjectTableCell
+          width={"15%"}
           align="right"
           sx={{
             pr: BCDesignTokens.layoutPaddingSmall,

@@ -1,5 +1,6 @@
 import { MainListItem } from "./MainListItem";
 import ProjectsSubRoutes from "./ProjectsSubRoutes";
+import { SubListItem } from "./SubListItem";
 
 export default function EntityRoutes() {
   return (
@@ -15,6 +16,13 @@ export default function EntityRoutes() {
         route={{
           name: "Admin",
           path: "/proponent/profile",
+        }}
+      />
+      <SubListItem
+        key={`sub-list-user-management`}
+        route={{
+          name: "User Management",
+          path: `/proponent/user-management`,
         }}
       />
     </>

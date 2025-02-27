@@ -2,7 +2,7 @@ import { TableHead, TableRow } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 
-export default function ProponentTableHead() {
+export default function UserTableHead() {
   return (
     <TableHead
       sx={{
@@ -15,26 +15,26 @@ export default function ProponentTableHead() {
       <TableRow>
         <SubmitTableHeadCell
           sx={{
-            width: "55%",
+            width: "35%",
           }}
         >
-          Submission Name
+          Email
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "15%",
+            width: "25%",
           }}
         >
-          Date Submitted
+          User Name
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "15%",
+            width: "25%",
           }}
         >
-          Submitted By
+          Access
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
