@@ -350,21 +350,31 @@ class PackageService:
         return package
 
     @classmethod
-    def accept_update_request(cls, package_id):
+    def accept_update_request(cls, package_id, update_request_id):
         """Submit the package by updating its status and items."""
         with session_scope() as session:
-            package = cls._get_and_validate_complete_package(package_id)
-
-            current_app.logger.info(f"Accepting update reuqest for package {package.id}")
-            pending_requests = [
-                request for request in package.update_requests
-                if request.status == UpdateRequestStatus.PENDING_REVIEW.value
-            ]
-            if not pending_requests:
-                raise BadRequestError("Cannot accept an update request that is not pending")
-            cls._update_update_requests(
-                session, package, status=UpdateRequestStatus.ACCEPTED.value, active=False)
+            package = cls.get_package_by_id(package_id)
+            update_request = UpdateRequestModel.find_by_id(update_request_id)
+            cls._validate_accept_update_request(package, update_request)
+            update_request = UpdateRequestModel.find_by_id(update_request_id)
+            update_request.status = UpdateRequestStatus.ACCEPTED.value
+            update_request.active = False
+            session.add(update_request)
+            session.flush()
             return package
+
+    @classmethod
+    def _validate_accept_update_request(cls, package, update_request):
+        """Validate the accept update request."""
+        if not package:
+            raise BadRequestError("Package not found")
+
+        if not update_request:
+            raise BadRequestError("Update request not found")
+        if update_request.submission_package_id != package.id:
+            raise BadRequestError("Update request does not belong to the specified package")
+        if update_request.status != UpdateRequestStatus.PENDING_REVIEW.value:
+            raise BadRequestError("Update request is not pending review")
 
     @staticmethod
     def _log_activity_submission(package, action, session):

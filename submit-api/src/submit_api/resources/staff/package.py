@@ -91,7 +91,7 @@ class PackageVersions(Resource):
     "/<int:package_id>/update-request",
     methods=["POST", "PATCH", "OPTIONS"],
 )
-class PackageUpdateRequest(Resource):
+class PackageUpdateRequests(Resource):
     """Resource for managing a package's update request."""
 
     @staticmethod
@@ -124,4 +124,28 @@ class PackageUpdateRequest(Resource):
     def patch(package_id):
         """Accept an update request."""
         accept_update_request = PackageService.accept_update_request(package_id)
+        return StaffPackageSchema().dump(accept_update_request), HTTPStatus.OK
+
+
+@cors_preflight("POST, PATCH, OPTIONS")
+@API.route(
+    "/<int:package_id>/update-request/<int:update_request_id>",
+    methods=["POST", "PATCH", "OPTIONS"],
+)
+class PackageUpdateRequest(Resource):
+    """Resource for managing a package's update request."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Accept a update request for a package")
+    @API.expect(create_update_request_model)
+    @API.response(
+        code=HTTPStatus.OK, model=package_model, description="Update Request"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @cors.crossdomain(origin="*")
+    def patch(package_id, update_request_id):
+        """Accept an update request."""
+        accept_update_request = PackageService.accept_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(accept_update_request), HTTPStatus.OK
