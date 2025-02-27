@@ -54,7 +54,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
         <StyledProjectTableCell
           sx={{
             minWidth: "150px",
-            width: "39%",
+            width: "40%",
           }}
           align="left"
         >
@@ -85,7 +85,6 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
         <StyledProjectTableCell
           align="left"
           sx={{
-            maxWidth: "75px",
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
@@ -106,32 +105,29 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           {dateutils.formatDate(submitted_on)}
         </StyledProjectTableCell>
         <StyledProjectTableCell
-          align="right"
+          align="left"
           sx={{
             color:
               days_since_submission > 4
                 ? BCDesignTokens.typographyColorDanger
                 : BCDesignTokens.supportBorderColorSuccess,
-            maxWidth: "75px",
-            width: "8%",
+            width: "5%",
           }}
         >
           {Boolean(days_since_submission) && `+ ${days_since_submission} Days`}
         </StyledProjectTableCell>
         <StyledProjectTableCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "75px",
-            width: "12%",
+            width: "10%",
           }}
         >
           {dateutils.formatDate(cc_completed_on)}
         </StyledProjectTableCell>
         <StyledProjectTableCell
-          align="right"
+          align="left"
           sx={{
-            maxWidth: "75px",
-            width: "8%",
+            width: "10%",
             color: BCDesignTokens.supportBorderColorSuccess,
           }}
         >
@@ -141,7 +137,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           align="right"
           sx={{
             pr: BCDesignTokens.layoutPaddingSmall,
-            width: "20%",
+            width: "15%",
           }}
         >
           <PackageStatusChipStack submissionPackage={submissionPackage} />

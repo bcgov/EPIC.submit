@@ -16,7 +16,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "42%",
+            width: "40%",
           }}
         >
           Submission Name
@@ -40,7 +40,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "8%",
+            width: "5%",
             lineHeight: 1.2,
             wordWrap: "break-word",
           }}
@@ -50,7 +50,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "12%",
+            width: "10%",
           }}
         >
           CC Completed On
@@ -58,7 +58,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "8%",
+            width: "10%",
           }}
         >
           MP Review
@@ -66,7 +66,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "20%",
+            width: "15%",
           }}
         >
           Status
