@@ -35,6 +35,22 @@ export const SubmitTableCell = styled(TableCell)(() => ({
   },
 }));
 
+export const PlainTableCell = styled(TableCell)(() => ({
+  borderTop: `1px solid ${BCDesignTokens.themeGray40}`,
+  borderBottom: `1px solid ${BCDesignTokens.themeGray40}`,
+  padding: `${BCDesignTokens.layoutPaddingSmall} !important`,
+  "&:first-of-type": {
+    borderLeft: `1px solid ${BCDesignTokens.themeGray40}`,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
+  },
+  "&:last-of-type": {
+    borderRight: `1px solid ${BCDesignTokens.themeGray40}`,
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+}));
+
 export const SubmitTableHead = styled(TableHead)(() => ({}));
 
 export const SubmitTableContainer = styled(TableContainer)(() => ({
@@ -60,7 +76,7 @@ export const SubmitTablePrimaryRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any)
-      : child,
+      : child
   );
 
   return (
@@ -93,7 +109,7 @@ export const SubmitPrimaryRowTableCell = styled(TableCell)<{ error?: boolean }>(
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
     },
-  }),
+  })
 );
 
 export const SubmitSubTableCell = styled(TableCell)(() => ({
