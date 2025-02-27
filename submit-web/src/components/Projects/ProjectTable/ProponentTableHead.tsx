@@ -15,7 +15,7 @@ export default function ProponentTableHead() {
       <TableRow>
         <SubmitTableHeadCell
           sx={{
-            width: "50%",
+            width: "55%",
           }}
         >
           Submission Name
