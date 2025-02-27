@@ -18,7 +18,11 @@ export const TableBox = ({
     <Paper
       elevation={2}
       {...rest}
-      sx={{ boxShadow: BCDesignTokens.surfaceShadowMedium, maxWidth: "1448px" }}
+      sx={{
+        boxShadow: BCDesignTokens.surfaceShadowMedium,
+        maxWidth: "1448px",
+        border: `1px solid ${BCDesignTokens.themeGray40}`,
+      }}
     >
       <Box
         sx={{
