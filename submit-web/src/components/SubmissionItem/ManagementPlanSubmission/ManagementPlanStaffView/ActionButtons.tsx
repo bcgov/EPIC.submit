@@ -78,10 +78,10 @@ export default function ActionButtons() {
         validateAtKey,
         data,
       );
-      const updateRequestData = managementPlanReviewSchema.validateSyncAt(
-        "update_request",
-        data,
-      );
+      const passed = decisionData.passedReview === RadioOptions.YES.value;
+      const updateRequestData = passed
+        ? {}
+        : managementPlanReviewSchema.validateSyncAt("update_request", data);
       const requestBody = {
         form_answers: {
           ...decisionData,
@@ -114,10 +114,14 @@ export default function ActionButtons() {
         "staff",
         getValues(),
       );
-      const updateRequestData = managementPlanReviewSchema.validateSyncAt(
-        "update_request",
-        getValues(),
-      );
+
+      const passed = staffDecision.passedReview === RadioOptions.YES.value;
+      const updateRequestData = passed
+        ? {}
+        : managementPlanReviewSchema.validateSyncAt(
+            "update_request",
+            getValues(),
+          );
 
       const requestBody = {
         status: SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
@@ -146,14 +150,18 @@ export default function ActionButtons() {
         "manager",
         getValues(),
       );
-      const updateRequestData = managementPlanReviewSchema.validateSyncAt(
-        "update_request",
-        getValues(),
-      );
+
       const passed = [
         RadioOptions.YES.value,
         RadioOptions.YES_DEFAULT.value,
       ].includes(managerDecision.passedReview);
+
+      const updateRequestData = passed
+        ? {}
+        : managementPlanReviewSchema.validateSyncAt(
+            "update_request",
+            getValues(),
+          );
       const requestBody = {
         status: passed
           ? SUBMISSION_REVIEW_STATUS.APPROVED
@@ -164,6 +172,7 @@ export default function ActionButtons() {
         },
         type: SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
       };
+
       await saveSubmissionReview(requestBody);
       setIsCompletingReview(false);
       notify.success("Review was completed");
