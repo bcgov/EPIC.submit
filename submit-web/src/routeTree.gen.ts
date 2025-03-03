@@ -25,7 +25,9 @@ import { Route as ProponentRegistrationCompleteImport } from './routes/proponent
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
 import { Route as StaffStaffLayoutDocumentsIndexImport } from './routes/staff/_staffLayout/documents/index'
+import { Route as ProponentProponentLayoutUserManagementIndexImport } from './routes/proponent/_proponentLayout/user-management/index'
 import { Route as ProponentProponentLayoutProjectsIndexImport } from './routes/proponent/_proponentLayout/projects/index'
+import { Route as ProponentProponentLayoutUserManagementNewUserImport } from './routes/proponent/_proponentLayout/user-management/new-user'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/index'
@@ -161,9 +163,21 @@ const StaffStaffLayoutDocumentsIndexRoute =
     getParentRoute: () => StaffStaffLayoutRoute,
   } as any)
 
+const ProponentProponentLayoutUserManagementIndexRoute =
+  ProponentProponentLayoutUserManagementIndexImport.update({
+    path: '/user-management/',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
 const ProponentProponentLayoutProjectsIndexRoute =
   ProponentProponentLayoutProjectsIndexImport.update({
     path: '/projects/',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const ProponentProponentLayoutUserManagementNewUserRoute =
+  ProponentProponentLayoutUserManagementNewUserImport.update({
+    path: '/user-management/new-user',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
@@ -367,11 +381,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentRegistrationIndexImport
       parentRoute: typeof ProponentImport
     }
+    '/proponent/_proponentLayout/user-management/new-user': {
+      id: '/proponent/_proponentLayout/user-management/new-user'
+      path: '/user-management/new-user'
+      fullPath: '/proponent/user-management/new-user'
+      preLoaderRoute: typeof ProponentProponentLayoutUserManagementNewUserImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
     '/proponent/_proponentLayout/projects/': {
       id: '/proponent/_proponentLayout/projects/'
       path: '/projects'
       fullPath: '/proponent/projects'
       preLoaderRoute: typeof ProponentProponentLayoutProjectsIndexImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
+    '/proponent/_proponentLayout/user-management/': {
+      id: '/proponent/_proponentLayout/user-management/'
+      path: '/user-management'
+      fullPath: '/proponent/user-management'
+      preLoaderRoute: typeof ProponentProponentLayoutUserManagementIndexImport
       parentRoute: typeof ProponentProponentLayoutImport
     }
     '/staff/_staffLayout/documents/': {
@@ -506,7 +534,9 @@ export const routeTree = rootRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
       ProponentProponentLayoutProfileRoute,
       ProponentProponentLayoutAboutpageLazyRoute,
+      ProponentProponentLayoutUserManagementNewUserRoute,
       ProponentProponentLayoutProjectsIndexRoute,
+      ProponentProponentLayoutUserManagementIndexRoute,
       ProponentProponentLayoutProjectsProjectIdRoute:
         ProponentProponentLayoutProjectsProjectIdRoute.addChildren({
           ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute:
@@ -602,7 +632,9 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/proponent/_proponentLayout/profile",
         "/proponent/_proponentLayout/aboutpage",
+        "/proponent/_proponentLayout/user-management/new-user",
         "/proponent/_proponentLayout/projects/",
+        "/proponent/_proponentLayout/user-management/",
         "/proponent/_proponentLayout/projects/$projectId"
       ]
     },
@@ -644,8 +676,16 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent/registration/index.tsx",
       "parent": "/proponent"
     },
+    "/proponent/_proponentLayout/user-management/new-user": {
+      "filePath": "proponent/_proponentLayout/user-management/new-user.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
     "/proponent/_proponentLayout/projects/": {
       "filePath": "proponent/_proponentLayout/projects/index.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
+    "/proponent/_proponentLayout/user-management/": {
+      "filePath": "proponent/_proponentLayout/user-management/index.tsx",
       "parent": "/proponent/_proponentLayout"
     },
     "/staff/_staffLayout/documents/": {
