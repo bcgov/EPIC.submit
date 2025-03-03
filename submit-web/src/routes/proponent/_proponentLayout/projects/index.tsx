@@ -11,9 +11,7 @@ import ProjectFilters from "@/components/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/Filters/projectFilterStore";
 import { USER_TYPE } from "@/models/User";
 
-export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/",
-)({
+export const Route = createFileRoute("/proponent/_proponentLayout/projects/")({
   component: ProjectsPage,
   meta: () => [{ title: "All Projects" }],
 });
@@ -26,7 +24,7 @@ export function ProjectsPage() {
     isPending: isProjectsLoading,
     isError: isProjectsError,
   } = useGetAccountProjectsByAccount({
-    accountId,
+    accountId: 1,
     searchOptions: filters,
   });
 
@@ -43,7 +41,7 @@ export function ProjectsPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProjectFilters userType={USER_TYPE.PROPONENT}/>
+        <ProjectFilters userType={USER_TYPE.PROPONENT} />
         <If condition={isProjectsLoading}>
           <Then>
             <ProjectsSkeleton />
