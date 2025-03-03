@@ -15,11 +15,10 @@ export const ConsultationRecordStaffView = () => {
   const {
     projectId: accountProjectIdParam,
     submissionPackageId,
-    submissionId: submissionItemId
-  } =
-    useParams({
-      from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
-    });
+    submissionId: submissionItemId,
+  } = useParams({
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  });
   const accountProjectId = Number(accountProjectIdParam);
   const submissionId = Number(submissionItemId);
   const { data: accountProject } = useGetAccountProjectForStaff({
@@ -31,7 +30,7 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const formData = useMemo(() => {
@@ -61,14 +60,15 @@ export const ConsultationRecordStaffView = () => {
   );
 
   const partiesList =
-    submissionPackage?.meta?.main_condition?.condition_attributes
-      ?.parties_required_to_be_consulted?.split(",") || [];
+    submissionPackage?.meta?.main_condition?.condition_attributes?.parties_required_to_be_consulted?.split(
+      ",",
+    ) || [];
 
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
     <SubmissionFormContainer>
-      <FormFieldSection formData={formData} partiesList={partiesList}/>
+      <FormFieldSection formData={formData} partiesList={partiesList} />
       <InternalDocumentSection />
       <ReviewSection />
     </SubmissionFormContainer>
