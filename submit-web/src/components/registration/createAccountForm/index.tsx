@@ -17,7 +17,6 @@ import { CircularProgress, Divider, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
-import { useEffect, useState } from "react";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -34,17 +33,8 @@ export type CreateAccountFormSchema = yup.InferType<typeof createAccountSchema>;
 
 function CreateAccountForm() {
   const { user } = useAuth();
-  const [proponent_id, setProponentId] = useState<number | null>(null);
   const { setAccount } = useAccount();
-  const { setStep } = useCreateAccountForm();
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const proponent_id = params.get("proponent_id");
-    if (proponent_id) {
-      setProponentId(Number(proponent_id));
-    }
-  }, []);
+  const { setStep, invitation } = useCreateAccountForm();
 
   const onCreateAccountSuccess = (data: CreateAccountResponse) => {
     setAccount({
@@ -68,7 +58,7 @@ function CreateAccountForm() {
   const { handleSubmit } = methods;
 
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
-    if (!user?.profile.sub || !proponent_id) return;
+    if (!user?.profile.sub || !invitation) return;
     const accountData = {
       first_name: data.givenName,
       last_name: data.surname,
@@ -76,7 +66,7 @@ function CreateAccountForm() {
       work_contact_number: data.phone,
       work_email_address: data.email,
       auth_guid: user?.profile.sub,
-      proponent_id: proponent_id,
+      proponent_id: invitation.account_id,
     };
     doCreateAccount(accountData);
   };

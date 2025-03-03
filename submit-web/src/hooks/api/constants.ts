@@ -18,4 +18,5 @@ export const QUERY_KEY = Object.freeze({
   STAFF_USER: "staff/staff-user",
   ACTIVITY_LOGS: "activity-logs",
   SUBMISSION_VERSIONS: "submission-versions",
+  INVITATION: "invitation",
 });

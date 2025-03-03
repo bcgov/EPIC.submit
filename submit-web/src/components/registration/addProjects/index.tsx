@@ -8,32 +8,35 @@ import { PageLoader } from "@/components/Shared/PageLoader";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Caption2 } from "@/components/Shared/Typographies";
 import WarningBox from "@/components/Shared/WarningBox";
-import {
-  useAddProjects,
-  useLoadProjectsByProponentId,
-} from "@/hooks/api/useProjects";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
-import {
-  Button,
-  CircularProgress,
-  Grid,
-  Link,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Button, Grid, Link, Stack, Typography } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
 
 function AddProjects() {
   const navigate = useNavigate();
-  const { accountId, proponentId, isLoading: isAccountLoading } = useAccount();
+  const { isLoading: isAccountLoading, accountId } = useAccount();
+
   const {
-    data: projects,
+    data: accountProjects,
     isPending: isFetchingProjects,
     isError: isLoadingProjectsError,
-  } = useLoadProjectsByProponentId(proponentId);
+  } = useGetAccountProjectsByAccount({
+    accountId,
+  });
+
+  const projects = useMemo(() => {
+    if (!accountProjects) {
+      return [];
+    }
+
+    return accountProjects.map((accountProject) => {
+      return accountProject.project;
+    });
+  }, [accountProjects]);
 
   useEffect(() => {
     if (isLoadingProjectsError) {
@@ -43,25 +46,12 @@ function AddProjects() {
 
   const [openWarning, setOpenWarning] = useState(false);
 
-  const onAddProjectsSuccess = () => {
-    navigate({ to: "/proponent/registration/complete" });
-  };
-  const onAddProjectsError = () => {
-    notify.error("Failed to add projects");
-  };
-  const { mutate: addProjects, isPending: isAddingProjectsPending } =
-    useAddProjects({
-      onSuccess: onAddProjectsSuccess,
-      onError: onAddProjectsError,
-    });
-
   const onConfirmProjectsClick = () => {
-    if (!projects) {
+    if (!accountProjects) {
       return;
     }
 
-    const projectIds = projects.map((project) => project.id);
-    addProjects({ accountId, projectIds });
+    navigate({ to: "/proponent/registration/complete" });
   };
 
   if (isAccountLoading) {
@@ -70,7 +60,7 @@ function AddProjects() {
 
   return (
     <>
-      <Banner>CGI Mines Inc.</Banner>
+      <Banner>{projects[0].proponent_name}</Banner>
       <GridContainer>
         <Grid item xs={12}>
           <Typography variant="h4" fontWeight={600}>
@@ -114,11 +104,7 @@ function AddProjects() {
             onClick={onConfirmProjectsClick}
             disabled={!projects}
           >
-            {isAddingProjectsPending ? (
-              <CircularProgress />
-            ) : (
-              "Confirm Project(s)"
-            )}
+            Confirm Project(s)
           </Button>
           <Caption2>
             <Link onClick={() => setOpenWarning(true)}>
