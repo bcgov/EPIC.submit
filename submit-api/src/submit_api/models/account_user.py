@@ -54,3 +54,8 @@ class AccountUser(BaseModel):
         """Get account user by guid."""
         account_user = cls.query.join(UserModel).filter(UserModel.auth_guid == _guid).first()
         return account_user
+
+    @classmethod
+    def get_users_by_account_id(cls, account_id):
+        """Get all users for a given account."""
+        return cls.query.filter(cls.account_id == account_id).all()
