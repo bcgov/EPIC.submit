@@ -16,9 +16,9 @@
 
 from .account import Account
 from .account_project import AccountProject
-from .account_role import AccountRole
+from .role import Role
 from .account_user import AccountUser
-from .account_user_role import AccountUserRole
+from .user_role import UserRole
 from .base_model import BaseModel
 from .db import db, ma, migrate
 from .email_queue import EmailQueue
