@@ -36,7 +36,7 @@ function CreateAccount() {
         setInvitation(invitation);
       }
     }
-  }, [isPending, isError, isSuccess, invitation]);
+  }, [isPending, isError, isSuccess, invitation, setInvitation]);
 
   if (!isAuthLoading && !isAuthenticated) {
     return <Navigate to="/" />;
