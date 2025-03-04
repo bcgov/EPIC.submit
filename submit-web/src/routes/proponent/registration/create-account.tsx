@@ -18,14 +18,15 @@ function CreateAccount() {
 
   const { setInvitation } = useCreateAccountForm();
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
+  const enabled = isAuthenticated && token;
   const {
     data: invitation,
     isPending,
     isSuccess,
     isError,
-  } = useGetInvitation(token, isAuthenticated);
+  } = useGetInvitation(token, Boolean(enabled));
 
   useEffect(() => {
     if (!isPending) {
@@ -37,7 +38,11 @@ function CreateAccount() {
     }
   }, [isPending, isError, isSuccess, invitation]);
 
-  if (!isAuthenticated || isError || !token) {
+  if (!isAuthLoading && !isAuthenticated) {
+    return <Navigate to="/" />;
+  }
+
+  if (isError || !token) {
     return <Navigate to="/error" />;
   }
 
