@@ -2,7 +2,7 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { DataSkeleton, UserTable } from "@/components/UserManagement";
 import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
-import { User } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
@@ -16,12 +16,13 @@ export const Route = createFileRoute(
 });
 
 function UsersPage() {
+  const { accountId } = useAccount();
   const {
     data: users,
     isPending: isUsersLoading,
     isError: isUsersError,
   } = useGetUserByAccountId({
-    accountId: 1,
+    accountId,
   });
 
   useEffect(() => {
@@ -42,7 +43,7 @@ function UsersPage() {
             <DataSkeleton />
           </Then>
           <Else>
-            <UserTable users={users} />
+            <UserTable users={users || []} />
           </Else>
         </If>
       </Grid>

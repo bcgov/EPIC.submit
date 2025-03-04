@@ -6,10 +6,10 @@ import UserTableHead from "./UserTableHead";
 import UserTableRow from "./UserTableRow";
 import { TableBox } from "../Shared/TableBox";
 import { Add } from "@mui/icons-material";
-import { User } from "@/models/User";
 import { useNavigate } from "@tanstack/react-router";
+import { AccountUser } from "@/models/AccountUser";
 
-export const UserTable = ({ users }: { users: User[] }) => {
+export const UserTable = ({ users }: { users: AccountUser[] }) => {
   const navigate = useNavigate();
 
   return (
