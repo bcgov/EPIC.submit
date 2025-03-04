@@ -59,3 +59,22 @@ export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
     ...defaultUseQueryOptions,
   });
 };
+
+const getUserByAccount = (accountId: number) => {
+  return submitRequest<User>({ url: `/accounts/${accountId}/users` });
+};
+
+type GetUserByAccountOptions = {
+  accountId: number;
+};
+
+export const useGetUserByAccountId = ({
+  accountId,
+}: GetUserByAccountOptions) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.ACCOUNT_USERS, accountId],
+    queryFn: () => getUserByAccount(accountId),
+    enabled: Boolean(accountId),
+    ...defaultUseQueryOptions,
+  });
+};
