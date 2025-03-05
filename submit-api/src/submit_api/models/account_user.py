@@ -30,7 +30,6 @@ class AccountUser(BaseModel):
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
 
-
     @classmethod
     def create_account_user(cls, data, session=None) -> AccountUser:
         """Create account."""
