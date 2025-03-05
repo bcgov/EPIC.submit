@@ -20,6 +20,7 @@ import { useAccount } from "@/store/accountStore";
 import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import ControlledMultiSelect from "@/components/Shared/controlled/ControlledMultiSelect";
 import { When } from "react-if";
+import { useMemo } from "react";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
@@ -66,6 +67,15 @@ export default function NewUserForm() {
   const { data: accountProjects } = useGetAccountProjectsByAccount({
     accountId,
   });
+
+  const options = useMemo(
+    () =>
+      accountProjects?.map((accountProject) => ({
+        value: accountProject.project.id.toString(),
+        label: accountProject.project.name,
+      })) || [],
+    [accountProjects]
+  );
 
   return (
     <TableBox mainLabel={"User Management"}>
@@ -164,12 +174,7 @@ export default function NewUserForm() {
                   multiple
                   selectAll
                   name="project_ids"
-                  options={
-                    accountProjects?.map((accountProject) => ({
-                      value: accountProject.project.id.toString(), // Store project ID in the form
-                      label: accountProject.project.name, // Display project name
-                    })) || []
-                  }
+                  options={options}
                 />
               </When>
 
