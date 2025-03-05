@@ -230,14 +230,15 @@ def get_package_status(status, user_type, version_obj):
 
     return status
 
+
 class AccountPackageSchema(Schema):
     """Account project schema with embedded package details."""
 
     class PackageDetailsSchema(Schema):
         """Schema representing a single package."""
-        
+
         id = fields.Int(data_key="id")
         name = fields.Str(data_key="name")
 
-    project_id = fields.Int(data_key="project_id") 
+    project_id = fields.Int(data_key="project_id")
     account_packages = fields.List(fields.Nested(PackageDetailsSchema), data_key="packages")
