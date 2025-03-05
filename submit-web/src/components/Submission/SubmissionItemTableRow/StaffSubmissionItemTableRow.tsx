@@ -42,7 +42,7 @@ export default function StaffSubmissionItemTableRow({
     useSuspenseQuery(
       getStaffSubmissionPackageQueryOptions({
         packageId: Number(submissionPackageId),
-      })
+      }),
     );
 
   const { submissions, id, status, type_id } = item;
@@ -59,15 +59,17 @@ export default function StaffSubmissionItemTableRow({
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
           updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-          updateRequest.active
+          updateRequest.active,
       )
       .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
 
     if (!last_update_request) return false;
     return Boolean(
       item.submissions.find((submission) =>
-        dayjs(submission.created_date).isAfter(last_update_request.created_date)
-      )
+        dayjs(submission.created_date).isAfter(
+          last_update_request.created_date,
+        ),
+      ),
     );
   }, [item, submissionPackage.update_requests]);
 

@@ -13,11 +13,16 @@ export const ContentBox = ({
   label = "",
   ...rest
 }: ContentBoxProps) => {
+  const { sx, ...otherProps } = rest;
   return (
     <Paper
       elevation={2}
-      {...rest}
-      sx={{ boxShadow: BCDesignTokens.surfaceShadowMedium, maxWidth: "1448px" }}
+      {...otherProps}
+      sx={{
+        boxShadow: BCDesignTokens.surfaceShadowMedium,
+        maxWidth: "1448px",
+        ...sx,
+      }}
     >
       <Box
         sx={{

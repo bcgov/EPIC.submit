@@ -23,6 +23,7 @@ import { Route as ProponentRegistrationIndexImport } from './routes/proponent/re
 import { Route as ProponentRegistrationCreateAccountImport } from './routes/proponent/registration/create-account'
 import { Route as ProponentRegistrationCompleteImport } from './routes/proponent/registration/complete'
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
+import { Route as StaffStaffLayoutUserManagementIndexImport } from './routes/staff/_staffLayout/user-management/index'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
 import { Route as StaffStaffLayoutDocumentsIndexImport } from './routes/staff/_staffLayout/documents/index'
 import { Route as ProponentProponentLayoutUserManagementIndexImport } from './routes/proponent/_proponentLayout/user-management/index'
@@ -149,6 +150,12 @@ const ProponentProponentLayoutProjectsProjectIdRoute =
   ProponentProponentLayoutProjectsProjectIdImport.update({
     path: '/projects/$projectId',
     getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const StaffStaffLayoutUserManagementIndexRoute =
+  StaffStaffLayoutUserManagementIndexImport.update({
+    path: '/user-management/',
+    getParentRoute: () => StaffStaffLayoutRoute,
   } as any)
 
 const StaffStaffLayoutProjectsIndexRoute =
@@ -416,6 +423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffLayoutProjectsIndexImport
       parentRoute: typeof StaffStaffLayoutImport
     }
+    '/staff/_staffLayout/user-management/': {
+      id: '/staff/_staffLayout/user-management/'
+      path: '/user-management'
+      fullPath: '/staff/user-management'
+      preLoaderRoute: typeof StaffStaffLayoutUserManagementIndexImport
+      parentRoute: typeof StaffStaffLayoutImport
+    }
     '/proponent/_proponentLayout/projects/$projectId': {
       id: '/proponent/_proponentLayout/projects/$projectId'
       path: '/projects/$projectId'
@@ -568,6 +582,7 @@ export const routeTree = rootRoute.addChildren({
     StaffStaffLayoutRoute: StaffStaffLayoutRoute.addChildren({
       StaffStaffLayoutDocumentsIndexRoute,
       StaffStaffLayoutProjectsIndexRoute,
+      StaffStaffLayoutUserManagementIndexRoute,
       StaffStaffLayoutProjectsProjectIdRoute:
         StaffStaffLayoutProjectsProjectIdRoute.addChildren({
           StaffStaffLayoutProjectsProjectIdProjectLayoutRoute:
@@ -650,6 +665,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/staff/_staffLayout/documents/",
         "/staff/_staffLayout/projects/",
+        "/staff/_staffLayout/user-management/",
         "/staff/_staffLayout/projects/$projectId"
       ]
     },
@@ -694,6 +710,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/staff/_staffLayout/projects/": {
       "filePath": "staff/_staffLayout/projects/index.tsx",
+      "parent": "/staff/_staffLayout"
+    },
+    "/staff/_staffLayout/user-management/": {
+      "filePath": "staff/_staffLayout/user-management/index.tsx",
       "parent": "/staff/_staffLayout"
     },
     "/proponent/_proponentLayout/projects/$projectId": {

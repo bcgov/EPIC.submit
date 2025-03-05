@@ -1,7 +1,7 @@
 import { PlainTableCell } from "@/components/Shared/Table/common";
 import { TableRow } from "@mui/material";
-import { SubmitLink } from "../Shared/SubmitLink";
-import UserStatusChip from "../UserStatusChip";
+import { SubmitLink } from "../../Shared/SubmitLink";
+import UserStatusChip from "../../UserStatusChip";
 import { AccountUser } from "@/models/AccountUser";
 
 export default function UserTableRow({ user }: { user: AccountUser }) {
