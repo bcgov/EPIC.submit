@@ -6,17 +6,17 @@ import { useAuth } from "react-oidc-context";
 import { Banner } from "@/components/registration/Banner";
 import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
-import { useAccount } from "@/store/accountStore";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
-import {
-  CreateAccountResponse,
-  useCreateAccount,
-} from "@/hooks/api/useAccounts";
 import { Save } from "@mui/icons-material";
 import { CircularProgress, Divider, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
+import {
+  AcceptInvitationResponse,
+  useAcceptInvitation,
+} from "@/hooks/api/useInvitations";
+import { useAccount } from "@/store/accountStore";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -33,20 +33,19 @@ export type CreateAccountFormSchema = yup.InferType<typeof createAccountSchema>;
 
 function CreateAccountForm() {
   const { user } = useAuth();
-  const { setAccount } = useAccount();
   const { setStep, invitation } = useCreateAccountForm();
+  const { setAccount } = useAccount();
 
-  const onCreateAccountSuccess = (data: CreateAccountResponse) => {
-    setAccount({
-      proponentId: data.proponent_id,
-      accountId: data.id,
-      isLoading: false,
-    });
+  const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
+    setAccount({
+      userId: data.user_id,
+    });
   };
 
   const { mutate: doCreateAccount, isPending: isCreatingAccount } =
-    useCreateAccount({
+    useAcceptInvitation({
+      token: invitation?.token,
       onSuccess: onCreateAccountSuccess,
     });
 

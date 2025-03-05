@@ -8,7 +8,7 @@ import { PageLoader } from "@/components/Shared/PageLoader";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Caption2 } from "@/components/Shared/Typographies";
 import WarningBox from "@/components/Shared/WarningBox";
-import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
+import { useGetAccountProjectsByUserId } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { Button, Grid, Link, Stack, Typography } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
@@ -18,14 +18,14 @@ import { Else, If, Then } from "react-if";
 
 function AddProjects() {
   const navigate = useNavigate();
-  const { isLoading: isAccountLoading, accountId } = useAccount();
+  const { isLoading: isAccountLoading, userId } = useAccount();
 
   const {
     data: accountProjects,
     isPending: isFetchingProjects,
     isError: isLoadingProjectsError,
-  } = useGetAccountProjectsByAccount({
-    accountId,
+  } = useGetAccountProjectsByUserId({
+    userId,
   });
 
   const projects = useMemo(() => {

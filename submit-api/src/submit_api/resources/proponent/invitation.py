@@ -108,10 +108,7 @@ class InvitationDetailResource(Resource):
 
         response = InvitationService.accept_invitation(
             token=token,
-            first_name=payload["first_name"],
-            last_name=payload["last_name"],
-            email=payload["email"],
-            password=payload["password"]
+            payload=payload
         )
 
         if "error" in response:
