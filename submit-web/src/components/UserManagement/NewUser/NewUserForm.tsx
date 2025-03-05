@@ -157,6 +157,9 @@ export default function NewUserForm() {
               </ControlledRadioGroup>
 
               <When condition={selectedRole === "CollaboratorSpecific"}>
+                <Typography sx={{ fontWeight: 700 }}>
+                  Which Submission(s) would you like to assign that user to?
+                </Typography>
                 <ControlledMultiSelect
                   multiple
                   selectAll
