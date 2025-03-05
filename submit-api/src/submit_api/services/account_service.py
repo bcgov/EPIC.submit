@@ -1,10 +1,9 @@
 """Service for account management."""
 from submit_api.exceptions import ResourceExistsError, ResourceNotFoundError
-from submit_api.models import AccountRole as RoleModel
 from submit_api.models import AccountUser as AccountUserModel
-from submit_api.models import AccountUserRole as AccountRoleModel
+from submit_api.models import Role as RoleModel
+from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.account import Account as AccountModel
-from submit_api.models.account_role import AccountRoleEnum
 from submit_api.models.db import session_scope
 from submit_api.models.user import User as UserModel
 from submit_api.models.user import UserType
@@ -69,7 +68,7 @@ class AccountService:
             account = AccountModel.create_account(account_data, session)
             account_user = cls._create_account_user(data, account, session)
 
-            account_admin_role = RoleModel.get_by_name(AccountRoleEnum.ACCOUNT_PRIMARY_ADMIN.value)
+            account_admin_role = RoleModel.get_by_name(RoleModel.ACCOUNT_PRIMARY_ADMIN.value)
             if not account_admin_role:
                 raise ResourceNotFoundError("Account admin role not found")
 
@@ -77,7 +76,7 @@ class AccountService:
                 "account_user_id": account_user.id,
                 "role_id": account_admin_role.id,
             }
-            AccountRoleModel.create_account_role(account_role_data, session)
+            UserRoleModel.create_user_role(account_role_data, session)
 
         return account
 
