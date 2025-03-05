@@ -5,6 +5,7 @@ from submit_api.models import Role as RoleModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
+from submit_api.models.queries.package import PackageQueries
 from submit_api.models.user import User as UserModel
 from submit_api.models.user import UserType
 
@@ -95,3 +96,8 @@ class AccountService:
 
         account.delete()
         return account
+
+    @classmethod
+    def get_all_account_packages(cls, account_id):
+        """Get packages by account id."""
+        return PackageQueries.get_account_project_packages(account_id)

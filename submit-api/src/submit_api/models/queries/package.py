@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Model to handle all complex operations related to User."""
+from sqlalchemy import func
 from submit_api.enums.item_status import ItemStatus
+from submit_api.models import AccountProject, db
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.package import PackageStatus
 
@@ -127,3 +129,27 @@ class PackageQueries:
         if set(package.status) != set(new_statuses):
             package.status = list(new_statuses)
             session.add(package)
+
+    @classmethod
+    def get_account_project_packages(cls, account_id: int):
+        """Fetch project_id and related packages (id, name) for a given account_id."""
+        query = (
+            db.session.query(
+                AccountProject.project_id,
+                func.array_agg(
+                    func.json_build_object(
+                        "id", PackageModel.id,
+                        "name", PackageModel.name
+                    )
+                ).label('packages')  # Aggregate packages as a JSON array
+            )
+            .join(PackageModel, PackageModel.account_project_id == AccountProject.id)
+            .filter(AccountProject.account_id == account_id)
+            .group_by(AccountProject.project_id)  # Group by project_id
+            .all()
+        )
+
+        return [
+            {"project_id": project_id, "account_packages": packages}
+            for project_id, packages in query
+        ]
