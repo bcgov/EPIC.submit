@@ -13,16 +13,17 @@
 # limitations under the License.
 """API endpoints for managing a invitation resource."""
 
-
 from http import HTTPStatus
+
 from flask import request
 from flask_restx import Namespace, Resource, cors
+
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.services.invitation_service import InvitationService
+from submit_api.schemas.account import AccountCreateSchema
 from submit_api.schemas.invitation import InvitationSchema, CreateInvitationSchema
+from submit_api.services.invitation_service import InvitationService
 from submit_api.utils.util import cors_preflight
-
 
 API = Namespace("invitations", description="Endpoints for Invitation Management")
 
@@ -57,11 +58,7 @@ class InvitationsResource(Resource):
         """Generate and persist an invitation token."""
         payload = CreateInvitationSchema().load(request.json)
 
-        result = InvitationService.create_invitation(
-            proponent_id=payload["proponent_id"],
-            project_ids=payload["project_ids"],
-            email=payload.get("email"),
-        )
+        result = InvitationService.create_invitation(payload)
 
         # Extract invitation and URL from result
         invitation = result["invitation"]
@@ -102,3 +99,22 @@ class InvitationDetailResource(Resource):
         if result:
             return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
+
+    @API.response(code=HTTPStatus.CREATED, model=InvitationSchema, description="User created and role assigned")
+    @API.response(code=HTTPStatus.BAD_REQUEST, description="Invalid Token or Data")
+    def post(self, token):
+        """Accept an invitation and create a user."""
+        payload = AccountCreateSchema().load(request.json)
+
+        response = InvitationService.accept_invitation(
+            token=token,
+            first_name=payload["first_name"],
+            last_name=payload["last_name"],
+            email=payload["email"],
+            password=payload["password"]
+        )
+
+        if "error" in response:
+            return response, HTTPStatus.BAD_REQUEST
+
+        return response, HTTPStatus.CREATED

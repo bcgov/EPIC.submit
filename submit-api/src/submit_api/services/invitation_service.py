@@ -5,8 +5,12 @@ from urllib.parse import urljoin
 
 from flask import current_app
 
-from submit_api.models.invitations import Invitations as InvitationsModel
+from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models.account import Account as AccountModel
+from submit_api.models.invitations import Invitations as InvitationsModel
+from submit_api.models.role import Role as RoleModel
+from submit_api.services.account_user_service import AccountUserService
+from submit_api.services.user_service import UserService
 
 
 class InvitationService:
@@ -18,37 +22,117 @@ class InvitationService:
         return str(uuid.uuid4())
 
     @staticmethod
-    def create_invitation(proponent_id, project_ids, email=None, created_by=None):
+    def create_invitation(invite_data):
         """Create and persist a new invitation token."""
-        # Generate UUID token internally
         token = InvitationService.generate_uuid_token()
-        # Check presence of an account for this proponent and if doesn't exist ,create an account
-        # if exists , use the existing account
-        account: AccountModel = AccountModel.get_by_proponent_id(proponent_id)
-        if not account:
-            account_data = {'proponent_id': proponent_id}
-            account = AccountModel.create_account(account_data)
 
-        # 7 days is set as default..override in openshift enviroment if necessary
-        expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
+        role_id = invite_data.get('role_id')
+        account_id = invite_data.get('account_id')
+        proponent_id = invite_data.get('proponent_id')
 
-        # Create and persist the invitation
-        invitation = InvitationsModel(
-            account_id=account.id,
-            project_ids=",".join(map(str, project_ids)),
-            token=token,
-            email=email,
-            created_by=created_by,
-            expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
-        )
-        InvitationsModel.save(invitation)
+        InvitationService._validate_fetch_role(role_id)
 
-        invitation_url = InvitationService._generate_signup_url(token)
+        account = InvitationService._get_or_create_account(account_id, proponent_id)
+
+        invitation = InvitationService._create_invitation_record(invite_data, account.id, token)
 
         return {
             'invitation': invitation,
-            'url': invitation_url
+            'url': InvitationService._generate_signup_url(token)
         }
+
+    @staticmethod
+    def accept_invitation(token, payload):
+        """Accept an invitation and assign access to an account."""
+        invitation, error = InvitationsModel.validate_token(token)
+        if error:
+            return error
+
+        user = InvitationService._create_user(payload)
+
+        account_user = InvitationService._create_account_user(user.id, invitation.account_id, payload)
+
+        role = InvitationService._assign_user_role(account_user.id, invitation)
+
+        InvitationsModel.mark_used(token, account_user.user_id)
+
+        return {
+            "message": "User access granted successfully",
+            "user_id": account_user.user_id,
+            "role": role
+        }
+
+    @staticmethod
+    def _validate_fetch_role(role_id):
+        """Validate if the given role ID exists, otherwise throw an exception."""
+        role = RoleModel.find_by_id(role_id)
+        if not role:
+            raise ResourceNotFoundError(f"Invalid role ID: {role_id}")
+        return role
+
+    @staticmethod
+    def _get_or_create_account(account_id, proponent_id):
+        """Retrieve or create an account based on proponent_id or account_id."""
+        if account_id:
+            return AccountModel.find_by_id(account_id)
+
+        if proponent_id:
+            account = AccountModel.get_by_proponent_id(proponent_id)
+            if not account:
+                account_data = {'proponent_id': proponent_id}
+                account = AccountModel.create_account(account_data)
+            return account
+
+        raise ResourceNotFoundError("No valid account found for the provided data.")
+
+    @staticmethod
+    def _create_invitation_record(invite_data, account_id, token):
+        """Create and persist an invitation record."""
+        expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
+
+        invitation = InvitationsModel(
+            account_id=account_id,
+            project_ids=",".join(map(str, invite_data.get('project_ids', []))),
+            token=token,
+            email=invite_data.get('email'),
+            created_by=invite_data.get('created_by'),
+            role_id=invite_data.get('role_id'),
+            package_id=invite_data.get('package_id'),
+            expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
+        )
+        InvitationsModel.save(invitation)
+        return invitation
+
+    @staticmethod
+    def _create_user(payload):
+        """Create a user and return the user instance."""
+        return UserService.create_user({
+            "auth_guid": payload.get("auth_guid"),
+            "type": payload.get("type")
+        })
+
+    @staticmethod
+    def _create_account_user(user_id, account_id, payload):
+        """Create an account user entry."""
+        return AccountUserService.create_account_user({
+            "account_id": account_id,
+            "first_name": payload.get("first_name"),
+            "last_name": payload.get("last_name"),
+            "work_email_address": payload.get("work_email_address"),
+            "work_contact_number": payload.get("work_contact_number"),
+            "position": payload.get("position"),
+            "user_id": user_id
+        })
+
+    @staticmethod
+    def _assign_user_role(account_user_id, invitation):
+        """Assign the role to the user."""
+        return AccountUserService.assign_role(
+            account_user_id,
+            invitation.role_id,
+            invitation.account_project_id,
+            invitation.package_id,
+        )
 
     @staticmethod
     def _generate_signup_url(token):
