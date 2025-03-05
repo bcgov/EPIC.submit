@@ -21,10 +21,12 @@ class Invitations(BaseModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     project_ids = Column(Text, nullable=False)  # Comma-separated project IDs
+    package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=True)
     token = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), nullable=True)  # Optional email for client
     status = Column(String(50), default='pending', nullable=False)
     expiry_date = Column(TIMESTAMP, default=datetime.utcnow)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
 
