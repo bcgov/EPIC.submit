@@ -16,15 +16,28 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Form from "@/components/Shared/Forms/common";
 import { FormOptions } from "./FormOptions";
 import { useNavigate } from "@tanstack/react-router";
+import { useAccount } from "@/store/accountStore";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
+import ControlledMultiSelect from "@/components/Shared/controlled/ControlledMultiSelect";
+import { When } from "react-if";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
   applicationAccess: yup.string().required("Please select an option."),
+  project_ids: yup
+    .array()
+    .of(yup.string()) // Ensures project IDs are strings
+    .when("applicationAccess", {
+      is: (value: string) => value === "CollaboratorSpecific", // ✅ Ensure correct type comparison
+      then: (schema) => schema.min(1, "Please select at least one project."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
 });
 
 type NewUserSchema = yup.InferType<typeof newUser>;
 
 export default function NewUserForm() {
+  const { accountId } = useAccount();
   const navigate = useNavigate();
 
   const methods = useForm<NewUserSchema>({
@@ -33,6 +46,7 @@ export default function NewUserForm() {
     defaultValues: {
       email: "",
       applicationAccess: "",
+      project_ids: [],
     },
   });
 
@@ -40,11 +54,18 @@ export default function NewUserForm() {
     handleSubmit,
     formState: { errors },
   } = methods;
+  const { watch } = methods;
+
+  const selectedRole = watch("applicationAccess"); // Watch the selected radio value
 
   const handleCompleteForm = (formData: NewUserSchema) => {
     // eslint-disable-next-line no-console
     console.log(formData);
   };
+
+  const { data: accountProjects } = useGetAccountProjectsByAccount({
+    accountId,
+  });
 
   return (
     <TableBox mainLabel={"User Management"}>
@@ -134,6 +155,21 @@ export default function NewUserForm() {
               <ControlledRadioGroup name="applicationAccess">
                 <FormOptions error={Boolean(errors["applicationAccess"])} />
               </ControlledRadioGroup>
+
+              <When condition={selectedRole === "CollaboratorSpecific"}>
+                <ControlledMultiSelect
+                  multiple
+                  selectAll
+                  name="project_ids"
+                  options={
+                    accountProjects?.map((accountProject) => ({
+                      value: accountProject.project.id.toString(), // Store project ID in the form
+                      label: accountProject.project.name, // Display project name
+                    })) || []
+                  }
+                />
+              </When>
+
               <Stack direction="row" spacing={2}>
                 <Button type="submit">Add User</Button>
                 <Button
