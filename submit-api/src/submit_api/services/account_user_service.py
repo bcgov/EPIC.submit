@@ -14,12 +14,12 @@ class AccountUserService:
         return AccountUserModel.get_users_by_account_id(account_id)
 
     @classmethod
-    def create_account_user(cls, data):
+    def create_account_user(cls, data, session=None):
         """Create a new AccountUser."""
-        return AccountUserModel.create_account_user(data)
+        return AccountUserModel.create_account_user(data, session)
 
     @classmethod
-    def assign_role(cls, account_user_id, role_id, account_project_id=None, package_id=None):
+    def assign_role(cls, account_user_id, role_id, account_project_id=None, package_id=None, session=None):
         """Assign a role to the user."""
         role = RoleModel.find_by_id(role_id)
         if not role:
@@ -35,7 +35,7 @@ class AccountUserService:
             "package_id": package_id
         }
 
-        UserRoleModel.create_user_role(role_data)
+        UserRoleModel.create_user_role(role_data, session)
         return {
             "role_id": role.id,
             "role_name": role.role_name,

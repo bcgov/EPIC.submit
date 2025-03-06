@@ -129,3 +129,24 @@ class Projects(Resource):
         """Get projects by proponent id."""
         account_project = ProjectService.get_account_project_by_id(account_project_id)
         return AccountProjectSchema().dump(account_project), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS, POST")
+@API.route("/users/<int:user_id>", methods=["POST", "GET", "OPTIONS"])
+class ProjectsByAccountUser(Resource):
+    """Resource for managing projects."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Get projects by account id"
+    )
+    @API.response(
+        code=HTTPStatus.OK, model=project_list_model, description="Get projects"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def get(user_id):
+        """Get projects by user id."""
+        projects = ProjectService.get_account_projects_by_user_id(user_id)
+        return AccountProjectSchema(many=True).dump(projects), HTTPStatus.OK

@@ -185,3 +185,32 @@ export const useGetAccountProjectsForStaff = ({
   const options = getAccountProjectsForStaffQueryOptions({ searchOptions });
   return useQuery(options);
 };
+
+const getAccountProjectsByUserId = ({ userId }: { userId: number }) => {
+  // Initialize URL with base path and account ID
+  const url = `/projects/users/${userId}`;
+
+  return submitRequest<AccountProject[]>({
+    url,
+  });
+};
+
+type UseGetProjectsByUserIdParams = {
+  userId: number;
+};
+
+export const getAccountProjectsByUserQueryOptions = ({
+  userId,
+}: UseGetProjectsByUserIdParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.USER_PROJECTS, userId],
+    queryFn: () => getAccountProjectsByUserId({ userId }),
+    enabled: Boolean(userId),
+  });
+
+export const useGetAccountProjectsByUserId = ({
+  userId,
+}: UseGetProjectsByUserIdParams) => {
+  const options = getAccountProjectsByUserQueryOptions({ userId });
+  return useQuery(options);
+};

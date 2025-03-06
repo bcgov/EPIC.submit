@@ -4,6 +4,7 @@ import { create } from "zustand";
 interface AccountStoreState {
   proponentId: number;
   accountId: number;
+  userId: number;
   isLoading: boolean;
   userType?: UserType;
   roles?: string[];
@@ -13,6 +14,7 @@ interface AccountStoreState {
 export const useAccount = create<AccountStoreState>((set) => ({
   proponentId: 0,
   accountId: 0,
+  userId: 0,
   isLoading: true,
   userType: undefined,
   roles: [],

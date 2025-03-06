@@ -7,6 +7,7 @@ export const defaultUseQueryOptions = {
 
 export const QUERY_KEY = Object.freeze({
   ACCOUNT_PROJECTS: "projects/accounts",
+  USER_PROJECTS: "projects/account-users",
   ACCOUNT_PROJECT: "account-project",
   SUBMISSION_PACKAGE: "package",
   ACCOUNT_USER: "user",
@@ -18,5 +19,6 @@ export const QUERY_KEY = Object.freeze({
   STAFF_USER: "staff/staff-user",
   ACTIVITY_LOGS: "activity-logs",
   SUBMISSION_VERSIONS: "submission-versions",
+  INVITATION: "invitation",
   ACCOUNT_USERS: "account-users",
 });
