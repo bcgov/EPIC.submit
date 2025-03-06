@@ -34,3 +34,10 @@ class Project(db.Model):
     def get_one_by_proponent_id(cls, proponent_id):
         """Fetch project by proponent id."""
         return cls.query.filter_by(proponent_id=proponent_id).first()
+
+    @classmethod
+    def get_all_proponents(cls):
+        """Get all proponents."""
+        proponents = (cls.query.with_entities(cls.proponent_id, cls.proponent_name)
+                      .distinct().order_by(cls.proponent_name).all())
+        return proponents
