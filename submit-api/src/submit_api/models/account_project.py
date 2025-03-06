@@ -50,3 +50,16 @@ class AccountProject(BaseModel):
     def get_all(cls):
         """Get all projects."""
         return cls.query.all()
+
+    @classmethod
+    def create_account_project(cls, account_id, project_id, session=None) -> AccountProject:
+        """Create account project."""
+        account_project = AccountProject(
+            account_id=account_id,
+            project_id=project_id
+        )
+        if session:
+            session.add(account_project)
+        else:
+            account_project.save()
+        return account_project

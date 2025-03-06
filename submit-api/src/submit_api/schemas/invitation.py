@@ -10,7 +10,7 @@ class CreateInvitationSchema(Schema):
     """Schema for creating an invitation."""
 
     proponent_id = fields.Int(required=True, description="Proponent ID")
-    account_id = fields.Int(required=True, description="Account ID")
+    account_id = fields.Int(required=False, description="Account ID")
     project_ids = fields.List(fields.Int(), required=True, description="List of Project IDs")
     role_id = fields.Int(required=True, description="Role ID")
     package_id = fields.Int(required=False, allow_none=True, description="Package ID (For submission-specific roles)")

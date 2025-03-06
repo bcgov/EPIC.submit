@@ -71,8 +71,8 @@ class InvitationsResource(Resource):
         return response, HTTPStatus.CREATED
 
 
-@cors_preflight("GET, DELETE, OPTIONS")
-@API.route("/<string:token>", methods=["GET", "DELETE", "OPTIONS"])
+@cors_preflight("GET, DELETE, OPTIONS, POST")
+@API.route("/<string:token>", methods=["GET", "DELETE", "OPTIONS", "POST"])
 class InvitationDetailResource(Resource):
     """Resource to manage individual invitations by token."""
 

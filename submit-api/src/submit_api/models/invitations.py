@@ -54,14 +54,15 @@ class Invitations(BaseModel):
         return None
 
     @classmethod
-    def mark_used(cls, token, used_by):
+    def mark_used(cls, token, used_by, session):
         """Mark an invitation token as used."""
         invitation = cls.query.filter_by(token=token).first()
         if invitation:
             invitation.status = 'used'
             invitation.used_by = used_by
             invitation.used_date = datetime.now()
-            db.session.commit()
+            session.add(invitation)
+            session.flush()
             return invitation
         return None
 

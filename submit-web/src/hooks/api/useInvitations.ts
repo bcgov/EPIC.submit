@@ -35,9 +35,15 @@ export type AcceptInvitationResponse = {
   user_id: number;
   role: string;
 };
-const acceptInvitation = (token: string, data: CreateAccountRequest) => {
+const acceptInvitation = (
+  token: string | undefined,
+  data: CreateAccountRequest,
+) => {
+  if (!token) {
+    return Promise.reject(new Error("Token is required"));
+  }
   return submitRequest<AcceptInvitationResponse>({
-    url: `/invitations/${token}/accept`,
+    url: `/invitations/${token}`,
     method: "post",
     data,
   });
@@ -55,9 +61,6 @@ export const useAcceptInvitation = ({
   token,
   ...rest
 }: UseAcceptInvitationParams) => {
-  if (!token) {
-    throw new Error("token is required");
-  }
   return useMutation({
     mutationFn: (data: CreateAccountRequest) => acceptInvitation(token, data),
     ...rest,

@@ -18,7 +18,7 @@ import { Else, If, Then } from "react-if";
 
 function AddProjects() {
   const navigate = useNavigate();
-  const { isLoading: isAccountLoading, userId } = useAccount();
+  const { userId } = useAccount();
 
   const {
     data: accountProjects,
@@ -54,7 +54,7 @@ function AddProjects() {
     navigate({ to: "/proponent/registration/complete" });
   };
 
-  if (isAccountLoading) {
+  if (isFetchingProjects) {
     return <PageLoader />;
   }
 
