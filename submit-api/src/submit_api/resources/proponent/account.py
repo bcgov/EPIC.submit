@@ -21,6 +21,7 @@ from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema, AccountSchema
+from submit_api.schemas.package import AccountPackageSchema
 from submit_api.services.account_service import AccountService
 from submit_api.utils.util import cors_preflight
 
@@ -34,6 +35,9 @@ account_create_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 account_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, AccountSchema(), "Account"
+)
+account_package_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, AccountPackageSchema(), "Account Package"
 )
 
 
@@ -85,3 +89,25 @@ class User(Resource):
         if not account:
             return ResourceNotFoundError(f"Account with proponent {proponent_id} not found")
         return AccountSchema().dump(account), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route(
+    "/<int:account_id>/packages",
+    methods=["GET", "OPTIONS"],
+)
+class AccountPackages(Resource):
+    """Resource for managing account packages."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get packages by account_id")
+    @API.response(
+        code=HTTPStatus.OK, model=account_package_model, description="Get packages"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def get(account_id):
+        """Get all account packages."""
+        account_packages = AccountService.get_all_account_packages(account_id)
+        return AccountPackageSchema(many=True).dump(account_packages), HTTPStatus.OK

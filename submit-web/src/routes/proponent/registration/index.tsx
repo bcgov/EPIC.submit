@@ -11,33 +11,34 @@ export const Route = createFileRoute("/proponent/registration/")({
 
 function Registration() {
   const { isAuthenticated, signinRedirect } = useAuth();
-  const { proponent_id } = Route.useSearch<{
-    proponent_id: number;
+
+  const { token } = Route.useSearch<{
+    token: string;
   }>();
 
   useEffect(() => {
-    if (!proponent_id) {
+    if (!token) {
       notify.error("registration link is invalid");
     } else if (!isAuthenticated) {
       signinRedirect({
-        redirect_uri: `${OidcConfig.redirect_uri}?proponent_id=${proponent_id}`,
+        redirect_uri: `${OidcConfig.redirect_uri}?token=${token}`,
       });
     }
-  }, [proponent_id, isAuthenticated, signinRedirect]);
+  }, [token, isAuthenticated, signinRedirect]);
 
   if (!isAuthenticated) {
     return <PageLoader />;
   }
 
-  // if (!proponent_id) {
-  //   return <Navigate to={"/error"} />;
-  // }
+  if (!token) {
+    return <Navigate to={"/error"} />;
+  }
 
   return (
     <Navigate
       to="/proponent/registration/create-account"
       search={{
-        proponent_id: Number(proponent_id),
+        token: token,
       }}
     />
   );

@@ -1,5 +1,6 @@
 """Service for project management."""
 
+from submit_api.models import User as UserModel
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.project import Project as ProjectModel
@@ -15,9 +16,18 @@ class ProjectService:
         return AccountProjectModel.find_by_id(account_project_id)
 
     @classmethod
-    def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions):
+    def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None):
         """Get projects by account id."""
         return ProjectQueries.get_filtered_account_projects(account_id, search_options)
+
+    @classmethod
+    def get_account_projects_by_user_id(cls, user_id):
+        """Get projects by account user id."""
+        user = UserModel.find_by_id(user_id)
+        if not user.account_user:
+            return []
+        account_user = user.account_user
+        return cls.get_projects_by_account_id(account_user.account_id, search_options=None)
 
     @classmethod
     def get_projects_by_proponent_id(cls, proponent_id):

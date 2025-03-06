@@ -24,7 +24,7 @@ class UserRole(BaseModel):
         user_role = UserRole(
             account_user_id=data.get("account_user_id"),
             account_project_id=data.get("account_project_id"),
-            submission_id=data.get("submission_id"),
+            package_id=data.get("package_id"),
             role_id=data.get("role_id"),
         )
         if session:

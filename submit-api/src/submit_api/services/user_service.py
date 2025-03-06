@@ -13,3 +13,8 @@ class UserService:
         if not user:
             raise ResourceNotFoundError(f"User with auth guid {_guid} not found")
         return user
+
+    @classmethod
+    def create_user(cls, data, session=None):
+        """Create a new user."""
+        return User.create_user(data, session)
