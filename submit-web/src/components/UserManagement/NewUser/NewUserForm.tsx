@@ -17,10 +17,10 @@ import Form from "@/components/Shared/Forms/common";
 import { FormOptions } from "./FormOptions";
 import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
-import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import ControlledMultiSelect from "@/components/Shared/controlled/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
+import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
@@ -64,17 +64,17 @@ export default function NewUserForm() {
     console.log(formData);
   };
 
-  const { data: accountProjects } = useGetAccountProjectsByAccount({
-    accountId,
+  const { data: accountPackages } = useGetAccountPackagesByAccountId({
+    accountId: 1,
   });
 
   const options = useMemo(
     () =>
-      accountProjects?.map((accountProject) => ({
-        value: accountProject.project.id.toString(),
-        label: accountProject.project.name,
+      accountPackages?.map((accountProject) => ({
+        value: accountProject.packages[0].id,
+        label: accountProject.packages[0].name,
       })) || [],
-    [accountProjects]
+    [accountPackages]
   );
 
   return (
