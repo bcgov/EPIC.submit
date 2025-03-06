@@ -1,18 +1,25 @@
 import { PlainTableCell } from "@/components/Shared/Table/common";
 import { Proponent } from "@/models/Proponent";
-import { TableCell, Link as MuiLink, TableRow } from "@mui/material";
+import {
+  TableCell,
+  Link as MuiLink,
+  TableRow,
+  LinearProgress,
+} from "@mui/material";
 
 type EntityTableBodyProps = {
   isLoading: boolean;
   isError: boolean;
   proponents: Proponent[];
+  rowsPerPage: number;
 };
 export const EntityTableBody = ({
   proponents,
   isError,
   isLoading,
+  rowsPerPage,
 }: EntityTableBodyProps) => {
-  const emptyRows = 6 - Math.min(6, proponents.length);
+  const emptyRows = rowsPerPage - proponents.length;
 
   const onEntityClick = (entityId: number) => {
     console.log("Entity clicked", entityId);
@@ -21,23 +28,35 @@ export const EntityTableBody = ({
   if (isError) {
     return (
       <TableRow>
-        <TableCell colSpan={3}>Error fetching proponents</TableCell>
+        <TableCell align="center">Error fetching proponents</TableCell>
       </TableRow>
     );
   }
 
   if (isLoading) {
     return (
-      <TableRow>
-        <TableCell colSpan={3}>Loading proponents...</TableCell>
-      </TableRow>
+      <>
+        <TableRow>
+          <TableCell
+            sx={{
+              border: "none",
+            }}
+            align="center"
+          >
+            Loading proponents...
+          </TableCell>
+        </TableRow>
+        <TableCell>
+          <LinearProgress />
+        </TableCell>
+      </>
     );
   }
 
   if (proponents.length === 0) {
     return (
       <TableRow>
-        <TableCell colSpan={3}>No proponents found</TableCell>
+        <TableCell>No proponents found</TableCell>
       </TableRow>
     );
   }
@@ -62,8 +81,6 @@ export const EntityTableBody = ({
               {entity.name}
             </MuiLink>
           </PlainTableCell>
-          <PlainTableCell></PlainTableCell>
-          <PlainTableCell></PlainTableCell>
         </TableRow>
       ))}
       {emptyRows > 0 && (
@@ -72,7 +89,7 @@ export const EntityTableBody = ({
             height: 38 * emptyRows,
           }}
         >
-          <TableCell colSpan={3} sx={{ border: "none" }} />
+          <TableCell sx={{ border: "none" }} />
         </TableRow>
       )}
     </>

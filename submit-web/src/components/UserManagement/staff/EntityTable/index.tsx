@@ -13,6 +13,7 @@ import {
 import { EntityTableBody } from "./tableBody";
 import { useEffect, useMemo, useState } from "react";
 import { Proponent } from "@/models/Proponent";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 const DEFAULT_PAGE = 0;
@@ -26,6 +27,12 @@ export const EntityTable = (props: TableProps) => {
   useEffect(() => {
     setProponents(data || []);
   }, [data]);
+
+  useEffect(() => {
+    if (isError) {
+      notify.error("Error fetching proponents");
+    }
+  }, [isError]);
 
   const handleChangePage = (_: unknown, newPage: number) => {
     setPage(newPage);
@@ -51,8 +58,6 @@ export const EntityTable = (props: TableProps) => {
           <TableHead>
             <TableRow>
               <SubmitTableHeadCell>Entity</SubmitTableHeadCell>
-              <SubmitTableHeadCell>Status</SubmitTableHeadCell>
-              <SubmitTableHeadCell>Action</SubmitTableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -60,6 +65,7 @@ export const EntityTable = (props: TableProps) => {
               proponents={paginatedProponents}
               isError={isError}
               isLoading={isPending}
+              rowsPerPage={rowsPerPage}
             />
           </TableBody>
         </Table>
