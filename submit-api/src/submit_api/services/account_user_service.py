@@ -1,7 +1,9 @@
 """Service for account user management."""
 from submit_api.models import AccountUser as AccountUserModel
+from submit_api.models import Invitations as InvitationsModel
 from submit_api.models import Role as RoleModel
 from submit_api.models import UserRole as UserRoleModel
+from submit_api.models.invitations import InvitationStatus
 from submit_api.models.role import RoleEnum
 
 
@@ -9,14 +11,34 @@ class AccountUserService:
     """Account User management service."""
 
     @classmethod
-    def get_users_by_account(cls, account_id, include_roles):
-        """Get all users associated with an account, including roles."""
-        users = AccountUserModel.query.filter(AccountUserModel.account_id == account_id).all()
+    def get_users_by_account(cls, account_id, include_roles=False, include_invitees=False):
+        """Get all users associated with an account, optionally including roles & invitees."""
+        users = cls._fetch_users(account_id)
+        roles_map = cls._fetch_roles(users) if include_roles else {}
 
-        if not include_roles:
-            return [user.to_dict() for user in users]
+        user_list = []
+        for user in users:
+            user_data = user.to_dict()
+            user_data["roles"] = roles_map.get(user.id, []) if include_roles else []
+            user_data["status"] = "ACTIVE"
+            user_list.append(user_data)
 
-            # Fetch user roles and map to user_id
+        if include_invitees:
+            # we are fetching invitees as well since we are not creating users on invitations
+            # fetch them since user list shows invitations as well..
+            invitees = cls._fetch_invitees(account_id, include_roles)
+            user_list.extend(invitees)
+
+        return user_list
+
+    @staticmethod
+    def _fetch_users(account_id):
+        """Fetch active users from the `account_users` table."""
+        return AccountUserModel.query.filter(AccountUserModel.account_id == account_id).all()
+
+    @staticmethod
+    def _fetch_roles(users):
+        """Fetch roles for the given users and map them to user IDs."""
         user_roles = (
             UserRoleModel.query
             .filter(UserRoleModel.account_user_id.in_([user.id for user in users]))
@@ -33,15 +55,36 @@ class AccountUserService:
                 "account_project_id": role.account_project_id,
                 "package_ids": role.package_ids
             })
+        return roles_map
 
-        # Add roles to users
-        user_list = []
-        for user in users:
-            user_data = user.to_dict()  # Assumes AccountUser has a `to_dict()` method
-            user_data["roles"] = roles_map.get(user.id, [])
-            user_list.append(user_data)
+    @staticmethod
+    def _fetch_invitees(account_id, include_roles):
+        """Fetch invited users from the `invitations` table"""
+        invitees = InvitationsModel.query.filter(
+            InvitationsModel.account_id == account_id,
+            InvitationsModel.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
+        ).all()
 
-        return user_list
+        invited_users = []
+        for invite in invitees:
+            invited_user = {
+                "id": None,
+                "account_id": invite.account_id,
+                "full_name": invite.email,
+                "work_email_address": invite.email,
+                "user_id": None,
+                "roles": [{
+                    "role_id": invite.role_id,
+                    "role_name": RoleModel.find_by_id(invite.role_id).role_name,
+                    "account_project_id": None,
+                    "package_ids": invite.package_ids,
+                    "project_ids": invite.project_ids
+                }] if include_roles else [],
+                "status": invite.status
+            }
+            invited_users.append(invited_user)
+
+        return invited_users
 
     @classmethod
     def create_account_user(cls, data, session=None):

@@ -28,3 +28,4 @@ class AccountUserSchema(Schema):
     work_contact_number = fields.Str()
     user_id = fields.Int()
     roles = fields.List(fields.Nested(RoleSchema))
+    status = fields.Str()

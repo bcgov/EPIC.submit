@@ -48,7 +48,8 @@ class AccountUsers(Resource):
     def get(account_id):
         """Fetch all users of a specific account."""
         include_roles = request.headers.get("include-roles", "false").lower() == "true"
-        users = AccountUserService.get_users_by_account(account_id, include_roles)
+        include_invitees = request.headers.get("include-invitees", "false").lower() == "true"
+        users = AccountUserService.get_users_by_account(account_id, include_roles, include_invitees)
         if not users:
             return {"message": f"No users found for account {account_id}"}, HTTPStatus.NOT_FOUND
 

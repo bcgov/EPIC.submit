@@ -9,7 +9,7 @@ from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
-from submit_api.models.invitations import Invitations as InvitationsModel
+from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
 from submit_api.models.role import Role as RoleModel
 from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
@@ -176,7 +176,7 @@ class InvitationService:
             return {"error": "Invalid invitation"}, False
 
         # Check for pending status and expiry date
-        if invitation.status != 'pending':
+        if invitation.status != InvitationStatus.PENDING.value:
             return {"error": "Invitation is not valid"}, False
 
         if invitation.expiry_date < datetime.datetime.utcnow():
@@ -189,7 +189,7 @@ class InvitationService:
         """Revoke an invitation by updating its status."""
         invitation = InvitationsModel.query.filter_by(token=token, status='pending').first()
         if invitation:
-            invitation.status = 'revoked'
+            invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
             return True
         return False
