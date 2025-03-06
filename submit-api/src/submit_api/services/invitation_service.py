@@ -9,7 +9,7 @@ from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
-from submit_api.models.invitations import Invitations as InvitationsModel
+from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
 from submit_api.models.role import Role as RoleModel
 from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
@@ -121,7 +121,7 @@ class InvitationService:
             email=invite_data.get('email'),
             created_by=invite_data.get('created_by'),
             role_id=invite_data.get('role_id'),
-            package_id=invite_data.get('package_id'),
+            package_ids=invite_data.get('package_ids'),
             expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
         )
         session.add(invitation)
@@ -151,13 +151,12 @@ class InvitationService:
     @staticmethod
     def _assign_user_role(account_user_id, invitation, session):
         """Assign the role to the user."""
-        return AccountUserService.assign_role(
-            account_user_id,
-            invitation.role_id,
-            None,  # TODO: Add account_project_ids for users onboarded by project admin
-            invitation.package_id,
-            session
-        )
+        return AccountUserService.assign_role({
+            "account_user_id": account_user_id,
+            "role_id": invitation.role_id,
+            "account_project_id": None,  # TODO: Add account_project_ids for users onboarded by project admin
+            "package_ids": invitation.package_ids,
+        }, session)
 
     @staticmethod
     def _generate_signup_url(token):
@@ -177,7 +176,7 @@ class InvitationService:
             return {"error": "Invalid invitation"}, False
 
         # Check for pending status and expiry date
-        if invitation.status != 'pending':
+        if invitation.status != InvitationStatus.PENDING.value:
             return {"error": "Invitation is not valid"}, False
 
         if invitation.expiry_date < datetime.datetime.utcnow():
@@ -190,7 +189,7 @@ class InvitationService:
         """Revoke an invitation by updating its status."""
         invitation = InvitationsModel.query.filter_by(token=token, status='pending').first()
         if invitation:
-            invitation.status = 'revoked'
+            invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
             return True
         return False
