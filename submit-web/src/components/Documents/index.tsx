@@ -15,8 +15,9 @@ export const Documents = ({ documents }: DocumentsParams) => {
   if (!documents) return <Navigate to={"/error"} />;
   return (
     <ContentBox
-      mainLabel={'Documents'}
-      label={''}
+      mainLabel={"Documents"}
+      label={""}
+      contentBoxVariant="secondary"
     >
       <Box
         display={"flex"}
@@ -31,7 +32,10 @@ export const Documents = ({ documents }: DocumentsParams) => {
             <DocumentTableHead />
             <TableBody>
               {documents?.map((document) => (
-                <DocumentTableRow key={document.id} submittedDocument={document} />
+                <DocumentTableRow
+                  key={document.id}
+                  submittedDocument={document}
+                />
               ))}
             </TableBody>
           </Table>
