@@ -1,25 +1,30 @@
-"""Item schema class.
+"""AccountUserSchema class.
 
-Manages the item schema
+Manages the AccountUserSchema
 """
 
-from marshmallow import EXCLUDE, Schema, fields
+from marshmallow import Schema, fields
+
+
+class RoleSchema(Schema):
+    """Schema for user roles."""
+
+    role_id = fields.Int()
+    role_name = fields.Str()
+    account_project_id = fields.Int(allow_none=True)
+    package_ids = fields.List(fields.Int(), allow_none=True)
 
 
 class AccountUserSchema(Schema):
-    """item schema."""
+    """Schema for representing an account user with roles."""
 
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    id = fields.Int(data_key="id")
-    account_id = fields.Int(data_key="account_id")
-    first_name = fields.Str(data_key="first_name")
-    last_name = fields.Str(data_key="last_name")
-    full_name = fields.Str(data_key="full_name")
-    position = fields.Str(data_key="position")
-    work_email_address = fields.Str(data_key="work_email_address")
-    work_contact_number = fields.Str(data_key="work_contact_number")
-    auth_guid = fields.Str(data_key="auth_guid")
+    id = fields.Int()
+    account_id = fields.Int()
+    first_name = fields.Str()
+    last_name = fields.Str()
+    full_name = fields.Str()
+    position = fields.Str()
+    work_email_address = fields.Email()
+    work_contact_number = fields.Str()
+    user_id = fields.Int()
+    roles = fields.List(fields.Nested(RoleSchema))

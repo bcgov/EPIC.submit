@@ -9,9 +9,39 @@ class AccountUserService:
     """Account User management service."""
 
     @classmethod
-    def get_users_by_account(cls, account_id):
-        """Get all users associated with an account."""
-        return AccountUserModel.get_users_by_account_id(account_id)
+    def get_users_by_account(cls, account_id, include_roles):
+        """Get all users associated with an account, including roles."""
+        users = AccountUserModel.query.filter(AccountUserModel.account_id == account_id).all()
+
+        if not include_roles:
+            return [user.to_dict() for user in users]
+
+            # Fetch user roles and map to user_id
+        user_roles = (
+            UserRoleModel.query
+            .filter(UserRoleModel.account_user_id.in_([user.id for user in users]))
+            .all()
+        )
+
+        roles_map = {}
+        for role in user_roles:
+            if role.account_user_id not in roles_map:
+                roles_map[role.account_user_id] = []
+            roles_map[role.account_user_id].append({
+                "role_id": role.role_id,
+                "role_name": RoleModel.find_by_id(role.role_id).role_name,
+                "account_project_id": role.account_project_id,
+                "package_ids": role.package_ids
+            })
+
+        # Add roles to users
+        user_list = []
+        for user in users:
+            user_data = user.to_dict()  # Assumes AccountUser has a `to_dict()` method
+            user_data["roles"] = roles_map.get(user.id, [])
+            user_list.append(user_data)
+
+        return user_list
 
     @classmethod
     def create_account_user(cls, data, session=None):
@@ -19,20 +49,25 @@ class AccountUserService:
         return AccountUserModel.create_account_user(data, session)
 
     @classmethod
-    def assign_role(cls, account_user_id, role_id, account_project_id=None, package_id=None, session=None):
+    def assign_role(cls, role_data, session=None):
         """Assign a role to the user."""
+        account_user_id = role_data.get("account_user_id")
+        role_id = role_data.get("role_id")
+        account_project_id = role_data.get("account_project_id")
+        package_ids = role_data.get("package_ids")
+
         role = RoleModel.find_by_id(role_id)
         if not role:
             raise ValueError(f"Invalid role ID: {role_id}")
         # dont need account project id for ACCOUNT_PRIMARY_ADMIN
         account_project_id = None if role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value else account_project_id
         # only for SPECIFIC_SUBMISSION_CONTRIBUTOR , save package id
-        package_id = package_id if role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value else None
+        package_ids = package_ids if role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value else None
         role_data = {
             "account_user_id": account_user_id,
             "role_id": role_id,
             "account_project_id": account_project_id,
-            "package_id": package_id
+            "package_ids": package_ids
         }
 
         UserRoleModel.create_user_role(role_data, session)
@@ -40,5 +75,5 @@ class AccountUserService:
             "role_id": role.id,
             "role_name": role.role_name,
             "account_project_id": role_data["account_project_id"],
-            "package_id": role_data["package_id"]
+            "package_ids": role_data["package_id"]
         }
