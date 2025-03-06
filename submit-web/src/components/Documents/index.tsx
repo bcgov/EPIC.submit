@@ -1,7 +1,6 @@
-import { Box, Table, TableBody, TableContainer } from "@mui/material";
+import { Box, Table, TableBody, TableContainer, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmittedDocument } from "@/models/Submission";
-import { Stack } from "@mui/material";
 import { ContentBoxSkeleton } from "../Shared/ContentBox/ContentBoxSkeleton";
 import DocumentTableHead from "./DocumentTableHead";
 import DocumentTableRow from "./DocumentTableRow";
