@@ -10,30 +10,30 @@ export const useCreateInvitation = (options?: Options) => {
 };
 
 const createInvitation = ({
-  accountId,
-  proponentId,
-  projectIds,
-  packageId,
+  account_id,
+  proponent_id,
+  project_ids,
+  package_id,
   email,
-  roleId,
+  role_id,
 }: {
-  accountId: number;
-  proponentId: number;
-  roleId: number;
+  account_id: number;
+  proponent_id: number;
+  role_id: string;
   email: string;
-  packageId: number;
-  projectIds: number[];
+  project_ids: number[];
+  package_id: number;
 }) => {
   return submitRequest({
     url: `/invitations`,
     method: "post",
     data: {
-      account_id: accountId,
-      proponent_id: proponentId,
-      role_id: roleId,
-      email: email,
-      project_ids: projectIds,
-      package_id: packageId,
+      account_id,
+      proponent_id,
+      role_id,
+      email,
+      project_ids,
+      package_id,
     },
   });
 };

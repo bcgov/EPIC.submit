@@ -14,22 +14,24 @@ import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Form from "@/components/Shared/Forms/common";
-import { FormOptions } from "./FormOptions";
+import { FormOptions, Role } from "./FormOptions";
 import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
 import ControlledMultiSelect from "@/components/Shared/controlled/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
 import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
+import { useCreateInvitation } from "@/hooks/api/useInvitations";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
-  applicationAccess: yup.string().required("Please select an option."),
+  role: yup.string().required("Please select an option."),
   project_ids: yup
     .array()
     .of(yup.string()) // Ensures project IDs are strings
-    .when("applicationAccess", {
-      is: (value: string) => value === "CollaboratorSpecific", // ✅ Ensure correct type comparison
+    .when("role", {
+      is: (value: string) => value === Role.SPECIFIC_SUBMISSION_CONTRIBUTOR,
       then: (schema) => schema.min(1, "Please select at least one project."),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -38,15 +40,17 @@ const newUser = yup.object().shape({
 type NewUserSchema = yup.InferType<typeof newUser>;
 
 export default function NewUserForm() {
-  const { accountId } = useAccount();
+  const { accountId, proponentId } = useAccount();
   const navigate = useNavigate();
+  const { mutate: createInvite, isPending: isPendingInvitation } =
+    useCreateInvitation();
 
   const methods = useForm<NewUserSchema>({
     resolver: yupResolver(newUser),
     mode: "onSubmit",
     defaultValues: {
       email: "",
-      applicationAccess: "",
+      role: "",
       project_ids: [],
     },
   });
@@ -57,11 +61,20 @@ export default function NewUserForm() {
   } = methods;
   const { watch } = methods;
 
-  const selectedRole = watch("applicationAccess"); // Watch the selected radio value
+  const selectedRole = watch("role"); // Watch the selected radio value
 
   const handleCompleteForm = (formData: NewUserSchema) => {
     // eslint-disable-next-line no-console
-    console.log(formData);
+    const { email, role, project_ids } = formData;
+    const request = {
+      proponent_id: proponentId,
+      account_id: accountId,
+      role_id: role,
+      email,
+      project_ids: [],
+      package_id: 1,
+    };
+    createInvite(request);
   };
 
   const { data: accountPackages } = useGetAccountPackagesByAccountId({
@@ -162,11 +175,15 @@ export default function NewUserForm() {
               >
                 What permissions should this user have?
               </Typography>
-              <ControlledRadioGroup name="applicationAccess">
-                <FormOptions error={Boolean(errors["applicationAccess"])} />
+              <ControlledRadioGroup name="role">
+                <FormOptions error={Boolean(errors["role"])} />
               </ControlledRadioGroup>
 
-              <When condition={selectedRole === "CollaboratorSpecific"}>
+              <When
+                condition={
+                  selectedRole === Role.SPECIFIC_SUBMISSION_CONTRIBUTOR
+                }
+              >
                 <Typography sx={{ fontWeight: 700 }}>
                   Which Submission(s) would you like to assign that user to?
                 </Typography>
@@ -179,7 +196,9 @@ export default function NewUserForm() {
               </When>
 
               <Stack direction="row" spacing={2}>
-                <Button type="submit">Add User</Button>
+                <LoadingButton type="submit" loading={isPendingInvitation}>
+                  Add User
+                </LoadingButton>
                 <Button
                   variant="text"
                   onClick={() => navigate({ to: "/proponent/user-management" })}
