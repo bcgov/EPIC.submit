@@ -21,10 +21,6 @@ export const EntityTableBody = ({
 }: EntityTableBodyProps) => {
   const emptyRows = rowsPerPage - proponents.length;
 
-  const onEntityClick = (entityId: number) => {
-    console.log("Entity clicked", entityId);
-  };
-
   if (isError) {
     return (
       <TableRow>
@@ -76,7 +72,6 @@ export const EntityTableBody = ({
                   cursor: "pointer",
                 },
               }}
-              onClick={() => onEntityClick(entity.id)}
             >
               {entity.name}
             </MuiLink>
