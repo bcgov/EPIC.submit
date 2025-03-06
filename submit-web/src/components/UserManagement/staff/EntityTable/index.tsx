@@ -1,58 +1,49 @@
-import {
-  PlainTableCell,
-  SubmitTableCell,
-  SubmitTableHeadCell,
-} from "@/components/Shared/Table/common";
+import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
+import { useProponents } from "@/hooks/api/useProponents";
 import {
   Box,
   Table,
   TableBody,
-  TableCell,
   TableContainer,
   TableHead,
-  Link as MuiLink,
   TableProps,
   TableRow,
   TablePagination,
 } from "@mui/material";
+import { EntityTableBody } from "./tableBody";
+import { useEffect, useMemo, useState } from "react";
+import { Proponent } from "@/models/Proponent";
 
+const DEFAULT_ROWS_PER_PAGE = 10;
+const DEFAULT_PAGE = 0;
+const RADIX = 10;
 export const EntityTable = (props: TableProps) => {
-  const mockEntities = [
-    {
-      name: "Entity 1",
-      id: 1,
-      onboardedTotalProjects: "0/1",
-      status: "Active",
-      actions: "action",
-    },
-    {
-      name: "Entity 2",
-      id: 2,
-      onboardedTotalProjects: "0/1",
-      status: "Active",
-      actions: "action",
-    },
-    {
-      name: "Entity 3",
-      id: 3,
-      onboardedTotalProjects: "0/1",
-      status: "Active",
-      actions: "action",
-    },
-    {
-      name: "Entity 4",
-      id: 4,
-      onboardedTotalProjects: "0/1",
-      status: "Active",
-      actions: "action",
-    },
-  ];
+  const { data, isPending, isError } = useProponents();
+  const [proponents, setProponents] = useState<Proponent[]>([]);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
 
-  const emptyRows = 6 - Math.min(6, mockEntities.length);
+  useEffect(() => {
+    setProponents(data || []);
+  }, [data]);
 
-  const onEntityClick = (entityId: number) => {
-    console.log("Entity clicked", entityId);
+  const handleChangePage = (_: unknown, newPage: number) => {
+    setPage(newPage);
   };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setRowsPerPage(parseInt(event.target.value, RADIX));
+    setPage(DEFAULT_PAGE);
+  };
+
+  const paginatedProponents = useMemo(
+    () =>
+      proponents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [proponents, page, rowsPerPage],
+  );
+
   return (
     <Box>
       <TableContainer>
@@ -60,54 +51,27 @@ export const EntityTable = (props: TableProps) => {
           <TableHead>
             <TableRow>
               <SubmitTableHeadCell>Entity</SubmitTableHeadCell>
-
               <SubmitTableHeadCell>Status</SubmitTableHeadCell>
               <SubmitTableHeadCell>Action</SubmitTableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockEntities.map((entity) => (
-              <TableRow key={entity.id}>
-                <PlainTableCell>
-                  <MuiLink
-                    sx={{
-                      textDecoration: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      "&:hover": {
-                        textDecoration: "underline",
-                        cursor: "pointer",
-                      },
-                    }}
-                    onClick={() => onEntityClick(entity.id)}
-                  >
-                    {entity.name}
-                  </MuiLink>
-                </PlainTableCell>
-                <PlainTableCell>{entity.status}</PlainTableCell>
-                <PlainTableCell>{entity.actions}</PlainTableCell>
-              </TableRow>
-            ))}
-            {emptyRows > 0 && (
-              <TableRow
-                style={{
-                  height: 38 * emptyRows,
-                }}
-              >
-                <TableCell colSpan={3} sx={{ border: "none" }} />
-              </TableRow>
-            )}
+            <EntityTableBody
+              proponents={paginatedProponents}
+              isError={isError}
+              isLoading={isPending}
+            />
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={mockEntities.length}
-        rowsPerPage={10}
-        page={1}
-        onPageChange={() => {}}
-        onRowsPerPageChange={() => {}}
+        count={proponents.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </Box>
   );
