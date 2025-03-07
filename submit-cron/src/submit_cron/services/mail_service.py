@@ -3,15 +3,18 @@ from typing import List
 
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
+from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.email_queue import EmailQueue, EmailStatus
 
 from submit_cron.services.package_submission_email_service import PackageSubmissionEmailService
 from submit_cron.services.ches_service import ChesApiService
 from submit_cron.models import db
+from submit_cron.services.invitation_email_service import InvitationEmailService
 from submit_cron.services.request_update_email_service import RequestUpdateEmailService
 from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, \
-    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE
+    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, \
+    NEW_USER_INVITATION_EMAIL_TEMPLATE
 
 
 class EmailService:  # pylint: disable=too-few-public-methods
@@ -40,7 +43,8 @@ class EmailService:  # pylint: disable=too-few-public-methods
         """Get the email processor based on the template name."""
         email_processors = {
             MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE: cls._process_package_submission_email,
-            MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE: cls._process_request_update_creation_email
+            MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE: cls._process_request_update_creation_email,
+            NEW_USER_INVITATION_EMAIL_TEMPLATE: cls._process_new_user_invitation_email
         }
         template = email_entry.template_name
         if template not in email_processors:
@@ -74,6 +78,24 @@ class EmailService:  # pylint: disable=too-few-public-methods
             raise BadRequestError(f"Package with ID {package_id} not found.")
 
         email_details = RequestUpdateEmailService.prepare_update_request_creation_email_notification(package)
+
+        # Send the email using ChesApiService
+        EmailService.send_email(email_details)
+
+        # Update the email queue status to SENT
+        email_entry.status = EmailStatus.SENT.value
+        email_entry.sent_at = datetime.utcnow()
+        db.session.commit()
+
+    @staticmethod
+    def _process_new_user_invitation_email(email_entry: EmailQueue):
+        """Process email entry for new user invitation."""
+        invitation_id = email_entry.entity_id
+        invitation: InvitationsModel = db.session.get(InvitationsModel, invitation_id)
+        if not invitation:
+            raise BadRequestError(f"Invitation with ID {invitation_id} not found.")
+
+        email_details = InvitationEmailService.prepare_invitation_email_notification(invitation)
 
         # Send the email using ChesApiService
         EmailService.send_email(email_details)
