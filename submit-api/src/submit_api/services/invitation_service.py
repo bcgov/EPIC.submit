@@ -44,7 +44,7 @@ class InvitationService:
             account = InvitationService._get_or_create_account(account_id, proponent_id, project_ids, session)
             session.flush()
             invitation = InvitationService._create_invitation_record(invite_data, account.id, token, session)
-            role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value and \
+            if role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
                 InvitationService._create_email_queue_record(invitation.id)
 
             return {
