@@ -17,7 +17,9 @@ import Form from "@/components/Shared/Forms/common";
 import { FormOptions, Role } from "./FormOptions";
 import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
-import ControlledMultiSelect from "@/components/Shared/controlled/ControlledMultiSelect";
+import ControlledMultiSelect, {
+  OptionType,
+} from "@/components/Shared/controlled/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
 import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
@@ -70,34 +72,37 @@ export default function NewUserForm() {
     const packageIds = watch("package_ids") || [];
     const isSpecificSubmission =
       selectedRole === Role.SPECIFIC_SUBMISSION_CONTRIBUTOR;
-    return accountPackages
-      ?.filter(
-        ({ packages }) =>
-          !isSpecificSubmission ||
-          packages.some(({ id }) => packageIds.includes(id.toString()))
-      )
-      .map(({ project_id }) => Number(project_id));
+    return (
+      accountPackages
+        ?.filter(
+          ({ packages }) =>
+            !isSpecificSubmission ||
+            packages.some(({ id }) => packageIds.includes(id.toString()))
+        )
+        .map(({ project_id }) => Number(project_id)) || []
+    );
   };
 
   const handleCompleteForm = (formData: NewUserSchema) => {
-    // eslint-disable-next-line no-console
-    const { email, role, package_ids } = formData;
+    const { email, package_ids } = formData;
+
     const request = {
       proponent_id: proponentId,
       account_id: accountId,
       role_id: 1,
       email,
       project_ids: getProjectIds(),
-      package_ids,
+      package_ids: package_ids,
     };
+
     createInvite(request);
   };
 
-  const options = useMemo(
+  const options: OptionType[] = useMemo(
     () =>
       accountPackages?.flatMap((accountProject) =>
         Object.values(accountProject.packages).map((pkg) => ({
-          value: pkg.id,
+          value: String(pkg.id), // ✅ Alternative way to convert number to string
           label: pkg.name,
         }))
       ) || [],
