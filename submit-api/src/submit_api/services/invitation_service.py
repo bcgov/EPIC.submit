@@ -45,7 +45,7 @@ class InvitationService:
             session.flush()
             invitation = InvitationService._create_invitation_record(invite_data, account.id, token, session)
             if role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
-                InvitationService._create_email_queue_record(invitation.id)
+                InvitationService._create_email_queue_record(invitation.id, session)
 
             return {
                 'invitation': invitation,
@@ -53,13 +53,14 @@ class InvitationService:
             }
 
     @classmethod
-    def _create_email_queue_record(cls, invitation_id):
+    def _create_email_queue_record(cls, invitation_id, session):
         """Create an email queue record for an update request."""
         email_queue = EmailQueueModel(
             entity_id=invitation_id, entity_type=EntityType.INVITATION.value,
             template_name=NEW_USER_INVITATION_EMAIL_TEMPLATE
         )
-        email_queue.save()
+        session.add(email_queue)
+        session.commit()
 
     @staticmethod
     def accept_invitation(token, payload):
@@ -140,6 +141,7 @@ class InvitationService:
             expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
         )
         session.add(invitation)
+        session.commit()
         return invitation
 
     @staticmethod
