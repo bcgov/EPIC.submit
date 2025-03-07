@@ -27,7 +27,7 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
   role: yup.string().required("Please select an option."),
-  project_ids: yup
+  package_ids: yup
     .array()
     .of(yup.string()) // Ensures project IDs are strings
     .when("role", {
@@ -44,6 +44,9 @@ export default function NewUserForm() {
   const navigate = useNavigate();
   const { mutate: createInvite, isPending: isPendingInvitation } =
     useCreateInvitation();
+  const { data: accountPackages } = useGetAccountPackagesByAccountId({
+    accountId: 1,
+  });
 
   const methods = useForm<NewUserSchema>({
     resolver: yupResolver(newUser),
@@ -51,7 +54,7 @@ export default function NewUserForm() {
     defaultValues: {
       email: "",
       role: "",
-      project_ids: [],
+      package_ids: [],
     },
   });
 
@@ -63,30 +66,41 @@ export default function NewUserForm() {
 
   const selectedRole = watch("role"); // Watch the selected radio value
 
+  const getProjectIds = () => {
+    const packageIds = watch("package_ids") || [];
+    const isSpecificSubmission =
+      selectedRole === Role.SPECIFIC_SUBMISSION_CONTRIBUTOR;
+    return accountPackages
+      ?.filter(
+        ({ packages }) =>
+          !isSpecificSubmission ||
+          packages.some(({ id }) => packageIds.includes(id.toString()))
+      )
+      .map(({ project_id }) => Number(project_id));
+  };
+
   const handleCompleteForm = (formData: NewUserSchema) => {
     // eslint-disable-next-line no-console
-    const { email, role, project_ids } = formData;
+    const { email, role, package_ids } = formData;
     const request = {
       proponent_id: proponentId,
       account_id: accountId,
-      role_id: role,
+      role_id: 1,
       email,
-      project_ids: [],
-      package_id: 1,
+      project_ids: getProjectIds(),
+      package_ids,
     };
     createInvite(request);
   };
 
-  const { data: accountPackages } = useGetAccountPackagesByAccountId({
-    accountId: 1,
-  });
-
   const options = useMemo(
     () =>
-      accountPackages?.map((accountProject) => ({
-        value: accountProject.packages[0].id,
-        label: accountProject.packages[0].name,
-      })) || [],
+      accountPackages?.flatMap((accountProject) =>
+        Object.values(accountProject.packages).map((pkg) => ({
+          value: pkg.id,
+          label: pkg.name,
+        }))
+      ) || [],
     [accountPackages]
   );
 
@@ -190,7 +204,7 @@ export default function NewUserForm() {
                 <ControlledMultiSelect
                   multiple
                   selectAll
-                  name="project_ids"
+                  name="package_ids"
                   options={options}
                 />
               </When>

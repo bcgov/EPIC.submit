@@ -102,6 +102,7 @@ export const getAccountProjectsByAccountQueryOptions = ({
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });
+
 export const useGetAccountProjectsByAccount = ({
   accountId,
   searchOptions,
@@ -202,6 +203,7 @@ export const getAccountProjectsForStaffQueryOptions = ({
     queryFn: () => getAccountProjectsForStaff({ searchOptions }),
     ...defaultUseQueryOptions,
   });
+
 export const useGetAccountProjectsForStaff = ({
   searchOptions,
 }: UseGetProjectsForStaffParams) => {
@@ -228,5 +230,34 @@ export const useGetAccountPackagesByAccountId = ({
     accountId,
     searchOptions,
   });
+  return useQuery(options);
+};
+
+const getAccountProjectsByUserId = ({ userId }: { userId: number }) => {
+  // Initialize URL with base path and account ID
+  const url = `/projects/users/${userId}`;
+
+  return submitRequest<AccountProject[]>({
+    url,
+  });
+};
+
+type UseGetProjectsByUserIdParams = {
+  userId: number;
+};
+
+export const getAccountProjectsByUserQueryOptions = ({
+  userId,
+}: UseGetProjectsByUserIdParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.USER_PROJECTS, userId],
+    queryFn: () => getAccountProjectsByUserId({ userId }),
+    enabled: Boolean(userId),
+  });
+
+export const useGetAccountProjectsByUserId = ({
+  userId,
+}: UseGetProjectsByUserIdParams) => {
+  const options = getAccountProjectsByUserQueryOptions({ userId });
   return useQuery(options);
 };

@@ -19,16 +19,16 @@ const createInvitation = ({
   account_id,
   proponent_id,
   project_ids,
-  package_id,
+  package_ids,
   email,
   role_id,
 }: {
   account_id: number;
   proponent_id: number;
-  role_id: string;
+  role_id: number;
   email: string;
   project_ids: number[];
-  package_id: number;
+  package_ids: string[];
 }) => {
   return submitRequest({
     url: `/invitations`,
@@ -39,7 +39,7 @@ const createInvitation = ({
       role_id,
       email,
       project_ids,
-      package_id,
+      package_ids,
     },
   });
 };

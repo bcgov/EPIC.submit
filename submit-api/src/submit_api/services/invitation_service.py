@@ -116,7 +116,7 @@ class InvitationService:
 
         invitation = InvitationsModel(
             account_id=account_id,
-            project_ids=",".join(map(str, invite_data.get('project_ids', []))),
+            project_ids=invite_data.get('project_ids', []),
             token=token,
             email=invite_data.get('email'),
             created_by=invite_data.get('created_by'),
