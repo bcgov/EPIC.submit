@@ -52,6 +52,7 @@ class InvitationsResource(Resource):
         description="Invitation token created",
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Invalid input data")
+    @auth.require
     @cors.crossdomain(origin="*")
     def post():
         """Generate and persist an invitation token."""
