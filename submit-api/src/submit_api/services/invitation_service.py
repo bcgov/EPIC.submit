@@ -9,11 +9,15 @@ from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
+from submit_api.models.email_queue import EmailQueue as EmailQueueModel
+from submit_api.models.email_queue import EntityType
 from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
 from submit_api.models.role import Role as RoleModel
+from submit_api.models.role import RoleEnum
 from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
+from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 
 
 class InvitationService:
@@ -34,17 +38,28 @@ class InvitationService:
         proponent_id = invite_data.get('proponent_id')
         project_ids = invite_data.get('project_ids')
 
-        InvitationService._validate_fetch_role(role_id)
+        role = InvitationService._validate_fetch_role(role_id)
 
         with session_scope() as session:
             account = InvitationService._get_or_create_account(account_id, proponent_id, project_ids, session)
             session.flush()
             invitation = InvitationService._create_invitation_record(invite_data, account.id, token, session)
+            role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value and \
+                InvitationService._create_email_queue_record(invitation.id)
 
             return {
                 'invitation': invitation,
                 'url': InvitationService._generate_signup_url(token)
             }
+
+    @classmethod
+    def _create_email_queue_record(cls, invitation_id):
+        """Create an email queue record for an update request."""
+        email_queue = EmailQueueModel(
+            entity_id=invitation_id, entity_type=EntityType.INVITATION.value,
+            template_name=NEW_USER_INVITATION_EMAIL_TEMPLATE
+        )
+        email_queue.save()
 
     @staticmethod
     def accept_invitation(token, payload):

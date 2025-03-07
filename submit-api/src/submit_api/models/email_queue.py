@@ -23,6 +23,7 @@ class EntityType(Enum):
     """Enum for package type."""
 
     PACKAGE = 'PACKAGE'
+    INVITATION = 'INVITATION'
 
 
 class EmailQueue(BaseModel):
