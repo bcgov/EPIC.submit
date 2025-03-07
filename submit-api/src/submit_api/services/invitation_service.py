@@ -61,6 +61,15 @@ class InvitationService:
         )
         email_queue.save()
 
+    @classmethod
+    def _create_email_queue_record(cls, invitation_id):
+        """Create an email queue record for an update request."""
+        email_queue = EmailQueueModel(
+            entity_id=invitation_id, entity_type=EntityType.INVITATION.value,
+            template_name=NEW_USER_INVITATION_EMAIL_TEMPLATE
+        )
+        email_queue.save()
+
     @staticmethod
     def accept_invitation(token, payload):
         """Accept an invitation and assign access to an account."""
