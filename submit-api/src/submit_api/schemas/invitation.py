@@ -1,6 +1,6 @@
 """Invitation schema class.
 
-Manages the invitation
+Manages the invitation.
 """
 
 from marshmallow import Schema, fields
@@ -10,10 +10,10 @@ class CreateInvitationSchema(Schema):
     """Schema for creating an invitation."""
 
     proponent_id = fields.Int(required=True, description="Proponent ID")
-    account_id = fields.Int(required=True, description="Account ID")
+    account_id = fields.Int(required=False, description="Account ID")
     project_ids = fields.List(fields.Int(), required=True, description="List of Project IDs")
     role_id = fields.Int(required=True, description="Role ID")
-    package_id = fields.Int(required=False, allow_none=True, description="Package ID (For submission-specific roles)")
+    package_ids = fields.List(fields.Int(), required=False, allow_none=True)
     email = fields.Email(required=False, description="Optional email for client")
 
 
@@ -23,7 +23,7 @@ class InvitationSchema(Schema):
     id = fields.Int()
     account_id = fields.Int()
     project_ids = fields.List(fields.Int())
-    package_id = fields.Int(allow_none=True)
+    package_ids = fields.List(fields.Int(), allow_none=True)
     role_id = fields.Int()
     token = fields.Str()
     email = fields.Email(allow_none=True)

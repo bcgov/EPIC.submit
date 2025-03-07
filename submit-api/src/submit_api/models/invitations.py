@@ -4,13 +4,22 @@ Manages the invitation tokens for project onboarding.
 """
 from __future__ import annotations
 
-from datetime import datetime
+import enum
 import uuid
-from sqlalchemy import Column, ForeignKey, String, Integer, Text, TIMESTAMP
+from datetime import datetime
+
+from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
-from .db import db
+
+
+class InvitationStatus(enum.Enum):
+    """Enum for invitation statuses."""
+
+    PENDING = "pending"
+    REVOKED = "revoked"
+    USED = "used"
 
 
 class Invitations(BaseModel):
@@ -20,30 +29,15 @@ class Invitations(BaseModel):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     account_id = Column(Integer, ForeignKey('accounts.id'), nullable=False)
-    project_ids = Column(Text, nullable=False)  # Comma-separated project IDs
-    package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=True)
+    project_ids = Column(ARRAY(Integer), nullable=False)
+    package_ids = Column(ARRAY(Integer), nullable=True)
     token = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), nullable=True)  # Optional email for client
-    status = Column(String(50), default='pending', nullable=False)
+    status = Column(String(50), default=InvitationStatus.PENDING.value, nullable=False)
     expiry_date = Column(TIMESTAMP, default=datetime.utcnow)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
-
-    @classmethod
-    def create_invitation(cls, account_id, project_ids, created_by, email=None):
-        """Create a new invitation token."""
-        token = cls.generate_token()
-        invitation = cls(
-            account_id=account_id,
-            project_ids=','.join(map(str, project_ids)),
-            token=token,
-            created_by=created_by,
-            email=email
-        )
-        db.session.add(invitation)
-        db.session.commit()
-        return invitation
 
     @classmethod
     def validate_token(cls, token):
@@ -54,14 +48,15 @@ class Invitations(BaseModel):
         return None
 
     @classmethod
-    def mark_used(cls, token, used_by):
+    def mark_used(cls, token, used_by, session):
         """Mark an invitation token as used."""
         invitation = cls.query.filter_by(token=token).first()
         if invitation:
-            invitation.status = 'used'
+            invitation.status = InvitationStatus.USED.value
             invitation.used_by = used_by
             invitation.used_date = datetime.now()
-            db.session.commit()
+            session.add(invitation)
+            session.flush()
             return invitation
         return None
 

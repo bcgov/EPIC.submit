@@ -30,6 +30,20 @@ class AccountUser(BaseModel):
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
 
+    def to_dict(self):
+        """Convert AccountUser ORM object to dictionary."""
+        return {
+            "id": self.id,
+            "account_id": self.account_id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "full_name": self.full_name,
+            "position": self.position,
+            "work_email_address": self.work_email_address,
+            "work_contact_number": self.work_contact_number,
+            "user_id": self.user_id,
+        }
+
     @classmethod
     def create_account_user(cls, data, session=None) -> AccountUser:
         """Create account."""

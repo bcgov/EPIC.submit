@@ -15,6 +15,6 @@ class UserService:
         return user
 
     @classmethod
-    def create_user(cls, data):
+    def create_user(cls, data, session=None):
         """Create a new user."""
-        return User.create_user(data)
+        return User.create_user(data, session)

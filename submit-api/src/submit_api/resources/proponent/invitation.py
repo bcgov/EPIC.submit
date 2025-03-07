@@ -71,8 +71,8 @@ class InvitationsResource(Resource):
         return response, HTTPStatus.CREATED
 
 
-@cors_preflight("GET, DELETE, OPTIONS")
-@API.route("/<string:token>", methods=["GET", "DELETE", "OPTIONS"])
+@cors_preflight("GET, DELETE, OPTIONS, POST")
+@API.route("/<string:token>", methods=["GET", "DELETE", "OPTIONS", "POST"])
 class InvitationDetailResource(Resource):
     """Resource to manage individual invitations by token."""
 
@@ -108,10 +108,7 @@ class InvitationDetailResource(Resource):
 
         response = InvitationService.accept_invitation(
             token=token,
-            first_name=payload["first_name"],
-            last_name=payload["last_name"],
-            email=payload["email"],
-            password=payload["password"]
+            payload=payload
         )
 
         if "error" in response:

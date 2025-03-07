@@ -6,9 +6,12 @@ from urllib.parse import urljoin
 from flask import current_app
 
 from submit_api.exceptions import ResourceNotFoundError
+from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models.account import Account as AccountModel
-from submit_api.models.invitations import Invitations as InvitationsModel
+from submit_api.models.db import session_scope
+from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
 from submit_api.models.role import Role as RoleModel
+from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
 
@@ -29,38 +32,41 @@ class InvitationService:
         role_id = invite_data.get('role_id')
         account_id = invite_data.get('account_id')
         proponent_id = invite_data.get('proponent_id')
+        project_ids = invite_data.get('project_ids')
 
         InvitationService._validate_fetch_role(role_id)
 
-        account = InvitationService._get_or_create_account(account_id, proponent_id)
+        with session_scope() as session:
+            account = InvitationService._get_or_create_account(account_id, proponent_id, project_ids, session)
+            session.flush()
+            invitation = InvitationService._create_invitation_record(invite_data, account.id, token, session)
 
-        invitation = InvitationService._create_invitation_record(invite_data, account.id, token)
-
-        return {
-            'invitation': invitation,
-            'url': InvitationService._generate_signup_url(token)
-        }
+            return {
+                'invitation': invitation,
+                'url': InvitationService._generate_signup_url(token)
+            }
 
     @staticmethod
     def accept_invitation(token, payload):
         """Accept an invitation and assign access to an account."""
-        invitation, error = InvitationsModel.validate_token(token)
-        if error:
-            return error
+        invitation = InvitationsModel.validate_token(token)
+        if not invitation:
+            return {"error": "Invalid invitation token"}
 
-        user = InvitationService._create_user(payload)
+        with session_scope() as session:
+            user = InvitationService._create_user(payload, session)
 
-        account_user = InvitationService._create_account_user(user.id, invitation.account_id, payload)
+            account_user = InvitationService._create_account_user(user.id, invitation.account_id, payload, session)
 
-        role = InvitationService._assign_user_role(account_user.id, invitation)
+            role = InvitationService._assign_user_role(account_user.id, invitation, session)
 
-        InvitationsModel.mark_used(token, account_user.user_id)
+            InvitationsModel.mark_used(token, account_user.user_id, session)
 
-        return {
-            "message": "User access granted successfully",
-            "user_id": account_user.user_id,
-            "role": role
-        }
+            return {
+                "message": "User access granted successfully",
+                "user_id": account_user.user_id,
+                "role": role
+            }
 
     @staticmethod
     def _validate_fetch_role(role_id):
@@ -71,22 +77,40 @@ class InvitationService:
         return role
 
     @staticmethod
-    def _get_or_create_account(account_id, proponent_id):
+    def _get_or_create_account(account_id, proponent_id, project_ids, session):
         """Retrieve or create an account based on proponent_id or account_id."""
         if account_id:
-            return AccountModel.find_by_id(account_id)
+            return InvitationService._get_account_by_id(account_id)
 
         if proponent_id:
-            account = AccountModel.get_by_proponent_id(proponent_id)
-            if not account:
-                account_data = {'proponent_id': proponent_id}
-                account = AccountModel.create_account(account_data)
-            return account
+            return InvitationService._get_or_create_account_by_proponent(proponent_id, project_ids, session)
 
         raise ResourceNotFoundError("No valid account found for the provided data.")
 
     @staticmethod
-    def _create_invitation_record(invite_data, account_id, token):
+    def _get_account_by_id(account_id):
+        """Retrieve an account by account_id."""
+        return AccountModel.find_by_id(account_id)
+
+    @staticmethod
+    def _get_or_create_account_by_proponent(proponent_id, project_ids, session):
+        """Retrieve or create an account by proponent_id."""
+        account = AccountModel.get_by_proponent_id(proponent_id)
+        if not account:
+            account_data = {'proponent_id': proponent_id}
+            account = AccountModel.create_account(account_data, session)
+            InvitationService._create_account_projects(account.id, project_ids, session)
+        return account
+
+    @staticmethod
+    def _create_account_projects(account_id, project_ids, session):
+        """Create account projects."""
+        for project_id in project_ids:
+            AccountProjectModel.create_account_project(account_id, project_id, session)
+        session.flush()
+
+    @staticmethod
+    def _create_invitation_record(invite_data, account_id, token, session):
         """Create and persist an invitation record."""
         expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
 
@@ -97,22 +121,22 @@ class InvitationService:
             email=invite_data.get('email'),
             created_by=invite_data.get('created_by'),
             role_id=invite_data.get('role_id'),
-            package_id=invite_data.get('package_id'),
+            package_ids=invite_data.get('package_ids'),
             expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
         )
-        InvitationsModel.save(invitation)
+        session.add(invitation)
         return invitation
 
     @staticmethod
-    def _create_user(payload):
+    def _create_user(payload, session):
         """Create a user and return the user instance."""
         return UserService.create_user({
             "auth_guid": payload.get("auth_guid"),
-            "type": payload.get("type")
-        })
+            "type": UserType.PROPONENT  # TODO: Change this to accept user type from the invitation
+        }, session)
 
     @staticmethod
-    def _create_account_user(user_id, account_id, payload):
+    def _create_account_user(user_id, account_id, payload, session):
         """Create an account user entry."""
         return AccountUserService.create_account_user({
             "account_id": account_id,
@@ -122,17 +146,17 @@ class InvitationService:
             "work_contact_number": payload.get("work_contact_number"),
             "position": payload.get("position"),
             "user_id": user_id
-        })
+        }, session)
 
     @staticmethod
-    def _assign_user_role(account_user_id, invitation):
+    def _assign_user_role(account_user_id, invitation, session):
         """Assign the role to the user."""
-        return AccountUserService.assign_role(
-            account_user_id,
-            invitation.role_id,
-            invitation.account_project_id,
-            invitation.package_id,
-        )
+        return AccountUserService.assign_role({
+            "account_user_id": account_user_id,
+            "role_id": invitation.role_id,
+            "account_project_id": None,  # TODO: Add account_project_ids for users onboarded by project admin
+            "package_ids": invitation.package_ids,
+        }, session)
 
     @staticmethod
     def _generate_signup_url(token):
@@ -152,7 +176,7 @@ class InvitationService:
             return {"error": "Invalid invitation"}, False
 
         # Check for pending status and expiry date
-        if invitation.status != 'pending':
+        if invitation.status != InvitationStatus.PENDING.value:
             return {"error": "Invitation is not valid"}, False
 
         if invitation.expiry_date < datetime.datetime.utcnow():
@@ -165,7 +189,7 @@ class InvitationService:
         """Revoke an invitation by updating its status."""
         invitation = InvitationsModel.query.filter_by(token=token, status='pending').first()
         if invitation:
-            invitation.status = 'revoked'
+            invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
             return True
         return False

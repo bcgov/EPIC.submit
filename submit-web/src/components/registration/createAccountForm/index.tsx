@@ -6,18 +6,17 @@ import { useAuth } from "react-oidc-context";
 import { Banner } from "@/components/registration/Banner";
 import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
-import { useAccount } from "@/store/accountStore";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
-import {
-  CreateAccountResponse,
-  useCreateAccount,
-} from "@/hooks/api/useAccounts";
 import { Save } from "@mui/icons-material";
 import { CircularProgress, Divider, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
-import { useEffect, useState } from "react";
+import {
+  AcceptInvitationResponse,
+  useAcceptInvitation,
+} from "@/hooks/api/useInvitations";
+import { useAccount } from "@/store/accountStore";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -34,29 +33,19 @@ export type CreateAccountFormSchema = yup.InferType<typeof createAccountSchema>;
 
 function CreateAccountForm() {
   const { user } = useAuth();
-  const [proponent_id, setProponentId] = useState<number | null>(null);
+  const { setStep, invitation } = useCreateAccountForm();
   const { setAccount } = useAccount();
-  const { setStep } = useCreateAccountForm();
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const proponent_id = params.get("proponent_id");
-    if (proponent_id) {
-      setProponentId(Number(proponent_id));
-    }
-  }, []);
-
-  const onCreateAccountSuccess = (data: CreateAccountResponse) => {
-    setAccount({
-      proponentId: data.proponent_id,
-      accountId: data.id,
-      isLoading: false,
-    });
+  const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
+    setAccount({
+      userId: data.user_id,
+    });
   };
 
   const { mutate: doCreateAccount, isPending: isCreatingAccount } =
-    useCreateAccount({
+    useAcceptInvitation({
+      token: invitation?.token,
       onSuccess: onCreateAccountSuccess,
     });
 
@@ -68,7 +57,7 @@ function CreateAccountForm() {
   const { handleSubmit } = methods;
 
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
-    if (!user?.profile.sub || !proponent_id) return;
+    if (!user?.profile.sub || !invitation) return;
     const accountData = {
       first_name: data.givenName,
       last_name: data.surname,
@@ -76,7 +65,7 @@ function CreateAccountForm() {
       work_contact_number: data.phone,
       work_email_address: data.email,
       auth_guid: user?.profile.sub,
-      proponent_id: proponent_id,
+      proponent_id: invitation.account_id,
     };
     doCreateAccount(accountData);
   };
