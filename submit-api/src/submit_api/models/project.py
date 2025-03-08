@@ -6,9 +6,11 @@ from __future__ import annotations
 
 from sqlalchemy import Column
 
+from .account_project import AccountProject
 from .account import Account
 from .invitations import Invitations
 from .db import db
+from ..enums.invitation_status import InvitationStatus
 
 
 class Project(db.Model):
@@ -70,8 +72,11 @@ class Project(db.Model):
         if include_invitations:
             account = Account.query.filter_by(proponent_id=proponent_id).first()
             if account:
-                invitations = Invitations.query.filter_by(account_id=account.id).all()
+                invitations = Invitations.query.filter_by(account_id=account.id, status=InvitationStatus.PENDING.value).all()
                 proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
+            if include_projects:
+                account_projects = AccountProject.query.filter_by(account_id=account.id).all()
+                proponent_dict["account_projects"] = [account_project.project.to_dict() for account_project in account_projects]
 
         if include_projects:
             projects = cls.query.filter_by(proponent_id=proponent_id).all()

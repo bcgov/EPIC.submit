@@ -47,20 +47,6 @@ function ProponentPage() {
     }
   }, [isError]);
 
-  if (isError) {
-    return (
-      <PageGrid>
-        <Grid item xs={12}>
-          <ContentBox
-            mainLabel="Generate URL"
-            sx={{ width: "100%", height: "fit-content" }}
-            contentBoxVariant="secondary"
-          />
-        </Grid>
-      </PageGrid>
-    );
-  }
-
   return (
     <PageGrid>
       <Grid item xs={12}>
@@ -69,7 +55,7 @@ function ProponentPage() {
           sx={{ width: "100%", height: "fit-content" }}
           contentBoxVariant="secondary"
         >
-          <Typography variant="h4">{proponent.name}</Typography>
+          <Typography variant="h4">{proponent?.name}</Typography>
         </ContentBox>
       </Grid>
     </PageGrid>

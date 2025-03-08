@@ -4,7 +4,6 @@ Manages the invitation tokens for project onboarding.
 """
 from __future__ import annotations
 
-import enum
 import uuid
 from datetime import datetime
 
@@ -12,14 +11,7 @@ from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
-
-
-class InvitationStatus(enum.Enum):
-    """Enum for invitation statuses."""
-
-    PENDING = "pending"
-    REVOKED = "revoked"
-    USED = "used"
+from ..enums.invitation_status import InvitationStatus
 
 
 class Invitations(BaseModel):
