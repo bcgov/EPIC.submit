@@ -25,18 +25,16 @@ const getProponent = (
   proponentId: number,
   options: GetProponentOptions = {},
 ) => {
-  const headers: Record<string, string> = {};
+  const params: Record<string, string> = {};
   if (options.includeProjects) {
-    headers["include-projects"] = String(Boolean(options.includeProjects));
+    params["include-projects"] = String(Boolean(options.includeProjects));
   }
   if (options.includeInvitations) {
-    headers["include-invitations"] = String(
-      Boolean(options.includeInvitations),
-    );
+    params["include-invitations"] = String(Boolean(options.includeInvitations));
   }
   return submitRequest<Proponent>({
     url: `staff/proponents/${proponentId}`,
-    params: headers,
+    params,
   });
 };
 
