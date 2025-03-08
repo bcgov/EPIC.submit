@@ -39,6 +39,20 @@ class Invitations(BaseModel):
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
 
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "account_id": self.account_id,
+            "project_ids": self.project_ids,
+            "package_ids": self.package_ids,
+            "token": self.token,
+            "email": self.email,
+            "status": self.status,
+            "expiry_date": self.expiry_date,
+            "role_id": self.role_id
+        }
+
     @classmethod
     def validate_token(cls, token):
         """Validate token and check if it is still active."""

@@ -6,6 +6,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/staff/_staffLayout/user-management/")({
   component: UserManagement,
+  meta: () => [{ title: "user Management", path: "/staff/user-management" }],
 });
 
 function UserManagement() {

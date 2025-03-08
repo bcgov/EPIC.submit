@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from sqlalchemy import Column
 
+from .account import Account
+from .invitations import Invitations
 from .db import db
 
 
@@ -25,6 +27,17 @@ class Project(db.Model):
         db.Index('ix_projects_proponent_id', 'proponent_id'),
     )
 
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "proponent_id": self.proponent_id,
+            "proponent_name": self.proponent_name,
+            "ea_certificate": self.ea_certificate,
+            "epic_guid": self.epic_guid,
+        }
+
     @classmethod
     def get_all_projects_in_ids(cls, project_ids):
         """Get all projects in the given project ids."""
@@ -41,3 +54,26 @@ class Project(db.Model):
         proponents = (cls.query.with_entities(cls.proponent_id, cls.proponent_name)
                       .distinct().order_by(cls.proponent_name).all())
         return proponents
+
+    @classmethod
+    def get_proponent_by_id(cls, proponent_id, include_invitations=False, include_projects=False):
+        """Get all proponents."""
+        proponent = cls.query.filter_by(proponent_id=proponent_id).first()
+        if not proponent:
+            return None
+
+        proponent_dict = {
+            "id": proponent.proponent_id,
+            "name": proponent.proponent_name,
+        }
+
+        if include_invitations:
+            account = Account.query.filter_by(proponent_id=proponent_id).first()
+            if account:
+                invitations = Invitations.query.filter_by(account_id=account.id).all()
+                proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
+
+        if include_projects:
+            projects = cls.query.filter_by(proponent_id=proponent_id).all()
+            proponent_dict["projects"] = [project.to_dict() for project in projects]
+        return proponent_dict

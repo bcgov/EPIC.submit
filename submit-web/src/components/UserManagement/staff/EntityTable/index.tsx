@@ -1,5 +1,5 @@
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
-import { useProponents } from "@/hooks/api/useProponents";
+import { useGetProponents } from "@/hooks/api/useProponents";
 import {
   Box,
   Table,
@@ -19,7 +19,7 @@ const DEFAULT_ROWS_PER_PAGE = 10;
 const DEFAULT_PAGE = 0;
 const RADIX = 10;
 export const EntityTable = (props: TableProps) => {
-  const { data, isPending, isError } = useProponents();
+  const { data, isPending, isError } = useGetProponents();
   const [proponents, setProponents] = useState<Proponent[]>([]);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
