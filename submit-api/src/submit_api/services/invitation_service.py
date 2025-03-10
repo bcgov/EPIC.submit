@@ -33,23 +33,28 @@ class InvitationService:
         """Create and persist a new invitation token."""
         token = InvitationService.generate_uuid_token()
 
-        role_id = invite_data.get('role_id')
+        role_name = invite_data.get('role_name')
         account_id = invite_data.get('account_id')
         proponent_id = invite_data.get('proponent_id')
         project_ids = invite_data.get('project_ids')
 
-        role = InvitationService._validate_fetch_role(role_id)
+        role = InvitationService._validate_fetch_role(role_name)
 
         with session_scope() as session:
             account = InvitationService._get_or_create_account(account_id, proponent_id, project_ids, session)
             session.flush()
-            invitation = InvitationService._create_invitation_record(invite_data, account.id, token, session)
+            invitation = InvitationService._create_invitation_record(invite_data,
+                                                                     role,
+                                                                     account.id,
+                                                                     token,
+                                                                     session)
             if role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
                 InvitationService._create_email_queue_record(invitation.id, session)
 
             return {
                 'invitation': invitation,
-                'url': InvitationService._generate_signup_url(token)
+                'url': InvitationService._generate_signup_url(token),
+                'role_name': role_name
             }
 
     @classmethod
@@ -85,11 +90,11 @@ class InvitationService:
             }
 
     @staticmethod
-    def _validate_fetch_role(role_id):
+    def _validate_fetch_role(role_name):
         """Validate if the given role ID exists, otherwise throw an exception."""
-        role = RoleModel.find_by_id(role_id)
+        role = RoleModel.get_by_name(role_name)
         if not role:
-            raise ResourceNotFoundError(f"Invalid role ID: {role_id}")
+            raise ResourceNotFoundError(f"Invalid role name: {role_name}")
         return role
 
     @staticmethod
@@ -126,17 +131,17 @@ class InvitationService:
         session.flush()
 
     @staticmethod
-    def _create_invitation_record(invite_data, account_id, token, session):
+    def _create_invitation_record(invite_data, role, account_id, token, session):
         """Create and persist an invitation record."""
         expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
 
         invitation = InvitationsModel(
             account_id=account_id,
-            project_ids=",".join(map(str, invite_data.get('project_ids', []))),
+            project_ids=invite_data.get('project_ids', []),
             token=token,
             email=invite_data.get('email'),
             created_by=invite_data.get('created_by'),
-            role_id=invite_data.get('role_id'),
+            role_id=role.id,
             package_ids=invite_data.get('package_ids'),
             expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
         )

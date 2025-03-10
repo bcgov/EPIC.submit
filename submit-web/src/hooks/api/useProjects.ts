@@ -4,6 +4,16 @@ import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { Options } from "./types";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
+interface GetPackagesByAccountIdResponse {
+  project_id: string;
+  packages: [
+    {
+      id: number;
+      name: string;
+    },
+  ];
+}
+
 const loadProjectsByProponentId = (proponentId?: number) => {
   if (!proponentId) {
     return Promise.reject(new Error("Proponent ID is required"));
@@ -56,6 +66,19 @@ const getAccountProjectsByAccountId = ({
   });
 };
 
+const getAccountPackagesByAccountId = ({
+  accountId,
+  searchOptions,
+}: GetProjectsByAccountParams) => {
+  // Initialize URL with base path and account ID
+  const url = `/accounts/${accountId}/packages`;
+
+  return submitRequest<GetPackagesByAccountIdResponse[]>({
+    url,
+    params: searchOptions,
+  });
+};
+
 export const useAddProjects = (options?: Options) => {
   return useMutation({
     mutationFn: addProjects,
@@ -79,6 +102,7 @@ export const getAccountProjectsByAccountQueryOptions = ({
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });
+
 export const useGetAccountProjectsByAccount = ({
   accountId,
   searchOptions,
@@ -179,10 +203,33 @@ export const getAccountProjectsForStaffQueryOptions = ({
     queryFn: () => getAccountProjectsForStaff({ searchOptions }),
     ...defaultUseQueryOptions,
   });
+
 export const useGetAccountProjectsForStaff = ({
   searchOptions,
 }: UseGetProjectsForStaffParams) => {
   const options = getAccountProjectsForStaffQueryOptions({ searchOptions });
+  return useQuery(options);
+};
+
+export const getAccountPackagesByAccountIdQueryOptions = ({
+  accountId,
+  searchOptions,
+}: UseGetProjectsByAccountParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, accountId, searchOptions],
+    queryFn: () => getAccountPackagesByAccountId({ accountId, searchOptions }),
+    enabled: Boolean(accountId),
+    ...defaultUseQueryOptions,
+  });
+
+export const useGetAccountPackagesByAccountId = ({
+  accountId,
+  searchOptions,
+}: UseGetProjectsByAccountParams) => {
+  const options = getAccountPackagesByAccountIdQueryOptions({
+    accountId,
+    searchOptions,
+  });
   return useQuery(options);
 };
 

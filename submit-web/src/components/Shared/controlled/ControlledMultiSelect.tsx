@@ -1,8 +1,8 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import { TextField, TextFieldProps, Autocomplete } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 
-type OptionType = { value: string; label: string };
+export type OptionType = { value: string; label: string };
 
 type IFormInputProps = {
   name: string;
