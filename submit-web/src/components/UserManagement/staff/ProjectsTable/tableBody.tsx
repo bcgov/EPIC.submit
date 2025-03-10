@@ -73,7 +73,7 @@ export const ProjectTableBody = ({
     <>
       {projects.map((project) => (
         <TableRow key={project.id}>
-          <PlainTableCell width="50%">
+          <PlainTableCell>
             <MuiLink
               sx={{
                 textDecoration: "none",
@@ -88,14 +88,12 @@ export const ProjectTableBody = ({
               {project.name}
             </MuiLink>
           </PlainTableCell>
-          <PlainTableCell>
-            <RegistrationUrlCell
-              pendingInvitation={project_invitation_map.get(project.id)}
-              accountProjectId={project_account_project_map.get(project.id)}
-              project={project}
-              addInvitation={addInvitation}
-            />
-          </PlainTableCell>
+          <RegistrationUrlCell
+            pendingInvitation={project_invitation_map.get(project.id)}
+            accountProjectId={project_account_project_map.get(project.id)}
+            project={project}
+            addInvitation={addInvitation}
+          />
         </TableRow>
       ))}
     </>

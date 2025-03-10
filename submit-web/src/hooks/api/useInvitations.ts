@@ -7,21 +7,21 @@ import {
 import { QUERY_KEY } from "./constants";
 import { Invitation } from "@/models/Invitation";
 import { submitRequest } from "@/utils/axiosUtils";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 export const useCreateInvitation = (options?: Options) => {
   return useMutation({
     mutationFn: createInvitation,
     ...options,
-    onSuccess: () => {
-      notify.success("Invitation sent successfully");
-    },
-    onError: () => {
-      notify.error("Failed to send invitation");
-    },
   });
 };
-
+type CreateInvitation = {
+  account_id?: number;
+  proponent_id: number;
+  role_name: string;
+  email?: string;
+  project_ids: number[];
+  package_ids?: number[];
+};
 const createInvitation = ({
   account_id,
   proponent_id,
@@ -29,14 +29,7 @@ const createInvitation = ({
   package_ids,
   email,
   role_name,
-}: {
-  account_id?: number;
-  proponent_id: number;
-  role_name: string;
-  email: string;
-  project_ids: number[];
-  package_ids?: string[];
-}) => {
+}: CreateInvitation) => {
   return submitRequest({
     url: `/invitations`,
     method: "post",
@@ -108,34 +101,5 @@ export const useAcceptInvitation = ({
   return useMutation({
     mutationFn: (data: CreateAccountRequest) => acceptInvitation(token, data),
     ...rest,
-  });
-};
-
-type CreateInvitation = {
-  proponent_id: number;
-  account_id?: number;
-  project_ids: number[];
-  role_id: number;
-  package_ids?: number[];
-  email?: string;
-};
-const createInvitation = (data: CreateInvitation) => {
-  return submitRequest<Invitation>({
-    url: "/invitations",
-    method: "post",
-    data,
-  });
-};
-
-type UseCreateInvitationParams = UseMutationOptions<
-  Invitation,
-  Error,
-  CreateInvitation,
-  unknown
->;
-export const useCreateInvitation = (params: UseCreateInvitationParams) => {
-  return useMutation({
-    mutationFn: (data: CreateInvitation) => createInvitation(data),
-    ...params,
   });
 };

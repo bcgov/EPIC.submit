@@ -35,8 +35,6 @@ export const ProjectsTable = (props: TableProps) => {
     }
   }, [isError]);
 
-  console.log("proponent", proponent);
-
   return (
     <Box>
       <TableContainer>

@@ -76,7 +76,7 @@ export const SubmitTablePrimaryRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any)
-      : child
+      : child,
   );
 
   return (
@@ -109,7 +109,7 @@ export const SubmitPrimaryRowTableCell = styled(TableCell)<{ error?: boolean }>(
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
     },
-  })
+  }),
 );
 
 export const SubmitSubTableCell = styled(TableCell)(() => ({
