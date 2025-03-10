@@ -3,7 +3,7 @@ import { TableRow } from "@mui/material";
 import { SubmitLink } from "../../Shared/SubmitLink";
 import UserStatusChip from "../../UserStatusChip";
 import { AccountUserWithRole } from "@/models/AccountUser";
-import { roleDetails } from "./NewUser/FormOptions";
+import { roleDetails } from "@/models/Role";
 
 export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   return (
