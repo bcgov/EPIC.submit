@@ -16,6 +16,9 @@ export const useCreateInvitation = (options?: Options) => {
     onSuccess: () => {
       notify.success("Invitation sent successfully");
     },
+    onError: () => {
+      notify.error("Failed to send invitation");
+    },
   });
 };
 
