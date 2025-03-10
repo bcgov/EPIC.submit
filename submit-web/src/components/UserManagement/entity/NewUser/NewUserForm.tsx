@@ -14,7 +14,7 @@ import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Form from "@/components/Shared/Forms/common";
-import { FormOptions, Role } from "./FormOptions";
+import { FormOptions } from "./FormOptions";
 import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
 import ControlledMultiSelect, {
@@ -25,15 +25,17 @@ import { useMemo } from "react";
 import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
 import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
-  role: yup.string().required("Please select an option."),
+  role_name: yup.string().required("Please select an option."),
   package_ids: yup
     .array()
     .of(yup.string()) // Ensures project IDs are strings
-    .when("role", {
-      is: (value: string) => value === Role.SPECIFIC_SUBMISSION_CONTRIBUTOR,
+    .when("role_name", {
+      is: (value: string) =>
+        value === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
       then: (schema) => schema.min(1, "Please select at least one project."),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -55,7 +57,7 @@ export default function NewUserForm() {
     mode: "onSubmit",
     defaultValues: {
       email: "",
-      role: "",
+      role_name: "",
       package_ids: [],
     },
   });
@@ -66,12 +68,12 @@ export default function NewUserForm() {
   } = methods;
   const { watch } = methods;
 
-  const selectedRole = watch("role"); // Watch the selected radio value
+  const selectedRole = watch("role_name"); // Watch the selected radio value
 
   const getProjectIds = () => {
     const packageIds = watch("package_ids") || [];
     const isSpecificSubmission =
-      selectedRole === Role.SPECIFIC_SUBMISSION_CONTRIBUTOR;
+      selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
     return (
       accountPackages
         ?.filter(
@@ -84,15 +86,15 @@ export default function NewUserForm() {
   };
 
   const handleCompleteForm = (formData: NewUserSchema) => {
-    const { email, package_ids } = formData;
+    const { email, role_name, package_ids } = formData;
 
     const request = {
       proponent_id: proponentId,
       account_id: accountId,
-      role_id: 1,
+      role_name,
       email,
       project_ids: getProjectIds(),
-      package_ids: package_ids,
+      package_ids,
     };
 
     createInvite(request);
@@ -102,7 +104,7 @@ export default function NewUserForm() {
     () =>
       accountPackages?.flatMap((accountProject) =>
         Object.values(accountProject.packages).map((pkg) => ({
-          value: String(pkg.id), // ✅ Alternative way to convert number to string
+          value: String(pkg.id),
           label: pkg.name,
         }))
       ) || [],
@@ -194,13 +196,14 @@ export default function NewUserForm() {
               >
                 What permissions should this user have?
               </Typography>
-              <ControlledRadioGroup name="role">
-                <FormOptions error={Boolean(errors["role"])} />
+              <ControlledRadioGroup name="role_name">
+                <FormOptions error={Boolean(errors["role_name"])} />
               </ControlledRadioGroup>
 
               <When
                 condition={
-                  selectedRole === Role.SPECIFIC_SUBMISSION_CONTRIBUTOR
+                  selectedRole ===
+                  USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
                 }
               >
                 <Typography sx={{ fontWeight: 700 }}>

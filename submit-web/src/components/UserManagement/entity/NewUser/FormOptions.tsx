@@ -1,28 +1,26 @@
 import { SubmitRadio } from "@/components/Shared/SubmitRadio";
 import { IconButton, Tooltip } from "@mui/material";
 import { Info } from "@mui/icons-material";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 type FormOptionsProps = {
   error: boolean;
   disabled?: boolean;
 };
 
-export enum Role {
-  PROJECT_ADMIN = "PROJECT_ADMIN",
-  SUBMISSION_ADMIN = "SUBMISSION_ADMIN",
-  SPECIFIC_SUBMISSION_CONTRIBUTOR = "SPECIFIC_SUBMISSION_CONTRIBUTOR",
-}
-
-const roleDetails: Record<Role, { label: string; info: string }> = {
-  [Role.PROJECT_ADMIN]: {
+const roleDetails: Record<
+  USER_MANAGEMENT_ROLE,
+  { label: string; info: string }
+> = {
+  [USER_MANAGEMENT_ROLE.PROJECT_ADMIN]: {
     label: "Project Administrator",
     info: "Full access to all submissions (including creating new submissions and submitting to EAO), manage users, and system settings.",
   },
-  [Role.SUBMISSION_ADMIN]: {
+  [USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN]: {
     label: "Collaborator - All Submissions",
     info: "Access all existing submissions to view and contribute.",
   },
-  [Role.SPECIFIC_SUBMISSION_CONTRIBUTOR]: {
+  [USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR]: {
     label: "Collaborator - Specific Submissions",
     info: "Access is limited to specific submissions to view and contribute.",
   },
