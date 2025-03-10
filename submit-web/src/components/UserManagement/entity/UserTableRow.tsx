@@ -2,9 +2,10 @@ import { PlainTableCell } from "@/components/Shared/Table/common";
 import { TableRow } from "@mui/material";
 import { SubmitLink } from "../../Shared/SubmitLink";
 import UserStatusChip from "../../UserStatusChip";
-import { AccountUser } from "@/models/AccountUser";
+import { AccountUserWithRole } from "@/models/AccountUser";
+import { roleDetails } from "./NewUser/FormOptions";
 
-export default function UserTableRow({ user }: { user: AccountUser }) {
+export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   return (
     <TableRow>
       <PlainTableCell align="left" width={"35%"}>
@@ -14,10 +15,10 @@ export default function UserTableRow({ user }: { user: AccountUser }) {
         <SubmitLink>{user.full_name}</SubmitLink>
       </PlainTableCell>
       <PlainTableCell align="left" width={"25%"}>
-        {user.position}
+        {user.roles[0] && roleDetails[user.roles[0].role_name].label}
       </PlainTableCell>
       <PlainTableCell align="left" width={"15%"}>
-        <UserStatusChip status={"INVITED"} />
+        <UserStatusChip status={user.status} />
       </PlainTableCell>
     </TableRow>
   );
