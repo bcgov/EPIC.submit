@@ -14,3 +14,9 @@ export const EPIC_SUBMIT_ROLE = Object.freeze<
   extended_eao_edit: "extended_eao_edit",
   proponent_create: "proponent_create",
 });
+
+export enum USER_MANAGEMENT_ROLE {
+  PROJECT_ADMIN = "PROJECT_ADMIN",
+  SUBMISSION_ADMIN = "SUBMISSION_ADMIN",
+  SPECIFIC_SUBMISSION_CONTRIBUTOR = "SPECIFIC_SUBMISSION_CONTRIBUTOR",
+}

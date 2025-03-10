@@ -17,19 +17,25 @@ import Form from "@/components/Shared/Forms/common";
 import { FormOptions } from "./FormOptions";
 import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
-import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
-import ControlledMultiSelect from "@/components/Shared/controlled/ControlledMultiSelect";
+import ControlledMultiSelect, {
+  OptionType,
+} from "@/components/Shared/controlled/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
+import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
+import { useCreateInvitation } from "@/hooks/api/useInvitations";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
-  applicationAccess: yup.string().required("Please select an option."),
-  project_ids: yup
+  role_name: yup.string().required("Please select an option."),
+  package_ids: yup
     .array()
     .of(yup.string()) // Ensures project IDs are strings
-    .when("applicationAccess", {
-      is: (value: string) => value === "CollaboratorSpecific", // ✅ Ensure correct type comparison
+    .when("role_name", {
+      is: (value: string) =>
+        value === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
       then: (schema) => schema.min(1, "Please select at least one project."),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -38,16 +44,21 @@ const newUser = yup.object().shape({
 type NewUserSchema = yup.InferType<typeof newUser>;
 
 export default function NewUserForm() {
-  const { accountId } = useAccount();
+  const { accountId, proponentId } = useAccount();
   const navigate = useNavigate();
+  const { mutate: createInvite, isPending: isPendingInvitation } =
+    useCreateInvitation();
+  const { data: accountPackages } = useGetAccountPackagesByAccountId({
+    accountId: 1,
+  });
 
   const methods = useForm<NewUserSchema>({
     resolver: yupResolver(newUser),
     mode: "onSubmit",
     defaultValues: {
       email: "",
-      applicationAccess: "",
-      project_ids: [],
+      role_name: "",
+      package_ids: [],
     },
   });
 
@@ -57,24 +68,47 @@ export default function NewUserForm() {
   } = methods;
   const { watch } = methods;
 
-  const selectedRole = watch("applicationAccess"); // Watch the selected radio value
+  const selectedRole = watch("role_name"); // Watch the selected radio value
 
-  const handleCompleteForm = (formData: NewUserSchema) => {
-    // eslint-disable-next-line no-console
-    console.log(formData);
+  const getProjectIds = () => {
+    const packageIds = watch("package_ids") || [];
+    const isSpecificSubmission =
+      selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
+    return (
+      accountPackages
+        ?.filter(
+          ({ packages }) =>
+            !isSpecificSubmission ||
+            packages.some(({ id }) => packageIds.includes(id.toString()))
+        )
+        .map(({ project_id }) => Number(project_id)) || []
+    );
   };
 
-  const { data: accountProjects } = useGetAccountProjectsByAccount({
-    accountId,
-  });
+  const handleCompleteForm = (formData: NewUserSchema) => {
+    const { email, role_name, package_ids } = formData;
 
-  const options = useMemo(
+    const request = {
+      proponent_id: proponentId,
+      account_id: accountId,
+      role_name,
+      email,
+      project_ids: getProjectIds(),
+      package_ids,
+    };
+
+    createInvite(request);
+  };
+
+  const options: OptionType[] = useMemo(
     () =>
-      accountProjects?.map((accountProject) => ({
-        value: accountProject.project.id.toString(),
-        label: accountProject.project.name,
-      })) || [],
-    [accountProjects]
+      accountPackages?.flatMap((accountProject) =>
+        Object.values(accountProject.packages).map((pkg) => ({
+          value: String(pkg.id),
+          label: pkg.name,
+        }))
+      ) || [],
+    [accountPackages]
   );
 
   return (
@@ -162,24 +196,31 @@ export default function NewUserForm() {
               >
                 What permissions should this user have?
               </Typography>
-              <ControlledRadioGroup name="applicationAccess">
-                <FormOptions error={Boolean(errors["applicationAccess"])} />
+              <ControlledRadioGroup name="role_name">
+                <FormOptions error={Boolean(errors["role_name"])} />
               </ControlledRadioGroup>
 
-              <When condition={selectedRole === "CollaboratorSpecific"}>
+              <When
+                condition={
+                  selectedRole ===
+                  USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
+                }
+              >
                 <Typography sx={{ fontWeight: 700 }}>
                   Which Submission(s) would you like to assign that user to?
                 </Typography>
                 <ControlledMultiSelect
                   multiple
                   selectAll
-                  name="project_ids"
+                  name="package_ids"
                   options={options}
                 />
               </When>
 
               <Stack direction="row" spacing={2}>
-                <Button type="submit">Add User</Button>
+                <LoadingButton type="submit" loading={isPendingInvitation}>
+                  Add User
+                </LoadingButton>
                 <Button
                   variant="text"
                   onClick={() => navigate({ to: "/proponent/user-management" })}
