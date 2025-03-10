@@ -12,11 +12,11 @@ import {
   TableProps,
   TableRow,
 } from "@mui/material";
-import { ProjectTableBody } from "./tableBody";
 import { useEffect } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import { ProjectTableBody } from "./tableBody";
 
 export const ProjectsTable = (props: TableProps) => {
   const { proponentId } = useParams({
@@ -35,13 +35,17 @@ export const ProjectsTable = (props: TableProps) => {
     }
   }, [isError]);
 
+  console.log("proponent", proponent);
+
   return (
     <Box>
       <TableContainer>
         <Table {...props}>
           <TableHead>
             <TableRow>
-              <SubmitTableHeadCell>Entity</SubmitTableHeadCell>
+              <SubmitTableHeadCell>Projects</SubmitTableHeadCell>
+              <SubmitTableHeadCell>URL</SubmitTableHeadCell>
+              <SubmitTableHeadCell />
             </TableRow>
           </TableHead>
           <TableBody>

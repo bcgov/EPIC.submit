@@ -2,6 +2,7 @@ import { ContentBox } from "@/components/Shared/ContentBox";
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { ProjectsTable } from "@/components/UserManagement/staff/ProjectsTable";
 import { getProponentOptions } from "@/hooks/api/useProponents";
 import { Grid, Typography } from "@mui/material";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -56,6 +57,7 @@ function ProponentPage() {
           contentBoxVariant="secondary"
         >
           <Typography variant="h4">{proponent?.name}</Typography>
+          <ProjectsTable />
         </ContentBox>
       </Grid>
     </PageGrid>

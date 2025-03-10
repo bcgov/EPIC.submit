@@ -68,17 +68,21 @@ class Project(db.Model):
             "id": proponent.proponent_id,
             "name": proponent.proponent_name,
         }
+        if not include_invitations and not include_projects:
+            return proponent_dict
 
-        if include_invitations:
-            account = Account.query.filter_by(proponent_id=proponent_id).first()
-            if account:
-                invitations = Invitations.query.filter_by(account_id=account.id, status=InvitationStatus.PENDING.value).all()
-                proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
-            if include_projects:
-                account_projects = AccountProject.query.filter_by(account_id=account.id).all()
-                proponent_dict["account_projects"] = [account_project.project.to_dict() for account_project in account_projects]
+        accounts_ids = Account.query.with_entities(Account.id).filter_by(proponent_id=proponent_id).all()
+        accounts_ids = [account_id for account_id, in accounts_ids]
+
+        if include_invitations and accounts_ids:
+            invitations = Invitations.query.filter(Invitations.account_id.in_(accounts_ids),
+                                                   Invitations.status == InvitationStatus.PENDING.value).all()
+            proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
 
         if include_projects:
             projects = cls.query.filter_by(proponent_id=proponent_id).all()
             proponent_dict["projects"] = [project.to_dict() for project in projects]
+            account_projects = AccountProject.query.filter(AccountProject.account_id.in_(accounts_ids)).all()
+            proponent_dict["account_projects"] = [account_project.project.to_dict() for account_project in account_projects]
+
         return proponent_dict

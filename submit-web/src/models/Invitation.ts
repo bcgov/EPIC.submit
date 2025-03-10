@@ -1,7 +1,7 @@
 export type Invitation = {
   id: number;
   account_id: number;
-  project_ids: string;
+  project_ids: number[];
   token: string;
   email: string;
   status: string;

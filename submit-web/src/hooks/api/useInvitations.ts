@@ -66,3 +66,32 @@ export const useAcceptInvitation = ({
     ...rest,
   });
 };
+
+type CreateInvitation = {
+  proponent_id: number;
+  account_id?: number;
+  project_ids: number[];
+  role_id: number;
+  package_ids?: number[];
+  email?: string;
+};
+const createInvitation = (data: CreateInvitation) => {
+  return submitRequest<Invitation>({
+    url: "/invitations",
+    method: "post",
+    data,
+  });
+};
+
+type UseCreateInvitationParams = UseMutationOptions<
+  Invitation,
+  Error,
+  CreateInvitation,
+  unknown
+>;
+export const useCreateInvitation = (params: UseCreateInvitationParams) => {
+  return useMutation({
+    mutationFn: (data: CreateInvitation) => createInvitation(data),
+    ...params,
+  });
+};
