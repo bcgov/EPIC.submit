@@ -1,7 +1,7 @@
 import { useMemo, useState, useCallback } from "react";
 import { Proponent } from "@/models/Proponent";
 import { TableCell, TableRow, Link as MuiLink } from "@mui/material";
-import { Invitation } from "@/models/Invitation";
+import { Invitation, InvitationStatus } from "@/models/Invitation";
 import { PlainTableCell } from "@/components/Shared/Table/common";
 import { RegistrationUrlCell } from "./RegistrationUrlCell";
 
@@ -25,11 +25,13 @@ export const ProjectTableBody = ({
 
   const projectInvitationMap = useMemo(() => {
     const map = new Map<number, Invitation>();
-    proponent.invitations?.forEach((invitation) => {
-      invitation.project_ids.forEach((project_id) => {
-        map.set(project_id, invitation);
+    proponent.invitations
+      ?.filter((invitation) => invitation.status === InvitationStatus.PENDING)
+      .forEach((invitation) => {
+        invitation.project_ids.forEach((project_id) => {
+          map.set(project_id, invitation);
+        });
       });
-    });
     return map;
   }, [proponent.invitations]);
 

@@ -1,8 +1,5 @@
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
-import {
-  getProponentOptions,
-  useGetProponents,
-} from "@/hooks/api/useProponents";
+import { getProponentOptions } from "@/hooks/api/useProponents";
 import {
   Box,
   Table,

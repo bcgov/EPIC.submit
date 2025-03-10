@@ -1,3 +1,9 @@
+export enum InvitationStatus {
+  PENDING = "pending",
+  USED = "used",
+  REVOKED = "revoked",
+}
+
 export type Invitation = {
   id: number;
   account_id: number;
