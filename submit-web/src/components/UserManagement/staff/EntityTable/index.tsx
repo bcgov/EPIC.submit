@@ -10,10 +10,10 @@ import {
   TableRow,
   TablePagination,
 } from "@mui/material";
-import { EntityTableBody } from "./tableBody";
 import { useEffect, useMemo, useState } from "react";
 import { Proponent } from "@/models/Proponent";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { EntityTableBody } from "./tableBody";
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 const DEFAULT_PAGE = 0;

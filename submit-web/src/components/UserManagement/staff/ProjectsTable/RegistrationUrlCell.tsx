@@ -9,7 +9,7 @@ import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { PlainTableCell } from "@/components/Shared/Table/common";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type RegistrationUrlCellProps = {
   project: Project;
@@ -24,10 +24,14 @@ export const RegistrationUrlCell = ({
   accountProjectId,
   addInvitation,
 }: RegistrationUrlCellProps) => {
+  const [tooltipText, setTooltipText] = useState("Copy");
+
   const url = `${AppConfig.appUrl}${CreateAccountRoute.fullPath}?=${pendingInvitation?.token}`;
 
-  // trim the https or http part of the url
-  const urlWithoutHttps = url.replace(/(^\w+:|^)\/\//, "");
+  const trimmedUrl = useMemo(() => {
+    return url.replace("https://", "").replace("http://", "");
+  }, [url]);
+
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
     useCreateInvitation({
       onSuccess: (data) => {
@@ -39,9 +43,7 @@ export const RegistrationUrlCell = ({
       },
     });
 
-  const [tooltipText, setTooltipText] = useState("Copy");
-
-  const onGenerateUrlClick = () => {
+  const handleGenerateUrlClick = () => {
     createInvitation({
       proponent_id: project.proponent_id,
       project_ids: [project.id],
@@ -49,7 +51,7 @@ export const RegistrationUrlCell = ({
     });
   };
 
-  const onCopyClick = () => {
+  const handleCopyClick = () => {
     navigator.clipboard.writeText(url);
     setTooltipText("Copied");
     setTimeout(() => setTooltipText("Copy"), 2000);
@@ -59,59 +61,42 @@ export const RegistrationUrlCell = ({
     return <PlainTableCell colSpan={2} />;
   }
 
-  if (!pendingInvitation) {
-    return (
-      <>
-        <PlainTableCell>
-          <TextField
-            value={""}
-            variant="standard"
-            sx={{ margin: 0 }}
-            InputProps={{
-              readOnly: true,
-            }}
-            fullWidth
-          />
-        </PlainTableCell>
-        <PlainTableCell width={"136px"} align="right">
-          <LoadingButton
-            variant="contained"
-            color="primary"
-            loading={isCreatingInvitation}
-            onClick={onGenerateUrlClick}
-            sx={{ whiteSpace: "nowrap" }}
-          >
-            Generate URL
-          </LoadingButton>
-        </PlainTableCell>
-      </>
-    );
-  }
-
   return (
     <>
       <PlainTableCell>
         <TextField
-          value={urlWithoutHttps}
+          value={pendingInvitation ? trimmedUrl : ""}
           variant="standard"
           sx={{ margin: 0 }}
-          InputProps={{
-            readOnly: true,
-          }}
+          InputProps={{ readOnly: true }}
           fullWidth
         />
       </PlainTableCell>
-      <PlainTableCell width={"64px"} align="right">
-        <Tooltip title={tooltipText} arrow>
+      <PlainTableCell
+        width={pendingInvitation ? "64px" : "136px"}
+        align="right"
+      >
+        {pendingInvitation ? (
+          <Tooltip title={tooltipText} arrow>
+            <LoadingButton
+              variant="contained"
+              color="primary"
+              onClick={handleCopyClick}
+            >
+              <ContentCopyIcon />
+            </LoadingButton>
+          </Tooltip>
+        ) : (
           <LoadingButton
             variant="contained"
             color="primary"
-            loading={false}
-            onClick={onCopyClick}
+            loading={isCreatingInvitation}
+            onClick={handleGenerateUrlClick}
+            sx={{ whiteSpace: "nowrap" }}
           >
-            <ContentCopyIcon />
+            Generate URL
           </LoadingButton>
-        </Tooltip>
+        )}
       </PlainTableCell>
     </>
   );
