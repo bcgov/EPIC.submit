@@ -83,6 +83,7 @@ class Project(db.Model):
             projects = cls.query.filter_by(proponent_id=proponent_id).all()
             proponent_dict["projects"] = [project.to_dict() for project in projects]
             account_projects = AccountProject.query.filter(AccountProject.account_id.in_(accounts_ids)).all()
-            proponent_dict["account_projects"] = [account_project.project.to_dict() for account_project in account_projects]
+            proponent_dict["account_projects"] = [account_project.project.to_dict()
+                                                  for account_project in account_projects]
 
         return proponent_dict

@@ -1,6 +1,4 @@
-"""Invitation status class.
-
-"""
+"""Invitation status class."""
 from __future__ import annotations
 
 import enum
