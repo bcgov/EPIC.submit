@@ -1,6 +1,6 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { DataSkeleton, UserTable } from "@/components/UserManagement";
+import { DataSkeleton, UserTable } from "@/components/UserManagement/entity";
 import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
 import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
@@ -9,7 +9,7 @@ import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/"
+  "/proponent/_proponentLayout/user-management/",
 )({
   component: UsersPage,
   meta: () => [{ title: "User Management" }],

@@ -1,4 +1,4 @@
-import { TableBox } from "../../Shared/TableBox";
+import { TableBox } from "../../../Shared/TableBox";
 import {
   Box,
   Button,

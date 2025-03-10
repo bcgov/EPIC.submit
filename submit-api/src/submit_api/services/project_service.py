@@ -4,7 +4,7 @@ from submit_api.models import User as UserModel
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.project import Project as ProjectModel
-from submit_api.models.queries.project import ProjectQueries
+from submit_api.models.queries.account_project import ProjectQueries
 
 
 class ProjectService:
@@ -18,7 +18,7 @@ class ProjectService:
     @classmethod
     def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None):
         """Get projects by account id."""
-        return ProjectQueries.get_filtered_projects(account_id, search_options)
+        return ProjectQueries.get_filtered_account_projects(account_id, search_options)
 
     @classmethod
     def get_account_projects_by_user_id(cls, user_id):
@@ -47,7 +47,7 @@ class ProjectService:
     @classmethod
     def get_all_account_projects(cls, search_options: AccountProjectSearchOptions):
         """Get projects by proponent id."""
-        return ProjectQueries.get_filtered_projects(None, search_options)
+        return ProjectQueries.get_filtered_account_projects(None, search_options)
 
     @classmethod
     def get_all_account_projects_with_latest_packages(cls):
