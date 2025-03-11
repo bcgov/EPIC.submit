@@ -15,7 +15,7 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
         <SubmitLink>{user.full_name}</SubmitLink>
       </PlainTableCell>
       <PlainTableCell align="left" width={"25%"}>
-        {user.roles[0] && roleDetails[user.roles[0].role_name].label}
+        {user.roles[0] && roleDetails[user.roles[0]?.role_name]?.label}
       </PlainTableCell>
       <PlainTableCell align="left" width={"15%"}>
         <UserStatusChip status={user.status} />

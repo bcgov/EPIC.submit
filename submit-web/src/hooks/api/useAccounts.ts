@@ -59,22 +59,30 @@ export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
   });
 };
 
-const getUserByAccount = (accountId: number) => {
+const getUserByAccount = (
+  accountId: number,
+  includeRoles: boolean = false,
+  includeInvitees: boolean = false,
+) => {
   return submitRequest<AccountUserWithRole[]>({
-    url: `/accounts/${accountId}/users`,
+    url: `/accounts/${accountId}/users?include_invitees=${includeInvitees}&include_roles=${includeRoles}`,
   });
 };
 
 type GetUserByAccountOptions = {
   accountId: number;
+  includeRoles: boolean;
+  includeInvitees: boolean;
 };
 
 export const useGetUserByAccountId = ({
   accountId,
+  includeRoles,
+  includeInvitees,
 }: GetUserByAccountOptions) => {
   return useQuery({
     queryKey: [QUERY_KEY.ACCOUNT_USERS, accountId],
-    queryFn: () => getUserByAccount(accountId),
+    queryFn: () => getUserByAccount(accountId, includeRoles, includeInvitees),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });

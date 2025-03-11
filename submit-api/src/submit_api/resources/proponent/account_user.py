@@ -35,7 +35,11 @@ account_user_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 
 @cors_preflight("GET, OPTIONS")
 @API.route("/<int:account_id>/users", methods=["GET", "OPTIONS"])
-@API.doc(params={"account_id": "The account identifier"})
+@API.doc(params={
+    "account_id": "The account identifier",
+    "include_invitees": "Include invitees (true/false)",
+    "include_roles": "Include roles (true/false)"
+})
 class AccountUsers(Resource):
     """Resource for listing users associated with an account."""
 
@@ -47,8 +51,8 @@ class AccountUsers(Resource):
     @cors.crossdomain(origin="*")
     def get(account_id):
         """Fetch all users of a specific account."""
-        include_roles = request.headers.get("include-roles", "false").lower() == "true"
-        include_invitees = request.headers.get("include-invitees", "false").lower() == "true"
+        include_roles = request.args.get("include_roles", "false").lower() == "true"
+        include_invitees = request.args.get("include_invitees", "false").lower() == "true"
         users = AccountUserService.get_users_by_account(account_id, include_roles, include_invitees)
         if not users:
             return {"message": f"No users found for account {account_id}"}, HTTPStatus.NOT_FOUND

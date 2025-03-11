@@ -6,7 +6,7 @@ type StyleProps = {
   label: string;
 };
 
-export type UserPackageStatus = "ACTIVE" | "INVITED" | "REJECTED";
+export type UserPackageStatus = "ACTIVE" | "pending" | "REJECTED";
 
 const statusStyles: Record<UserPackageStatus, StyleProps> = {
   ACTIVE: {
@@ -18,7 +18,7 @@ const statusStyles: Record<UserPackageStatus, StyleProps> = {
     },
     label: "Active User",
   },
-  INVITED: {
+  pending: {
     sx: {
       borderRadius: 1,
       border: `1px solid #9B6BDA`,

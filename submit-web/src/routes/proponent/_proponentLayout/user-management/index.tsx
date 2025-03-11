@@ -23,6 +23,8 @@ function UsersPage() {
     isError: isUsersError,
   } = useGetUserByAccountId({
     accountId,
+    includeInvitees: true,
+    includeRoles: true,
   });
 
   useEffect(() => {
