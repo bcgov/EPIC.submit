@@ -31,6 +31,7 @@ export const EntityTable = (props: TableProps) => {
     if (page !== DEFAULT_PAGE) {
       setPage(DEFAULT_PAGE);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchText]);
 
   useEffect(() => {
