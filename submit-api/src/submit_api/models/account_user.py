@@ -58,7 +58,7 @@ class AccountUser(BaseModel):
         )
         if session:
             session.add(account_user)
-            session.commit()
+            session.flush()
         else:
             account_user.save()
         return account_user

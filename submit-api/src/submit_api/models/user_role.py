@@ -29,7 +29,7 @@ class UserRole(BaseModel):
         )
         if session:
             session.add(user_role)
-            session.commit()
+            session.flush()
         else:
             user_role.save()
         return user_role

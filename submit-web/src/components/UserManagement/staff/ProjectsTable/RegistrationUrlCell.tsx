@@ -1,7 +1,6 @@
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Invitation } from "@/models/Invitation";
-import { Route as CreateAccountRoute } from "@/routes/proponent/registration/create-account";
 import { AppConfig } from "@/utils/config";
 import { TextField, Tooltip } from "@mui/material";
 import { Project } from "@/models/Project";
@@ -26,7 +25,7 @@ export const RegistrationUrlCell = ({
 }: RegistrationUrlCellProps) => {
   const [tooltipText, setTooltipText] = useState("Copy");
 
-  const url = `${AppConfig.appUrl}${CreateAccountRoute.fullPath}?=${pendingInvitation?.token}`;
+  const url = `${AppConfig.appUrl}/proponent/registration?token=${pendingInvitation?.token}`;
 
   const trimmedUrl = useMemo(() => {
     return url.replace("https://", "").replace("http://", "");
