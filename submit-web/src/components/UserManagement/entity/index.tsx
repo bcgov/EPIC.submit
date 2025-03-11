@@ -7,9 +7,9 @@ import UserTableRow from "./UserTableRow";
 import { TableBox } from "../../Shared/TableBox";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "@tanstack/react-router";
-import { AccountUser } from "@/models/AccountUser";
+import { AccountUserWithRole } from "@/models/AccountUser";
 
-export const UserTable = ({ users }: { users: AccountUser[] }) => {
+export const UserTable = ({ users }: { users: AccountUserWithRole[] }) => {
   const navigate = useNavigate();
 
   return (

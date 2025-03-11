@@ -11,7 +11,7 @@ type IFormInputProps = {
   TextFieldProps?: TextFieldProps;
   multiple?: boolean;
   selectAll?: boolean;
-} & TextFieldProps;
+};
 
 const ControlledMultiSelect: FC<IFormInputProps> = ({
   name,
@@ -32,10 +32,11 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
     ? [{ value: "All", label: "All" }, ...options]
     : options;
 
-  const defaultValue =
-    defaultValues && defaultValues[name] ? defaultValues[name] : [];
+  const defaultValue: OptionType[] = Array.isArray(defaultValues?.[name])
+    ? (defaultValues[name] as OptionType[])
+    : [];
 
-  const errorMessage = errors[name]?.message;
+  const errorMessage = errors[name]?.message as string | undefined;
 
   return (
     <Controller
@@ -52,12 +53,13 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
           <Autocomplete
             {...otherProps}
             multiple={multiple}
+            defaultValue={defaultValue}
             options={extendedOptions}
             value={selectedValues} // MUI expects an array of objects
             autoComplete
             isOptionEqualToValue={(option, val) => option.value === val.value}
-            getOptionLabel={(option) => option?.label ?? ""}
-            onChange={(event, newValue) => {
+            getOptionLabel={(option: OptionType) => option?.label ?? ""}
+            onChange={(_, newValue) => {
               if (!Array.isArray(newValue)) {
                 onChange([]);
                 return;
