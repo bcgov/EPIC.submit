@@ -52,6 +52,8 @@ export default function SubmissionPage() {
     enabled: Boolean(accountProject?.id),
   });
 
+  
+
   const {
     mutate: updateStateSubmissionPackage,
     isPending: isSubmittingPackage,

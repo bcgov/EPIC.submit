@@ -9,6 +9,7 @@ export default function StaffTableHead() {
         border: 0,
         ".MuiTableCell-root": {
           p: BCDesignTokens.layoutPaddingXsmall,
+          lineHeight: 1.2,
         },
       }}
     >
@@ -32,7 +33,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "12%",
+            width: "9%",
           }}
         >
           Submitted On
@@ -40,7 +41,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "5%",
+            width: "9%",
             lineHeight: 1.2,
             wordWrap: "break-word",
           }}
@@ -58,7 +59,7 @@ export default function StaffTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "10%",
+            width: "9%",
           }}
         >
           MP Review

@@ -99,7 +99,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             lineHeight: 1.2,
             wordWrap: "break-word",
             color: BCDesignTokens.typographyFontSizeBody,
-            width: "12%",
+            width: "9%",
           }}
         >
           {dateutils.formatDate(submitted_on)}
@@ -111,7 +111,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
               days_since_submission > 4
                 ? BCDesignTokens.typographyColorDanger
                 : BCDesignTokens.supportBorderColorSuccess,
-            width: "5%",
+            width: "9%",
           }}
         >
           {Boolean(days_since_submission) && `+ ${days_since_submission} Days`}
@@ -127,7 +127,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
         <StyledProjectTableCell
           align="left"
           sx={{
-            width: "10%",
+            width: "9%",
             color: BCDesignTokens.supportBorderColorSuccess,
           }}
         >
