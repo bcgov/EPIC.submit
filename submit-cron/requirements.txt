@@ -39,7 +39,7 @@ psycopg2-binary==2.9.10
 pyasn1==0.6.1
 pyhumps==3.8.0
 python-dotenv==1.0.1
-python-jose==3.3.0
+python-jose==3.4.0
 pytz==2024.2
 referencing==0.35.1
 requests==2.32.3
