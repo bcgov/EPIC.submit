@@ -6,7 +6,11 @@ from __future__ import annotations
 
 from sqlalchemy import Column
 
+from .account_project import AccountProject
+from .account import Account
+from .invitations import Invitations
 from .db import db
+from ..enums.invitation_status import InvitationStatus
 
 
 class Project(db.Model):
@@ -25,6 +29,17 @@ class Project(db.Model):
         db.Index('ix_projects_proponent_id', 'proponent_id'),
     )
 
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "proponent_id": self.proponent_id,
+            "proponent_name": self.proponent_name,
+            "ea_certificate": self.ea_certificate,
+            "epic_guid": self.epic_guid,
+        }
+
     @classmethod
     def get_all_projects_in_ids(cls, project_ids):
         """Get all projects in the given project ids."""
@@ -41,3 +56,34 @@ class Project(db.Model):
         proponents = (cls.query.with_entities(cls.proponent_id, cls.proponent_name)
                       .distinct().order_by(cls.proponent_name).all())
         return proponents
+
+    @classmethod
+    def get_proponent_by_id(cls, proponent_id, include_invitations=False, include_projects=False):
+        """Get all proponents."""
+        proponent = cls.query.filter_by(proponent_id=proponent_id).first()
+        if not proponent:
+            return None
+
+        proponent_dict = {
+            "id": proponent.proponent_id,
+            "name": proponent.proponent_name,
+        }
+        if not include_invitations and not include_projects:
+            return proponent_dict
+
+        accounts_ids = Account.query.with_entities(Account.id).filter_by(proponent_id=proponent_id).all()
+        accounts_ids = [account_id for account_id, in accounts_ids]
+
+        if include_invitations and accounts_ids:
+            invitations = Invitations.query.filter(Invitations.account_id.in_(accounts_ids),
+                                                   Invitations.status == InvitationStatus.PENDING.value).all()
+            proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
+
+        if include_projects:
+            projects = cls.query.filter_by(proponent_id=proponent_id).all()
+            proponent_dict["projects"] = [project.to_dict() for project in projects]
+            account_projects = AccountProject.query.filter(AccountProject.account_id.in_(accounts_ids)).all()
+            proponent_dict["account_projects"] = [account_project.project.to_dict()
+                                                  for account_project in account_projects]
+
+        return proponent_dict

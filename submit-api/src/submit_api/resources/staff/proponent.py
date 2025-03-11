@@ -15,6 +15,7 @@
 
 from http import HTTPStatus
 
+from flask import request
 from flask_restx import Namespace, Resource, cors
 
 from submit_api.resources.apihelper import Api as ApiHelper
@@ -51,3 +52,26 @@ class Proponents(Resource):
         """Get all proponents."""
         proponents = ProponentService.get_proponents()
         return ProponentSchema(many=True).dump(proponents), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route(
+    "/<int:proponent_id>",
+    methods=["GET", "OPTIONS"],
+)
+class Proponent(Resource):
+    """Resource for fetching proponents."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get proponents")
+    @API.response(
+        code=HTTPStatus.OK, model=proponent_model, description="Get proponents"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cors.crossdomain(origin="*")
+    def get(proponent_id):
+        """Get a proponent by id."""
+        include_invitations = request.args.get("include-invitations", "false").lower() == "true"
+        include_projects = request.args.get("include-projects", "false").lower() == "true"
+        proponent = ProponentService.get_proponent(proponent_id, include_invitations, include_projects)
+        return proponent, HTTPStatus.OK

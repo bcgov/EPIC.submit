@@ -7,21 +7,21 @@ import {
 import { QUERY_KEY } from "./constants";
 import { Invitation } from "@/models/Invitation";
 import { submitRequest } from "@/utils/axiosUtils";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 export const useCreateInvitation = (options?: Options) => {
   return useMutation({
     mutationFn: createInvitation,
     ...options,
-    onSuccess: () => {
-      notify.success("Invitation sent successfully");
-    },
-    onError: () => {
-      notify.error("Failed to send invitation");
-    },
   });
 };
-
+type CreateInvitation = {
+  account_id?: number;
+  proponent_id: number;
+  role_name: string;
+  email?: string;
+  project_ids: number[];
+  package_ids?: number[];
+};
 const createInvitation = ({
   account_id,
   proponent_id,
@@ -29,14 +29,7 @@ const createInvitation = ({
   package_ids,
   email,
   role_name,
-}: {
-  account_id?: number;
-  proponent_id: number;
-  role_name: string;
-  email: string;
-  project_ids: number[];
-  package_ids?: string[];
-}) => {
+}: CreateInvitation) => {
   return submitRequest({
     url: `/invitations`,
     method: "post",

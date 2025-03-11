@@ -6,6 +6,7 @@ import {
   TableRow,
   LinearProgress,
 } from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
 
 type EntityTableBodyProps = {
   isLoading: boolean;
@@ -19,7 +20,14 @@ export const EntityTableBody = ({
   isLoading,
   rowsPerPage,
 }: EntityTableBodyProps) => {
+  const navigate = useNavigate();
   const emptyRows = rowsPerPage - proponents.length;
+
+  const handleRowClick = (id: number) => {
+    navigate({
+      to: `/staff/user-management/entities/${id}`,
+    });
+  };
 
   if (isError) {
     return (
@@ -72,6 +80,7 @@ export const EntityTableBody = ({
                   cursor: "pointer",
                 },
               }}
+              onClick={() => handleRowClick(entity.id)}
             >
               {entity.name}
             </MuiLink>

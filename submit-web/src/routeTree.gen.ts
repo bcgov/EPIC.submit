@@ -29,6 +29,7 @@ import { Route as StaffStaffLayoutDocumentsIndexImport } from './routes/staff/_s
 import { Route as ProponentProponentLayoutUserManagementIndexImport } from './routes/proponent/_proponentLayout/user-management/index'
 import { Route as ProponentProponentLayoutProjectsIndexImport } from './routes/proponent/_proponentLayout/projects/index'
 import { Route as ProponentProponentLayoutUserManagementNewUserImport } from './routes/proponent/_proponentLayout/user-management/new-user'
+import { Route as StaffStaffLayoutUserManagementEntitiesProponentIdImport } from './routes/staff/_staffLayout/user-management/entities/$proponentId'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutIndexImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/index'
@@ -186,6 +187,12 @@ const ProponentProponentLayoutUserManagementNewUserRoute =
   ProponentProponentLayoutUserManagementNewUserImport.update({
     path: '/user-management/new-user',
     getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const StaffStaffLayoutUserManagementEntitiesProponentIdRoute =
+  StaffStaffLayoutUserManagementEntitiesProponentIdImport.update({
+    path: '/user-management/entities/$proponentId',
+    getParentRoute: () => StaffStaffLayoutRoute,
   } as any)
 
 const StaffStaffLayoutProjectsProjectIdProjectLayoutRoute =
@@ -458,6 +465,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StaffStaffLayoutProjectsProjectIdProjectLayoutImport
       parentRoute: typeof StaffStaffLayoutProjectsProjectIdRoute
     }
+    '/staff/_staffLayout/user-management/entities/$proponentId': {
+      id: '/staff/_staffLayout/user-management/entities/$proponentId'
+      path: '/user-management/entities/$proponentId'
+      fullPath: '/staff/user-management/entities/$proponentId'
+      preLoaderRoute: typeof StaffStaffLayoutUserManagementEntitiesProponentIdImport
+      parentRoute: typeof StaffStaffLayoutImport
+    }
     '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission': {
       id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission'
       path: '/new-submission'
@@ -602,6 +616,7 @@ export const routeTree = rootRoute.addChildren({
                 ),
             }),
         }),
+      StaffStaffLayoutUserManagementEntitiesProponentIdRoute,
     }),
   }),
   OidcCallbackIndexRoute,
@@ -666,7 +681,8 @@ export const routeTree = rootRoute.addChildren({
         "/staff/_staffLayout/documents/",
         "/staff/_staffLayout/projects/",
         "/staff/_staffLayout/user-management/",
-        "/staff/_staffLayout/projects/$projectId"
+        "/staff/_staffLayout/projects/$projectId",
+        "/staff/_staffLayout/user-management/entities/$proponentId"
       ]
     },
     "/oidc-callback/": {
@@ -746,6 +762,10 @@ export const routeTree = rootRoute.addChildren({
         "/staff/_staffLayout/projects/$projectId/_projectLayout/",
         "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId"
       ]
+    },
+    "/staff/_staffLayout/user-management/entities/$proponentId": {
+      "filePath": "staff/_staffLayout/user-management/entities/$proponentId.tsx",
+      "parent": "/staff/_staffLayout"
     },
     "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission": {
       "filePath": "proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission.tsx",

@@ -7,7 +7,7 @@ type ContentBoxVariant = "primary" | "secondary";
 type ContentBoxProps = {
   mainLabel: React.ReactNode;
   label?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   contentBoxVariant?: ContentBoxVariant;
 } & PaperProps;
 export const ContentBox = ({

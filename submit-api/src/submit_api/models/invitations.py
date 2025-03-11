@@ -4,7 +4,6 @@ Manages the invitation tokens for project onboarding.
 """
 from __future__ import annotations
 
-import enum
 import uuid
 from datetime import datetime
 
@@ -12,14 +11,7 @@ from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
-
-
-class InvitationStatus(enum.Enum):
-    """Enum for invitation statuses."""
-
-    PENDING = "pending"
-    REVOKED = "revoked"
-    USED = "used"
+from ..enums.invitation_status import InvitationStatus
 
 
 class Invitations(BaseModel):
@@ -38,6 +30,20 @@ class Invitations(BaseModel):
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
+
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "account_id": self.account_id,
+            "project_ids": self.project_ids,
+            "package_ids": self.package_ids,
+            "token": self.token,
+            "email": self.email,
+            "status": self.status,
+            "expiry_date": self.expiry_date,
+            "role_id": self.role_id
+        }
 
     @classmethod
     def validate_token(cls, token):

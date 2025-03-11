@@ -1,5 +1,5 @@
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
-import { useProponents } from "@/hooks/api/useProponents";
+import { useGetProponents } from "@/hooks/api/useProponents";
 import {
   Box,
   Table,
@@ -10,16 +10,16 @@ import {
   TableRow,
   TablePagination,
 } from "@mui/material";
-import { EntityTableBody } from "./tableBody";
 import { useEffect, useMemo, useState } from "react";
 import { Proponent } from "@/models/Proponent";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { EntityTableBody } from "./tableBody";
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 const DEFAULT_PAGE = 0;
 const RADIX = 10;
 export const EntityTable = (props: TableProps) => {
-  const { data, isPending, isError } = useProponents();
+  const { data, isPending, isError } = useGetProponents();
   const [proponents, setProponents] = useState<Proponent[]>([]);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
