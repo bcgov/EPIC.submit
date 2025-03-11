@@ -36,7 +36,7 @@ class StaffUser(BaseModel):
         )
         if session:
             session.add(staff_user)
-            session.commit()
+            session.flush()
         else:
             staff_user.save()
         return staff_user

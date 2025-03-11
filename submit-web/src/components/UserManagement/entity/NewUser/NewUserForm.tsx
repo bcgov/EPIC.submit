@@ -26,6 +26,7 @@ import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
 import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
@@ -47,7 +48,15 @@ export default function NewUserForm() {
   const { accountId, proponentId } = useAccount();
   const navigate = useNavigate();
   const { mutate: createInvite, isPending: isPendingInvitation } =
-    useCreateInvitation();
+    useCreateInvitation({
+      onSuccess: () => {
+        notify.success("User added successfully");
+        navigate({ to: "/proponent/user-management" });
+      },
+      onError: () => {
+        notify.error("Error adding user");
+      },
+    });
   const { data: accountPackages } = useGetAccountPackagesByAccountId({
     accountId: 1,
   });

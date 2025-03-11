@@ -117,6 +117,6 @@ class AccountUserService:
         return {
             "role_id": role.id,
             "role_name": role.role_name,
-            "account_project_id": role_data["account_project_id"],
-            "package_ids": role_data["package_id"]
+            "account_project_id": role_data.get("account_project_id"),
+            "package_ids": role_data.get("package_ids")
         }
