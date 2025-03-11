@@ -1,0 +1,23 @@
+name: OWASP ZAP Scan
+
+on:
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+    inputs:
+      url:
+        description: "Target URL to scan"
+        required: true
+        type: string
+
+jobs:
+  owasp-zap:
+    name: OWASP ZAP Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run Scan
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          allow_issue_writing: false
+          artifact_name: OWASP ZAP Scan
+          cmd_options: "-a -d"
+          target: ${{ inputs.url }}
