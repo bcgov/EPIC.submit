@@ -58,7 +58,7 @@ export default function NewUserForm() {
       },
     });
   const { data: accountPackages } = useGetAccountPackagesByAccountId({
-    accountId: 1,
+    accountId: accountId,
   });
 
   const methods = useForm<NewUserSchema>({

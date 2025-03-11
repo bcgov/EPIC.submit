@@ -13,7 +13,7 @@ import { useEffect } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
-import { ProjectTableBody } from "./tableBody";
+import { ProjectTableBody } from "./TableBody";
 
 export const ProjectsTable = (props: TableProps) => {
   const { proponentId } = useParams({
