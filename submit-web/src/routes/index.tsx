@@ -10,8 +10,6 @@ import {
   Toolbar,
   Stack,
 } from "@mui/material";
-
-import { useNavigate } from "@tanstack/react-router";
 import { useAuth } from "react-oidc-context";
 import { useEffect } from "react";
 import { PageLoader } from "@/components/Shared/PageLoader";
