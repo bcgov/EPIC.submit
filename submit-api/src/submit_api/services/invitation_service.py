@@ -184,10 +184,10 @@ class InvitationService:
     def _generate_signup_url(token):
         """Generate a full URL with token for invitation."""
         base_url = current_app.config['BASE_APP_URL']
-        signup_path = current_app.config.get('SIGNUP_URL_PATH', '/signup')
+        signup_path = current_app.config.get('SIGNUP_URL_PATH', '/proponent/registration')
 
         # Construct the URL by joining base, path, and token
-        return urljoin(base_url, f"{signup_path}/{token}")
+        return urljoin(base_url, f"{signup_path}?token={token}")
 
     @staticmethod
     def get_valid_invitation(token):

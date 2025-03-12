@@ -4,6 +4,7 @@ from __future__ import annotations
 from sqlalchemy import Column, Integer, ForeignKey, ARRAY
 
 from .base_model import BaseModel
+from .db import db
 
 
 class UserRole(BaseModel):
@@ -17,6 +18,8 @@ class UserRole(BaseModel):
                                 nullable=True)  # NULL for account-wide roles
     package_ids = Column(ARRAY(Integer), nullable=True)  # NULL for project-wide roles
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
+    role = db.relationship("Role", lazy="joined")
+    account_user = db.relationship("AccountUser", back_populates="role", lazy="select")
 
     @classmethod
     def create_user_role(cls, data, session=None) -> UserRole:
