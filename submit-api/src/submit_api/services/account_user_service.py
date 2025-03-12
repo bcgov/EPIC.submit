@@ -1,8 +1,11 @@
 """Service for account user management."""
+from flask import current_app
+from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Invitations as InvitationsModel
 from submit_api.models import Role as RoleModel
 from submit_api.models import UserRole as UserRoleModel
+from submit_api.models.db import session_scope
 from submit_api.models.invitations import InvitationStatus
 from submit_api.models.role import RoleEnum
 
@@ -39,9 +42,15 @@ class AccountUserService:
     @staticmethod
     def _fetch_roles(users):
         """Fetch roles for the given users and map them to user IDs."""
+        # Ensure users is iterable (convert single user to a list if necessary)
+        if isinstance(users, list):
+            user_ids = [user.id for user in users]
+        else:
+            user_ids = [users.id]  # For a single user, create a list with the user id
+
         user_roles = (
             UserRoleModel.query
-            .filter(UserRoleModel.account_user_id.in_([user.id for user in users]))
+            .filter(UserRoleModel.account_user_id.in_(user_ids))
             .all()
         )
 
@@ -120,3 +129,37 @@ class AccountUserService:
             "account_project_id": role_data.get("account_project_id"),
             "package_ids": role_data.get("package_ids")
         }
+
+    @classmethod
+    def get_account_user(cls, guid):
+        """Fetch an user for a user id."""
+        user = AccountUserModel.get_by_guid(guid)
+        roles_map = cls._fetch_roles(user)
+        user_dict = user.to_dict()
+        user_dict['roles'] = roles_map.get(user.id, [])
+        user_dict["status"] = "ACTIVE"
+        return user_dict
+
+    @staticmethod
+    def _apply_update_data(account_user, update_data):
+        """Apply update data to the account user."""
+        for key, value in update_data.items():
+            setattr(account_user, key, value)
+        current_app.logger.debug(f"Updated submission item {account_user.id} with data: {update_data}")
+
+    @classmethod
+    def update_account_user(cls, guid, update_data):
+        """Update submission item by id."""
+        account_user = AccountUserModel.get_by_guid(guid)
+        if not account_user:
+            current_app.logger.warning(f"Account user with id {guid} not found.")
+            raise ResourceNotFoundError(f"Item with id {guid} not found.")
+
+        with session_scope() as session:
+            cls._apply_update_data(account_user, update_data)
+            session.add(account_user)
+            session.flush()
+            session.commit()
+
+        current_app.logger.info(f"Account user {account_user.id} updated successfully.")
+        return account_user
