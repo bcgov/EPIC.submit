@@ -1,6 +1,6 @@
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 import { submitRequest } from "@/utils/axiosUtils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
 
@@ -45,6 +45,8 @@ export const useSaveUserProfile = ({
   guid,
   options,
 }: UseSaveUserProfileParams) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: EditUserProfileRequest) => {
       if (!guid) {
@@ -57,6 +59,13 @@ export const useSaveUserProfile = ({
     onSuccess: () => {
       if (options?.onSuccess) {
         options.onSuccess();
+      }
+
+      // Invalidate the query for user profile to refetch data after update
+      if (guid) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.ACCOUNT_USERS, guid],
+        });
       }
     },
   });
