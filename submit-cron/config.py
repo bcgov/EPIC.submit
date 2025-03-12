@@ -92,6 +92,7 @@ class _Config():  # pylint: disable=too-few-public-methods
     CHES_BASE_URL = os.getenv('CHES_BASE_URL')
     WEB_URL = os.getenv('WEB_URL')
     SENDER_EMAIL = os.getenv('SENDER_EMAIL')
+    SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH', '/proponent/registration')
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods

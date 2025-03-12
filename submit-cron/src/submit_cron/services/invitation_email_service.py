@@ -48,7 +48,7 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
     def generate_signup_url(token):
         """Generate a full URL with token for invitation."""
         base_url = current_app.config['WEB_URL']
-        signup_path = current_app.config.get('SIGNUP_URL_PATH', '/signup')
+        signup_path = current_app.config.get('SIGNUP_URL_PATH', '/proponent/registration')
 
         # Construct the URL by joining base, path, and token
         return urljoin(base_url, f"{signup_path}?token={token}")
