@@ -13,16 +13,26 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Proponent } from "@/models/Proponent";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { EntityTableBody } from "./tableBody";
+import { EntityTableBody } from "./EntityTableBody";
+import { useEntityTable } from "./entityTableStore";
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 const DEFAULT_PAGE = 0;
 const RADIX = 10;
+
 export const EntityTable = (props: TableProps) => {
+  const { searchText } = useEntityTable();
   const { data, isPending, isError } = useGetProponents();
   const [proponents, setProponents] = useState<Proponent[]>([]);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
+
+  useEffect(() => {
+    if (page !== DEFAULT_PAGE) {
+      setPage(DEFAULT_PAGE);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchText]);
 
   useEffect(() => {
     setProponents(data || []);
@@ -45,10 +55,21 @@ export const EntityTable = (props: TableProps) => {
     setPage(DEFAULT_PAGE);
   };
 
+  const filteredProponents = useMemo(
+    () =>
+      proponents.filter((proponent) =>
+        proponent.name.toLowerCase().includes(searchText.toLowerCase()),
+      ),
+    [proponents, searchText],
+  );
+
   const paginatedProponents = useMemo(
     () =>
-      proponents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-    [proponents, page, rowsPerPage],
+      filteredProponents.slice(
+        page * rowsPerPage,
+        page * rowsPerPage + rowsPerPage,
+      ),
+    [filteredProponents, page, rowsPerPage],
   );
 
   return (
@@ -73,7 +94,7 @@ export const EntityTable = (props: TableProps) => {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25]}
         component="div"
-        count={proponents.length}
+        count={filteredProponents.length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
