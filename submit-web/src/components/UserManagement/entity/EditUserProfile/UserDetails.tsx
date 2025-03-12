@@ -6,11 +6,11 @@ import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "../../../../components/UserStatusChip";
 
-interface EditRoleProps {
+interface UserDetailsProps {
   user: AccountUserWithRole;
 }
 
-function EditRole({ user }: EditRoleProps) {
+function UserDetails({ user }: UserDetailsProps) {
   const [userData, setUserData] = useState(user);
 
   useEffect(() => {
@@ -62,4 +62,4 @@ function EditRole({ user }: EditRoleProps) {
   );
 }
 
-export default EditRole;
+export default UserDetails;

@@ -5,13 +5,15 @@ import UserStatusChip from "../../UserStatusChip";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { roleDetails } from "@/models/Role";
 import { useNavigate } from "@tanstack/react-router";
+import { useUserStore } from './userStore';
 
 export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
+  const { setSelectedUser } = useUserStore();
   const navigate = useNavigate();
   const onUserClick = () => {
+    setSelectedUser(user);
     navigate({
-      to: "/proponent/edit-role",
-      search: { user: JSON.stringify(user) },
+      to: "/proponent/user-details",
     });
   };
 
