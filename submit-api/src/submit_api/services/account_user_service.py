@@ -5,7 +5,7 @@ from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Invitations as InvitationsModel
 from submit_api.models import Role as RoleModel
 from submit_api.models import UserRole as UserRoleModel
-from submit_api.models.db import session_scope
+from submit_api.models.db import db
 from submit_api.models.invitations import InvitationStatus
 from submit_api.models.role import RoleEnum
 
@@ -155,11 +155,10 @@ class AccountUserService:
             current_app.logger.warning(f"Account user with id {guid} not found.")
             raise ResourceNotFoundError(f"Item with id {guid} not found.")
 
-        with session_scope() as session:
-            cls._apply_update_data(account_user, update_data)
-            session.add(account_user)
-            session.flush()
-            session.commit()
+        cls._apply_update_data(account_user, update_data)
+        db.session.add(account_user)
+        db.session.flush()
+        db.session.commit()
 
         current_app.logger.info(f"Account user {account_user.id} updated successfully.")
         return account_user
