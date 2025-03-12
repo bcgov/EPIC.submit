@@ -71,6 +71,13 @@ export default function AppBarActions() {
             </MenuItem>
             <MenuItem
               onClick={() => {
+                navigate({ to: "/proponent/edit-profile" });
+              }}
+            >
+              Edit My Profile
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
                 auth.signoutRedirect();
               }}
             >

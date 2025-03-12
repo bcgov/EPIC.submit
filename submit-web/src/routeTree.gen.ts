@@ -23,6 +23,7 @@ import { Route as ProponentRegistrationIndexImport } from './routes/proponent/re
 import { Route as ProponentRegistrationCreateAccountImport } from './routes/proponent/registration/create-account'
 import { Route as ProponentRegistrationCompleteImport } from './routes/proponent/registration/complete'
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
+import { Route as ProponentProponentLayoutEditProfileImport } from './routes/proponent/_proponentLayout/edit-profile'
 import { Route as StaffStaffLayoutUserManagementIndexImport } from './routes/staff/_staffLayout/user-management/index'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
 import { Route as StaffStaffLayoutDocumentsIndexImport } from './routes/staff/_staffLayout/documents/index'
@@ -138,6 +139,12 @@ const ProponentRegistrationCompleteRoute =
 const ProponentProponentLayoutProfileRoute =
   ProponentProponentLayoutProfileImport.update({
     path: '/profile',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const ProponentProponentLayoutEditProfileRoute =
+  ProponentProponentLayoutEditProfileImport.update({
+    path: '/edit-profile',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
@@ -360,6 +367,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OidcCallbackIndexImport
       parentRoute: typeof rootRoute
     }
+    '/proponent/_proponentLayout/edit-profile': {
+      id: '/proponent/_proponentLayout/edit-profile'
+      path: '/edit-profile'
+      fullPath: '/proponent/edit-profile'
+      preLoaderRoute: typeof ProponentProponentLayoutEditProfileImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
     '/proponent/_proponentLayout/profile': {
       id: '/proponent/_proponentLayout/profile'
       path: '/profile'
@@ -560,6 +574,7 @@ export const routeTree = rootRoute.addChildren({
   NotFoundRoute,
   ProponentRoute: ProponentRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
+      ProponentProponentLayoutEditProfileRoute,
       ProponentProponentLayoutProfileRoute,
       ProponentProponentLayoutAboutpageLazyRoute,
       ProponentProponentLayoutUserManagementNewUserRoute,
@@ -660,6 +675,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent/_proponentLayout.tsx",
       "parent": "/proponent",
       "children": [
+        "/proponent/_proponentLayout/edit-profile",
         "/proponent/_proponentLayout/profile",
         "/proponent/_proponentLayout/aboutpage",
         "/proponent/_proponentLayout/user-management/new-user",
@@ -687,6 +703,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/oidc-callback/": {
       "filePath": "oidc-callback/index.tsx"
+    },
+    "/proponent/_proponentLayout/edit-profile": {
+      "filePath": "proponent/_proponentLayout/edit-profile.tsx",
+      "parent": "/proponent/_proponentLayout"
     },
     "/proponent/_proponentLayout/profile": {
       "filePath": "proponent/_proponentLayout/profile.tsx",

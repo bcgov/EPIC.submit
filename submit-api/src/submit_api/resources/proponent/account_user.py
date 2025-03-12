@@ -59,3 +59,38 @@ class AccountUsers(Resource):
 
         users_list_schema = AccountUserSchema(many=True)
         return users_list_schema.dump(users), HTTPStatus.OK
+
+
+@cors_preflight("GET, PATCH, OPTIONS")
+@API.route("/user/<string:guid>", methods=["GET", "PATCH", "OPTIONS"])
+@API.doc(params={"user_id": "The user identifier"})
+class AccountUser(Resource):
+    """Resource for fetching or editing a user."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch an user for a user id")
+    @API.response(code=HTTPStatus.OK, description="Success", model=[account_user_list_model])
+    @API.response(HTTPStatus.NOT_FOUND, "User not found")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def get(guid):
+        """Fetch an user for a user id."""
+        user = AccountUserService.get_account_user(guid)
+        if not user:
+            return {"message": f"No user found for user id {guid}"}, HTTPStatus.NOT_FOUND
+        return AccountUserSchema().dump(user), HTTPStatus.OK
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Edit a account user")
+    @API.expect(account_user_list_model)
+    @API.response(
+        code=HTTPStatus.OK, model=account_user_list_model, description="Account user"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def patch(guid):
+        """Edit a account user."""
+        edit_account_user_data = AccountUserSchema().load(API.payload)
+        edited_account_user = AccountUserService.update_account_user(guid, edit_account_user_data)
+        return AccountUserSchema().dump(edited_account_user), HTTPStatus.OK
