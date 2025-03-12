@@ -51,4 +51,4 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
         signup_path = current_app.config.get('SIGNUP_URL_PATH', '/signup')
 
         # Construct the URL by joining base, path, and token
-        return urljoin(base_url, f"{signup_path}/{token}")
+        return urljoin(base_url, f"{signup_path}?token={token}")
