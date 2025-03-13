@@ -6,16 +6,18 @@ type SubmitLinkProps = {
 } & LinkProps;
 
 export const SubmitLink = (props: SubmitLinkProps) => {
-  const { children, disabled, sx, ...rest } = props;
+  const { children, disabled, sx, onClick, ...rest } = props;
   if (disabled) {
     return children;
   }
   return (
     <MuiLink
       {...rest}
+      onClick={onClick}
       sx={{
         color: BCDesignTokens.themeBlue90,
         textDecoration: "none",
+        cursor: onClick ? "pointer" : "inherit",
         ...sx,
       }}
     >

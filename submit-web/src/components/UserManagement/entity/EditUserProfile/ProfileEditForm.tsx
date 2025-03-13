@@ -156,7 +156,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                 </Grid>
             </Grid>
             </Box>
-            <UserInfoBox userData={userData} />
+            <UserInfoBox userData={userData} showEdit={false} />
             <Box
                 sx={{
                     padding: "24px 16px 16px 16px",
