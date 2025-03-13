@@ -29,6 +29,7 @@ class AccountUser(BaseModel):
 
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
+    role = db.relationship('UserRole', back_populates='account_user', uselist=False)
 
     def to_dict(self):
         """Convert AccountUser ORM object to dictionary."""

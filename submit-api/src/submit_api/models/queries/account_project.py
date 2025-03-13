@@ -14,9 +14,12 @@
 """Model to handle all complex operations related to User."""
 
 from sqlalchemy import or_
-from submit_api.models import AccountProject, Project, db
+from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
+from submit_api.models.role import RoleEnum
+from submit_api.models.user import UserType
+from submit_api.utils.token_info import TokenInfo
 
 
 # pylint: disable=too-few-public-methods
@@ -42,14 +45,22 @@ class ProjectQueries:
         if account_id is not None:
             query = query.filter(AccountProject.account_id == account_id)
 
+        package_query = None
         # Apply search filters if provided
         if search_options and any(bool(search_option) for search_option in search_options.__dict__.values()):
-            query = cls.filter_by_search_criteria(query, search_options)
+            package_query = cls._filter_by_search_criteria(search_options)
 
+        package_query = cls._filter_packages_by_user_access(package_query)
+
+        if package_query:
+            filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
+            query = query.join(Package).filter(
+                Package.id.in_(filtered_package_ids)).options(
+                db.contains_eager(AccountProject.packages))
         return query.all()
 
     @classmethod
-    def filter_by_search_criteria(cls, project_query, search_options: AccountProjectSearchOptions):
+    def _filter_by_search_criteria(cls, search_options: AccountProjectSearchOptions):
         """Apply various filters based on search options."""
         # Subquery to get packages based on search criteria
         package_query = db.session.query(Package)
@@ -63,14 +74,31 @@ class ProjectQueries:
                 package_query, search_options.submitted_on_start, search_options.submitted_on_end
             )
 
-        # Get the filtered packages
-        filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
+        return package_query
 
-        project_query = project_query.join(Package).filter(
-            Package.id.in_(filtered_package_ids)).options(
-            db.contains_eager(AccountProject._packages))
+    @classmethod
+    def _filter_packages_by_user_access(cls, package_query):
+        """Filter packages by user access."""
+        auth_guid = TokenInfo.get_id()
+        user = User.get_by_guid(auth_guid)
+        if user.type == UserType.STAFF:
+            return package_query
 
-        return project_query
+        if not user or not user.account_user:
+            return package_query.filter(False)
+        user_role = user.account_user.role
+        role_name = user_role.role.role_name
+        if role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
+            return package_query
+
+        if not package_query:
+            package_query = db.session.query(Package)
+
+        package_ids = user_role.package_ids
+        if not package_ids:
+            return package_query.filter(False)
+
+        return package_query.filter(Package.id.in_(package_ids))
 
     @classmethod
     def _filter_by_search_text(cls, query, search_text):

@@ -41,13 +41,13 @@ export const Conditions = () => {
     useManagementPlanForm();
 
   const [mainCondition, setMainCondition] = useState<Condition | null>(
-    formData?.main_condition || null
+    formData?.main_condition || null,
   );
 
   const [supportingConditions, setSupportingConditions] = useState<number[]>(
     Array.from(formData.supporting_conditions || []).map(
-      (condition: Condition) => condition.condition_number ?? 0
-    )
+      (condition: Condition) => condition.condition_number ?? 0,
+    ),
   );
 
   const isConditionSelected = (condition: Condition) =>
@@ -65,7 +65,7 @@ export const Conditions = () => {
       ...formData,
       main_condition: mainCondition,
       supporting_conditions: conditions?.filter((c) =>
-        supportingConditions.includes(c.condition_number!)
+        supportingConditions.includes(c.condition_number!),
       ),
     });
 
@@ -85,18 +85,18 @@ export const Conditions = () => {
 
   const handleAnotherSupportingCondition = (
     currentInput: number,
-    conditionName: string
+    conditionName: string,
   ) => {
     if (supportingConditions.length >= MAX_SUPPORTING_CONDITIONS) return;
     const newCondition = conditions?.find(
-      (c) => c.condition_name === conditionName
+      (c) => c.condition_name === conditionName,
     );
 
     if (newCondition?.condition_number != null) {
       setSupportingConditions((prev) =>
         prev.map((c) =>
-          c === currentInput ? newCondition.condition_number! : c
-        )
+          c === currentInput ? newCondition.condition_number! : c,
+        ),
       );
     }
   };
@@ -153,7 +153,7 @@ export const Conditions = () => {
             onChange={(e) => {
               setMainCondition(
                 conditions?.find((c) => c.condition_name === e.target.value) ||
-                  null
+                  null,
               );
               if (errorText) {
                 setErrorText(null);
@@ -224,7 +224,7 @@ export const Conditions = () => {
               <IconButton
                 onClick={() => {
                   setSupportingConditions(
-                    supportingConditions.filter((c) => c !== input)
+                    supportingConditions.filter((c) => c !== input),
                   );
                 }}
               >

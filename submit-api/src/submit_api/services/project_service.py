@@ -12,7 +12,7 @@ class ProjectService:
 
     @classmethod
     def get_account_project_by_id(cls, account_project_id):
-        """Get account roject by id."""
+        """Get account project by id."""
         return AccountProjectModel.find_by_id(account_project_id)
 
     @classmethod
