@@ -14,7 +14,7 @@
 """Model to handle all complex operations related to User."""
 
 from sqlalchemy import or_
-from submit_api.models import AccountProject, Project, db, User, UserRole
+from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
 from submit_api.models.role import RoleEnum
