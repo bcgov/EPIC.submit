@@ -23,7 +23,7 @@ import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -34,7 +34,7 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey,
+      .queryKey
   );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
@@ -63,9 +63,10 @@ export default function SubmissionPage() {
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project?.name}
-          label={
+          topLabel={accountProject?.project?.proponent_name}
+          bottomLabel={
             accountProject?.project?.ea_certificate
-              ? `EAC #${accountProject?.project?.ea_certificate}`
+              ? `EAC # ${accountProject?.project?.ea_certificate}`
               : ""
           }
         >

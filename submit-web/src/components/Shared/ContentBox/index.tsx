@@ -1,4 +1,4 @@
-import { Box, Paper, PaperProps, Typography } from "@mui/material";
+import { Box, Paper, PaperProps, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import React from "react";
 
@@ -6,14 +6,16 @@ type ContentBoxVariant = "primary" | "secondary";
 
 type ContentBoxProps = {
   mainLabel: React.ReactNode;
-  label?: string;
+  topLabel?: string;
+  bottomLabel?: string;
   children?: React.ReactNode;
   contentBoxVariant?: ContentBoxVariant;
 } & PaperProps;
 export const ContentBox = ({
   children,
   mainLabel = "",
-  label = "",
+  topLabel,
+  bottomLabel,
   contentBoxVariant = "primary",
   ...rest
 }: ContentBoxProps) => {
@@ -36,6 +38,7 @@ export const ContentBox = ({
             justifyContent: "space-between",
             width: "auto",
             padding: "12px 24px",
+            height: "56px",
           },
           contentBoxVariant === "primary" && {
             backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
@@ -58,17 +61,26 @@ export const ContentBox = ({
         >
           {mainLabel || ""}
         </Typography>
-        {label && (
-          <Typography
-            variant="h5"
-            color={BCDesignTokens.themeGray70}
-            sx={{
-              mr: 2,
-              fontWeight: 400,
-            }}
-          >
-            {label}
-          </Typography>
+        {topLabel && bottomLabel && (
+          <Stack>
+            <Typography
+              variant="h5"
+              sx={{
+                mr: 2,
+              }}
+            >
+              {topLabel}
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                mr: 2,
+                fontWeight: 400,
+              }}
+            >
+              {bottomLabel}
+            </Typography>
+          </Stack>
         )}
       </Box>
       <Box

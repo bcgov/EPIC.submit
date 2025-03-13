@@ -13,11 +13,7 @@ type DocumentsParams = {
 export const Documents = ({ documents }: DocumentsParams) => {
   if (!documents) return <Navigate to={"/error"} />;
   return (
-    <ContentBox
-      mainLabel={"Documents"}
-      label={""}
-      contentBoxVariant="secondary"
-    >
+    <ContentBox mainLabel={"Documents"} contentBoxVariant="secondary">
       <Box
         display={"flex"}
         justifyContent={"space-between"}
