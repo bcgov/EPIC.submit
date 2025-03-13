@@ -85,9 +85,10 @@ export function NewManagementPlan() {
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project.name}
-          label={
+          topLabel={accountProject?.project?.proponent_name}
+          bottomLabel={
             accountProject?.project.ea_certificate
-              ? `EAC #${accountProject?.project.ea_certificate}`
+              ? `EAC # ${accountProject?.project.ea_certificate}`
               : ""
           }
         >

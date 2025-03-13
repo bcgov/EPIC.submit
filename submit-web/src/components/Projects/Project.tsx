@@ -29,10 +29,10 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const { userType } = useAccount();
 
   const activeSubmissionPackages = accountProject.packages.filter(
-    (subPackage) => !subPackage.completed_on,
+    (subPackage) => !subPackage.completed_on
   );
   const pastSubmissionPackages = accountProject.packages.filter((subPackage) =>
-    Boolean(subPackage.completed_on),
+    Boolean(subPackage.completed_on)
   );
 
   const { name, ea_certificate } = accountProject.project;
@@ -46,7 +46,8 @@ export const Project = ({ accountProject }: ProjectParam) => {
   return (
     <ContentBox
       mainLabel={name}
-      label={ea_certificate ? `EAC #${ea_certificate}` : ""}
+      topLabel={accountProject.project.proponent_name}
+      bottomLabel={ea_certificate ? `EAC # ${ea_certificate}` : ""}
     >
       <Box
         sx={{
