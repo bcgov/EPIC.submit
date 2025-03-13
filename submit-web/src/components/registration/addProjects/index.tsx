@@ -1,7 +1,4 @@
-import {
-  ProjectListSkeleton,
-  ProjectsList,
-} from "@/components/registration/addProjects/ProjectsList";
+import { ProjectListSkeleton } from "@/components/registration/addProjects/ProjectsList";
 import { Banner } from "@/components/registration/Banner";
 import { GridContainer } from "@/components/registration/GridContainer";
 import { PageLoader } from "@/components/Shared/PageLoader";
