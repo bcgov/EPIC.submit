@@ -18,7 +18,7 @@ export const Route = createFileRoute("/proponent/registration/complete")({
 function Complete() {
   const navigate = useNavigate();
   return (
-    <GridContainer>
+    <GridContainer yellowBar>
       <Grid item xs={12}>
         <Typography variant="h4" fontWeight={600}>
           Your account is successfully set up.

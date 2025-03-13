@@ -126,14 +126,17 @@ const getAccountProjectById = ({
 };
 
 type UseGetAccountProjectByIdParams = {
-  accountProjectId: number;
+  accountProjectId: number | null | undefined;
 };
 
-export const getAccountProjectQueryOptions = (accountProjectId: number) =>
+export const getAccountProjectQueryOptions = (
+  accountProjectId?: number | null,
+) =>
   queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
-    queryFn: () => getAccountProjectById({ accountProjectId }),
-    enabled: Boolean(accountProjectId),
+    queryFn: () =>
+      getAccountProjectById({ accountProjectId: accountProjectId as number }),
+    enabled: !!accountProjectId,
     ...defaultUseQueryOptions,
   });
 

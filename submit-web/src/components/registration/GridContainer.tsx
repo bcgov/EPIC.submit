@@ -1,7 +1,15 @@
 import { Grid, GridProps } from "@mui/material";
 import { YellowBar } from "../Shared/YellowBar";
 
-export const GridContainer = ({ children, ...rest }: GridProps) => {
+interface GridContainerProps extends GridProps {
+  yellowBar?: boolean;
+}
+
+export const GridContainer = ({
+  yellowBar,
+  children,
+  ...rest
+}: GridContainerProps) => {
   return (
     <Grid
       container
@@ -13,9 +21,11 @@ export const GridContainer = ({ children, ...rest }: GridProps) => {
       spacing={0}
       {...rest}
     >
-      <Grid item xs={12}>
-        <YellowBar />
-      </Grid>
+      {yellowBar && (
+        <Grid item xs={12}>
+          <YellowBar />
+        </Grid>
+      )}
       {children}
     </Grid>
   );
