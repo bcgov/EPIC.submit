@@ -58,7 +58,7 @@ function AddProjects() {
 
   return (
     <>
-      <Banner>{projects[0].proponent_name}</Banner>
+      <Banner>{projects.length > 0 ? projects[0].proponent_name : ""}</Banner>
       <GridContainer yellowBar>
         <Grid item xs={12}>
           <Typography variant="h4" fontWeight={600}>
