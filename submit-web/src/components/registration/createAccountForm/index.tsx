@@ -8,7 +8,7 @@ import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { Save } from "@mui/icons-material";
-import { CircularProgress, Divider, Grid, Typography } from "@mui/material";
+import { CircularProgress, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
@@ -18,6 +18,7 @@ import {
 } from "@/hooks/api/useInvitations";
 import { useAccount } from "@/store/accountStore";
 import BarTitle from "@/components/Shared/Text/BarTitle";
+import { useGetAccountProject } from "@/hooks/api/useProjects";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -36,6 +37,10 @@ function CreateAccountForm() {
   const { user } = useAuth();
   const { setStep, invitation } = useCreateAccountForm();
   const { setAccount } = useAccount();
+
+  const { data: project } = useGetAccountProject({
+    accountProjectId: invitation?.project_ids[0] || 1,
+  });
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
@@ -73,7 +78,7 @@ function CreateAccountForm() {
 
   return (
     <>
-      <Banner>CGI Mines Inc.</Banner>
+      <Banner>{project?.project?.name}</Banner>
       <GridContainer>
         <Grid item xs={12} mb={"16px"}>
           <BarTitle title="Welcome to EPIC.submit" />
@@ -112,7 +117,7 @@ function CreateAccountForm() {
               variant="h5"
               color={BCDesignTokens.themeBlue100}
               sx={{
-                borderBottom: `1px solid ${BCDesignTokens.themeGold80}`,
+                borderBottom: `2px solid ${BCDesignTokens.themeGold80}`,
                 marginBottom: BCDesignTokens.layoutMarginLarge,
               }}
             >
