@@ -85,12 +85,13 @@ function CreateAccountForm() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1">
-            Thank you for taking a few minutes to set up the [project name]
+            Thank you for taking a few minutes to set up the{" "}
+            {project?.project?.name}
             account.
             <br />
             <br />
             First of all, please create your Project Administrator Account for
-            [project Name].
+            {project?.project?.name}.
             <br />
             <br />
             Project Administrators can
