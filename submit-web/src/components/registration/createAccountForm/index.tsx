@@ -17,6 +17,7 @@ import {
   useAcceptInvitation,
 } from "@/hooks/api/useInvitations";
 import { useAccount } from "@/store/accountStore";
+import BarTitle from "@/components/Shared/Text/BarTitle";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -75,21 +76,24 @@ function CreateAccountForm() {
       <Banner>CGI Mines Inc.</Banner>
       <GridContainer>
         <Grid item xs={12} mb={"16px"}>
-          <Typography variant="h4" fontWeight={600}>
-            First, create your account.
-          </Typography>
+          <BarTitle title="Welcome to EPIC.submit" />
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1">
-            Welcome to EPIC.submit and thank you for taking a few minutes to set
-            up the CGI Mines Inc account. First of all, please create your
-            Account as an Adminstrator of EPIC.submit for CGI Mines Inc.
+            Thank you for taking a few minutes to set up the [project name]
+            account.
             <br />
             <br />
-            Account Administrators have access to all the projects associated
-            with your account in EPIC.submit and can manage user access, such as
-            assign users to be Project Account Administrators, and assigning
-            users who can upload or submit documents on behalf of CGI Mines Inc.{" "}
+            First of all, please create your Project Administrator Account for
+            [project Name].
+            <br />
+            <br />
+            Project Administrators can
+            <ul style={{ paddingTop: "0rem", marginTop: "0rem" }}>
+              <li>Access all the submissions</li>
+              <li>Create new submissions and submit submissions to the EAO</li>
+              <li>Add users and manage user access</li>
+            </ul>
           </Typography>
         </Grid>
 
@@ -104,10 +108,16 @@ function CreateAccountForm() {
           mt={"24px"}
         >
           <Grid item xs={12}>
-            <Typography variant="h6" color="#858A8C" fontWeight={400}>
+            <Typography
+              variant="h5"
+              color={BCDesignTokens.themeBlue100}
+              sx={{
+                borderBottom: `1px solid ${BCDesignTokens.themeGold80}`,
+                marginBottom: BCDesignTokens.layoutMarginLarge,
+              }}
+            >
               Your Contact Information
             </Typography>
-            <Divider sx={{ marginTop: "1rem", marginBottom: "1.25rem" }} />
           </Grid>
           <Grid item xs={12}>
             <FormProvider {...methods}>
@@ -117,29 +127,41 @@ function CreateAccountForm() {
                   label="Your Given Name"
                   fullWidth
                   InputLabelProps={{
-                    sx: { marginBottom: "0", color: "red" },
+                    sx: { fontWeight: 700, marginBottom: "0", color: "red" },
                   }}
                 />
                 <ControlledTextField
                   name="surname"
                   label="Your Surname"
                   fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: 700 },
+                  }}
                 />
                 <ControlledTextField
                   name="position"
                   label="Your Position/Role at CGI Mines Inc."
                   fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: 700 },
+                  }}
                 />
                 <ControlledInputMask
                   name="phone"
                   mask="(999) 999-9999"
                   label="Your Work Phone Number"
                   fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: 700 },
+                  }}
                 />
                 <ControlledTextField
                   name="email"
                   label="Your Work Email Address"
                   fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: 700 },
+                  }}
                 />
                 <Button
                   type="submit"
