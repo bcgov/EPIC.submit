@@ -145,7 +145,7 @@ function CreateAccountForm() {
                 />
                 <ControlledTextField
                   name="position"
-                  label="Your Position/Role at CGI Mines Inc."
+                  label={`Your Position/Role at ${project?.project.proponent_name}.`}
                   fullWidth
                   InputLabelProps={{
                     sx: { fontWeight: 700 },
