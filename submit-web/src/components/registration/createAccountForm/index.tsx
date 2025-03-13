@@ -39,7 +39,7 @@ function CreateAccountForm() {
   const { setAccount } = useAccount();
 
   const { data: project } = useGetAccountProject({
-    accountProjectId: invitation?.project_ids[0] || 1,
+    accountProjectId: invitation?.project_ids[0] ?? null,
   });
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
