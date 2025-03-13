@@ -36,7 +36,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
   );
 
   const { name, ea_certificate } = accountProject.project;
-  accountProject.project.proponent_name;
+
   const handleNewSubmission = () => {
     navigate({
       to: `/proponent/projects/${accountProject.id}/new-submission`,
