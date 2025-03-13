@@ -19,7 +19,7 @@ class AccountProject(BaseModel):
     account_id = Column(db.Integer, ForeignKey('accounts.id'), nullable=False)
     project_id = Column(db.Integer, ForeignKey('projects.id'), nullable=False)
     project = db.relationship('Project', foreign_keys=[project_id], lazy='joined')
-    _packages = db.relationship(
+    packages = db.relationship(
         'Package',
         primaryjoin='Package.account_project_id==AccountProject.id',
         lazy='select')
@@ -29,7 +29,7 @@ class AccountProject(BaseModel):
         """Get the latest packages by versions for the account project."""
         version_by_package = {}
 
-        for package in self._packages:
+        for package in self.packages:
             original_package_id = package.version.original_package_id
             if original_package_id not in version_by_package:
                 version_by_package[original_package_id] = package
