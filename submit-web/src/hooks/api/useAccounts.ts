@@ -84,6 +84,5 @@ export const useGetUserByAccountId = ({
     queryKey: [QUERY_KEY.ACCOUNT_USERS, accountId],
     queryFn: () => getUserByAccount(accountId, includeRoles, includeInvitees),
     enabled: Boolean(accountId),
-    ...defaultUseQueryOptions,
   });
 };
