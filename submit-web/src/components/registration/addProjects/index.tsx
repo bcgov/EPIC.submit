@@ -15,6 +15,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { useEffect, useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
+import { ProjectCard } from "./ProjectCard";
 
 function AddProjects() {
   const navigate = useNavigate();
@@ -70,14 +71,20 @@ function AddProjects() {
 
         <Grid item xs={12} mt={"30px"}>
           <Typography variant="body1">
-            EPIC.submit currently supports the submission of Management Plans
-            only.
+            EPIC.submit currently supports the submission of Management Plans,
+            Independent Environmental Monitor Terms of Engagement, and certain
+            reports only.
           </Typography>
         </Grid>
 
         <Grid item xs={12} mt={"20px"}>
           <Typography variant="body1">
-            We found the following project(s) associated with CGI Mines Inc.
+            If you have any questions about the type of documents you can submit
+            on EPIC.submit, please contact{" "}
+            <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
+              EAO.ManagementPlanSupport@gov.bc.ca
+            </Link>
+            .
           </Typography>
         </Grid>
         <Grid item xs={12} mt={"20px"}>
@@ -86,7 +93,7 @@ function AddProjects() {
               <ProjectListSkeleton />
             </Then>
             <Else>
-              <ProjectsList projects={projects} />
+              <ProjectCard project={projects[0]} />
             </Else>
           </If>
         </Grid>

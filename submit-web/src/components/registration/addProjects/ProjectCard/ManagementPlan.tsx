@@ -5,8 +5,6 @@ import { ProjectStatus } from "../ProjectStatus";
 import { PROJECT_STATUS } from "./constants";
 import { Project } from "@/models/Project";
 
-const CARD_HEIGHT = 301;
-const CARD_WIDTH = 380;
 const HEADER_HEIGHT = 54;
 const BODY_HEIGHT = 247;
 
@@ -23,14 +21,11 @@ export const ManagementPlan = ({ project }: { project: Project }) => {
   return (
     <Paper
       sx={{
-        width: CARD_WIDTH,
-        height: CARD_HEIGHT,
-        border: `4px solid ${BCDesignTokens.themeGold100}`,
         borderRadius: "6px",
       }}
     >
       <Box
-        bgcolor={BCDesignTokens.surfaceColorPrimaryButtonDefault}
+        bgcolor={"#F0F8FF"}
         sx={{
           display: "flex",
           alignItems: "center",
@@ -39,12 +34,7 @@ export const ManagementPlan = ({ project }: { project: Project }) => {
         }}
         height={HEADER_HEIGHT}
       >
-        <Typography
-          variant="h5"
-          fontWeight={600}
-          px={2}
-          color={BCDesignTokens.typographyColorPrimaryInvert}
-        >
+        <Typography variant="h5" fontWeight={600} px={2}>
           {project.name}
         </Typography>
       </Box>
@@ -64,8 +54,8 @@ export const ManagementPlan = ({ project }: { project: Project }) => {
           >
             <Box height={"50%"}>
               <CardInnerBox>
-                <Typography variant="h4" fontWeight={400}>
-                  Management Plans
+                <Typography variant="h4" fontWeight={400} mb={1}>
+                  Management Plans & other post certificate documents
                 </Typography>
                 <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
               </CardInnerBox>
@@ -73,11 +63,15 @@ export const ManagementPlan = ({ project }: { project: Project }) => {
             <Box height={"50%"}>
               <CardInnerBox
                 sx={{
-                  border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+                  borderTop: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+                  alignItems: "flex-start",
+                  justifyContent: "flex-start",
                 }}
               >
                 <Typography variant="body1">
-                  You will be able to submit Managements Plans for this Project.
+                  You will be able to submit Managements Plans, Independent
+                  Environmental Monitor Terms of Engagement, and certain reports
+                  for this Project.
                 </Typography>
               </CardInnerBox>
             </Box>
