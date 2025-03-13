@@ -64,7 +64,7 @@ export const useSaveUserProfile = ({
       // Invalidate the query for user profile to refetch data after update
       if (guid) {
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEY.ACCOUNT_USERS, guid],
+          queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
         });
       }
     },

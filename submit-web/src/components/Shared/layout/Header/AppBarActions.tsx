@@ -15,14 +15,15 @@ import { useState } from "react";
 import { OidcConfig } from "@/utils/config";
 import { useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { useAccountGetUserByGuid } from "@/hooks/api/useAccountUsers";
+import { useGetUserByGuid } from "@/hooks/api/useAccounts";
+import { USER_TYPE } from "@/models/User";
 
 export default function AppBarActions() {
   const auth = useAuth();
   const {
-    data: account_user,
-    isPending: isUserAccountLoading,
-  } = useAccountGetUserByGuid({
+    data: user_data,
+    isPending: isUserDataLoading,
+  } = useGetUserByGuid({
     guid: auth.user?.profile.sub,
   });
 
@@ -41,10 +42,14 @@ export default function AppBarActions() {
     navigate({ to: path });
   };
 
-  const userName = isUserAccountLoading ? (
+  const userName = isUserDataLoading ? (
     <CircularProgress size={20} sx={{ marginLeft: 1 }} />
   ) : (
-    <b>{account_user?.full_name || auth.user?.profile.name}</b>
+    <b>
+      {user_data?.type === USER_TYPE.PROPONENT
+        ? `${user_data?.account_user.first_name} ${user_data?.account_user.last_name}`
+        : `${user_data?.staff_user.first_name} ${user_data?.staff_user.last_name}`}
+    </b>
   );
 
   return (
@@ -87,11 +92,13 @@ export default function AppBarActions() {
             >
               My Profile
             </MenuItem>
-            <MenuItem
-              onClick={() => handleNavigate("/proponent/edit-profile")}
-            >
-              Edit My Profile
-            </MenuItem>
+            {user_data?.type === USER_TYPE.PROPONENT && (
+              <MenuItem
+                onClick={() => handleNavigate("/proponent/edit-profile")}
+              >
+                Edit My Profile
+              </MenuItem>
+            )}
             <MenuItem
               onClick={() => {
                 handleClose(); // Close the menu when signing out
