@@ -173,7 +173,7 @@ class AccountUserService:
         if not user_role:
             current_app.logger.warning(f"User role with id {account_user_id} not found.")
             raise ResourceNotFoundError(f"Item with id {account_user_id} not found.")
-        
+
         new_role_name = updated_role_data.get("role_name")
         package_ids = updated_role_data.get("package_ids")
         role = AccountUserService._validate_fetch_role(new_role_name)
@@ -195,7 +195,7 @@ class AccountUserService:
     def _validate_user_permission(user_guid: str, account_user_id: int) -> None:
         """Ensure a user is not updating their own role and restrict PROJECT_ADMIN from editing roles."""
         #TODO Move this to common authorization
-        user = UserModel.get_by_guid(user_guid)       
+        user = UserModel.get_by_guid(user_guid)
         user_role = user.account_user.role
         role_name = user_role.role.role_name
 
