@@ -132,7 +132,7 @@ const statusStyles: Record<string, StyleProps> = {
     label: "Updated",
   },
   FAILED_CONSULTATION_CHECK: {
-    label: "Failed Consultaion Check",
+    label: "Failed Consultation Check",
     sx: {
       borderRadius: 1,
       border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
