@@ -14,7 +14,7 @@ from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
-from submit_api.models.update_request import UpdateRequestType, UpdateRequest
+from submit_api.models.update_request import UpdateRequestType, UpdateRequest, UpdateRequestStatus
 from submit_api.schemas.submission import CreateSubmissionRequestSchema
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.package import PackageService
@@ -34,6 +34,7 @@ class ManagementPlanService:
         update_request_data = cls._prepare_update_request_data(new_item, item)
         cls._create_mp_update_request(update_request_data, session)
         cls._log_management_plan_rejection_activity(item, session)
+        cls._deactivate_update_requests(item.package_id, session)
         current_app.logger.info(f"Management plan form rejected for item {item.id}.")
         return item
 
@@ -166,7 +167,7 @@ class ManagementPlanService:
         package = PackageModel.find_by_id(item.package_id)
         cls._update_item_status_mp_approval(item, package, session)
         cls._update_package_for_completion(item, package, session)
-        cls._deactivate_update_requests(package, session)
+        cls._deactivate_update_requests(package.id, session, package)
         cls._log_activity_mp_approval(package, session)
         current_app.logger.info(f"Management plan form approved for item {item.id}.")
         return item
@@ -238,12 +239,15 @@ class ManagementPlanService:
         current_app.logger.info(f"Activity logged for management plan approval for package {package.id}.")
 
     @classmethod
-    def _deactivate_update_requests(cls, package, session):
+    def _deactivate_update_requests(cls, package_id, session, package=None):
         """Deactivate all update requests for the package."""
+        if not package:
+            package = PackageModel.find_by_id(package_id)
         current_app.logger.info(f"Deactivating update requests for package {package.id}.")
         update_requests = package.update_requests
         for update_request in update_requests:
             update_request.active = False
+            update_request.status = UpdateRequestStatus.CLOSED.value
             session.add(update_request)
         session.flush()
         current_app.logger.info(f"Update requests deactivated for package {package.id}.")
