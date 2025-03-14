@@ -47,3 +47,8 @@ class UserRole(BaseModel):
         else:
             user_role.save()
         return user_role
+
+    @classmethod
+    def get_role_by_account_user_id(cls, account_user_id):
+        """Get the user for a given account."""
+        return cls.query.filter(cls.account_user_id == account_user_id).first()

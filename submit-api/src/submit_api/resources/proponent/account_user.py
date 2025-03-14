@@ -15,12 +15,13 @@
 
 from http import HTTPStatus
 
-from flask import request
+from flask import jsonify, request
 from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
+from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.account_user import AccountUserSchema
+from submit_api.schemas.account_user import AccountUserSchema, RoleSchema
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.utils.util import cors_preflight
 
@@ -63,7 +64,6 @@ class AccountUsers(Resource):
 
 @cors_preflight("GET, PATCH, OPTIONS")
 @API.route("/user/<string:guid>", methods=["GET", "PATCH", "OPTIONS"])
-@API.doc(params={"user_id": "The user identifier"})
 class AccountUser(Resource):
     """Resource for fetching or editing a user."""
 
@@ -94,3 +94,31 @@ class AccountUser(Resource):
         edit_account_user_data = AccountUserSchema().load(API.payload)
         edited_account_user = AccountUserService.update_account_user(guid, edit_account_user_data)
         return AccountUserSchema().dump(edited_account_user), HTTPStatus.OK
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/user/<int:account_user_id>/role", methods=["PATCH", "OPTIONS"])
+class EditUserRole(Resource):
+    """Resource for editing a user's role."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Edit a user's role")
+    @API.expect(account_user_list_model)
+    @API.response(
+        code=HTTPStatus.OK, model=account_user_list_model, description="Account user"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def patch(account_user_id):
+        """Edit a user's role."""
+        user_guid = auth.sub
+        new_role_data = RoleSchema().load(API.payload)
+        try:
+            updated_role_data = AccountUserService.update_role(user_guid, account_user_id, new_role_data)
+            return AccountUserSchema().dump(updated_role_data), HTTPStatus.OK
+        except PermissionDeniedError as e:
+            return jsonify({"error": str(e)}), HTTPStatus.FORBIDDEN
+
+        except ResourceNotFoundError as e:
+            return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND

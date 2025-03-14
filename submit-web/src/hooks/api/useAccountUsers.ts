@@ -70,3 +70,60 @@ export const useSaveUserProfile = ({
     },
   });
 };
+
+type EditUserRequest = {
+  role_name: string;
+  package_ids?: number[];
+};
+export const editUserRole = (account_user_id: number, data: EditUserRequest) => {
+  return submitRequest<AccountUserWithRole>({
+    url: `/accounts/user/${account_user_id}/role`,
+    method: "patch",
+    data,
+  });
+};
+
+type UseSaveUserRoleParams = {
+  account_user_id: number;
+  options?: Options;
+};
+export const useSaveUserRole = ({
+  account_user_id,
+  options,
+}: UseSaveUserRoleParams) => {
+  return useMutation({
+    mutationFn: (data: EditUserRequest) => {
+      if (!account_user_id) {
+        throw new Error("Account user id is required");
+      }
+
+      return editUserRole(account_user_id, data);
+    },
+    ...options,
+    onSuccess: () => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+    },
+    onError: (error: any) => {
+      let errorMessage = "An error occurred while updating the user role.";
+      if (error?.response) {
+        if (error.response.data) {
+          if (typeof error.response.data === "string") {
+            errorMessage = error.response.data;
+          } 
+          else if (error.response.data.error) {
+            errorMessage = error.response.data.error;
+          } else if (error.response.data.message) {
+            errorMessage = error.response.data.message;
+          }
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      if (options?.onError) {
+        options.onError(new Error(errorMessage));
+      }
+    },
+  });
+};

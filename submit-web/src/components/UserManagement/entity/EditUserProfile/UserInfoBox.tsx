@@ -1,7 +1,7 @@
 import { Grid, IconButton, Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { AccountUserWithRole } from "@/models/AccountUser";
-import { ReactNode } from "@tanstack/react-router";
+import { ReactNode, useNavigate } from "@tanstack/react-router";
 import EditIcon from "@mui/icons-material/Edit";
 
 interface UserInfoBoxProps {
@@ -60,6 +60,11 @@ const InfoBoxItem = ({
 const UserInfoBox = ({ userData, showEdit }: UserInfoBoxProps) => {
   const roleNames = userData.role.role_name;
 
+  const navigate = useNavigate();
+  const handleEditClick = () => {
+    navigate({ to: "/proponent/edit-role" });
+  };
+
   return (
     <Box
       sx={{
@@ -79,6 +84,7 @@ const UserInfoBox = ({ userData, showEdit }: UserInfoBoxProps) => {
             label={"Current Access Level"}
             value={roleNames}
             showEdit={showEdit}
+            onEdit={handleEditClick}
           />
         </Grid>
         <Grid item xs={1}>
