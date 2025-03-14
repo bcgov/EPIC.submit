@@ -7,6 +7,7 @@ import {
 import { QUERY_KEY } from "./constants";
 import { Invitation } from "@/models/Invitation";
 import { submitRequest } from "@/utils/axiosUtils";
+import { Role } from "@/models/AccountUser";
 
 export const useCreateInvitation = (options?: Options) => {
   return useMutation({
@@ -70,7 +71,7 @@ type CreateAccountRequest = {
 export type AcceptInvitationResponse = {
   message: string;
   user_id: number;
-  role: string;
+  role: Role;
 };
 const acceptInvitation = (
   token: string | undefined,

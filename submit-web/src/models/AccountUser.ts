@@ -2,6 +2,13 @@ import { UserPackageStatus } from "@/components/UserStatusChip";
 import { Account } from "./Account";
 import { USER_MANAGEMENT_ROLE } from "./Role";
 
+export type Role = {
+  account_project_id: number | null;
+  package_ids: number[];
+  role_id: number;
+  role_name: USER_MANAGEMENT_ROLE;
+};
+
 export type AccountUser = {
   id: number;
   account_id: number;
@@ -11,15 +18,8 @@ export type AccountUser = {
   position: string;
   work_email_address: string;
   work_contact_number: string;
-  auth_guid: string;
   account: Account;
-};
-
-export type Role = {
-  account_project_id: number | null;
-  package_ids: number[];
-  role_id: number;
-  role_name: USER_MANAGEMENT_ROLE;
+  role: Role;
 };
 
 export type AccountUserWithRole = {
@@ -33,6 +33,6 @@ export type AccountUserWithRole = {
   work_contact_number?: string;
   account?: Account;
   status: UserPackageStatus;
-  roles: Role[];
+  role: Role;
   user_id: number | null;
 };

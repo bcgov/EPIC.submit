@@ -2,7 +2,7 @@
 
 Manages the invitation.
 """
-
+from api.schemas import RoleSchema
 from marshmallow import Schema, fields
 
 
@@ -31,3 +31,4 @@ class InvitationSchema(Schema):
     status = fields.Str()
     expiry_date = fields.DateTime()
     created_date = fields.DateTime()
+    role = fields.Nested(RoleSchema, data_key="role", dump_only=True)

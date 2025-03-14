@@ -5,13 +5,13 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
 import { TableBox } from "../../../Shared/TableBox";
 import {
-    Box,
-    Button,
-    Grid,
-    CircularProgress,
-    FormHelperText,
-    Paper,
-    Typography
+  Box,
+  Button,
+  Grid,
+  CircularProgress,
+  FormHelperText,
+  Paper,
+  Typography,
 } from "@mui/material";
 import { useSaveUserProfile } from "@/hooks/api/useAccountUsers";
 import { notify } from "../../../Shared/Snackbar/snackbarStore";
@@ -32,7 +32,9 @@ const updateUserProfileSchema = yup.object().shape({
     .required("Please enter your email."),
 });
 
-export type UpdateUserProfileFormSchema = yup.InferType<typeof updateUserProfileSchema>;
+export type UpdateUserProfileFormSchema = yup.InferType<
+  typeof updateUserProfileSchema
+>;
 
 interface ProfileEditFormProps {
   user: AccountUserWithRole;
@@ -65,12 +67,12 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
 
   const { mutate: callSaveUserProfile, isPending: isSavingUserProfilePending } =
     useSaveUserProfile({
-        guid,
-        options: {
-            onSuccess: onCreateSuccess,
-            onError: onCreateFailure,
-        },
-  });
+      guid,
+      options: {
+        onSuccess: onCreateSuccess,
+        onError: onCreateFailure,
+      },
+    });
 
   const methods = useForm({
     resolver: yupResolver(updateUserProfileSchema),
@@ -103,157 +105,163 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
       last_name: data.surname,
       position: data.position,
       work_contact_number: data.phone,
-      work_email_address: data.email
+      work_email_address: data.email,
     };
     callSaveUserProfile(accountData, {
-        onSuccess: () => {
+      onSuccess: () => {
         setUserData((prev) => ({
-            ...prev,
-            ...accountData,
-            full_name: `${data.givenName} ${data.surname}`,
-            roles: user.roles,
-            status: user.status,
+          ...prev,
+          ...accountData,
+          full_name: `${data.givenName} ${data.surname}`,
+          role: user.role,
+          status: user.status,
         }));
-        },
+      },
     });
   };
 
   return (
-    <TableBox mainLabel={"User Management"} >
-        <Paper
-            sx={{
-                maxWidth: "1448px",
-                border: `1px solid ${BCDesignTokens.themeGray40}`,
-            }}
+    <TableBox mainLabel={"User Management"}>
+      <Paper
+        sx={{
+          maxWidth: "1448px",
+          border: `1px solid ${BCDesignTokens.themeGray40}`,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "auto",
+            padding: "12px 20px",
+          }}
         >
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "auto",
-                    padding: "12px 20px",
-                }}
-            >
-            <Grid container direction="row" alignItems="center" spacing={1}>
-                <Grid item xs={10}>
-                    <Typography variant="h2" sx={{ fontWeight: 400 }}>
-                        {userData.full_name}
-                    </Typography>
-                </Grid>
-                <Grid
-                    item
-                    xs={2}
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                        gap: 1,
-                    }}
-                >
-                    <Typography color={BCDesignTokens.themeGray70}>Status:</Typography>
-                    <UserStatusChip status={userData.status} />
-                </Grid>
+          <Grid container direction="row" alignItems="center" spacing={1}>
+            <Grid item xs={10}>
+              <Typography variant="h2" sx={{ fontWeight: 400 }}>
+                {userData.full_name}
+              </Typography>
             </Grid>
-            </Box>
-            <UserInfoBox userData={userData} showEdit={false} />
-            <Box
-                sx={{
-                    padding: "24px 16px 16px 16px",
-                    alignSelf: "stretch",
-                }}
+            <Grid
+              item
+              xs={2}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: 1,
+              }}
             >
-                <Grid item xs={4}>
-                    <FormProvider {...methods}>
-                        <form onSubmit={handleSubmit(onSubmitHandler)}>
-                            <ControlledTextField
-                                name="givenName"
-                                label="Given Name"
-                                fullWidth
-                                InputLabelProps={{
-                                    sx: { fontWeight: 'bold' },
-                                }}
-                                sx={{ marginBottom: '4px' }}
-                            />
-                            <ControlledTextField
-                                name="surname"
-                                label="Surname"
-                                fullWidth
-                                InputLabelProps={{
-                                    sx: { fontWeight: 'bold' },
-                                }}
-                                sx={{ marginBottom: '4px' }}
-                            />
-                            <ControlledTextField
-                                name="position"
-                                label="Position/Role"
-                                fullWidth
-                                InputLabelProps={{
-                                    sx: { fontWeight: 'bold' },
-                                }}
-                                sx={{ marginBottom: '4px' }}
-                            />
-                            <ControlledTextField
-                                name="phone"
-                                label="Work Phone Number"
-                                fullWidth
-                                InputLabelProps={{
-                                    sx: { fontWeight: 'bold' },
-                                }}
-                                sx={{ marginBottom: '4px' }}
-                            />
-                            <ControlledTextField
-                                name="email"
-                                label="Work Email Address"
-                                fullWidth
-                                disabled
-                                InputLabelProps={{
-                                    sx: {
-                                        fontWeight: 'bold',
-                                        color: 'black !important',
-                                    },
-                                }}
-                                sx={{
-                                    '& .MuiInputBase-input.Mui-disabled': {
-                                        WebkitTextFillColor: '#000',
-                                        opacity: 1,
-                                    },
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                        borderColor: '#ccc !important',
-                                    },
-                                    marginBottom: '4px'
-                                }}
-                            />
-                            <FormHelperText
-                                sx={{
-                                    marginTop: "-20px",
-                                    fontSize: "12px",
-                                    color: "gray",
-                                    marginBottom: '40px'
-                                }}>
-                                * To change your email address, please contact "tbd"
-                            </FormHelperText>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                disabled={isSavingUserProfilePending}
-                            >
-                            {isSavingUserProfilePending ?
-                            <CircularProgress size={24} /> : "Save"}
-                            </Button>
-                            <Button
-                                type="submit"
-                                variant="text"
-                                disabled={isSavingUserProfilePending}
-                                onClick={handleCancel}
-                            >
-                                Cancel
-                            </Button>
-                        </form>
-                    </FormProvider>
-                </Grid>
-            </Box>
-        </Paper>
+              <Typography color={BCDesignTokens.themeGray70}>
+                Status:
+              </Typography>
+              <UserStatusChip status={userData.status} />
+            </Grid>
+          </Grid>
+        </Box>
+        <UserInfoBox userData={userData} showEdit={false} />
+        <Box
+          sx={{
+            padding: "24px 16px 16px 16px",
+            alignSelf: "stretch",
+          }}
+        >
+          <Grid item xs={4}>
+            <FormProvider {...methods}>
+              <form onSubmit={handleSubmit(onSubmitHandler)}>
+                <ControlledTextField
+                  name="givenName"
+                  label="Given Name"
+                  fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: "bold" },
+                  }}
+                  sx={{ marginBottom: "4px" }}
+                />
+                <ControlledTextField
+                  name="surname"
+                  label="Surname"
+                  fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: "bold" },
+                  }}
+                  sx={{ marginBottom: "4px" }}
+                />
+                <ControlledTextField
+                  name="position"
+                  label="Position/Role"
+                  fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: "bold" },
+                  }}
+                  sx={{ marginBottom: "4px" }}
+                />
+                <ControlledTextField
+                  name="phone"
+                  label="Work Phone Number"
+                  fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: "bold" },
+                  }}
+                  sx={{ marginBottom: "4px" }}
+                />
+                <ControlledTextField
+                  name="email"
+                  label="Work Email Address"
+                  fullWidth
+                  disabled
+                  InputLabelProps={{
+                    sx: {
+                      fontWeight: "bold",
+                      color: "black !important",
+                    },
+                  }}
+                  sx={{
+                    "& .MuiInputBase-input.Mui-disabled": {
+                      WebkitTextFillColor: "#000",
+                      opacity: 1,
+                    },
+                    "& .MuiOutlinedInput-notchedOutline": {
+                      borderColor: "#ccc !important",
+                    },
+                    marginBottom: "4px",
+                  }}
+                />
+                <FormHelperText
+                  sx={{
+                    marginTop: "-20px",
+                    fontSize: "12px",
+                    color: "gray",
+                    marginBottom: "40px",
+                  }}
+                >
+                  * To change your email address, please contact "tbd"
+                </FormHelperText>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  disabled={isSavingUserProfilePending}
+                >
+                  {isSavingUserProfilePending ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+                <Button
+                  type="submit"
+                  variant="text"
+                  disabled={isSavingUserProfilePending}
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </Button>
+              </form>
+            </FormProvider>
+          </Grid>
+        </Box>
+      </Paper>
     </TableBox>
   );
 }

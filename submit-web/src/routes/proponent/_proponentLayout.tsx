@@ -38,6 +38,7 @@ function ProponentLayout() {
         proponentId: userData?.account_user.account.proponent_id,
         accountId: userData?.account_user.account.id,
         userType: USER_TYPE.PROPONENT,
+        userManagementRole: userData?.account_user.role,
       });
     }
   }, [

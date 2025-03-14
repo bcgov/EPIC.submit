@@ -21,6 +21,17 @@ class UserRole(BaseModel):
     role = db.relationship("Role", lazy="joined")
     account_user = db.relationship("AccountUser", back_populates="role", lazy="select")
 
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "account_user_id": self.account_user_id,
+            "account_project_id": self.account_project_id,
+            "package_ids": self.package_ids,
+            "role_id": self.role_id,
+            "role": self.role.to_dict(),
+        }
+
     @classmethod
     def create_user_role(cls, data, session=None) -> UserRole:
         """Create a user role assignment."""

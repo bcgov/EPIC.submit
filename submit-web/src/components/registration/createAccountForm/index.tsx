@@ -46,6 +46,7 @@ function CreateAccountForm() {
     setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
     setAccount({
       userId: data.user_id,
+      userManagementRole: data.role,
     });
   };
 

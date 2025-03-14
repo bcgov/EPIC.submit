@@ -43,6 +43,7 @@ class AccountUser(BaseModel):
             "work_email_address": self.work_email_address,
             "work_contact_number": self.work_contact_number,
             "user_id": self.user_id,
+            "role": self.role.to_dict() if self.role else None,
         }
 
     @classmethod

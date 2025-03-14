@@ -29,6 +29,15 @@ class Role(BaseModel):
     label = Column(String(100), nullable=False)  # UI-friendly display name
     description = Column(Text(), nullable=False)
 
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "role_name": self.role_name,
+            "label": self.label,
+            "description": self.description
+        }
+
     @classmethod
     def get_by_name(cls, role_name) -> Role:
         """Fetch role by role name."""

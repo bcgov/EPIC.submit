@@ -16,10 +16,15 @@ type InfoBoxItemProps = {
   showEdit?: boolean;
   onEdit?: () => void;
 };
-const InfoBoxItem = ({ label = "", value = "", showEdit = false, onEdit }: InfoBoxItemProps) => {
+const InfoBoxItem = ({
+  label = "",
+  value = "",
+  showEdit = false,
+  onEdit,
+}: InfoBoxItemProps) => {
   return (
     <Grid container direction="row" alignItems="flex-start" spacing={1}>
-      <Grid item xs={4}>  
+      <Grid item xs={4}>
         <Typography color={BCDesignTokens.themeGray70}>{label}:</Typography>
       </Grid>
       <Grid item xs={8} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -28,12 +33,24 @@ const InfoBoxItem = ({ label = "", value = "", showEdit = false, onEdit }: InfoB
           <IconButton
             size="small"
             onClick={onEdit}
-            sx={{ padding: 0, marginLeft: 3, display: "flex", alignItems: "center", gap: 0.5 }}
+            sx={{
+              padding: 0,
+              marginLeft: 3,
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+            }}
           >
-            <EditIcon htmlColor={BCDesignTokens.iconsColorLink} fontSize="small" />
-              <Typography variant="body2" sx={{ fontWeight: 400, color: BCDesignTokens.iconsColorLink }}>
-                  Edit Access
-              </Typography>
+            <EditIcon
+              htmlColor={BCDesignTokens.iconsColorLink}
+              fontSize="small"
+            />
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 400, color: BCDesignTokens.iconsColorLink }}
+            >
+              Edit Access
+            </Typography>
           </IconButton>
         )}
       </Grid>
@@ -42,7 +59,7 @@ const InfoBoxItem = ({ label = "", value = "", showEdit = false, onEdit }: InfoB
 };
 
 const UserInfoBox = ({ userData, showEdit }: UserInfoBoxProps) => {
-  const roleNames = userData.roles?.map((role) => roleDetails[role.role_name]?.label).join(", ");
+  const roleNames = userData.role.role_name;
 
   return (
     <Box
