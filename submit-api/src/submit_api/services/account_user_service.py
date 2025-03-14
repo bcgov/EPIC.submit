@@ -194,7 +194,7 @@ class AccountUserService:
     @staticmethod
     def _validate_user_permission(user_guid: str, account_user_id: int) -> None:
         """Ensure a user is not updating their own role and restrict PROJECT_ADMIN from editing roles."""
-        #TODO Move this to common authorization
+        # TODO: Move this to common authorization
         user = UserModel.get_by_guid(user_guid)
         user_role = user.account_user.role
         role_name = user_role.role.role_name
