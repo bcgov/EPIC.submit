@@ -25,6 +25,7 @@ class AccountUserSchema(Schema):
     status = fields.Str(required=False)
     account = fields.Nested(AccountSchema, data_key="account", dump_only=True)
 
+
 class EditRoleSchema(Schema):
     """Schema for editing a users role."""
 
