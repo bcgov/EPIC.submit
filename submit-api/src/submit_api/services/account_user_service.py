@@ -1,9 +1,10 @@
 """Service for account user management."""
 from flask import current_app
-from submit_api.exceptions import ResourceNotFoundError
+from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Invitations as InvitationsModel
 from submit_api.models import Role as RoleModel
+from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.db import db
 from submit_api.models.invitations import InvitationStatus
@@ -162,3 +163,56 @@ class AccountUserService:
 
         current_app.logger.info(f"Account user {account_user.id} updated successfully.")
         return account_user
+
+    @classmethod
+    def update_role(cls, user_guid, account_user_id, updated_role_data):
+        """Update user's role."""
+        AccountUserService._validate_user_permission(user_guid, account_user_id)
+
+        user_role = UserRoleModel.get_role_by_account_user_id(account_user_id)
+        if not user_role:
+            current_app.logger.warning(f"User role with id {account_user_id} not found.")
+            raise ResourceNotFoundError(f"Item with id {account_user_id} not found.")
+
+        new_role_name = updated_role_data.get("role_name")
+        package_ids = updated_role_data.get("package_ids")
+        role = AccountUserService._validate_fetch_role(new_role_name)
+
+        user_role.role_id = role.id
+        user_role.package_ids = package_ids
+        db.session.commit()
+
+        current_app.logger.info(f"User role {user_role.id} updated successfully.")
+
+        account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        user_dict = account_user.to_dict()
+        user_dict["status"] = "ACTIVE"
+        return user_dict
+
+    @staticmethod
+    def _validate_user_permission(user_guid: str, account_user_id: int) -> None:
+        """Ensure a user is not updating their own role and restrict PROJECT_ADMIN from editing roles."""
+        # TODO: Move this to common authorization
+        user = UserModel.get_by_guid(user_guid)
+        user_role = user.account_user.role
+        role_name = user_role.role.role_name
+
+        if not user or not user.account_user:
+            current_app.logger.warning("Only account admins are allowed to edit roles.")
+            raise PermissionDeniedError("Only account admins are allowed to edit roles.")
+
+        if user.account_user.id == account_user_id:
+            current_app.logger.warning(f"User {user.id} attempted to update their own role.")
+            raise PermissionDeniedError("You are not allowed to update your own role.")
+
+        if role_name != RoleEnum.PROJECT_ADMIN.value:
+            current_app.logger.warning("Only account admins are allowed to edit roles.")
+            raise PermissionDeniedError("Only account admins are allowed to edit roles.")
+
+    @staticmethod
+    def _validate_fetch_role(role_name):
+        """Validate if the given role ID exists, otherwise throw an exception."""
+        role = RoleModel.get_by_name(role_name)
+        if not role:
+            raise ResourceNotFoundError(f"Invalid role name: {role_name}")
+        return role

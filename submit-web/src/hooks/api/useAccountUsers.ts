@@ -3,6 +3,7 @@ import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
+import { isAxiosError } from "axios";
 
 const getUserProfileByGuid = (guid?: string) => {
   return submitRequest<AccountUserWithRole>({ url: `/accounts/user/${guid}` });
@@ -66,6 +67,53 @@ export const useSaveUserProfile = ({
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
         });
+      }
+    },
+  });
+};
+
+type EditUserRequest = {
+  role_name: string;
+  package_ids?: number[];
+};
+export const editUserRole = (account_user_id: number, data: EditUserRequest) => {
+  return submitRequest<AccountUserWithRole>({
+    url: `/accounts/user/${account_user_id}/role`,
+    method: "patch",
+    data,
+  });
+};
+
+type UseSaveUserRoleParams = {
+  account_user_id: number;
+  options?: Options;
+};
+export const useSaveUserRole = ({
+  account_user_id,
+  options,
+}: UseSaveUserRoleParams) => {
+  return useMutation({
+    mutationFn: (data: EditUserRequest) => {
+      if (!account_user_id) {
+        throw new Error("Account user id is required");
+      }
+
+      return editUserRole(account_user_id, data);
+    },
+    ...options,
+    onSuccess: () => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+    },
+    onError: (error: any) => {
+      const defaultMessage = "An error occurred while updating the user role.";
+      const errorMessage = isAxiosError(error)
+        ? error.response?.data.message ?? defaultMessage
+        : defaultMessage;
+
+      if (options?.onError) {
+        options.onError(new Error(errorMessage));
       }
     },
   });

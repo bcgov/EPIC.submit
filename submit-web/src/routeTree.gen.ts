@@ -24,6 +24,7 @@ import { Route as ProponentRegistrationCreateAccountImport } from './routes/prop
 import { Route as ProponentRegistrationCompleteImport } from './routes/proponent/registration/complete'
 import { Route as ProponentProponentLayoutUserDetailsImport } from './routes/proponent/_proponentLayout/user-details'
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
+import { Route as ProponentProponentLayoutEditRoleImport } from './routes/proponent/_proponentLayout/edit-role'
 import { Route as ProponentProponentLayoutEditProfileImport } from './routes/proponent/_proponentLayout/edit-profile'
 import { Route as StaffStaffLayoutUserManagementIndexImport } from './routes/staff/_staffLayout/user-management/index'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
@@ -146,6 +147,12 @@ const ProponentProponentLayoutUserDetailsRoute =
 const ProponentProponentLayoutProfileRoute =
   ProponentProponentLayoutProfileImport.update({
     path: '/profile',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const ProponentProponentLayoutEditRoleRoute =
+  ProponentProponentLayoutEditRoleImport.update({
+    path: '/edit-role',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
@@ -381,6 +388,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentProponentLayoutEditProfileImport
       parentRoute: typeof ProponentProponentLayoutImport
     }
+    '/proponent/_proponentLayout/edit-role': {
+      id: '/proponent/_proponentLayout/edit-role'
+      path: '/edit-role'
+      fullPath: '/proponent/edit-role'
+      preLoaderRoute: typeof ProponentProponentLayoutEditRoleImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
     '/proponent/_proponentLayout/profile': {
       id: '/proponent/_proponentLayout/profile'
       path: '/profile'
@@ -589,6 +603,7 @@ export const routeTree = rootRoute.addChildren({
   ProponentRoute: ProponentRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
       ProponentProponentLayoutEditProfileRoute,
+      ProponentProponentLayoutEditRoleRoute,
       ProponentProponentLayoutProfileRoute,
       ProponentProponentLayoutUserDetailsRoute,
       ProponentProponentLayoutAboutpageLazyRoute,
@@ -691,6 +706,7 @@ export const routeTree = rootRoute.addChildren({
       "parent": "/proponent",
       "children": [
         "/proponent/_proponentLayout/edit-profile",
+        "/proponent/_proponentLayout/edit-role",
         "/proponent/_proponentLayout/profile",
         "/proponent/_proponentLayout/user-details",
         "/proponent/_proponentLayout/aboutpage",
@@ -722,6 +738,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/proponent/_proponentLayout/edit-profile": {
       "filePath": "proponent/_proponentLayout/edit-profile.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
+    "/proponent/_proponentLayout/edit-role": {
+      "filePath": "proponent/_proponentLayout/edit-role.tsx",
       "parent": "/proponent/_proponentLayout"
     },
     "/proponent/_proponentLayout/profile": {

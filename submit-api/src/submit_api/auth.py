@@ -64,5 +64,10 @@ class Auth:  # pylint: disable=too-few-public-methods
 
         return decorated
 
+    @property
+    def sub(self):
+        """Retrieve the subject (sub) claim from the JWT token."""
+        return g.token_info.get("sub") if hasattr(g, "token_info") else None
+
 
 auth = Auth()
