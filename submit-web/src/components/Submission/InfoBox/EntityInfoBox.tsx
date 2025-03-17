@@ -4,25 +4,8 @@ import { BCDesignTokens } from "epic.theme";
 import { get, isArray } from "lodash";
 import { useMemo } from "react";
 import VersionGroup from "../VersionGroup";
-import { ReactNode } from "@tanstack/react-router";
 import { SubmissionHistory } from "./SubmissionHistory";
 
-type InfoBoxItemProps = {
-  label?: string;
-  value?: ReactNode;
-};
-const InfoBoxItem = ({ label = "", value = "" }: InfoBoxItemProps) => {
-  return (
-    <Grid container direction="row" spacing={1} alignItems={"flex-start"}>
-      <Grid item xs={6}>
-        <Typography color={BCDesignTokens.themeGray70}>{label}:</Typography>
-      </Grid>
-      <Grid item xs="auto">
-        <Typography color={"inherit"}>{value}</Typography>
-      </Grid>
-    </Grid>
-  );
-};
 type InfoBoxProps = {
   submissionPackage: SubmissionPackage;
 };
