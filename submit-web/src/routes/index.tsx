@@ -7,7 +7,6 @@ import {
   Box,
   Link,
   Container,
-  Toolbar,
   Stack,
 } from "@mui/material";
 import { useAuth } from "react-oidc-context";
