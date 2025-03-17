@@ -2,7 +2,6 @@ import { Grid, IconButton, Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { ReactNode } from "@tanstack/react-router";
-import { roleDetails } from "@/models/Role";
 import EditIcon from "@mui/icons-material/Edit";
 
 interface UserInfoBoxProps {

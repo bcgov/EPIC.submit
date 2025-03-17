@@ -13,7 +13,6 @@ import { BCDesignTokens } from "epic.theme";
 import { useEffect, useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
 import { ProjectCard } from "./ProjectCard";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 function AddProjects() {
   const navigate = useNavigate();

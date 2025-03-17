@@ -2,7 +2,8 @@
 
 Manages the invitation.
 """
-from api.schemas import RoleSchema
+
+from submit_api.schemas.role import RoleSchema
 from marshmallow import Schema, fields
 
 
