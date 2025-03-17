@@ -15,6 +15,7 @@ import { PageLoader } from "@/components/Shared/PageLoader";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { OidcConfig } from "@/utils/config";
 import { BCDesignTokens } from "epic.theme";
+import { IDENTITY_PROVIDERS } from "@/models/User";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -146,6 +147,9 @@ function Index() {
                 onClick={() =>
                   auth.signinRedirect({
                     redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
+                    extraQueryParams: {
+                      kc_idp_hint: IDENTITY_PROVIDERS.BCEID,
+                    },
                   })
                 }
               >
@@ -179,6 +183,9 @@ function Index() {
                 onClick={() =>
                   auth.signinRedirect({
                     redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
+                    extraQueryParams: {
+                      kc_idp_hint: IDENTITY_PROVIDERS.BCSC,
+                    },
                   })
                 }
                 sx={{ mt: 1 }}

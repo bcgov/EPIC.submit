@@ -6,6 +6,12 @@ export const USER_TYPE = Object.freeze<Record<UserType, UserType>>({
   STAFF: "STAFF",
 });
 
+export const IDENTITY_PROVIDERS = {
+  IDIR: "idir",
+  BCEID: "bceid",
+  BCSC: "bcsc",
+} as const;
+
 export type StaffUser = {
   id: number;
   first_name: string;

@@ -63,6 +63,9 @@ const Footer = () => {
             onClick={() => {
               signinRedirect({
                 redirect_uri: `${OidcConfig.redirect_uri}`,
+                extraQueryParams: {
+                  kc_idp_hint: OidcConfig.kc_idp_hint,
+                },
               });
             }}
           >
