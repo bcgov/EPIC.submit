@@ -51,7 +51,8 @@ function Complete() {
               control={<Radio />}
               label="Go to the home page"
             />
-            {userManagementRole === USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
+            {userManagementRole?.role_name ===
+              USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
               <FormControlLabel
                 value="userManagement"
                 control={<Radio />}

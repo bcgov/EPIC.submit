@@ -19,6 +19,8 @@ import {
 import { useAccount } from "@/store/accountStore";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { useNavigate } from "@tanstack/react-router";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -37,17 +39,23 @@ function CreateAccountForm() {
   const { user } = useAuth();
   const { setStep, invitation } = useCreateAccountForm();
   const { setAccount } = useAccount();
+  const navigate = useNavigate();
 
   const { data: project } = useGetAccountProject({
     accountProjectId: invitation?.project_ids[0] ?? null,
   });
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
-    setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
     setAccount({
       userId: data.user_id,
       userManagementRole: data.role,
     });
+
+    if (data.role.role_name === USER_MANAGEMENT_ROLE.PROJECT_ADMIN) {
+      setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
+    } else {
+      navigate({ to: "/proponent/projects" });
+    }
   };
 
   const { mutate: doCreateAccount, isPending: isCreatingAccount } =

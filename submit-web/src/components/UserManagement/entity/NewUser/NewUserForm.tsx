@@ -88,7 +88,7 @@ export default function NewUserForm() {
         ?.filter(
           ({ packages }) =>
             !isSpecificSubmission ||
-            packages.some(({ id }) => packageIds.includes(id.toString()))
+            packages.some(({ id }) => packageIds.includes(id.toString())),
         )
         .map(({ project_id }) => Number(project_id)) || []
     );
@@ -115,9 +115,9 @@ export default function NewUserForm() {
         Object.values(accountProject.packages).map((pkg) => ({
           value: String(pkg.id),
           label: pkg.name,
-        }))
+        })),
       ) || [],
-    [accountPackages]
+    [accountPackages],
   );
 
   return (

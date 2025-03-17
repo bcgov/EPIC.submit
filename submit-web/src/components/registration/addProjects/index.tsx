@@ -17,7 +17,7 @@ import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 function AddProjects() {
   const navigate = useNavigate();
-  const { userId, userManagementRole } = useAccount();
+  const { userId } = useAccount();
 
   const {
     data: accountProjects,
@@ -48,10 +48,6 @@ function AddProjects() {
   const onConfirmProjectsClick = () => {
     if (!accountProjects) {
       return;
-    }
-
-    if (userManagementRole !== USER_MANAGEMENT_ROLE.PROJECT_ADMIN) {
-      navigate({ to: "/proponent/projects" });
     }
 
     navigate({ to: "/proponent/registration/complete" });
