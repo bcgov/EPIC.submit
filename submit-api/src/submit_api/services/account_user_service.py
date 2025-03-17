@@ -17,12 +17,11 @@ class AccountUserService:
     def get_users_by_account(cls, account_id, include_roles=False, include_invitees=False):
         """Get all users associated with an account, optionally including roles & invitees."""
         users = cls._fetch_users(account_id)
-        roles_map = cls._fetch_roles(users) if include_roles else {}
+        # roles_map = cls._fetch_roles(users) if include_roles else {}
 
         user_list = []
         for user in users:
             user_data = user.to_dict()
-            user_data["roles"] = roles_map.get(user.id, []) if include_roles else []
             user_data["status"] = "ACTIVE"
             user_list.append(user_data)
 
@@ -82,13 +81,13 @@ class AccountUserService:
                 "full_name": invite.email,
                 "work_email_address": invite.email,
                 "user_id": None,
-                "roles": [{
+                "role": {
                     "role_id": invite.role_id,
-                    "role_name": RoleModel.find_by_id(invite.role_id).role_name,
+                    "role": invite.role.to_dict(),
                     "account_project_id": None,
                     "package_ids": invite.package_ids,
                     "project_ids": invite.project_ids
-                }] if include_roles else [],
+                } if include_roles else None,
                 "status": invite.status
             }
             invited_users.append(invited_user)
@@ -119,7 +118,8 @@ class AccountUserService:
             "account_user_id": account_user_id,
             "role_id": role_id,
             "account_project_id": account_project_id,
-            "package_ids": package_ids
+            "package_ids": package_ids,
+            "role_name": role.role_name
         }
 
         UserRoleModel.create_user_role(role_data, session)

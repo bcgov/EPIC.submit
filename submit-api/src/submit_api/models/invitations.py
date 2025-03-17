@@ -30,6 +30,7 @@ class Invitations(BaseModel):
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
+    role = relationship('Role', foreign_keys=[role_id], lazy='select')
 
     def to_dict(self):
         """Convert object to dictionary."""
@@ -42,7 +43,8 @@ class Invitations(BaseModel):
             "email": self.email,
             "status": self.status,
             "expiry_date": self.expiry_date,
-            "role_id": self.role_id
+            "role_id": self.role_id,
+            "role": self.role.to_dict() if self.role else None,
         }
 
     @classmethod

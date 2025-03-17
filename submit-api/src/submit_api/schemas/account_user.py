@@ -5,14 +5,8 @@ Manages the AccountUserSchema
 
 from marshmallow import Schema, fields
 
-
-class RoleSchema(Schema):
-    """Schema for user roles."""
-
-    role_id = fields.Int()
-    role_name = fields.Str()
-    account_project_id = fields.Int(allow_none=True)
-    package_ids = fields.List(fields.Int(), allow_none=True)
+from submit_api.schemas.account import AccountSchema
+from submit_api.schemas.role import UserRoleSchema
 
 
 class AccountUserSchema(Schema):
@@ -27,5 +21,6 @@ class AccountUserSchema(Schema):
     work_email_address = fields.Email()
     work_contact_number = fields.Str()
     user_id = fields.Int()
-    roles = fields.List(fields.Nested(RoleSchema))
-    status = fields.Str()
+    role = fields.Nested(UserRoleSchema)
+    status = fields.Str(required=False)
+    account = fields.Nested(AccountSchema, data_key="account", dump_only=True)

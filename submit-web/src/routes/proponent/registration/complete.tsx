@@ -1,4 +1,6 @@
 import { GridContainer } from "@/components/registration/GridContainer";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { useAccount } from "@/store/accountStore";
 import {
   Button,
   FormControl,
@@ -10,13 +12,23 @@ import {
   Typography,
 } from "@mui/material";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute("/proponent/registration/complete")({
   component: Complete,
 });
 
+const NAVIGATION_CHOICES = {
+  HOME: "home",
+  USER_MANAGEMENT: "userManagement",
+};
+
 function Complete() {
   const navigate = useNavigate();
+  const { userManagementRole } = useAccount();
+
+  const [value, setValue] = useState(NAVIGATION_CHOICES.HOME);
+
   return (
     <GridContainer yellowBar>
       <Grid item xs={12}>
@@ -30,17 +42,23 @@ function Complete() {
           <FormLabel sx={{ fontWeight: 700 }}>
             What would you like to do now?
           </FormLabel>
-          <RadioGroup name="navChoice">
+          <RadioGroup
+            name="navChoice"
+            onChange={(e) => setValue(e.target.value)}
+          >
             <FormControlLabel
               value="home"
               control={<Radio />}
               label="Go to the home page"
             />
-            <FormControlLabel
-              value="userManagement"
-              control={<Radio />}
-              label="Go to the User Management page to add other users to the account"
-            />
+            {userManagementRole?.role_name ===
+              USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
+              <FormControlLabel
+                value="userManagement"
+                control={<Radio />}
+                label="Go to the User Management page to add other users to the account"
+              />
+            )}
           </RadioGroup>
         </FormControl>
       </Grid>
@@ -49,7 +67,11 @@ function Complete() {
           variant="contained"
           color="primary"
           onClick={() => {
-            navigate({ to: "/proponent/projects" });
+            if (value === NAVIGATION_CHOICES.USER_MANAGEMENT) {
+              navigate({ to: "/proponent/user-management" });
+            } else {
+              navigate({ to: "/proponent/projects" });
+            }
           }}
         >
           Go

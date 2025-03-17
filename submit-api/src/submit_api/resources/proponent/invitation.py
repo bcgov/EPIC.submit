@@ -63,12 +63,10 @@ class InvitationsResource(Resource):
         # Extract invitation and URL from result
         invitation = result["invitation"]
         invitation_url = result["url"]
-        role_name = result["role_name"]
 
         # Return invitation data with the URL
         response = InvitationSchema().dump(invitation)
         response['invitation_url'] = invitation_url
-        response['role_name'] = role_name
 
         return response, HTTPStatus.CREATED
 
