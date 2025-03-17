@@ -1,35 +1,17 @@
 import { SubmissionPackage } from "@/models/Package";
-import { Grid, Typography } from "@mui/material";
+import { Grid, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { get, isArray } from "lodash";
 import { useMemo } from "react";
 import VersionGroup from "../VersionGroup";
-import { ReactNode } from "@tanstack/react-router";
-import dateUtils from "@/utils/dateUtils";
+import { SubmissionHistory } from "./SubmissionHistory";
 
-type InfoBoxItemProps = {
-  label?: string;
-  value?: ReactNode;
-};
-const InfoBoxItem = ({ label = "", value = "" }: InfoBoxItemProps) => {
-  return (
-    <Grid container direction="row" spacing={1} alignItems={"flex-start"}>
-      <Grid item xs={6}>
-        <Typography color={BCDesignTokens.themeGray70}>{label}:</Typography>
-      </Grid>
-      <Grid item xs="auto">
-        <Typography color={"inherit"}>{value}</Typography>
-      </Grid>
-    </Grid>
-  );
-};
 type InfoBoxProps = {
   submissionPackage: SubmissionPackage;
 };
 
 export const EntityInfoBox = ({ submissionPackage }: InfoBoxProps) => {
-  const { submitted_on, date_review_completed, submitted_by } =
-    submissionPackage.meta || {};
+  const { version } = submissionPackage;
 
   const condition = useMemo(() => {
     return get(submissionPackage, "meta.main_condition.condition_number", "");
@@ -51,48 +33,40 @@ export const EntityInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       sx={{
         borderRadius: "4px",
         border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-        p: BCDesignTokens.layoutPaddingSmall,
+        p: "16px 16px 16px 16px",
       }}
-      rowSpacing={1}
     >
+      <Grid item xs={12} lg={4} container>
+        <Stack direction={"row"} spacing={2}>
+          <Typography color={BCDesignTokens.themeGray70}>Condition:</Typography>
+          <Typography color={"inherit"}>{condition}</Typography>
+        </Stack>
+      </Grid>
+
+      <Grid item xs={12} lg={4} container>
+        <Stack direction={"row"} spacing={2}>
+          <Typography color={BCDesignTokens.themeGray70}>
+            Supporting Conditions:
+          </Typography>
+          <Typography color={"inherit"}>{supportingConditions}</Typography>
+        </Stack>
+      </Grid>
+
       <Grid
         item
         xs={12}
+        lg={4}
         container
-        alignContent={"flex-end"}
-        justifyContent={"flex-end"}
+        alignContent={{ xs: "flex-start", lg: "flex-end" }}
+        justifyContent={{ xs: "flex-start", lg: "flex-end" }}
       >
         <Typography color={BCDesignTokens.themeGray70} sx={{ mr: 1 }}>
           Version:{" "}
         </Typography>
-        <VersionGroup
-          currentPackageVersion={submissionPackage.version}
-          proponent
-        />
+        <VersionGroup currentPackageVersion={version} />
       </Grid>
-      <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Condition"} value={condition} />
-      </Grid>
-      <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Submitted on"}
-          value={dateUtils.formatDate(submitted_on)}
-        />
-      </Grid>
-      <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Date Review Completed"}
-          value={dateUtils.formatDate(date_review_completed)}
-        />
-      </Grid>
-      <Grid item xs={12} lg={4} container>
-        <InfoBoxItem
-          label={"Supporting Conditions"}
-          value={supportingConditions}
-        />
-      </Grid>
-      <Grid item xs={12} lg={4} container>
-        <InfoBoxItem label={"Submitted by"} value={submitted_by} />
+      <Grid item xs={12} container mt={"24px"}>
+        <SubmissionHistory submissionPackageId={String(submissionPackage.id)} />
       </Grid>
     </Grid>
   );
