@@ -71,7 +71,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
     resolver: yupResolver(userSchema),
     mode: "onSubmit",
     defaultValues: {
-      role_name: user.roles[0]?.role_name || "",
+      role_name: user.role?.role_name || "",
       package_ids: [],
     },
   });

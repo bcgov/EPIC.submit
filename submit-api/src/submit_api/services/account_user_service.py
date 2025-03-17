@@ -185,9 +185,7 @@ class AccountUserService:
         current_app.logger.info(f"User role {user_role.id} updated successfully.")
 
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
-        roles_map = cls._fetch_roles(account_user)
         user_dict = account_user.to_dict()
-        user_dict['roles'] = roles_map.get(account_user.id, [])
         user_dict["status"] = "ACTIVE"
         return user_dict
 

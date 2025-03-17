@@ -21,7 +21,7 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.account_user import AccountUserSchema, RoleSchema
+from submit_api.schemas.account_user import AccountUserSchema, EditRoleSchema
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.utils.util import cors_preflight
 
@@ -113,12 +113,12 @@ class EditUserRole(Resource):
     def patch(account_user_id):
         """Edit a user's role."""
         user_guid = auth.sub
-        new_role_data = RoleSchema().load(API.payload)
+        new_role_data = EditRoleSchema().load(API.payload)
         try:
             updated_role_data = AccountUserService.update_role(user_guid, account_user_id, new_role_data)
             return AccountUserSchema().dump(updated_role_data), HTTPStatus.OK
         except PermissionDeniedError as e:
-            return jsonify({"error": str(e)}), HTTPStatus.FORBIDDEN
+            return jsonify({"message": str(e)}), HTTPStatus.FORBIDDEN
 
         except ResourceNotFoundError as e:
             return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND

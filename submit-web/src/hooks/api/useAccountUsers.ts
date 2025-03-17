@@ -3,6 +3,7 @@ import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
+import { isAxiosError } from "axios";
 
 const getUserProfileByGuid = (guid?: string) => {
   return submitRequest<AccountUserWithRole>({ url: `/accounts/user/${guid}` });
@@ -106,21 +107,11 @@ export const useSaveUserRole = ({
       }
     },
     onError: (error: any) => {
-      let errorMessage = "An error occurred while updating the user role.";
-      if (error?.response) {
-        if (error.response.data) {
-          if (typeof error.response.data === "string") {
-            errorMessage = error.response.data;
-          } 
-          else if (error.response.data.error) {
-            errorMessage = error.response.data.error;
-          } else if (error.response.data.message) {
-            errorMessage = error.response.data.message;
-          }
-        }
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
+      const defaultMessage = "An error occurred while updating the user role.";
+      const errorMessage = isAxiosError(error)
+        ? error.response?.data.message ?? defaultMessage
+        : defaultMessage;
+
       if (options?.onError) {
         options.onError(new Error(errorMessage));
       }
