@@ -17,6 +17,7 @@ class Account(BaseModel):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     proponent_id = Column(db.Integer(), nullable=False, unique=True)
+    account_users = db.relationship('AccountUser', back_populates='account', lazy='select')
 
     @classmethod
     def get_by_proponent_id(cls, proponent_id) -> Account:
