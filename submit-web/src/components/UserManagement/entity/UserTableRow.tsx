@@ -7,12 +7,13 @@ import { roleDetails } from "@/models/Role";
 import { useNavigate } from "@tanstack/react-router";
 import { useUserStore } from './userStore';
 import { notify } from "../../Shared/Snackbar/snackbarStore";
+import { InvitationStatus } from "@/models/Invitation";
 
 export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   const { setSelectedUser } = useUserStore();
   const navigate = useNavigate();
   const onUserClick = () => {
-    if (user.status === "pending") {
+    if (user.status === InvitationStatus.PENDING) { 
       notify.error("User is still invited and details cannot be viewed yet.");
       return;
     }
