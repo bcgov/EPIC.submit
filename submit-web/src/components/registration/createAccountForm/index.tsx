@@ -19,7 +19,6 @@ import {
 import { useAccount } from "@/store/accountStore";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useNavigate } from "@tanstack/react-router";
 
 const createAccountSchema = yup.object().shape({

@@ -43,12 +43,10 @@ class InvitationService:
         with session_scope() as session:
 
             account = InvitationService._get_or_create_account(account_id, proponent_id, project_ids, session)
-            is_first_time = not account.account_users
             session.flush()
             invitation = InvitationService._create_invitation_record(invite_data,
                                                                      role,
                                                                      account.id,
-                                                                     is_first_time,
                                                                      token,
                                                                      session)
             if role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
@@ -134,12 +132,12 @@ class InvitationService:
         session.flush()
 
     @staticmethod
-    def _create_invitation_record(invite_data, role, account_id, is_first_time, token, session):
+    def _create_invitation_record(invite_data, role, account, token, session):
         """Create and persist an invitation record."""
         expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
-
+        is_first_time = not account.account_users
         invitation = InvitationsModel(
-            account_id=account_id,
+            account_id=account.id,
             project_ids=invite_data.get('project_ids', []),
             token=token,
             email=invite_data.get('email'),
