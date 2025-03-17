@@ -7,7 +7,6 @@ import {
   Box,
   Link,
   Container,
-  Toolbar,
   Stack,
 } from "@mui/material";
 import { useAuth } from "react-oidc-context";
@@ -37,9 +36,12 @@ function Index() {
 
   return (
     <Container maxWidth={"lg"} sx={{ mb: BCDesignTokens.layoutMarginXlarge }}>
-      <Toolbar />
-      <Box p={3}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
+      <Box
+        p={3}
+        pt={BCDesignTokens.layoutPaddingSmall}
+        mt={BCDesignTokens.layoutMarginXxxlarge}
+      >
+        <Typography variant="h1" fontWeight="bold" gutterBottom>
           Welcome to EPIC.submit
         </Typography>
         <Typography variant="h6" gutterBottom fontWeight={400}>
@@ -54,12 +56,13 @@ function Index() {
           <Paper elevation={0} sx={{ p: 3 }}>
             <BarTitle title={"What is EPIC.submit"} />
 
-            <Typography variant="body2" mt={1}>
+            <Typography variant="body1" mt={BCDesignTokens.layoutMarginXlarge}>
               The Environmental Assessment Office (EAO) of British Columbia is
               developing a streamlined system to make document submissions and
-              management more efficient for certificate holders.
+              management more efficient for environmental assessment certificate
+              holders.
             </Typography>
-            <Typography variant="body2" mt={1}>
+            <Typography variant="body1" mt={1}>
               EPIC.submit is a custom-built portal designed specifically for
               certificate holders to manage all documentation requirements in
               the post-decision phase of the environmental assessment process.
@@ -68,43 +71,43 @@ function Index() {
               maintain document version control—all in one place.
             </Typography>
 
-            <Typography variant="body2" mt={1}>
+            <Typography variant="body1" mt={1}>
               This system is part of the larger epic ecosystem and has been
-              developed to eliminate fragmented communication channels and
-              create a more transparent, efficient submission process for both
-              certificate holders and EAO staff.
+              developed to eliminate fragmented communication channels, and
+              create a more transparent and efficient submission process for
+              both certificate holders and EAO staff.
             </Typography>
 
             <Typography variant="h6" fontWeight="bold" mt={3}>
               What can I do in EPIC.submit?
             </Typography>
             <ul>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 Upload and submit management plans and reports require as part
                 of your environmental assesment certificate conditions
               </Typography>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 Create complete submission packages with supporting
                 documentation and forms
               </Typography>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 Track the status of submissions through visual status badges and
                 notifications
               </Typography>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 Receive email confirmations when your submissions are received
               </Typography>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 View your submission history and access previous versions
               </Typography>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 Respond to update requests directly through the portal
               </Typography>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 Manage document versions efficiently without email
                 back-and-forth
               </Typography>
-              <Typography component="li" variant="body2">
+              <Typography component="li" variant="body1">
                 Stay connected with the EAO through a streamlined communication
                 channel
               </Typography>
@@ -114,11 +117,11 @@ function Index() {
 
         {/* Right Section */}
         <Grid item xs={12} md={5}>
-          <Paper elevation={0} sx={{ p: 3 }}>
+          <Box sx={{ p: 3, pb: 0 }}>
             <BarTitle title={"How do I get access?"} />
             <Stack
-              mt={2}
               p={2}
+              my={BCDesignTokens.layoutMarginXlarge}
               spacing={2}
               sx={{ border: `1px solid ${BCDesignTokens.themeGray30}` }}
             >
@@ -126,7 +129,14 @@ function Index() {
                 Login with your Business BCeID
               </Typography>
               <Typography variant="body1">
-                Business BCeID Lorem Ipsum
+                For more information on registering for a Business BCeID, visit{" "}
+                <Link
+                  href="https://www.bceid.ca/business-bceid/register"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  https://www.bceid.ca/business-bceid/register
+                </Link>
               </Typography>
               <Button
                 variant="contained"
@@ -143,15 +153,15 @@ function Index() {
               </Button>
             </Stack>
             <Stack
-              mt={2}
               p={2}
+              mb={BCDesignTokens.layoutMarginLarge}
               spacing={2}
               sx={{ border: `1px solid ${BCDesignTokens.themeGray30}` }}
             >
               <Typography variant="h6">
                 Login with your BC Services Card account
               </Typography>
-              <Typography variant="body2" pb={4}>
+              <Typography variant="body1" pb={4}>
                 For more information on how to use or set up a BC Services Card
                 account, visit{" "}
                 <Link
@@ -176,39 +186,42 @@ function Index() {
                 Login with BC Services Card
               </Button>
             </Stack>
-          </Paper>
+          </Box>
 
-          <Paper elevation={0} sx={{ p: 3 }}>
+          <Box sx={{ px: 3, py: 0 }} mb={BCDesignTokens.layoutMarginLarge}>
             <Typography variant="h6" fontWeight="bold">
               Who can use EPIC.submit?
             </Typography>
-            <Typography variant="body2" mt={1}>
+            <Typography variant="body1" mt={1}>
               Currently, EPIC.submit is available to certificate holders
               managing their post-decision documentation requirements. In the
               future, the system will be expanded to include proponents earlier
               in the environmental assessment process.
             </Typography>
-            <Typography variant="body2" mt={1}>
+            <Typography variant="body1" mt={1}>
               The portal is accessible to both certificate holders and EAO
               staff, creating a shared platform for document submission, review,
               and communication.
             </Typography>
-          </Paper>
+          </Box>
 
-          <Paper elevation={0} sx={{ p: 3, mt: 3 }}>
+          <Paper elevation={0} sx={{ p: 3, pt: 0 }}>
             <Typography variant="h6" fontWeight="bold">
               Getting Started with EPIC.submit
             </Typography>
-            <Typography variant="body2" mt={1}>
+            <Typography variant="body1" mt={1}>
               To begin using EPIC.submit, certificate holders will receive a
               login link and access instructions from the EAO. The intuitive
               interface guides users through the submission process, allowing
               for efficient document uploading, form completion, and submission
               tracking.
             </Typography>
-            <Typography variant="body2" mt={1}>
-              For assistance, contact the EAO support team at [contact
-              information].
+            <Typography variant="body1" mt={1}>
+              For assistance with EPIC.submit, please contact the EAO support
+              team at{" "}
+              <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
+                EAO.ManagementPlanSupport@gov.bc.ca
+              </Link>
             </Typography>
           </Paper>
         </Grid>
