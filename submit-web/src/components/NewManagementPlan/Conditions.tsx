@@ -162,7 +162,7 @@ export const Conditions = () => {
             value={mainCondition?.condition_name || ""}
           >
             {conditions?.map((condition) => {
-              const MPName = condition.condition_attributes?.deliverable_name;
+              const conditionLabel = `Condition ${condition.condition_number} - ${condition.condition_name}`;
 
               return (
                 <MenuItem
@@ -170,7 +170,7 @@ export const Conditions = () => {
                   value={condition.condition_name || ""}
                   disabled={isConditionSelected(condition)}
                 >
-                  {MPName || condition.condition_name}
+                  {conditionLabel}
                 </MenuItem>
               );
             })}
@@ -213,7 +213,7 @@ export const Conditions = () => {
                       value={condition.condition_name || ""}
                       disabled={isConditionSelected(condition)}
                     >
-                      {condition.condition_name}
+                      {`Condition ${condition.condition_number} - ${condition.condition_name}`}
                     </MenuItem>
                   ))}
                 </TextField>

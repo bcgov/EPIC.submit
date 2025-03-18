@@ -96,7 +96,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
             variant="body2"
             fontWeight={theme.typography.fontWeightBold}
           >
-            Condition {mainCondition?.condition_name}
+            Condition {`${mainCondition.condition_number} - ${mainCondition.condition_name}`}
           </Typography>
         </Grid>
         <When
