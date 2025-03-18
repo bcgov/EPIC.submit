@@ -37,7 +37,7 @@ export const ContentBox = ({
             alignItems: "center",
             justifyContent: "space-between",
             width: "auto",
-            padding: "12px 24px",
+            padding: "0px 24px",
             height: "56px",
           },
           contentBoxVariant === "primary" && {
@@ -62,20 +62,20 @@ export const ContentBox = ({
           {mainLabel || ""}
         </Typography>
         {topLabel && bottomLabel && (
-          <Stack>
+          <Stack textAlign={"center"}>
             <Typography
-              variant="h5"
+              variant="body1"
               sx={{
                 mr: 2,
+                fontWeight: "bold",
               }}
             >
               {topLabel}
             </Typography>
             <Typography
-              variant="h5"
+              variant="body1"
               sx={{
                 mr: 2,
-                fontWeight: 400,
               }}
             >
               {bottomLabel}
