@@ -4,6 +4,7 @@ from submit_api.exceptions import BadRequestError
 from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.project import Project as ProjectModel
+from submit_api.models.role import RoleEnum
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 
 from submit_cron.models import db
@@ -17,13 +18,18 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
     @classmethod
     def prepare_invitation_email_notification(cls, invitation: InvitationsModel) -> EmailDetails:
         """Prepare email details for update request creation."""
-        invitation_action_text = "join"   # decides the content of the email.
+
+        # Default action text
+        invitation_action_text = "join"
+
+        # Check role and modify invitation action text accordingly
+        if invitation.role and invitation.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
+            invitation_action_text = "collaborate on"
+
         if invitation.project_ids:
             project_name = cls.get_project_names(invitation.project_ids)
         elif invitation.package_ids:
             project_name = cls.get_project_names_for_package_id(invitation.package_ids)
-            invitation_action_text = "collaborate on"
-
 
         if not project_name:
             raise BadRequestError(f"Project name not found for invitation id: {invitation.id}")
