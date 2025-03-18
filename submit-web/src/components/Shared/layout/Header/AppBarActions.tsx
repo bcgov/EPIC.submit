@@ -77,60 +77,60 @@ export default function AppBarActions() {
       {auth.isAuthenticated ? (
         <>
           {userName && (
-            <Box id="menu-appbar" display={"flex"} onClick={handleClick}>
-              <Typography variant="body2" color="primary">
-                {userName}
-              </Typography>
-              <IconButton size="small" sx={{ m: 0, p: 0 }}>
-                <KeyboardArrowDownIcon
-                  fontSize="small"
-                  htmlColor={theme.palette.grey[900]}
-                />
-              </IconButton>
-            </Box>
-          )}
-          <AccountCircleIcon
-            fontSize="large"
-            htmlColor={theme.palette.grey[900]}
-            sx={{ marginLeft: "0.25rem" }}
-          />
-          {userName && (
-            <Menu
-              id="menu-appbar"
-              aria-labelledby="menu-appbar"
-              open={open}
-              anchorEl={anchorEl}
-              onClose={handleClose}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-            >
-              <MenuItem
-                onClick={() => handleNavigate("/proponent/profile")}
-              >
-                My Profile
-              </MenuItem>
-              {user_data?.type === USER_TYPE.PROPONENT && (
-                <MenuItem
-                  onClick={() => handleNavigate("/proponent/edit-profile")}
-                >
-                  Edit My Profile
-                </MenuItem>
-              )}
-              <MenuItem
-                onClick={() => {
-                  setAnchorEl(null); // Close the menu when signing out
-                  auth.signoutRedirect();
+            <>
+              <Box id="menu-appbar" display={"flex"} onClick={handleClick}>
+                <Typography variant="body2" color="primary">
+                  {userName}
+                </Typography>
+                <IconButton size="small" sx={{ m: 0, p: 0 }}>
+                  <KeyboardArrowDownIcon
+                    fontSize="small"
+                    htmlColor={theme.palette.grey[900]}
+                  />
+                </IconButton>
+              </Box>
+              <AccountCircleIcon
+                fontSize="large"
+                htmlColor={theme.palette.grey[900]}
+                sx={{ marginLeft: "0.25rem" }}
+              />
+              <Menu
+                id="menu-appbar"
+                aria-labelledby="menu-appbar"
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
                 }}
               >
-                Sign Out
-              </MenuItem>
-            </Menu>
+                <MenuItem
+                  onClick={() => handleNavigate("/proponent/profile")}
+                >
+                  My Profile
+                </MenuItem>
+                {user_data?.type === USER_TYPE.PROPONENT && (
+                  <MenuItem
+                    onClick={() => handleNavigate("/proponent/edit-profile")}
+                  >
+                    Edit My Profile
+                  </MenuItem>
+                )}
+                <MenuItem
+                  onClick={() => {
+                    setAnchorEl(null); // Close the menu when signing out
+                    auth.signoutRedirect();
+                  }}
+                >
+                  Sign Out
+                </MenuItem>
+              </Menu>
+            </>
           )}
         </>
       ) : (
