@@ -196,7 +196,7 @@ export default function SubmissionPage() {
               >
                 <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <When condition={isPackageSubmitted && openRequests.length > 0}>
+              <When condition={isPackageSubmitted && openRequests.length === 0}>
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>
                   <SuccessBox submissionPackageType={submissionPackage.type} />
                 </Box>
