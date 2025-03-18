@@ -63,3 +63,9 @@ class AccountProject(BaseModel):
         else:
             account_project.save()
         return account_project
+
+    @classmethod
+    def find_by_id(cls, account_project_id):
+        """Find account project by id."""
+        # use the query module to get the account project by id
+        raise NotImplementedError

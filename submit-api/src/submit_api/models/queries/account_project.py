@@ -37,6 +37,21 @@ class ProjectQueries:
         return query.all()
 
     @classmethod
+    def get_account_project_by_id(cls, account_project_id: int):
+        """Find account project by id."""
+        query = db.session.query(AccountProject).filter(
+            AccountProject.id == account_project_id
+        )
+
+        package_query = cls._filter_packages_by_user_access()
+        if package_query:
+            filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
+            query = query.join(Package).filter(
+                Package.id.in_(filtered_package_ids)).options(
+                db.contains_eager(AccountProject.packages))
+        return query.first()
+
+    @classmethod
     def get_filtered_account_projects(cls, account_id: int = None, search_options: AccountProjectSearchOptions = None):
         """Find projects by account_id with optional search and pagination."""
         query = db.session.query(AccountProject).join(AccountProject.project)
@@ -77,7 +92,7 @@ class ProjectQueries:
         return package_query
 
     @classmethod
-    def _filter_packages_by_user_access(cls, package_query):
+    def _filter_packages_by_user_access(cls, package_query=None):
         """Filter packages by user access."""
         auth_guid = TokenInfo.get_id()
         user = User.get_by_guid(auth_guid)
