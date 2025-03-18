@@ -31,7 +31,7 @@ import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -80,7 +80,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          })
+          }),
       )
     ) {
       setIsValidating(true);
@@ -93,6 +93,7 @@ export default function SubmissionPage() {
         status: PACKAGE_STATUS.SUBMITTED.value,
       },
     });
+    notify.success("Management plan submitted successfully");
   };
 
   if (!accountProject || !submissionPackage) {
@@ -100,13 +101,20 @@ export default function SubmissionPage() {
   }
 
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
+  const openRequests = submissionPackage.update_requests.filter(
+    (updateRequest) =>
+      updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+      updateRequest.active,
+  );
+
+  const openOrPendingRequests = submissionPackage.update_requests.filter(
+    (updateRequest) =>
+      (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
+        updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
+      updateRequest.active,
+  );
   const isSubmitDisabled =
-    isPackageSubmitted &&
-    submissionPackage.update_requests.filter(
-      (updateRequest) =>
-        updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value &&
-        updateRequest.active
-    ).length === 0;
+    isPackageSubmitted && openOrPendingRequests.length === 0;
 
   return (
     <PageGrid>
@@ -188,7 +196,7 @@ export default function SubmissionPage() {
               >
                 <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <When condition={isPackageSubmitted && isSubmitDisabled}>
+              <When condition={isPackageSubmitted && openRequests.length === 0}>
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>
                   <SuccessBox submissionPackageType={submissionPackage.type} />
                 </Box>

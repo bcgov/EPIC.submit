@@ -46,7 +46,7 @@ class InvitationService:
             session.flush()
             invitation = InvitationService._create_invitation_record(invite_data,
                                                                      role,
-                                                                     account.id,
+                                                                     account,
                                                                      token,
                                                                      session)
             if role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:

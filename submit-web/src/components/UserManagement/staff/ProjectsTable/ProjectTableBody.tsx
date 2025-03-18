@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback } from "react";
 import { Proponent } from "@/models/Proponent";
-import { TableCell, TableRow, Link as MuiLink } from "@mui/material";
+import { TableCell, TableRow } from "@mui/material";
 import { Invitation, InvitationStatus } from "@/models/Invitation";
 import { PlainTableCell } from "@/components/Shared/Table/common";
 import { RegistrationUrlCell } from "./RegistrationUrlCell";
@@ -63,21 +63,7 @@ export const ProjectTableBody = ({
     <>
       {proponent.projects.map((project) => (
         <TableRow key={project.id}>
-          <PlainTableCell>
-            <MuiLink
-              sx={{
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                "&:hover": {
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                },
-              }}
-            >
-              {project.name}
-            </MuiLink>
-          </PlainTableCell>
+          <PlainTableCell>{project.name}</PlainTableCell>
           <RegistrationUrlCell
             pendingInvitation={projectInvitationMap.get(project.id)}
             accountProjectId={projectAccountProjectMap.get(project.id)}
