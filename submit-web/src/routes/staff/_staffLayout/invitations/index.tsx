@@ -5,9 +5,9 @@ import { Box, Grid, TextField, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import SearchIcon from "@mui/icons-material/Search";
 
-export const Route = createFileRoute("/staff/_staffLayout/user-management/")({
+export const Route = createFileRoute("/staff/_staffLayout/invitations/")({
   component: UserManagement,
-  meta: () => [{ title: "user Management", path: "/staff/user-management" }],
+  meta: () => [{ title: "Invitations", path: "/staff/user-management" }],
 });
 
 function UserManagement() {

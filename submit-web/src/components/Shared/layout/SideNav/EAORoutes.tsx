@@ -1,6 +1,5 @@
 import { BCDesignTokens } from "epic.theme";
 import { MainListItem } from "./MainListItem";
-import { SubListItem } from "./SubListItem";
 
 export default function EAORoutes() {
   return (
@@ -21,17 +20,10 @@ export default function EAORoutes() {
       />
       <MainListItem
         route={{
-          name: "Admin",
-          path: "/staff/profile",
+          name: "Invitations",
+          path: "/staff/invitations",
         }}
         sx={{ mb: BCDesignTokens.layoutMarginSmall }}
-      />
-      <SubListItem
-        key={`sub-list-user-management`}
-        route={{
-          name: "User Management",
-          path: `/staff/user-management`,
-        }}
       />
     </>
   );
