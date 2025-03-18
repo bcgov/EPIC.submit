@@ -41,6 +41,7 @@ class InvitationService:
         role = InvitationService._validate_fetch_role(role_name)
 
         with session_scope() as session:
+
             account = InvitationService._get_or_create_account(account_id, proponent_id, project_ids, session)
             session.flush()
             invitation = InvitationService._create_invitation_record(invite_data,
@@ -131,12 +132,12 @@ class InvitationService:
         session.flush()
 
     @staticmethod
-    def _create_invitation_record(invite_data, role, account_id, token, session):
+    def _create_invitation_record(invite_data, role, account, token, session):
         """Create and persist an invitation record."""
         expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
-
+        is_first_time = not account.account_users
         invitation = InvitationsModel(
-            account_id=account_id,
+            account_id=account.id,
             project_ids=invite_data.get('project_ids', []),
             token=token,
             email=invite_data.get('email'),
@@ -144,6 +145,7 @@ class InvitationService:
             role_id=role.id,
             package_ids=invite_data.get('package_ids'),
             expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
+            is_first_time=is_first_time
         )
         session.add(invitation)
         session.commit()

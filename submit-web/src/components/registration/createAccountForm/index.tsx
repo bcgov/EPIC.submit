@@ -19,7 +19,6 @@ import {
 import { useAccount } from "@/store/accountStore";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useNavigate } from "@tanstack/react-router";
 
 const createAccountSchema = yup.object().shape({
@@ -51,7 +50,7 @@ function CreateAccountForm() {
       userManagementRole: data.role,
     });
 
-    if (data.role.role_name === USER_MANAGEMENT_ROLE.PROJECT_ADMIN) {
+    if (invitation?.is_first_time) {
       setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
     } else {
       navigate({ to: "/proponent/projects" });

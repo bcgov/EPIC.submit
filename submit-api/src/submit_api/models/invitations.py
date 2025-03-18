@@ -7,7 +7,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY
+from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
@@ -28,6 +28,7 @@ class Invitations(BaseModel):
     status = Column(String(50), default=InvitationStatus.PENDING.value, nullable=False)
     expiry_date = Column(TIMESTAMP, default=datetime.utcnow)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
+    is_first_time = Column(Boolean, default=False)
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
     role = relationship('Role', foreign_keys=[role_id], lazy='select')

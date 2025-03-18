@@ -13,4 +13,5 @@ export type Invitation = {
   status: string;
   expiry_date: string;
   created_date: string;
+  is_first_time: boolean;
 };
