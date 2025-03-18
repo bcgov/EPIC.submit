@@ -63,13 +63,13 @@ export default function AppBarActions() {
     isUserDataLoading ? (
       <CircularProgress size={20} sx={{ marginLeft: 1 }} />
     ) : user_data?.type === USER_TYPE.PROPONENT && user_data?.account_user ? (
-      <b>
-        Hi, {user_data.account_user.first_name} {user_data.account_user.last_name}
-      </b>
+      <span>
+        Hi, <b>{user_data.account_user.first_name} {user_data.account_user.last_name}</b>
+      </span>
     ) : user_data?.staff_user ? (
-      <b>
-        Hi, {user_data.staff_user.first_name} {user_data.staff_user.last_name}
-      </b>
+      <span>
+        Hi, <b>{user_data.staff_user.first_name} {user_data.staff_user.last_name}</b>
+      </span>
     ) : null;
 
   return (
