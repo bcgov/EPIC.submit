@@ -6,6 +6,10 @@ import {
   IconButton,
   MenuItem,
   CircularProgress,
+  Popover,
+  MenuList,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import { useAuth } from "react-oidc-context";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
@@ -16,7 +20,12 @@ import { OidcConfig } from "@/utils/config";
 import { useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { useGetUserByGuid } from "@/hooks/api/useAccounts";
-import { USER_TYPE } from "@/models/User";
+import { IDENTITY_PROVIDERS, USER_TYPE } from "@/models/User";
+import RecentActorsIcon from '@mui/icons-material/RecentActors';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import GroupIcon from "@mui/icons-material/Group";
+
+type IdentityProvider = (typeof IDENTITY_PROVIDERS)[keyof typeof IDENTITY_PROVIDERS];
 
 export default function AppBarActions() {
   const auth = useAuth();
@@ -37,8 +46,16 @@ export default function AppBarActions() {
     setAnchorEl(null);
   };
 
+  const handleLogin = (idp: IdentityProvider) => {
+    setAnchorEl(null);
+    auth.signinRedirect({
+      redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
+      extraQueryParams: { kc_idp_hint: idp },
+    });
+  };
+
   const handleNavigate = (path: string) => {
-    handleClose();
+    setAnchorEl(null);
     navigate({ to: path });
   };
 
@@ -101,7 +118,7 @@ export default function AppBarActions() {
             )}
             <MenuItem
               onClick={() => {
-                handleClose(); // Close the menu when signing out
+                setAnchorEl(null); // Close the menu when signing out
                 auth.signoutRedirect();
               }}
             >
@@ -110,20 +127,47 @@ export default function AppBarActions() {
           </Menu>
         </>
       ) : (
-        <Button
-          variant="text"
-          onClick={() =>
-            auth.signinRedirect({
-              redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
-            })
-          }
-          sx={{
-            color: BCDesignTokens.themeGray100,
-            border: `2px solid ${theme.palette.grey[700]}`,
-          }}
-        >
-          Sign In
-        </Button>
+        <>
+          <Button
+            variant="text"
+            onClick={handleClick}
+            sx={{
+              color: BCDesignTokens.themeGray100,
+              border: `2px solid ${theme.palette.grey[700]}`,
+              visibility: open ? "hidden" : "visible",
+            }}
+          >
+            Login
+          </Button>
+          <Popover
+            open={Boolean(anchorEl)}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "top", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
+          >
+            <MenuList>
+              <MenuItem onClick={() => handleLogin(IDENTITY_PROVIDERS.BCSC)}>
+                <ListItemIcon>
+                  <RecentActorsIcon />
+                </ListItemIcon>
+                <ListItemText primary="BC Services Card" />
+              </MenuItem>
+              <MenuItem onClick={() => handleLogin(IDENTITY_PROVIDERS.BCEID)}>
+                <ListItemIcon>
+                  <VpnKeyIcon />
+                </ListItemIcon>
+                <ListItemText primary="BCeID" />
+              </MenuItem>
+              <MenuItem onClick={() => handleLogin(IDENTITY_PROVIDERS.IDIR)}>
+                <ListItemIcon>
+                  <GroupIcon />
+                </ListItemIcon>
+                <ListItemText primary="IDIR" />
+              </MenuItem>
+            </MenuList>
+          </Popover>
+        </>
       )}
     </>
   );

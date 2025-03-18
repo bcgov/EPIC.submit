@@ -52,6 +52,7 @@ const trimmedAppUrl = APP_URL?.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;
 
 export const OidcConfig = {
   authority: OIDC_AUTHORITY,
+  kc_idp_hint: "idir",
   client_id: CLIENT_ID,
   redirect_uri: `${trimmedAppUrl}/oidc-callback`,
   post_logout_redirect_uri: `${trimmedAppUrl}/`,
