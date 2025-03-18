@@ -17,13 +17,13 @@ import { ProjectTableBody } from "./ProjectTableBody";
 
 export const ProjectsTable = (props: TableProps) => {
   const { proponentId } = useParams({
-    from: "/staff/_staffLayout/user-management/entities/$proponentId",
+    from: "/staff/_staffLayout/invitations/entities/$proponentId",
   });
   const { data: proponent, isError } = useSuspenseQuery(
     getProponentOptions(proponentId, {
       includeProjects: true,
       includeInvitations: true,
-    }),
+    })
   );
 
   useEffect(() => {

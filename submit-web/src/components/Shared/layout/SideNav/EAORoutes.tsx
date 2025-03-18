@@ -22,7 +22,7 @@ export default function EAORoutes() {
       <MainListItem
         route={{
           name: "Invitations",
-          path: "/staff/user-management",
+          path: "/staff/invitations",
         }}
         sx={{ mb: BCDesignTokens.layoutMarginSmall }}
       />
