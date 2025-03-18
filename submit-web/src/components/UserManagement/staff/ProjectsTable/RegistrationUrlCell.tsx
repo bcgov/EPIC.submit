@@ -65,7 +65,6 @@ export const RegistrationUrlCell = ({
       <PlainTableCell>
         <TextField
           value={pendingInvitation ? trimmedUrl : ""}
-          variant="standard"
           sx={{ margin: 0 }}
           InputProps={{ readOnly: true }}
           fullWidth

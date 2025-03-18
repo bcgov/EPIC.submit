@@ -63,21 +63,7 @@ export const ProjectTableBody = ({
     <>
       {proponent.projects.map((project) => (
         <TableRow key={project.id}>
-          <PlainTableCell>
-            <MuiLink
-              sx={{
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                "&:hover": {
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                },
-              }}
-            >
-              {project.name}
-            </MuiLink>
-          </PlainTableCell>
+          <PlainTableCell>{project.name}</PlainTableCell>
           <RegistrationUrlCell
             pendingInvitation={projectInvitationMap.get(project.id)}
             accountProjectId={projectAccountProjectMap.get(project.id)}
