@@ -21,17 +21,10 @@ export default function EAORoutes() {
       />
       <MainListItem
         route={{
-          name: "Admin",
-          path: "/staff/profile",
+          name: "Invitations",
+          path: "/staff/user-management",
         }}
         sx={{ mb: BCDesignTokens.layoutMarginSmall }}
-      />
-      <SubListItem
-        key={`sub-list-user-management`}
-        route={{
-          name: "User Management",
-          path: `/staff/user-management`,
-        }}
       />
     </>
   );
