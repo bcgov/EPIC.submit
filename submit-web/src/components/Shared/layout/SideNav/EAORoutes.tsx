@@ -1,6 +1,5 @@
 import { BCDesignTokens } from "epic.theme";
 import { MainListItem } from "./MainListItem";
-import { SubListItem } from "./SubListItem";
 
 export default function EAORoutes() {
   return (
