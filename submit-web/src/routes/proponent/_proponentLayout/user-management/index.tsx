@@ -12,7 +12,7 @@ export const Route = createFileRoute(
   "/proponent/_proponentLayout/user-management/"
 )({
   component: UsersPage,
-  meta: () => [{ title: "User Management" }],
+  meta: () => [{ title: "Invitations" }],
 });
 
 function UsersPage() {

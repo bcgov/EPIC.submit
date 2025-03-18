@@ -7,7 +7,7 @@ import SearchIcon from "@mui/icons-material/Search";
 
 export const Route = createFileRoute("/staff/_staffLayout/user-management/")({
   component: UserManagement,
-  meta: () => [{ title: "user Management", path: "/staff/user-management" }],
+  meta: () => [{ title: "Invitations", path: "/staff/user-management" }],
 });
 
 function UserManagement() {
