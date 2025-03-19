@@ -18,7 +18,7 @@ function Registration() {
 
   useEffect(() => {
     if (!token) {
-      notify.error("registration link is invalid");
+      notify.error("Registration link is invalid");
     } else if (!isAuthenticated) {
       signinRedirect({
         redirect_uri: `${OidcConfig.redirect_uri}?token=${token}`,

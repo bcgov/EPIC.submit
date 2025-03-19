@@ -31,7 +31,7 @@ function CreateAccount() {
   useEffect(() => {
     if (!isPending) {
       if (isError) {
-        notify.error("registration link is invalid");
+        notify.error("Registration link is invalid");
       } else if (isSuccess && invitation) {
         setInvitation(invitation);
       }
