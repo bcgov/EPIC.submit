@@ -17,8 +17,7 @@ import {
   useAcceptInvitation,
 } from "@/hooks/api/useInvitations";
 import { useAccount } from "@/store/accountStore";
-import BarTitle from "@/components/Shared/Text/BarTitle";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useNavigate } from "@tanstack/react-router";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { YellowBar } from "@/components/Shared/YellowBar";
@@ -42,8 +41,8 @@ function CreateAccountForm() {
   const { setAccount } = useAccount();
   const navigate = useNavigate();
 
-  const { data: project } = useGetAccountProject({
-    accountProjectId: invitation?.account_id,
+  const { data: projects } = useGetAccountProjectsByAccount({
+    accountId: invitation?.account_id,
   });
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
@@ -88,7 +87,7 @@ function CreateAccountForm() {
 
   return (
     <>
-      <Banner>{project?.project?.name}</Banner>
+      <Banner>{projects?.[0]?.project?.name}</Banner>
       <GridContainer>
         <Grid item xs={12} mb={"16px"}>
           <YellowBar />
@@ -97,15 +96,14 @@ function CreateAccountForm() {
         <Grid item xs={12}>
           <Typography variant="body1">
             Thank you for taking a few minutes to set up the{" "}
-            {project?.project?.name}
-            account.
+            {projects?.[0]?.project?.name} account.
             <br />
             <br />
-            {invitation?.role.role_name ===
+            {invitation?.role.role_name !==
               USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
               <>
                 First of all, please create your Project Administrator Account
-                for {project?.project?.name}.
+                for {projects?.[0]?.project?.name}.
                 <br />
                 <br />
                 Project Administrators can
@@ -164,7 +162,7 @@ function CreateAccountForm() {
                 />
                 <ControlledTextField
                   name="position"
-                  label={`Your Position/Role at ${project?.project?.name}.`}
+                  label={`Your Position/Role at ${projects?.[0]?.project?.name}.`}
                   fullWidth
                   InputLabelProps={{
                     sx: { fontWeight: 700 },

@@ -67,7 +67,7 @@ export const ManagementPlan = ({ project }: { project: Project }) => {
                   borderTop: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
                   alignItems: "flex-start",
                   justifyContent: "flex-start",
-                  padding: "0 16px",
+                  paddingTop: "16px",
                 }}
               >
                 <Typography variant="body1">
