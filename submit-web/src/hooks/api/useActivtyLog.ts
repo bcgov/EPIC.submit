@@ -1,48 +1,117 @@
-import { AcitivityLog } from "@/models/ActivityLog";
+import { ActivityLog } from "@/models/ActivityLog";
 import { submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 
-type GetAcitivityLogForAdminByIdParams = {
+type GetActivityLogForAdminByIdParams = {
   id: number;
   entityType: string;
 };
-const getAcitivityLogForAdminById = ({
+const getActivityLogForAdminById = ({
   id,
   entityType,
-}: GetAcitivityLogForAdminByIdParams) => {
-  return submitRequest<AcitivityLog[]>({
+}: GetActivityLogForAdminByIdParams) => {
+  return submitRequest<ActivityLog[]>({
     url: `staff/activity-logs/${entityType}/${id}`,
   });
 };
 
-type UseGetAcitivityLogForAdminByIdParams = {
+type UseGetActivityLogForAdminByIdParams = {
   id: number;
   entityType: string;
   enabled?: boolean;
 };
 
-export const getAcitivityLogForAdminQueryOptions = ({
+export const getActivityLogForAdminQueryOptions = ({
   id,
   entityType,
   enabled = true,
-}: UseGetAcitivityLogForAdminByIdParams) =>
+}: UseGetActivityLogForAdminByIdParams) =>
   queryOptions({
     queryKey: [QUERY_KEY.ACTIVITY_LOGS, id, entityType],
-    queryFn: () => getAcitivityLogForAdminById({ id, entityType }),
+    queryFn: () => getActivityLogForAdminById({ id, entityType }),
     enabled: enabled && Boolean(id) && Boolean(entityType),
     retry: false,
   });
 
-export const useGetAcitivityLogForAdmin = ({
+export const useGetActivityLogForAdmin = ({
   id,
   entityType,
   enabled = true,
-}: UseGetAcitivityLogForAdminByIdParams) => {
-  const options = getAcitivityLogForAdminQueryOptions({
+}: UseGetActivityLogForAdminByIdParams) => {
+  const options = getActivityLogForAdminQueryOptions({
     id,
     entityType,
     enabled,
   });
   return useQuery(options);
+};
+
+// Add a new function for proponent users
+const getActivityLogForProponentById = ({
+  id,
+  entityType,
+}: GetActivityLogForAdminByIdParams) => {
+  return submitRequest<ActivityLog[]>({
+    url: `activity-logs/${entityType}/${id}`,
+  });
+};
+
+// Add query options for proponent endpoint
+export const getActivityLogForProponentQueryOptions = ({
+  id,
+  entityType,
+  enabled = true,
+}: UseGetActivityLogForAdminByIdParams) =>
+  queryOptions({
+    queryKey: [QUERY_KEY.ACTIVITY_LOGS, id, entityType],
+    queryFn: () => getActivityLogForProponentById({ id, entityType }),
+    enabled: enabled && Boolean(id) && Boolean(entityType),
+    retry: false,
+  });
+
+// Add hook for proponent users
+export const useGetActivityLogForProponent = ({
+  id,
+  entityType,
+  enabled = true,
+}: UseGetActivityLogForAdminByIdParams) => {
+  const options = getActivityLogForProponentQueryOptions({
+    id,
+    entityType,
+    enabled,
+  });
+  return useQuery(options);
+};
+
+// Create a unified hook that chooses between admin and proponent endpoints
+export const useGetActivityLog = ({
+  id,
+  entityType,
+  isAdmin = false,
+  enabled = true,
+}: UseGetActivityLogForAdminByIdParams & { isAdmin?: boolean }) => {
+  // Always call both hooks
+  const adminResult = useGetActivityLogForAdmin({
+    id,
+    entityType,
+    enabled: enabled && isAdmin,
+  });
+
+  const proponentResult = useQuery({
+    queryKey: [QUERY_KEY.ACTIVITY_LOGS, id, entityType, "proponent"],
+    queryFn: () => getActivityLogForProponentById({ id, entityType }),
+    enabled: enabled && !isAdmin && Boolean(id) && Boolean(entityType),
+    retry: false,
+  });
+
+  const { data: adminData, isPending: isAdminLoading } = adminResult;
+  const { data: proponentData, isPending: isProponentLoading } =
+    proponentResult;
+
+  console.log("adminData", adminData);
+  console.log("proponentData", proponentData);
+
+  // Return the appropriate result based on isAdmin
+  return isAdmin ? adminResult : proponentResult;
 };

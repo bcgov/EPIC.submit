@@ -76,7 +76,7 @@ API.add_namespace(ITEM_API)
 API.add_namespace(SUBMISSION_API)
 API.add_namespace(INVITATION_API)
 API.add_namespace(ACCOUNT_USER_API)
-
+API.add_namespace(ACTIVITY_LOG_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,
