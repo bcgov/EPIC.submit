@@ -99,7 +99,7 @@ function CreateAccountForm() {
             {projects?.[0]?.project?.name || ""} account.
             <br />
             <br />
-            {invitation?.role.role_name !==
+            {invitation?.role.role_name ===
               USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
               <>
                 First of all, please create your Project Administrator Account
