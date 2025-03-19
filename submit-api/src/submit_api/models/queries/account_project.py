@@ -96,6 +96,10 @@ class ProjectQueries:
         """Filter packages by user access."""
         auth_guid = TokenInfo.get_id()
         user = User.get_by_guid(auth_guid)
+
+        if not user:
+            return package_query.filter(False)
+
         if user.type == UserType.STAFF:
             return package_query
 
