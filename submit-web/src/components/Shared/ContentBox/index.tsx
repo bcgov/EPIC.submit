@@ -62,7 +62,7 @@ export const ContentBox = ({
           {mainLabel || ""}
         </Typography>
         {topLabel && bottomLabel && (
-          <Stack textAlign={"center"}>
+          <Stack textAlign={"left"}>
             <Typography
               variant="body1"
               sx={{
