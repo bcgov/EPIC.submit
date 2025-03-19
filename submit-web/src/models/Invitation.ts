@@ -1,3 +1,5 @@
+import { Role } from "./AccountUser";
+
 export enum InvitationStatus {
   PENDING = "pending",
   USED = "used",
@@ -14,4 +16,5 @@ export type Invitation = {
   expiry_date: string;
   created_date: string;
   is_first_time: boolean;
+  role: Role;
 };
