@@ -87,7 +87,7 @@ function CreateAccountForm() {
 
   return (
     <>
-      <Banner>{projects?.[0]?.project?.name}</Banner>
+      <Banner>{projects?.[0]?.project?.name || ""}</Banner>
       <GridContainer>
         <Grid item xs={12} mb={"16px"}>
           <YellowBar />
@@ -96,14 +96,14 @@ function CreateAccountForm() {
         <Grid item xs={12}>
           <Typography variant="body1">
             Thank you for taking a few minutes to set up the{" "}
-            {projects?.[0]?.project?.name} account.
+            {projects?.[0]?.project?.name || ""} account.
             <br />
             <br />
             {invitation?.role.role_name !==
               USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
               <>
                 First of all, please create your Project Administrator Account
-                for {projects?.[0]?.project?.name}.
+                for {projects?.[0]?.project?.name || ""}.
                 <br />
                 <br />
                 Project Administrators can
@@ -162,7 +162,7 @@ function CreateAccountForm() {
                 />
                 <ControlledTextField
                   name="position"
-                  label={`Your Position/Role at ${projects?.[0]?.project?.name}.`}
+                  label={`Your Position/Role at ${projects?.[0]?.project?.name || ""}.`}
                   fullWidth
                   InputLabelProps={{
                     sx: { fontWeight: 700 },
