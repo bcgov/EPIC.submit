@@ -114,6 +114,10 @@ def get_item_status(status, user_type):
         ItemStatus.REVIEW_REJECTED.value: {
             UserType.PROPONENT: ItemStatus.REVISION_REQUIRED.value,
             UserType.STAFF: ItemStatus.REVIEW_REJECTED.value
+        },
+        ItemStatus.SATISFIED.value: {
+            UserType.PROPONENT: ItemStatus.NO_REVISION_REQUIRED.value,
+            UserType.STAFF: ItemStatus.SATISFIED.value
         }
     }
     if status in package_status_mapping:
