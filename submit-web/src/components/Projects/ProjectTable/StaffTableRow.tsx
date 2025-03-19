@@ -37,7 +37,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     version,
   } = submissionPackage;
 
-  const { cc_completed_on, type, review_start_date } = meta || {};
+  const { cc_completed_on, review_start_date, main_condition } = meta || {};
 
   const mp_review = useMemo(() => {
     if (!review_start_date || !dayjs(review_start_date).isValid()) return "";
@@ -91,7 +91,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             width: "8%",
           }}
         >
-          {type}
+          {main_condition?.condition_attributes?.submitted_to_eao_for}
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="left"
