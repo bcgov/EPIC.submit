@@ -30,6 +30,8 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
             project_name = cls.get_project_names(invitation.project_ids)
         elif invitation.package_ids:
             project_name = cls.get_project_names_for_package_id(invitation.package_ids)
+        elif invitation.account_id:
+            project_name = cls.get_project_name_for_account_id(invitation.account_id)
 
         if not project_name:
             raise BadRequestError(f"Project name not found for invitation id: {invitation.id}")
@@ -76,6 +78,20 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
             .scalar()
         )
 
+        return project_name or ""
+
+    @staticmethod
+    def get_project_name_for_account_id(account_id: int) -> str:
+        """Fetch project name for a given account ID."""
+        if not account_id:
+            return ""
+
+        project_name = (
+            db.session.query(ProjectModel.name)
+            .join(AccountProjectModel, ProjectModel.id == AccountProjectModel.project_id)
+            .filter(AccountProjectModel.account_id == account_id)
+            .scalar()
+        )
         return project_name or ""
 
     @staticmethod
