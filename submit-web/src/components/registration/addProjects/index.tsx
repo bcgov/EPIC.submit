@@ -58,7 +58,7 @@ function AddProjects() {
 
   return (
     <>
-      <Banner>{projects.length > 0 ? projects[0].proponent_name : ""}</Banner>
+      <Banner>{projects.length > 0 ? projects[0].name : ""}</Banner>
       <GridContainer yellowBar>
         <Grid item xs={12}>
           <Typography variant="h4" fontWeight={600}>
@@ -108,7 +108,7 @@ function AddProjects() {
             onClick={onConfirmProjectsClick}
             disabled={!projects}
           >
-            Confirm Project(s)
+            Confirm Project
           </Button>
           <Caption2>
             <Link onClick={() => setOpenWarning(true)}>

@@ -16,7 +16,7 @@ export const Banner = ({ children }: BannerProps) => {
       alignItems={"center"}
       px={9.5}
     >
-      <Typography variant="h3" color="initial" fontWeight={600}>
+      <Typography variant="h5" color="initial" fontWeight={600}>
         {children}
       </Typography>
     </Box>
