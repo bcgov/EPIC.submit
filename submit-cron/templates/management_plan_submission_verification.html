@@ -1,0 +1,13 @@
+<p>Hello {{ submitter_name }},</p>
+<p>Thank you for submitting the management plan on behalf of {{ certificate_holder_name }} through our new submission tool. We have successfully received your submission, and the details are as follows:</p>
+<p><strong>Management Plan Name:</strong> {{ package_name }}</p>
+<p><strong>Submission Date:</strong> {{ submission_date }}</p>
+<p><strong>Submitted Documents:</strong></p>
+<ul>
+  {% for document in documents %}
+    <li>{{ document }}</li>
+  {% endfor %}
+</ul>
+<p>If you have any questions or require further assistance, please don't hesitate to contact us.</p>
+<p>Best regards,</p>
+<p>EAO Management Plan Team</p>

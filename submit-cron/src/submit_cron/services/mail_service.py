@@ -83,7 +83,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         EmailService.send_email(email_details)
 
         # Update the email queue status to SENT
-        email_entry.status = EmailStatus.SENT.value
+        # email_entry.status = EmailStatus.SENT.value
         email_entry.sent_at = datetime.utcnow()
         db.session.commit()
 
@@ -101,7 +101,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         EmailService.send_email(email_details)
 
         # Update the email queue status to SENT
-        email_entry.status = EmailStatus.SENT.value
+        # email_entry.status = EmailStatus.SENT.value
         email_entry.sent_at = datetime.utcnow()
         db.session.commit()
 
@@ -124,4 +124,4 @@ class EmailService:  # pylint: disable=too-few-public-methods
         Returns:
             list[EmailQueue]: List of pending email queue entries.
         """
-        return db.session.query(EmailQueue).filter(EmailQueue.status == EmailStatus.PENDING.value).limit(limit).all()
+        return db.session.query(EmailQueue).all()
