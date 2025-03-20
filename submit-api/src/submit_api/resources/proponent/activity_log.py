@@ -37,6 +37,7 @@ activity_log_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 class ActivityLog(Resource):
     """Resource for retrieving activity logs."""
+
     @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Get activity logs for a specific entity.")
     @API.response(
