@@ -1,6 +1,11 @@
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
-import { useGetAcitivityLogForAdmin } from "@/hooks/api/useActivtyLog";
+import {
+  useGetActivityLog,
+  useGetActivityLogForAdmin,
+} from "@/hooks/api/useActivtyLog";
 import { AcitivityLog, ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import dateUtils from "@/utils/dateUtils";
 import {
   Box,
@@ -90,11 +95,14 @@ type HistoryTableProps = {
 };
 
 export const HistoryTable = ({ packageId }: HistoryTableProps) => {
-  const { data: activityLogs, isPending: isLoading } =
-    useGetAcitivityLogForAdmin({
-      id: Number(packageId),
-      entityType: ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
-    });
+  const { userType } = useAccount();
+  const isAdmin = userType !== USER_TYPE.STAFF;
+
+  const { data: activityLogs, isPending: isLoading } = useGetActivityLog({
+    id: Number(packageId),
+    entityType: ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+    isAdmin,
+  });
 
   return (
     <TableContainer

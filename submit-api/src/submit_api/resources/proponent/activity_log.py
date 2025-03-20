@@ -35,6 +35,7 @@ activity_log_model = ApiHelper.convert_ma_schema_to_restx_model(
     "/<string:entity_type>/<int:entity_id>",
     methods=["GET", "OPTIONS"],
 )
+
 class ActivityLog(Resource):
     """Resource for retrieving activity logs."""
 
@@ -48,7 +49,8 @@ class ActivityLog(Resource):
     @cors.crossdomain(origin="*")
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
-        for_staff = False
-        print(f"entity_type: {entity_type}, entity_id: {entity_id}, for_staff: {for_staff}")
-        logs = ActivityLogService.get_activity_logs(entity_type, entity_id, for_staff)
-        return ActivityLogSchema(many=True).dump(logs), HTTPStatus.OK
+        # Retrieve logs
+        logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
+        schema = ActivityLogSchema(many=True, context={"is_proponent": True})
+
+        return schema.dump(logs), HTTPStatus.OK

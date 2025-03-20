@@ -49,4 +49,4 @@ class ActivityLog(Resource):
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
         logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
-        return ActivityLogSchema(many=True).dump(logs), HTTPStatus.OK
+        return ActivityLogSchema(many=True, context={"is_proponent": False}).dump(logs), HTTPStatus.OK

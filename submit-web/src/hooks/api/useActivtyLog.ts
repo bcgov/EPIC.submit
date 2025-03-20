@@ -105,9 +105,8 @@ export const useGetActivityLog = ({
     retry: false,
   });
 
-  const { data: adminData, isPending: isAdminLoading } = adminResult;
-  const { data: proponentData, isPending: isProponentLoading } =
-    proponentResult;
+  const { data: adminData } = adminResult;
+  const { data: proponentData } = proponentResult;
 
   console.log("adminData", adminData);
   console.log("proponentData", proponentData);
