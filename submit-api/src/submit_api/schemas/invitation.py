@@ -35,4 +35,4 @@ class InvitationSchema(Schema):
     created_date = fields.DateTime()
     role = fields.Nested(RoleSchema, data_key="role", dump_only=True)
     is_first_time = fields.Bool(default=False)
-    proponent_id = fields.Pluck(AccountSchema, "proponent_id", dump_only=True)
+    proponent_id = fields.Int()
