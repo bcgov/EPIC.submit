@@ -9,10 +9,10 @@ def get_activity_action(action: str, user_type: str) -> str:
     action_mapping = {
         ActivityActionType.ORIGINAL_SUBMISSION.value: {
             UserType.PROPONENT: ActivityActionType.ORIGINAL_SUBMISSION.value,
-            UserType.STAFF:  ActivityActionType.ORIGINAL_SUBMISSION.value,
+            UserType.STAFF: ActivityActionType.ORIGINAL_SUBMISSION.value,
         },
         ActivityActionType.UPDATED_SUBMISSION.value: {
-            UserType.PROPONENT:  ActivityActionType.UPDATED_SUBMISSION.value,
+            UserType.PROPONENT: ActivityActionType.UPDATED_SUBMISSION.value,
             UserType.STAFF: ActivityActionType.UPDATED_SUBMISSION.value
         },
         ActivityActionType.START_CONSULTATION_CHECK.value: {
@@ -24,8 +24,8 @@ def get_activity_action(action: str, user_type: str) -> str:
             UserType.STAFF: ActivityActionType.UPDATE_REQUESTED.value
         },
         ActivityActionType.PASSED_CONSULTATION_CHECK.value: {
-            UserType.PROPONENT:  ActivityActionType.PASSED_CONSULTATION_CHECK.value,
-            UserType.STAFF:  ActivityActionType.PASSED_CONSULTATION_CHECK.value
+            UserType.PROPONENT: ActivityActionType.PASSED_CONSULTATION_CHECK.value,
+            UserType.STAFF: ActivityActionType.PASSED_CONSULTATION_CHECK.value
         },
         ActivityActionType.FAILED_CONSULTATION_CHECK.value: {
             UserType.PROPONENT: ActivityActionType.REVISION_REQUESTED.value,
@@ -48,12 +48,12 @@ def get_activity_action(action: str, user_type: str) -> str:
             UserType.STAFF: ActivityActionType.MP_SATISFIED.value
         },
         ActivityActionType.MP_REVIEW_REJECTED.value: {
-            UserType.PROPONENT:  ActivityActionType.REVISION_REQUESTED.value,
-            UserType.STAFF:  ActivityActionType.MP_REVIEW_REJECTED.value
+            UserType.PROPONENT: ActivityActionType.REVISION_REQUESTED.value,
+            UserType.STAFF: ActivityActionType.MP_REVIEW_REJECTED.value
         },
         ActivityActionType.REVISION_REQUIRED.value: {
-            UserType.PROPONENT:  ActivityActionType.REVISION_REQUIRED.value,
-            UserType.STAFF:  ActivityActionType.REVISION_REQUIRED.value
+            UserType.PROPONENT: ActivityActionType.REVISION_REQUIRED.value,
+            UserType.STAFF: ActivityActionType.REVISION_REQUIRED.value
         },
         ActivityActionType.MP_REVIEW_FAILED.value: {
             UserType.PROPONENT: ActivityActionType.REVISION_REQUIRED.value,
