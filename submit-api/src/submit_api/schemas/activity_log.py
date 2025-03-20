@@ -8,56 +8,56 @@ def get_activity_action(action: str, user_type: str) -> str:
     """Map activity log actions based on user type (Proponent/Staff)."""
     action_mapping = {
         ActivityActionType.ORIGINAL_SUBMISSION.value: {
-            UserType.PROPONENT: "Original Submission",
-            UserType.STAFF: "Original Submission"
+            UserType.PROPONENT: ActivityActionType.ORIGINAL_SUBMISSION.value,
+            UserType.STAFF:  ActivityActionType.ORIGINAL_SUBMISSION.value,
         },
         ActivityActionType.UPDATED_SUBMISSION.value: {
-            UserType.PROPONENT: "Updated Submission",
-            UserType.STAFF: "Updated Submission"
+            UserType.PROPONENT:  ActivityActionType.UPDATED_SUBMISSION.value,
+            UserType.STAFF: ActivityActionType.UPDATED_SUBMISSION.value
         },
         ActivityActionType.START_CONSULTATION_CHECK.value: {
-            UserType.PROPONENT: "Start Consultation Check",
-            UserType.STAFF: "Start Consultation Check"
+            UserType.PROPONENT: ActivityActionType.START_CONSULTATION_CHECK.value,
+            UserType.STAFF: ActivityActionType.START_CONSULTATION_CHECK.value
         },
         ActivityActionType.UPDATE_REQUESTED.value: {
-            UserType.PROPONENT: "Update Requested",
-            UserType.STAFF: "Update Requested"
+            UserType.PROPONENT: ActivityActionType.UPDATE_REQUESTED.value,
+            UserType.STAFF: ActivityActionType.UPDATE_REQUESTED.value
         },
         ActivityActionType.PASSED_CONSULTATION_CHECK.value: {
-            UserType.PROPONENT: "Passed Consultation Check",
-            UserType.STAFF: "Passed Consultation Check"
+            UserType.PROPONENT:  ActivityActionType.PASSED_CONSULTATION_CHECK.value,
+            UserType.STAFF:  ActivityActionType.PASSED_CONSULTATION_CHECK.value
         },
         ActivityActionType.FAILED_CONSULTATION_CHECK.value: {
-            UserType.PROPONENT: "Revision Requested",
-            UserType.STAFF: "Failed Consultation Check"
+            UserType.PROPONENT: ActivityActionType.REVISION_REQUESTED.value,
+            UserType.STAFF: ActivityActionType.FAILED_CONSULTATION_CHECK.value
         },
         ActivityActionType.START_MP_REVIEW.value: {
-            UserType.PROPONENT: "Start MP Review",
-            UserType.STAFF: "Start MP Review"
+            UserType.PROPONENT: ActivityActionType.START_MP_REVIEW.value,
+            UserType.STAFF: ActivityActionType.START_MP_REVIEW.value
         },
         ActivityActionType.MP_ACCEPTED.value: {
-            UserType.PROPONENT: "MP Accepted",
-            UserType.STAFF: "MP Accepted"
+            UserType.PROPONENT: ActivityActionType.MP_ACCEPTED.value,
+            UserType.STAFF: ActivityActionType.MP_ACCEPTED.value
         },
         ActivityActionType.MP_APPROVED.value: {
-            UserType.PROPONENT: "MP Approved",
-            UserType.STAFF: "MP Approved"
+            UserType.PROPONENT: ActivityActionType.MP_APPROVED.value,
+            UserType.STAFF: ActivityActionType.MP_APPROVED.value
         },
         ActivityActionType.MP_SATISFIED.value: {
-            UserType.PROPONENT: "MP Satisfied",
-            UserType.STAFF: "MP Satisfied"
+            UserType.PROPONENT: ActivityActionType.MP_SATISFIED.value,
+            UserType.STAFF: ActivityActionType.MP_SATISFIED.value
         },
         ActivityActionType.MP_REVIEW_REJECTED.value: {
-            UserType.PROPONENT: "Revision Requested",
-            UserType.STAFF: "MP Review Rejected"
+            UserType.PROPONENT:  ActivityActionType.REVISION_REQUESTED.value,
+            UserType.STAFF:  ActivityActionType.MP_REVIEW_REJECTED.value
         },
         ActivityActionType.REVISION_REQUIRED.value: {
-            UserType.PROPONENT: "Revision Required",
-            UserType.STAFF: "Revision Required"
+            UserType.PROPONENT:  ActivityActionType.REVISION_REQUIRED.value,
+            UserType.STAFF:  ActivityActionType.REVISION_REQUIRED.value
         },
         ActivityActionType.MP_REVIEW_FAILED.value: {
-            UserType.PROPONENT: "Revision Required",
-            UserType.STAFF: "MP Review Failed"
+            UserType.PROPONENT: ActivityActionType.REVISION_REQUIRED.value,
+            UserType.STAFF: ActivityActionType.MP_REVIEW_FAILED.value
         },
     }
 
