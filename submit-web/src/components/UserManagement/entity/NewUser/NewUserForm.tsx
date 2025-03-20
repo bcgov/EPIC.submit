@@ -88,7 +88,7 @@ export default function NewUserForm() {
         ?.filter(
           ({ packages }) =>
             !isSpecificSubmission ||
-            packages.some(({ id }) => packageIds.includes(id.toString())),
+            packages.some(({ id }) => packageIds.includes(id.toString()))
         )
         .map(({ project_id }) => Number(project_id)) || []
     );
@@ -115,9 +115,9 @@ export default function NewUserForm() {
         Object.values(accountProject.packages).map((pkg) => ({
           value: String(pkg.id),
           label: pkg.name,
-        })),
+        }))
       ) || [],
-    [accountPackages],
+    [accountPackages]
   );
 
   return (
@@ -155,24 +155,25 @@ export default function NewUserForm() {
                 sx={{ backgroundColor: BCDesignTokens.themeGold100, height: 1 }}
               />
               <Typography
-                variant="body2"
+                variant="body1"
                 sx={{
                   fontWeight: 700,
-                  mt: BCDesignTokens.layoutMarginMedium,
-                  mb: BCDesignTokens.layoutMarginSmall,
+                  mt: BCDesignTokens.layoutMarginLarge,
                 }}
               >
-                Enter the new user's email address associated with their BCeID
-                account.
+                Enter the new user's email address.
               </Typography>
-              <Typography variant="subtitle2">
+              <Typography
+                variant="subtitle2"
+                sx={{ color: BCDesignTokens.typographyColorPlaceholder }}
+              >
                 The user will receive an email invitation to join your project.
               </Typography>
               <ControlledTextField
                 variant="outlined"
                 fullWidth
                 name="email"
-                sx={{ mt: BCDesignTokens.layoutPaddingMedium }}
+                sx={{ mt: BCDesignTokens.layoutPaddingSmall }}
               />
             </Container>
             <Container
@@ -196,10 +197,10 @@ export default function NewUserForm() {
                 sx={{ backgroundColor: BCDesignTokens.themeGold100, height: 1 }}
               />
               <Typography
-                variant="body2"
+                variant="body1"
                 sx={{
                   fontWeight: 700,
-                  mt: BCDesignTokens.layoutMarginMedium,
+                  mt: BCDesignTokens.layoutMarginLarge,
                   mb: BCDesignTokens.layoutMarginSmall,
                 }}
               >
@@ -226,7 +227,11 @@ export default function NewUserForm() {
                 />
               </When>
 
-              <Stack direction="row" spacing={2}>
+              <Stack
+                direction="row"
+                spacing={2}
+                sx={{ mt: BCDesignTokens.layoutMarginXlarge }}
+              >
                 <LoadingButton type="submit" loading={isPendingInvitation}>
                   Add User
                 </LoadingButton>
