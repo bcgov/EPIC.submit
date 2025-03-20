@@ -29,6 +29,8 @@ import { ProjectStatus } from "@/components/registration/addProjects/ProjectStat
 import ItemsTable from "@/components/Submission/ItemsTable";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
+import PermissionsGate from "@/components/Shared/PermissionGate";
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -215,15 +217,19 @@ export default function SubmissionPage() {
                 >
                   Save & Close
                 </Button>
-                <Unless condition={submissionPackage.completed_on}>
-                  <Button
-                    onClick={submitPackage}
-                    loading={isSubmittingPackage}
-                    disabled={isSubmitDisabled}
-                  >
-                    Submit to EAO
-                  </Button>
-                </Unless>
+                <PermissionsGate
+                  scopes={[ACCOUNT_USER_PERMISSIONS.SUBMIT_PACKAGE]}
+                >
+                  <Unless condition={submissionPackage.completed_on}>
+                    <Button
+                      onClick={submitPackage}
+                      loading={isSubmittingPackage}
+                      disabled={isSubmitDisabled}
+                    >
+                      Submit to EAO
+                    </Button>
+                  </Unless>
+                </PermissionsGate>
               </Box>
             </Box>
           </Box>

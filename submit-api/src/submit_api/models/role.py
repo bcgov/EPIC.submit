@@ -4,19 +4,9 @@ Manages roles for accounts, projects, and submissions.
 """
 from __future__ import annotations
 
-import enum
 from sqlalchemy import Column, String, Text
 from .base_model import BaseModel
 from .db import db
-
-
-class RoleEnum(enum.Enum):
-    """Enum for Role types"""
-
-    ACCOUNT_PRIMARY_ADMIN = 'ACCOUNT_PRIMARY_ADMIN'
-    PROJECT_ADMIN = 'PROJECT_ADMIN'
-    SUBMISSION_ADMIN = 'SUBMISSION_ADMIN'
-    SPECIFIC_SUBMISSION_CONTRIBUTOR = 'SPECIFIC_SUBMISSION_CONTRIBUTOR'
 
 
 class Role(BaseModel):

@@ -20,3 +20,4 @@ class UserRoleSchema(Schema):
     account_project_id = fields.Int(allow_none=True)
     package_ids = fields.List(fields.Int(), allow_none=True)
     role_name = fields.Pluck(RoleSchema, "role_name", data_key="role_name", attribute="role")
+    permissions = fields.List(fields.Str())

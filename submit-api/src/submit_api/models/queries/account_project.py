@@ -14,10 +14,11 @@
 """Model to handle all complex operations related to User."""
 
 from sqlalchemy import or_
+
+from submit_api.enums.role import RoleEnum
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
-from submit_api.models.role import RoleEnum
 from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
 

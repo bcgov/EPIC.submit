@@ -38,3 +38,9 @@ export const roleDetails: Record<
     info: "Access is limited to specific submissions to view and contribute.",
   },
 };
+
+export enum ACCOUNT_USER_PERMISSIONS {
+  CREATE_PACKAGE = "CREATE_PACKAGE",
+  SUBMIT_PACKAGE = "SUBMIT_PACKAGE",
+  INVITE_USERS = "INVITE_USERS",
+}

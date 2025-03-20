@@ -1,3 +1,5 @@
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
+import PermissionsGate from "../../PermissionGate";
 import { MainListItem } from "./MainListItem";
 import ProjectsSubRoutes from "./ProjectsSubRoutes";
 import { SubListItem } from "./SubListItem";
@@ -18,13 +20,15 @@ export default function EntityRoutes() {
           path: "/proponent/profile",
         }}
       />
-      <SubListItem
-        key={`sub-list-user-management`}
-        route={{
-          name: "User Management",
-          path: `/proponent/user-management`,
-        }}
-      />
+      <PermissionsGate scopes={[ACCOUNT_USER_PERMISSIONS.INVITE_USERS]}>
+        <SubListItem
+          key={`sub-list-user-management`}
+          route={{
+            name: "User Management",
+            path: `/proponent/user-management`,
+          }}
+        />
+      </PermissionsGate>
     </>
   );
 }

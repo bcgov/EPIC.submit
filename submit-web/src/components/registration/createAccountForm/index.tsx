@@ -49,6 +49,7 @@ function CreateAccountForm() {
     setAccount({
       userId: data.user_id,
       userManagementRole: data.role,
+      roles: data.role.permissions,
     });
 
     if (invitation?.is_first_time) {

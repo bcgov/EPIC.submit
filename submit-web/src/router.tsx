@@ -2,6 +2,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
 import { QueryClient } from "@tanstack/react-query";
+import { useAccount } from "./store/accountStore";
 
 const queryClient = new QueryClient();
 // Create a new router instance
@@ -11,6 +12,7 @@ const router = createRouter({
     // authentication will initially be undefined
     // We'll be passing down the authentication state from within a React component
     authentication: undefined!,
+    account: undefined!,
     queryClient,
   },
   defaultPreload: "intent",
@@ -28,5 +30,9 @@ declare module "@tanstack/react-router" {
 
 export default function RouterProviderWithAuthContext() {
   const authentication = useAuth();
-  return <RouterProvider router={router} context={{ authentication }} />;
+  const account = useAccount();
+  console.log("account A", account);
+  return (
+    <RouterProvider router={router} context={{ authentication, account }} />
+  );
 }

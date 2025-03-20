@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 from flask import current_app
 
+from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models.account import Account as AccountModel
@@ -13,7 +14,6 @@ from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
 from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
 from submit_api.models.role import Role as RoleModel
-from submit_api.models.role import RoleEnum
 from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
