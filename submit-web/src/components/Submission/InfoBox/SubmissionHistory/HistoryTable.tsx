@@ -1,9 +1,6 @@
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
-import {
-  useGetActivityLog,
-  useGetActivityLogForAdmin,
-} from "@/hooks/api/useActivtyLog";
-import { AcitivityLog, ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
+import { useGetActivityLog } from "@/hooks/api/useActivtyLog";
+import { ACTIVITY_LOG_ENTITY_TYPE, ActivityLog } from "@/models/ActivityLog";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import dateUtils from "@/utils/dateUtils";
@@ -39,7 +36,7 @@ const HistoryTableBody = ({
   activityLogs,
   loading,
 }: {
-  activityLogs?: AcitivityLog[];
+  activityLogs?: ActivityLog[];
   loading: boolean;
 }) => {
   if (loading) {
