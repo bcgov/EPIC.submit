@@ -17,6 +17,7 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.models import AccountProject, db
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.package import PackageStatus
+from submit_api.models.package_version import PackageVersion
 
 
 # pylint: disable=too-few-public-methods
@@ -132,7 +133,21 @@ class PackageQueries:
 
     @classmethod
     def get_account_project_packages(cls, account_id: int):
-        """Fetch project_id and related packages (id, name) for a given account_id."""
+        """Fetch project_id and related packages (id, name) for a given account_id.
+        
+        Only includes packages with the latest version_id matching the highest version 
+        of the original_package_id from package_versions.
+        """
+        # Subquery to get the latest version_id for each original_package_id
+        latest_versions_subquery = (
+            db.session.query(
+                PackageVersion.original_package_id,
+                func.max(PackageVersion.id).label("latest_version_id")  # Get the latest version_id
+            )
+            .group_by(PackageVersion.original_package_id)  # Group by original_package_id
+            .subquery()
+        )
+
         query = (
             db.session.query(
                 AccountProject.project_id,
@@ -144,6 +159,10 @@ class PackageQueries:
                 ).label('packages')  # Aggregate packages as a JSON array
             )
             .join(PackageModel, PackageModel.account_project_id == AccountProject.id)
+            .join(
+                latest_versions_subquery,
+                PackageModel.version_id == latest_versions_subquery.c.latest_version_id
+            )  # Only fetch packages with the latest version_id
             .filter(AccountProject.account_id == account_id)
             .group_by(AccountProject.project_id)  # Group by project_id
             .all()
