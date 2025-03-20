@@ -1,9 +1,11 @@
+"""Activity Log Schema for Proponent and Staff Activity Logs."""
 from marshmallow import Schema, fields, post_dump
 from enum import Enum
 
 
 class ActionType(Enum):
     """Enum for different activity actions."""
+
     ORIGINAL_SUBMISSION = "Original Submission"
     START_CONSULTATION_CHECK = "Start Consultation Check"
     UPDATED_SUBMISSION_REQUESTED = "Updated Submission"
@@ -17,7 +19,6 @@ class ActionType(Enum):
 
 def get_activity_action(action: str, user_type: str) -> str:
     """Map activity log actions based on user type (Proponent/Staff)."""
-
     action_mapping = {
         ActionType.ORIGINAL_SUBMISSION.value: {
             "PROPONENT": "Original Submission",
