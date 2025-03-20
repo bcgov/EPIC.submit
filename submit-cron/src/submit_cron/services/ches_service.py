@@ -71,8 +71,9 @@ class ChesApiService:
         if not template:
             raise ValueError('Template not found')
         # logo is taken from submit UI / Web app..
-        # Went for this approach since making it base64 is hard to get it working in gmail..gmail strips the log
-        # this is like submit web hosts the logo and the email uses it..
+        # Went for this approach since making it base64 is hard to get it working in gmail..
+        # gmail strips the logo if base64 is used
+        # this is like submit web hosts the logo and the email uses it as a static server to get the logo image.
         body_args['logo_url'] = f'{current_app.config.get("WEB_URL")}/assets/EAO_Logo-BZOR9oRj.png'
         rendered_body = template.render(body_args)
 
