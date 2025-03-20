@@ -1,60 +1,63 @@
 """Activity Log Schema for Proponent and Staff Activity Logs."""
 from marshmallow import Schema, fields, post_dump
-from enum import Enum
-
-
-class ActionType(Enum):
-    """Enum for different activity actions."""
-
-    ORIGINAL_SUBMISSION = "Original Submission"
-    START_CONSULTATION_CHECK = "Start Consultation Check"
-    UPDATED_SUBMISSION_REQUESTED = "Updated Submission"
-    PASSED_CONSULTATION_CHECK = "Passed Consultation Check"
-    FAILED_CONSULTATION_CHECK = "Failed Consultation Check"
-    START_MP_REVIEW = "Start MP Review"
-    MP_ACCEPTED_APPROVED_SATISFIED = "MP Accepted/Approved/Satisfied"
-    MP_REVIEW_REJECTED = "MP Review Failed"
-    UPDATED_SUBMISSION = "Updated Submission"
+from submit_api.enums.activity_type import ActivityActionType
+from submit_api.models.user import UserType
 
 
 def get_activity_action(action: str, user_type: str) -> str:
     """Map activity log actions based on user type (Proponent/Staff)."""
     action_mapping = {
-        ActionType.ORIGINAL_SUBMISSION.value: {
-            "PROPONENT": "Original Submission",
-            "STAFF": "Original Submission"
+        ActivityActionType.ORIGINAL_SUBMISSION.value: {
+            UserType.PROPONENT: "Original Submission",
+            UserType.STAFF: "Original Submission"
         },
-        ActionType.START_CONSULTATION_CHECK.value: {
-            "PROPONENT": "Start Consultation Check",
-            "STAFF": "Start Consultation Check"
+        ActivityActionType.UPDATED_SUBMISSION.value: {
+            UserType.PROPONENT: "Updated Submission",
+            UserType.STAFF: "Updated Submission"
         },
-        ActionType.UPDATED_SUBMISSION_REQUESTED.value: {
-            "PROPONENT": "Update Requested",
-            "STAFF": "Update Requested"
+        ActivityActionType.START_CONSULTATION_CHECK.value: {
+            UserType.PROPONENT: "Start Consultation Check",
+            UserType.STAFF: "Start Consultation Check"
         },
-        ActionType.PASSED_CONSULTATION_CHECK.value: {
-            "PROPONENT": "Passed Consultation Check",
-            "STAFF": "Passed Consultation Check"
+        ActivityActionType.UPDATE_REQUESTED.value: {
+            UserType.PROPONENT: "Update Requested",
+            UserType.STAFF: "Update Requested"
         },
-        ActionType.FAILED_CONSULTATION_CHECK.value: {
-            "PROPONENT": "Revision Requested",
-            "STAFF": "Failed Consultation Check"
+        ActivityActionType.PASSED_CONSULTATION_CHECK.value: {
+            UserType.PROPONENT: "Passed Consultation Check",
+            UserType.STAFF: "Passed Consultation Check"
         },
-        ActionType.START_MP_REVIEW.value: {
-            "PROPONENT": "Start MP Review",
-            "STAFF": "Start MP Review"
+        ActivityActionType.FAILED_CONSULTATION_CHECK.value: {
+            UserType.PROPONENT: "Revision Requested",
+            UserType.STAFF: "Failed Consultation Check"
         },
-        ActionType.MP_ACCEPTED_APPROVED_SATISFIED.value: {
-            "PROPONENT": "MP Accepted/Approved/Satisfied",
-            "STAFF": "MP Accepted/Approved/Satisfied"
+        ActivityActionType.START_MP_REVIEW.value: {
+            UserType.PROPONENT: "Start MP Review",
+            UserType.STAFF: "Start MP Review"
         },
-        ActionType.MP_REVIEW_REJECTED.value: {
-            "PROPONENT": "Revision Required",
-            "STAFF": "MP Review Failed"
+        ActivityActionType.MP_ACCEPTED.value: {
+            UserType.PROPONENT: "MP Accepted",
+            UserType.STAFF: "MP Accepted"
         },
-        ActionType.UPDATED_SUBMISSION.value: {
-            "PROPONENT": "Revision Requested",
-            "STAFF": "Updated Submission"
+        ActivityActionType.MP_APPROVED.value: {
+            UserType.PROPONENT: "MP Approved",
+            UserType.STAFF: "MP Approved"
+        },
+        ActivityActionType.MP_SATISFIED.value: {
+            UserType.PROPONENT: "MP Satisfied",
+            UserType.STAFF: "MP Satisfied"
+        },
+        ActivityActionType.MP_REVIEW_REJECTED.value: {
+            UserType.PROPONENT: "Revision Requested",
+            UserType.STAFF: "MP Review Rejected"
+        },
+        ActivityActionType.REVISION_REQUIRED.value: {
+            UserType.PROPONENT: "Revision Required",
+            UserType.STAFF: "Revision Required"
+        },
+        ActivityActionType.MP_REVIEW_FAILED.value: {
+            UserType.PROPONENT: "Revision Required",
+            UserType.STAFF: "MP Review Failed"
         },
     }
 
@@ -80,7 +83,7 @@ class ActivityLogSchema(Schema):
         """Map action based on is_proponent flag from context."""
         is_proponent = self.context.get("is_proponent", False)  # Default to False
 
-        user_type = "PROPONENT" if is_proponent else "STAFF"
+        user_type = UserType.PROPONENT if is_proponent else UserType.STAFF
 
         data["action"] = get_activity_action(data["action"], user_type)
         return data
