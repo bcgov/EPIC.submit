@@ -52,5 +52,4 @@ class ActivityLog(Resource):
         # Retrieve logs
         logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
         schema = ActivityLogSchema(many=True, context={"is_proponent": True})
-
         return schema.dump(logs), HTTPStatus.OK

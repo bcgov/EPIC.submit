@@ -104,12 +104,6 @@ export const useGetActivityLog = ({
     enabled: enabled && !isAdmin,
   });
 
-  const { data: adminData } = adminResult;
-  const { data: proponentData } = proponentResult;
-
-  console.log("adminData", adminData);
-  console.log("proponentData", proponentData);
-
   // Return the appropriate result based on isAdmin
   return isAdmin ? adminResult : proponentResult;
 };
