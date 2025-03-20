@@ -5,6 +5,7 @@ Manages the invitation.
 
 from submit_api.schemas.role import RoleSchema
 from marshmallow import Schema, fields
+from submit_api.schemas.account import AccountSchema
 
 
 class CreateInvitationSchema(Schema):
@@ -34,3 +35,4 @@ class InvitationSchema(Schema):
     created_date = fields.DateTime()
     role = fields.Nested(RoleSchema, data_key="role", dump_only=True)
     is_first_time = fields.Bool(default=False)
+    proponent_id = fields.Pluck(AccountSchema, "proponent_id", dump_only=True)
