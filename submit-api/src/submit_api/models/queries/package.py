@@ -134,8 +134,8 @@ class PackageQueries:
     @classmethod
     def get_account_project_packages(cls, account_id: int):
         """Fetch project_id and related packages (id, name) for a given account_id.
-        
-        Only includes packages with the latest version_id matching the highest version 
+
+        Only includes packages with the latest version_id matching the highest version
         of the original_package_id from package_versions.
         """
         # Subquery to get the latest version_id for each original_package_id
