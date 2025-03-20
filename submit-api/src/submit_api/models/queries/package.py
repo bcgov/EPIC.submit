@@ -132,7 +132,7 @@ class PackageQueries:
             session.add(package)
 
     @classmethod
-    def get_account_project_packages(cls, account_id: int):
+    def get_latest_account_project_packages(cls, account_id: int):
         """Fetch project_id and related packages (id, name) for a given account_id.
 
         Only includes packages with the latest version_id matching the highest version

@@ -100,4 +100,4 @@ class AccountService:
     @classmethod
     def get_all_account_packages(cls, account_id):
         """Get packages by account id."""
-        return PackageQueries.get_account_project_packages(account_id)
+        return PackageQueries.get_latest_account_project_packages(account_id)
