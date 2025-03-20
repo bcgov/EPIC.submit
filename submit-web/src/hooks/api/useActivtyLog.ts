@@ -101,7 +101,7 @@ export const useGetActivityLog = ({
   const proponentResult = useGetActivityLogForProponent({
     id,
     entityType,
-    enabled: enabled && isAdmin,
+    enabled: enabled && !isAdmin,
   });
 
   const { data: adminData } = adminResult;

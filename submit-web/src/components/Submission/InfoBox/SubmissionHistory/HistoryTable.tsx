@@ -96,7 +96,7 @@ type HistoryTableProps = {
 
 export const HistoryTable = ({ packageId }: HistoryTableProps) => {
   const { userType } = useAccount();
-  const isAdmin = userType !== USER_TYPE.STAFF;
+  const isAdmin = userType === USER_TYPE.STAFF;
 
   const { data: activityLogs, isPending: isLoading } = useGetActivityLog({
     id: Number(packageId),
