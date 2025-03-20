@@ -7,7 +7,7 @@ export const ACTIVITY_LOG_ENTITY_TYPE: Record<
   PACKAGE: "PACKAGE",
 };
 
-export type AcitivityLog = {
+export type ActivityLog = {
   id: number;
   entity_type: string;
   entity_id: number;

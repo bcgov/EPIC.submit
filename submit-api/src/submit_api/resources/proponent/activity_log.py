@@ -48,5 +48,7 @@ class ActivityLog(Resource):
     @cors.crossdomain(origin="*")
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
+        # Retrieve logs
         logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
-        return ActivityLogSchema(many=True, context={"is_proponent": False}).dump(logs), HTTPStatus.OK
+        schema = ActivityLogSchema(many=True, context={"is_proponent": True})
+        return schema.dump(logs), HTTPStatus.OK
