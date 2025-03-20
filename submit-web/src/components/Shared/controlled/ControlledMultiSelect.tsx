@@ -1,6 +1,14 @@
 import { FC } from "react";
-import { TextField, TextFieldProps, Autocomplete } from "@mui/material";
+import {
+  TextField,
+  TextFieldProps,
+  Autocomplete,
+  Chip,
+  Box,
+} from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
+import CloseIcon from "@mui/icons-material/Close";
+import { BCDesignTokens } from "epic.theme";
 
 export type OptionType = { value: string; label: string };
 
@@ -27,7 +35,6 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
     setValue,
   } = useFormContext();
 
-  // Ensure "All" follows the same structure
   const extendedOptions: OptionType[] = selectAll
     ? [{ value: "All", label: "All" }, ...options]
     : options;
@@ -42,51 +49,95 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
     <Controller
       control={control}
       name={name}
-      defaultValue={defaultValue} // Ensure default is always an array
+      defaultValue={defaultValue}
       render={({ field: { onChange, value } }) => {
-        // Convert stored `value` (array of IDs) into an array of objects
         const selectedValues = extendedOptions.filter((option) =>
           (Array.isArray(value) ? value : []).includes(option.value)
         );
 
         return (
-          <Autocomplete
-            {...otherProps}
-            multiple={multiple}
-            defaultValue={defaultValue}
-            options={extendedOptions}
-            value={selectedValues} // MUI expects an array of objects
-            autoComplete
-            isOptionEqualToValue={(option, val) => option.value === val.value}
-            getOptionLabel={(option: OptionType) => option?.label ?? ""}
-            onChange={(_, newValue) => {
-              if (!Array.isArray(newValue)) {
-                onChange([]);
-                return;
-              }
-
-              // Handle "All" selection
-              if (selectAll && newValue.some((v) => v.value === "All")) {
-                setValue(
-                  name,
-                  options.map((opt) => opt.value)
-                ); // Store only IDs
-              } else {
-                setValue(
-                  name,
-                  newValue.map((v) => v.value) // Store only the `value` (ID)
-                );
-              }
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...TextFieldProps}
-                {...params}
-                error={Boolean(errors[name]?.message)}
-                helperText={errorMessage || ""}
-              />
+          <Box sx={{ width: "100%" }}>
+            {/* Display selected options as chips */}
+            {selectedValues.length > 0 && (
+              <Box sx={{ display: "flex", flexWrap: "wrap", my: 1 }}>
+                {selectedValues.map((selected) => (
+                  <Chip
+                    key={selected.value}
+                    label={selected.label}
+                    onDelete={() => {
+                      const newSelection = selectedValues.filter(
+                        (item) => item.value !== selected.value
+                      );
+                      setValue(
+                        name,
+                        newSelection.map((item) => item.value)
+                      );
+                    }}
+                    deleteIcon={<CloseIcon />}
+                    sx={{
+                      fontSize: "inherit",
+                      fontFamily: "inherit",
+                      verticalAlign: "middle",
+                      marginBottom: "5px",
+                      marginY: "5px",
+                      backgroundColor:
+                        BCDesignTokens.surfaceColorBackgroundLightBlue,
+                      "& .MuiChip-deleteIcon": {
+                        color: BCDesignTokens.surfaceColorBackgroundDarkBlue,
+                        borderRadius: "0",
+                        backgroundColor: "transparent",
+                        marginLeft: "5px",
+                        fontSize: "20px",
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
             )}
-          />
+
+            {/* Hidden Autocomplete input field */}
+            <Autocomplete
+              {...otherProps}
+              multiple={multiple}
+              options={extendedOptions.filter(
+                (option) =>
+                  !selectedValues.some(
+                    (selected) => selected.value === option.value
+                  )
+              )} // Hide selected values from dropdown
+              value={selectedValues}
+              autoComplete
+              isOptionEqualToValue={(option, val) => option.value === val.value}
+              getOptionLabel={(option: OptionType) => option?.label ?? ""}
+              onChange={(_, newValue) => {
+                if (!Array.isArray(newValue)) {
+                  onChange([]);
+                  return;
+                }
+
+                if (selectAll && newValue.some((v) => v.value === "All")) {
+                  setValue(
+                    name,
+                    options.map((opt) => opt.value)
+                  );
+                } else {
+                  setValue(
+                    name,
+                    newValue.map((v) => v.value)
+                  );
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...TextFieldProps}
+                  {...params}
+                  error={Boolean(errors[name]?.message)}
+                  helperText={errorMessage || ""}
+                  InputProps={{ ...params.InputProps, startAdornment: null }} // Hide selected values
+                />
+              )}
+            />
+          </Box>
         );
       }}
     />
