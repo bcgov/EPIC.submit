@@ -98,11 +98,10 @@ export const useGetActivityLog = ({
     enabled: enabled && isAdmin,
   });
 
-  const proponentResult = useQuery({
-    queryKey: [QUERY_KEY.ACTIVITY_LOGS, id, entityType, "proponent"],
-    queryFn: () => getActivityLogForProponentById({ id, entityType }),
-    enabled: enabled && !isAdmin && Boolean(id) && Boolean(entityType),
-    retry: false,
+  const proponentResult = useGetActivityLogForProponent({
+    id,
+    entityType,
+    enabled: enabled && isAdmin,
   });
 
   const { data: adminData } = adminResult;
