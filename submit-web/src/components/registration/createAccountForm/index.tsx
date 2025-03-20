@@ -17,9 +17,10 @@ import {
   useAcceptInvitation,
 } from "@/hooks/api/useInvitations";
 import { useAccount } from "@/store/accountStore";
-import BarTitle from "@/components/Shared/Text/BarTitle";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useNavigate } from "@tanstack/react-router";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { YellowBar } from "@/components/Shared/YellowBar";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -40,8 +41,8 @@ function CreateAccountForm() {
   const { setAccount } = useAccount();
   const navigate = useNavigate();
 
-  const { data: project } = useGetAccountProject({
-    accountProjectId: invitation?.project_ids[0] ?? null,
+  const { data: projects } = useGetAccountProjectsByAccount({
+    accountId: invitation?.account_id,
   });
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
@@ -86,28 +87,35 @@ function CreateAccountForm() {
 
   return (
     <>
-      <Banner>{project?.project?.name}</Banner>
+      <Banner>{projects?.[0]?.project?.name || ""}</Banner>
       <GridContainer>
         <Grid item xs={12} mb={"16px"}>
-          <BarTitle title="Welcome to EPIC.submit" />
+          <YellowBar />
+          <Typography variant="h1">Welcome to EPIC.submit</Typography>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1">
             Thank you for taking a few minutes to set up the{" "}
-            {project?.project?.name}
-            account.
+            {projects?.[0]?.project?.name || ""} account.
             <br />
             <br />
-            First of all, please create your Project Administrator Account for
-            {project?.project?.name}.
-            <br />
-            <br />
-            Project Administrators can
-            <ul style={{ paddingTop: "0rem", marginTop: "0rem" }}>
-              <li>Access all the submissions</li>
-              <li>Create new submissions and submit submissions to the EAO</li>
-              <li>Add users and manage user access</li>
-            </ul>
+            {invitation?.role.role_name ===
+              USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
+              <>
+                First of all, please create your Project Administrator Account
+                for {projects?.[0]?.project?.name || ""}.
+                <br />
+                <br />
+                Project Administrators can
+                <ul style={{ paddingTop: "0rem", marginTop: "0rem" }}>
+                  <li>Access all the submissions</li>
+                  <li>
+                    Create new submissions and submit submissions to the EAO
+                  </li>
+                  <li>Add users and manage user access</li>
+                </ul>
+              </>
+            )}
           </Typography>
         </Grid>
 
@@ -154,7 +162,7 @@ function CreateAccountForm() {
                 />
                 <ControlledTextField
                   name="position"
-                  label={`Your Position/Role at ${project?.project?.proponent_name}.`}
+                  label={`Your Position/Role at ${projects?.[0]?.project?.name || ""}.`}
                   fullWidth
                   InputLabelProps={{
                     sx: { fontWeight: 700 },

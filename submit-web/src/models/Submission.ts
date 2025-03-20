@@ -4,6 +4,7 @@ export type NonCanonicalSubmissionStatus =
   | "REVISION_REQUIRED"
   | "UPDATED"
   | "UPDATE_REQUESTED"
+  | "NO_REVISION_REQUIRED"
   | "FAILED";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
@@ -14,6 +15,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   REVISION_REQUIRED: "REVISION_REQUIRED",
   UPDATED: "UPDATED",
   FAILED: "FAILED",
+  NO_REVISION_REQUIRED: "NO_REVISION_REQUIRED",
 });
 
 export type SubmissionItemStatus =

@@ -87,7 +87,7 @@ export const useAddProjects = (options?: Options) => {
 };
 
 type UseGetProjectsByAccountParams = {
-  accountId: number;
+  accountId: number | null | undefined;
   searchOptions?: Record<string, string | number | string[]>;
   // queryOptions?: Record<string, unknown>;
 };
@@ -98,7 +98,11 @@ export const getAccountProjectsByAccountQueryOptions = ({
 }: UseGetProjectsByAccountParams) =>
   queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, accountId, searchOptions],
-    queryFn: () => getAccountProjectsByAccountId({ accountId, searchOptions }),
+    queryFn: () =>
+      getAccountProjectsByAccountId({
+        accountId: accountId as number,
+        searchOptions,
+      }),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });
@@ -220,7 +224,11 @@ export const getAccountPackagesByAccountIdQueryOptions = ({
 }: UseGetProjectsByAccountParams) =>
   queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, accountId, searchOptions],
-    queryFn: () => getAccountPackagesByAccountId({ accountId, searchOptions }),
+    queryFn: () =>
+      getAccountPackagesByAccountId({
+        accountId: accountId as number,
+        searchOptions,
+      }),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });

@@ -59,72 +59,79 @@ export default function AppBarActions() {
     navigate({ to: path });
   };
 
-  const userName = isUserDataLoading ? (
-    <CircularProgress size={20} sx={{ marginLeft: 1 }} />
-  ) : (
-    <b>
-      {user_data?.type === USER_TYPE.PROPONENT
-        ? `${user_data?.account_user.first_name} ${user_data?.account_user.last_name}`
-        : `${user_data?.staff_user.first_name} ${user_data?.staff_user.last_name}`}
-    </b>
-  );
+  const userName =
+    isUserDataLoading ? (
+      <CircularProgress size={20} sx={{ marginLeft: 1 }} />
+    ) : user_data?.type === USER_TYPE.PROPONENT && user_data?.account_user ? (
+      <span>
+        Hi, <b>{user_data.account_user.first_name} {user_data.account_user.last_name}</b>
+      </span>
+    ) : user_data?.staff_user ? (
+      <span>
+        Hi, <b>{user_data.staff_user.first_name} {user_data.staff_user.last_name}</b>
+      </span>
+    ) : null;
 
   return (
     <>
       {auth.isAuthenticated ? (
         <>
-          <Box id="menu-appbar" display={"flex"} onClick={handleClick}>
-            <Typography variant="body2" color="primary">
-              Hi, {userName}
-            </Typography>
-            <IconButton size="small" sx={{ m: 0, p: 0 }}>
-              <KeyboardArrowDownIcon
-                fontSize="small"
+          {userName && (
+            <>
+              <Box id="menu-appbar" display={"flex"} onClick={handleClick}>
+                <Typography variant="body2" color="primary">
+                  {userName}
+                </Typography>
+                <IconButton size="small" sx={{ m: 0, p: 0 }}>
+                  <KeyboardArrowDownIcon
+                    fontSize="small"
+                    htmlColor={theme.palette.grey[900]}
+                  />
+                </IconButton>
+              </Box>
+              <AccountCircleIcon
+                fontSize="large"
                 htmlColor={theme.palette.grey[900]}
+                sx={{ marginLeft: "0.25rem" }}
               />
-            </IconButton>
-          </Box>
-          <AccountCircleIcon
-            fontSize="large"
-            htmlColor={theme.palette.grey[900]}
-            sx={{ marginLeft: "0.25rem" }}
-          />
-          <Menu
-            id="menu-appbar"
-            aria-labelledby="menu-appbar"
-            open={open}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-          >
-            <MenuItem
-              onClick={() => handleNavigate("/proponent/profile")}
-            >
-              My Profile
-            </MenuItem>
-            {user_data?.type === USER_TYPE.PROPONENT && (
-              <MenuItem
-                onClick={() => handleNavigate("/proponent/edit-profile")}
+              <Menu
+                id="menu-appbar"
+                aria-labelledby="menu-appbar"
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
               >
-                Edit My Profile
-              </MenuItem>
-            )}
-            <MenuItem
-              onClick={() => {
-                setAnchorEl(null); // Close the menu when signing out
-                auth.signoutRedirect();
-              }}
-            >
-              Sign Out
-            </MenuItem>
-          </Menu>
+                <MenuItem
+                  onClick={() => handleNavigate("/proponent/profile")}
+                >
+                  My Profile
+                </MenuItem>
+                {user_data?.type === USER_TYPE.PROPONENT && (
+                  <MenuItem
+                    onClick={() => handleNavigate("/proponent/edit-profile")}
+                  >
+                    Edit My Profile
+                  </MenuItem>
+                )}
+                <MenuItem
+                  onClick={() => {
+                    setAnchorEl(null); // Close the menu when signing out
+                    auth.signoutRedirect();
+                  }}
+                >
+                  Sign Out
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         </>
       ) : (
         <>

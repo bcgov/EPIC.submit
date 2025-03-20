@@ -5,6 +5,8 @@ import {
   useGetPackageVersionsByOriginalPackageId,
 } from "@/hooks/api/usePackages";
 import { PackageVersion, SubmissionPackage } from "@/models/Package";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import {
   Backdrop,
   Button,
@@ -18,12 +20,12 @@ import { useState } from "react";
 
 type VersionGroupProps = Readonly<{
   currentPackageVersion: PackageVersion;
-  proponent?: boolean;
 }>;
 export default function VersionGroup({
   currentPackageVersion,
-  proponent = false,
 }: VersionGroupProps) {
+  const { userType } = useAccount();
+  const isProponent = userType === USER_TYPE.PROPONENT;
   const [isLoading, setIsLoading] = useState(false);
   const { projectId: accountProjectIdParam, submissionPackageId } = useParams({
     strict: false,
@@ -43,12 +45,12 @@ export default function VersionGroup({
       await queryClient.ensureQueryData<SubmissionPackage>({
         queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         queryFn: () =>
-          proponent
+          isProponent
             ? getSubmissionPackageById({ packageId })
             : getStaffSubmissionPackageById({ packageId }),
       });
       navigate({
-        to: `/${proponent ? "proponent" : "staff"}/projects/${accountProjectIdParam}/submission-packages/${packageId}`,
+        to: `/${isProponent ? "proponent" : "staff"}/projects/${accountProjectIdParam}/submission-packages/${packageId}`,
         replace: true,
       });
     } finally {
