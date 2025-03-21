@@ -51,20 +51,17 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   };
 
   const mainCondition = formData.main_condition;
-
-  const consultedParties =
-    mainCondition?.condition_attributes?.parties_required_to_be_consulted?.split(
-      ","
-    ) || [];
-
+const consultedParties = Array.isArray(mainCondition?.condition_attributes?.parties_required_to_be_consulted)
+  ? mainCondition?.condition_attributes?.parties_required_to_be_consulted
+  : [];
   const handleCreateSubmission = () => {
     const managementPlanName =
-      mainCondition?.condition_attributes?.deliverable_name ||
+      mainCondition?.condition_attributes?.deliverable_name[0] ||
       mainCondition.condition_name;
     onSubmit({
       name: {
-        label: managementPlanName,
-        value: managementPlanName,
+        label: managementPlanName || "",
+        value: managementPlanName || "",
       },
       ...formData,
     });
@@ -88,7 +85,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
             variant="body1"
             fontWeight={theme.typography.fontWeightBold}
           >
-            {mainCondition?.condition_attributes?.deliverable_name}
+            {mainCondition?.condition_attributes?.deliverable_name[0]}
           </Typography>
         </Grid>
         <Grid item xs={12}>
