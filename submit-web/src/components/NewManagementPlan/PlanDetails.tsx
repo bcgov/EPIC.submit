@@ -51,9 +51,9 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   };
 
   const mainCondition = formData.main_condition;
-const consultedParties = Array.isArray(mainCondition?.condition_attributes?.parties_required_to_be_consulted)
-  ? mainCondition?.condition_attributes?.parties_required_to_be_consulted
-  : [];
+  const consultedParties = Array.isArray(mainCondition?.condition_attributes?.parties_required_to_be_consulted)
+    ? mainCondition?.condition_attributes?.parties_required_to_be_consulted
+    : [];
   const handleCreateSubmission = () => {
     const managementPlanName =
       mainCondition?.condition_attributes?.deliverable_name[0] ||
