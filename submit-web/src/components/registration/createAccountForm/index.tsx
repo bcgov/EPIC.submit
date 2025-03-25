@@ -21,6 +21,8 @@ import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useNavigate } from "@tanstack/react-router";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { YellowBar } from "@/components/Shared/YellowBar";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -36,6 +38,7 @@ const createAccountSchema = yup.object().shape({
 export type CreateAccountFormSchema = yup.InferType<typeof createAccountSchema>;
 
 function CreateAccountForm() {
+  const queryClient = useQueryClient();
   const { user } = useAuth();
   const { setStep, invitation } = useCreateAccountForm();
   const { setAccount } = useAccount();
@@ -49,8 +52,12 @@ function CreateAccountForm() {
     setAccount({
       userId: data.user_id,
       userManagementRole: data.role,
+      roles: data.role.permissions,
     });
 
+    queryClient.invalidateQueries({
+      queryKey: [QUERY_KEY.USER_ACCOUNT_DATA],
+    });
     if (invitation?.is_first_time) {
       setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
     } else {

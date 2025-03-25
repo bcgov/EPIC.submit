@@ -1,5 +1,7 @@
 """Service for account user management."""
 from flask import current_app
+
+from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Invitations as InvitationsModel
@@ -8,7 +10,6 @@ from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.db import db
 from submit_api.models.invitations import InvitationStatus
-from submit_api.models.role import RoleEnum
 
 
 class AccountUserService:
@@ -135,9 +136,7 @@ class AccountUserService:
     def get_account_user(cls, guid):
         """Fetch an user for a user id."""
         user = AccountUserModel.get_by_guid(guid)
-        roles_map = cls._fetch_roles(user)
         user_dict = user.to_dict()
-        user_dict['roles'] = roles_map.get(user.id, [])
         user_dict["status"] = "ACTIVE"
         return user_dict
 

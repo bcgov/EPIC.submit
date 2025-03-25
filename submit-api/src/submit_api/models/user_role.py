@@ -5,6 +5,7 @@ from sqlalchemy import Column, Integer, ForeignKey, ARRAY
 
 from .base_model import BaseModel
 from .db import db
+from ..enums.role import ProponentPermissionsEnum, RoleEnum
 
 
 class UserRole(BaseModel):
@@ -21,6 +22,27 @@ class UserRole(BaseModel):
     role = db.relationship("Role", lazy="joined")
     account_user = db.relationship("AccountUser", back_populates="role", lazy="select")
 
+    @property
+    def permissions(self):
+        """Get permissions for the role."""
+        return self.get_permissions_from_role(str(self.role.role_name))
+
+    @staticmethod
+    def get_permissions_from_role(role: str) -> list[ProponentPermissionsEnum]:
+        """Get permissions from role."""
+        permissions_map = {
+            RoleEnum.PROJECT_ADMIN.value: [
+                ProponentPermissionsEnum.CREATE_PACKAGE.value,
+                ProponentPermissionsEnum.SUBMIT_PACKAGE.value,
+                ProponentPermissionsEnum.INVITE_USERS.value
+            ],
+            RoleEnum.SUBMISSION_ADMIN.value: [],
+            RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value: []
+        }
+        if role in permissions_map:
+            return permissions_map[role]
+        return []
+
     def to_dict(self):
         """Convert object to dictionary."""
         return {
@@ -30,6 +52,7 @@ class UserRole(BaseModel):
             "package_ids": self.package_ids,
             "role_id": self.role_id,
             "role": self.role.to_dict(),
+            "permissions": self.permissions
         }
 
     @classmethod

@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import {
   Typography,
   Button,
@@ -10,7 +10,6 @@ import {
   Stack,
 } from "@mui/material";
 import { useAuth } from "react-oidc-context";
-import { useEffect } from "react";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { OidcConfig } from "@/utils/config";
@@ -22,16 +21,13 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const auth = useAuth();
-  const { isAuthenticated, signoutSilent, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, signinRedirect } = useAuth();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      signoutSilent();
-    }
-  }, [isAuthenticated, signoutSilent]);
+  if (isAuthenticated) {
+    return <Navigate to="/oidc-callback" />;
+  }
 
-  if (isAuthenticated || isLoading) {
+  if (isLoading) {
     return <PageLoader />;
   }
 
@@ -145,7 +141,7 @@ function Index() {
                 fullWidth
                 sx={{ mt: 1 }}
                 onClick={() =>
-                  auth.signinRedirect({
+                  signinRedirect({
                     redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
                     extraQueryParams: {
                       kc_idp_hint: IDENTITY_PROVIDERS.BCEID,
@@ -181,7 +177,7 @@ function Index() {
                 color="primary"
                 fullWidth
                 onClick={() =>
-                  auth.signinRedirect({
+                  signinRedirect({
                     redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
                     extraQueryParams: {
                       kc_idp_hint: IDENTITY_PROVIDERS.BCSC,

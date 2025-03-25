@@ -1,8 +1,10 @@
 import { OnErrorType, submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
-import { User } from "@/models/User";
+import { User, USER_TYPE } from "@/models/User";
 import { AccountUserWithRole } from "@/models/AccountUser";
+import { AccountStoreState } from "@/store/accountStore";
+import { getUserRolesFromToken } from "@/utils";
 
 type CreateAccountRequest = {
   first_name: string;
@@ -25,7 +27,10 @@ const createAccount = (account: CreateAccountRequest) => {
   });
 };
 
-const getUserByGuid = (guid?: string) => {
+export const getUserByGuid = (guid?: string) => {
+  if (!guid) {
+    return Promise.resolve(null);
+  }
   return submitRequest<User>({ url: `/users/guid/${guid}` });
 };
 
@@ -42,14 +47,19 @@ export const useCreateAccount = (options: CreateAccountOptions) => {
 
 type GetUserByGuidOptions = {
   guid?: string;
+  enabled?: boolean;
 };
-export const getUserByGuidQueryOptions = ({ guid }: GetUserByGuidOptions) =>
-  queryOptions({
+export const getUserByGuidQueryOptions = ({
+  guid,
+  enabled,
+}: GetUserByGuidOptions) => {
+  return queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
     queryFn: () => getUserByGuid(guid),
-    enabled: Boolean(guid),
+    enabled: enabled ?? Boolean(enabled),
     ...defaultUseQueryOptions,
   });
+};
 export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
   return useQuery({
     queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
@@ -85,4 +95,62 @@ export const useGetUserByAccountId = ({
     queryFn: () => getUserByAccount(accountId, includeRoles, includeInvitees),
     enabled: Boolean(accountId),
   });
+};
+
+export const getAccount = async (
+  guid?: string,
+  accessToken?: string,
+): Promise<Partial<AccountStoreState>> => {
+  if (!guid) {
+    return Promise.resolve({});
+  }
+  const user = await getUserByGuid(guid);
+
+  if (user?.account_user) {
+    return Promise.resolve({
+      userId: user.id,
+      isLoading: false,
+      proponentId: user.account_user.account.proponent_id,
+      accountId: user.account_user.account.id,
+      userType: USER_TYPE.PROPONENT,
+      userManagementRole: user.account_user.role,
+      roles: user.account_user.role.permissions,
+    });
+  }
+  if (user?.staff_user) {
+    if (!accessToken) {
+      return Promise.reject(
+        new Error("Access token is required for staff user"),
+      );
+    }
+    return Promise.resolve({
+      userId: user.id,
+      isLoading: false,
+      userType: USER_TYPE.STAFF,
+      roles: getUserRolesFromToken(accessToken),
+    });
+  }
+
+  return Promise.resolve({
+    isLoading: false,
+  });
+};
+
+type GetAccountQueryOptions = {
+  guid?: string;
+  accessToken?: string;
+  enabled?: boolean;
+};
+export const getAccountQueryOptions = ({
+  guid,
+  accessToken,
+  enabled,
+}: GetAccountQueryOptions) => {
+  return {
+    queryKey: [QUERY_KEY.USER_ACCOUNT_DATA, guid],
+    queryFn: () => getAccount(guid, accessToken),
+    enabled: enabled,
+    ...defaultUseQueryOptions,
+    staleTime: 0,
+  };
 };

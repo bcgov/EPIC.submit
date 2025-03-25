@@ -1,25 +1,17 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
-import { useGetUserByGuid } from "@/hooks/api/useAccounts";
 import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback/")({
   component: OidcCallback,
 });
 
 function OidcCallback() {
-  const { error: getAuthError, user: kcUser } = useAuth();
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
 
-  const { data: userData, error: getUserError } = useGetUserByGuid({
-    guid: kcUser?.profile.sub,
-  });
-
-  if (getAuthError) {
-    return <Navigate to="/error" />;
-  }
+  const account = useAccount();
 
   if (token) {
     return (
@@ -32,18 +24,19 @@ function OidcCallback() {
     );
   }
 
-  if (getUserError) {
+  if (account.isLoading) {
+    return <PageLoader />;
+  }
+
+  if (!account.userId) {
     return <Navigate to="/error" />;
   }
 
-  if (userData?.type === USER_TYPE.STAFF) {
+  if (account.userType === USER_TYPE.STAFF) {
     return <Navigate to="/staff/projects" />;
   }
 
-  if (
-    userData?.type === USER_TYPE.PROPONENT &&
-    userData?.account_user?.account_id
-  ) {
+  if (account.userType === USER_TYPE.PROPONENT && account.accountId) {
     return <Navigate to="/proponent/projects" />;
   }
 

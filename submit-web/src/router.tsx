@@ -1,7 +1,10 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, useQuery } from "@tanstack/react-query";
+import { useAccount } from "./store/accountStore";
+import { useEffect } from "react";
+import { getAccountQueryOptions } from "./hooks/api/useAccounts";
 
 const queryClient = new QueryClient();
 // Create a new router instance
@@ -11,6 +14,7 @@ const router = createRouter({
     // authentication will initially be undefined
     // We'll be passing down the authentication state from within a React component
     authentication: undefined!,
+    account: undefined!,
     queryClient,
   },
   defaultPreload: "intent",
@@ -28,5 +32,35 @@ declare module "@tanstack/react-router" {
 
 export default function RouterProviderWithAuthContext() {
   const authentication = useAuth();
-  return <RouterProvider router={router} context={{ authentication }} />;
+  const { data, isFetched } = useQuery(
+    getAccountQueryOptions({
+      guid: authentication?.user?.profile.sub,
+      accessToken: authentication.user?.access_token,
+    }),
+  );
+
+  const account = useAccount();
+  const { setAccount } = account;
+
+  useEffect(() => {
+    if (isFetched) {
+      router.invalidate();
+      setAccount({
+        ...data,
+      });
+    }
+  }, [isFetched, data, setAccount]);
+
+  return (
+    <RouterProvider
+      router={router}
+      context={{
+        authentication,
+        account: {
+          ...account,
+          ...(data ?? {}),
+        },
+      }}
+    />
+  );
 }

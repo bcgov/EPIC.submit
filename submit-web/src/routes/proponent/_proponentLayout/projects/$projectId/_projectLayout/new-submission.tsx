@@ -12,16 +12,31 @@ import { SUBMISSION_PACKAGE_TYPE } from "@/components/Shared/types";
 import { useCreateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionPackage } from "@/models/Package";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { Box, Grid, Typography } from "@mui/material";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission"
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
 )({
   component: NewManagementPlan,
   meta: () => [{ title: "New Submission Package" }],
+  beforeLoad: ({ context: { account } }) => {
+    if (!account || account.isLoading) {
+      return;
+    }
+
+    if (
+      account.userManagementRole?.role_name !==
+      USER_MANAGEMENT_ROLE.PROJECT_ADMIN
+    ) {
+      return redirect({
+        to: "/unauthorized",
+      });
+    }
+  },
 });
 
 export function NewManagementPlan() {

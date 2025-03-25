@@ -15,24 +15,22 @@ import { useAuth } from "react-oidc-context";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { theme } from "@/styles/theme";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { OidcConfig } from "@/utils/config";
 import { useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { useGetUserByGuid } from "@/hooks/api/useAccounts";
 import { IDENTITY_PROVIDERS, USER_TYPE } from "@/models/User";
-import RecentActorsIcon from '@mui/icons-material/RecentActors';
-import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import RecentActorsIcon from "@mui/icons-material/RecentActors";
+import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import GroupIcon from "@mui/icons-material/Group";
 
-type IdentityProvider = (typeof IDENTITY_PROVIDERS)[keyof typeof IDENTITY_PROVIDERS];
+type IdentityProvider =
+  (typeof IDENTITY_PROVIDERS)[keyof typeof IDENTITY_PROVIDERS];
 
 export default function AppBarActions() {
   const auth = useAuth();
-  const {
-    data: user_data,
-    isPending: isUserDataLoading,
-  } = useGetUserByGuid({
+  const { data: user_data, isPending: isUserDataLoading } = useGetUserByGuid({
     guid: auth.user?.profile.sub,
   });
 
@@ -58,19 +56,37 @@ export default function AppBarActions() {
     setAnchorEl(null);
     navigate({ to: path });
   };
+  const userName = useMemo(() => {
+    if (isUserDataLoading) {
+      return <CircularProgress size={20} sx={{ marginLeft: 1 }} />;
+    }
 
-  const userName =
-    isUserDataLoading ? (
-      <CircularProgress size={20} sx={{ marginLeft: 1 }} />
-    ) : user_data?.type === USER_TYPE.PROPONENT && user_data?.account_user ? (
-      <span>
-        Hi, <b>{user_data.account_user.first_name} {user_data.account_user.last_name}</b>
-      </span>
-    ) : user_data?.staff_user ? (
-      <span>
-        Hi, <b>{user_data.staff_user.first_name} {user_data.staff_user.last_name}</b>
-      </span>
-    ) : null;
+    const getUserGreeting = (firstName?: string, lastName?: string) =>
+      firstName && lastName ? (
+        <span>
+          Hi,{" "}
+          <b>
+            {firstName} {lastName}
+          </b>
+        </span>
+      ) : null;
+
+    if (user_data?.type === USER_TYPE.PROPONENT && user_data?.account_user) {
+      return getUserGreeting(
+        user_data.account_user.first_name,
+        user_data.account_user.last_name,
+      );
+    }
+
+    if (user_data?.staff_user) {
+      return getUserGreeting(
+        user_data.staff_user.first_name,
+        user_data.staff_user.last_name,
+      );
+    }
+
+    return null;
+  }, [user_data, isUserDataLoading]);
 
   return (
     <>
@@ -109,9 +125,7 @@ export default function AppBarActions() {
                   horizontal: "right",
                 }}
               >
-                <MenuItem
-                  onClick={() => handleNavigate("/proponent/profile")}
-                >
+                <MenuItem onClick={() => handleNavigate("/proponent/profile")}>
                   My Profile
                 </MenuItem>
                 {user_data?.type === USER_TYPE.PROPONENT && (
@@ -123,8 +137,7 @@ export default function AppBarActions() {
                 )}
                 <MenuItem
                   onClick={() => {
-                    setAnchorEl(null); // Close the menu when signing out
-                    auth.signoutRedirect();
+                    handleNavigate("/logout");
                   }}
                 >
                   Sign Out
