@@ -38,8 +38,6 @@ function ProponentLayout() {
     return <PageLoader />;
   }
 
-  console.log(account);
-
   return (
     <div>
       <BreadcrumbNav />

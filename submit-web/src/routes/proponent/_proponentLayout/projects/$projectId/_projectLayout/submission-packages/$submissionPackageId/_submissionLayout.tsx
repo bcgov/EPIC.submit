@@ -2,12 +2,14 @@ import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSke
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { Grid } from "@mui/material";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Navigate,
   Outlet,
+  redirect,
   useParams,
 } from "@tanstack/react-router";
 export const Route = createFileRoute(
@@ -27,6 +29,34 @@ export const Route = createFileRoute(
       </Grid>
     </PageGrid>
   ),
+  beforeLoad: ({ context: { account }, params: { submissionPackageId } }) => {
+    if (!account || account.isLoading) return;
+    if (!account.userManagementRole) {
+      return redirect({
+        to: "/error",
+      });
+    }
+    if (
+      account.userManagementRole.role_name ===
+        USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR &&
+      account.userManagementRole.package_ids?.includes(
+        Number(submissionPackageId),
+      )
+    ) {
+      return;
+    }
+    if (
+      [
+        USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+        USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
+      ].includes(account.userManagementRole?.role_name)
+    ) {
+      return;
+    }
+    return redirect({
+      to: "/proponent/projects",
+    });
+  },
   errorComponent: () => <Navigate to="/error" />,
   meta: ({ loaderData: submissionPackage }) => [
     { title: submissionPackage.name },
@@ -35,6 +65,7 @@ export const Route = createFileRoute(
 
 export default function SubmissionLayout() {
   const queryClient = useQueryClient();
+
   const {
     projectId: accountProjectIdParam,
     submissionPackageId: submissionPackageIdParam,

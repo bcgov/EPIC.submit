@@ -19,7 +19,7 @@ export const Route = createFileRoute(
     if (
       !account.isLoading &&
       !hasPermission({
-        scopes: [ACCOUNT_USER_PERMISSIONS.TEST],
+        scopes: [ACCOUNT_USER_PERMISSIONS.INVITE_USERS],
         permissions: account?.roles || [],
       })
     ) {
