@@ -2,12 +2,11 @@ import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
 import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
-import { useGetUserByGuid } from "@/hooks/api/useAccounts";
+import { useAccountQuery } from "@/hooks/api/useAccounts";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { getUserRolesFromToken } from "@/utils";
 import { Box } from "@mui/material";
 import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
 import { useCallback, useEffect } from "react";
@@ -29,12 +28,10 @@ function Staff() {
   } = useAuth();
 
   const {
-    data: userData,
+    data: accountData,
     error: getUserError,
     isPending: isUserDataPending,
-  } = useGetUserByGuid({
-    guid: kcUser?.profile.sub,
-  });
+  } = useAccountQuery(kcUser?.profile.sub);
 
   const isMobile = useIsMobile();
 
@@ -56,9 +53,7 @@ function Staff() {
 
     if (isAccountLoading) {
       setAccount({
-        isLoading: false,
-        userType: USER_TYPE.STAFF,
-        roles: getUserRolesFromToken(kcUser?.access_token),
+        ...accountData,
       });
     }
   }, [
@@ -85,7 +80,7 @@ function Staff() {
     return <Navigate to="/error" />;
   }
 
-  if (userData?.type !== USER_TYPE.STAFF || !userData.staff_user) {
+  if (!accountData || accountData?.type !== USER_TYPE.STAFF) {
     return <Navigate to="/not-found" />;
   }
 

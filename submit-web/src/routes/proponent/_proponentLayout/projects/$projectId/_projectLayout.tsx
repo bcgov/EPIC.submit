@@ -1,7 +1,8 @@
 import { ProjectsSkeleton } from "@/components/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
+import { QUERY_KEY } from "@/hooks/api/constants";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Navigate,

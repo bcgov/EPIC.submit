@@ -16,12 +16,11 @@ export const Route = createFileRoute(
   component: UsersPage,
   meta: () => [{ title: "Invitations" }],
   beforeLoad: async ({ context: { account } }) => {
-    console.log("before load called", account.isLoading);
-
     if (
+      !account.isLoading &&
       !hasPermission({
         scopes: [ACCOUNT_USER_PERMISSIONS.INVITE_USERS],
-        permissions: account.roles || [],
+        permissions: account?.roles || [],
       })
     ) {
       throw redirect({

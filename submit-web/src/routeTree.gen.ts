@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as NotFoundImport } from './routes/not-found'
+import { Route as LoginImport } from './routes/login'
 import { Route as ErrorImport } from './routes/error'
 import { Route as IndexImport } from './routes/index'
 import { Route as OidcCallbackIndexImport } from './routes/oidc-callback/index'
@@ -81,6 +82,11 @@ const ProponentRoute = ProponentImport.update({
 
 const NotFoundRoute = NotFoundImport.update({
   path: '/not-found',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const LoginRoute = LoginImport.update({
+  path: '/login',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -337,6 +343,13 @@ declare module '@tanstack/react-router' {
       path: '/error'
       fullPath: '/error'
       preLoaderRoute: typeof ErrorImport
+      parentRoute: typeof rootRoute
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
     '/not-found': {
@@ -599,6 +612,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
   ErrorRoute,
+  LoginRoute,
   NotFoundRoute,
   ProponentRoute: ProponentRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
@@ -677,6 +691,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/error",
+        "/login",
         "/not-found",
         "/proponent",
         "/staff",
@@ -688,6 +703,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/error": {
       "filePath": "error.tsx"
+    },
+    "/login": {
+      "filePath": "login.tsx"
     },
     "/not-found": {
       "filePath": "not-found.tsx"

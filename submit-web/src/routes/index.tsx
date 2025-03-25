@@ -27,7 +27,7 @@ function Index() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      signoutSilent();
+      // signoutSilent();
     }
   }, [isAuthenticated, signoutSilent]);
 

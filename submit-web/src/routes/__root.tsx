@@ -16,12 +16,11 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { AppConfig } from "@/utils/config";
 import { When } from "react-if";
 import ScrollToTop from "@/components/ScrollToTop";
-import { AccountStoreState } from "@/store/accountStore";
 
 type RouterContext = {
   authentication: AuthContextProps;
   queryClient: QueryClient;
-  account: AccountStoreState;
+  account: any;
 };
 
 export const Route = createRootRouteWithContext<RouterContext>()({

@@ -1,73 +1,46 @@
 import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import SideNavBar from "@/components/Shared/layout/SideNav/SideNavBar";
 import { PageLoader } from "@/components/Shared/PageLoader";
-import {
-  getUserByGuidQueryOptions,
-  useGetUserByGuid,
-} from "@/hooks/api/useAccounts";
 import { useIsMobile } from "@/hooks/common";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Box } from "@mui/material";
-import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { useAuth } from "react-oidc-context";
-
+import {
+  createFileRoute,
+  Navigate,
+  Outlet,
+  redirect,
+} from "@tanstack/react-router";
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
-  loader: ({ context: { queryClient, authentication } }) =>
-    queryClient.ensureQueryData(
-      getUserByGuidQueryOptions({ guid: authentication?.user?.profile.sub }),
-    ),
+  beforeLoad: ({ context: { authentication, account } }) => {
+    if (!authentication.isLoading && !authentication?.isAuthenticated) {
+      return redirect({
+        to: "/login",
+      });
+    }
+
+    if (!account.isLoading && account.userType !== USER_TYPE.PROPONENT) {
+      return redirect({
+        to: "/unauthorized",
+      });
+    }
+  },
 });
 
 function ProponentLayout() {
-  const {
-    isAuthenticated,
-    signinRedirect,
-    isLoading: isUserAuthLoading,
-    user,
-  } = useAuth();
-  const { data: userData, isPending: isUserAccountLoading } = useGetUserByGuid({
-    guid: user?.profile.sub,
-  });
-  const { setAccount, isLoading: isAccountLoading } = useAccount();
+  const { isLoading: isAccountLoading, userId } = useAccount();
 
-  const isLoading = isUserAuthLoading || isUserAccountLoading;
-
-  useEffect(() => {
-    if (!isAuthenticated && !isUserAuthLoading) {
-      signinRedirect();
-    }
-    if (isAuthenticated && !isLoading) {
-      setAccount({
-        isLoading: false,
-        proponentId: userData?.account_user.account.proponent_id,
-        accountId: userData?.account_user.account.id,
-        userType: USER_TYPE.PROPONENT,
-        userManagementRole: userData?.account_user.role,
-        roles: userData?.account_user.role.permissions,
-      });
-    }
-  }, [
-    isAuthenticated,
-    isUserAuthLoading,
-    signinRedirect,
-    setAccount,
-    userData,
-    isLoading,
-  ]);
   const isMobile = useIsMobile();
 
-  if (isLoading || isAccountLoading) {
+  if (isAccountLoading) {
     return <PageLoader />;
   }
 
-  if (!isAuthenticated || userData?.type !== USER_TYPE.PROPONENT) {
-    return <Navigate to={"/not-found"} />;
+  if (!userId) {
+    return <Navigate to={"/error"} />;
   }
 
-  console.log("isAccountLoading", isAccountLoading);
   return (
     <div>
       <BreadcrumbNav />
