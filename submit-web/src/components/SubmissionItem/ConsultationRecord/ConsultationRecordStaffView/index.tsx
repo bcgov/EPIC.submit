@@ -60,9 +60,8 @@ export const ConsultationRecordStaffView = () => {
   );
 
   const partiesList =
-    submissionPackage?.meta?.main_condition?.condition_attributes?.parties_required_to_be_consulted?.split(
-      ",",
-    ) || [];
+    submissionPackage?.meta?.main_condition?.condition_attributes
+      ?.parties_required_to_be_consulted || [];
 
   if (!accountProject) return <Navigate to="/error" />;
 
