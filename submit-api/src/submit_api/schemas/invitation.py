@@ -5,7 +5,6 @@ Manages the invitation.
 
 from submit_api.schemas.role import RoleSchema
 from marshmallow import Schema, fields
-from submit_api.schemas.account import AccountSchema
 
 
 class CreateInvitationSchema(Schema):
