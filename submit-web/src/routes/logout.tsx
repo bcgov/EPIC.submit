@@ -1,6 +1,7 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useMounted } from "@/hooks/common";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/logout")({
@@ -8,13 +9,21 @@ export const Route = createFileRoute("/logout")({
 });
 
 function Logout() {
-  const { signoutSilent } = useAuth();
+  const { signoutSilent, isAuthenticated } = useAuth();
+
   const navigate = useNavigate();
+
   useMounted(() => {
     signoutSilent();
-    navigate({
-      to: "/",
-    });
   });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate({
+        to: "/",
+      });
+    }
+  }, [isAuthenticated]);
+
   return <PageLoader />;
 }

@@ -32,11 +32,13 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 
 function ProponentLayout() {
   const isMobile = useIsMobile();
-  const { isLoading } = useAccount();
+  const account = useAccount();
 
-  if (isLoading) {
+  if (account.isLoading) {
     return <PageLoader />;
   }
+
+  console.log(account);
 
   return (
     <div>
