@@ -5,12 +5,7 @@ import { useIsMobile } from "@/hooks/common";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Box } from "@mui/material";
-import {
-  createFileRoute,
-  Navigate,
-  Outlet,
-  redirect,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
   beforeLoad: ({ context: { authentication, account } }) => {
@@ -20,25 +15,27 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
       });
     }
 
-    if (!account.isLoading && account.userType !== USER_TYPE.PROPONENT) {
-      return redirect({
-        to: "/unauthorized",
-      });
+    if (!account.isLoading) {
+      if (!account.userId) {
+        return redirect({
+          to: "/error",
+        });
+      }
+      if (account.userType !== USER_TYPE.PROPONENT) {
+        return redirect({
+          to: "/unauthorized",
+        });
+      }
     }
   },
 });
 
 function ProponentLayout() {
-  const { isLoading: isAccountLoading, userId } = useAccount();
-
   const isMobile = useIsMobile();
+  const { isLoading } = useAccount();
 
-  if (isAccountLoading) {
+  if (isLoading) {
     return <PageLoader />;
-  }
-
-  if (!userId) {
-    return <Navigate to={"/error"} />;
   }
 
   return (

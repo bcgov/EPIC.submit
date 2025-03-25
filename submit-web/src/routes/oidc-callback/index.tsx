@@ -12,7 +12,6 @@ function OidcCallback() {
   const token = params.get("token");
 
   const account = useAccount();
-  console.log(account);
 
   if (token) {
     return (

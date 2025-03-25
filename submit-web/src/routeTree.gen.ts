@@ -14,10 +14,12 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as NotFoundImport } from './routes/not-found'
+import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as ErrorImport } from './routes/error'
 import { Route as IndexImport } from './routes/index'
 import { Route as OidcCallbackIndexImport } from './routes/oidc-callback/index'
+import { Route as StaffNoRolesImport } from './routes/staff/no-roles'
 import { Route as StaffStaffLayoutImport } from './routes/staff/_staffLayout'
 import { Route as ProponentProponentLayoutImport } from './routes/proponent/_proponentLayout'
 import { Route as ProponentRegistrationIndexImport } from './routes/proponent/registration/index'
@@ -85,6 +87,11 @@ const NotFoundRoute = NotFoundImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const LogoutRoute = LogoutImport.update({
+  path: '/logout',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const LoginRoute = LoginImport.update({
   path: '/login',
   getParentRoute: () => rootRoute,
@@ -103,6 +110,11 @@ const IndexRoute = IndexImport.update({
 const OidcCallbackIndexRoute = OidcCallbackIndexImport.update({
   path: '/oidc-callback/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const StaffNoRolesRoute = StaffNoRolesImport.update({
+  path: '/no-roles',
+  getParentRoute: () => StaffRoute,
 } as any)
 
 const StaffStaffLayoutRoute = StaffStaffLayoutImport.update({
@@ -352,6 +364,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutImport
+      parentRoute: typeof rootRoute
+    }
     '/not-found': {
       id: '/not-found'
       path: '/not-found'
@@ -386,6 +405,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/staff'
       preLoaderRoute: typeof StaffStaffLayoutImport
       parentRoute: typeof StaffRoute
+    }
+    '/staff/no-roles': {
+      id: '/staff/no-roles'
+      path: '/no-roles'
+      fullPath: '/staff/no-roles'
+      preLoaderRoute: typeof StaffNoRolesImport
+      parentRoute: typeof StaffImport
     }
     '/oidc-callback/': {
       id: '/oidc-callback/'
@@ -613,6 +639,7 @@ export const routeTree = rootRoute.addChildren({
   IndexRoute,
   ErrorRoute,
   LoginRoute,
+  LogoutRoute,
   NotFoundRoute,
   ProponentRoute: ProponentRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
@@ -677,6 +704,7 @@ export const routeTree = rootRoute.addChildren({
             }),
         }),
     }),
+    StaffNoRolesRoute,
   }),
   OidcCallbackIndexRoute,
 })
@@ -692,6 +720,7 @@ export const routeTree = rootRoute.addChildren({
         "/",
         "/error",
         "/login",
+        "/logout",
         "/not-found",
         "/proponent",
         "/staff",
@@ -706,6 +735,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/login": {
       "filePath": "login.tsx"
+    },
+    "/logout": {
+      "filePath": "logout.tsx"
     },
     "/not-found": {
       "filePath": "not-found.tsx"
@@ -737,7 +769,8 @@ export const routeTree = rootRoute.addChildren({
     "/staff": {
       "filePath": "staff",
       "children": [
-        "/staff/_staffLayout"
+        "/staff/_staffLayout",
+        "/staff/no-roles"
       ]
     },
     "/staff/_staffLayout": {
@@ -750,6 +783,10 @@ export const routeTree = rootRoute.addChildren({
         "/staff/_staffLayout/invitations/entities/$proponentId",
         "/staff/_staffLayout/projects/$projectId"
       ]
+    },
+    "/staff/no-roles": {
+      "filePath": "staff/no-roles.tsx",
+      "parent": "/staff"
     },
     "/oidc-callback/": {
       "filePath": "oidc-callback/index.tsx"

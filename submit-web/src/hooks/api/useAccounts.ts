@@ -7,6 +7,7 @@ import { AccountStoreState, useAccount } from "@/store/accountStore";
 import { useAuth } from "react-oidc-context";
 import { getUserRolesFromToken } from "@/utils";
 import { useEffect } from "react";
+import { access } from "fs";
 
 type CreateAccountRequest = {
   first_name: string;
@@ -101,17 +102,14 @@ export const useGetUserByAccountId = ({
 
 export const getAccount = async (
   guid?: string,
+  accessToken?: string,
 ): Promise<Partial<AccountStoreState>> => {
-  console.log("guid", guid);
   if (!guid) {
     return Promise.resolve({});
   }
   const user = await getUserByGuid(guid);
 
-  console.log("user", user);
-
   if (user?.account_user) {
-    console.log("A");
     return Promise.resolve({
       userId: user.id,
       isLoading: false,
@@ -123,12 +121,16 @@ export const getAccount = async (
     });
   }
   if (user?.staff_user) {
-    console.log("B");
+    if (!accessToken) {
+      return Promise.reject(
+        new Error("Access token is required for staff user"),
+      );
+    }
     return Promise.resolve({
       userId: user.id,
       isLoading: false,
       userType: USER_TYPE.STAFF,
-      roles: getUserRolesFromToken(guid),
+      roles: getUserRolesFromToken(accessToken),
     });
   }
 
@@ -139,21 +141,26 @@ export const getAccount = async (
 
 type GetAccountQueryOptions = {
   guid?: string;
+  accessToken?: string;
   enabled?: boolean;
 };
 export const getAccountQueryOptions = ({
   guid,
+  accessToken,
   enabled,
 }: GetAccountQueryOptions) => {
   return {
     queryKey: [QUERY_KEY.USER_ACCOUNT_DATA, guid],
-    queryFn: () => getAccount(guid),
+    queryFn: () => getAccount(guid, accessToken),
     enabled: enabled,
     ...defaultUseQueryOptions,
     staleTime: 0,
   };
 };
 
-export const useAccountQuery = (guid?: string) => {
-  return useQuery(getAccountQueryOptions({ guid }));
+export const useAccountQuery = ({
+  guid,
+  accessToken,
+}: GetAccountQueryOptions) => {
+  return useQuery(getAccountQueryOptions({ guid, accessToken }));
 };

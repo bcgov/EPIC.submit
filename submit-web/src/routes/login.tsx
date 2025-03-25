@@ -1,16 +1,25 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
-import { useMounted } from "@/hooks/common";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/login")({
-  component: NotFound,
+  component: Login,
 });
 
-function NotFound() {
-  const { signinSilent } = useAuth();
-  useMounted(() => {
-    signinSilent();
-  });
+function Login() {
+  const { signinSilent, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isAuthenticated) {
+      signinSilent();
+    } else {
+      navigate({
+        to: "/oidc-callback",
+      });
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {}, []);
   return <PageLoader />;
 }
