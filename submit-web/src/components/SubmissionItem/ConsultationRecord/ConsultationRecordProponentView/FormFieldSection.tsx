@@ -17,11 +17,11 @@ import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
 import { ConsultationRecordForm } from "../constants";
 
-interface FormFieldSectionProps {
+type FormFieldSectionProps = Readonly<{
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   errors: FieldErrors<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   partiesList: Array<string>;
-}
+}>;
 
 export default function FormFieldSection({
   methods,
@@ -50,8 +50,6 @@ export default function FormFieldSection({
     remove(index);
     methods.trigger("consultedParties");
   };
-
-  console.log(partiesList);
 
   return (
     <>

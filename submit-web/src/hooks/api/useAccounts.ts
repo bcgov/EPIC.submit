@@ -3,11 +3,8 @@ import { queryOptions, useMutation, useQuery } from "@tanstack/react-query";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 import { User, USER_TYPE } from "@/models/User";
 import { AccountUserWithRole } from "@/models/AccountUser";
-import { AccountStoreState, useAccount } from "@/store/accountStore";
-import { useAuth } from "react-oidc-context";
+import { AccountStoreState } from "@/store/accountStore";
 import { getUserRolesFromToken } from "@/utils";
-import { useEffect } from "react";
-import { access } from "fs";
 
 type CreateAccountRequest = {
   first_name: string;
@@ -156,11 +153,4 @@ export const getAccountQueryOptions = ({
     ...defaultUseQueryOptions,
     staleTime: 0,
   };
-};
-
-export const useAccountQuery = ({
-  guid,
-  accessToken,
-}: GetAccountQueryOptions) => {
-  return useQuery(getAccountQueryOptions({ guid, accessToken }));
 };

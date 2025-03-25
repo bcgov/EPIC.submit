@@ -23,7 +23,7 @@ function Logout() {
         to: "/",
       });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate]);
 
   return <PageLoader />;
 }

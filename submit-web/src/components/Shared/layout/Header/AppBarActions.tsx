@@ -15,7 +15,7 @@ import { useAuth } from "react-oidc-context";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { theme } from "@/styles/theme";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { OidcConfig } from "@/utils/config";
 import { useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
@@ -56,24 +56,37 @@ export default function AppBarActions() {
     setAnchorEl(null);
     navigate({ to: path });
   };
+  const userName = useMemo(() => {
+    if (isUserDataLoading) {
+      return <CircularProgress size={20} sx={{ marginLeft: 1 }} />;
+    }
 
-  const userName = isUserDataLoading ? (
-    <CircularProgress size={20} sx={{ marginLeft: 1 }} />
-  ) : user_data?.type === USER_TYPE.PROPONENT && user_data?.account_user ? (
-    <span>
-      Hi,{" "}
-      <b>
-        {user_data.account_user.first_name} {user_data.account_user.last_name}
-      </b>
-    </span>
-  ) : user_data?.staff_user ? (
-    <span>
-      Hi,{" "}
-      <b>
-        {user_data.staff_user.first_name} {user_data.staff_user.last_name}
-      </b>
-    </span>
-  ) : null;
+    const getUserGreeting = (firstName?: string, lastName?: string) =>
+      firstName && lastName ? (
+        <span>
+          Hi,{" "}
+          <b>
+            {firstName} {lastName}
+          </b>
+        </span>
+      ) : null;
+
+    if (user_data?.type === USER_TYPE.PROPONENT && user_data?.account_user) {
+      return getUserGreeting(
+        user_data.account_user.first_name,
+        user_data.account_user.last_name,
+      );
+    }
+
+    if (user_data?.staff_user) {
+      return getUserGreeting(
+        user_data.staff_user.first_name,
+        user_data.staff_user.last_name,
+      );
+    }
+
+    return null;
+  }, [user_data, isUserDataLoading]);
 
   return (
     <>

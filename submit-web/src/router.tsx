@@ -40,16 +40,16 @@ export default function RouterProviderWithAuthContext() {
   );
 
   const account = useAccount();
+  const { setAccount } = account;
 
   useEffect(() => {
-    console.log(data);
     if (isFetched) {
       router.invalidate();
-      account.setAccount({
+      setAccount({
         ...data,
       });
     }
-  }, [isFetched, data]);
+  }, [isFetched, data, setAccount]);
 
   return (
     <RouterProvider

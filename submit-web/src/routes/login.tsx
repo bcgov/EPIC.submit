@@ -18,7 +18,7 @@ function Login() {
         to: "/oidc-callback",
       });
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, navigate, signinSilent]);
 
   useEffect(() => {}, []);
   return <PageLoader />;

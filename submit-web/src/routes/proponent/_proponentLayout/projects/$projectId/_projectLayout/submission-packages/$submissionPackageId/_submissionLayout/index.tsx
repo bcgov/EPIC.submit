@@ -31,9 +31,6 @@ import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
-import { QUERY_KEY } from "@/hooks/api/constants";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -56,14 +53,6 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
-
-  const queryClient = useQueryClient();
-
-  // useEffect(() => {
-  //   queryClient.refetchQueries({
-  //     queryKey: [QUERY_KEY.USER_ACCOUNT_DATA],
-  //   });
-  // }, []);
 
   const {
     mutate: updateStateSubmissionPackage,
