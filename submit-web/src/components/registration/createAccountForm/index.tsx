@@ -17,10 +17,7 @@ import {
   useAcceptInvitation,
 } from "@/hooks/api/useInvitations";
 import { useAccount } from "@/store/accountStore";
-import {
-  useGetAccountProject,
-  useLoadProjectsByProponentId,
-} from "@/hooks/api/useProjects";
+import { useLoadProjectsByProponentId } from "@/hooks/api/useProjects";
 import { useNavigate } from "@tanstack/react-router";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { YellowBar } from "@/components/Shared/YellowBar";
@@ -44,14 +41,9 @@ function CreateAccountForm() {
   const { setAccount } = useAccount();
   const navigate = useNavigate();
 
-  console.log("invitation", invitation);
-
-  const { data: projects } = useLoadProjectsByProponentId(9);
-
-  const { data: accountProjects } = useGetAccountProject({
-    accountId: invitation?.account_id,
-  });
-  console.log("projects", projects);
+  const { data: projects } = useLoadProjectsByProponentId(
+    invitation?.proponent_id
+  );
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setAccount({
