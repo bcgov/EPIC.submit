@@ -43,6 +43,11 @@ export const submitRequest = async <T = any>({ ...options }) => {
   return response.data;
 };
 
+export const publicRequest = async <T = any>({ ...options }) => {
+  const response = await submitClient.request<T>(options);
+  return response.data;
+};
+
 export const conditionLibraryRequest = async <T = any>({ ...options }) => {
   setAuthToken(conditionLibraryClient);
 

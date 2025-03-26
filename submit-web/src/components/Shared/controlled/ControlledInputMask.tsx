@@ -34,9 +34,12 @@ const ControlledInputMask: FC<IFormInputMaskProps> = ({
             onChange(e.target.value); // Pass the masked value to react-hook-form
           }}
           onBlur={onBlur}
+          {...(otherProps as any)} // Bypass TypeScript error
         >
+        {(inputProps: any) => (
           <TextField
-            {...otherProps} // Additional TextField props like label, variant, etc.
+            {...inputProps}
+            {...otherProps}
             inputRef={ref} // Pass the ref for react-hook-form
             error={!!error}
             FormHelperTextProps={{
@@ -44,6 +47,7 @@ const ControlledInputMask: FC<IFormInputMaskProps> = ({
             }}
             helperText={String(helperText)}
           />
+        )}
         </InputMask>
       )}
     />
