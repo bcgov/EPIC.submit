@@ -23,7 +23,6 @@ import { useGetUserByGuid } from "@/hooks/api/useAccounts";
 import { IDENTITY_PROVIDERS, USER_TYPE } from "@/models/User";
 import RecentActorsIcon from "@mui/icons-material/RecentActors";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
-import GroupIcon from "@mui/icons-material/Group";
 
 type IdentityProvider =
   (typeof IDENTITY_PROVIDERS)[keyof typeof IDENTITY_PROVIDERS];
@@ -179,12 +178,15 @@ export default function AppBarActions() {
                 </ListItemIcon>
                 <ListItemText primary="BCeID" />
               </MenuItem>
+              {/*
+              This MenuItem is currently commented out pending discussion about whether it should be included on the Registration or Landing page. 
+              We need to determine where the IDIR login option should appear based on the flow and user experience.
               <MenuItem onClick={() => handleLogin(IDENTITY_PROVIDERS.IDIR)}>
                 <ListItemIcon>
                   <GroupIcon />
                 </ListItemIcon>
                 <ListItemText primary="IDIR" />
-              </MenuItem>
+              </MenuItem>*/}
             </MenuList>
           </Popover>
         </>

@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 import { Invitation } from "@/models/Invitation";
-import { submitRequest } from "@/utils/axiosUtils";
+import { submitRequest, publicRequest } from "@/utils/axiosUtils";
 import { Role } from "@/models/AccountUser";
 
 export const useCreateInvitation = (options?: Options) => {
@@ -46,7 +46,7 @@ const createInvitation = ({
 };
 
 const getInvitation = (token: string) => {
-  return submitRequest<Invitation>({ url: `/invitations/${token}` });
+  return publicRequest<Invitation>({ url: `/invitations/${token}` })
 };
 
 export const useGetInvitation = (token: string, enabled: boolean) => {

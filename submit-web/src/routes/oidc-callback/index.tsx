@@ -16,7 +16,7 @@ function OidcCallback() {
   if (token) {
     return (
       <Navigate
-        to="/proponent/registration/create-account"
+        to="/proponent/registration"
         search={{
           token: token,
         }}
