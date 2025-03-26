@@ -206,12 +206,6 @@ class InvitationService:
         if invitation.expiry_date < datetime.datetime.utcnow():
             return {"error": "Invitation has expired"}, False
 
-        # Retrieve account from account_id
-        account = AccountModel.query.filter_by(id=invitation.account_id).first()
-
-        if not account:
-            return {"error": "Associated account not found"}, False
-
         return invitation, True
 
     @staticmethod
