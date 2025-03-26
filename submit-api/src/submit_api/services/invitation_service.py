@@ -212,8 +212,6 @@ class InvitationService:
         if not account:
             return {"error": "Associated account not found"}, False
 
-        invitation.proponent_id = account.proponent_id
-
         return invitation, True
 
     @staticmethod
