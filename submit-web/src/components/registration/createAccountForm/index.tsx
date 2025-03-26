@@ -169,7 +169,7 @@ function CreateAccountForm() {
                 />
                 <ControlledTextField
                   name="position"
-                  label={`Your Position/Role at ${projects?.[0]?.project?.name || ""}.`}
+                  label={`Your Position/Role at ${projects?.[0]?.project?.name ?? ""}.`}
                   fullWidth
                   InputLabelProps={{
                     sx: { fontWeight: 700 },
