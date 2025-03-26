@@ -46,7 +46,7 @@ function Registration() {
         setInvitation(invitationData);
       }
     }
-  }, [isSuccess, invitationData, setInvitation, isAuthenticated, isAuthLoading]);
+  }, [isPending, error, isSuccess, invitationData, setInvitation, isAuthenticated, isAuthLoading]);
 
   if (isPending) {
     return <PageLoader />;
