@@ -14,14 +14,13 @@ from submit_api.utils.token_info import TokenInfo
 
 
 # pylint: disable=unused-argument
-def check_has_permission(**kwargs):
+def check_has_permission(required_permissions):
     """Check if user is authorized to perform action on the service."""
     user = User.get_by_guid(TokenInfo.get_id())
     if not user or not user.account_user or not user.account_user.role:
         abort(HTTPStatus.UNAUTHORIZED)
 
     user_permissions = set(user.account_user.role.permissions)
-    required_permissions = set(kwargs.get('required_permissions', []))
     has_valid_permissions = user_permissions & required_permissions
     if not has_valid_permissions:
         abort(HTTPStatus.FORBIDDEN)

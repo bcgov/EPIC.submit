@@ -19,6 +19,7 @@ from flask import request
 from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
+from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema
 from submit_api.schemas.invitation import InvitationSchema, CreateInvitationSchema
@@ -53,6 +54,7 @@ class InvitationsResource(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Invalid input data")
     @auth.require
+    @auth.has_one_of_proponent_permissions([ProponentPermissionsEnum.INVITE_USERS.value])
     @cors.crossdomain(origin="*")
     def post():
         """Generate and persist an invitation token."""
