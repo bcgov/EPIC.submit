@@ -9,7 +9,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { Case, Switch } from "react-if";
 import { ReviewCompletedNotification } from "./ReviewCompletedBox";
-import { useEffect } from "react";
 
 export const NotificationBox = () => {
   const queryClient = useQueryClient();
