@@ -27,10 +27,6 @@ export const NotificationBox = () => {
 
   const isStaff = checkIfStaff(roles);
 
-  useEffect(() => {
-    console.log(submissionItem);
-  }, [submissionItem]);
-
   if (!submissionReview) {
     return <></>;
   }
