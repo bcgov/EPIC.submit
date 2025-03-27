@@ -58,19 +58,21 @@ const Footer = () => {
           <Typography variant="body1">{COPYRIGHT_TEXT}</Typography>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Button
-            variant="text"
-            onClick={() => {
-              signinRedirect({
-                redirect_uri: `${OidcConfig.redirect_uri}`,
-                extraQueryParams: {
-                  kc_idp_hint: OidcConfig.kc_idp_hint,
-                },
-              });
-            }}
-          >
-            Sign In as staff
-          </Button>
+          <Box display="flex" justifyContent="flex-end">
+            <Button
+              color="secondary"
+              onClick={() => {
+                signinRedirect({
+                  redirect_uri: `${OidcConfig.redirect_uri}`,
+                  extraQueryParams: {
+                    kc_idp_hint: OidcConfig.kc_idp_hint,
+                  },
+                });
+              }}
+            >
+              Admin Login
+            </Button>
+          </Box>
         </Grid>
       </Grid>
     </Grid>
