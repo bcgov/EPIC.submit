@@ -17,7 +17,7 @@ import {
   useAcceptInvitation,
 } from "@/hooks/api/useInvitations";
 import { useAccount } from "@/store/accountStore";
-import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
+import { useLoadProjectsByProponentId } from "@/hooks/api/useProjects";
 import { useNavigate } from "@tanstack/react-router";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { YellowBar } from "@/components/Shared/YellowBar";
@@ -44,9 +44,9 @@ function CreateAccountForm() {
   const { setAccount } = useAccount();
   const navigate = useNavigate();
 
-  const { data: projects } = useGetAccountProjectsByAccount({
-    accountId: invitation?.account_id,
-  });
+  const { data: projects } = useLoadProjectsByProponentId(
+    invitation?.proponent_id
+  );
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setAccount({
@@ -94,7 +94,7 @@ function CreateAccountForm() {
 
   return (
     <>
-      <Banner>{projects?.[0]?.project?.name || ""}</Banner>
+      <Banner>{projects?.[0]?.name || ""}</Banner>
       <GridContainer>
         <Grid item xs={12} mb={"16px"}>
           <YellowBar />
@@ -103,14 +103,14 @@ function CreateAccountForm() {
         <Grid item xs={12}>
           <Typography variant="body1">
             Thank you for taking a few minutes to set up the{" "}
-            {projects?.[0]?.project?.name || ""} account.
+            {projects?.[0]?.name || ""} account.
             <br />
             <br />
             {invitation?.role.role_name ===
               USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
               <>
                 First of all, please create your Project Administrator Account
-                for {projects?.[0]?.project?.name || ""}.
+                for {projects?.[0]?.name ?? ""}.
                 <br />
                 <br />
                 Project Administrators can
@@ -169,7 +169,7 @@ function CreateAccountForm() {
                 />
                 <ControlledTextField
                   name="position"
-                  label={`Your Position/Role at ${projects?.[0]?.project?.name ?? ""}.`}
+                  label={`Your Position/Role at ${projects?.[0]?.name || ""}.`}
                   fullWidth
                   InputLabelProps={{
                     sx: { fontWeight: 700 },
