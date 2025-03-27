@@ -28,7 +28,8 @@ def check_has_permission(required_permissions):
     return True
 
 
-def check_assigned_on_package(kwargs) -> bool:
+def check_assigned_on_package(kwargs):
+    """Check if user is assigned to the package."""
     package_id = kwargs.get('package_id')
 
     if not package_id:
@@ -41,10 +42,10 @@ def check_assigned_on_package(kwargs) -> bool:
 
     sufficient_roles = {RoleEnum.PROJECT_ADMIN.value, RoleEnum.SUBMISSION_ADMIN.value}
     if user_role.role_name in sufficient_roles:
-        return True
+        return
 
     if user_role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
         if package_id in user_role.package_ids:
-            return True
+            return
 
     abort(HTTPStatus.UNAUTHORIZED)
