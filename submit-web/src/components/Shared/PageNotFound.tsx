@@ -14,7 +14,7 @@ export default function PageNotFound() {
       >
         <h1>404</h1>
         <p>Sorry, page not found.</p>
-        <Link to={"/"}>Go Home</Link>
+        <Link to={"/oidc-callback"}>Go Home</Link>
       </Paper>
     </Container>
   );

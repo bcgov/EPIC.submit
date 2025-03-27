@@ -180,6 +180,16 @@ const statusStyles: Record<
       height: "24px",
     },
   },
+  NO_REVISION_REQUIRED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+      width: "157px",
+    },
+    label: "No Revision Required",
+  },
 };
 
 type PackageStatusChipProps = Readonly<{

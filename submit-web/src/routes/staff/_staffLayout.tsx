@@ -1,97 +1,51 @@
 import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
-import NoRoles from "@/components/Shared/NoRoles";
 import { PageLoader } from "@/components/Shared/PageLoader";
-import { useGetUserByGuid } from "@/hooks/api/useAccounts";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { getUserRolesFromToken } from "@/utils";
 import { Box } from "@mui/material";
-import { createFileRoute, Navigate, Outlet } from "@tanstack/react-router";
-import { useCallback, useEffect } from "react";
-import { useAuth } from "react-oidc-context";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 const IDIR = "idir";
 
 export const Route = createFileRoute("/staff/_staffLayout")({
   component: Staff,
+  beforeLoad: ({ context: { account, authentication } }) => {
+    if (!authentication.isLoading) {
+      if (!authentication?.isAuthenticated) {
+        return redirect({
+          to: "/login",
+        });
+      }
+
+      if (authentication?.user?.profile.identity_provider !== IDIR) {
+        return redirect({
+          to: "/logout",
+        });
+      }
+    }
+    if (!account.isLoading) {
+      if (account?.userType !== USER_TYPE.STAFF) {
+        return redirect({
+          to: "/unauthorized",
+        });
+      }
+      if (!account.roles.includes(EPIC_SUBMIT_ROLE.eao_view)) {
+        return redirect({
+          to: "/staff/no-roles",
+        });
+      }
+    }
+  },
 });
 
 function Staff() {
-  const { setAccount, roles, isLoading: isAccountLoading } = useAccount();
-  const {
-    user: kcUser,
-    signoutRedirect,
-    isAuthenticated,
-    signinRedirect,
-    isLoading: isAuthLoading,
-  } = useAuth();
-
-  const {
-    data: userData,
-    error: getUserError,
-    isPending: isUserDataPending,
-  } = useGetUserByGuid({
-    guid: kcUser?.profile.sub,
-  });
-
   const isMobile = useIsMobile();
-
-  const isLoading =
-    isAccountLoading || isUserDataPending || isAuthLoading || isAccountLoading;
-
-  const isIdirSignIn = kcUser?.profile.identity_provider === IDIR;
-
-  const handleUser = useCallback(() => {
-    if (!isAuthenticated) {
-      signinRedirect();
-      return;
-    }
-
-    if (!isIdirSignIn) {
-      signoutRedirect();
-      return;
-    }
-
-    if (isAccountLoading) {
-      setAccount({
-        isLoading: false,
-        userType: USER_TYPE.STAFF,
-        roles: getUserRolesFromToken(kcUser?.access_token),
-      });
-    }
-  }, [
-    isAuthenticated,
-    isIdirSignIn,
-    isAccountLoading,
-    signinRedirect,
-    signoutRedirect,
-    setAccount,
-    kcUser,
-  ]);
-
-  useEffect(() => {
-    if (!isAuthLoading) {
-      handleUser();
-    }
-  }, [handleUser, isAuthLoading]);
+  const { isLoading } = useAccount();
 
   if (isLoading) {
     return <PageLoader />;
-  }
-
-  if (getUserError) {
-    return <Navigate to="/error" />;
-  }
-
-  if (userData?.type !== USER_TYPE.STAFF || !userData.staff_user) {
-    return <Navigate to="/not-found" />;
-  }
-
-  const canViewStaff = roles?.includes(EPIC_SUBMIT_ROLE.eao_view);
-  if (!canViewStaff) {
-    return <NoRoles />;
   }
 
   return (

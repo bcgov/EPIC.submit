@@ -80,7 +80,6 @@ class InvitationDetailResource(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Get invitation by token")
     @API.response(HTTPStatus.OK, "Invitation found")
     @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
-    @auth.require
     def get(token):
         """Retrieve invitation by token."""
         invitation, valid = InvitationService.get_valid_invitation(token)

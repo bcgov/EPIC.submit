@@ -23,4 +23,5 @@ export const QUERY_KEY = Object.freeze({
   ACCOUNT_USERS: "account-users",
   PROPONENTS: "proponents",
   PROPONENT: "proponent",
+  USER_ACCOUNT_DATA: "user-account-data",
 });

@@ -10,6 +10,8 @@ import { ContentBox } from "../Shared/ContentBox";
 import { When } from "react-if";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
+import PermissionsGate from "../Shared/PermissionGate";
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 
 export const CardInnerBox = styled(Box)({
   display: "flex",
@@ -29,10 +31,10 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const { userType } = useAccount();
 
   const activeSubmissionPackages = accountProject.packages.filter(
-    (subPackage) => !subPackage.completed_on
+    (subPackage) => !subPackage.completed_on,
   );
   const pastSubmissionPackages = accountProject.packages.filter((subPackage) =>
-    Boolean(subPackage.completed_on)
+    Boolean(subPackage.completed_on),
   );
 
   const { name, ea_certificate } = accountProject.project;
@@ -72,10 +74,14 @@ export const Project = ({ accountProject }: ProjectParam) => {
           </CardInnerBox>
           <When condition={userType === USER_TYPE.PROPONENT}>
             <CardInnerBox>
-              <Button onClick={handleNewSubmission}>
-                <AddIcon sx={{ p: 0, mr: 0.5 }} />
-                New Submission
-              </Button>
+              <PermissionsGate
+                scopes={[ACCOUNT_USER_PERMISSIONS.CREATE_PACKAGE]}
+              >
+                <Button onClick={handleNewSubmission}>
+                  <AddIcon sx={{ p: 0, mr: 0.5 }} />
+                  New Submission
+                </Button>
+              </PermissionsGate>
             </CardInnerBox>
           </When>
         </Box>

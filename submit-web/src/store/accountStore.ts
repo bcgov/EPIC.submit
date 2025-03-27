@@ -2,7 +2,7 @@ import { Role } from "@/models/AccountUser";
 import { UserType } from "@/models/User";
 import { create } from "zustand";
 
-interface AccountStoreState {
+export type AccountStoreState = {
   proponentId: number;
   accountId: number;
   userId: number;
@@ -11,7 +11,7 @@ interface AccountStoreState {
   roles?: string[];
   userManagementRole?: Role;
   setAccount: (account: Partial<AccountStoreState>) => void;
-}
+};
 
 export const useAccount = create<AccountStoreState>((set) => ({
   proponentId: 0,

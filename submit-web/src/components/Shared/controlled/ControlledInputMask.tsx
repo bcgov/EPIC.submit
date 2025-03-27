@@ -36,7 +36,7 @@ const ControlledInputMask: FC<IFormInputMaskProps> = ({
           onBlur={onBlur}
         >
           <TextField
-            {...otherProps} // Additional TextField props like label, variant, etc.
+            {...otherProps}
             inputRef={ref} // Pass the ref for react-hook-form
             error={!!error}
             FormHelperTextProps={{

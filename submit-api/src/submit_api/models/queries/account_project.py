@@ -14,10 +14,11 @@
 """Model to handle all complex operations related to User."""
 
 from sqlalchemy import or_
+
+from submit_api.enums.role import RoleEnum
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
-from submit_api.models.role import RoleEnum
 from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
 
@@ -96,6 +97,10 @@ class ProjectQueries:
         """Filter packages by user access."""
         auth_guid = TokenInfo.get_id()
         user = User.get_by_guid(auth_guid)
+
+        if not user:
+            return package_query.filter(False)
+
         if user.type == UserType.STAFF:
             return package_query
 

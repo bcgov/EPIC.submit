@@ -224,6 +224,10 @@ def get_package_status(status, user_type, version_obj):
             UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,
             UserType.STAFF: PackageStatus.REVIEW_REJECTED.value
         },
+        PackageStatus.SATISFIED.value: {
+            UserType.PROPONENT: PackageStatus.NO_REVISION_REQUIRED.value,
+            UserType.STAFF: PackageStatus.SATISFIED.value
+        },
     }
     if status in package_status_mapping:
         return package_status_mapping[status][user_type]

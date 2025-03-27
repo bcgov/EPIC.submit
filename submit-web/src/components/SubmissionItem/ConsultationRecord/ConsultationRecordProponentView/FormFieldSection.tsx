@@ -7,7 +7,7 @@ import {
   IconButton,
   InputAdornment,
   TextField,
-  Typography
+  Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
@@ -17,11 +17,11 @@ import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
 import { ConsultationRecordForm } from "../constants";
 
-interface FormFieldSectionProps {
+type FormFieldSectionProps = Readonly<{
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   errors: FieldErrors<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   partiesList: Array<string>;
-}
+}>;
 
 export default function FormFieldSection({
   methods,
@@ -37,7 +37,10 @@ export default function FormFieldSection({
 
   const handleAddParty = () => {
     const trimmedValue = inputValue.trim();
-    if (trimmedValue && !fields.some((field) => field.consultedParty === trimmedValue)) {
+    if (
+      trimmedValue &&
+      !fields.some((field) => field.consultedParty === trimmedValue)
+    ) {
       append({ consultedParty: trimmedValue });
       setInputValue("");
     }
@@ -102,7 +105,8 @@ export default function FormFieldSection({
                         fontFamily: "inherit",
                         verticalAlign: "middle",
                         marginBottom: "5px",
-                        backgroundColor: BCDesignTokens.surfaceColorBackgroundLightBlue,
+                        backgroundColor:
+                          BCDesignTokens.surfaceColorBackgroundLightBlue,
                         "& .MuiChip-deleteIcon": {
                           color: BCDesignTokens.surfaceColorBackgroundDarkBlue,
                           borderRadius: "0",
@@ -130,26 +134,34 @@ export default function FormFieldSection({
                   }
                 }}
                 InputProps={{
-                  endAdornment: inputValue && inputValue !=="" ? (
-                    <InputAdornment position="end" sx={{ marginRight: "-5px" }}>
-                      <IconButton
-                        onClick={handleAddParty}
-                        sx={{
-                          padding: 0,
-                          borderRadius: "50%",
-                          backgroundColor: BCDesignTokens.surfaceColorBackgroundDarkBlue,
-                          color: "white",
-                          "&:hover": { backgroundColor: BCDesignTokens.surfaceColorBackgroundDarkBlue },
-                        }}
+                  endAdornment:
+                    inputValue && inputValue !== "" ? (
+                      <InputAdornment
+                        position="end"
+                        sx={{ marginRight: "-5px" }}
                       >
-                        <AddIcon
+                        <IconButton
+                          onClick={handleAddParty}
                           sx={{
-                            fontSize: "20px",
+                            padding: 0,
+                            borderRadius: "50%",
+                            backgroundColor:
+                              BCDesignTokens.surfaceColorBackgroundDarkBlue,
+                            color: "white",
+                            "&:hover": {
+                              backgroundColor:
+                                BCDesignTokens.surfaceColorBackgroundDarkBlue,
+                            },
                           }}
-                        />
-                      </IconButton>
-                    </InputAdornment>
-                  ) : null,
+                        >
+                          <AddIcon
+                            sx={{
+                              fontSize: "20px",
+                            }}
+                          />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null,
                 }}
               />
             </Grid>

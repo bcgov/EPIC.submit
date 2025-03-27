@@ -1,6 +1,12 @@
-import { Box, Button, Table, TableBody, TableContainer } from "@mui/material";
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableContainer,
+  Stack,
+} from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { Stack } from "@mui/material";
 import { ContentBoxSkeleton } from "../../Shared/ContentBox/ContentBoxSkeleton";
 import UserTableHead from "./UserTableHead";
 import UserTableRow from "./UserTableRow";

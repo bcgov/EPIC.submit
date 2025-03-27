@@ -10,6 +10,7 @@ export type PackageType = {
 export type NonCanonicalPackageStatus =
   | "REVISION_REQUIRED"
   | "UPDATED"
+  | "NO_REVISION_REQUIRED"
   | "UPDATE_REQUESTED";
 export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   Record<NonCanonicalPackageStatus, NonCanonicalPackageStatus>
@@ -17,6 +18,7 @@ export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   UPDATE_REQUESTED: "UPDATE_REQUESTED",
   REVISION_REQUIRED: "REVISION_REQUIRED",
   UPDATED: "UPDATED",
+  NO_REVISION_REQUIRED: "NO_REVISION_REQUIRED",
 });
 
 export type PackageStatus =

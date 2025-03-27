@@ -7,7 +7,7 @@ import requests
 from flask import current_app
 
 from submit_api.data_classes.email_details import EmailDetails
-from submit_api.utils.template import Template
+from utils.template import Template
 
 
 class ChesApiService:
@@ -66,12 +66,15 @@ class ChesApiService:
         """Get email body from a template."""
         if not template_name:
             raise ValueError('Template name is required')
-        print(f'Fetching template with name: {template_name}')
 
         template = Template.get_template(template_name)
         if not template:
             raise ValueError('Template not found')
-
+        # logo is taken from submit UI / Web app..
+        # Went for this approach since making it base64 is hard to get it working in gmail..
+        # gmail strips the logo if base64 is used
+        # this is like submit web hosts the logo and the email uses it as a static server to get the logo image.
+        body_args['logo_url'] = f'{current_app.config.get("WEB_URL")}/assets/EAO_Logo-BZOR9oRj.png'
         rendered_body = template.render(body_args)
 
         return rendered_body
@@ -101,7 +104,7 @@ class ChesApiService:
             'from': email_details.sender,
             'to': email_details.recipients,
             'cc': email_details.cc,
-            'bcc': email_details.bcc
+            'bcc': email_details.bcc,
         }
         json_request_body = json.dumps(request_body)
 

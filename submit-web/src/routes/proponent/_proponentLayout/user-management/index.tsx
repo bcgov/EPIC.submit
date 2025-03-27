@@ -1,18 +1,33 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
+import { hasPermission } from "@/components/Shared/PermissionGate/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { DataSkeleton, UserTable } from "@/components/UserManagement/entity";
 import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/"
+  "/proponent/_proponentLayout/user-management/",
 )({
   component: UsersPage,
   meta: () => [{ title: "Invitations" }],
+  beforeLoad: async ({ context: { account } }) => {
+    if (
+      !account.isLoading &&
+      !hasPermission({
+        scopes: [ACCOUNT_USER_PERMISSIONS.INVITE_USERS],
+        permissions: account?.roles || [],
+      })
+    ) {
+      throw redirect({
+        to: "/not-found",
+      });
+    }
+  },
 });
 
 function UsersPage() {
