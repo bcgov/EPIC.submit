@@ -104,12 +104,16 @@ class ProjectQueries:
         if user.type == UserType.STAFF:
             return package_query
 
-        if not user or not user.account_user:
-            return package_query.filter(False)
+        if not user.account_user:
+            raise ValueError("User account not found.")
+
         user_role = user.account_user.role
         role_name = user_role.role.role_name
         if role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
             return package_query
+
+        if not package_query:
+            package_query = db.session.query(Package)
 
         package_ids = user_role.package_ids
         if not package_ids:
