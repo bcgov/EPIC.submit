@@ -99,7 +99,7 @@ class ProjectQueries:
         user = User.get_by_guid(auth_guid)
 
         if not user:
-            return package_query.filter(False)
+            raise ValueError("User not found.")
 
         if user.type == UserType.STAFF:
             return package_query
@@ -110,9 +110,6 @@ class ProjectQueries:
         role_name = user_role.role.role_name
         if role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
             return package_query
-
-        if not package_query:
-            package_query = db.session.query(Package)
 
         package_ids = user_role.package_ids
         if not package_ids:
