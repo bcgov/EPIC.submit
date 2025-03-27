@@ -66,13 +66,13 @@ class ProjectQueries:
         if search_options and any(bool(search_option) for search_option in search_options.__dict__.values()):
             package_query = cls._filter_by_search_criteria(search_options)
 
-        # package_query = cls._filter_packages_by_user_access(package_query)
+        package_query = cls._filter_packages_by_user_access(package_query)
 
-        # if package_query:
-        #     filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
-        #     query = query.join(Package).filter(
-        #         Package.id.in_(filtered_package_ids)).options(
-        #         db.contains_eager(AccountProject.packages))
+        if package_query:
+            filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
+            query = query.join(Package).filter(
+                Package.id.in_(filtered_package_ids)).options(
+                db.contains_eager(AccountProject.packages))
         return query.all()
 
     @classmethod
