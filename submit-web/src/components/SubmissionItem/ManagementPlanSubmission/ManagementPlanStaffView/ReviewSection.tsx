@@ -30,6 +30,7 @@ import ActionButtons from "./ActionButtons";
 import NotesSection from "../../NotesSection";
 import { When } from "react-if";
 import AddRequestSection from "../../AddRequestSection";
+import { NotificationBox } from "./NotificationBox";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema
@@ -37,7 +38,7 @@ type managementPlanReviewForm = yup.InferType<
 
 const getAnswersByType = (
   review: SubmissionReview,
-  type: SubmissionReviewEntryType,
+  type: SubmissionReviewEntryType
 ) => {
   if (!review?.entries) return {};
   return review.entries?.find((entry) => entry.type === type)?.entry;
@@ -55,12 +56,12 @@ export default function ReviewSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getStaffSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey,
+    }).queryKey
   );
 
   const defaultValues = useMemo(() => {
@@ -69,11 +70,11 @@ export default function ReviewSection() {
     const review = submissionItem.review;
     const staffAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
     );
     const managerAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION
     );
 
     return {
@@ -201,6 +202,7 @@ export default function ReviewSection() {
             <When condition={failedManagementPlan}>
               <AddRequestSection disabled={isFormDisabled} />
             </When>
+            <NotificationBox />
             <ActionButtons />
           </form>
         </FormProvider>

@@ -17,4 +17,5 @@ export type Invitation = {
   created_date: string;
   is_first_time: boolean;
   role: Role;
+  proponent_id: number;
 };
