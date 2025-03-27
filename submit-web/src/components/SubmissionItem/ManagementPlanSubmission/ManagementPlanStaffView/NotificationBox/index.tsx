@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { Case, Switch } from "react-if";
 import { ReviewCompletedNotification } from "./ReviewCompletedBox";
+import { useEffect } from "react";
 
 export const NotificationBox = () => {
   const queryClient = useQueryClient();
@@ -25,6 +26,10 @@ export const NotificationBox = () => {
   const submissionReview = submissionItem?.review;
 
   const isStaff = checkIfStaff(roles);
+
+  useEffect(() => {
+    console.log(submissionItem);
+  }, [submissionItem]);
 
   if (!submissionReview) {
     return <></>;
