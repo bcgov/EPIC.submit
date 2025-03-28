@@ -21,7 +21,7 @@ def check_has_permission(required_permissions):
         abort(HTTPStatus.UNAUTHORIZED)
 
     user_permissions = set(user.account_user.role.permissions)
-    has_valid_permissions = user_permissions & required_permissions
+    has_valid_permissions = user_permissions & set(required_permissions)
     if not has_valid_permissions:
         abort(HTTPStatus.FORBIDDEN)
 
