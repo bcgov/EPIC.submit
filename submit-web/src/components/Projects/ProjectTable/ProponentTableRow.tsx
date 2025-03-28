@@ -29,6 +29,8 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
         <StyledProjectTableCell sx={{ py: 0 }} width={"55%"}>
           <SubmitLink
             sx={{
+              display: "flex",
+              alignItems: "center",
               color: BCDesignTokens.themeBlue90,
               textDecoration: "none",
             }}
