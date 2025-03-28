@@ -39,10 +39,10 @@ def check_assigned_on_package(package_id):
     user_role = user.account_user.role
 
     sufficient_roles = {RoleEnum.PROJECT_ADMIN.value, RoleEnum.SUBMISSION_ADMIN.value}
-    if user_role.role_name in sufficient_roles:
+    if user_role.role.role_name in sufficient_roles:
         return
 
-    if user_role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
+    if user_role.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
         if package_id in user_role.package_ids:
             return
 
