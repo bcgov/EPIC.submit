@@ -111,7 +111,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
             </Typography>
           </Grid>
         </When>
-        {consultedParties && (
+        {consultedParties && mainCondition?.condition_attributes?.requires_consultation === "true" && (
           <Grid item xs={12}>
             <Typography
               variant="body2"
