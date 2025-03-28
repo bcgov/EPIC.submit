@@ -20,8 +20,6 @@ database:
     name: submit-patroni
     port: 5432
 
-
-
 service:
   type: ClusterIP
   port: 8080
@@ -43,10 +41,5 @@ auth:
 python:
   pythonBuffered: 1
   connectTimeout: 60
-cdogs:  
-  tokenEndpoint: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-  apiEndpoint: https://cdogs-dev.api.gov.bc.ca/api/v2
-  clientId:
-  clientSecret:
 cors:
   origin: "https://dev.submit.eao.gov.bc.ca,"

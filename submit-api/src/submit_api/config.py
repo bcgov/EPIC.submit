@@ -98,10 +98,6 @@ class DevConfig(_Config):  # pylint: disable=too-few-public-methods
     TESTING = False
     DEBUG = True
 
-    CHES_TOKEN_ENDPOINT = os.getenv('CHES_TOKEN_ENDPOINT')
-    CHES_CLIENT_ID = os.getenv('CHES_CLIENT_ID')
-    CHES_CLIENT_SECRET = os.getenv('CHES_CLIENT_SECRET')
-    CHES_BASE_URL = os.getenv('CHES_BASE_URL')
     print(f'SQLAlchemy URL (DevConfig): {_Config.SQLALCHEMY_DATABASE_URI}')
 
 
