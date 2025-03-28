@@ -6,6 +6,7 @@ from flask import current_app
 
 from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, User
 from submit_api.models import Package as PackageModel
@@ -24,6 +25,7 @@ from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
+from submit_api.services import authorization
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
@@ -307,7 +309,7 @@ class PackageService:
     def submit_package(cls, package_id):
         """Submit the package by updating its status and items."""
         cls._validate_account_user()
-
+        authorization.check_has_permission([ProponentPermissionsEnum.SUBMIT_PACKAGE.value])
         with session_scope() as session:
             package = cls._get_and_validate_complete_package(package_id)
             if package.submitted_on:

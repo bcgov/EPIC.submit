@@ -18,8 +18,9 @@ from http import HTTPStatus
 from flask import g, request
 from flask_jwt_oidc import JwtManager
 
+from submit_api.models import db
 from submit_api.exceptions import PermissionDeniedError
-
+from submit_api.models import User
 
 jwt = (
     JwtManager()
@@ -56,6 +57,31 @@ class Auth:  # pylint: disable=too-few-public-methods
             @wraps(f)
             def wrapper(*args, **kwargs):
                 if jwt.contains_role(roles):  # pylint: disable=no-value-for-parameter
+                    return f(*args, **kwargs)
+
+                raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
+
+            return wrapper
+
+        return decorated
+
+    @classmethod
+    def has_one_of_proponent_permissions(cls, _permissions):
+        """Check that at least one of the realm roles are in the token.
+
+        Args:
+            _permissions (list[str]): List of valid permissions
+        """
+
+        def decorated(f):
+            @Auth.require
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                user = db.session.query(User).filter_by(auth_guid=cls.sub).first()
+                if not user or not user.account_user or not user.account_user.role:
+                    raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
+                permissions: list = user.account_user.role.permissions
+                if set(permissions) & set(_permissions):
                     return f(*args, **kwargs)
 
                 raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
