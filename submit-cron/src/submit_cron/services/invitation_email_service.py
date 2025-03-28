@@ -4,7 +4,7 @@ from submit_api.exceptions import BadRequestError
 from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.project import Project as ProjectModel
-from submit_api.models.role import RoleEnum
+from submit_api.enums.role import RoleEnum
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 
 from submit_cron.models import db
