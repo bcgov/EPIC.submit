@@ -58,18 +58,18 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           }}
           align="left"
         >
-          <SubmitLink
-            sx={{
-              color: BCDesignTokens.themeBlue90,
-              textDecoration: "none",
-            }}
-            onClick={onSubmissionClick}
-            disabled={
-              version.version === 1 &&
-              status.includes(PACKAGE_STATUS.CREATED.value)
-            }
-          >
-            <Stack direction="row" spacing={1} alignItems={"center"}>
+          <Stack direction="row" spacing={1} alignItems={"center"}>
+            <SubmitLink
+              sx={{
+                color: BCDesignTokens.themeBlue90,
+                textDecoration: "none",
+              }}
+              onClick={onSubmissionClick}
+              disabled={
+                version.version === 1 &&
+                status.includes(PACKAGE_STATUS.CREATED.value)
+              }
+            >
               <Typography
                 variant="h6"
                 fontWeight={"500"}
@@ -78,9 +78,10 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
               >
                 {name}
               </Typography>
+
               <ArrowForwardIos fontSize="small" htmlColor="inherit" />
-            </Stack>
-          </SubmitLink>
+            </SubmitLink>
+          </Stack>
         </StyledProjectTableCell>
         <StyledProjectTableCell
           align="left"
