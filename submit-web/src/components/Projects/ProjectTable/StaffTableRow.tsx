@@ -61,6 +61,8 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
           <Stack direction="row" spacing={1} alignItems={"center"}>
             <SubmitLink
               sx={{
+                display: "flex",
+                alignItems: "center",
                 color: BCDesignTokens.themeBlue90,
                 textDecoration: "none",
               }}
