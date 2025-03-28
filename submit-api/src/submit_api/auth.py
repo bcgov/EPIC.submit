@@ -67,11 +67,11 @@ class Auth:  # pylint: disable=too-few-public-methods
         return decorated
 
     @classmethod
-    def has_one_of_roles(cls, _roles):
+    def has_one_of_roles(cls, roles):
         """Check that at least one of the realm roles are in the token.
 
         Args:
-            _roles (list[str]): List of valid roles
+            roles (list[str]): List of valid roles
         """
 
         def decorated(f):
@@ -80,14 +80,14 @@ class Auth:  # pylint: disable=too-few-public-methods
             def wrapper(*args, **kwargs):
                 user = db.session.query(User).filter_by(auth_guid=cls().sub).first()
                 if user.type == UserType.STAFF:
-                    if jwt.contains_role(_roles):
+                    if jwt.contains_role(roles):
                         return f(*args, **kwargs)
                     raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
 
                 if not user or not user.account_user or not user.account_user.role:
                     raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
-                roles: list = user.account_user.role.permissions
-                if set(roles) & set(_roles):
+                permissions: list = user.account_user.role.permissions
+                if set(permissions) & set(roles):
                     return f(*args, **kwargs)
 
                 raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
