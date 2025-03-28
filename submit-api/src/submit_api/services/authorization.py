@@ -10,6 +10,7 @@ from flask_restx import abort
 
 from submit_api.enums.role import RoleEnum
 from submit_api.models import User
+from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -34,6 +35,8 @@ def check_assigned_on_package(package_id):
         abort(HTTPStatus.UNAUTHORIZED)
 
     user = User.get_by_guid(TokenInfo.get_id())
+    if user.type == UserType.STAFF:
+        return
     if not user or not user.account_user or not user.account_user.role:
         abort(HTTPStatus.UNAUTHORIZED)
     user_role = user.account_user.role
