@@ -24,6 +24,7 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema
 from submit_api.schemas.invitation import InvitationSchema, CreateInvitationSchema
 from submit_api.services.invitation_service import InvitationService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
 
 API = Namespace("invitations", description="Endpoints for Invitation Management")
@@ -54,7 +55,7 @@ class InvitationsResource(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Invalid input data")
     @auth.require
-    @auth.has_one_of_proponent_permissions([ProponentPermissionsEnum.INVITE_USERS.value])
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def post():
         """Generate and persist an invitation token."""

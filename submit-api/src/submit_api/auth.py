@@ -9,7 +9,7 @@
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an 'AS IS' BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
+# See the License for the specific language governing roles and
 # limitations under the License.
 """Bring in the common JWT Manager."""
 from functools import wraps
@@ -21,6 +21,7 @@ from flask_jwt_oidc import JwtManager
 from submit_api.models import db
 from submit_api.exceptions import PermissionDeniedError
 from submit_api.models import User
+from submit_api.models.user import UserType
 
 jwt = (
     JwtManager()
@@ -45,7 +46,7 @@ class Auth:  # pylint: disable=too-few-public-methods
         return decorated
 
     @classmethod
-    def has_one_of_roles(cls, roles):
+    def has_one_of_staff_roles(cls, roles):
         """Check that at least one of the realm roles are in the token.
 
         Args:
@@ -66,22 +67,27 @@ class Auth:  # pylint: disable=too-few-public-methods
         return decorated
 
     @classmethod
-    def has_one_of_proponent_permissions(cls, _permissions):
+    def has_one_of_roles(cls, _roles):
         """Check that at least one of the realm roles are in the token.
 
         Args:
-            _permissions (list[str]): List of valid permissions
+            _roles (list[str]): List of valid roles
         """
 
         def decorated(f):
             @Auth.require
             @wraps(f)
             def wrapper(*args, **kwargs):
-                user = db.session.query(User).filter_by(auth_guid=cls.sub).first()
+                user = db.session.query(User).filter_by(auth_guid=cls().sub).first()
+                if user.type == UserType.STAFF:
+                    if jwt.contains_role(_roles):
+                        return f(*args, **kwargs)
+                    raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
+
                 if not user or not user.account_user or not user.account_user.role:
                     raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
-                permissions: list = user.account_user.role.permissions
-                if set(permissions) & set(_permissions):
+                roles: list = user.account_user.role.permissions
+                if set(roles) & set(_roles):
                     return f(*args, **kwargs)
 
                 raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)

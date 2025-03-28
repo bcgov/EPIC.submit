@@ -76,7 +76,7 @@ class PackageByAccountProject(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @auth.has_one_of_proponent_permissions([ProponentPermissionsEnum.CREATE_PACKAGE.value])
+    @auth.has_one_of_roles([ProponentPermissionsEnum.CREATE_PACKAGE.value])
     @cors.crossdomain(origin="*")
     def post(account_project_id):
         """Create a submission package."""

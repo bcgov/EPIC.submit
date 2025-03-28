@@ -49,7 +49,7 @@ class InternalStaffDocuments(Resource):
         code=HTTPStatus.CREATED, model=internal_document, description="Created Internal Staff Document"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def post(submission_item_id):
         """Create an internal staff document."""
@@ -64,7 +64,7 @@ class InternalStaffDocuments(Resource):
         code=HTTPStatus.OK, model=internal_document, description="Deleted Internal Staff Document"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def delete(internal_staff_document_id):
         """Delete an internal staff document."""
@@ -84,7 +84,7 @@ class InternalStaffDocument(Resource):
         code=HTTPStatus.OK, model=internal_document, description="Deleted Internal Staff Document"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def delete(internal_staff_document_id):
         """Delete an internal staff document."""

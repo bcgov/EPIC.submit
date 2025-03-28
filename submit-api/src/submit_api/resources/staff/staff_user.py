@@ -45,7 +45,7 @@ class StaffUser(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a staff by guid")
     @API.response(code=200, model=user_model, description="Success")
     @API.response(404, "Not Found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get(guid):
         """Fetch a staff by id."""

@@ -49,7 +49,7 @@ class SubmissionItemNoteResource(Resource):
         code=HTTPStatus.CREATED, model=note, description="Created a staff note"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def post(submission_item_id):
         """Create a staff note."""

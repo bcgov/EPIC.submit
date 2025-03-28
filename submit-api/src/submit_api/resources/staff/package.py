@@ -57,7 +57,7 @@ class Package(Resource):
         code=HTTPStatus.OK, model=package_model, description="Get package"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get(package_id):
         """Get a package."""
@@ -102,7 +102,7 @@ class PackageUpdateRequests(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def post(package_id):
         """Create an update request."""
@@ -119,7 +119,7 @@ class PackageUpdateRequests(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def patch(package_id):
         """Accept an update request."""
@@ -143,7 +143,7 @@ class PackageUpdateRequest(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
     def patch(package_id, update_request_id):
         """Accept an update request."""

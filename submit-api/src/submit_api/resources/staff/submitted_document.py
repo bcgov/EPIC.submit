@@ -50,7 +50,7 @@ class AccountDocuments(Resource):
         code=HTTPStatus.OK, model=document_list_model, description="Get documents"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_VIEW.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get():
         """Get all submitted documents."""
