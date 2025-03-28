@@ -28,10 +28,8 @@ def check_has_permission(required_permissions):
     return True
 
 
-def check_assigned_on_package(kwargs):
+def check_assigned_on_package(package_id):
     """Check if user is assigned to the package."""
-    package_id = kwargs.get('package_id')
-
     if not package_id:
         abort(HTTPStatus.UNAUTHORIZED)
 
