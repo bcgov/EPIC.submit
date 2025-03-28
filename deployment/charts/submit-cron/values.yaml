@@ -25,4 +25,4 @@ chesSecrets:
   clientSecret: ""
 
 web:
-  url: ""
+  url: "https://dev.submit.eao.gov.bc.ca"
