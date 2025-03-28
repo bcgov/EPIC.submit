@@ -8,15 +8,12 @@ data:
   config.js: |-
     // runtime-config.js vars
       window["_env_"] =  {
-        "ENV": "dev",
-        "NODE_ENV": "production",
         "VITE_API_URL": "{{ .Values.app.api }}",
-        "VITE_KEYCLOAK_URL": "{{ .Values.keycloak.url }}",
-        "VITE_KEYCLOAK_CLIENT": "{{ .Values.keycloak.client }}",
-        "VIT_KEYCLOAK_REALM": "{{ .Values.keycloak.realm }}",
         "VITE_ENV": "{{ .Values.app.env }}",
+        "VITE_VERSION": "{{ .Values.app.version }}",
         "VITE_APP_TITLE": "{{ .Values.app.title }}",
         "VITE_OBJECT_STORAGE_URL": "{{ .Values.app.objectStorageUrl }}",
+        "VITE_APP_URL": "{{ .Values.app.url }}",
         "VITE_OIDC_AUTHORITY": "{{ .Values.app.oidcAuthority }}",
         "VITE_CLIENT_ID": "{{ .Values.app.clientId }}",
         "VITE_CONDITIONS_LIBRARY_URL": "{{ .Values.app.conditionsLibraryUrl }}",
