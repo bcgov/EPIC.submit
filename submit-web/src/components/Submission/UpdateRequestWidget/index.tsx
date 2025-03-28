@@ -6,6 +6,7 @@ import {
   Chip,
   Collapse,
   Divider,
+  Stack,
   Typography,
 } from "@mui/material";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -20,6 +21,8 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import WarningBox from "@/components/Shared/WarningBox";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 
 type UpdateRequestWidgetProps = Readonly<{
   submissionPackage: SubmissionPackage;
@@ -62,7 +65,7 @@ export default function UpdateRequestWidget({
           notify.error(
             isAxiosError(error)
               ? (error.response?.data.message ?? defaultMessage)
-              : defaultMessage,
+              : defaultMessage
           );
         },
       },
@@ -151,7 +154,7 @@ export default function UpdateRequestWidget({
                 fontWeight: BCDesignTokens.typographyBoldBody,
               }}
             >
-              Update Requests
+              Update & Revision Requests
             </Typography>
             <When condition={activeRequests.length > 0}>
               <Chip
@@ -213,16 +216,16 @@ export default function UpdateRequestWidget({
           },
         ]}
       >
-        <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
-          <Collapse in={isCreateRequestOpen} unmountOnExit>
-            <AddRequestSection
-              submissionPackage={submissionPackage}
-              handleCreateUpdateRequest={handleCreateUpdateRequest}
-              isCreatingUpdateRequest={isCreatingUpdateRequest}
-              handleCancelReason={handleCancelReason}
-            />
-          </Collapse>
-        </PermissionsGate>
+        {/* <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}> */}
+        <Collapse in={isCreateRequestOpen} unmountOnExit>
+          <AddRequestSection
+            submissionPackage={submissionPackage}
+            handleCreateUpdateRequest={handleCreateUpdateRequest}
+            isCreatingUpdateRequest={isCreatingUpdateRequest}
+            handleCancelReason={handleCancelReason}
+          />
+        </Collapse>
+        {/* </PermissionsGate> */}
         {updateRequests.length > 0 ? (
           updateRequests.map((updateRequest, index) => (
             <>
@@ -239,6 +242,17 @@ export default function UpdateRequestWidget({
             No requests have been made yet.
           </Typography>
         )}
+        {/* <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}> */}
+        <WarningBox mb={BCDesignTokens.layoutMarginXsmall}>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <PriorityHighIcon />
+            <Typography variant="body1" color="inherit">
+              This request, including the EAO Comment, will be sent to the
+              holder after a Manager confirms the decision.
+            </Typography>
+          </Stack>
+        </WarningBox>
+        {/* </PermissionsGate> */}
       </AccordionDetails>
     </Accordion>
   );
