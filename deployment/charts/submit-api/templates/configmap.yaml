@@ -16,3 +16,5 @@ data:
   KEYCLOAK_REALM_NAME: {{ .Values.auth.keycloak.realm }}
   CONNECT_TIMEOUT: "{{ .Values.python.connectTimeout }}"
   CORS_ORIGIN: "{{ .Values.cors.origin }}"
+  CDOGS_TOKEN_END_POINT: "{{ .Values.cdogs.tokenEndpoint }}"
+  CDOGS_API_ENDPOINT: "{{ .Values.cdogs.apiEndpoint }}"

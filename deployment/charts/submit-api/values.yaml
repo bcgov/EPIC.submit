@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: submit-api
+  repository: image-registry.openshift-image-registry.svc:5000/c8b80a-tools/submit-api
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "dev"
@@ -30,23 +30,23 @@ service:
 auth:
   jwt:
     alg: RS256
-    aud: submit-web
+    aud: epic-submit
     cacheEnabled: true
-    issuer: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic
+    issuer: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
     cacheTimeout: "300"
-    wellKnownConfig: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
+    wellKnownConfig: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
   keycloak:
-    uri: https://test.loginproxy.gov.bc.ca
-    realm:
+    uri: https://dev.loginproxy.gov.bc.ca
+    realm: eao-epic
     adminClientId:
     adminClientSecret:
 python:
   pythonBuffered: 1
   connectTimeout: 60
 cdogs:  
-  tokenEndpoint: https://test.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
-  apiEndpoint: https://cdogs-test.api.gov.bc.ca/api/v2
+  tokenEndpoint: https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token
+  apiEndpoint: https://cdogs-dev.api.gov.bc.ca/api/v2
   clientId:
   clientSecret:
 cors:
-  origin: "http://localhost:3000"
+  origin: "https://dev.submit.eao.gov.bc.ca,"
