@@ -44,7 +44,6 @@ export default function AddRequestSection({
 
   return (
     <Box
-      mt="20px"
       sx={{
         border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
         backgroundColor: "#FFF",
