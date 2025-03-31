@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Stack } from "@mui/material";
 import { useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SUBMISSION_ITEM_TYPE, SubmissionItem } from "@/models/SubmissionItem";

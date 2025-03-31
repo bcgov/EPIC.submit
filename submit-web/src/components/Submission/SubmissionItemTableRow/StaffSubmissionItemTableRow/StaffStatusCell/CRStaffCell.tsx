@@ -25,7 +25,6 @@ export const CRStaffCell = ({
 }: CRStaffCellProps) => {
   const { data: failedSubmissions } =
     useGetFailedSubmissionsByItemId(submissionItemId);
-  console.log("failedSubmissions", failedSubmissions);
   return (
     <>
       <SubmissionStatusChipStack
