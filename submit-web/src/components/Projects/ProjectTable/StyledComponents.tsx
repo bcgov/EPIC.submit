@@ -8,7 +8,6 @@ export const StyledProjectTableRow = styled(TableRow)(() => ({
   },
   padding: BCDesignTokens.layoutPaddingSmall,
   maxHeight: "40px",
-  cursor: "pointer",
   py: 0,
 }));
 
