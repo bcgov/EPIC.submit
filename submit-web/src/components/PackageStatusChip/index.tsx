@@ -93,7 +93,7 @@ const statusStyles: Record<
       background: EAOColors.DecisionLight,
       height: "24px",
     },
-    label: "New",
+    label: "New Submission",
   },
   AWAITING_MANAGER_APPROVAL: {
     sx: {
@@ -189,6 +189,16 @@ const statusStyles: Record<
       width: "157px",
     },
     label: "No Revision Required",
+  },
+  RESUBMITTED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+      width: "104px",
+    },
+    label: "Resubmitted",
   },
 };
 

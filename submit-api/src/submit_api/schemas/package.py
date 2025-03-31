@@ -202,7 +202,7 @@ def get_package_status(status, user_type, version_obj):
         },
         PackageStatus.SUBMITTED.value: {
             UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: PackageStatus.NEW_SUBMISSION.value
+            UserType.STAFF: PackageStatus.NEW_SUBMISSION.value if version == 1 else PackageStatus.RESUBMITTED.value
         },
         PackageStatus.UNDER_REVIEW.value: {
             UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
