@@ -196,6 +196,7 @@ const statusStyles: Record<string, StyleProps> = {
       border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
       background: BCDesignTokens.supportSurfaceColorDanger,
       height: "24px",
+      width: "128px",
     },
   },
 };
