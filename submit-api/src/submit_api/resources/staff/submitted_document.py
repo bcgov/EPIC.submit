@@ -82,6 +82,5 @@ class ItemFailedDocuments(Resource):
     @cors.crossdomain(origin="*")
     def get(item_id):
         """Get all failed documents by item id."""
-
         documents = DocumentService.get_failed_documents_by_item_id(item_id)
         return SubmissionSchema(many=True).dump(documents), HTTPStatus.OK
