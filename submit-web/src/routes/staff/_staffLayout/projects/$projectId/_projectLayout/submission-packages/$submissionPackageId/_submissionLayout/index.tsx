@@ -124,13 +124,22 @@ export default function SubmissionPage() {
               <InfoBox submissionPackage={submissionPackage} />
               <Box
                 sx={{
+                  pt: BCDesignTokens.layoutMarginXlarge,
+                  mb: BCDesignTokens.layoutMarginLarge,
+                  width: "100%",
+                }}
+              >
+                <UpdateRequestWidget submissionPackage={submissionPackage} />
+              </Box>
+              <Box
+                sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,
-                  pt: BCDesignTokens.layoutPaddingSmall,
+                  pt: BCDesignTokens.layoutPaddingXsmall,
                 }}
               >
                 <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <UpdateRequestWidget submissionPackage={submissionPackage} />
+
               <Box
                 sx={{
                   pt: BCDesignTokens.layoutPaddingXlarge,

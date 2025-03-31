@@ -215,7 +215,10 @@ export const ConsultationRecordProponentView = () => {
             <Grid item xs={12}>
               <DocumentUploadSection />
             </Grid>
-            <UpdateRequestWidget submissionPackage={submissionPackage} />
+            {submissionPackage &&
+              submissionPackage?.update_requests?.length > 0 && (
+                <UpdateRequestWidget submissionPackage={submissionPackage} />
+              )}
             <ActionButtons saveAndClose={saveAndClose} />
           </Grid>
         </Form>

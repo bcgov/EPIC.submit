@@ -14,6 +14,9 @@ import ControlledTextField from "@/components/Shared/controlled/ControlledTextFi
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import WarningBox from "@/components/Shared/WarningBox";
+import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
+import Stack from "@mui/material/Stack";
 
 type AddRequestSectionProps = {
   readonly disabled?: boolean;
@@ -29,13 +32,13 @@ export default function AddRequestSection({
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getStaffSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey,
+    }).queryKey
   );
   const filteredItems = useMemo(() => {
     if (!submissionPackage?.items) return [];
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
     );
   }, [submissionPackage?.items]);
 
@@ -87,6 +90,15 @@ export default function AddRequestSection({
           decision.
         </FormHelperText>
       </Box>
+      <WarningBox mb={BCDesignTokens.layoutMarginXsmall}>
+        <Stack direction="row" alignItems="center" spacing={2}>
+          <PriorityHighIcon fontSize="large" />
+          <Typography variant="body1" color="inherit">
+            This request, including the EAO Comment, will be sent to the holder
+            after a Manager confirms the decision.
+          </Typography>
+        </Stack>
+      </WarningBox>
     </Box>
   );
 }
