@@ -1,4 +1,4 @@
-import { PackageStatus } from "@/models/Package";
+import { PACKAGE_STATUS, PackageStatus } from "@/models/Package";
 import {
   NON_CANONICAL_SUBMISSION_STATUS,
   SUBMISSION_ITEM_STATUS,
@@ -189,6 +189,15 @@ const statusStyles: Record<string, StyleProps> = {
       width: "157px",
     },
   },
+  PREVIOUSLY_FAILED: {
+    label: "Previously Failed",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+      background: BCDesignTokens.supportSurfaceColorDanger,
+      height: "24px",
+    },
+  },
 };
 
 type SubmissionStatusChipProps = Readonly<{
@@ -232,7 +241,7 @@ export const SubmissionStatusChipStack = ({
     } else if (userType === USER_TYPE.PROPONENT) {
       return (
         status === SUBMISSION_ITEM_STATUS.SUBMITTED.value &&
-        !packageStatus?.includes(SUBMISSION_ITEM_STATUS.SUBMITTED.value)
+        !packageStatus?.includes(PACKAGE_STATUS.SUBMITTED.value)
       );
     }
     return false;

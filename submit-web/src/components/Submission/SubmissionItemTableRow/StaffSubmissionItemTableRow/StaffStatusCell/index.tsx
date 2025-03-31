@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SUBMISSION_ITEM_TYPE, SubmissionItem } from "@/models/SubmissionItem";
@@ -21,7 +21,7 @@ export default function StaffStatusCell({
   submissionItem,
 }: StaffStatusCellProps) {
   const { submissionPackageId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
   });
 
   const { data: submissionPackage, isPending: isPackagePending } =
@@ -65,7 +65,7 @@ export default function StaffStatusCell({
   }
 
   return (
-    <Box mr={2}>
+    <Stack mr={2} direction={"column"} alignItems={"flex-end"} spacing={1}>
       <Switch>
         <Case
           condition={type.name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD}
@@ -87,6 +87,6 @@ export default function StaffStatusCell({
           />
         </Default>
       </Switch>
-    </Box>
+    </Stack>
   );
 }

@@ -202,19 +202,19 @@ export const getSubmissionVersions = (submissionId: number) => {
   });
 };
 
-export const getFailedSubmissions = (submissionItemId: number) => {
+export const getFailedSubmissionsByItemId = (submissionItemId: number) => {
   return submitRequest<Submission[]>({
-    url: `/submissions/failed/items/${submissionItemId}`,
+    url: `/staff/documents/failed/items/${submissionItemId}`,
   });
 };
 
-export const useGetFailedSubmissions = (
+export const useGetFailedSubmissionsByItemId = (
   submissionItemId: number,
   options?: Options,
 ) => {
   return useQuery({
     queryKey: [QUERY_KEY.FAILED_SUBMISSIONS, submissionItemId],
-    queryFn: () => getFailedSubmissions(submissionItemId),
+    queryFn: () => getFailedSubmissionsByItemId(submissionItemId),
     enabled: Boolean(submissionItemId),
     ...defaultUseQueryOptions,
     ...options,
