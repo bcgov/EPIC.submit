@@ -1,10 +1,10 @@
-import { Box } from "@mui/material";
+import { Box, BoxProps } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import React from "react";
 
 type WarningBoxProps = {
   children: React.ReactNode;
-};
+} & BoxProps;
 
 export default function WarningBox({ children }: WarningBoxProps) {
   return (

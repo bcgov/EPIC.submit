@@ -106,7 +106,7 @@ export default function AddRequestSection({
                 mb: BCDesignTokens.layoutMarginSmall,
               }}
             >
-              Request Note
+              EAO Comment
             </Typography>
             <ControlledTextField
               name="reason"

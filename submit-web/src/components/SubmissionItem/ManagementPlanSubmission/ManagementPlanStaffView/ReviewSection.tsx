@@ -1,4 +1,10 @@
-import { Grid, Divider, Typography } from "@mui/material";
+import {
+  Grid,
+  Divider,
+  Typography,
+  Box,
+  AccordionSummary,
+} from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -200,6 +206,50 @@ export default function ReviewSection() {
             </PermissionsGate>
             <NotesSection />
             <When condition={failedManagementPlan}>
+              <AccordionSummary
+                expandIcon={null}
+                aria-controls="panel1-content"
+                id="panel1-header"
+                sx={[
+                  {
+                    py: 0,
+                    borderRadius: "4px",
+                    border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+                    background: BCDesignTokens.themeGold10,
+                    borderBottomLeftRadius: 0,
+                    borderBottomRightRadius: 0,
+                  },
+                ]}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "space-between",
+                    justifyContent: "space-between",
+                    width: "100%",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                    }}
+                    width={"80%"}
+                  >
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: "#38598A",
+                        mr: BCDesignTokens.layoutMarginSmall,
+                        fontWeight: BCDesignTokens.typographyBoldBody,
+                      }}
+                    >
+                      Update & Revision Requests
+                    </Typography>
+                  </Box>
+                </Box>
+              </AccordionSummary>
               <AddRequestSection disabled={isFormDisabled} />
             </When>
             <NotificationBox />

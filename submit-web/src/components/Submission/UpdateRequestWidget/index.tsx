@@ -62,7 +62,7 @@ export default function UpdateRequestWidget({
           notify.error(
             isAxiosError(error)
               ? (error.response?.data.message ?? defaultMessage)
-              : defaultMessage,
+              : defaultMessage
           );
         },
       },
@@ -151,7 +151,7 @@ export default function UpdateRequestWidget({
                 fontWeight: BCDesignTokens.typographyBoldBody,
               }}
             >
-              Update Requests
+              Update & Revision Requests
             </Typography>
             <When condition={activeRequests.length > 0}>
               <Chip

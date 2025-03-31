@@ -33,7 +33,7 @@ import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -82,7 +82,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          }),
+          })
       )
     ) {
       setIsValidating(true);
@@ -106,14 +106,14 @@ export default function SubmissionPage() {
   const openRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-      updateRequest.active,
+      updateRequest.active
   );
 
   const openOrPendingRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
         updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
-      updateRequest.active,
+      updateRequest.active
   );
   const isSubmitDisabled =
     isPackageSubmitted && openOrPendingRequests.length === 0;
