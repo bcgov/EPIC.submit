@@ -11,7 +11,9 @@ export type NonCanonicalPackageStatus =
   | "REVISION_REQUIRED"
   | "UPDATED"
   | "NO_REVISION_REQUIRED"
+  | "RESUBMITTED"
   | "UPDATE_REQUESTED";
+
 export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   Record<NonCanonicalPackageStatus, NonCanonicalPackageStatus>
 >({
@@ -19,6 +21,7 @@ export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
   REVISION_REQUIRED: "REVISION_REQUIRED",
   UPDATED: "UPDATED",
   NO_REVISION_REQUIRED: "NO_REVISION_REQUIRED",
+  RESUBMITTED: "RESUBMITTED",
 });
 
 export type PackageStatus =
