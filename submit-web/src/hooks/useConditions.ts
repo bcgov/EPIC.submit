@@ -33,8 +33,12 @@ export const getConditionsQueryOptions = ({
 }: UseGetConditionParams) =>
   queryOptions({
     queryKey: [QUERY_KEY.SUBMISSION_ITEM, projectId],
-    queryFn: () =>
-      getConditions({ projectId, includeAttributes: includeAttributes }),
+    queryFn: async () => {
+      const conditions = await getConditions({ projectId, includeAttributes: includeAttributes });
+      return conditions.filter(
+        (condition) => condition.condition_attributes?.requires_management_plan === "true"
+      );
+    },
     enabled: enabled && Boolean(projectId),
   });
 
