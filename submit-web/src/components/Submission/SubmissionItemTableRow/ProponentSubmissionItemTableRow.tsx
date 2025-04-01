@@ -48,7 +48,7 @@ export default function ProponentSubmissionItemTableRow({
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey
+    }).queryKey,
   );
 
   const isUpdated = useMemo(() => {
@@ -56,7 +56,7 @@ export default function ProponentSubmissionItemTableRow({
     const last_update_request = submissionPackage.update_requests
       .filter(
         (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value
+          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value,
       )
       .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
 
@@ -64,9 +64,9 @@ export default function ProponentSubmissionItemTableRow({
     return Boolean(
       item.submissions.find((submission) =>
         dayjs(submission.created_date).isAfter(
-          last_update_request?.created_date
-        )
-      )
+          last_update_request?.created_date,
+        ),
+      ),
     );
   }, [item, submissionPackage]);
 
@@ -125,7 +125,7 @@ export default function ProponentSubmissionItemTableRow({
               submissionPackage?.submitted_on &&
               submissionPackage.update_requests.filter(
                 (updateRequest) =>
-                  updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value
+                  updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value,
               ).length === 0
             }
           >

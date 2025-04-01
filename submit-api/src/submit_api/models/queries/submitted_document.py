@@ -20,7 +20,7 @@ from submit_api.models.db import db
 from submit_api.models.item import Item
 from submit_api.models.package import Package
 from submit_api.models.project import Project
-from submit_api.models.submission import Submission, SubmissionType
+from submit_api.models.submission import Submission, SubmissionType, SubmissionStatus
 from submit_api.models.submitted_document import SubmittedDocument
 
 
@@ -78,3 +78,16 @@ class DocumentQueries:
                 Project.name.ilike(f"%{search_text}%")
             )
         )
+
+    @classmethod
+    def get_failed_documents_by_item_id(cls, item_id):
+        """Get all failed documents by item id."""
+        session = db.session
+
+        query = session.query(Submission).filter_by(
+            item_id=item_id,
+            type=SubmissionType.DOCUMENT,
+            status=SubmissionStatus.REJECTED
+        )
+
+        return query.all()
