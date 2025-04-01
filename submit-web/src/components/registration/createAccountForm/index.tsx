@@ -33,6 +33,7 @@ const createAccountSchema = yup.object().shape({
     .string()
     .email("Invalid email")
     .required("Please enter your email."),
+  extension_number: yup.string().optional(),
 });
 
 export type CreateAccountFormSchema = yup.InferType<typeof createAccountSchema>;
@@ -88,6 +89,7 @@ function CreateAccountForm() {
       work_email_address: data.email,
       auth_guid: user?.profile.sub,
       proponent_id: invitation.account_id,
+      extension_number: data.extension_number,
     };
     doCreateAccount(accountData);
   };
@@ -175,15 +177,31 @@ function CreateAccountForm() {
                     sx: { fontWeight: 700 },
                   }}
                 />
-                <ControlledInputMask
-                  name="phone"
-                  mask="(999) 999-9999"
-                  label="Your Work Phone Number"
-                  fullWidth
-                  InputLabelProps={{
-                    sx: { fontWeight: 700 },
-                  }}
-                />
+                <Grid item xs={12} container spacing={1}>
+                  <Grid item xs={8.5}>
+                    <ControlledInputMask
+                      name="phone"
+                      mask="(999) 999-9999"
+                      label="Your Work Phone Number"
+                      fullWidth
+                      InputLabelProps={{
+                        sx: { fontWeight: 700 },
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <ControlledInputMask
+                      name="extension_number"
+                      mask="9999"
+                      label="Ext."
+                      fullWidth
+                      sx={{ ml: 1 }}
+                      InputLabelProps={{
+                        sx: { fontWeight: 700 },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
                 <ControlledTextField
                   name="email"
                   label="Your Work Email Address"

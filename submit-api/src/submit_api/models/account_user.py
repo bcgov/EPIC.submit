@@ -26,7 +26,7 @@ class AccountUser(BaseModel):
     work_email_address = Column(db.String(100), nullable=False)
     work_contact_number = Column(db.String(50), nullable=False)
     user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False)
-
+    extension_number = Column(db.String(50), nullable=True)
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
     role = db.relationship('UserRole', back_populates='account_user', uselist=False)
@@ -43,6 +43,7 @@ class AccountUser(BaseModel):
             "work_email_address": self.work_email_address,
             "work_contact_number": self.work_contact_number,
             "user_id": self.user_id,
+            "extension_number": self.extension_number,
             "role": self.role.to_dict() if self.role else None,
         }
 
@@ -56,7 +57,8 @@ class AccountUser(BaseModel):
             position=data.get('position', None),
             work_email_address=data.get('work_email_address', None),
             work_contact_number=data.get('work_contact_number', None),
-            user_id=data.get('user_id', None)
+            user_id=data.get('user_id', None),
+            extension_number=data.get('extension_number', None)
         )
         if session:
             session.add(account_user)
