@@ -9,8 +9,9 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
-import { useState } from "react";
 import { When } from "react-if";
+import { useFormVisibilityStore } from "@/store/hideFormStore";
+import { FORM_TYPE } from "@/store/hideFormStore";
 
 const defaultFormData = {
   conditionSatisfied: "",
@@ -22,11 +23,16 @@ const defaultFormData = {
 
 interface FormFieldSectionProps {
   formData: Partial<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
+  submissionId: number;
 }
 
-export default function FormFieldSection({ formData }: FormFieldSectionProps) {
-  const [isHidden, setIsHidden] = useState(false);
+export default function FormFieldSection({
+  formData,
+  submissionId,
+}: FormFieldSectionProps) {
   const mergedFormData = { ...defaultFormData, ...formData };
+  const { getFormVisibility, setFormVisibility } = useFormVisibilityStore();
+  const isHidden = getFormVisibility(submissionId, FORM_TYPE.MANAGEMENT_PLAN);
 
   return (
     <>
@@ -46,7 +52,18 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
             Management Plan Requirements
           </Typography>
           <FormControlLabel
-            control={<Switch onChange={() => setIsHidden(!isHidden)} />}
+            control={
+              <Switch
+                checked={isHidden}
+                onChange={() =>
+                  setFormVisibility(
+                    submissionId,
+                    FORM_TYPE.MANAGEMENT_PLAN,
+                    !isHidden
+                  )
+                }
+              />
+            }
             label="Hide form"
           />
         </Grid>
