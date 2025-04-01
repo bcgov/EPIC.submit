@@ -169,7 +169,8 @@ class InvitationService:
             "work_email_address": payload.get("work_email_address"),
             "work_contact_number": payload.get("work_contact_number"),
             "position": payload.get("position"),
-            "user_id": user_id
+            "user_id": user_id,
+            "extension_number": payload.get("extension_number")
         }, session)
 
     @staticmethod

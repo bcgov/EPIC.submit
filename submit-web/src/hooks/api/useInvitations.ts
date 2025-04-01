@@ -46,7 +46,7 @@ const createInvitation = ({
 };
 
 const getInvitation = (token: string) => {
-  return publicRequest<Invitation>({ url: `/invitations/${token}` })
+  return publicRequest<Invitation>({ url: `/invitations/${token}` });
 };
 
 export const useGetInvitation = (token: string, enabled: boolean) => {
@@ -66,6 +66,7 @@ type CreateAccountRequest = {
   work_email_address: string;
   proponent_id: number;
   auth_guid: string;
+  extension_number?: string;
 };
 
 export type AcceptInvitationResponse = {
@@ -75,7 +76,7 @@ export type AcceptInvitationResponse = {
 };
 const acceptInvitation = (
   token: string | undefined,
-  data: CreateAccountRequest,
+  data: CreateAccountRequest
 ) => {
   if (!token) {
     return Promise.reject(new Error("Token is required"));

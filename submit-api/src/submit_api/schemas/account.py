@@ -33,3 +33,4 @@ class AccountCreateSchema(Schema):
     position = fields.Str(data_key="position")
     proponent_id = fields.Int(data_key="proponent_id")
     auth_guid = fields.Str(data_key="auth_guid")
+    extension_number = fields.Str(data_key="extension_number")
