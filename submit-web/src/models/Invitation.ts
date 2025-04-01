@@ -1,9 +1,9 @@
 import { Role } from "./AccountUser";
 
 export enum InvitationStatus {
-  PENDING = "pending",
-  USED = "used",
-  REVOKED = "revoked",
+  PENDING = "PENDING",
+  USED = "USED",
+  REVOKED = "REVOKED",
 }
 
 export type Invitation = {
