@@ -17,6 +17,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
+import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 
 type VersionGroupProps = Readonly<{
   currentPackageVersion: PackageVersion;
@@ -62,6 +63,10 @@ export default function VersionGroup({
     loadNewPackage(newPackageId);
   }
 
+  const last_approved_package_version = packageVersions?.find(
+    (packageVersion) => packageVersion.is_approved,
+  );
+
   if (isVersionsLoading) {
     return (
       <Stack direction="row" spacing={1}>
@@ -72,27 +77,32 @@ export default function VersionGroup({
   }
 
   return (
-    <>
+    <Stack direction="row" spacing={1}>
       <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={isLoading}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      {packageVersions?.map((version) => (
+      {packageVersions?.map((packageVersion) => (
         <Button
-          key={version.id}
-          color={packageId === version.package_id ? "primary" : "secondary"}
+          key={packageVersion.id}
+          color={
+            packageId === packageVersion.package_id ? "primary" : "secondary"
+          }
           sx={{
-            p: 0,
-            mr: 1,
-            minWidth: `34px`,
+            width: "auto",
           }}
-          onClick={() => handleUpdatePackageId(version.package_id)}
+          onClick={() => handleUpdatePackageId(packageVersion.package_id)}
+          startIcon={
+            packageVersion.id === last_approved_package_version?.id ? (
+              <GppGoodOutlinedIcon />
+            ) : undefined
+          }
         >
-          {version.version}
+          Package {packageVersion.version}
         </Button>
       ))}
-    </>
+    </Stack>
   );
 }

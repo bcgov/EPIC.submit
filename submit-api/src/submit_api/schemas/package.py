@@ -19,13 +19,20 @@ class PackageVersionSchema(Schema):
     """Schema for serializing individual package versions."""
 
     id = fields.Int(data_key="id")
-    package_id = fields.Method('get_package')
+    package_id = fields.Method('get_package_id')
     original_package_id = fields.Int(data_key="original_package_id")
     version = fields.Int(data_key="version")
+    is_approved = fields.Method('get_is_approved')
 
-    def get_package(self, obj):
-        """Get package."""
+    @staticmethod
+    def get_package_id(obj):
+        """Get package id."""
         return obj.package.id if obj.package else None
+
+    @staticmethod
+    def get_is_approved(obj):
+        """Get package id."""
+        return obj.package.completed_on is not None
 
 
 class PostPackageRequestSchema(Schema):

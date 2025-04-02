@@ -17,7 +17,7 @@ class PackageVersion(db.Model):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     original_package_id = Column(db.Integer, nullable=False)
     version = Column(db.Integer, nullable=False)
-    package = db.relationship('Package', lazy='select', uselist=False, overlaps="version")
+    package = db.relationship('Package', lazy='joined', uselist=False, overlaps="version")
 
     __table_args__ = (
         db.Index('idx_package_versions_original_package_id', original_package_id),
