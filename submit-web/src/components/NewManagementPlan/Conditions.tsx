@@ -21,7 +21,6 @@ import { Condition } from "@/models/Condition";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 
-const MAX_SUPPORTING_CONDITIONS = 4;
 const NUM_STEPS = Object.keys(MANAGEMENT_PLAN_FORM_STEPS).length;
 export const Conditions = () => {
   const { projectId } = useParams({
@@ -37,6 +36,8 @@ export const Conditions = () => {
     includeAttributes: true,
   });
 
+  const MAX_SUPPORTING_CONDITIONS = Math.min(4, (conditions?.length ?? 1) - 1);
+
   const { step, setStep, reset, formData, setFormData } =
     useManagementPlanForm();
 
@@ -50,9 +51,6 @@ export const Conditions = () => {
     ),
   );
 
-  const isConditionSelected = (condition: Condition) =>
-    mainCondition?.condition_number === condition?.condition_number ||
-    supportingConditions.some((c) => c === condition.condition_number);
 
   const [errorText, setErrorText] = useState<string | null>(null);
 
@@ -84,20 +82,21 @@ export const Conditions = () => {
   }, [mainCondition, supportingConditions]);
 
   const handleAnotherSupportingCondition = (
-    currentInput: number,
+    index: number,
     conditionName: string,
   ) => {
-    if (supportingConditions.length >= MAX_SUPPORTING_CONDITIONS) return;
+    if (supportingConditions.length > MAX_SUPPORTING_CONDITIONS) return;
     const newCondition = conditions?.find(
       (c) => c.condition_name === conditionName,
     );
 
     if (newCondition?.condition_number != null) {
-      setSupportingConditions((prev) =>
-        prev.map((c) =>
-          c === currentInput ? newCondition.condition_number! : c,
-        ),
-      );
+      setSupportingConditions((prevConditions) => {
+        const updatedConditions = [...prevConditions];
+        updatedConditions[index] =
+          conditions?.find((c) => c.condition_name === conditionName)?.condition_number ?? 0;
+        return updatedConditions;
+      });
     }
   };
 
@@ -161,14 +160,19 @@ export const Conditions = () => {
             }}
             value={mainCondition?.condition_name || ""}
           >
-            {conditions?.map((condition) => {
+            {conditions
+              ?.filter(
+                (condition) =>
+                  condition.condition_number !== null && // Ensure condition_number is not null
+                  !supportingConditions.includes(condition.condition_number)
+              )
+              .map((condition) => {
               const conditionLabel = `Condition ${condition.condition_number} - ${condition.condition_name}`;
 
               return (
                 <MenuItem
                   key={condition.condition_name || ""}
                   value={condition.condition_name || ""}
-                  disabled={isConditionSelected(condition)}
                 >
                   {conditionLabel}
                 </MenuItem>
@@ -184,7 +188,7 @@ export const Conditions = () => {
             What are the supporting conditions for this management plan?
           </Typography>
         </Grid>
-        {supportingConditions.map((input) => (
+        {supportingConditions.map((input, index) => (
           <Grid key={`input-${input}`} item xs={12} container spacing={1}>
             <Grid item xs md={6} lg={4} key={input}>
               {isLoading && !conditions ? (
@@ -197,7 +201,7 @@ export const Conditions = () => {
                   fullWidth
                   sx={{ marginBottom: "10px" }}
                   onChange={(e) => {
-                    handleAnotherSupportingCondition(input, e.target.value);
+                    handleAnotherSupportingCondition(index, e.target.value);
                     if (errorText) {
                       setErrorText(null);
                     }
@@ -207,15 +211,27 @@ export const Conditions = () => {
                       ?.condition_name || ""
                   }
                 >
-                  {conditions?.map((condition) => (
+                  {conditions?.filter(
+                    (condition) =>
+                      condition.condition_number !== mainCondition?.condition_number &&  // Exclude selected main condition
+                      condition.condition_number !== null &&  // Ensure condition_number is not null
+                      !supportingConditions.includes(condition.condition_number) // Exclude conditions already selected
+                  ).map((condition) => (
                     <MenuItem
                       key={condition.condition_name || ""}
                       value={condition.condition_name || ""}
-                      disabled={isConditionSelected(condition)}
                     >
                       {`Condition ${condition.condition_number} - ${condition.condition_name}`}
                     </MenuItem>
                   ))}
+                  {conditions?.find((c) => c.condition_name === (conditions?.find((c) => c.condition_number === input)?.condition_name || "")) && (
+                    <MenuItem
+                      key={conditions?.find((c) => c.condition_number === input)?.condition_name || ""}
+                      value={conditions?.find((c) => c.condition_number === input)?.condition_name || ""}
+                    >
+                      {`Condition ${conditions?.find((c) => c.condition_number === input)?.condition_number} - ${conditions?.find((c) => c.condition_number === input)?.condition_name}`}
+                    </MenuItem>
+                  )}
                 </TextField>
               )}
             </Grid>
