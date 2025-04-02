@@ -10,3 +10,24 @@ export default function BarTitle({ title }: { title: string }) {
     </Box>
   );
 }
+
+export function BarBlueTitle({
+  title,
+  fullWidth,
+}: {
+  title: string;
+  fullWidth: boolean;
+}) {
+  return (
+    <Typography
+      variant="h5"
+      color={BCDesignTokens.themeBlue100}
+      sx={{
+        width: fullWidth ? "100%" : "auto",
+        borderBottom: `2px solid ${BCDesignTokens.themeGold80}`,
+      }}
+    >
+      {title}
+    </Typography>
+  );
+}

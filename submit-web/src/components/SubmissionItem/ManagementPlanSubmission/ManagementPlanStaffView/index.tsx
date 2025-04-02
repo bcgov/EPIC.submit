@@ -15,7 +15,6 @@ const managementPlanSubmissionSchema = yup.object().shape({
   allRequirementsAddressed: yup
     .string()
     .required("Please answer this question."),
-  requirementsClear: yup.string().required("Please answer this question."),
   informationAccurate: yup.string().required("Please answer this question."),
   managementPlans: yup
     .array()
@@ -59,9 +58,6 @@ export const ManagementPlanSubmissionStaffView = () => {
       ),
       allRequirementsAddressed: booleanToString(
         formSubmission.submitted_form.submission_json.allRequirementsAddressed
-      ),
-      requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear
       ),
       informationAccurate: booleanToString(
         formSubmission.submitted_form.submission_json.informationAccurate

@@ -20,7 +20,7 @@ export default function InternalDocumentSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
-      .queryKey,
+      .queryKey
   );
   const internalStaffDocuments = useMemo(() => {
     return submissionItem?.internal_staff_documents || [];
