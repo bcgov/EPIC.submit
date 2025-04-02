@@ -205,7 +205,7 @@ export const ConsultationRecordProponentView = () => {
   return (
     <SubmissionFormContainer>
       <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(handleCompleteForm)}>
+        <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <FormFieldSection
               errors={errors}
