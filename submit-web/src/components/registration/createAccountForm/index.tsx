@@ -59,6 +59,9 @@ function CreateAccountForm() {
     queryClient.invalidateQueries({
       queryKey: [QUERY_KEY.USER_ACCOUNT_DATA],
     });
+    queryClient.invalidateQueries({
+      queryKey: [QUERY_KEY.ACCOUNT_USER],
+    });
     if (invitation?.is_first_time) {
       setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
     } else {
