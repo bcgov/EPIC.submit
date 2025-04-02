@@ -4,9 +4,9 @@ import { Grid } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/new-user",
+  "/proponent/_proponentLayout/user-management/_userManagementLayout/new-user"
 )({
-  meta: () => [{ title: "User Management" }],
+  meta: () => [{ title: "Add New User" }],
   component: () => (
     <PageGrid>
       <Grid item xs={12}>

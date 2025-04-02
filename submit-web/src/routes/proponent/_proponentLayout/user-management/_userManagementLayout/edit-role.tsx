@@ -4,10 +4,25 @@ import UpdateUserRole from "@/components/UserManagement/entity/EditUserProfile/U
 import { Grid } from "@mui/material";
 import { useUserStore } from "@/components/UserManagement/entity/userStore";
 
-export const Route = createFileRoute('/proponent/_proponentLayout/edit-role')({
+export const Route = createFileRoute(
+  "/proponent/_proponentLayout/user-management/_userManagementLayout/edit-role"
+)({
   component: UpdateUserRoleFormPage,
-  meta: () => [{ title: "Edit Role" }],
-})
+  loader: () => {
+    // Get the selected user from the store
+    const selectedUser = useUserStore.getState().selectedUser;
+    if (!selectedUser) {
+      throw new Error("No user selected");
+    }
+    return { selectedUser };
+  },
+  meta: ({ loaderData }) => [
+    {
+      title: `${loaderData.selectedUser.first_name} ${loaderData.selectedUser.last_name}`,
+      path: "/proponent/user-management/user-details",
+    },
+  ],
+});
 
 function UpdateUserRoleFormPage() {
   const { selectedUser } = useUserStore();

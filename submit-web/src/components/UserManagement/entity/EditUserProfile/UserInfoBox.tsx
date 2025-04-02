@@ -63,7 +63,7 @@ const UserInfoBox = ({ userData, showEdit }: UserInfoBoxProps) => {
 
   const navigate = useNavigate();
   const handleEditClick = () => {
-    navigate({ to: "/proponent/edit-role" });
+    navigate({ to: "/proponent/user-management/edit-role" });
   };
 
   return (
