@@ -5,7 +5,6 @@ import { AccountUserWithRole } from "@/models/AccountUser";
 import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "../../../../components/UserStatusChip";
-import { useUserStore } from "../userStore";
 import { useAccount } from "@/store/accountStore";
 
 interface UserDetailsProps {
@@ -16,7 +15,7 @@ function UserDetails({ user }: UserDetailsProps) {
   const [userData, setUserData] = useState(user);
   const account = useAccount();
 
-  const showEdit = account.id === user.account_id;
+  const showEdit = account.accountId !== user.account_id;
 
   useEffect(() => {
     setUserData(user);
