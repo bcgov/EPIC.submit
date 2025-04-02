@@ -5,6 +5,8 @@ import { AccountUserWithRole } from "@/models/AccountUser";
 import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "../../../../components/UserStatusChip";
+import { useUserStore } from "../userStore";
+import { useAccount } from "@/store/accountStore";
 
 interface UserDetailsProps {
   user: AccountUserWithRole;
@@ -12,52 +14,57 @@ interface UserDetailsProps {
 
 function UserDetails({ user }: UserDetailsProps) {
   const [userData, setUserData] = useState(user);
+  const account = useAccount();
+
+  const showEdit = account.id === user.account_id;
 
   useEffect(() => {
     setUserData(user);
   }, [user]);
 
   return (
-    <TableBox mainLabel={"User Management"} >
-        <Paper
-            sx={{
-                maxWidth: "1448px",
-                minHeight: "500px",
-                border: `1px solid ${BCDesignTokens.themeGray40}`,
-            }}
+    <TableBox mainLabel={"User Management"}>
+      <Paper
+        sx={{
+          maxWidth: "1448px",
+          minHeight: "500px",
+          border: `1px solid ${BCDesignTokens.themeGray40}`,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: "auto",
+            padding: "12px 20px",
+          }}
         >
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "auto",
-                    padding: "12px 20px",
-                }}
-            >
-            <Grid container direction="row" alignItems="center" spacing={1}>
-                <Grid item xs={10}>
-                    <Typography variant="h2" sx={{ fontWeight: 400 }}>
-                        {userData.full_name}
-                    </Typography>
-                </Grid>
-                <Grid
-                    item
-                    xs={2}
-                    sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-end",
-                        gap: 1,
-                    }}
-                >
-                    <Typography color={BCDesignTokens.themeGray70}>Status:</Typography>
-                    <UserStatusChip status={userData.status} />
-                </Grid>
+          <Grid container direction="row" alignItems="center" spacing={1}>
+            <Grid item xs={10}>
+              <Typography variant="h2" sx={{ fontWeight: 400 }}>
+                {userData.full_name}
+              </Typography>
             </Grid>
-            </Box>
-            <UserInfoBox userData={userData} showEdit={true} />
-        </Paper>
+            <Grid
+              item
+              xs={2}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+                gap: 1,
+              }}
+            >
+              <Typography color={BCDesignTokens.themeGray70}>
+                Status:
+              </Typography>
+              <UserStatusChip status={userData.status} />
+            </Grid>
+          </Grid>
+        </Box>
+        <UserInfoBox userData={userData} showEdit={showEdit} />
+      </Paper>
     </TableBox>
   );
 }
