@@ -76,7 +76,7 @@ export default function AddRequestSection({
 
   return (
     <FormProvider {...methods}>
-      <Form onSubmit={handleSubmit(onCreateUpdateRequest)}>
+      <Form onSubmit={handleSubmit(onCreateUpdateRequest)} methods={methods}>
         <Box>
           <Typography
             variant="body1"

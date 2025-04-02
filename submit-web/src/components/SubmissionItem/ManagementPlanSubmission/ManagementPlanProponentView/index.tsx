@@ -203,7 +203,7 @@ export const ManagementPlanSubmissionProponentView = () => {
   return (
     <SubmissionFormContainer>
       <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(handleCompleteForm)}>
+        <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <Grid item xs={12}>
               <Typography
