@@ -25,16 +25,17 @@ import { Route as ProponentProponentLayoutImport } from './routes/proponent/_pro
 import { Route as ProponentRegistrationIndexImport } from './routes/proponent/registration/index'
 import { Route as ProponentRegistrationCreateAccountImport } from './routes/proponent/registration/create-account'
 import { Route as ProponentRegistrationCompleteImport } from './routes/proponent/registration/complete'
-import { Route as ProponentProponentLayoutUserDetailsImport } from './routes/proponent/_proponentLayout/user-details'
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
-import { Route as ProponentProponentLayoutEditRoleImport } from './routes/proponent/_proponentLayout/edit-role'
-import { Route as ProponentProponentLayoutEditProfileImport } from './routes/proponent/_proponentLayout/edit-profile'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
 import { Route as StaffStaffLayoutInvitationsIndexImport } from './routes/staff/_staffLayout/invitations/index'
 import { Route as StaffStaffLayoutDocumentsIndexImport } from './routes/staff/_staffLayout/documents/index'
 import { Route as ProponentProponentLayoutUserManagementIndexImport } from './routes/proponent/_proponentLayout/user-management/index'
 import { Route as ProponentProponentLayoutProjectsIndexImport } from './routes/proponent/_proponentLayout/projects/index'
+import { Route as ProponentProponentLayoutUserManagementUserDetailsImport } from './routes/proponent/_proponentLayout/user-management/user-details'
+import { Route as ProponentProponentLayoutUserManagementProfileImport } from './routes/proponent/_proponentLayout/user-management/profile'
 import { Route as ProponentProponentLayoutUserManagementNewUserImport } from './routes/proponent/_proponentLayout/user-management/new-user'
+import { Route as ProponentProponentLayoutUserManagementEditRoleImport } from './routes/proponent/_proponentLayout/user-management/edit-role'
+import { Route as ProponentProponentLayoutUserManagementEditProfileImport } from './routes/proponent/_proponentLayout/user-management/edit-profile'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout'
 import { Route as StaffStaffLayoutInvitationsEntitiesProponentIdImport } from './routes/staff/_staffLayout/invitations/entities/$proponentId'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout'
@@ -156,27 +157,9 @@ const ProponentRegistrationCompleteRoute =
     getParentRoute: () => ProponentRoute,
   } as any)
 
-const ProponentProponentLayoutUserDetailsRoute =
-  ProponentProponentLayoutUserDetailsImport.update({
-    path: '/user-details',
-    getParentRoute: () => ProponentProponentLayoutRoute,
-  } as any)
-
 const ProponentProponentLayoutProfileRoute =
   ProponentProponentLayoutProfileImport.update({
     path: '/profile',
-    getParentRoute: () => ProponentProponentLayoutRoute,
-  } as any)
-
-const ProponentProponentLayoutEditRoleRoute =
-  ProponentProponentLayoutEditRoleImport.update({
-    path: '/edit-role',
-    getParentRoute: () => ProponentProponentLayoutRoute,
-  } as any)
-
-const ProponentProponentLayoutEditProfileRoute =
-  ProponentProponentLayoutEditProfileImport.update({
-    path: '/edit-profile',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
@@ -222,9 +205,33 @@ const ProponentProponentLayoutProjectsIndexRoute =
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
+const ProponentProponentLayoutUserManagementUserDetailsRoute =
+  ProponentProponentLayoutUserManagementUserDetailsImport.update({
+    path: '/user-management/user-details',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const ProponentProponentLayoutUserManagementProfileRoute =
+  ProponentProponentLayoutUserManagementProfileImport.update({
+    path: '/user-management/profile',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
 const ProponentProponentLayoutUserManagementNewUserRoute =
   ProponentProponentLayoutUserManagementNewUserImport.update({
     path: '/user-management/new-user',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const ProponentProponentLayoutUserManagementEditRoleRoute =
+  ProponentProponentLayoutUserManagementEditRoleImport.update({
+    path: '/user-management/edit-role',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
+
+const ProponentProponentLayoutUserManagementEditProfileRoute =
+  ProponentProponentLayoutUserManagementEditProfileImport.update({
+    path: '/user-management/edit-profile',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
 
@@ -420,32 +427,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OidcCallbackIndexImport
       parentRoute: typeof rootRoute
     }
-    '/proponent/_proponentLayout/edit-profile': {
-      id: '/proponent/_proponentLayout/edit-profile'
-      path: '/edit-profile'
-      fullPath: '/proponent/edit-profile'
-      preLoaderRoute: typeof ProponentProponentLayoutEditProfileImport
-      parentRoute: typeof ProponentProponentLayoutImport
-    }
-    '/proponent/_proponentLayout/edit-role': {
-      id: '/proponent/_proponentLayout/edit-role'
-      path: '/edit-role'
-      fullPath: '/proponent/edit-role'
-      preLoaderRoute: typeof ProponentProponentLayoutEditRoleImport
-      parentRoute: typeof ProponentProponentLayoutImport
-    }
     '/proponent/_proponentLayout/profile': {
       id: '/proponent/_proponentLayout/profile'
       path: '/profile'
       fullPath: '/proponent/profile'
       preLoaderRoute: typeof ProponentProponentLayoutProfileImport
-      parentRoute: typeof ProponentProponentLayoutImport
-    }
-    '/proponent/_proponentLayout/user-details': {
-      id: '/proponent/_proponentLayout/user-details'
-      path: '/user-details'
-      fullPath: '/proponent/user-details'
-      preLoaderRoute: typeof ProponentProponentLayoutUserDetailsImport
       parentRoute: typeof ProponentProponentLayoutImport
     }
     '/proponent/registration/complete': {
@@ -476,11 +462,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentRegistrationIndexImport
       parentRoute: typeof ProponentImport
     }
+    '/proponent/_proponentLayout/user-management/edit-profile': {
+      id: '/proponent/_proponentLayout/user-management/edit-profile'
+      path: '/user-management/edit-profile'
+      fullPath: '/proponent/user-management/edit-profile'
+      preLoaderRoute: typeof ProponentProponentLayoutUserManagementEditProfileImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
+    '/proponent/_proponentLayout/user-management/edit-role': {
+      id: '/proponent/_proponentLayout/user-management/edit-role'
+      path: '/user-management/edit-role'
+      fullPath: '/proponent/user-management/edit-role'
+      preLoaderRoute: typeof ProponentProponentLayoutUserManagementEditRoleImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
     '/proponent/_proponentLayout/user-management/new-user': {
       id: '/proponent/_proponentLayout/user-management/new-user'
       path: '/user-management/new-user'
       fullPath: '/proponent/user-management/new-user'
       preLoaderRoute: typeof ProponentProponentLayoutUserManagementNewUserImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
+    '/proponent/_proponentLayout/user-management/profile': {
+      id: '/proponent/_proponentLayout/user-management/profile'
+      path: '/user-management/profile'
+      fullPath: '/proponent/user-management/profile'
+      preLoaderRoute: typeof ProponentProponentLayoutUserManagementProfileImport
+      parentRoute: typeof ProponentProponentLayoutImport
+    }
+    '/proponent/_proponentLayout/user-management/user-details': {
+      id: '/proponent/_proponentLayout/user-management/user-details'
+      path: '/user-management/user-details'
+      fullPath: '/proponent/user-management/user-details'
+      preLoaderRoute: typeof ProponentProponentLayoutUserManagementUserDetailsImport
       parentRoute: typeof ProponentProponentLayoutImport
     }
     '/proponent/_proponentLayout/projects/': {
@@ -643,12 +657,13 @@ export const routeTree = rootRoute.addChildren({
   NotFoundRoute,
   ProponentRoute: ProponentRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
-      ProponentProponentLayoutEditProfileRoute,
-      ProponentProponentLayoutEditRoleRoute,
       ProponentProponentLayoutProfileRoute,
-      ProponentProponentLayoutUserDetailsRoute,
       ProponentProponentLayoutAboutpageLazyRoute,
+      ProponentProponentLayoutUserManagementEditProfileRoute,
+      ProponentProponentLayoutUserManagementEditRoleRoute,
       ProponentProponentLayoutUserManagementNewUserRoute,
+      ProponentProponentLayoutUserManagementProfileRoute,
+      ProponentProponentLayoutUserManagementUserDetailsRoute,
       ProponentProponentLayoutProjectsIndexRoute,
       ProponentProponentLayoutUserManagementIndexRoute,
       ProponentProponentLayoutProjectsProjectIdRoute:
@@ -755,12 +770,13 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent/_proponentLayout.tsx",
       "parent": "/proponent",
       "children": [
-        "/proponent/_proponentLayout/edit-profile",
-        "/proponent/_proponentLayout/edit-role",
         "/proponent/_proponentLayout/profile",
-        "/proponent/_proponentLayout/user-details",
         "/proponent/_proponentLayout/aboutpage",
+        "/proponent/_proponentLayout/user-management/edit-profile",
+        "/proponent/_proponentLayout/user-management/edit-role",
         "/proponent/_proponentLayout/user-management/new-user",
+        "/proponent/_proponentLayout/user-management/profile",
+        "/proponent/_proponentLayout/user-management/user-details",
         "/proponent/_proponentLayout/projects/",
         "/proponent/_proponentLayout/user-management/",
         "/proponent/_proponentLayout/projects/$projectId"
@@ -791,20 +807,8 @@ export const routeTree = rootRoute.addChildren({
     "/oidc-callback/": {
       "filePath": "oidc-callback/index.tsx"
     },
-    "/proponent/_proponentLayout/edit-profile": {
-      "filePath": "proponent/_proponentLayout/edit-profile.tsx",
-      "parent": "/proponent/_proponentLayout"
-    },
-    "/proponent/_proponentLayout/edit-role": {
-      "filePath": "proponent/_proponentLayout/edit-role.tsx",
-      "parent": "/proponent/_proponentLayout"
-    },
     "/proponent/_proponentLayout/profile": {
       "filePath": "proponent/_proponentLayout/profile.tsx",
-      "parent": "/proponent/_proponentLayout"
-    },
-    "/proponent/_proponentLayout/user-details": {
-      "filePath": "proponent/_proponentLayout/user-details.tsx",
       "parent": "/proponent/_proponentLayout"
     },
     "/proponent/registration/complete": {
@@ -823,8 +827,24 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent/registration/index.tsx",
       "parent": "/proponent"
     },
+    "/proponent/_proponentLayout/user-management/edit-profile": {
+      "filePath": "proponent/_proponentLayout/user-management/edit-profile.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
+    "/proponent/_proponentLayout/user-management/edit-role": {
+      "filePath": "proponent/_proponentLayout/user-management/edit-role.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
     "/proponent/_proponentLayout/user-management/new-user": {
       "filePath": "proponent/_proponentLayout/user-management/new-user.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
+    "/proponent/_proponentLayout/user-management/profile": {
+      "filePath": "proponent/_proponentLayout/user-management/profile.tsx",
+      "parent": "/proponent/_proponentLayout"
+    },
+    "/proponent/_proponentLayout/user-management/user-details": {
+      "filePath": "proponent/_proponentLayout/user-management/user-details.tsx",
       "parent": "/proponent/_proponentLayout"
     },
     "/proponent/_proponentLayout/projects/": {
