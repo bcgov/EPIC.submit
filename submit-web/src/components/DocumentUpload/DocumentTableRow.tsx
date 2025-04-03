@@ -132,7 +132,11 @@ export default function DocumentTableRow({
     if (!formFieldName) return;
 
     const prev = getValues(formFieldName) as string[]; // get the current array
-    const newValue = prev.filter((url) => url !== submitted_document.url); // update it
+    const newValue = prev.filter(
+      (value) =>
+        value !== submitted_document.url && // filter out URL for uploaded documents
+        value !== submitted_document.name // filter out filename for pending documents
+    );
 
     setValue(formFieldName, newValue, { shouldValidate: true });
     await trigger(formFieldName);
