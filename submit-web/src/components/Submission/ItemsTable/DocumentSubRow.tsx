@@ -61,7 +61,6 @@ export default function DocumentSubRow({
       </SubmitTableCell>
       <SubmitTableCell align="right" width={"10%"}>
         {version}
-        <span style={{ marginRight: "40px" }} />
       </SubmitTableCell>
       <SubmitTableCell align="right" width={"20%"}>
         <StatusCell submittedDocument={documentSubmission} />

@@ -36,6 +36,8 @@ class ItemSubmissionSchema(Schema):
     created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
+    minor_version = fields.Int(data_key="minor_version")
+    major_version = fields.Int(data_key="major_version")
     status = fields.Enum(data_key="status", enum=SubmissionStatus)
 
     @pre_dump

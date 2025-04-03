@@ -35,6 +35,10 @@ export const SubmitTableCell = styled(TableCell)(() => ({
   },
 }));
 
+export const SubmitTableRow = styled(TableRow)(() => ({
+  height: "40px",
+}));
+
 export const PlainTableCell = styled(TableCell)(() => ({
   borderTop: `1px solid ${BCDesignTokens.themeGray40}`,
   borderBottom: `1px solid ${BCDesignTokens.themeGray40}`,
