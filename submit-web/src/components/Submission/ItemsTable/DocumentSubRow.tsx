@@ -3,10 +3,7 @@ import { Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
-import {
-  SubmitSubTableCell,
-  SubmitTableCell,
-} from "@/components/Shared/Table/common";
+import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { StatusCell } from "../DocumentRow/StatusCell";
 
 type DocumentRowProps = Readonly<{

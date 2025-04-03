@@ -1,13 +1,4 @@
-import {
-  Box,
-  Table,
-  TableBody,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-} from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Box, Table, TableBody, TableContainer } from "@mui/material";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import { When } from "react-if";
@@ -15,7 +6,6 @@ import { SubmissionPackage } from "@/models/Package";
 import { useFileStore } from "@/store/fileStore";
 import { useEffect } from "react";
 import SubmissionItemTableRow from "../SubmissionItemTableRow";
-import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import { isSubmissionItemReadyToSubmit } from "../utils";
 import InternalDocumentsRows from "../../SubmissionItem/InternalDocuments/Rows";
 import { usePackageTableStore } from "../packageTableStore";
