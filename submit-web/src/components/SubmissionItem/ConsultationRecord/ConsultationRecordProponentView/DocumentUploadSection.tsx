@@ -124,7 +124,7 @@ export const DocumentUploadSection = () => {
             documents={files}
             pendingDocuments={pendingFiles}
             header={"Consultation Record(s)"}
-            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS}`}
+            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS}/`}
             formFieldName={"consultationRecords"}
           />
         </Box>

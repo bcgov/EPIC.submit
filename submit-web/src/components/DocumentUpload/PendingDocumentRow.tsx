@@ -54,7 +54,7 @@ export default function PendingDocumentRow({
 
       const documentData = {
         name: documentItem.file.name,
-        url: uploadedFile.filepath,
+        url: uploadedFile,
         folder: documentItem.folder,
       };
       const documentSubmission = await createSubmission(Number(subItemId), {

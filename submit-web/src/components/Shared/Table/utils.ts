@@ -35,7 +35,7 @@ export const getObjectFromS3 = async ({
     filename: name,
     s3sourceuri: url,
   });
-  const linkUrl = window.URL.createObjectURL(new Blob([response.data]));
+  const linkUrl = window.URL.createObjectURL(new Blob([response]));
   const link = document.createElement("a");
   link.href = linkUrl;
   link.setAttribute("download", name);
