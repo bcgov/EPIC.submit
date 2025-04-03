@@ -78,6 +78,7 @@ export default function DocumentTable({
             <DocumentTableRow
               key={`custom-row-${document.id}`}
               documentItem={document}
+              formFieldName={"consultationRecords"}
             />
           ))}
           {pendingDocuments?.map((document) => (
