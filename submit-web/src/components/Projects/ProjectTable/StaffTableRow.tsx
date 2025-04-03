@@ -65,6 +65,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
                 alignItems: "center",
                 color: BCDesignTokens.themeBlue90,
                 textDecoration: "none",
+                width: "fit-content",
               }}
               onClick={onSubmissionClick}
               disabled={
