@@ -4,9 +4,28 @@ import UserDetails from "@/components/UserManagement/entity/EditUserProfile/User
 import { Grid } from "@mui/material";
 import { useUserStore } from "@/components/UserManagement/entity/userStore";
 
-export const Route = createFileRoute("/proponent/_proponentLayout/user-details")({
+export const Route = createFileRoute(
+  "/proponent/_proponentLayout/user-management/user-details"
+)({
   component: ProfileEditPage,
-  meta: () => [{ title: "User Details" }],
+  loader: () => {
+    // Get the selected user from the store
+    const selectedUser = useUserStore.getState().selectedUser;
+    if (!selectedUser) {
+      throw new Error("No user selected");
+    }
+    return { selectedUser };
+  },
+  meta: ({ loaderData }) => [
+    {
+      title: "User Management",
+      path: "/proponent/user-management",
+    },
+    {
+      title: `${loaderData.selectedUser.first_name} ${loaderData.selectedUser.last_name}`,
+      path: "/proponent/user-management/user-details",
+    },
+  ],
 });
 
 function ProfileEditPage() {

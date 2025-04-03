@@ -8,9 +8,14 @@ import { PageLoader } from "@/components/Shared/PageLoader";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Grid } from "@mui/material";
 
-export const Route = createFileRoute("/proponent/_proponentLayout/edit-profile")({
+export const Route = createFileRoute(
+  "/proponent/_proponentLayout/user-management/edit-profile"
+)({
   component: ProfileEditPage,
-  meta: () => [{ title: "Edit Profile" }],
+  meta: () => [
+    { title: "User Management", path: "/proponent/user-management" },
+    { title: "Edit Profile", path: "/proponent/user-management/edit-profile" },
+  ],
 });
 
 function ProfileEditPage() {
@@ -24,9 +29,9 @@ function ProfileEditPage() {
   });
 
   useEffect(() => {
-  if (isUsersError) {
-    notify.error("Failed to load user profile");
-  }
+    if (isUsersError) {
+      notify.error("Failed to load user profile");
+    }
   }, [isUsersError]);
 
   if (isUsersError) {
