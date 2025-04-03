@@ -1,14 +1,18 @@
 import {
+  Box,
   CircularProgress,
   Table,
   TableBody,
   TableCell,
   TableRow,
+  Typography,
 } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { useGetSubmissionVersions } from "@/hooks/api/useSubmissions";
 import DocumentSubRow from "./DocumentSubRow";
 import { useMemo } from "react";
+import TableHead from "@/components/Projects/ProjectTable/TableHead";
+import ItemsTableHead from "./ItemsTableHead";
 
 type DocumentsSubTableProps = Readonly<{
   submission: Submission;
@@ -51,12 +55,21 @@ export default function DocumentsSubTable({
   }
 
   return (
-    <Table sx={{ tableLayout: "fixed" }}>
-      <TableBody>
-        {filteredSubmissions?.map((submission) => (
-          <DocumentSubRow key={submission.id} documentSubmission={submission} />
-        ))}
-      </TableBody>
-    </Table>
+    <Box sx={{ padding: "1em" }}>
+      <Typography variant="h6" gutterBottom>
+        Previous Submitted Versions
+      </Typography>
+      <Table sx={{ tableLayout: "fixed" }}>
+        <ItemsTableHead />
+        <TableBody>
+          {filteredSubmissions?.map((submission) => (
+            <DocumentSubRow
+              key={submission.id}
+              documentSubmission={submission}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </Box>
   );
 }

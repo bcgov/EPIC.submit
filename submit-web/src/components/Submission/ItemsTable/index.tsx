@@ -19,6 +19,7 @@ import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import { isSubmissionItemReadyToSubmit } from "../utils";
 import InternalDocumentsRows from "../../SubmissionItem/InternalDocuments/Rows";
 import { usePackageTableStore } from "../packageTableStore";
+import ItemsTableHead from "./ItemsTableHead";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
@@ -40,41 +41,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table sx={{ tableLayout: "fixed" }}>
-        <TableHead
-          sx={{
-            ".MuiTableCell-root": {
-              p: BCDesignTokens.layoutPaddingXsmall,
-            },
-          }}
-        >
-          <TableRow>
-            <SubmitTableHeadCell width={"50%"}>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: BCDesignTokens.themeGray70,
-                  "&:hover": {
-                    color: "#EDEBE9",
-                  },
-                }}
-              >
-                Form/Document
-              </Typography>
-            </SubmitTableHeadCell>
-            <SubmitTableHeadCell width={"10%"} align="left">
-              Uploaded by
-            </SubmitTableHeadCell>
-            <SubmitTableHeadCell width={"10%"} align="right">
-              Version
-            </SubmitTableHeadCell>
-            <SubmitTableHeadCell width={"20%"} align="center">
-              Status
-            </SubmitTableHeadCell>
-            <SubmitTableHeadCell width={"10%"} align="left">
-              Actions
-            </SubmitTableHeadCell>
-          </TableRow>
-        </TableHead>
+        <ItemsTableHead />
         <TableBody>
           {submissionItems?.map((subItem) => (
             <SubmissionItemTableRow
