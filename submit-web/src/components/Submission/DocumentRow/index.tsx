@@ -59,7 +59,10 @@ export default function DocumentRow({
   return (
     <>
       <SubmitTableRow
-        sx={{ "& > *": { borderBottom: "unset" }, height: "36px" }}
+        sx={[
+          { height: "40px" },
+          expanded && { "& > *": { borderBottom: "unset" } },
+        ]}
       >
         <SubmitTableCell width={"50%"}>
           <Typography
@@ -107,16 +110,16 @@ export default function DocumentRow({
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"10%"}></SubmitTableCell>
       </SubmitTableRow>
-      <TableRow>
-        <SubmitTableCell
-          colSpan={6}
-          style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
-        >
-          <Collapse in={expanded} mountOnEnter unmountOnExit>
+      {expanded && (
+        <TableRow>
+          <SubmitTableCell
+            colSpan={6}
+            style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
+          >
             <DocumentsSubTable submission={documentSubmission} />
-          </Collapse>
-        </SubmitTableCell>
-      </TableRow>
+          </SubmitTableCell>
+        </TableRow>
+      )}
     </>
   );
 }
