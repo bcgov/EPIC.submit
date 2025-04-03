@@ -63,6 +63,7 @@ export const SubmitTableContainer = styled(TableContainer)(() => ({
 }));
 
 const StyledTableRow = styled(TableRow)<{ error?: boolean }>(({ error }) => ({
+  height: "40px",
   backgroundColor: error
     ? BCDesignTokens.supportSurfaceColorDanger
     : BCDesignTokens.themeBlue10,
