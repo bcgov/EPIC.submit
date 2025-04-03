@@ -15,24 +15,27 @@ export const ControlledFileUpload = ({
     control,
     formState: { errors },
     getValues,
+    setValue,
   } = useFormContext();
 
   const error = get(errors, name);
   const helperText = error?.message?.toString() ?? "";
 
-  const fileUploadValues: string[] = getValues(name) ?? [];
-
   return (
     <Controller
       name={name}
       control={control}
-      render={({ field }) => (
+      render={() => (
         <Stack direction={"column"} spacing={1}>
           <FileUpload
             {...otherProps}
             onDrop={(acceptedFiles: File[]) => {
               if (acceptedFiles.length === 0) return;
-              field.onChange([...fileUploadValues, acceptedFiles[0].name]);
+              // Get current values and add the new file
+              const currentValues = getValues(name) || [];
+              setValue(name, [...currentValues, acceptedFiles[0].name], {
+                shouldValidate: true,
+              });
               onDrop(acceptedFiles);
             }}
             error={Boolean(error)}

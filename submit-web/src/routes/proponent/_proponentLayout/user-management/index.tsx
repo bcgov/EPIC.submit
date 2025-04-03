@@ -11,10 +11,10 @@ import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/",
+  "/proponent/_proponentLayout/user-management/"
 )({
   component: UsersPage,
-  meta: () => [{ title: "Invitations" }],
+  meta: () => [{ title: "User Management" }],
   beforeLoad: async ({ context: { account } }) => {
     if (
       !account.isLoading &&

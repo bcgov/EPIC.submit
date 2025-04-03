@@ -22,18 +22,17 @@ export const DocumentUploadSection = () => {
   });
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
-    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) }).queryKey
   );
   const getDocumentSubmissions = useCallback(() => {
     if (!submissionItem) return [];
     return submissionItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT
     );
   }, [submissionItem]);
 
   const accountProject = queryClient.getQueryData<AccountProject>(
-    getAccountProjectQueryOptions(Number(projectId)).queryKey,
+    getAccountProjectQueryOptions(Number(projectId)).queryKey
   );
 
   const { reset, addPendingFile, initializeFiles, files, pendingFiles } =
@@ -54,7 +53,7 @@ export const DocumentUploadSection = () => {
 
     addPendingFile(
       file,
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
+      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS
     );
   };
 
@@ -126,6 +125,7 @@ export const DocumentUploadSection = () => {
             pendingDocuments={pendingFiles}
             header={"Consultation Record(s)"}
             folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS}`}
+            formFieldName={"consultationRecords"}
           />
         </Box>
       </Grid>
