@@ -73,7 +73,6 @@ export const requestAxios = async ({ ...options }) => {
     return response?.data ?? response.data;
   } catch (error) {
     if (!axios.isAxiosError(error)) {
-      console.error("Unexpected error:", error);
       throw new Error("Unexpected error occurred!");
     }
 
