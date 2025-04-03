@@ -9,10 +9,13 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Grid } from "@mui/material";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/_userManagementLayout/edit-profile"
+  "/proponent/_proponentLayout/user-management/edit-profile"
 )({
   component: ProfileEditPage,
-  meta: () => [{ title: "Edit Profile" }],
+  meta: () => [
+    { title: "User Management", path: "/proponent/user-management" },
+    { title: "Edit Profile", path: "/proponent/user-management/edit-profile" },
+  ],
 });
 
 function ProfileEditPage() {

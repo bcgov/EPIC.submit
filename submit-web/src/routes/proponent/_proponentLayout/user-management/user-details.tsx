@@ -1,13 +1,13 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import UpdateUserRole from "@/components/UserManagement/entity/EditUserProfile/UpdateUserRoleForm";
+import UserDetails from "@/components/UserManagement/entity/EditUserProfile/UserDetails";
 import { Grid } from "@mui/material";
 import { useUserStore } from "@/components/UserManagement/entity/userStore";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/_userManagementLayout/edit-role"
+  "/proponent/_proponentLayout/user-management/user-details"
 )({
-  component: UpdateUserRoleFormPage,
+  component: ProfileEditPage,
   loader: () => {
     // Get the selected user from the store
     const selectedUser = useUserStore.getState().selectedUser;
@@ -18,13 +18,17 @@ export const Route = createFileRoute(
   },
   meta: ({ loaderData }) => [
     {
+      title: "User Management",
+      path: "/proponent/user-management",
+    },
+    {
       title: `${loaderData.selectedUser.first_name} ${loaderData.selectedUser.last_name}`,
       path: "/proponent/user-management/user-details",
     },
   ],
 });
 
-function UpdateUserRoleFormPage() {
+function ProfileEditPage() {
   const { selectedUser } = useUserStore();
 
   if (!selectedUser) {
@@ -34,7 +38,7 @@ function UpdateUserRoleFormPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <UpdateUserRole userData={selectedUser} />
+        <UserDetails user={selectedUser} />
       </Grid>
     </PageGrid>
   );
