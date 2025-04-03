@@ -14,6 +14,7 @@ import { Submission } from "@/models/Submission";
 import { LoadingButton } from "../Shared/LoadingButton";
 import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
 import { useFileStore } from "@/store/fileStore";
+import { useFormContext } from "react-hook-form";
 
 export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   ({ error }) => ({
@@ -38,7 +39,7 @@ export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
     },
-  }),
+  })
 );
 
 export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
@@ -49,7 +50,7 @@ export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
     "&:hover": {
       backgroundColor: BCDesignTokens.themeBlue40,
     },
-  }),
+  })
 );
 
 export const DocumentTableCell = styled(TableCell)(() => ({
@@ -80,7 +81,7 @@ export const PackageTableRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any)
-      : child,
+      : child
   );
 
   return <StyledTableRow {...otherProps}>{childrenWithProps}</StyledTableRow>;
@@ -89,15 +90,17 @@ export const PackageTableRow = ({
 type DocumentTableRowProps = Readonly<{
   documentItem: Submission;
   error?: boolean;
+  formFieldName?: string;
 }>;
 export default function DocumentTableRow({
   documentItem,
   error = false,
+  formFieldName,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
-
+  const { setValue, trigger, getValues } = useFormContext(); // Get form context directly
   const { removeFile } = useFileStore();
 
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
@@ -125,12 +128,29 @@ export default function DocumentTableRow({
     }
   };
 
+  const updateFormField = async () => {
+    if (!formFieldName) return;
+
+    const prev = getValues(formFieldName) as string[]; // get the current array
+    const newValue = prev.filter(
+      (value) =>
+        value !== submitted_document.url && // filter out URL for uploaded documents
+        value !== submitted_document.name // filter out filename for pending documents
+    );
+
+    setValue(formFieldName, newValue, { shouldValidate: true });
+    await trigger(formFieldName);
+  };
+
   const onRemoveClick = async () => {
     try {
       setIsRemovingDocument(true);
       await deleteDocument({ filepath: submitted_document.url });
       await deleteSubmission(documentItem.id);
       removeFile(documentItem.id);
+
+      // Update form if field name is provided
+      await updateFormField();
     } catch (e) {
       notify.error("Failed to remove document");
     } finally {
