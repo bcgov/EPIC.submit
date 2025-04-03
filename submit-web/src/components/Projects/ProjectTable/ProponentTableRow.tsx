@@ -33,6 +33,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
               alignItems: "center",
               color: BCDesignTokens.themeBlue90,
               textDecoration: "none",
+              width: "fit-content",
             }}
             onClick={onSubmissionClick}
           >
