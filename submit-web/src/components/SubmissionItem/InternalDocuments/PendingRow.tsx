@@ -5,7 +5,6 @@ import {
   Typography,
 } from "@mui/material";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
-import { UploadObject } from "@/store/documentUploadStore";
 import { useEffect, useState } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
@@ -14,6 +13,14 @@ import { useParams } from "@tanstack/react-router";
 import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
 import { useFileStore } from "@/store/fileStore";
 import { useMounted } from "@/hooks/common";
+
+export type UploadObject = {
+  id: number;
+  file: File;
+  folder?: string;
+  pending?: boolean;
+  submissionId?: number;
+};
 
 type RowProps = Readonly<{
   pendingDocument: UploadObject;
@@ -51,13 +58,13 @@ export default function PendingRow({
         file: pendingDocument.file,
         fileDetails: {
           filename: pendingDocument.file.name,
-          folder: `${S3_FOLDER.INTERNAL_STAFF_DOCUMENTS}/${S3_FOLDER.MANAGEMENT_PLANS}`,
+          folder: `${S3_FOLDER.INTERNAL_STAFF_DOCUMENTS}/${S3_FOLDER.MANAGEMENT_PLANS}/`,
         },
       });
 
       const documentData = {
         name: pendingDocument.file.name,
-        url: uploadedFile.filepath,
+        url: uploadedFile,
         type: INTERNAL_STAFF_DOCUMENT_TYPE.S3,
       };
       const createdInternalStaff = await createInternalStaffDocument({

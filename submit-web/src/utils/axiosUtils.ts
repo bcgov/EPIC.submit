@@ -1,6 +1,7 @@
 import { AppConfig, OidcConfig } from "@/utils/config";
 import axios, { AxiosError, AxiosInstance } from "axios";
 import { User } from "oidc-client-ts";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 export type OnErrorType = (error: AxiosError) => void;
 export type OnSuccessType = (data: any) => void;
@@ -10,6 +11,7 @@ const documentClient = axios.create({ baseURL: AppConfig.documentUrl });
 const conditionLibraryClient = axios.create({
   baseURL: AppConfig.conditionsLibraryUrl,
 });
+const axiosClient = axios.create();
 
 function getUser() {
   const oidcStorage = sessionStorage.getItem(
@@ -62,32 +64,26 @@ export const documentRequest = async <T = any>({ ...options }) => {
   return response.data;
 };
 
-type OSSRequestOptions = {
-  amzDate: string;
-  authHeader: string;
+type ErrorResponseData = {
+  message: string;
 };
-export const OSSGetRequest = <T>(
-  url: string,
-  requestOptions: OSSRequestOptions,
-) => {
-  return axios.get<T>(url, {
-    headers: {
-      "X-Amz-Date": requestOptions.amzDate,
-      Authorization: requestOptions.authHeader,
-    },
-    responseType: "blob",
-  });
-};
+export const requestAxios = async ({ ...options }) => {
+  try {
+    const response = await axiosClient(options); // Use the global instance
+    return response?.data ?? response.data;
+  } catch (error) {
+    if (!axios.isAxiosError(error)) {
+      throw new Error("Unexpected error occurred!");
+    }
 
-export const OSSPutRequest = <T>(
-  url: string,
-  data: File,
-  requestOptions: OSSRequestOptions,
-) => {
-  return axios.put<T>(url, data, {
-    headers: {
-      "X-Amz-Date": requestOptions.amzDate,
-      Authorization: requestOptions.authHeader,
-    },
-  });
+    if (!error.response) {
+      notify.error("Network error or CORS issue");
+      throw new Error("Network error or CORS issue");
+    } else {
+      notify.error(
+        (error.response?.data as ErrorResponseData)?.message ?? error.message ?? "API Error!"
+      );
+    }
+    throw error;
+  }
 };

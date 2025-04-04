@@ -149,7 +149,7 @@ export const DocumentUploadSection = () => {
             header={"Management Plan"}
             documents={managementPlanDocuments}
             pendingDocuments={pendingManagementPlanDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}`}
+            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}/`}
             formFieldName={"managementPlans"}
           />
         </Box>
@@ -196,7 +196,7 @@ export const DocumentUploadSection = () => {
             formFieldName={"supportingDocuments"}
             documents={supportingDocuments}
             pendingDocuments={pendingSupportingDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}`}
+            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}/`}
           />
         </Box>
       </Grid>

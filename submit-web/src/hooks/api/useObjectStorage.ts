@@ -1,10 +1,4 @@
-import {
-  documentRequest,
-  OSSGetRequest,
-  OSSPutRequest,
-} from "@/utils/axiosUtils";
-import { useMutation } from "@tanstack/react-query";
-import { Options } from "./types";
+import { documentRequest, requestAxios } from "@/utils/axiosUtils";
 
 export const S3_FOLDER = {
   INTERNAL_STAFF_DOCUMENTS: "internal_staff_documents",
@@ -14,48 +8,50 @@ export const S3_FOLDER = {
   SUBMISSIONS: "submissions",
 };
 
-export type ObjectStorageHeaderDetails = {
-  filename: string;
-  filepath: string;
-  authheader: string;
-  amzdate: string;
-  uniquefilename: string;
-};
-
 type AuthHeaderRequestData = {
   filename: string;
   s3sourceuri?: string;
   folder?: string;
 };
-const createAuthHeaders = (data: AuthHeaderRequestData) => {
-  return documentRequest<ObjectStorageHeaderDetails>({
-    url: `/objects`,
+
+enum PresignedUrlAction {
+  GET = "GET",
+  PUT = "PUT",
+  DELETE = "DELETE",
+}
+
+type PresignedUrlRequestPayload = {
+  relative_url?: string;
+  action?: string;
+};
+const fetchPresignedUrl = async (requestPayload: PresignedUrlRequestPayload) => {
+  const response = await documentRequest({
+    url: "/storage-operations/presigned-urls",
+    params: { "public-read": true },
     method: "post",
-    data,
+    data: requestPayload,
+  });
+
+  if (!response?.presigned_url) {
+    throw new Error("Failed to fetch pre-signed URL");
+  }
+  
+  return response;
+};
+
+const uploadObject = (presignedUrl: string, file: File) => {
+  return requestAxios({
+    url: presignedUrl,
+    method: "put",
+    data: file,
+    headers: {
+      "Content-Type": "application/octet-stream",
+      "x-amz-acl": "public-read",
+    },
   });
 };
 
-type DeleteDocumentProps = {
-  filepath: string;
-};
-export const deleteDocument = (data: DeleteDocumentProps) => {
-  return documentRequest({
-    url: `/objects`,
-    method: "delete",
-    data,
-  });
-};
-
-const uploadObject = (
-  headerDetails: ObjectStorageHeaderDetails,
-  file: File,
-) => {
-  return OSSPutRequest(headerDetails.filepath, file, {
-    amzDate: headerDetails.amzdate,
-    authHeader: headerDetails.authheader,
-  });
-};
-
+// Save an object to S3
 export const saveObject = async ({
   file,
   fileDetails,
@@ -63,45 +59,45 @@ export const saveObject = async ({
   file: File;
   fileDetails: AuthHeaderRequestData;
 }) => {
-  const fileDetailsResponse = await createAuthHeaders(fileDetails);
-  if (!fileDetailsResponse) {
-    throw Error(
-      "Error occurred while fetching document from the object storage",
-    );
-  }
-  await uploadObject(fileDetailsResponse, file);
-  return Promise.resolve(fileDetailsResponse);
+  const presignedUrlData = await fetchPresignedUrl({
+    relative_url: `${fileDetails.folder}/${file.name}`,
+    action: PresignedUrlAction.PUT,
+  });
+
+  await uploadObject(presignedUrlData.presigned_url, file);
+  return Promise.resolve(presignedUrlData.relative_url);
 };
 
-const getObject = async (headerDetails: ObjectStorageHeaderDetails) => {
-  return await OSSGetRequest<Blob>(headerDetails.filepath, {
-    amzDate: headerDetails.amzdate,
-    authHeader: headerDetails.authheader,
+const getObject = (presignedUrl: string) => {
+  return requestAxios({
+    url: presignedUrl,
+    method: "get",
+    responseType: "blob",
   });
 };
 
+// Download an object from S3
 export const downloadObject = async (file: AuthHeaderRequestData) => {
-  const response = await createAuthHeaders(file);
-  if (!response) {
-    throw Error(
-      "Error occurred while fetching document from the object storage",
-    );
-  }
-  return await getObject(response);
-};
-
-export const useSaveObject = (options?: Options) => {
-  return useMutation({
-    mutationFn: saveObject,
-    ...options,
-    retry: 0,
+  const presignedUrlData = await fetchPresignedUrl({
+    relative_url: file.s3sourceuri,
+    action: PresignedUrlAction.GET
   });
+
+  return getObject(presignedUrlData.presigned_url);
 };
 
-export const useDeleteObject = (options?: Options) => {
-  return useMutation({
-    mutationFn: deleteDocument,
-    ...options,
-    retry: 0,
+// Delete an object from S3
+type DeleteDocumentProps = {
+  filepath: string;
+};
+export const deleteDocument = async (data: DeleteDocumentProps) => {
+  const presignedUrlData = await fetchPresignedUrl({
+    relative_url: data.filepath,
+    action: PresignedUrlAction.DELETE
+  });
+
+  return requestAxios({
+    url: presignedUrlData.presigned_url,
+    method: "delete",
   });
 };
