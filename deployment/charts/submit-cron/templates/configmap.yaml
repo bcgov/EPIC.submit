@@ -9,3 +9,4 @@ data:
   crontab: |
     {{ .Values.cronTab }}
   WEB_URL: {{ .Values.web.url }}
+  SENDER_EMAIL: {{ .Values.sender.email }}
