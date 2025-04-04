@@ -38,7 +38,7 @@ export default function DocumentSubRow({
   };
 
   return (
-    <TableRow>
+    <TableRow sx={{ height: "40px" }}>
       <SubmitTableCell width={"50%"}>
         <Typography
           variant="body1"
@@ -53,11 +53,12 @@ export default function DocumentSubRow({
           <MuiLink onClick={openDocument}>{name}</MuiLink>
         </Typography>
       </SubmitTableCell>
-      <SubmitTableCell align="right" width={"10%"}>
+      <SubmitTableCell align="left" width={"10%"}>
         {submitted_by || ""}
       </SubmitTableCell>
       <SubmitTableCell align="right" width={"10%"}>
         {version}
+        <span style={{ marginRight: "24px" }} />
       </SubmitTableCell>
       <SubmitTableCell align="right" width={"20%"}>
         <StatusCell submittedDocument={documentSubmission} />
