@@ -23,7 +23,9 @@ chesSecrets:
   apiEndPoint: "https://ches-dev.api.gov.bc.ca"
   clientId: ""
   clientSecret: ""
-  senderEmail: ""
 
 web:
   url: "https://dev.submit.eao.gov.bc.ca"
+
+sender:
+  email: "EAO.ManagementPlanSupport@gov.bc.ca"

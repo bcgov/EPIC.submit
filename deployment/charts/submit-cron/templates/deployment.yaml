@@ -63,8 +63,8 @@ spec:
                   key: CHES_CLIENT_SECRET
             - name: SENDER_EMAIL
               valueFrom:
-                secretKeyRef:
-                  name: ches-secrets
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
                   key: SENDER_EMAIL
             - name: WEB_URL
               valueFrom:
