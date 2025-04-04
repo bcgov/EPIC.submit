@@ -60,20 +60,18 @@
     <div class="content">
       <p>You have been invited to join <strong>{{ project_name }}</strong> on EPIC.submit.</p>
 
-      <p>Click the link below and sign in with your BCeID information to access the project.</p>
+      <p>Click the link below and sign in with your Business BCeID or BC Services Card to access the project.</p>
 
       <div class="highlight-box">
-        <a href="{{ invitation_url }}" class="cta-link">Join EPIC.submit</a>
+        <a href="{{ invitation_url }}" class="cta-link">{{ invitation_url }}</a>
       </div>
 
       <p>
-        If you don’t have a BCeID, you can create one at
-        <a href="{{ bceid_link }}" class="cta-link">this link</a>. Please ensure you use the appropriate type of BCeID (e.g., Business BCeID).
+      If you don’t have a Business BCeID associated with this project, please contact the person in charge of the Business BCeID account for {{ certicate_holder_name }}.
       </p>
 
       <p>
-        If this email address is not associated with your BCeID account, please contact the project administrator at
-        <a href="mailto:{{ project_admin_email }}">{{ project_admin_email }}</a> with the email associated with your BCeID.
+       For more information on how to use or set up a BC Services Card account, visit {{ bceid_link }}.
       </p>
 
       <p>Thank you,</p>
