@@ -61,6 +61,11 @@ spec:
                 secretKeyRef:
                   name: ches-secrets
                   key: CHES_CLIENT_SECRET
+            - name: SENDER_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: ches-secrets
+                  key: SENDER_EMAIL
             - name: WEB_URL
               valueFrom:
                 configMapKeyRef:
