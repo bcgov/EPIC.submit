@@ -114,6 +114,8 @@ export type Submission = {
   id: number;
   item_id: number;
   version: string;
+  minor_version: number;
+  major_version: number;
   type: SubmissionType;
   submitted_document: DocumentSubmission;
   submitted_form?: SubmittedForm;
