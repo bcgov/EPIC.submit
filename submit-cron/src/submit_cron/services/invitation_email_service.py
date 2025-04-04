@@ -21,10 +21,15 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
 
         # Default action text
         invitation_action_text = "join"
+        project_admin_email = ''
+        bceid_link = "https://www.bceid.ca/"
 
         # Check role and modify invitation action text accordingly
         if invitation.role and invitation.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
             invitation_action_text = "collaborate on"
+
+        if invitation.account.account_users.work_email_address:
+            project_admin_email = invitation.account.account_users.work_email_address
 
         if invitation.project_ids:
             project_name = cls.get_project_names(invitation.project_ids)
@@ -45,6 +50,8 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
                 'invitation_url': invitation_url,
                 'project_name': project_name,
                 'invitation_action_text': invitation_action_text,
+                'project_admin_email': project_admin_email,
+                'bceid_link': bceid_link
             },
             subject='Invitation to collaborate on EPIC.submit',
             sender=current_app.config.get('SENDER_EMAIL'),
