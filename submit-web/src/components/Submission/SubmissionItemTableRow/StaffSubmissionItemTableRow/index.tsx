@@ -1,34 +1,25 @@
 import {
-  Box,
   Link as MuiLink,
   TableCell,
   TableRow,
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import DocumentRow from "../DocumentRow";
 import { When } from "react-if";
-import { SubmissionItemTableRowProps } from ".";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-
 import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
-import { useMemo } from "react";
 import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { filterOpenUpdateRequests } from "@/utils";
-import {
-  UPDATE_REQUEST_STATUS,
-  UPDATE_REQUEST_TYPE,
-} from "@/models/UpdateRequest";
-import dayjs from "dayjs";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
+import { SubmissionItemTableRowProps } from "..";
+import SubmissionItemReviewConfirmation from "../../SubmissionItemReviewConfirmation";
+import DocumentRow from "../../DocumentRow";
+import StaffStatusCell from "./StaffStatusCell";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -45,40 +36,13 @@ export default function StaffSubmissionItemTableRow({
       }),
     );
 
-  const { submissions, id, status, type_id } = item;
+  const { submissions, id } = item;
 
   const { submitted_on } = submissionPackage;
 
   const name = item.type.name;
   const hasDocument =
     item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
-
-  const isUpdated = useMemo(() => {
-    const last_update_request = submissionPackage.update_requests
-      .filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
-          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-          updateRequest.active,
-      )
-      .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
-
-    if (!last_update_request) return false;
-    return Boolean(
-      item.submissions.find((submission) =>
-        dayjs(submission.created_date).isAfter(
-          last_update_request.created_date,
-        ),
-      ),
-    );
-  }, [item, submissionPackage.update_requests]);
-
-  const isUpdateRequest = useMemo(() => {
-    if (!submissionPackage) return false;
-    return filterOpenUpdateRequests(submissionPackage.update_requests)
-      .flatMap((updateRequest) => updateRequest.submission_item_types)
-      .includes(type_id);
-  }, [submissionPackage, type_id]);
 
   const actionLabel = hasDocument ? "Review" : "View";
 
@@ -117,16 +81,8 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-          <Box mr={2}>
-            <SubmissionStatusChipStack
-              status={status}
-              isUpdateRequested={isUpdateRequest}
-              isUpdated={isUpdated}
-              packageStatus={submissionPackage.status}
-            />
-          </Box>
+          <StaffStatusCell submissionItem={item} />
         </SubmitPrimaryRowTableCell>
-
         <SubmitPrimaryRowTableCell align="left" width={"10%"}>
           <When condition={submitted_on}>
             <SubmissionItemReviewConfirmation

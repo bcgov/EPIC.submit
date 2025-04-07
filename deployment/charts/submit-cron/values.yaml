@@ -26,3 +26,6 @@ chesSecrets:
 
 web:
   url: "https://dev.submit.eao.gov.bc.ca"
+
+sender:
+  email: "EAO.ManagementPlanSupport@gov.bc.ca"

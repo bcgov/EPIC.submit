@@ -11,3 +11,8 @@ class DocumentService:
     def get_all_documents(cls, search_options: DocumentSearchOptions = None):
         """Get all documents."""
         return DocumentQueries.get_filtered_documents(search_options)
+
+    @classmethod
+    def get_failed_documents_by_item_id(cls, item_id):
+        """Get all failed documents by item id."""
+        return DocumentQueries.get_failed_documents_by_item_id(item_id)

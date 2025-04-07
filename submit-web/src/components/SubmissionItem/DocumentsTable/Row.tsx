@@ -71,7 +71,7 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
 
       const documentData = {
         name: fileToUpload.name,
-        url: uploadedFile.filepath,
+        url: uploadedFile,
         folder: folder,
       };
       await replaceSubmission({

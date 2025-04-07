@@ -114,6 +114,7 @@ export type PackageVersion = {
   package_id: number;
   version: number;
   original_package_id: number;
+  is_approved: boolean;
 };
 
 export type SubmissionPackage = {

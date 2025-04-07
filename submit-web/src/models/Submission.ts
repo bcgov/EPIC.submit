@@ -5,6 +5,7 @@ export type NonCanonicalSubmissionStatus =
   | "UPDATED"
   | "UPDATE_REQUESTED"
   | "NO_REVISION_REQUIRED"
+  | "PREVIOUSLY_FAILED"
   | "FAILED";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
@@ -16,6 +17,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   UPDATED: "UPDATED",
   FAILED: "FAILED",
   NO_REVISION_REQUIRED: "NO_REVISION_REQUIRED",
+  PREVIOUSLY_FAILED: "PREVIOUSLY_FAILED",
 });
 
 export type SubmissionItemStatus =
@@ -26,6 +28,7 @@ export type SubmissionItemStatus =
   | "REVIEW_REJECTED"
   | "FAILED_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
+  | "REVISION_REQUIRED"
   | "APPROVED";
 
 export const SUBMISSION_ITEM_STATUS: Record<
@@ -63,6 +66,10 @@ export const SUBMISSION_ITEM_STATUS: Record<
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
+  },
+  REVISION_REQUIRED: {
+    value: "REVISION_REQUIRED",
+    label: "Revision Required",
   },
 };
 
@@ -107,6 +114,8 @@ export type Submission = {
   id: number;
   item_id: number;
   version: string;
+  minor_version: number;
+  major_version: number;
   type: SubmissionType;
   submitted_document: DocumentSubmission;
   submitted_form?: SubmittedForm;

@@ -123,7 +123,7 @@ export default function NewUserForm() {
   return (
     <TableBox mainLabel={"User Management"}>
       <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(handleCompleteForm)}>
+        <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Box
             flexDirection={"column"}
             sx={{

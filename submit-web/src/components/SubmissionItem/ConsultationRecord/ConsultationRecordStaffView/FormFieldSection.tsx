@@ -12,6 +12,8 @@ import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
 import { useState } from "react";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { FORM_TYPE } from "@/store/hideFormStore";
+import { useFormVisibilityStore } from "@/store/hideFormStore";
 
 const defaultFormData = {
   consultedParties: [],
@@ -26,13 +28,19 @@ const defaultFormData = {
 type FormFieldSectionProps = Readonly<{
   formData: Partial<ConsultationRecordForm>;
   partiesList: Array<string>;
+  submissionId: number;
 }>;
 
 export default function FormFieldSection({
   formData = defaultFormData,
   partiesList,
+  submissionId,
 }: FormFieldSectionProps) {
-  const [isHidden, setIsHidden] = useState(false);
+  const { getFormVisibility, setFormVisibility } = useFormVisibilityStore();
+  const isHidden = getFormVisibility(
+    submissionId,
+    FORM_TYPE.CONSULTATION_RECORD
+  );
   const mergedFormData = { ...defaultFormData, ...formData };
 
   return (
@@ -47,7 +55,18 @@ export default function FormFieldSection({
         >
           <BarBlueTitle title="Consultation Records Information" fullWidth />
           <FormControlLabel
-            control={<Switch onChange={() => setIsHidden(!isHidden)} />}
+            control={
+              <Switch
+                checked={isHidden}
+                onChange={() =>
+                  setFormVisibility(
+                    submissionId,
+                    FORM_TYPE.CONSULTATION_RECORD,
+                    !isHidden
+                  )
+                }
+              />
+            }
             label="Hide form"
           />
         </Grid>

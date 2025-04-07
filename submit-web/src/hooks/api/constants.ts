@@ -24,4 +24,5 @@ export const QUERY_KEY = Object.freeze({
   PROPONENTS: "proponents",
   PROPONENT: "proponent",
   USER_ACCOUNT_DATA: "user-account-data",
+  FAILED_SUBMISSIONS: "failed-submissions",
 });

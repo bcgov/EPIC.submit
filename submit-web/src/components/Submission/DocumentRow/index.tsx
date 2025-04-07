@@ -1,6 +1,5 @@
 import { useState } from "react";
 import {
-  Collapse,
   IconButton,
   Link as MuiLink,
   TableRow,
@@ -10,7 +9,10 @@ import { Submission } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
-import { SubmitTableCell } from "@/components/Shared/Table/common";
+import {
+  SubmitTableCell,
+  SubmitTableRow,
+} from "@/components/Shared/Table/common";
 import { StatusCell } from "./StatusCell";
 import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
 import DocumentsSubTable from "../ItemsTable/DocumentsSubTable";
@@ -33,6 +35,7 @@ export default function DocumentRow({
   const {
     submitted_document: { name, url },
     version,
+    minor_version,
     submitted_by,
   } = documentSubmission;
 
@@ -54,7 +57,7 @@ export default function DocumentRow({
 
   return (
     <>
-      <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
+      <SubmitTableRow sx={[expanded && { "& > *": { borderBottom: "unset" } }]}>
         <SubmitTableCell width={"50%"}>
           <Typography
             variant="body1"
@@ -83,30 +86,34 @@ export default function DocumentRow({
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"10%"}>
           {version}
-          <IconButton onClick={() => setExpanded(!expanded)} sx={{ p: 0 }}>
-            <ExpandMoreIcon
-              sx={{
-                transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
-                transition: "0.3s ease-in-out",
-              }}
-            />
-          </IconButton>
+          {minor_version > 1 ? (
+            <IconButton onClick={() => setExpanded(!expanded)} sx={{ p: 0 }}>
+              <ExpandMoreIcon
+                sx={{
+                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "0.3s ease-in-out",
+                }}
+              />
+            </IconButton>
+          ) : (
+            <span style={{ marginRight: "24px" }} />
+          )}
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"20%"}>
           <StatusCell submittedDocument={documentSubmission} />
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"10%"}></SubmitTableCell>
-      </TableRow>
-      <TableRow>
-        <SubmitTableCell
-          colSpan={6}
-          style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
-        >
-          <Collapse in={expanded} mountOnEnter unmountOnExit>
+      </SubmitTableRow>
+      {expanded && (
+        <TableRow>
+          <SubmitTableCell
+            colSpan={6}
+            style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
+          >
             <DocumentsSubTable submission={documentSubmission} />
-          </Collapse>
-        </SubmitTableCell>
-      </TableRow>
+          </SubmitTableCell>
+        </TableRow>
+      )}
     </>
   );
 }

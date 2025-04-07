@@ -30,7 +30,7 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
 
   const formData = useMemo(() => {
@@ -56,7 +56,7 @@ export const ConsultationRecordStaffView = () => {
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey,
+    }).queryKey
   );
 
   const partiesList =
@@ -67,7 +67,11 @@ export const ConsultationRecordStaffView = () => {
 
   return (
     <SubmissionFormContainer>
-      <FormFieldSection formData={formData} partiesList={partiesList} />
+      <FormFieldSection
+        formData={formData}
+        partiesList={partiesList}
+        submissionId={submissionId}
+      />
       <InternalDocumentSection />
       <ReviewSection />
     </SubmissionFormContainer>

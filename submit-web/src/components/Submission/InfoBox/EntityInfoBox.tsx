@@ -36,6 +36,15 @@ export const EntityInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         p: "16px 16px 16px 16px",
       }}
     >
+      <Grid
+        item
+        xs={12}
+        container
+        alignContent={{ xs: "flex-start", lg: "flex-end" }}
+        justifyContent={{ xs: "flex-start", lg: "flex-end" }}
+      >
+        <VersionGroup currentPackageVersion={version} />
+      </Grid>
       <Grid item xs={12} lg={4} container>
         <Stack direction={"row"} spacing={2}>
           <Typography color={BCDesignTokens.themeGray70}>Condition:</Typography>
@@ -50,20 +59,6 @@ export const EntityInfoBox = ({ submissionPackage }: InfoBoxProps) => {
           </Typography>
           <Typography color={"inherit"}>{supportingConditions}</Typography>
         </Stack>
-      </Grid>
-
-      <Grid
-        item
-        xs={12}
-        lg={4}
-        container
-        alignContent={{ xs: "flex-start", lg: "flex-end" }}
-        justifyContent={{ xs: "flex-start", lg: "flex-end" }}
-      >
-        <Typography color={BCDesignTokens.themeGray70} sx={{ mr: 1 }}>
-          Version:{" "}
-        </Typography>
-        <VersionGroup currentPackageVersion={version} />
       </Grid>
       <Grid item xs={12} container mt={"24px"}>
         <SubmissionHistory submissionPackageId={String(submissionPackage.id)} />

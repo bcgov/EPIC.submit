@@ -38,7 +38,7 @@ export const AddDocumentActionButton = ({
 
       const documentData = {
         name: fileToUpload.name,
-        url: uploadedFile.filepath,
+        url: uploadedFile,
         folder: folder,
       };
       const addedSubmission = await createSubmission(Number(submissionItemId), {

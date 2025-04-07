@@ -212,7 +212,7 @@ class InvitationService:
     @staticmethod
     def revoke_invitation(token):
         """Revoke an invitation by updating its status."""
-        invitation = InvitationsModel.query.filter_by(token=token, status='pending').first()
+        invitation = InvitationsModel.query.filter_by(token=token, status=InvitationStatus.PENDING.value).first()
         if invitation:
             invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()

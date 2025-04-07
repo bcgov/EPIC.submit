@@ -8,12 +8,14 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { deleteDocument, downloadObject } from "@/hooks/api/useObjectStorage";
+import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import { notify } from "../Shared/Snackbar/snackbarStore";
 import { Submission } from "@/models/Submission";
 import { LoadingButton } from "../Shared/LoadingButton";
 import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
 import { useFileStore } from "@/store/fileStore";
+import { useFormContext } from "react-hook-form";
+import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 
 export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   ({ error }) => ({
@@ -38,7 +40,7 @@ export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
     },
-  }),
+  })
 );
 
 export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
@@ -49,7 +51,7 @@ export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
     "&:hover": {
       backgroundColor: BCDesignTokens.themeBlue40,
     },
-  }),
+  })
 );
 
 export const DocumentTableCell = styled(TableCell)(() => ({
@@ -80,7 +82,7 @@ export const PackageTableRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any)
-      : child,
+      : child
   );
 
   return <StyledTableRow {...otherProps}>{childrenWithProps}</StyledTableRow>;
@@ -89,40 +91,47 @@ export const PackageTableRow = ({
 type DocumentTableRowProps = Readonly<{
   documentItem: Submission;
   error?: boolean;
+  formFieldName?: string;
 }>;
 export default function DocumentTableRow({
   documentItem,
   error = false,
+  formFieldName,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
-
+  const { setValue, trigger, getValues } = useFormContext(); // Get form context directly
   const { removeFile } = useFileStore();
 
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
     submissionItemId: documentItem.item_id,
   });
 
-  const getObjectFromS3 = async () => {
+  const downloadDocument = async () => {
     try {
       if (pendingGetObject) return;
       setPendingGetObject(true);
-      const response = await downloadObject({
-        filename: submitted_document.name,
-        s3sourceuri: submitted_document.url,
-      });
-      const linkUrl = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = linkUrl;
-      link.setAttribute("download", submitted_document.name);
-      document.body.appendChild(link);
-      link.click();
+      await getObjectFromS3({ name: submitted_document.name, url: submitted_document.url });
     } catch (e) {
       notify.error("Failed to download submission");
     } finally {
       setPendingGetObject(false);
     }
+  };
+
+  const updateFormField = async () => {
+    if (!formFieldName) return;
+
+    const prev = getValues(formFieldName) as string[]; // get the current array
+    const newValue = prev.filter(
+      (value) =>
+        value !== submitted_document.url && // filter out URL for uploaded documents
+        value !== submitted_document.name // filter out filename for pending documents
+    );
+
+    setValue(formFieldName, newValue, { shouldValidate: true });
+    await trigger(formFieldName);
   };
 
   const onRemoveClick = async () => {
@@ -131,6 +140,9 @@ export default function DocumentTableRow({
       await deleteDocument({ filepath: submitted_document.url });
       await deleteSubmission(documentItem.id);
       removeFile(documentItem.id);
+
+      // Update form if field name is provided
+      await updateFormField();
     } catch (e) {
       notify.error("Failed to remove document");
     } finally {
@@ -155,7 +167,7 @@ export default function DocumentTableRow({
             textDecoration: "none",
           }}
         >
-          <MuiLink onClick={getObjectFromS3} sx={{ textDecoration: "none" }}>
+          <MuiLink onClick={downloadDocument} sx={{ textDecoration: "none" }}>
             {submitted_document.name}
           </MuiLink>
         </Typography>
