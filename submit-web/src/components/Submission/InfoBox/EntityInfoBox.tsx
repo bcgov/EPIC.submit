@@ -49,7 +49,7 @@ export const EntityInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <Grid item xs={12}>
           <Stack direction={"row"} spacing={2}>
             <Typography color={BCDesignTokens.themeGray70}>
-              Supporting Conditions:
+              Supporting Condition(s):
             </Typography>
             <Typography color={"inherit"}>{supportingConditions}</Typography>
           </Stack>
