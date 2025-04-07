@@ -5,6 +5,7 @@ from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Invitations as InvitationsModel
+from submit_api.models import Package as PackageModel
 from submit_api.models import Role as RoleModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
@@ -21,10 +22,26 @@ class AccountUserService:
         users = cls._fetch_users(account_id)
         # roles_map = cls._fetch_roles(users) if include_roles else {}
 
+        # Collect all unique package IDs first
+        all_package_ids = set()
+        for user in users:
+            role = getattr(user, "role", None)
+            if role and role.package_ids:
+                all_package_ids.update(role.package_ids)
+
+        # Fetch names for all package_ids at once
+        package_name_map = cls._fetch_package_names(list(all_package_ids))
+
         user_list = []
         for user in users:
             user_data = user.to_dict()
             user_data["status"] = "ACTIVE"
+            # Add package_name to role if applicable
+            role = user_data.get("role")
+            if role and (pkg_ids := role.get("package_ids")):
+                role["package_names"] = [
+                    package_name_map[pkg_id] for pkg_id in pkg_ids if pkg_id in package_name_map]
+
             user_list.append(user_data)
 
         if include_invitees:
@@ -34,6 +51,12 @@ class AccountUserService:
             user_list.extend(invitees)
 
         return user_list
+
+    @staticmethod
+    def _fetch_package_names(package_ids: list[int]) -> dict[int, str]:
+        """Fetch package names for given IDs and return as {id: name}."""
+        packages = PackageModel.get_all_package_by_ids(package_ids)
+        return {pkg.id: pkg.name for pkg in packages}
 
     @staticmethod
     def _fetch_users(account_id):

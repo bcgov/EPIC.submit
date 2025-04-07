@@ -5,6 +5,7 @@ import { USER_MANAGEMENT_ROLE } from "./Role";
 export type Role = {
   account_project_id: number | null;
   package_ids: number[];
+  package_names: string[];
   role_id: number;
   role_name: USER_MANAGEMENT_ROLE;
   permissions: string[];
