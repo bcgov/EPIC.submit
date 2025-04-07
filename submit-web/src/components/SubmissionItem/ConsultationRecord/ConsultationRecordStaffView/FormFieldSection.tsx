@@ -10,8 +10,6 @@ import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
-import { useState } from "react";
-import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { FORM_TYPE } from "@/store/hideFormStore";
 import { useFormVisibilityStore } from "@/store/hideFormStore";
 
@@ -53,7 +51,12 @@ export default function FormFieldSection({
           justifyContent={"space-between"}
           alignItems={"space-between"}
         >
-          <BarBlueTitle title="Consultation Records Information" fullWidth />
+          <Typography
+          variant="h5"
+          sx={{ color: BCDesignTokens.typographyColorDisabled }}
+        >
+          Consultation Records Information
+          </Typography>
           <FormControlLabel
             control={
               <Switch

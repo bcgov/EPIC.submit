@@ -16,13 +16,14 @@ export function BarBlueTitle({
   fullWidth,
 }: {
   title: string;
-  fullWidth: boolean;
+  fullWidth?: boolean;
 }) {
   return (
     <Typography
       variant="h5"
       color={BCDesignTokens.themeBlue100}
       sx={{
+        mt: BCDesignTokens.layoutMarginSmall,
         width: fullWidth ? "100%" : "auto",
         borderBottom: `2px solid ${BCDesignTokens.themeGold80}`,
       }}

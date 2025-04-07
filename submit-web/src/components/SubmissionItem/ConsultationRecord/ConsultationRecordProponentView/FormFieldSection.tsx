@@ -56,7 +56,6 @@ export default function FormFieldSection({
       <Grid item xs={12}>
         <Typography
           variant="h5"
-          fontWeight={400}
           sx={{ color: BCDesignTokens.typographyColorDisabled }}
         >
           Consultation Records Information

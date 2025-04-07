@@ -208,7 +208,6 @@ export const ManagementPlanSubmissionProponentView = () => {
             <Grid item xs={12}>
               <Typography
                 variant="h5"
-                fontWeight={400}
                 sx={{ color: BCDesignTokens.typographyColorDisabled }}
               >
                 Management Plan Requirements
