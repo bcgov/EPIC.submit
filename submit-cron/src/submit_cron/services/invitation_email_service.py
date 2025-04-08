@@ -19,7 +19,9 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
     def prepare_invitation_email_notification(cls, invitation: InvitationsModel) -> EmailDetails:
         """Prepare email details for update request creation."""
 
-        bceid_link = "https://www.bceid.ca/"
+        bceid_link = current_app.config.get('BCEID_URL', 'https://www.bceid.ca/')
+        project = None
+        project_name = None
 
         if invitation.project_ids:
             project_name = cls.get_project_names(invitation.project_ids)
@@ -27,8 +29,10 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
             project_name = cls.get_project_names_for_package_id(invitation.package_ids)
         elif invitation.account_id:
             project = cls.get_project_for_account_id(invitation.account_id)
+            if project:
+                project_name = project.name
 
-        if not project:
+        if not project_name and not project:
             raise BadRequestError(f"Project was not found for invitation id: {invitation.id}")
 
         invitation_url = cls.generate_signup_url(invitation.token)
@@ -38,9 +42,9 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
             body_args={
                 'epic_submit_link': current_app.config.get('WEB_URL'),
                 'invitation_url': invitation_url,
-                'project_name': project.name,
+                'project_name': project_name if project_name else project.name,
                 'bceid_link': bceid_link,
-                'certificate_holder_name': project.proponent_name,
+                'certificate_holder_name': project.proponent_name if project else None,
             },
             subject='Invitation to collaborate on EPIC.submit',
             sender=current_app.config.get('SENDER_EMAIL'),
