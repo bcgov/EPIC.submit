@@ -59,7 +59,14 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
           <Box sx={{ width: "100%" }}>
             {/* Display selected options as chips */}
             {selectedValues.length > 0 && (
-              <Box sx={{ display: "flex", flexWrap: "wrap", my: 1 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  my: 1,
+                }}
+              >
                 {selectedValues.map((selected) => (
                   <Chip
                     key={selected.value}

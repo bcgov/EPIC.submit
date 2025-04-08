@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TableBox } from "../../../Shared/TableBox";
 import {
   Box,
@@ -117,6 +117,27 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
       ) || [],
     [accountPackages]
   );
+
+  useEffect(() => {
+    if (
+      user.role?.package_names &&
+      accountPackages &&
+      selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
+    ) {
+      const matchingPackageIds = accountPackages.flatMap((accountProject) =>
+        Object.values(accountProject.packages)
+          .filter((pkg) => user.role.package_names.includes(pkg.name))
+          .map((pkg) => String(pkg.id))
+      );
+
+      methods.setValue("package_ids", matchingPackageIds);
+    }
+  }, [
+    user.role?.package_names,
+    accountPackages,
+    selectedRole,
+    methods,
+  ]);
 
   return (
     <TableBox mainLabel={"User Management"}>
