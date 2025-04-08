@@ -120,7 +120,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
 
   useEffect(() => {
     if (
-      user.role?.package_names &&
+      user.role?.package_ids &&
       accountPackages &&
       selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
     ) {
