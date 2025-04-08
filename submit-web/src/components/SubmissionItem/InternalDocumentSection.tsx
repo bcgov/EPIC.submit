@@ -20,7 +20,7 @@ export default function InternalDocumentSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
-      .queryKey,
+      .queryKey
   );
   const internalStaffDocuments = useMemo(() => {
     return submissionItem?.internal_staff_documents || [];
@@ -48,7 +48,6 @@ export default function InternalDocumentSection() {
       <Grid item xs={12}>
         <Typography
           variant="h5"
-          fontWeight={400}
           sx={{ color: BCDesignTokens.typographyColorDisabled }}
         >
           Document Upload/Links

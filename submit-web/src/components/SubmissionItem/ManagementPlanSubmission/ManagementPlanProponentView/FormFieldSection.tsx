@@ -50,7 +50,6 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
       <Grid item xs={12}>
         <Typography
           variant="h5"
-          fontWeight={400}
           sx={{ color: BCDesignTokens.typographyColorDisabled }}
         >
           Information Verification

@@ -52,11 +52,10 @@ export default function FormFieldSection({
           alignItems={"space-between"}
         >
           <Typography
-            variant="h5"
-            fontWeight={400}
-            sx={{ color: BCDesignTokens.typographyColorDisabled }}
-          >
-            Consultation Records Information
+          variant="h5"
+          sx={{ color: BCDesignTokens.typographyColorDisabled }}
+        >
+          Consultation Records Information
           </Typography>
           <FormControlLabel
             control={
