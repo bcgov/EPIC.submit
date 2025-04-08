@@ -18,6 +18,12 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
     @classmethod
     def prepare_invitation_email_notification(cls, invitation: InvitationsModel) -> EmailDetails:
         """Prepare email details for update request creation."""
+        
+        # Default action text
+        invitation_action_text = "join"
+        # Check role and modify invitation action text accordingly
+        if invitation.role and invitation.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
+            invitation_action_text = "collaborate on"
 
         bc_service_card_url = current_app.config.get('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca')
         project = None
@@ -45,6 +51,7 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
                 'project_name': project_name if project_name else project.name,
                 'bc_service_card_url': bc_service_card_url,
                 'certificate_holder_name': project.proponent_name if project.proponent_name else '',
+                'invitation_action_text': invitation_action_text,
             },
             subject='Invitation to collaborate on EPIC.submit',
             sender=current_app.config.get('SENDER_EMAIL'),
