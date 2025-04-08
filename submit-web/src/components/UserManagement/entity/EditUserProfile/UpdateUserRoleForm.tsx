@@ -113,9 +113,9 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
         Object.values(accountProject.packages).map((pkg) => ({
           value: String(pkg.id),
           label: pkg.name,
-        }))
+        })),
       ) || [],
-    [accountPackages]
+    [accountPackages],
   );
 
   useEffect(() => {
@@ -126,18 +126,13 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
     ) {
       const matchingPackageIds = accountPackages.flatMap((accountProject) =>
         Object.values(accountProject.packages)
-          .filter((pkg) => user.role.package_names.includes(pkg.name))
-          .map((pkg) => String(pkg.id))
+          .filter((pkg) => user.role.package_ids.includes(pkg.id))
+          .map((pkg) => String(pkg.id)),
       );
 
       methods.setValue("package_ids", matchingPackageIds);
     }
-  }, [
-    user.role?.package_names,
-    accountPackages,
-    selectedRole,
-    methods,
-  ]);
+  }, [user.role?.package_names, accountPackages, selectedRole, methods]);
 
   return (
     <TableBox mainLabel={"User Management"}>
