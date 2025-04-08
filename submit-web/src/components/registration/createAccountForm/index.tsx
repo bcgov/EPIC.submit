@@ -23,7 +23,7 @@ import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { YellowBar } from "@/components/Shared/YellowBar";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -46,18 +46,19 @@ function CreateAccountForm() {
   const { setAccount, userId } = useAccount();
   const navigate = useNavigate();
 
-  const navigateToNextStep = () => {
+  const navigateToNextStep = useCallback(() => {
     if (invitation?.is_first_time) {
       setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
     } else {
       navigate({ to: "/proponent/projects" });
     }
-  };
+  }, [setStep, invitation, navigate]);
+
   useEffect(() => {
     if (userId) {
       navigateToNextStep();
     }
-  }, [userId]);
+  }, [userId, navigateToNextStep]);
 
   const { data: projects } = useLoadProjectsByProponentId(
     invitation?.proponent_id,
