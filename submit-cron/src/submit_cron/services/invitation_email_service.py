@@ -19,7 +19,7 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
     def prepare_invitation_email_notification(cls, invitation: InvitationsModel) -> EmailDetails:
         """Prepare email details for update request creation."""
 
-        bceid_link = current_app.config.get('BCEID_URL', 'https://www.bceid.ca/')
+        bc_service_card_url = current_app.config.get('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca')
         project = None
         project_name = None
 
@@ -43,8 +43,8 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
                 'epic_submit_link': current_app.config.get('WEB_URL'),
                 'invitation_url': invitation_url,
                 'project_name': project_name if project_name else project.name,
-                'bceid_link': bceid_link,
-                'certificate_holder_name': project.proponent_name if project else None,
+                'bc_service_card_url': bc_service_card_url,
+                'certificate_holder_name': project.proponent_name if project.proponent_name else '',
             },
             subject='Invitation to collaborate on EPIC.submit',
             sender=current_app.config.get('SENDER_EMAIL'),
