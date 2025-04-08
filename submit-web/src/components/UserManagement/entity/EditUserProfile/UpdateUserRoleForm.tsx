@@ -132,7 +132,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
 
       methods.setValue("package_ids", matchingPackageIds);
     }
-  }, [user.role?.package_names, accountPackages, selectedRole, methods]);
+  }, [user.role?.package_ids, accountPackages, selectedRole, methods]);
 
   return (
     <TableBox mainLabel={"User Management"}>
