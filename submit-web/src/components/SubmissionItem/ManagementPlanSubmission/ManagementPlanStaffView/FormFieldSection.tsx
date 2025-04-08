@@ -12,27 +12,47 @@ import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { When } from "react-if";
 import { useFormVisibilityStore } from "@/store/hideFormStore";
 import { FORM_TYPE } from "@/store/hideFormStore";
+import { useMemo } from "react";
+import { get } from "lodash";
+import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
+import { useParams } from "@tanstack/react-router";
 
 const defaultFormData = {
   conditionSatisfied: "",
   allRequirementsAddressed: "",
-  requirementsClear: "",
   informationAccurate: "",
   notes: "",
 };
 
 interface FormFieldSectionProps {
   formData: Partial<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
-  submissionId: number;
 }
 
-export default function FormFieldSection({
-  formData,
-  submissionId,
-}: FormFieldSectionProps) {
+export default function FormFieldSection({ formData }: FormFieldSectionProps) {
+  const {
+    projectId: accountProjectIdParam,
+    submissionId: submissionItemId,
+    submissionPackageId,
+  } = useParams({
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  });
   const mergedFormData = { ...defaultFormData, ...formData };
   const { getFormVisibility, setFormVisibility } = useFormVisibilityStore();
-  const isHidden = getFormVisibility(submissionId, FORM_TYPE.MANAGEMENT_PLAN);
+  const isHidden = getFormVisibility(
+    Number(submissionItemId),
+    FORM_TYPE.MANAGEMENT_PLAN
+  );
+  const { data: submissionPackage } = useGetSubmissionPackage({
+    packageId: Number(submissionPackageId),
+    enabled: Boolean(accountProjectIdParam),
+  });
+
+  const condition = useMemo(() => {
+    if (!submissionPackage?.meta) return "";
+    const condition = get(submissionPackage, "meta.main_condition");
+
+    return get(condition, "condition_number", "");
+  }, [submissionPackage]);
 
   return (
     <>
@@ -56,7 +76,7 @@ export default function FormFieldSection({
                 checked={isHidden}
                 onChange={() =>
                   setFormVisibility(
-                    submissionId,
+                    Number(submissionItemId),
                     FORM_TYPE.MANAGEMENT_PLAN,
                     !isHidden
                   )
@@ -73,8 +93,8 @@ export default function FormFieldSection({
           <Grid item xs={12} container>
             <Grid item xs={12}>
               <Typography variant="body1">
-                Does the plan address all the requirements in the (condition
-                number)?
+                Does the plan address all the requirements in condition
+                {` ${condition}`}?
               </Typography>
               <RadioGroup value={mergedFormData.conditionSatisfied}>
                 <YesNoRadioOptions disabled error={false} />
@@ -88,15 +108,6 @@ export default function FormFieldSection({
                 referenced document(s)?
               </Typography>
               <RadioGroup value={mergedFormData.allRequirementsAddressed}>
-                <YesNoRadioOptions disabled error={false} />
-              </RadioGroup>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="body1">
-                Is each requirement in the plan clear, measurable, and/or
-                include accountability?
-              </Typography>
-              <RadioGroup value={mergedFormData.requirementsClear}>
                 <YesNoRadioOptions disabled error={false} />
               </RadioGroup>
             </Grid>
