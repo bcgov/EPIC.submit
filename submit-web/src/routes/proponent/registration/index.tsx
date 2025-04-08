@@ -46,7 +46,15 @@ function Registration() {
         setInvitation(invitationData);
       }
     }
-  }, [isPending, error, isSuccess, invitationData, setInvitation, isAuthenticated, isAuthLoading]);
+  }, [
+    isPending,
+    error,
+    isSuccess,
+    invitationData,
+    setInvitation,
+    isAuthenticated,
+    isAuthLoading,
+  ]);
 
   if (isPending) {
     return <PageLoader />;
@@ -59,7 +67,8 @@ function Registration() {
           Invalid Registration Link
         </Typography>
         <Typography variant="body1">
-          The registration link is invalid or expired. Please check your email for a valid link.
+          The registration link is invalid or expired. Please check your email
+          for a valid link.
         </Typography>
       </Container>
     );
