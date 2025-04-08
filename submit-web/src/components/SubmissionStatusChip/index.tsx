@@ -254,6 +254,9 @@ export const SubmissionStatusChipStack = ({
         spacing={1}
         width={"fit-content"}
         alignItems={"flex-end"}
+        sx={{
+          margin: 0,
+        }}
       >
         {!hideStatus && status && <SubmissionStatusChip status={status} />}
         {isUpdateRequested && !isUpdated && (

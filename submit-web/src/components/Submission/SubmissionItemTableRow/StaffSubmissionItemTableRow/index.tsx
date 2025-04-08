@@ -1,4 +1,5 @@
 import {
+  Box,
   Link as MuiLink,
   TableCell,
   TableRow,
@@ -81,7 +82,9 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-          <StaffStatusCell submissionItem={item} />
+          <Box mr={2}>
+            <StaffStatusCell submissionItem={item} />
+          </Box>
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"}>
           <When condition={submitted_on}>
