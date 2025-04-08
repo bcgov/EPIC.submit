@@ -68,7 +68,7 @@ export default function AddRequestSection({
       </ControlledCheckboxGroup>
       <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
         <Typography variant="body1" fontWeight={"bold"}>
-          Request reason
+          EAO Comment
         </Typography>
         <ControlledTextField
           name="update_request.reason"
