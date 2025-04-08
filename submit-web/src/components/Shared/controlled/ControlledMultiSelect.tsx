@@ -52,7 +52,7 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
       defaultValue={defaultValue}
       render={({ field: { onChange, value } }) => {
         const selectedValues = extendedOptions.filter((option) =>
-          (Array.isArray(value) ? value : []).includes(option.value)
+          (Array.isArray(value) ? value : []).includes(option.value),
         );
 
         return (
@@ -73,11 +73,11 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
                     label={selected.label}
                     onDelete={() => {
                       const newSelection = selectedValues.filter(
-                        (item) => item.value !== selected.value
+                        (item) => item.value !== selected.value,
                       );
                       setValue(
                         name,
-                        newSelection.map((item) => item.value)
+                        newSelection.map((item) => item.value),
                       );
                     }}
                     deleteIcon={<CloseIcon />}
@@ -109,8 +109,8 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
               options={extendedOptions.filter(
                 (option) =>
                   !selectedValues.some(
-                    (selected) => selected.value === option.value
-                  )
+                    (selected) => selected.value === option.value,
+                  ),
               )} // Hide selected values from dropdown
               value={selectedValues}
               autoComplete
@@ -125,12 +125,12 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
                 if (selectAll && newValue.some((v) => v.value === "All")) {
                   setValue(
                     name,
-                    options.map((opt) => opt.value)
+                    options.map((opt) => opt.value),
                   );
                 } else {
                   setValue(
                     name,
-                    newValue.map((v) => v.value)
+                    newValue.map((v) => v.value),
                   );
                 }
               }}
