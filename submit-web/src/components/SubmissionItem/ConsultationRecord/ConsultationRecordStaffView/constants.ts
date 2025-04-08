@@ -11,29 +11,19 @@ export const RadioOptions = {
   },
 };
 
-export const consultationSchema = yup.lazy((value) => {
-  const baseSchema = {
-    staff: yup.object().shape({
-      passedConsultationCheck: yup
-        .string()
-        .required("Staff decision is required"),
-    }),
-    manager: yup.object().shape({
-      passedConsultationCheck: yup
-        .string()
-        .required("Manager decision is required"),
-    }),
-    update_request: yup.object().shape({}),
-  };
+export const consultationSchema = yup.lazy((value = {}) => {
+  const staffDecision = value?.staff?.passedConsultationCheck;
+  const managerDecision = value?.manager?.passedConsultationCheck;
 
-  const no =
-    value.staff.passedConsultationCheck === RadioOptions.NO.value ||
-    value.manager.passedConsultationCheck === RadioOptions.NO.value;
+  const hasStaffDecision = !!staffDecision;
+  const hasManagerDecision = !!managerDecision;
 
-  if (no) {
-    return yup.object().shape({
-      ...baseSchema,
-      update_request: yup.object().shape({
+  const noDecision =
+    staffDecision === RadioOptions.NO.value ||
+    managerDecision === RadioOptions.NO.value;
+
+  const updateRequestSchema = noDecision
+    ? yup.object().shape({
         reason: yup.string().required("Reason is required"),
         submission_item_types: yup
           .array()
@@ -42,9 +32,22 @@ export const consultationSchema = yup.lazy((value) => {
           .typeError("Submission items are required")
           .of(yup.number())
           .min(1, "Please select at least one item"),
-      }),
-    });
-  }
+      })
+    : yup.object().strip(); // remove from validated object if not needed
 
-  return yup.object().shape(baseSchema);
+  const baseShape: Record<string, any> = {
+    staff: yup.object().shape({
+      passedConsultationCheck: hasManagerDecision
+        ? yup.string().notRequired()
+        : yup.string().required("Staff decision is required"),
+    }),
+    manager: yup.object().shape({
+      passedConsultationCheck: hasStaffDecision
+        ? yup.string().notRequired()
+        : yup.string().required("Manager decision is required"),
+    }),
+    update_request: updateRequestSchema,
+  };
+
+  return yup.object().shape(baseShape);
 });

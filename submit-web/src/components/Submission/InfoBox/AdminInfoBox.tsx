@@ -39,32 +39,36 @@ export const AdminInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         p: "16px 16px 16px 16px",
       }}
     >
+      <Grid item xs={6} container>
+        <Grid item xs={12}>
+          <Stack direction={"row"} spacing={2}>
+            <Typography color={BCDesignTokens.themeGray70}>
+              Condition:
+            </Typography>
+            <Typography color={"inherit"}>{condition}</Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} container>
+          <Stack direction={"row"} spacing={2}>
+            <Typography color={BCDesignTokens.themeGray70}>
+              Supporting Condition(s):
+            </Typography>
+            <Typography color={"inherit"}>{supportingConditions}</Typography>
+          </Stack>
+        </Grid>
+      </Grid>
+
       <Grid
         item
-        xs={12}
+        xs={6}
         container
-        alignContent={{ xs: "flex-start", lg: "flex-end" }}
-        justifyContent={{ xs: "flex-start", lg: "flex-end" }}
+        alignContent={{ xs: "flex-start" }}
+        justifyContent={{ xs: "flex-end" }}
       >
         <VersionGroup currentPackageVersion={version} />
       </Grid>
-      <Grid item xs={12} lg={4} container>
-        <Stack direction={"row"} spacing={2}>
-          <Typography color={BCDesignTokens.themeGray70}>Condition:</Typography>
-          <Typography color={"inherit"}>{condition}</Typography>
-        </Stack>
-      </Grid>
 
-      <Grid item xs={12} lg={4} container>
-        <Stack direction={"row"} spacing={2}>
-          <Typography color={BCDesignTokens.themeGray70}>
-            Supporting Conditions:
-          </Typography>
-          <Typography color={"inherit"}>{supportingConditions}</Typography>
-        </Stack>
-      </Grid>
-
-      <Grid item xs={12} container mt={"24px"}>
+      <Grid item xs={12} container mt={"16px"}>
         <SubmissionHistory submissionPackageId={String(submissionPackage.id)} />
       </Grid>
     </Grid>
