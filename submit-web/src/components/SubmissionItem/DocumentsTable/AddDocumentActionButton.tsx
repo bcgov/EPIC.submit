@@ -11,10 +11,12 @@ import { useParams } from "@tanstack/react-router";
 type AddDocumentActionButtonProps = {
   handleAddDocument: (submission: Submission) => void;
   folder: string;
+  folderPath: string;
 };
 export const AddDocumentActionButton = ({
   handleAddDocument,
   folder,
+  folderPath,
 }: AddDocumentActionButtonProps) => {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -33,6 +35,7 @@ export const AddDocumentActionButton = ({
         file: fileToUpload,
         fileDetails: {
           filename: fileToUpload.name,
+          folder: folderPath,
         },
       });
 

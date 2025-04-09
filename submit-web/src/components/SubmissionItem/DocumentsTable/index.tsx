@@ -18,12 +18,17 @@ import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { useGetSubmissionItem } from "@/hooks/api/useItems";
 import { useMemo, useState } from "react";
 import { AddDocumentActionButton } from "./AddDocumentActionButton";
+import { useQueryClient } from "@tanstack/react-query";
+import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
+import { AccountProject } from "@/models/Project";
+import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { camelCase } from "lodash";
 
 type DocumentsTableProps = Readonly<{
   folder: string;
 }>;
 export default function DocumentsTable({ folder }: DocumentsTableProps) {
-  const { submissionId: submissionItemId } = useParams({
+  const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
@@ -55,6 +60,13 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
   if (!submissionItem) {
     return null;
   }
+
+  const queryClient = useQueryClient();
+  const accountProject = queryClient.getQueryData<AccountProject>(
+    getAccountProjectQueryOptions(Number(projectId)).queryKey
+  );
+  const projectName = camelCase(accountProject?.project.name ?? "");
+
   return (
     <SubmitTableContainer>
       <MuiTable>
@@ -79,6 +91,7 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
             <SubmitPrimaryRowTableCell align="right">
               <AddDocumentActionButton
                 folder={folder}
+                folderPath={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${folder}/`}
                 handleAddDocument={handleAddSubmission}
               />
             </SubmitPrimaryRowTableCell>
@@ -87,6 +100,7 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
             <Row
               key={documentSubmission.id}
               documentSubmission={documentSubmission}
+              folderPath={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${folder}/`}
             />
           ))}
         </TableBody>
