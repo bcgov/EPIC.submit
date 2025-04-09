@@ -1,68 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Update Request for Submission</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            color: #003366; /* BC Gov blue */
-            background-color: #ffffff;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .logo img {
-            max-width: 250px;
-            display: block;
-            margin: auto;
-        }
-        .content {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #333;
-        }
-        .highlight-box {
-            background-color: #f4f4f4;
-            padding: 15px;
-            border-left: 4px solid #1a5a96;
-            margin: 15px 0;
-        }
-        .footer {
-            font-size: 14px;
-            color: #666;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Action Required in EPIC.submit</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      color: #003366;
+      background-color: #ffffff;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+    .logo {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      max-width: 220px;
+      height: auto;
+    }
+    .content {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+      text-align: left;
+    }
+    .highlight-box {
+      background-color: #FAF9F8;
+      padding: 4px;
+      border-left: 4px solid #1a5a96;
+      margin: 20px 0;
+    }
+    .footer {
+      font-size: 12px;
+      color: #666;
+      margin-top: 30px;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <img src="{{ logo_url }}" alt="BC Government Logo">
-        </div>
-        <div class="content">
-            <p>Hi {{ submitter_name }},</p>
-
-            <p>You have a request to update some documents in your submission of <strong>{{ package_name }}</strong>.</p>
-
-            <div class="highlight-box">
-                <p>Please log in to the <a href="{{ epic_submit_link }}">EPIC.submit</a> application at your earliest convenience to review the details and make the necessary updates.</p>
-            </div>
-
-            <p>If you have any questions, feel free to reply to this email.</p>
-
-            <p>Thank you for your prompt attention to this matter.</p>
-
-            <p>Best regards,</p>
-            <p><strong>{{ sender_name }}</strong></p>
-        </div>
+  <div class="container">
+    <div class="logo">
+          <img src="{{ logo_url }}" alt="BC Government Logo"/>
     </div>
+
+    <div class="content">
+      <p>Hello {{ submitter_name }},</p>
+
+      <p>You have a request regarding your submission of <strong>{{ package_name }}</strong>.</p>
+
+      <div class="highlight-box">
+        <p>Please log in to the <a href="{{ epic_submit_link }}">EPIC.submit</a> application at your earliest convenience to review the details and make the necessary updates.</p>
+      </div>
+
+      <p>If you have any questions, feel free to reply to this email.</p>
+
+      <p>Thank you for your prompt attention to this matter.</p>
+      
+      <p>Best regards,</p>
+      <p>
+        EAO Management Plan Operations Team<br>
+        B.C. Environmental Assessment Office<br>
+        Government of British Columbia
+      </p>
+    </div>
+  </div>
 </body>
 </html>

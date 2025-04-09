@@ -18,23 +18,28 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
     @classmethod
     def prepare_invitation_email_notification(cls, invitation: InvitationsModel) -> EmailDetails:
         """Prepare email details for update request creation."""
-
+        
         # Default action text
         invitation_action_text = "join"
-
         # Check role and modify invitation action text accordingly
         if invitation.role and invitation.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
             invitation_action_text = "collaborate on"
+
+        bc_service_card_url = current_app.config.get('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca')
+        project = None
+        project_name = None
 
         if invitation.project_ids:
             project_name = cls.get_project_names(invitation.project_ids)
         elif invitation.package_ids:
             project_name = cls.get_project_names_for_package_id(invitation.package_ids)
         elif invitation.account_id:
-            project_name = cls.get_project_name_for_account_id(invitation.account_id)
+            project = cls.get_project_for_account_id(invitation.account_id)
+            if project:
+                project_name = project.name
 
-        if not project_name:
-            raise BadRequestError(f"Project name not found for invitation id: {invitation.id}")
+        if not project_name and not project:
+            raise BadRequestError(f"Project was not found for invitation id: {invitation.id}")
 
         invitation_url = cls.generate_signup_url(invitation.token)
 
@@ -43,7 +48,9 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
             body_args={
                 'epic_submit_link': current_app.config.get('WEB_URL'),
                 'invitation_url': invitation_url,
-                'project_name': project_name,
+                'project_name': project_name if project_name else project.name,
+                'bc_service_card_url': bc_service_card_url,
+                'certificate_holder_name': project.proponent_name if project.proponent_name else '',
                 'invitation_action_text': invitation_action_text,
             },
             subject='Invitation to collaborate on EPIC.submit',
@@ -81,18 +88,19 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
         return project_name or ""
 
     @staticmethod
-    def get_project_name_for_account_id(account_id: int) -> str:
-        """Fetch project name for a given account ID."""
+    def get_project_for_account_id(account_id: int) -> ProjectModel:
+        """Fetch the full ProjectModel instance for a given account ID."""
         if not account_id:
-            return ""
+            return None
 
-        project_name = (
-            db.session.query(ProjectModel.name)
+        project = (
+            db.session.query(ProjectModel)
             .join(AccountProjectModel, ProjectModel.id == AccountProjectModel.project_id)
             .filter(AccountProjectModel.account_id == account_id)
-            .scalar()
+            .first()
         )
-        return project_name or ""
+
+        return project
 
     @staticmethod
     def generate_signup_url(token):
