@@ -32,6 +32,12 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
+  const queryClient = useQueryClient();
+  const accountProject = queryClient.getQueryData<AccountProject>(
+    getAccountProjectQueryOptions(Number(projectId)).queryKey
+  );
+  const projectName = camelCase(accountProject?.project.name ?? "");
+
   const [addedSubmissions, setAddedSubmissions] = useState<Submission[]>([]);
 
   const { data: submissionItem, isPending: isItemLoading } =
@@ -60,12 +66,6 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
   if (!submissionItem) {
     return null;
   }
-
-  const queryClient = useQueryClient();
-  const accountProject = queryClient.getQueryData<AccountProject>(
-    getAccountProjectQueryOptions(Number(projectId)).queryKey
-  );
-  const projectName = camelCase(accountProject?.project.name ?? "");
 
   return (
     <SubmitTableContainer>
