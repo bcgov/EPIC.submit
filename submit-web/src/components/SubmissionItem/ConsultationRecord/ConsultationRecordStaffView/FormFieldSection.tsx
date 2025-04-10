@@ -53,7 +53,7 @@ export default function FormFieldSection({
           sx={{ borderBottom: `2px solid ${BCDesignTokens.themeGold80}` }}
         >
           <Typography
-            variant="h5"
+            variant="h4"
             color={BCDesignTokens.themeBlue100}
             sx={{
               mt: BCDesignTokens.layoutMarginSmall,

@@ -56,7 +56,8 @@ export const ConsultationRecordProponentView = () => {
 
   const partiesList = useMemo(() => {
     const parties =
-      submissionPackage?.meta?.main_condition?.condition_attributes?.parties_required_to_be_consulted;
+      submissionPackage?.meta?.main_condition?.condition_attributes
+        ?.parties_required_to_be_consulted;
     if (!parties) return [];
 
     if (parties instanceof String) {
@@ -217,7 +218,9 @@ export const ConsultationRecordProponentView = () => {
             </Grid>
             {submissionPackage &&
               submissionPackage?.update_requests?.length > 0 && (
-                <UpdateRequestWidget submissionPackage={submissionPackage} />
+                <Grid item xs={12}>
+                  <UpdateRequestWidget submissionPackage={submissionPackage} />
+                </Grid>
               )}
             <ActionButtons saveAndClose={saveAndClose} />
           </Grid>
