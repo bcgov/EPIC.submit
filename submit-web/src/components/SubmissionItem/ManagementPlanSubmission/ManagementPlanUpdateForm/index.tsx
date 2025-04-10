@@ -13,7 +13,7 @@ export const ManagementPlanUpdateForm = () => {
   return (
     <SubmissionFormContainer>
       <Box width={"100%"}>
-        <DocumentsTable folder={S3_FOLDER.CONSULTATION_RECORDS} />
+        <DocumentsTable folder={S3_FOLDER.MANAGEMENT_PLANS} />
       </Box>
       <Button
         sx={{
