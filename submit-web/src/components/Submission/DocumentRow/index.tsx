@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Box,
   IconButton,
   Link as MuiLink,
   TableRow,
@@ -100,7 +101,9 @@ export default function DocumentRow({
           )}
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"20%"}>
-          <StatusCell submittedDocument={documentSubmission} />
+          <Box mr={2}>
+            <StatusCell submittedDocument={documentSubmission} />
+          </Box>
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"10%"}></SubmitTableCell>
       </SubmitTableRow>

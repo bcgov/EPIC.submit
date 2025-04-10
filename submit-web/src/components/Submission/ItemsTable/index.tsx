@@ -28,6 +28,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
       .flat();
     initializeFiles(internalStaffDocuments);
   }, [submissionItems, initializeFiles]);
+
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table sx={{ tableLayout: "fixed" }}>

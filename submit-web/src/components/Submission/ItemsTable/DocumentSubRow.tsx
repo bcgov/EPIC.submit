@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link as MuiLink, TableRow, Typography } from "@mui/material";
+import { Box, Link as MuiLink, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
@@ -61,7 +61,9 @@ export default function DocumentSubRow({
         <span style={{ marginRight: "24px" }} />
       </SubmitTableCell>
       <SubmitTableCell align="right" width={"20%"}>
-        <StatusCell submittedDocument={documentSubmission} />
+        <Box mr={2}>
+          <StatusCell submittedDocument={documentSubmission} />
+        </Box>
       </SubmitTableCell>
       <SubmitTableCell align="right" width={"10%"}></SubmitTableCell>
     </TableRow>

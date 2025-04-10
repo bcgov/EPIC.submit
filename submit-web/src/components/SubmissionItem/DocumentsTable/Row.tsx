@@ -11,9 +11,10 @@ import { FileUploadButton } from "@/components/Shared/FileUploadButton";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
+  folderPath: string;
 }>;
 
-export default function Row({ documentSubmission }: DocumentRowProps) {
+export default function Row({ documentSubmission, folderPath }: DocumentRowProps) {
   const { submissionPackageId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -66,6 +67,7 @@ export default function Row({ documentSubmission }: DocumentRowProps) {
         file: fileToUpload,
         fileDetails: {
           filename: fileToUpload.name,
+          folder: folderPath,
         },
       });
 
