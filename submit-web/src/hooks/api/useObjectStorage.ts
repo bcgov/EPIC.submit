@@ -27,7 +27,7 @@ type PresignedUrlRequestPayload = {
 const fetchPresignedUrl = async (requestPayload: PresignedUrlRequestPayload) => {
   const response = await documentRequest({
     url: "/storage-operations/presigned-urls",
-    params: { "public-read": true },
+    params: { "public-read": false },
     method: "post",
     data: requestPayload,
   });
@@ -46,7 +46,6 @@ const uploadObject = (presignedUrl: string, file: File) => {
     data: file,
     headers: {
       "Content-Type": "application/octet-stream",
-      "x-amz-acl": "public-read",
     },
   });
 };
