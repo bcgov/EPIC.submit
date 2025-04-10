@@ -1,10 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  FormHelperText,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, FormControlLabel, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
 import { SubmissionPackage } from "@/models/Package";
