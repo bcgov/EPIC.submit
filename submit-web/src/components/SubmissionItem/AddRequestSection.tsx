@@ -84,10 +84,6 @@ export default function AddRequestSection({
           }}
           disabled={disabled}
         />
-        <FormHelperText>
-          This request will be sent to the Holder after a Manager confirms the
-          decision.
-        </FormHelperText>
       </Box>
       <WarningBox mb={BCDesignTokens.layoutMarginXsmall}>
         <Stack direction="row" alignItems="center" spacing={2}>
