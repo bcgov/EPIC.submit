@@ -86,7 +86,7 @@ export default function AppBarActions() {
     }
 
     return null;
-  }, [user_data, isUserDataLoading]);
+  }, [user_data, isUserDataLoading, isProponent]);
 
   return (
     <>
