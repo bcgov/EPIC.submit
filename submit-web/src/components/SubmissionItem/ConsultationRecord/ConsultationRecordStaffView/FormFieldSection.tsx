@@ -12,7 +12,7 @@ import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
 import { FORM_TYPE } from "@/store/hideFormStore";
 import { useFormVisibilityStore } from "@/store/hideFormStore";
-
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 const defaultFormData = {
   consultedParties: [],
   writtenExplanationsProvidedToCommenters: "",
@@ -51,12 +51,7 @@ export default function FormFieldSection({
           justifyContent={"space-between"}
           alignItems={"space-between"}
         >
-          <Typography
-          variant="h5"
-          sx={{ color: BCDesignTokens.typographyColorDisabled }}
-        >
-          Consultation Records Information
-          </Typography>
+          <BarBlueTitle title="Consultation Records Information" />
           <FormControlLabel
             control={
               <Switch

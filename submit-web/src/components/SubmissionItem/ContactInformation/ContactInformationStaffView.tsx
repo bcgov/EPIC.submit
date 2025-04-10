@@ -1,5 +1,4 @@
-import { Button, Divider, Grid, TextField, Typography } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Button, Grid, TextField, Typography } from "@mui/material";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
@@ -8,6 +7,7 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import { SubmissionFormContainer } from "../SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { get } from "lodash";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 export const ContactInformationStaffView = () => {
   const {
@@ -48,13 +48,7 @@ export const ContactInformationStaffView = () => {
     <SubmissionFormContainer>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Typography
-            variant="h5"
-            sx={{ color: BCDesignTokens.typographyColorDisabled }}
-          >
-            Contact Information
-          </Typography>
-          <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+          <BarBlueTitle title="Contact Information" />
         </Grid>
         <Grid item xs={12}>
           <Typography

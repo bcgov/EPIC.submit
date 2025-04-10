@@ -16,6 +16,7 @@ import { useMemo } from "react";
 import { get } from "lodash";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useParams } from "@tanstack/react-router";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 const defaultFormData = {
   conditionSatisfied: "",
@@ -113,15 +114,9 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            <Typography
-              variant="h5"
-              sx={{ color: BCDesignTokens.typographyColorDisabled }}
-            >
-              Information Verification
-            </Typography>
-            <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+            <BarBlueTitle title="Information Verification" />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} sx={{ mt: 1 }}>
             <Typography variant="body1">
               The information on this form is correct to the best of your
               knowledge.

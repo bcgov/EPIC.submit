@@ -6,7 +6,7 @@ export default function BarTitle({ title }: { title: string }) {
   return (
     <Box sx={{ mt: BCDesignTokens.layoutMarginMedium }}>
       <YellowBar />
-      <Typography variant="h5">{title}</Typography>
+      <Typography variant="h4">{title}</Typography>
     </Box>
   );
 }
@@ -20,7 +20,7 @@ export function BarBlueTitle({
 }) {
   return (
     <Typography
-      variant="h4"
+      variant="h5"
       color={BCDesignTokens.themeBlue100}
       sx={{
         mt: BCDesignTokens.layoutMarginSmall,

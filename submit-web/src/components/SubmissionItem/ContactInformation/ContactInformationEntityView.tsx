@@ -1,5 +1,4 @@
-import { Button, Divider, Grid, Typography } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Button, Grid, Typography } from "@mui/material";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -17,6 +16,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { SubmissionFormContainer } from "../SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -142,13 +142,7 @@ export const ContactInformationEntityView = () => {
         <Form onSubmit={handleSubmit(onSubmitHandler)} methods={methods}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Typography
-                variant="h5"
-                sx={{ color: BCDesignTokens.typographyColorDisabled }}
-              >
-                Contact Information
-              </Typography>
-              <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+              <BarBlueTitle title="Contact Information" />
             </Grid>
             <Grid item xs={12}>
               <Typography

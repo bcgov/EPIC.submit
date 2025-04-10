@@ -1,6 +1,6 @@
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
-import { Divider, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { FieldErrors, get } from "react-hook-form";
@@ -8,6 +8,7 @@ import ControlledTextField from "@/components/Shared/controlled/ControlledTextFi
 import { useParams } from "@tanstack/react-router";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useMemo } from "react";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 interface FormFieldSectionProps {
   errors: FieldErrors<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
 }
@@ -61,15 +62,9 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
         </Grid>
       </Grid>
       <Grid item xs={12}>
-        <Typography
-          variant="h5"
-          sx={{ color: BCDesignTokens.typographyColorDisabled }}
-        >
-          Information Verification
-        </Typography>
-        <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+        <BarBlueTitle title="Information Verification" />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ mt: 1 }}>
         <Typography variant="body1">
           The information on this form is correct to the best of your knowledge.
         </Typography>

@@ -24,6 +24,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 const managementPlanSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
@@ -200,13 +201,7 @@ export const ManagementPlanSubmissionProponentView = () => {
         <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <Grid item xs={12}>
-              <Typography
-                variant="h5"
-                sx={{ color: BCDesignTokens.typographyColorDisabled }}
-              >
-                Management Plan Requirements
-              </Typography>
-              <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+              <BarBlueTitle title="Management Plan Requirements" />
             </Grid>
             <Grid item xs={12}>
               <FormFieldSection errors={errors} />
