@@ -42,6 +42,7 @@ export default function AppBarActions() {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const isProponent = user_data?.type === USER_TYPE.PROPONENT;
 
   const handleLogin = (idp: IdentityProvider) => {
     setAnchorEl(null);
@@ -70,17 +71,17 @@ export default function AppBarActions() {
         </span>
       ) : null;
 
-    if (user_data?.type === USER_TYPE.PROPONENT && user_data?.account_user) {
+    if (isProponent && user_data?.account_user) {
       return getUserGreeting(
         user_data.account_user.first_name,
-        user_data.account_user.last_name,
+        user_data.account_user.last_name
       );
     }
 
     if (user_data?.staff_user) {
       return getUserGreeting(
         user_data.staff_user.first_name,
-        user_data.staff_user.last_name,
+        user_data.staff_user.last_name
       );
     }
 
@@ -124,15 +125,14 @@ export default function AppBarActions() {
                   horizontal: "right",
                 }}
               >
-                <MenuItem onClick={() => handleNavigate("/proponent/profile")}>
-                  My Profile
-                </MenuItem>
-                {user_data?.type === USER_TYPE.PROPONENT && (
-                  <MenuItem
-                    onClick={() => handleNavigate("/proponent/edit-profile")}
-                  >
-                    Edit My Profile
-                  </MenuItem>
+                {isProponent && (
+                  <>
+                    <MenuItem
+                      onClick={() => handleNavigate("/proponent/profile")}
+                    >
+                      My Profile
+                    </MenuItem>
+                  </>
                 )}
                 <MenuItem
                   onClick={() => {
