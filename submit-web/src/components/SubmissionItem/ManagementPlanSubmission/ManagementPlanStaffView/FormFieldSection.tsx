@@ -64,10 +64,14 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
           xs={12}
           justifyContent={"space-between"}
           alignItems={"space-between"}
+          sx={{ borderBottom: `2px solid ${BCDesignTokens.themeGold80}` }}
         >
           <Typography
             variant="h5"
-            sx={{ color: BCDesignTokens.typographyColorDisabled }}
+            color={BCDesignTokens.themeBlue100}
+            sx={{
+              mt: BCDesignTokens.layoutMarginSmall,
+            }}
           >
             Management Plan Requirements
           </Typography>
