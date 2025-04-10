@@ -6,7 +6,7 @@ export default function BarTitle({ title }: { title: string }) {
   return (
     <Box sx={{ mt: BCDesignTokens.layoutMarginMedium }}>
       <YellowBar />
-      <Typography variant="h4">{title}</Typography>
+      <Typography variant="h5">{title}</Typography>
     </Box>
   );
 }
