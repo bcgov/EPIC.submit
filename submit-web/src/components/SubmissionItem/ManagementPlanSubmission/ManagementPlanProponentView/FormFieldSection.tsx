@@ -40,7 +40,7 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
         <Grid item xs={12}>
           <Typography variant="body1">
             Does the plan address all the requirements in condition
-            {condition}?
+            {` ${condition}`}?
           </Typography>
 
           <ControlledRadioGroup name="conditionSatisfied">
