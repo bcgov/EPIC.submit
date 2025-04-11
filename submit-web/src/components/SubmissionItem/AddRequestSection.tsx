@@ -1,10 +1,4 @@
-import {
-  Box,
-  Checkbox,
-  FormControlLabel,
-  FormHelperText,
-  Typography,
-} from "@mui/material";
+import { Box, Checkbox, FormControlLabel, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
 import { SubmissionPackage } from "@/models/Package";
@@ -68,7 +62,7 @@ export default function AddRequestSection({
       </ControlledCheckboxGroup>
       <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
         <Typography variant="body1" fontWeight={"bold"}>
-          Request reason
+          EAO Comment
         </Typography>
         <ControlledTextField
           name="update_request.reason"
@@ -84,10 +78,6 @@ export default function AddRequestSection({
           }}
           disabled={disabled}
         />
-        <FormHelperText>
-          This request will be sent to the Holder after a Manager confirms the
-          decision.
-        </FormHelperText>
       </Box>
       <WarningBox mb={BCDesignTokens.layoutMarginXsmall}>
         <Stack direction="row" alignItems="center" spacing={2}>

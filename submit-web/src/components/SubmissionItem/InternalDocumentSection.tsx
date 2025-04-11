@@ -63,7 +63,7 @@ export default function InternalDocumentSection() {
           saved with the Management Plan Package.
         </Typography>
       </Grid>
-      <Grid item xs={12} mt={"69px"}>
+      <Grid item xs={12} mt={BCDesignTokens.layoutMarginXlarge}>
         <Typography variant="body1">Upload Documents</Typography>
       </Grid>
       <Grid item xs={12}>

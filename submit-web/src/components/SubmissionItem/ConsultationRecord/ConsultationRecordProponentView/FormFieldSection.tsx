@@ -2,7 +2,6 @@ import { useState } from "react";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 import {
   Chip,
-  Divider,
   Grid,
   IconButton,
   InputAdornment,
@@ -16,6 +15,7 @@ import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadio
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
 import { ConsultationRecordForm } from "../constants";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 type FormFieldSectionProps = Readonly<{
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
@@ -54,13 +54,7 @@ export default function FormFieldSection({
   return (
     <>
       <Grid item xs={12}>
-        <Typography
-          variant="h5"
-          sx={{ color: BCDesignTokens.typographyColorDisabled }}
-        >
-          Consultation Records Information
-        </Typography>
-        <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+        <BarBlueTitle title="Consultation Records Information" />
       </Grid>
       <Grid item xs={12} container>
         <Grid item container xs={12} spacing={BCDesignTokens.layoutMarginSmall}>

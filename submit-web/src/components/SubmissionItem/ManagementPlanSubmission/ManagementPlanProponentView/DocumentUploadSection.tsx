@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "react";
-import { Box, Divider, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -15,6 +15,7 @@ import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { AccountProject } from "@/models/Project";
 import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
@@ -91,13 +92,7 @@ export const DocumentUploadSection = () => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <Typography
-          variant="h5"
-          sx={{ color: BCDesignTokens.typographyColorDisabled }}
-        >
-          Document(s) Upload
-        </Typography>
-        <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+        <BarBlueTitle title="Document(s) Upload" />
       </Grid>
       <Grid item xs={12}>
         <Box sx={{ flexDirection: "column", display: "flex" }}>

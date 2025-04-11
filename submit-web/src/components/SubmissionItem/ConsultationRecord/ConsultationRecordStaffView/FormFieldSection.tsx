@@ -50,12 +50,16 @@ export default function FormFieldSection({
           xs={12}
           justifyContent={"space-between"}
           alignItems={"space-between"}
+          sx={{ borderBottom: `2px solid ${BCDesignTokens.themeGold80}` }}
         >
           <Typography
-          variant="h5"
-          sx={{ color: BCDesignTokens.typographyColorDisabled }}
-        >
-          Consultation Records Information
+            variant="h4"
+            color={BCDesignTokens.themeBlue100}
+            sx={{
+              mt: BCDesignTokens.layoutMarginSmall,
+            }}
+          >
+            Consultation Records Information
           </Typography>
           <FormControlLabel
             control={

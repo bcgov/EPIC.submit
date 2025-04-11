@@ -1,4 +1,4 @@
-import { Divider, Grid, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
@@ -24,13 +24,13 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 const managementPlanSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
   allRequirementsAddressed: yup
     .string()
     .required("Please answer this question."),
-  requirementsClear: yup.string().required("Please answer this question."),
   informationAccurate: yup.string().required("Please answer this question."),
   managementPlans: yup
     .array()
@@ -80,9 +80,6 @@ export const ManagementPlanSubmissionProponentView = () => {
       ),
       allRequirementsAddressed: booleanToString(
         formSubmission.submitted_form.submission_json.allRequirementsAddressed
-      ),
-      requirementsClear: booleanToString(
-        formSubmission.submitted_form.submission_json.requirementsClear
       ),
       informationAccurate: booleanToString(
         formSubmission.submitted_form.submission_json.informationAccurate
@@ -165,7 +162,6 @@ export const ManagementPlanSubmissionProponentView = () => {
     const {
       conditionSatisfied,
       allRequirementsAddressed,
-      requirementsClear,
       informationAccurate,
       notes,
     } = formData;
@@ -177,7 +173,6 @@ export const ManagementPlanSubmissionProponentView = () => {
         data: {
           conditionSatisfied: stringToBoolean(conditionSatisfied),
           allRequirementsAddressed: stringToBoolean(allRequirementsAddressed),
-          requirementsClear: stringToBoolean(requirementsClear),
           informationAccurate: stringToBoolean(informationAccurate),
           notes,
         },
@@ -206,13 +201,7 @@ export const ManagementPlanSubmissionProponentView = () => {
         <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <Grid item xs={12}>
-              <Typography
-                variant="h5"
-                sx={{ color: BCDesignTokens.typographyColorDisabled }}
-              >
-                Management Plan Requirements
-              </Typography>
-              <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+              <BarBlueTitle title="Management Plan Requirements" />
             </Grid>
             <Grid item xs={12}>
               <FormFieldSection errors={errors} />

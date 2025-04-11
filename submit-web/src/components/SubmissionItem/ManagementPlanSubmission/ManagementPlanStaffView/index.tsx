@@ -70,10 +70,7 @@ export const ManagementPlanSubmissionStaffView = () => {
 
   return (
     <SubmissionFormContainer>
-      <FormFieldSection
-        formData={formData}
-        submissionId={Number(submissionItemId)}
-      />
+      <FormFieldSection formData={formData} />
       <InternalDocumentSection />
       <ReviewSection />
     </SubmissionFormContainer>

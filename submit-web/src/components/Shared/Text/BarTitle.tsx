@@ -20,7 +20,7 @@ export function BarBlueTitle({
 }) {
   return (
     <Typography
-      variant="h5"
+      variant="h4"
       color={BCDesignTokens.themeBlue100}
       sx={{
         mt: BCDesignTokens.layoutMarginSmall,

@@ -6,7 +6,7 @@ import { BCDesignTokens } from "epic.theme";
 import { CardInnerBox } from "@/components/Projects/Project";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
-import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import BarTitle from "@/components/Shared/Text/BarTitle";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { SubmissionPackage } from "@/models/Package";
@@ -71,7 +71,7 @@ export const SubmissionFormContainer = ({
               gap: BCDesignTokens.layoutPaddingLarge,
             }}
           >
-            <BarBlueTitle title={submissionPackage?.name || ""} />
+            <BarTitle title={submissionPackage?.name || ""} />
             <Grid
               container
               spacing={BCDesignTokens.layoutMarginMedium}

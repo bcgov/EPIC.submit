@@ -1,23 +1,46 @@
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
-import { Divider, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
-import { FieldErrors } from "react-hook-form";
+import { FieldErrors, get } from "react-hook-form";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
-
+import { useParams } from "@tanstack/react-router";
+import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
+import { useMemo } from "react";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 interface FormFieldSectionProps {
   errors: FieldErrors<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
 }
 
 export default function FormFieldSection({ errors }: FormFieldSectionProps) {
+  const {
+    projectId: accountProjectIdParam,
+    submissionPackageId: submissionPackageIdParam,
+  } = useParams({
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  });
+  const accountProjectId = Number(accountProjectIdParam);
+  const submissionPackageId = Number(submissionPackageIdParam);
+  const { data: submissionPackage } = useGetSubmissionPackage({
+    packageId: submissionPackageId,
+    enabled: Boolean(accountProjectId),
+  });
+
+  const condition = useMemo(() => {
+    if (!submissionPackage?.meta) return "";
+    const condition = get(submissionPackage, "meta.main_condition");
+
+    return get(condition, "condition_number", "");
+  }, [submissionPackage]);
+
   return (
     <>
       <Grid item xs={12} container>
         <Grid item xs={12}>
           <Typography variant="body1">
-            Does the plan address all the requirements in the (condition
-            number)?
+            Does the plan address all the requirements in condition
+            {` ${condition}`}?
           </Typography>
 
           <ControlledRadioGroup name="conditionSatisfied">
@@ -26,7 +49,7 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1">
-            If the condition(s) associated with the plan reference other
+            If the condition(s) associated with the plan references other
             documents, in whole or part (e.g., project application sections),
             does the plan address all requirements within the referenced
             document(s)?
@@ -37,26 +60,11 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
             />
           </ControlledRadioGroup>
         </Grid>
-        <Grid item xs={12}>
-          <Typography variant="body1">
-            Is each requirement in the plan clear, measurable, and/or include
-            accountability?
-          </Typography>
-          <ControlledRadioGroup name="requirementsClear">
-            <YesNoRadioOptions error={Boolean(errors["requirementsClear"])} />
-          </ControlledRadioGroup>
-        </Grid>
       </Grid>
       <Grid item xs={12}>
-        <Typography
-          variant="h5"
-          sx={{ color: BCDesignTokens.typographyColorDisabled }}
-        >
-          Information Verification
-        </Typography>
-        <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+        <BarBlueTitle title="Information Verification" />
       </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ mt: 1 }}>
         <Typography variant="body1">
           The information on this form is correct to the best of your knowledge.
         </Typography>
