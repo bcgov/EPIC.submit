@@ -1,5 +1,6 @@
 import FileUpload from "@/components/FileUpload";
-import { Divider, Grid, Typography } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useEffect, useMemo } from "react";
 import InternalDocumentsTable from "./InternalDocuments/Table";
@@ -46,17 +47,12 @@ export default function InternalDocumentSection() {
   return (
     <Grid item container>
       <Grid item xs={12}>
-        <Typography
-          variant="h5"
-          sx={{ color: BCDesignTokens.typographyColorDisabled }}
-        >
-          Document Upload/Links
-        </Typography>
-        <Divider sx={{ mt: BCDesignTokens.layoutMarginXsmall }} />
+        <BarBlueTitle title="Document Upload/Links" />
         <Typography
           variant="body2"
           sx={{
             color: BCDesignTokens.typographyColorPrimary,
+            mt: BCDesignTokens.layoutMarginXsmall,
           }}
         >
           These documents will be accessible during your review and will be
