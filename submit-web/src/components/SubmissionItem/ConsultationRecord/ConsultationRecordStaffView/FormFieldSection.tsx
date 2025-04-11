@@ -1,5 +1,4 @@
 import {
-  Divider,
   FormControlLabel,
   Grid,
   RadioGroup,
@@ -77,7 +76,6 @@ export default function FormFieldSection({
             label="Hide form"
           />
         </Grid>
-        <Divider sx={{ width: 1, mt: BCDesignTokens.layoutMarginXsmall }} />
       </Grid>
       <Grid item xs={12} container>
         <When condition={!isHidden}>
