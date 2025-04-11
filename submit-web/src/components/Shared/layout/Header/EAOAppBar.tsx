@@ -5,9 +5,12 @@ import AppBarActions from "./AppBarActions";
 import { useIsMobile } from "@/hooks/common";
 import MobileNav from "./MobileNav";
 import { BCDesignTokens } from "epic.theme";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function EAOAppBar() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
   return (
     <>
       <AppBar
@@ -25,7 +28,18 @@ export default function EAOAppBar() {
           justifyContent="space-between"
         >
           <Grid display="flex" justifyContent="start" alignItems="center">
-            <img src={EAO_Logo} height={isMobile ? 40 : 56} />
+            <img
+              src={EAO_Logo}
+              height={isMobile ? 40 : 56}
+              style={{
+                cursor: "pointer",
+              }}
+              onClick={() =>
+                navigate({
+                  to: `/`,
+                })
+              }
+            />
             {!isMobile && (
               <>
                 <Divider orientation="vertical" flexItem sx={{ m: 1 }} />
