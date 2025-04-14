@@ -53,27 +53,37 @@ class ProjectQueries:
         return query.first()
 
     @classmethod
-    def get_filtered_account_projects(cls, account_id: int = None, search_options: AccountProjectSearchOptions = None):
+    def get_filtered_account_projects_paginated(
+            cls,
+            account_id: int = None,
+            search_options: AccountProjectSearchOptions = None,
+            page: int = None,
+            page_size: int = None
+    ):
         """Find projects by account_id with optional search and pagination."""
-        query = db.session.query(AccountProject).join(AccountProject.project)
+        query = db.session.query(AccountProject)
 
-        # Apply account_id filter only if provided
+        # Apply filters
         if account_id is not None:
             query = query.filter(AccountProject.account_id == account_id)
 
-        package_query = None
-        # Apply search filters if provided
         if search_options and any(bool(search_option) for search_option in search_options.__dict__.values()):
             package_query = cls._filter_by_search_criteria(search_options)
+            package_query = cls._filter_packages_by_user_access(package_query)
+            if package_query:
+                filtered_package_ids = package_query.with_entities(Package.id).subquery()
+                query = query.join(Package).filter(Package.id.in_(filtered_package_ids))
 
-        package_query = cls._filter_packages_by_user_access(package_query)
+        # Get total count for pagination metadata
+        total_count = query.count()
 
-        if package_query:
-            filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
-            query = query.join(Package).filter(
-                Package.id.in_(filtered_package_ids)).options(
-                db.contains_eager(AccountProject.packages))
-        return query.all()
+        # Apply pagination if page and page_size are provided
+        if page and page_size:
+            query = query.limit(page_size).offset((page - 1) * page_size)
+
+        result = query.all()
+
+        return result, total_count
 
     @classmethod
     def _filter_by_search_criteria(cls, search_options: AccountProjectSearchOptions):

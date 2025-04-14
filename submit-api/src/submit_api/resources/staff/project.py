@@ -27,6 +27,8 @@ from submit_api.services.project_service import ProjectService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
 
+DEFAULT_PAGE_SIZE = 3
+DEFAULT_PAGE = 1
 
 API = Namespace("projects", description="Endpoints for Project Management")
 """Custom exception messages
@@ -38,28 +40,28 @@ project_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 
 
 @cors_preflight("GET, OPTIONS")
-@API.route(
-    "",
-    methods=["GET", "OPTIONS"],
-)
+@API.route("", methods=["GET", "OPTIONS"])
 class AccountProjects(Resource):
-    """Resource for managing account projects."""
+    """Resource for managing account projects with pagination."""
 
     @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Get project by project_id")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get paginated projects")
     @API.response(
-        code=HTTPStatus.OK, model=project_list_model, description="Get project"
+        code=HTTPStatus.OK, model=project_list_model, description="Get paginated projects"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get():
-        """Get all account projects."""
+        """Get paginated account projects."""
         args = request.args
         search_text = args.get('search_text')
         submitted_on_start = args.get('submitted_on_start')
         submitted_on_end = args.get('submitted_on_end')
         status = list(map(PackageStatus, args.getlist('status[]')))
+        page = int(args.get('page', DEFAULT_PAGE))  # Default to page 1
+        page_size = int(args.get('page_size', DEFAULT_PAGE_SIZE))  # Default to 10 items per page
+
         search_options = AccountProjectSearchOptions(
             search_text=search_text,
             submitted_on_start=submitted_on_start,
@@ -67,8 +69,19 @@ class AccountProjects(Resource):
             status=status,
         )
 
-        account_projects = ProjectService.get_all_account_projects(search_options)
-        return StaffAccountProjectSchema(many=True).dump(account_projects), HTTPStatus.OK
+        # Fetch paginated projects
+        account_projects, total_projects = ProjectService.get_all_account_projects_paginated(
+            search_options, page, page_size
+        )
+
+        # Calculate next cursor (if applicable)
+        next_cursor = page + 1 if page * page_size < total_projects else None
+
+        return {
+            "projects": StaffAccountProjectSchema(many=True).dump(account_projects),
+            "next_cursor": next_cursor,
+            "total": total_projects,
+        }, HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS, POST")

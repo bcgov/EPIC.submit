@@ -31,7 +31,7 @@ export const Route = createFileRoute("/staff/_staffLayout")({
           to: "/unauthorized",
         });
       }
-      if (!account.roles.includes(EPIC_SUBMIT_ROLE.eao_view)) {
+      if (!account?.roles?.includes(EPIC_SUBMIT_ROLE.eao_view)) {
         return redirect({
           to: "/staff/no-roles",
         });
