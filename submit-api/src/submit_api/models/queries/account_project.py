@@ -76,7 +76,7 @@ class ProjectQueries:
 
         # Apply pagination if page and page_size are provided
         if page and page_size:
-            page = query.paginate(page, page_size)
+            page = query.paginate(page=page, per_page=page_size)
             return page.items, page.total
 
         total = query.count()
