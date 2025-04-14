@@ -128,11 +128,11 @@ function Index() {
               <Typography variant="body1">
                 For more information on registering for a Business BCeID, visit{" "}
                 <Link
-                  href="https://www.bceid.ca/business-bceid/register"
+                  href="https://www.bceid.ca/register/business/getting_started/getting_started.aspx"
                   target="_blank"
                   rel="noopener"
                 >
-                  https://www.bceid.ca/business-bceid/register
+                  https://www.bceid.ca/register/business/getting_started/getting_started.aspx
                 </Link>
               </Typography>
               <Button
