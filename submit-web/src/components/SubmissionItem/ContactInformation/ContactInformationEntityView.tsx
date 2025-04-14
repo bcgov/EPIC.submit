@@ -123,7 +123,7 @@ export const ContactInformationEntityView = () => {
     const request = {
       type: SUBMISSION_TYPE.FORM,
       data: formData,
-      status: isSubmitted ? "" : SUBMISSION_ITEM_STATUS.COMPLETED.value,
+      status: isSubmitted ? undefined : SUBMISSION_ITEM_STATUS.COMPLETED.value,
       item_id: submissionItem.id,
     };
     saveSubmission({
