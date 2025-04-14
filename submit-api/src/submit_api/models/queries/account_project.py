@@ -79,7 +79,7 @@ class ProjectQueries:
 
         # Apply pagination if page and page_size are provided
         if page and page_size:
-            query = query.limit(page_size).offset((page - 1) * page_size)
+            query = query.paginate(page, page_size)
 
         result = query.all()
 
