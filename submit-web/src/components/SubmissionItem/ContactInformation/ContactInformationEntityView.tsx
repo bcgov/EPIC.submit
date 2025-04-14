@@ -17,6 +17,7 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import { SubmissionFormContainer } from "../SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -50,6 +51,7 @@ const contactInformationSchema = yup.object().shape({
 });
 
 type ContactInformationForm = yup.InferType<typeof contactInformationSchema>;
+
 export const ContactInformationEntityView = () => {
   const {
     projectId: accountProjectIdParam,
@@ -68,6 +70,12 @@ export const ContactInformationEntityView = () => {
   const { data: accountProject } = useGetAccountProject({
     accountProjectId,
   });
+
+  const { data: packageData } = useGetSubmissionPackage({
+    packageId: Number(submissionPackageId),
+  });
+
+  const isSubmitted = packageData?.submitted_on;
 
   const { setIsOpen } = useLoaderBackdrop();
   const navigate = useNavigate();
@@ -115,7 +123,7 @@ export const ContactInformationEntityView = () => {
     const request = {
       type: SUBMISSION_TYPE.FORM,
       data: formData,
-      status: SUBMISSION_ITEM_STATUS.COMPLETED.value,
+      status: isSubmitted ? undefined : SUBMISSION_ITEM_STATUS.COMPLETED.value,
       item_id: submissionItem.id,
     };
     saveSubmission({
