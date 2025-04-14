@@ -74,16 +74,14 @@ class ProjectQueries:
                 filtered_package_ids = package_query.with_entities(Package.id).subquery()
                 query = query.join(Package).filter(Package.id.in_(filtered_package_ids))
 
-        # Get total count for pagination metadata
-        total_count = query.count()
-
         # Apply pagination if page and page_size are provided
         if page and page_size:
-            query = query.limit(page_size).offset((page - 1) * page_size)
+            page = query.paginate(page=page, per_page=page_size)
+            return page.items, page.total
 
-        result = query.all()
+        total = query.count()
 
-        return result, total_count
+        return query.all(), total
 
     @classmethod
     def _filter_by_search_criteria(cls, search_options: AccountProjectSearchOptions):
