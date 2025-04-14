@@ -53,8 +53,8 @@ class ProjectQueries:
         return query.first()
 
     @classmethod
-    def get_filtered_account_projects(cls, account_id: int = None, search_options: AccountProjectSearchOptions = None,
-                                      page: int = None, page_size: int = None):
+    def get_filtered_account_projects_paginated(cls, account_id: int = None, search_options: AccountProjectSearchOptions = None,
+                                                page: int = None, page_size: int = None):
         """Find projects by account_id with optional search and pagination."""
         query = db.session.query(AccountProject)
 

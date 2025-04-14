@@ -70,7 +70,7 @@ class AccountProjects(Resource):
         )
 
         # Fetch paginated projects
-        account_projects, total_projects = ProjectService.get_all_account_projects(
+        account_projects, total_projects = ProjectService.get_all_account_projects_paginated(
             search_options, page, page_size
         )
 
