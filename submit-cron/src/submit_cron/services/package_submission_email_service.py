@@ -11,6 +11,7 @@ from submit_api.models.submission import SubmissionType
 from submit_cron.utils import constants
 from submit_cron.models import db
 from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+from submit_cron.utils.datetime import convert_utc_to_local_str
 
 
 class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
@@ -37,7 +38,7 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
             template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
             body_args={
                 'submitter_name': submitter.full_name,
-                'submission_date': package.submitted_on.strftime('%Y-%m-%d %H:%M:%S'),
+                'submission_date': convert_utc_to_local_str(package.submitted_on),
                 'certificate_holder_name': proponent.proponent_name,
                 'package_name': package.name,
                 'documents': [submission.submitted_document.name for submission in document_submissions]
