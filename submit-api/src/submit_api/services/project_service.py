@@ -47,7 +47,8 @@ class ProjectService:
         return projects
 
     @classmethod
-    def get_all_account_projects_paginated(cls, search_options: AccountProjectSearchOptions, page: int = 1, page_size: int = 10):
+    def get_all_account_projects_paginated(cls, search_options: AccountProjectSearchOptions,
+                                           page: int = 1, page_size: int = 10):
         """Get projects by proponent id."""
         return ProjectQueries.get_filtered_account_projects_paginated(None, search_options, page, page_size)
 
