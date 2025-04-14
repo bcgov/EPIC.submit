@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Grid } from "@mui/material";
+import { Grid, Skeleton } from "@mui/material";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { USER_TYPE } from "@/models/User";
 import ProjectFilters from "@/components/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/Filters/projectFilterStore";
@@ -9,22 +9,19 @@ import { Projects, ProjectsSkeleton } from "@/components/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getAccountProjectsForStaff } from "@/hooks/api/useProjects";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 export const Route = createFileRoute("/staff/_staffLayout/projects/")({
   component: ProjectsPage,
   meta: () => [{ title: "All Projects" }],
 });
 
+const initialPageParam = 1;
+const pageSize = 3;
+
 function ProjectsPage() {
   const { filters } = useProjectFilters();
-
-  const fetchProjects = async ({ pageParam = 0 }) => {
-    const res = await fetch(`/api/projects?cursor=${pageParam}`, {
-      method: "POST",
-      body: JSON.stringify(filters),
-    });
-    return res.json();
-  };
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const {
     data,
@@ -32,16 +29,15 @@ function ProjectsPage() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isFetching,
     isPending,
-    status,
+    isFetching,
   } = useInfiniteQuery({
-    initialPageParam: 1,
-    queryKey: ["projects", filters],
+    initialPageParam: initialPageParam,
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, filters],
     queryFn: ({ pageParam }) =>
       getAccountProjectsForStaff({
         page: pageParam,
-        pageSize: 3,
+        pageSize: pageSize,
         searchOptions: filters,
       }),
     getNextPageParam: (lastPage) => lastPage.next_cursor,
@@ -52,6 +48,32 @@ function ProjectsPage() {
       notify.error("Failed to load projects");
     }
   }, [error]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (
+          entries[0].isIntersecting &&
+          hasNextPage &&
+          !isFetchingNextPage &&
+          !isFetching
+        ) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (error) {
     return <Navigate to={"/error"} />;
@@ -71,19 +93,16 @@ function ProjectsPage() {
                 accountProjects={page.projects}
               />
             ))}
-            <div style={{ textAlign: "center", marginTop: "1rem" }}>
-              <button
-                onClick={() => fetchNextPage()}
-                disabled={!hasNextPage || isFetchingNextPage}
-              >
-                {isFetchingNextPage
-                  ? "Loading more..."
-                  : hasNextPage
-                    ? "Load More"
-                    : "No more projects"}
-              </button>
-            </div>
+            <div ref={loadMoreRef} style={{ height: "1px" }} />
           </>
+        )}
+        {isFetchingNextPage && (
+          <Skeleton
+            variant="rectangular"
+            height="320px"
+            width="1448px"
+            sx={{ marginTop: "1em" }}
+          />
         )}
       </Grid>
     </PageGrid>
