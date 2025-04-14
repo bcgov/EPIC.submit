@@ -8,17 +8,17 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
-  const { signinSilent, isAuthenticated } = useAuth();
+  const { signinRedirect, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   useEffect(() => {
     if (!isAuthenticated) {
-      signinSilent();
+      signinRedirect();
     } else {
       navigate({
         to: "/oidc-callback",
       });
     }
-  }, [isAuthenticated, navigate, signinSilent]);
+  }, [isAuthenticated, navigate, signinRedirect]);
 
   useEffect(() => {}, []);
   return <PageLoader />;

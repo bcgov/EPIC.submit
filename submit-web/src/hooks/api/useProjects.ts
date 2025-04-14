@@ -185,15 +185,29 @@ export const useGetAccountProjectForStaff = ({
 
 type GetProjectsByParamsForStaff = {
   searchOptions?: Record<string, string | number | string[]>;
+  page?: number;
+  pageSize?: number;
 };
-const getAccountProjectsForStaff = ({
+
+type AccountProjectPage = {
+  projects: AccountProject[];
+  next_cursor: number;
+  total: number;
+};
+export const getAccountProjectsForStaff = ({
   searchOptions,
+  page,
+  pageSize,
 }: GetProjectsByParamsForStaff) => {
   const url = "/staff/projects";
 
-  return submitRequest<AccountProject[]>({
+  return submitRequest<AccountProjectPage>({
     url,
-    params: searchOptions,
+    params: {
+      ...searchOptions,
+      page: page,
+      page_size: pageSize,
+    },
   });
 };
 

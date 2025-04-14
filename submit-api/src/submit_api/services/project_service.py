@@ -45,9 +45,9 @@ class ProjectService:
         return projects
 
     @classmethod
-    def get_all_account_projects(cls, search_options: AccountProjectSearchOptions):
+    def get_all_account_projects(cls, search_options: AccountProjectSearchOptions, page: int = 1, page_size: int = 10):
         """Get projects by proponent id."""
-        return ProjectQueries.get_filtered_account_projects(None, search_options)
+        return ProjectQueries.get_filtered_account_projects(None, search_options, page, page_size)
 
     @classmethod
     def get_all_account_projects_with_latest_packages(cls):
