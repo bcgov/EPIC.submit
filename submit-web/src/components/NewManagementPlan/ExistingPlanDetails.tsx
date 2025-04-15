@@ -9,7 +9,7 @@ import { SubmissionPackage } from "@/models/Package";
 export const ExistingPlanDetails = ({
   existingPlan,
 }: {
-  existingPlan: SubmissionPackage;
+  existingPlan: SubmissionPackage | undefined;
 }) => {
   const { step, setStep, reset, formData } = useManagementPlanForm();
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export const ExistingPlanDetails = ({
 
   const handleViewSubmission = () => {
     navigate({
-      to: `/proponent/projects/${projectId}/submission-packages/${existingPlan.id}`,
+      to: `/proponent/projects/${projectId}/submission-packages/${existingPlan?.id}`,
     });
   };
 
@@ -51,12 +51,18 @@ export const ExistingPlanDetails = ({
     >
       <Grid item xs={12}>
         <WarningBox gap={2}>
-          An existing submission for this condition has already been created.
-          <br />
-          To view this existing submission, click "View Submission" below.
-          <br />
-          To select a different condition, click "Back" to return to the
-          previous page.
+          <div style={{ marginBottom: "8px" }}>
+            An existing submission for this condition has already been created.
+          </div>
+          <ul style={{ paddingLeft: 20, margin: 0 }}>
+            <li style={{ marginBottom: "8px" }}>
+              To view this existing submission, click "View Submission" below.
+            </li>
+            <li>
+              To select a different condition, click "Back" to return to the
+              previous page.
+            </li>
+          </ul>
         </WarningBox>
       </Grid>
       <Grid item xs={12}>

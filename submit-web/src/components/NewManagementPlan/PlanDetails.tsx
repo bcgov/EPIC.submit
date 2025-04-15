@@ -25,9 +25,6 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
         pkg?.meta?.main_condition?.condition_number ===
         formData?.main_condition?.condition_number
     );
-  console.log(accountProjects?.flatMap((project) => project.packages));
-
-  console.log(existingPlan);
 
   return (
     <TabBox title="Plan Details">
