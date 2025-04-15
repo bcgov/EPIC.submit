@@ -7,20 +7,29 @@ import {
   Typography,
 } from "@mui/material";
 import { useProjectFilters } from "./projectFilterStore";
-import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
+import {
+  SUBMISSION_ITEM_STATUS,
+  PROPONENT_SUBMISSION_ITEM_FILTERS,
+} from "@/models/Submission";
 import { SubmissionStatusChip } from "../SubmissionStatusChip";
 import { BCDesignTokens } from "epic.theme";
+import { useAccount } from "@/store/accountStore";
+import { USER_TYPE } from "@/models/User";
 
 function StatusFilter() {
   const { filters, setFilters } = useProjectFilters();
+  const { userType } = useAccount();
+  const isProponent = userType === USER_TYPE.PROPONENT;
+
+  const statusFilters = isProponent
+    ? PROPONENT_SUBMISSION_ITEM_FILTERS
+    : SUBMISSION_ITEM_STATUS;
 
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value as string[];
     if (value.includes("all")) {
       setFilters({
-        status: Object.values(SUBMISSION_ITEM_STATUS).map(
-          (status) => status.value,
-        ),
+        status: Object.values(statusFilters).map((status) => status.value),
       });
     } else if (value.length <= 3) {
       setFilters({ status: value });
@@ -71,7 +80,7 @@ function StatusFilter() {
           );
         }}
       >
-        {Object.values(SUBMISSION_ITEM_STATUS).map((status) => (
+        {Object.values(statusFilters).map((status) => (
           <MenuItem key={status.value} value={status.value}>
             <SubmissionStatusChip status={status.value} />
           </MenuItem>
