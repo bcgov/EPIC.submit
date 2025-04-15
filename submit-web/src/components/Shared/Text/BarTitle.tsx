@@ -14,9 +14,11 @@ export default function BarTitle({ title }: { title: string }) {
 export function BarBlueTitle({
   title,
   fullWidth,
+  bold = true,
 }: {
   title: string;
   fullWidth?: boolean;
+  bold?: boolean;
 }) {
   return (
     <Typography
@@ -26,6 +28,7 @@ export function BarBlueTitle({
         mt: BCDesignTokens.layoutMarginSmall,
         width: fullWidth ? "100%" : "auto",
         borderBottom: `2px solid ${BCDesignTokens.themeGold80}`,
+        fontWeight: bold ? "bold" : "normal",
       }}
     >
       {title}

@@ -20,6 +20,7 @@ import { useGetConditions } from "@/hooks/useConditions";
 import { Condition } from "@/models/Condition";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
+import { BarBlueTitle } from "../Shared/Text/BarTitle";
 
 const NUM_STEPS = Object.keys(MANAGEMENT_PLAN_FORM_STEPS).length;
 export const Conditions = () => {
@@ -42,15 +43,14 @@ export const Conditions = () => {
     useManagementPlanForm();
 
   const [mainCondition, setMainCondition] = useState<Condition | null>(
-    formData?.main_condition || null,
+    formData?.main_condition || null
   );
 
   const [supportingConditions, setSupportingConditions] = useState<number[]>(
     Array.from(formData.supporting_conditions || []).map(
-      (condition: Condition) => condition.condition_number ?? 0,
-    ),
+      (condition: Condition) => condition.condition_number ?? 0
+    )
   );
-
 
   const [errorText, setErrorText] = useState<string | null>(null);
 
@@ -63,7 +63,7 @@ export const Conditions = () => {
       ...formData,
       main_condition: mainCondition,
       supporting_conditions: conditions?.filter((c) =>
-        supportingConditions.includes(c.condition_number!),
+        supportingConditions.includes(c.condition_number!)
       ),
     });
 
@@ -83,18 +83,19 @@ export const Conditions = () => {
 
   const handleAnotherSupportingCondition = (
     index: number,
-    conditionName: string,
+    conditionName: string
   ) => {
     if (supportingConditions.length > MAX_SUPPORTING_CONDITIONS) return;
     const newCondition = conditions?.find(
-      (c) => c.condition_name === conditionName,
+      (c) => c.condition_name === conditionName
     );
 
     if (newCondition?.condition_number != null) {
       setSupportingConditions((prevConditions) => {
         const updatedConditions = [...prevConditions];
         updatedConditions[index] =
-          conditions?.find((c) => c.condition_name === conditionName)?.condition_number ?? 0;
+          conditions?.find((c) => c.condition_name === conditionName)
+            ?.condition_number ?? 0;
         return updatedConditions;
       });
     }
@@ -115,16 +116,7 @@ export const Conditions = () => {
         flexDirection: "column",
       }}
     >
-      <Typography
-        variant="h5"
-        sx={{
-          fontWeight: 400,
-          color: BCDesignTokens.typographyColorPlaceholder,
-        }}
-      >
-        Condition(s)
-      </Typography>
-      <Divider />
+      <BarBlueTitle title="Condition(s)" bold={false} />
       <Grid
         container
         sx={{
@@ -152,7 +144,7 @@ export const Conditions = () => {
             onChange={(e) => {
               setMainCondition(
                 conditions?.find((c) => c.condition_name === e.target.value) ||
-                  null,
+                  null
               );
               if (errorText) {
                 setErrorText(null);
@@ -167,17 +159,17 @@ export const Conditions = () => {
                   !supportingConditions.includes(condition.condition_number)
               )
               .map((condition) => {
-              const conditionLabel = `Condition ${condition.condition_number} - ${condition.condition_name}`;
+                const conditionLabel = `Condition ${condition.condition_number} - ${condition.condition_name}`;
 
-              return (
-                <MenuItem
-                  key={condition.condition_name || ""}
-                  value={condition.condition_name || ""}
-                >
-                  {conditionLabel}
-                </MenuItem>
-              );
-            })}
+                return (
+                  <MenuItem
+                    key={condition.condition_name || ""}
+                    value={condition.condition_name || ""}
+                  >
+                    {conditionLabel}
+                  </MenuItem>
+                );
+              })}
           </TextField>
         </Grid>
         <Grid item xs={12}>
@@ -211,23 +203,39 @@ export const Conditions = () => {
                       ?.condition_name || ""
                   }
                 >
-                  {conditions?.filter(
-                    (condition) =>
-                      condition.condition_number !== mainCondition?.condition_number &&  // Exclude selected main condition
-                      condition.condition_number !== null &&  // Ensure condition_number is not null
-                      !supportingConditions.includes(condition.condition_number) // Exclude conditions already selected
-                  ).map((condition) => (
+                  {conditions
+                    ?.filter(
+                      (condition) =>
+                        condition.condition_number !==
+                          mainCondition?.condition_number && // Exclude selected main condition
+                        condition.condition_number !== null && // Ensure condition_number is not null
+                        !supportingConditions.includes(
+                          condition.condition_number
+                        ) // Exclude conditions already selected
+                    )
+                    .map((condition) => (
+                      <MenuItem
+                        key={condition.condition_name || ""}
+                        value={condition.condition_name || ""}
+                      >
+                        {`Condition ${condition.condition_number} - ${condition.condition_name}`}
+                      </MenuItem>
+                    ))}
+                  {conditions?.find(
+                    (c) =>
+                      c.condition_name ===
+                      (conditions?.find((c) => c.condition_number === input)
+                        ?.condition_name || "")
+                  ) && (
                     <MenuItem
-                      key={condition.condition_name || ""}
-                      value={condition.condition_name || ""}
-                    >
-                      {`Condition ${condition.condition_number} - ${condition.condition_name}`}
-                    </MenuItem>
-                  ))}
-                  {conditions?.find((c) => c.condition_name === (conditions?.find((c) => c.condition_number === input)?.condition_name || "")) && (
-                    <MenuItem
-                      key={conditions?.find((c) => c.condition_number === input)?.condition_name || ""}
-                      value={conditions?.find((c) => c.condition_number === input)?.condition_name || ""}
+                      key={
+                        conditions?.find((c) => c.condition_number === input)
+                          ?.condition_name || ""
+                      }
+                      value={
+                        conditions?.find((c) => c.condition_number === input)
+                          ?.condition_name || ""
+                      }
                     >
                       {`Condition ${conditions?.find((c) => c.condition_number === input)?.condition_number} - ${conditions?.find((c) => c.condition_number === input)?.condition_name}`}
                     </MenuItem>
@@ -240,7 +248,7 @@ export const Conditions = () => {
               <IconButton
                 onClick={() => {
                   setSupportingConditions(
-                    supportingConditions.filter((c) => c !== input),
+                    supportingConditions.filter((c) => c !== input)
                   );
                 }}
               >

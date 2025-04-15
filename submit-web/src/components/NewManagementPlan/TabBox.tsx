@@ -1,5 +1,5 @@
-import { Box, BoxProps, Divider, Typography } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { Box, BoxProps } from "@mui/material";
+import { BarBlueTitle } from "../Shared/Text/BarTitle";
 
 type TabBoxProps = {
   title: string;
@@ -13,16 +13,7 @@ export const TabBox = ({ title, children, ...rest }: TabBoxProps) => {
       }}
       {...rest}
     >
-      <Typography
-        variant="h5"
-        sx={{
-          fontWeight: 400,
-          color: BCDesignTokens.typographyColorPlaceholder,
-        }}
-      >
-        {title}
-      </Typography>
-      <Divider />
+      <BarBlueTitle title={title} bold={false} />
       {children}
     </Box>
   );
