@@ -15,7 +15,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   const { formData } = useManagementPlanForm();
   const { accountId } = useAccount();
   const { data: accountProjects } = useGetAccountProjectsByAccount({
-    accountId: 1,
+    accountId,
   });
 
   const existingPlan = accountProjects
