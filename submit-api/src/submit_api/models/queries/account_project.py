@@ -71,8 +71,9 @@ class ProjectQueries:
             package_query = cls._filter_by_search_criteria(search_options)
             package_query = cls._filter_packages_by_user_access(package_query)
             if package_query:
-                filtered_package_ids = package_query.with_entities(Package.id).subquery()
-                query = query.join(Package).filter(Package.id.in_(filtered_package_ids))
+                filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
+                query = (query.join(Package, Package.account_project_id == AccountProject.id)
+                         .filter(Package.id.in_(filtered_package_ids)))
 
         # Apply pagination if page and page_size are provided
         if page and page_size:
@@ -87,18 +88,20 @@ class ProjectQueries:
     def _filter_by_search_criteria(cls, search_options: AccountProjectSearchOptions):
         """Apply various filters based on search options."""
         # Subquery to get packages based on search criteria
-        package_query = db.session.query(Package)
+        query = db.session.query(Package)\
+            .join(AccountProject)\
+            .join(Project)\
 
         if search_options.search_text:
-            package_query = cls._filter_by_search_text(package_query, search_options.search_text)
+            query = cls._filter_by_search_text(query, search_options.search_text)
         if search_options.status:
-            package_query = cls._filter_by_submission_status(package_query, search_options.status)
+            query = cls._filter_by_submission_status(query, search_options.status)
         if search_options.submitted_on_start or search_options.submitted_on_end:
-            package_query = cls._filter_by_submission_dates(
-                package_query, search_options.submitted_on_start, search_options.submitted_on_end
+            query = cls._filter_by_submission_dates(
+                query, search_options.submitted_on_start, search_options.submitted_on_end
             )
 
-        return package_query
+        return query
 
     @classmethod
     def _filter_packages_by_user_access(cls, package_query=None):
@@ -135,7 +138,7 @@ class ProjectQueries:
         return query.filter(
             or_(
                 Package.name.ilike(f"%{search_text}%"),
-                Project.name.ilike(f"%{search_text}%")
+                Project.name.ilike(f"%{search_text}%"),
             )
         )
 
