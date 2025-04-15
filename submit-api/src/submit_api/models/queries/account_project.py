@@ -73,7 +73,7 @@ class ProjectQueries:
             if package_query:
                 filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
                 query = (query.join(Package)
-                         .filter(Package.id.in_(filtered_package_ids)))
+                         .filter(Package.id.in_(filtered_package_ids)).distinct(AccountProject.id))
 
         # Apply pagination if page and page_size are provided
         if page and page_size:
