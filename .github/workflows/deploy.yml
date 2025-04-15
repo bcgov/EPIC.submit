@@ -30,8 +30,10 @@ jobs:
         shell: bash
         run: |
           oc project ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
-          oc tag submit-api:latest submit-api:${{ github.event.inputs.environment }}
-          oc tag submit-web:latest submit-web:${{ github.event.inputs.environment }}
+          oc tag submit-api:dev submit-api:${{ github.event.inputs.environment }}
+          oc tag submit-web:dev submit-web:${{ github.event.inputs.environment }}
+          oc tag submit-cron:dev submit-cron:${{ github.event.inputs.environment }}
           
           oc rollout status dc/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
           oc rollout status dc/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
+          oc rollout status dc/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
