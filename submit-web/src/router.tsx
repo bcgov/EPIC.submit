@@ -1,8 +1,4 @@
-import {
-  createRouter,
-  RouterProvider,
-  useLocation,
-} from "@tanstack/react-router";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
 import { QueryClient, useQuery } from "@tanstack/react-query";

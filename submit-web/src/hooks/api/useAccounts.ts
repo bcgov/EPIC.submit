@@ -68,9 +68,6 @@ export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
     queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
     queryFn: () => getUserByGuid(guid),
     enabled: Boolean(guid),
-    onError: (error) => {
-      console.error(error);
-    },
   });
 };
 
