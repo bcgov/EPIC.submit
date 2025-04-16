@@ -1,4 +1,8 @@
-import { createRouter, RouterProvider } from "@tanstack/react-router";
+import {
+  createRouter,
+  RouterProvider,
+  useLocation,
+} from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
 import { QueryClient, useQuery } from "@tanstack/react-query";
@@ -32,11 +36,13 @@ declare module "@tanstack/react-router" {
 
 export default function RouterProviderWithAuthContext() {
   const authentication = useAuth();
+  const pathname = window.location.pathname;
   const { data, isFetched } = useQuery(
     getAccountQueryOptions({
       guid: authentication?.user?.profile.sub,
       accessToken: authentication.user?.access_token,
-    }),
+      enabled: pathname !== "/need-access",
+    })
   );
 
   const account = useAccount();

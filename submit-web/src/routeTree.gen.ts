@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as NotFoundImport } from './routes/not-found'
+import { Route as NeedAccessImport } from './routes/need-access'
 import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as ErrorImport } from './routes/error'
@@ -85,6 +86,11 @@ const ProponentRoute = ProponentImport.update({
 
 const NotFoundRoute = NotFoundImport.update({
   path: '/not-found',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const NeedAccessRoute = NeedAccessImport.update({
+  path: '/need-access',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -378,6 +384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LogoutImport
       parentRoute: typeof rootRoute
     }
+    '/need-access': {
+      id: '/need-access'
+      path: '/need-access'
+      fullPath: '/need-access'
+      preLoaderRoute: typeof NeedAccessImport
+      parentRoute: typeof rootRoute
+    }
     '/not-found': {
       id: '/not-found'
       path: '/not-found'
@@ -654,6 +667,7 @@ export const routeTree = rootRoute.addChildren({
   ErrorRoute,
   LoginRoute,
   LogoutRoute,
+  NeedAccessRoute,
   NotFoundRoute,
   ProponentRoute: ProponentRoute.addChildren({
     ProponentProponentLayoutRoute: ProponentProponentLayoutRoute.addChildren({
@@ -736,6 +750,7 @@ export const routeTree = rootRoute.addChildren({
         "/error",
         "/login",
         "/logout",
+        "/need-access",
         "/not-found",
         "/proponent",
         "/staff",
@@ -753,6 +768,9 @@ export const routeTree = rootRoute.addChildren({
     },
     "/logout": {
       "filePath": "logout.tsx"
+    },
+    "/need-access": {
+      "filePath": "need-access.tsx"
     },
     "/not-found": {
       "filePath": "not-found.tsx"

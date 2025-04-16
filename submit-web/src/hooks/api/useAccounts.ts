@@ -49,6 +49,7 @@ type GetUserByGuidOptions = {
   guid?: string;
   enabled?: boolean;
 };
+
 export const getUserByGuidQueryOptions = ({
   guid,
   enabled,
@@ -60,19 +61,23 @@ export const getUserByGuidQueryOptions = ({
     ...defaultUseQueryOptions,
   });
 };
+
 export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
   return useQuery({
+    ...defaultUseQueryOptions,
     queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
     queryFn: () => getUserByGuid(guid),
     enabled: Boolean(guid),
-    ...defaultUseQueryOptions,
+    onError: (error) => {
+      console.error(error);
+    },
   });
 };
 
 const getUserByAccount = (
   accountId: number,
   includeRoles: boolean = false,
-  includeInvitees: boolean = false,
+  includeInvitees: boolean = false
 ) => {
   return submitRequest<AccountUserWithRole[]>({
     url: `/accounts/${accountId}/users?include_invitees=${includeInvitees}&include_roles=${includeRoles}`,
@@ -99,41 +104,50 @@ export const useGetUserByAccountId = ({
 
 export const getAccount = async (
   guid?: string,
-  accessToken?: string,
+  accessToken?: string
 ): Promise<Partial<AccountStoreState>> => {
   if (!guid) {
     return Promise.resolve({});
   }
-  const user = await getUserByGuid(guid);
 
-  if (user?.account_user) {
-    return Promise.resolve({
-      userId: user.id,
-      isLoading: false,
-      proponentId: user.account_user.account.proponent_id,
-      accountId: user.account_user.account.id,
-      userType: USER_TYPE.PROPONENT,
-      userManagementRole: user.account_user.role,
-      roles: user.account_user.role.permissions,
-    });
-  }
-  if (user?.staff_user) {
-    if (!accessToken) {
-      return Promise.reject(
-        new Error("Access token is required for staff user"),
-      );
+  try {
+    console.log("guid", guid);
+    const user = await getUserByGuid(guid);
+    console.log("user", user);
+
+    if (user?.account_user) {
+      console.log("user.account_user", user.account_user);
+      return {
+        userId: user.id,
+        isLoading: false,
+        proponentId: user.account_user.account.proponent_id,
+        accountId: user.account_user.account.id,
+        userType: USER_TYPE.PROPONENT,
+        userManagementRole: user.account_user.role,
+        roles: user.account_user.role.permissions,
+      };
     }
-    return Promise.resolve({
-      userId: user.id,
-      isLoading: false,
-      userType: USER_TYPE.STAFF,
-      roles: getUserRolesFromToken(accessToken),
-    });
-  }
 
-  return Promise.resolve({
-    isLoading: false,
-  });
+    if (user?.staff_user) {
+      console.log("user.staff_user", user.staff_user);
+      if (!accessToken) {
+        throw new Error("Access token is required for staff user");
+      }
+
+      return {
+        userId: user.id,
+        isLoading: false,
+        userType: USER_TYPE.STAFF,
+        roles: getUserRolesFromToken(accessToken),
+      };
+    }
+
+    return { isLoading: false };
+  } catch (error) {
+    console.error("Error in getAccount:", error);
+    window.location.href = "/need-access";
+    return { isLoading: false };
+  }
 };
 
 type GetAccountQueryOptions = {
