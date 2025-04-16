@@ -135,7 +135,7 @@ export const getAccount = async (
       };
     }
 
-    return { isLoading: false };
+    return { roles: [], isLoading: false };
   } catch (error: any) {
     return { roles: [], isLoading: false };
   }
