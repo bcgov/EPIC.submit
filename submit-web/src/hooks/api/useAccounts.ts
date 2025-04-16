@@ -5,6 +5,7 @@ import { User, USER_TYPE } from "@/models/User";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { AccountStoreState } from "@/store/accountStore";
 import { getUserRolesFromToken } from "@/utils";
+import { isAxiosError } from "axios";
 
 type CreateAccountRequest = {
   first_name: string;
@@ -137,7 +138,11 @@ export const getAccount = async (
 
     return { roles: [], isLoading: false };
   } catch (error: any) {
-    return { roles: [], isLoading: false };
+    if (isAxiosError(error) && error.response?.status === 404) {
+      return { roles: [], isLoading: false };
+    } else {
+      return { roles: undefined, isLoading: false };
+    }
   }
 };
 
