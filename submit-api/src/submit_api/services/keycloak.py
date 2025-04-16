@@ -29,12 +29,6 @@ class KeycloakService:
         )
         return response.json()
 
-    @staticmethod
-    def get_user():
-        """Get users."""
-        response = KeycloakService._request_keycloak("users?max=2000")
-        return response.json()
-
     @classmethod
     def get_user_groups_by_id(cls, user_id):
         """Get groups of a specific user by their ID."""
