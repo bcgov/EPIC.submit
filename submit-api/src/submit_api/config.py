@@ -24,7 +24,6 @@ import sys
 
 from dotenv import find_dotenv, load_dotenv
 
-
 # this will load all the envars from a .env file located in the project root (api)
 load_dotenv(find_dotenv())
 
@@ -46,6 +45,7 @@ def get_named_config(config_name: str = 'development'):
         raise KeyError("Unknown configuration '{config_name}'")
     return config
 
+
 def _get_config(config_key: str, **kwargs):
     """Get the config from environment, and throw error if there are no default values and if the value is None."""
     if "default" in kwargs:
@@ -54,6 +54,7 @@ def _get_config(config_key: str, **kwargs):
         value = os.getenv(config_key)
         # assert value TODO Un-comment once we find a solution to run pre-hook without initializing app
     return value
+
 
 class _Config():  # pylint: disable=too-few-public-methods
     """Base class configuration that should set reasonable defaults for all the other configurations."""
@@ -95,8 +96,6 @@ class _Config():  # pylint: disable=too-few-public-methods
     SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH')
 
     INVITATION_EXPIRY_DAYS = int(os.getenv('INVITATION_EXPIRY_DAYS', '7'))  # Default to 7 days
-
-
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
@@ -213,5 +212,3 @@ class ProdConfig(_Config):  # pylint: disable=too-few-public-methods
 
     TESTING = False
     DEBUG = False
-
-

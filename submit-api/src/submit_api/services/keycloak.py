@@ -142,7 +142,7 @@ class KeycloakService:
 
     @staticmethod
     def _request_keycloak(
-        relative_url, http_method: HttpMethod = HttpMethod.GET, data=None
+            relative_url, http_method: HttpMethod = HttpMethod.GET, data=None
     ):
         """Request actual keycloak service."""
         base_url = current_app.config.get("KEYCLOAK_BASE_URL")
@@ -192,7 +192,7 @@ class KeycloakService:
         response = requests.post(
             token_url,
             data=f"client_id={admin_client_id}&grant_type=client_credentials"
-            f"&client_secret={admin_secret}",
+                 f"&client_secret={admin_secret}",
             headers=headers,
             timeout=timeout,
         )
