@@ -111,12 +111,9 @@ export const getAccount = async (
   }
 
   try {
-    console.log("guid", guid);
     const user = await getUserByGuid(guid);
-    console.log("user", user);
 
     if (user?.account_user) {
-      console.log("user.account_user", user.account_user);
       return {
         userId: user.id,
         isLoading: false,
@@ -129,7 +126,6 @@ export const getAccount = async (
     }
 
     if (user?.staff_user) {
-      console.log("user.staff_user", user.staff_user);
       if (!accessToken) {
         throw new Error("Access token is required for staff user");
       }
@@ -144,9 +140,7 @@ export const getAccount = async (
 
     return { isLoading: false };
   } catch (error) {
-    console.error("Error in getAccount:", error);
     window.location.href = "/need-access";
-    return { isLoading: false };
   }
 };
 
