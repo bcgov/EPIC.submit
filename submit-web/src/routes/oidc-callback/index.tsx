@@ -1,6 +1,7 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
+import { HTTP_STATUS } from "@/utils/constants";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/oidc-callback/")({
@@ -28,11 +29,11 @@ function OidcCallback() {
     return <PageLoader />;
   }
 
-  if (account?.roles?.length === 0) {
+  if (account?.error?.status === HTTP_STATUS.NOT_FOUND) {
     return <Navigate to="/need-access" />;
   }
 
-  if (!account.userId) {
+  if (account?.error) {
     return <Navigate to="/error" />;
   }
 
