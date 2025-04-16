@@ -73,6 +73,40 @@ export const SUBMISSION_ITEM_STATUS: Record<
   },
 };
 
+export const PROPONENT_SUBMISSION_ITEM_FILTERS: Record<
+  SubmissionItemStatus,
+  { value: SubmissionItemStatus; label: string }
+> = {
+  NEW_SUBMISSION: {
+    value: "NEW_SUBMISSION",
+    label: "New Submission",
+  },
+  COMPLETED: {
+    value: "COMPLETED",
+    label: "Completed",
+  },
+  PARTIALLY_COMPLETED: {
+    value: "PARTIALLY_COMPLETED",
+    label: "Partially Completed",
+  },
+  SUBMITTED: {
+    value: "SUBMITTED",
+    label: "Submitted",
+  },
+  PASSED_CONSULTATION_CHECK: {
+    value: "PASSED_CONSULTATION_CHECK",
+    label: "Passed Consultation Check",
+  },
+  APPROVED: {
+    value: "APPROVED",
+    label: "Approved",
+  },
+  REVISION_REQUIRED: {
+    value: "REVISION_REQUIRED",
+    label: "Revision Required",
+  },
+};
+
 export type SubmittedForm = {
   id: number;
   submission_json: {
