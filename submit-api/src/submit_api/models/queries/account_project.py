@@ -14,8 +14,9 @@
 """Model to handle all complex queries related to Account Project."""
 
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, contains_eager
 
+from submit_api.enums.role import RoleEnum
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
@@ -40,7 +41,8 @@ class ProjectQueries:
         package_query = cls._filter_packages_by_user_access()
         if package_query:
             filtered_package_ids = [row[0] for row in package_query.with_entities(Package.id).all()]
-            query = query.join(Package).filter(Package.id.in_(filtered_package_ids)).options(joinedload(AccountProject.packages))
+            query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
+                     .options(contains_eager(AccountProject.packages)))
 
         return query.first()
 
@@ -50,7 +52,8 @@ class ProjectQueries:
         package_query = cls._filter_by_search_criteria(search_options)
         package_query = cls._filter_packages_by_user_access(package_query)
 
-        return [row[0] for row in package_query.with_entities(Package.id).all()] if package_query else None
+        result = [row[0] for row in package_query.with_entities(Package.id).all()] if package_query else None
+        return result
 
     @classmethod
     def get_paginated_account_project_ids(cls, account_id: int, filtered_package_ids: list,
@@ -110,7 +113,8 @@ class ProjectQueries:
         """Main method to orchestrate filtered and paginated retrieval of AccountProjects."""
         filtered_package_ids = cls.get_filtered_package_ids(search_options)
 
-        account_project_ids, total = cls.get_paginated_account_project_ids(account_id, filtered_package_ids, page, page_size)
+        account_project_ids, total = cls.get_paginated_account_project_ids(account_id, filtered_package_ids,
+                                                                           page, page_size)
 
         if not account_project_ids:
             return [], 0  # Return empty list if no matching projects
@@ -154,10 +158,17 @@ class ProjectQueries:
             raise ValueError("User account not found.")
 
         user_role = user.account_user.role
+        if not user_role:
+            raise ValueError("User role not found.")
+
+        if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
+            return package_query
+
         if user_role.package_ids:
-            package_query = package_query.filter(Package.id.in_(user_role.package_ids)) if package_query else db.session.query(Package).filter(Package.id.in_(user_role.package_ids))
+            package_query = package_query.filter(Package.id.in_(user_role.package_ids)) if package_query\
+                else db.session.query(Package).filter(Package.id.in_(user_role.package_ids))
         else:
-            package_query = package_query.filter(False) if package_query else None
+            package_query = package_query.filter(False)
 
         return package_query
 
