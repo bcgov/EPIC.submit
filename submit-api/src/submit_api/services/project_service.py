@@ -16,9 +16,10 @@ class ProjectService:
         return ProjectQueries.get_account_project_by_id(account_project_id)
 
     @classmethod
-    def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None):
+    def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None,
+                                   is_proponent=True):
         """Get projects by account id."""
-        projects, _ = ProjectQueries.get_filtered_account_projects_paginated(account_id, search_options)
+        projects, _ = ProjectQueries.get_filtered_account_projects_paginated(account_id, search_options, is_proponent)
         return projects
 
     @classmethod
@@ -28,7 +29,7 @@ class ProjectService:
         if not user.account_user:
             return []
         account_user = user.account_user
-        projects = cls.get_projects_by_account_id(account_user.account_id, search_options=None)
+        projects = cls.get_projects_by_account_id(account_user.account_id, search_options=None, is_proponent=True)
         return projects
 
     @classmethod
@@ -48,9 +49,10 @@ class ProjectService:
 
     @classmethod
     def get_all_account_projects_paginated(cls, search_options: AccountProjectSearchOptions,
-                                           page: int = 1, page_size: int = 10):
+                                           page: int = 1, page_size: int = 10, is_proponent: bool = True):
         """Get projects by proponent id."""
-        return ProjectQueries.get_filtered_account_projects_paginated(None, search_options, page, page_size)
+        return ProjectQueries.get_filtered_account_projects_paginated(None, search_options, page,
+                                                                      page_size, is_proponent)
 
     @classmethod
     def get_all_account_projects_with_latest_packages(cls):

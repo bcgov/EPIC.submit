@@ -68,7 +68,7 @@ class ProjectsByAccount(Resource):
             status=status,
         )
         projects = ProjectService.get_projects_by_account_id(account_id, search_options)
-        return AccountProjectSchema(many=True).dump(projects), HTTPStatus.OK
+        return projects, HTTPStatus.OK
 
     @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Add projects in bulk")
@@ -149,4 +149,4 @@ class ProjectsByAccountUser(Resource):
     def get(user_id):
         """Get projects by user id."""
         projects = ProjectService.get_account_projects_by_user_id(user_id)
-        return AccountProjectSchema(many=True).dump(projects), HTTPStatus.OK
+        return projects, HTTPStatus.OK
