@@ -86,10 +86,7 @@ class KeycloakService:
 
     @staticmethod
     def get_group_id_by_path(group_path: str) -> str:
-        """
-        Find a Keycloak group by its full path (e.g., 'SUBMIT/EAO_MANAGER') and return its ID.
-        Uses get_sub_groups to walk the tree.
-        """
+        """Find a Keycloak group by its full path (e.g., 'SUBMIT/EAO_MANAGER') and return its ID."""
         segments = group_path.strip("/").split("/")
         current_groups = KeycloakService.get_groups(brief_representation=True)
         current_group = None

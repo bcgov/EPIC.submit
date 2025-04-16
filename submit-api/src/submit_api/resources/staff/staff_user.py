@@ -15,8 +15,8 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
 from flask import request
+from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
@@ -25,7 +25,6 @@ from submit_api.schemas.staff_user import StaffUserSchema, CreateStaffUserReques
 from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
-
 
 API = Namespace("staff-user", description="Endpoints for Staff Management")
 """Custom exception messages
@@ -38,6 +37,7 @@ user_model = ApiHelper.convert_ma_schema_to_restx_model(
 create_user_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CreateStaffUserRequest(), "Create Staff User Request"
 )
+
 
 @cors_preflight("GET, OPTIONS")
 @API.route("/<string:guid>", methods=["GET", "OPTIONS"])
@@ -84,5 +84,5 @@ class StaffUserCreate(Resource):
         try:
             StaffUserService.create_and_assign_group(email=email, group_name=group_name)
             return {"message": f"User '{email}' created and assigned role '{group_name}'."}, HTTPStatus.CREATED
-        except Exception as e:
+        except Exception as e:  # noqa: B901, E722
             return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR

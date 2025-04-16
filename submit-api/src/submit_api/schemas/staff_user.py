@@ -32,4 +32,3 @@ class CreateStaffUserRequest(Schema):
 
     email = fields.Email(required=True, description="Email of the staff user")
     group_name = fields.Str(required=True, description="Group to assign (Keycloak Group)")
-
