@@ -15,16 +15,16 @@
 
 from http import HTTPStatus
 
+from flask import request
 from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.staff_user import StaffUserSchema
+from submit_api.schemas.staff_user import StaffUserSchema, CreateStaffUserRequest
 from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
-
 
 API = Namespace("staff-user", description="Endpoints for Staff Management")
 """Custom exception messages
@@ -32,6 +32,10 @@ API = Namespace("staff-user", description="Endpoints for Staff Management")
 
 user_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, StaffUserSchema(), "Staff User"
+)
+
+create_user_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, CreateStaffUserRequest(), "Create Staff User Request"
 )
 
 
@@ -53,3 +57,32 @@ class StaffUser(Resource):
         if not staff:
             return ResourceNotFoundError(f"User with guid {guid} not found")
         return StaffUserSchema().dump(staff), HTTPStatus.OK
+
+
+@cors_preflight("POST, OPTIONS")
+@API.route("/", methods=["POST", "OPTIONS"])
+class StaffUserCreate(Resource):
+    """Resource for creating a staff user."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Create a staff user and assign Keycloak role")
+    @API.expect(create_user_model, validate=True)
+    @API.response(code=201, model=user_model, description="User created and role assigned")
+    @API.response(code=400, description="Invalid input")
+    @API.response(code=500, description="Internal server error")
+    @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
+    @cors.crossdomain(origin="*")
+    def post():
+        """Create a staff user and assign a Keycloak role."""
+        request_data = request.get_json()
+        email = request_data.get("email")
+        group_name = request_data.get("group_name")
+
+        if not email or not group_name:
+            return {"message": "Both 'email' and 'role' are required."}, HTTPStatus.BAD_REQUEST
+
+        try:
+            StaffUserService.create_and_assign_group(email=email, group_name=group_name)
+            return {"message": f"User '{email}' created and assigned role '{group_name}'."}, HTTPStatus.CREATED
+        except Exception as e:  # noqa: B901, E722
+            return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR

@@ -30,7 +30,5 @@ class CreateStaffUserRequest(Schema):
 
         unknown = EXCLUDE
 
-    first_name = fields.Str(data_key="first_name", required=True)
-    last_name = fields.Str(data_key="last_name", required=True)
-    work_email_address = fields.Str(data_key="work_email_address")
-    auth_guid = fields.Str(data_key="auth_guid", required=True)
+    email = fields.Email(required=True, description="Email of the staff user")
+    group_name = fields.Str(required=True, description="Group to assign (Keycloak Group)")
