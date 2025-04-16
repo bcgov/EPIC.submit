@@ -136,8 +136,8 @@ export const getAccount = async (
     }
 
     return { isLoading: false };
-  } catch (error) {
-    window.location.href = "/need-access";
+  } catch (error: any) {
+    return { roles: [], isLoading: false };
   }
 };
 

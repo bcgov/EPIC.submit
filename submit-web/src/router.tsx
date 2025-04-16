@@ -32,12 +32,10 @@ declare module "@tanstack/react-router" {
 
 export default function RouterProviderWithAuthContext() {
   const authentication = useAuth();
-  const pathname = window.location.pathname;
   const { data, isFetched } = useQuery(
     getAccountQueryOptions({
       guid: authentication?.user?.profile.sub,
       accessToken: authentication.user?.access_token,
-      enabled: pathname !== "/need-access",
     })
   );
 

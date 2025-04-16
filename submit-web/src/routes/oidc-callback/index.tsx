@@ -28,6 +28,10 @@ function OidcCallback() {
     return <PageLoader />;
   }
 
+  if (account?.roles?.length === 0) {
+    return <Navigate to="/need-access" />;
+  }
+
   if (!account.userId) {
     return <Navigate to="/error" />;
   }
