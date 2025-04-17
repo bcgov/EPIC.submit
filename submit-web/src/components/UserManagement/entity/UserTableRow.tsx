@@ -1,9 +1,15 @@
 import { PlainTableCell } from "@/components/Shared/Table/common";
-import { TableRow, Typography, Box, CircularProgress } from "@mui/material";
+import {
+  TableRow,
+  Typography,
+  Box,
+  CircularProgress,
+  Tooltip,
+} from "@mui/material";
 import { SubmitLink } from "../../Shared/SubmitLink";
 import UserStatusChip from "../../UserStatusChip";
 import { AccountUserWithRole } from "@/models/AccountUser";
-import { roleDetails } from "@/models/Role";
+import { roleDetails, USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useNavigate } from "@tanstack/react-router";
 import { useUserStore } from "./userStore";
 import { notify } from "../../Shared/Snackbar/snackbarStore";
@@ -13,6 +19,7 @@ import {
   useRevokeInvitation,
 } from "@/hooks/api/useInvitations";
 import { When } from "react-if";
+import { BCDesignTokens } from "epic.theme";
 
 export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   const { setSelectedUser } = useUserStore();
@@ -38,6 +45,9 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
 
   const isPending = user.status === InvitationStatus.PENDING;
   const isRevoked = user.status === InvitationStatus.REVOKED;
+  const isSpecificSubmissionContributor =
+    user?.role?.role_name ===
+    USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
 
   const onUserClick = () => {
     if (isPending) {
@@ -67,7 +77,36 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
         <Typography variant="body1">{user.full_name}</Typography>
       </PlainTableCell>
       <PlainTableCell align="left" width={"20%"}>
-        {user.role && roleDetails[user.role.role_name]?.label}
+        <When condition={isSpecificSubmissionContributor}>
+          <Tooltip
+            slotProps={{
+              tooltip: {
+                sx: {
+                  border: `2px solid ${BCDesignTokens.themeGold80}`,
+                  backgroundColor: "white",
+                },
+              },
+            }}
+            title={
+              <Box>
+                {user.role.package_ids?.map((packageId) => (
+                  <Typography
+                    key={packageId}
+                    variant="body1"
+                    sx={{ color: BCDesignTokens.typographyColorPrimary }}
+                  >
+                    • Package {packageId}
+                  </Typography>
+                )) || "No packages assigned"}
+              </Box>
+            }
+          >
+            <span>{roleDetails[user.role.role_name]?.label}</span>
+          </Tooltip>
+        </When>
+        <When condition={user?.role && !isSpecificSubmissionContributor}>
+          {roleDetails[user.role.role_name]?.label}
+        </When>
       </PlainTableCell>
       <PlainTableCell align="left" width={"10%"}>
         <UserStatusChip status={user.status} />
