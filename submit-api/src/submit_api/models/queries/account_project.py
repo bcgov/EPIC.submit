@@ -11,19 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Model to handle all complex operations related to User."""
+"""Model to handle all complex queries related to Account Project."""
 
 from sqlalchemy import or_
+from sqlalchemy.orm import joinedload, contains_eager
 
 from submit_api.enums.role import RoleEnum
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
 from submit_api.models.user import UserType
+from submit_api.schemas.project import AccountProjectSchema, StaffAccountProjectSchema
 from submit_api.utils.token_info import TokenInfo
-
-
-# pylint: disable=too-few-public-methods
 
 
 class ProjectQueries:
@@ -32,25 +31,75 @@ class ProjectQueries:
     @classmethod
     def get_projects_by_proponent_id(cls, proponent_id: int):
         """Find projects by proponent_id"""
-        query = db.session.query(Project).filter(
-            Project.proponent_id == proponent_id
-        )
-        return query.all()
+        return db.session.query(Project).filter(Project.proponent_id == proponent_id).all()
 
     @classmethod
     def get_account_project_by_id(cls, account_project_id: int):
         """Find account project by id."""
-        query = db.session.query(AccountProject).filter(
-            AccountProject.id == account_project_id
-        )
+        query = db.session.query(AccountProject).filter(AccountProject.id == account_project_id)
 
         package_query = cls._filter_packages_by_user_access()
         if package_query:
-            filtered_package_ids = package_query.with_entities(Package.id).subquery().select()
-            query = query.join(Package).filter(
-                Package.id.in_(filtered_package_ids)).options(
-                db.contains_eager(AccountProject.packages))
+            filtered_package_ids = [row[0] for row in package_query.with_entities(Package.id).all()]
+            query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
+                     .options(contains_eager(AccountProject.packages)))
+
         return query.first()
+
+    @classmethod
+    def get_filtered_package_ids(cls, search_options: AccountProjectSearchOptions) -> list:
+        """Retrieve package IDs based on search filters."""
+        package_query = cls._filter_by_search_criteria(search_options)
+        package_query = cls._filter_packages_by_user_access(package_query)
+
+        result = [row[0] for row in package_query.with_entities(Package.id).all()] if package_query else None
+        return result
+
+    @classmethod
+    def get_paginated_account_project_ids(cls, account_id: int, filtered_package_ids: list,
+                                          page: int, page_size: int) -> tuple:
+        """Retrieve paginated AccountProject IDs based on filtering."""
+        query = db.session.query(AccountProject)
+
+        if account_id is not None:
+            query = query.filter(AccountProject.account_id == account_id)
+
+        # If no filtering applied, return all projects
+        if filtered_package_ids is None:
+            account_project_ids_query = query.distinct(AccountProject.id)
+        else:
+            account_project_ids_query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
+                                         .distinct(AccountProject.id))
+
+        # Apply pagination
+        if page and page_size:
+            paginated_result = (account_project_ids_query.with_entities(AccountProject.id)
+                                .paginate(page=page, per_page=page_size))
+            return [row[0] for row in paginated_result.items], paginated_result.total
+
+        return ([row[0] for row in account_project_ids_query.with_entities(AccountProject.id).all()],
+                account_project_ids_query.count())
+
+    @classmethod
+    def get_full_account_projects(cls, account_project_ids: list,
+                                  is_proponent: bool, filtered_package_ids: list) -> list:
+        """Retrieve full AccountProject objects, apply schema, and filter packages."""
+        account_projects = (
+            db.session.query(AccountProject)
+            .filter(AccountProject.id.in_(account_project_ids))
+            .options(joinedload(AccountProject.packages))  # Ensure packages are loaded
+        ).all()
+
+        schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
+        account_projects_list = schema_class(many=True).dump(account_projects)
+
+        # Filter packages only if filtering was applied
+        if filtered_package_ids:
+            for account_project in account_projects_list:
+                account_project['packages'] = [package for package in account_project['packages']
+                                               if package['id'] in filtered_package_ids]
+
+        return account_projects_list
 
     @classmethod
     def get_filtered_account_projects_paginated(
@@ -58,47 +107,40 @@ class ProjectQueries:
             account_id: int = None,
             search_options: AccountProjectSearchOptions = None,
             page: int = None,
-            page_size: int = None
-    ):
-        """Find projects by account_id with optional search and pagination."""
-        query = db.session.query(AccountProject)
+            page_size: int = None,
+            is_proponent: bool = True,
+    ) -> tuple:
+        """Main method to orchestrate filtered and paginated retrieval of AccountProjects."""
+        filtered_package_ids = cls.get_filtered_package_ids(search_options)
 
-        # Apply filters
-        if account_id is not None:
-            query = query.filter(AccountProject.account_id == account_id)
+        account_project_ids, total = cls.get_paginated_account_project_ids(account_id, filtered_package_ids,
+                                                                           page, page_size)
 
-        if search_options and any(bool(search_option) for search_option in search_options.__dict__.values()):
-            package_query = cls._filter_by_search_criteria(search_options)
-            package_query = cls._filter_packages_by_user_access(package_query)
-            if package_query:
-                filtered_package_ids = package_query.with_entities(Package.id).subquery()
-                query = query.join(Package).filter(Package.id.in_(filtered_package_ids))
+        if not account_project_ids:
+            return [], 0  # Return empty list if no matching projects
 
-        # Apply pagination if page and page_size are provided
-        if page and page_size:
-            page = query.paginate(page=page, per_page=page_size)
-            return page.items, page.total
+        account_projects_list = cls.get_full_account_projects(account_project_ids, is_proponent, filtered_package_ids)
 
-        total = query.count()
-
-        return query.all(), total
+        return account_projects_list, total
 
     @classmethod
     def _filter_by_search_criteria(cls, search_options: AccountProjectSearchOptions):
         """Apply various filters based on search options."""
-        # Subquery to get packages based on search criteria
-        package_query = db.session.query(Package)
+        if not search_options or not any(bool(search_option) for search_option in search_options.__dict__.values()):
+            return None
+
+        query = db.session.query(Package).join(AccountProject).join(Project)
 
         if search_options.search_text:
-            package_query = cls._filter_by_search_text(package_query, search_options.search_text)
+            query = cls._filter_by_search_text(query, search_options.search_text)
         if search_options.status:
-            package_query = cls._filter_by_submission_status(package_query, search_options.status)
+            query = cls._filter_by_submission_status(query, search_options.status)
         if search_options.submitted_on_start or search_options.submitted_on_end:
-            package_query = cls._filter_by_submission_dates(
-                package_query, search_options.submitted_on_start, search_options.submitted_on_end
+            query = cls._filter_by_submission_dates(
+                query, search_options.submitted_on_start, search_options.submitted_on_end
             )
 
-        return package_query
+        return query
 
     @classmethod
     def _filter_packages_by_user_access(cls, package_query=None):
@@ -116,18 +158,19 @@ class ProjectQueries:
             raise ValueError("User account not found.")
 
         user_role = user.account_user.role
-        role_name = user_role.role.role_name
-        if role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
+        if not user_role:
+            raise ValueError("User role not found.")
+
+        if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
             return package_query
 
-        if not package_query:
-            package_query = db.session.query(Package)
+        if user_role.package_ids:
+            package_query = package_query.filter(Package.id.in_(user_role.package_ids)) if package_query\
+                else db.session.query(Package).filter(Package.id.in_(user_role.package_ids))
+        else:
+            package_query = package_query.filter(False)
 
-        package_ids = user_role.package_ids
-        if not package_ids:
-            return package_query.filter(False)
-
-        return package_query.filter(Package.id.in_(package_ids))
+        return package_query
 
     @classmethod
     def _filter_by_search_text(cls, query, search_text):
@@ -135,17 +178,14 @@ class ProjectQueries:
         return query.filter(
             or_(
                 Package.name.ilike(f"%{search_text}%"),
-                Project.name.ilike(f"%{search_text}%")
+                Project.name.ilike(f"%{search_text}%"),
             )
         )
 
     @classmethod
     def _filter_by_submission_status(cls, query, statuses):
         """Filter by submission status using overlap."""
-        status_values = [status.value for status in statuses]
-
-        # check if Package.status has all the values in status_values
-        return query.filter(Package.status.op("@>")(status_values))
+        return query.filter(Package.status.op("@>")([status.value for status in statuses]))
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):

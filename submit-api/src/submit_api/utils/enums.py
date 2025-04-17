@@ -1,4 +1,4 @@
-# Copyright © 2024 Province of British Columbia
+# Copyright © 2019 Province of British Columbia
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -11,16 +11,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Role definitions."""
+"""Enum definitions."""
 from enum import Enum
 
 
-class EpicSubmitRole(Enum):
-    """User Role."""
+class HttpMethod(Enum):
+    """Http methods."""
 
-    EAO_EDIT = "eao_edit"
-    EAO_VIEW = "eao_view"
-    EAO_CREATE = "eao_create"
-    EXTENDED_EAO_EDIT = "extended_eao_edit"
-    PROPONENT_CREATE = "proponent_create"
-    MANAGE_USERS = "manage-users"
+    GET = "GET"
+    PUT = "PUT"
+    POST = "POST"
+    PATCH = "PATCH"
+    DELETE = "DELETE"

@@ -24,7 +24,6 @@ import sys
 
 from dotenv import find_dotenv, load_dotenv
 
-
 # this will load all the envars from a .env file located in the project root (api)
 load_dotenv(find_dotenv())
 
@@ -45,6 +44,16 @@ def get_named_config(config_name: str = 'development'):
     else:
         raise KeyError("Unknown configuration '{config_name}'")
     return config
+
+
+def _get_config(config_key: str, **kwargs):
+    """Get the config from environment, and throw error if there are no default values and if the value is None."""
+    if "default" in kwargs:
+        value = os.getenv(config_key, kwargs.get("default"))
+    else:
+        value = os.getenv(config_key)
+        # assert value TODO Un-comment once we find a solution to run pre-hook without initializing app
+    return value
 
 
 class _Config():  # pylint: disable=too-few-public-methods
@@ -78,13 +87,10 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     # Service account details
     KEYCLOAK_BASE_URL = os.getenv('KEYCLOAK_BASE_URL')
-    KEYCLOAK_REALMNAME = os.getenv('KEYCLOAK_REALMNAME', 'submit')
-    KEYCLOAK_SERVICE_ACCOUNT_ID = os.getenv('MET_ADMIN_CLIENT_ID')
-    KEYCLOAK_SERVICE_ACCOUNT_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
-    # TODO separate out clients for APIs and user management.
-    # TODO API client wont need user management roles in keycloak.
-    KEYCLOAK_ADMIN_USERNAME = os.getenv('MET_ADMIN_CLIENT_ID')
-    KEYCLOAK_ADMIN_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
+    KEYCLOAK_REALM_NAME = os.getenv('KEYCLOAK_REALM_NAME', 'eao-epic')
+    KEYCLOAK_ADMIN_CLIENT = _get_config("KEYCLOAK_ADMIN_CLIENT")
+    KEYCLOAK_ADMIN_SECRET = _get_config("KEYCLOAK_ADMIN_SECRET")
+    CONNECT_TIMEOUT = _get_config("CONNECT_TIMEOUT", default=60)
 
     BASE_APP_URL = os.getenv('BASE_APP_URL')
     SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH')

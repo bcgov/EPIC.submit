@@ -36,7 +36,7 @@ export default function RouterProviderWithAuthContext() {
     getAccountQueryOptions({
       guid: authentication?.user?.profile.sub,
       accessToken: authentication.user?.access_token,
-    }),
+    })
   );
 
   const account = useAccount();

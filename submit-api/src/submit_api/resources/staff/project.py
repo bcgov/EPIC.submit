@@ -71,14 +71,14 @@ class AccountProjects(Resource):
 
         # Fetch paginated projects
         account_projects, total_projects = ProjectService.get_all_account_projects_paginated(
-            search_options, page, page_size
+            search_options, page, page_size, is_proponent=False
         )
 
         # Calculate next cursor (if applicable)
         next_cursor = page + 1 if page * page_size < total_projects else None
 
         return {
-            "projects": StaffAccountProjectSchema(many=True).dump(account_projects),
+            "projects": account_projects,
             "next_cursor": next_cursor,
             "total": total_projects,
         }, HTTPStatus.OK
