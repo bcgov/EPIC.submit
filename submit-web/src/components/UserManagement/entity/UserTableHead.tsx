@@ -15,7 +15,7 @@ export default function UserTableHead() {
       <TableRow>
         <SubmitTableHeadCell
           sx={{
-            width: "35%",
+            width: "25%",
           }}
         >
           Email
@@ -23,15 +23,15 @@ export default function UserTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "25%",
+            width: "15%",
           }}
         >
-          User Name
+          Name
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "25%",
+            width: "20%",
           }}
         >
           Access
@@ -39,10 +39,18 @@ export default function UserTableHead() {
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "15%",
+            width: "10%",
           }}
         >
           Status
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "30%",
+          }}
+        >
+          Actions
         </SubmitTableHeadCell>
       </TableRow>
     </TableHead>

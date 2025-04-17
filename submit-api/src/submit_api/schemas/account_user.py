@@ -21,6 +21,7 @@ class AccountUserSchema(Schema):
     work_email_address = fields.Email()
     work_contact_number = fields.Str()
     user_id = fields.Int()
+    token = fields.Str()
     role = fields.Nested(UserRoleSchema)
     status = fields.Str(required=False)
     account = fields.Nested(AccountSchema, data_key="account", dump_only=True)

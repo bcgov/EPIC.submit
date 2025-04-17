@@ -36,5 +36,6 @@ export type AccountUserWithRole = {
   account?: Account;
   status: UserPackageStatus;
   role: Role;
+  token: string;
   user_id: number | null;
 };
