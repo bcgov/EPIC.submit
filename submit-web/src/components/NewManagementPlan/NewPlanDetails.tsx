@@ -60,6 +60,7 @@ export const NewPlanDetails = ({
     const managementPlanName =
       mainCondition?.condition_attributes?.deliverable_name[0] ||
       mainCondition?.condition_name;
+    setNewlyCreatedPlan(true);
     onSubmit({
       name: {
         label: managementPlanName || "",
@@ -67,7 +68,6 @@ export const NewPlanDetails = ({
       },
       ...formData,
     });
-    setNewlyCreatedPlan(true);
   };
 
   const mainCondition = formData?.main_condition;
