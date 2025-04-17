@@ -6,6 +6,7 @@ import { useAccount } from "@/store/accountStore";
 import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { ExistingPlanDetails } from "./ExistingPlanDetails";
 import { When } from "react-if";
+import { useState } from "react";
 
 type PlanDetailsProps = {
   onSubmit: (formData: NewManagementPlanForm) => void;
@@ -17,6 +18,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   const { data: accountProjects } = useGetAccountProjectsByAccount({
     accountId,
   });
+  const [newlyCreatedPlan, setNewlyCreatedPlan] = useState(false);
 
   const existingPlan = accountProjects
     ?.flatMap((project) => project.packages)
@@ -28,11 +30,14 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
 
   return (
     <TabBox title="Plan Details">
-      <When condition={Boolean(existingPlan)}>
+      <When condition={Boolean(existingPlan) && !newlyCreatedPlan}>
         <ExistingPlanDetails existingPlan={existingPlan} />
       </When>
       <When condition={!existingPlan}>
-        <NewPlanDetails onSubmit={onSubmit} />
+        <NewPlanDetails
+          onSubmit={onSubmit}
+          setNewlyCreatedPlan={setNewlyCreatedPlan}
+        />
       </When>
     </TabBox>
   );
