@@ -111,7 +111,6 @@ class AccountUserService:
                 "full_name": invite.email,
                 "work_email_address": invite.email,
                 "user_id": None,
-                "token": invite.token,
                 "role": {
                     "role_id": invite.role_id,
                     "role": invite.role.to_dict(),

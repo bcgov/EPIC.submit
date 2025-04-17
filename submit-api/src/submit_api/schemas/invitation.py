@@ -22,7 +22,6 @@ class InvitationSchema(Schema):
     """Schema for representing an invitation."""
 
     id = fields.Int()
-    invitation_id = fields.Int()
     account_id = fields.Int()
     project_ids = fields.List(fields.Int())
     package_ids = fields.List(fields.Int(), allow_none=True)
