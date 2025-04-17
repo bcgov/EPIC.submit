@@ -227,7 +227,6 @@ class InvitationService:
     @staticmethod
     def resend_invitation(token):
         """Resend an invitation and extend its expiry date by a week."""
-
         with session_scope() as session:
             invitation = InvitationsModel.query.filter_by(token=token).first()
 

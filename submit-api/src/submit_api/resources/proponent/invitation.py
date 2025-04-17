@@ -132,7 +132,7 @@ class ResendInvitationResource(Resource):
     def post(invitation_id):
         """Resend an invitation token."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
-        result = InvitationService.resend_invitation(invitation.token) 
+        result = InvitationService.resend_invitation(invitation.token)
         if result:
             return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
