@@ -102,6 +102,7 @@ class AccountUserService:
         for invite in invitees:
             invited_user = {
                 "id": None,
+                "invitation_id": invite.id,
                 "account_id": invite.account_id,
                 "full_name": invite.email,
                 "work_email_address": invite.email,

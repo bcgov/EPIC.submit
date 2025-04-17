@@ -99,6 +99,11 @@ class InvitationService:
         return role
 
     @staticmethod
+    def get_invitation_by_id(invitation_id):
+        """Retrieve an invitation by invitation_id."""
+        return InvitationsModel.find_by_id(invitation_id)
+
+    @staticmethod
     def _get_or_create_account(account_id, proponent_id, project_ids, session):
         """Retrieve or create an account based on proponent_id or account_id."""
         if account_id:
@@ -218,3 +223,23 @@ class InvitationService:
             InvitationsModel.commit()
             return True
         return False
+
+    @staticmethod
+    def resend_invitation(token):
+        """Resend an invitation and extend its expiry date by a week."""
+
+        with session_scope() as session:
+            invitation = InvitationsModel.query.filter_by(token=token).first()
+
+            if not invitation or invitation.status != InvitationStatus.PENDING.value:
+                return False
+
+            # Extend expiry date by 1 week from current date
+            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)
+
+            # Create new email queue record for resending
+            if invitation.role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+                InvitationService._create_email_queue_record(invitation.id, session)
+
+            session.add(invitation)
+            return True

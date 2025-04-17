@@ -111,14 +111,14 @@ export const useAcceptInvitation = ({
 
 export const useResendInvitation = (options?: Options) => {
   return useMutation({
-    mutationFn: resendInvitation,
+    mutationFn: (invitationId: number) => resendInvitation(invitationId),
     ...options,
   });
 };
 
-const resendInvitation = (token: string) => {
+const resendInvitation = (invitationId: number) => {
   return submitRequest({
-    url: `/invitations/${token}/resend`,
+    url: `/invitations/id/${invitationId}/resend`,
     method: "post",
   });
 };
@@ -128,7 +128,7 @@ export const useRevokeInvitation = (options?: Options) => {
   const { accountId } = useAccount();
 
   return useMutation({
-    mutationFn: (token: string) => revokeInvitation(token),
+    mutationFn: (invitationId: number) => revokeInvitation(invitationId),
     ...options,
     onSuccess: (data) => {
       options?.onSuccess?.(data);
@@ -139,9 +139,9 @@ export const useRevokeInvitation = (options?: Options) => {
   });
 };
 
-const revokeInvitation = (token: string) => {
+const revokeInvitation = (invitationId: number) => {
   return submitRequest({
-    url: `/invitations/${token}`,
+    url: `/invitations/id/${invitationId}`,
     method: "delete",
   });
 };
