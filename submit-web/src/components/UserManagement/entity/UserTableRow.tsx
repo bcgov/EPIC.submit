@@ -89,13 +89,13 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
             }}
             title={
               <Box>
-                {user.role.package_ids?.map((packageId) => (
+                {user.role.package_names?.map((packageName) => (
                   <Typography
-                    key={packageId}
+                    key={packageName}
                     variant="body1"
                     sx={{ color: BCDesignTokens.typographyColorPrimary }}
                   >
-                    • Package {packageId}
+                    • {packageName}
                   </Typography>
                 )) || "No packages assigned"}
               </Box>
