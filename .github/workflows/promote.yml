@@ -54,6 +54,6 @@ jobs:
         run: |
           echo "Triggering rollout in ${{ github.event.inputs.target_env }}"
 
-          oc rollout status dc/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }} -w
-          oc rollout status dc/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }} -w
-          oc rollout status dc/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }} -w
+          oc rollout restart deployment/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }} -w
+          oc rollout restart deployment/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }} -w
+          oc rollout restart deployment/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }} -w
