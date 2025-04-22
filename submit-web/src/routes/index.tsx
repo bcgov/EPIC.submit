@@ -132,7 +132,7 @@ function Index() {
                   target="_blank"
                   rel="noopener"
                 >
-                  https://www.bceid.ca/register/business/getting_started/getting_started.aspx
+                  https://www.bceid.ca/register
                 </Link>
               </Typography>
               <Button

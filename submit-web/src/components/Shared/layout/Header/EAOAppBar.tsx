@@ -1,4 +1,4 @@
-import { AppBar, Divider, Grid, Typography } from "@mui/material";
+import { AppBar, Box, Divider, Grid, Typography } from "@mui/material";
 import EAO_Logo from "@/assets/images/EAO_Logo.png";
 import { AppConfig } from "@/utils/config";
 import AppBarActions from "./AppBarActions";
@@ -6,10 +6,15 @@ import { useIsMobile } from "@/hooks/common";
 import MobileNav from "./MobileNav";
 import { BCDesignTokens } from "epic.theme";
 import { useNavigate } from "@tanstack/react-router";
+import { useAccount } from "@/store/accountStore";
+import { HTTP_STATUS } from "@/utils/constants";
 
 export default function EAOAppBar() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const account = useAccount();
+
+  const needsAccess = account?.error?.status === HTTP_STATUS.NOT_FOUND;
 
   return (
     <>
@@ -27,19 +32,20 @@ export default function EAOAppBar() {
           paddingX={isMobile ? 0 : "0.5rem"}
           justifyContent="space-between"
         >
-          <Grid display="flex" justifyContent="start" alignItems="center">
-            <img
-              src={EAO_Logo}
-              height={isMobile ? 40 : 56}
-              style={{
-                cursor: "pointer",
-              }}
-              onClick={() =>
-                navigate({
-                  to: `/`,
-                })
-              }
-            />
+          <Box
+            display="flex"
+            justifyContent="start"
+            alignItems="center"
+            onClick={() =>
+              navigate({
+                to: needsAccess ? "/logout" : `/`,
+              })
+            }
+            sx={{
+              cursor: "pointer",
+            }}
+          >
+            <img src={EAO_Logo} height={isMobile ? 40 : 56} />
             {!isMobile && (
               <>
                 <Divider orientation="vertical" flexItem sx={{ m: 1 }} />
@@ -54,7 +60,7 @@ export default function EAOAppBar() {
                 </Typography>
               </>
             )}
-          </Grid>
+          </Box>
           <Grid
             display="flex"
             justifyContent="center"
