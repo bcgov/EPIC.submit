@@ -24,9 +24,13 @@ const NO = "no";
 
 type NewPlanDetailsProps = {
   onSubmit: (formData: NewManagementPlanForm) => void;
+  setNewlyCreatedPlan: (newlyCreatedPlan: boolean) => void;
 };
 
-export const NewPlanDetails = ({ onSubmit }: NewPlanDetailsProps) => {
+export const NewPlanDetails = ({
+  onSubmit,
+  setNewlyCreatedPlan,
+}: NewPlanDetailsProps) => {
   const { step, setStep, reset, formData } = useManagementPlanForm();
   const [isCorrect, setIsCorrect] = useState<string>(YES);
   const navigate = useNavigate();
@@ -56,6 +60,7 @@ export const NewPlanDetails = ({ onSubmit }: NewPlanDetailsProps) => {
     const managementPlanName =
       mainCondition?.condition_attributes?.deliverable_name[0] ||
       mainCondition?.condition_name;
+    setNewlyCreatedPlan(true);
     onSubmit({
       name: {
         label: managementPlanName || "",

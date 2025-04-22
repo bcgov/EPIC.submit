@@ -36,7 +36,7 @@ export default function RouterProviderWithAuthContext() {
     getAccountQueryOptions({
       guid: authentication?.user?.profile.sub,
       accessToken: authentication.user?.access_token,
-    })
+    }),
   );
 
   const account = useAccount();
@@ -50,6 +50,15 @@ export default function RouterProviderWithAuthContext() {
       });
     }
   }, [isFetched, data, setAccount]);
+
+  useEffect(() => {
+    // the `return` is important - addAccessTokenExpiring() returns a cleanup function
+    return authentication.events.addAccessTokenExpiring(() => {
+      // eslint-disable-next-line no-console
+      console.log("AccessTokenExpiring: Refreshing token");
+      authentication.signinSilent();
+    });
+  }, [authentication, authentication.events, authentication.signinSilent]);
 
   return (
     <RouterProvider
