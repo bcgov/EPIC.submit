@@ -22,7 +22,7 @@ export default function MobileNav() {
         paddingLeft={"0.5rem"}
         fontWeight={"bold"}
       >
-        {AppConfig.appTitle || "App Title"}
+        {AppConfig.appTitle || "EPIC.submit"}
       </Typography>
       <Box
         display={"flex"}
