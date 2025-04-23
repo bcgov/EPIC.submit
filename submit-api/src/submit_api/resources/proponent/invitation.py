@@ -129,6 +129,7 @@ class ResendInvitationResource(Resource):
     @API.response(HTTPStatus.NO_CONTENT, "Invitation resent")
     @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
     @auth.require
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.EAO_CREATE.value])
     def post(invitation_id):
         """Resend an invitation token."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
@@ -148,6 +149,7 @@ class InvitationByIdResource(Resource):
     @API.response(HTTPStatus.OK, "Invitation found")
     @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
     @auth.require
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.EAO_CREATE.value])
     def get(invitation_id):
         """Retrieve invitation by ID."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
@@ -160,6 +162,7 @@ class InvitationByIdResource(Resource):
     @API.response(HTTPStatus.NO_CONTENT, "Invitation revoked")
     @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
     @auth.require
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.EAO_CREATE.value])
     def delete(invitation_id):
         """Revoke an invitation by ID."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
