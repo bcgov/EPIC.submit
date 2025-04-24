@@ -135,7 +135,7 @@ export const DocumentUploadSection = () => {
             color: EAOColors.ProponentDark,
           }}
         >
-          Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
+          Accepted file types: pdf, doc, docx, xlsx. Max. file size: 500 MB.
         </Typography>
 
         <Box my={BCDesignTokens.layoutMarginLarge}>
@@ -181,7 +181,7 @@ export const DocumentUploadSection = () => {
             color: EAOColors.ProponentDark,
           }}
         >
-          Accepted file types: pdf, doc, docx, xlsx. Max. file size: 250 MB.
+          Accepted file types: pdf, doc, docx, xlsx. Max. file size: 500 MB.
         </Typography>
 
         <Box my={BCDesignTokens.layoutMarginLarge}>
