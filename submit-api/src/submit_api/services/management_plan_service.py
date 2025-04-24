@@ -272,6 +272,7 @@ class ManagementPlanService:
             ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ActivityActionType.MP_ACCEPTED.value,
             ManagementPlanSubmissionPurpose.APPROVAL.value: ActivityActionType.MP_APPROVED.value,
             ManagementPlanSubmissionPurpose.SATISFACTION.value: ActivityActionType.MP_SATISFIED.value,
+            ManagementPlanSubmissionPurpose.REVIEW.value: ActivityActionType.MP_ACCEPTED.value,
         }
         action_type = activity_type_condition_map.get(submitted_to_eao_for)
         if not action_type:

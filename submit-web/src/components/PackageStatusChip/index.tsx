@@ -45,6 +45,7 @@ const statusStyles: Record<
       borderRadius: 1,
       border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
       background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
     },
     label: "Reviewed",
   },
