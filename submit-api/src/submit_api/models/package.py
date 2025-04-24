@@ -21,6 +21,7 @@ class PackageStatus(enum.Enum):
     ACCEPTED = 'ACCEPTED'
     SATISFIED = 'SATISFIED'
     REJECTED = 'REJECTED'
+    REVIEWED = 'REVIEWED'
     SUBMITTED = 'SUBMITTED'
     PARTIALLY_COMPLETED = 'PARTIALLY_COMPLETED'
     COMPLETED = 'COMPLETED'
@@ -45,20 +46,30 @@ class Package(BaseModel):
     __tablename__ = 'packages'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    account_project_id = Column(db.Integer, ForeignKey('account_projects.id'), nullable=False)
+    account_project_id = Column(db.Integer, ForeignKey(
+        'account_projects.id'), nullable=False)
     name = Column(db.String(255), nullable=False)
-    type_id = Column(db.Integer, ForeignKey('package_types.id'), nullable=False)
-    type = db.relationship('PackageType', foreign_keys=[type_id], lazy='joined')
+    type_id = Column(db.Integer, ForeignKey(
+        'package_types.id'), nullable=False)
+    type = db.relationship('PackageType', foreign_keys=[
+                           type_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)
-    submitted_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=True)
-    submitted_by_user = db.relationship('User', foreign_keys=[submitted_by], lazy='joined')
+    submitted_by = Column(db.String, ForeignKey(
+        'users.auth_guid'), nullable=True)
+    submitted_by_user = db.relationship(
+        'User', foreign_keys=[submitted_by], lazy='joined')
     completed_on = Column(db.DateTime, nullable=True)
-    meta = db.relationship('PackageMetadata', backref='package', lazy='joined', uselist=False)
-    items = db.relationship('Item', backref='package', lazy='select', order_by='Item.sort_order')
-    status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False, default=[PackageStatus.NEW_SUBMISSION.value])
+    meta = db.relationship(
+        'PackageMetadata', backref='package', lazy='joined', uselist=False)
+    items = db.relationship('Item', backref='package',
+                            lazy='select', order_by='Item.sort_order')
+    status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False,
+                    default=[PackageStatus.NEW_SUBMISSION.value])
     active = Column(db.Boolean, nullable=False, default=True)
-    version_id = Column(db.Integer, ForeignKey('package_versions.id'), nullable=True)
-    version = db.relationship('PackageVersion', foreign_keys=[version_id], lazy='joined')
+    version_id = Column(db.Integer, ForeignKey(
+        'package_versions.id'), nullable=True)
+    version = db.relationship('PackageVersion', foreign_keys=[
+                              version_id], lazy='joined')
 
     _update_requests = db.relationship(
         'UpdateRequest',

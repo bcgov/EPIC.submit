@@ -239,6 +239,7 @@ class ManagementPlanService:
             ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ItemStatus.ACCEPTED,
             ManagementPlanSubmissionPurpose.APPROVAL.value: ItemStatus.APPROVED,
             ManagementPlanSubmissionPurpose.SATISFACTION.value: ItemStatus.SATISFIED,
+            ManagementPlanSubmissionPurpose.REVIEW.value: ItemStatus.REVIEWED,
         }
         status = mp_purpose_status_map.get(submitted_to_eao_for)
         if not status:

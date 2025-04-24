@@ -10,3 +10,4 @@ class ManagementPlanSubmissionPurpose(enum.Enum):
     ACCEPTANCE = 'Acceptance'
     APPROVAL = 'Approval'
     SATISFACTION = 'Satisfaction'
+    REVIEW = 'Review'
