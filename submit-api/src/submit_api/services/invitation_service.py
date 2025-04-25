@@ -129,9 +129,9 @@ class InvitationService:
 
                 if invitation.account.proponent_id != user.account_user.account.proponent_id:
                     raise ResourceNotFoundError("No access to this invitation")
-            except AttributeError:
+            except AttributeError as e:
                 raise ResourceNotFoundError(
-                    "Invalid invitation or user account structure")
+                    "Invalid invitation or user account structure") from e
 
         return True
 
