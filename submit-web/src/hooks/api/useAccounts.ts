@@ -74,7 +74,7 @@ export const useGetUserByGuid = ({ guid }: GetUserByGuidOptions) => {
 const getUserByAccount = (
   accountId: number,
   includeRoles: boolean = false,
-  includeInvitees: boolean = false
+  includeInvitees: boolean = false,
 ) => {
   return submitRequest<AccountUserWithRole[]>({
     url: `/accounts/${accountId}/users?include_invitees=${includeInvitees}&include_roles=${includeRoles}`,
@@ -101,7 +101,7 @@ export const useGetUserByAccountId = ({
 
 export const getAccount = async (
   guid?: string,
-  accessToken?: string
+  accessToken?: string,
 ): Promise<Partial<AccountStoreState>> => {
   if (!guid) {
     return Promise.resolve({});

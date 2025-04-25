@@ -1,4 +1,5 @@
-import { Paper, Container } from "@mui/material";
+import { Paper, Container, Stack, Button } from "@mui/material";
+import { Link } from "@tanstack/react-router";
 
 export default function ErrorPage() {
   return (
@@ -11,7 +12,12 @@ export default function ErrorPage() {
           textAlign: "center",
         }}
       >
-        <p>Oops! something wrong happened.</p>
+        <Stack>
+          <p>Oops! something wrong happened.</p>
+          <Link to="/logout">
+            <Button sx={{ width: "fit-content" }}>Go to Home</Button>
+          </Link>
+        </Stack>
       </Paper>
     </Container>
   );

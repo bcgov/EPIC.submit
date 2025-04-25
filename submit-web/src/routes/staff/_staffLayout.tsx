@@ -7,6 +7,7 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { REDIRECT } from "../login";
 const IDIR = "idir";
 
 export const Route = createFileRoute("/staff/_staffLayout")({
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/staff/_staffLayout")({
       if (!authentication?.isAuthenticated) {
         return redirect({
           to: "/login",
+          search: `?from=${REDIRECT.staff}`,
         });
       }
 

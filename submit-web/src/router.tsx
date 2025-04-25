@@ -1,4 +1,8 @@
-import { createRouter, RouterProvider } from "@tanstack/react-router";
+import {
+  createRouter,
+  RouterProvider,
+  useNavigate,
+} from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
 import { QueryClient, useQuery } from "@tanstack/react-query";
@@ -32,6 +36,7 @@ declare module "@tanstack/react-router" {
 
 export default function RouterProviderWithAuthContext() {
   const authentication = useAuth();
+  const navigate = useNavigate();
   const { data, isFetched } = useQuery(
     getAccountQueryOptions({
       guid: authentication?.user?.profile.sub,
@@ -53,12 +58,24 @@ export default function RouterProviderWithAuthContext() {
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
+
     return authentication.events.addAccessTokenExpiring(() => {
       // eslint-disable-next-line no-console
       console.log("AccessTokenExpiring: Refreshing token");
       authentication.signinSilent();
     });
   }, [authentication, authentication.events, authentication.signinSilent]);
+
+  useEffect(() => {
+    // the `return` is important - addAccessTokenExpired() returns a cleanup function
+    return authentication.events.addAccessTokenExpired(() => {
+      // eslint-disable-next-line no-console
+      navigate({
+        to: "/",
+      });
+      authentication.signoutSilent();
+    });
+  }, []);
 
   return (
     <RouterProvider
