@@ -132,7 +132,8 @@ class PackageSchema(Schema):
     items = fields.Nested(ItemSchema, data_key="items", many=True)
     update_requests = fields.Nested(
         PackageUpdateRequestSchema, data_key="update_requests", many=True)
-    version = fields.Nested(PackageVersionSchema, data_key="version", exclude=["package_id"])
+    version = fields.Nested(PackageVersionSchema,
+                            data_key="version", exclude=["package_id"])
 
     def get_submitted_by(self, obj):
         """Get submitted by."""
@@ -235,7 +236,12 @@ def get_package_status(status, user_type, version_obj):
             UserType.PROPONENT: PackageStatus.NO_REVISION_REQUIRED.value,
             UserType.STAFF: PackageStatus.SATISFIED.value
         },
+        PackageStatus.REVIEWED.value: {
+            UserType.PROPONENT: PackageStatus.REVIEWED.value,
+            UserType.STAFF: PackageStatus.REVIEWED.value
+        },
     }
+
     if status in package_status_mapping:
         return package_status_mapping[status][user_type]
 
@@ -252,4 +258,5 @@ class AccountPackageSchema(Schema):
         name = fields.Str(data_key="name")
 
     project_id = fields.Int(data_key="project_id")
-    account_packages = fields.List(fields.Nested(PackageDetailsSchema), data_key="packages")
+    account_packages = fields.List(fields.Nested(
+        PackageDetailsSchema), data_key="packages")

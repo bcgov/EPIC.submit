@@ -40,6 +40,16 @@ const statusStyles: Record<
     },
     label: "Satisfied",
   },
+  REVIEWED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+    },
+    label: "Reviewed",
+  },
+
   IN_REVIEW: {
     sx: {
       borderRadius: 1,

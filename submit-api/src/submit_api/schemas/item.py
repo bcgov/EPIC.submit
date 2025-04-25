@@ -30,8 +30,10 @@ class ItemSubmissionSchema(Schema):
     type = fields.Enum(data_key="type", enum=SubmissionType)
     submitted_document_id = fields.Int(data_key="submitted_document_id")
     submitted_form_id = fields.Int(data_key="submitted_form_id")
-    submitted_form = fields.Nested(SubmittedFormSchema, data_key="submitted_form")
-    submitted_document = fields.Nested(SubmittedDocumentSchema, data_key="submitted_document")
+    submitted_form = fields.Nested(
+        SubmittedFormSchema, data_key="submitted_form")
+    submitted_document = fields.Nested(
+        SubmittedDocumentSchema, data_key="submitted_document")
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
@@ -64,7 +66,8 @@ class ItemSchema(Schema):
     version = fields.Int(data_key="version")
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
-    submissions = fields.Nested(ItemSubmissionSchema, data_key="submissions", many=True)
+    submissions = fields.Nested(
+        ItemSubmissionSchema, data_key="submissions", many=True)
     sort_order = fields.Int(data_key="sort_order")
 
     @post_dump
@@ -120,6 +123,10 @@ def get_item_status(status, user_type):
         ItemStatus.SATISFIED.value: {
             UserType.PROPONENT: ItemStatus.NO_REVISION_REQUIRED.value,
             UserType.STAFF: ItemStatus.SATISFIED.value
+        },
+        ItemStatus.REVIEWED.value: {
+            UserType.PROPONENT: ItemStatus.REVIEWED.value,
+            UserType.STAFF: ItemStatus.REVIEWED.value
         }
     }
     if status in package_status_mapping:

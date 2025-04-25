@@ -50,7 +50,8 @@ class PackageQueries:
                           ItemStatus.SATISFIED.value] for status in statuses):
             return
         if any(status == ItemStatus.PASSED_CONSULTATION_CHECK.value for status in statuses):
-            aggregated_statuses.add(PackageStatus.PASSED_CONSULTATION_CHECK.value)
+            aggregated_statuses.add(
+                PackageStatus.PASSED_CONSULTATION_CHECK.value)
 
     @classmethod
     def _add_review_rejected(cls, aggregated_statuses: set, statuses: list[str]):
@@ -68,7 +69,8 @@ class PackageQueries:
     def _add_under_cc_check(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that have been rejected during review"""
         if any(status == ItemStatus.UNDER_CONSULTATION_CHECK.value for status in statuses):
-            aggregated_statuses.add(PackageStatus.UNDER_CONSULTATION_CHECK.value)
+            aggregated_statuses.add(
+                PackageStatus.UNDER_CONSULTATION_CHECK.value)
 
     @classmethod
     def _add_mp_approved(cls, aggregated_statuses: set, statuses: list[str]):
@@ -79,6 +81,8 @@ class PackageQueries:
             aggregated_statuses.add(PackageStatus.ACCEPTED.value)
         elif any(status == ItemStatus.SATISFIED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.SATISFIED.value)
+        elif any(status == ItemStatus.REVIEWED.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.REVIEWED.value)
 
     @classmethod
     def add_awaiting_manager_review(cls, aggregated_statuses: set, statuses: list[str]):
@@ -90,13 +94,15 @@ class PackageQueries:
     def _add_awaiting_cc_manager_review(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that have been rejected during review"""
         if any(status == ItemStatus.CC_AWAITING_MANAGER_APPROVAL.value for status in statuses):
-            aggregated_statuses.add(PackageStatus.CC_AWAITING_MANAGER_APPROVAL.value)
+            aggregated_statuses.add(
+                PackageStatus.CC_AWAITING_MANAGER_APPROVAL.value)
 
     @classmethod
     def _add_awaiting_mp_manager_review(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that have been rejected during review"""
         if any(status == ItemStatus.MP_AWAITING_MANAGER_APPROVAL.value for status in statuses):
-            aggregated_statuses.add(PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value)
+            aggregated_statuses.add(
+                PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value)
 
     @classmethod
     def aggregate_item_statuses(cls, items: list):
@@ -124,7 +130,8 @@ class PackageQueries:
     def update_package_status(package_id, session, package=None):
         """Update the status of the package based on the statuses of its items."""
         if not package:
-            package = session.query(PackageModel).filter_by(id=package_id).one()
+            package = session.query(
+                PackageModel).filter_by(id=package_id).one()
         # Determine new package statuses based on item statuses
         new_statuses = PackageQueries.aggregate_item_statuses(package.items)
         if set(package.status) != set(new_statuses):
@@ -142,9 +149,11 @@ class PackageQueries:
         latest_versions_subquery = (
             db.session.query(
                 PackageVersion.original_package_id,
-                func.max(PackageVersion.id).label("latest_version_id")  # Get the latest version_id
+                func.max(PackageVersion.id).label(
+                    "latest_version_id")  # Get the latest version_id
             )
-            .group_by(PackageVersion.original_package_id)  # Group by original_package_id
+            # Group by original_package_id
+            .group_by(PackageVersion.original_package_id)
             .subquery()
         )
 

@@ -31,6 +31,7 @@ export type PackageStatus =
   | "ACCEPTED"
   | "SATISFIED"
   | "REVIEW_REJECTED"
+  | "REVIEWED"
   | "COMPLETED"
   | "SUBMITTED"
   | "PARTIALLY_COMPLETED"
@@ -104,6 +105,10 @@ export const PACKAGE_STATUS: Record<
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
     label: "Failed Consultation Check",
+  },
+  REVIEWED: {
+    value: "REVIEWED",
+    label: "Reviewed",
   },
 };
 
