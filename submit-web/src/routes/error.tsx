@@ -1,5 +1,6 @@
 import ErrorPageComponent from "@/components/ErrorPage";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/error")({
   component: ErrorPage,
@@ -7,5 +8,11 @@ export const Route = createFileRoute("/error")({
 });
 
 function ErrorPage() {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/logout" />;
+  }
+
   return <ErrorPageComponent />;
 }

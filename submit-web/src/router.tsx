@@ -36,7 +36,6 @@ declare module "@tanstack/react-router" {
 
 export default function RouterProviderWithAuthContext() {
   const authentication = useAuth();
-  const navigate = useNavigate();
   const { data, isFetched } = useQuery(
     getAccountQueryOptions({
       guid: authentication?.user?.profile.sub,
@@ -64,18 +63,7 @@ export default function RouterProviderWithAuthContext() {
       console.log("AccessTokenExpiring: Refreshing token");
       authentication.signinSilent();
     });
-  }, [authentication, authentication.events, authentication.signinSilent]);
-
-  useEffect(() => {
-    // the `return` is important - addAccessTokenExpired() returns a cleanup function
-    return authentication.events.addAccessTokenExpired(() => {
-      // eslint-disable-next-line no-console
-      navigate({
-        to: "/",
-      });
-      authentication.signoutSilent();
-    });
-  }, []);
+  }, [authentication.events, authentication.signinSilent]);
 
   return (
     <RouterProvider

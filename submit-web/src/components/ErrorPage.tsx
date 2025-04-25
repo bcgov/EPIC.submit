@@ -14,7 +14,7 @@ export default function ErrorPage() {
       >
         <Stack>
           <p>Oops! something wrong happened.</p>
-          <Link to="/logout">
+          <Link to="/oidc-callback">
             <Button sx={{ width: "fit-content" }}>Go to Home</Button>
           </Link>
         </Stack>
