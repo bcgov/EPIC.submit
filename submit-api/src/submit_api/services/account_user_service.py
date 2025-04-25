@@ -100,8 +100,13 @@ class AccountUserService:
 
         invited_users = []
         for invite in invitees:
+            packages = []
+            if invite.package_ids:
+                packages = PackageModel.get_all_package_by_ids(invite.package_ids)
+
             invited_user = {
                 "id": None,
+                "invitation_id": invite.id,
                 "account_id": invite.account_id,
                 "full_name": invite.email,
                 "work_email_address": invite.email,
@@ -111,6 +116,7 @@ class AccountUserService:
                     "role": invite.role.to_dict(),
                     "account_project_id": None,
                     "package_ids": invite.package_ids,
+                    "package_names": [pkg.name for pkg in packages],
                     "project_ids": invite.project_ids
                 } if include_roles else None,
                 "status": invite.status

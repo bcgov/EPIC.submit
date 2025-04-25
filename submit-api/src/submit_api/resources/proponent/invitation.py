@@ -117,3 +117,56 @@ class InvitationDetailResource(Resource):
             return response, HTTPStatus.BAD_REQUEST
 
         return response, HTTPStatus.CREATED
+
+
+@cors_preflight("POST, GET, DELETE, OPTIONS")
+@API.route("/id/<int:invitation_id>/resend", methods=["POST", "GET", "DELETE", "OPTIONS"])
+class ResendInvitationResource(Resource):
+    """Resource to resend an invitation by token."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Resend invitation by token")
+    @API.response(HTTPStatus.NO_CONTENT, "Invitation resent")
+    @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
+    @auth.require
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.PROPONENT_CREATE.value])
+    def post(invitation_id):
+        """Resend an invitation token."""
+        invitation = InvitationService.get_invitation_by_id(invitation_id)
+        result = InvitationService.resend_invitation(invitation.token)
+        if result:
+            return {}, HTTPStatus.NO_CONTENT
+        return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
+
+
+@cors_preflight("GET, DELETE, OPTIONS")
+@API.route("/id/<int:invitation_id>", methods=["GET", "DELETE", "OPTIONS"])
+class InvitationByIdResource(Resource):
+    """Resource to manage individual invitations by ID."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get invitation by ID")
+    @API.response(HTTPStatus.OK, "Invitation found")
+    @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
+    @auth.require
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.PROPONENT_CREATE.value])
+    def get(invitation_id):
+        """Retrieve invitation by ID."""
+        invitation = InvitationService.get_invitation_by_id(invitation_id)
+        if invitation:
+            return InvitationSchema().dump(invitation), HTTPStatus.OK
+        return {"error": "Invitation not found"}, HTTPStatus.NOT_FOUND
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Revoke invitation by ID")
+    @API.response(HTTPStatus.NO_CONTENT, "Invitation revoked")
+    @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
+    @auth.require
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.PROPONENT_CREATE.value])
+    def delete(invitation_id):
+        """Revoke an invitation by ID."""
+        invitation = InvitationService.get_invitation_by_id(invitation_id)
+        result = InvitationService.revoke_invitation(invitation.token)
+        if result:
+            return {}, HTTPStatus.NO_CONTENT
+        return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND

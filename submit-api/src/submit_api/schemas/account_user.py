@@ -13,6 +13,7 @@ class AccountUserSchema(Schema):
     """Schema for representing an account user with roles."""
 
     id = fields.Int()
+    invitation_id = fields.Int()
     account_id = fields.Int()
     first_name = fields.Str()
     last_name = fields.Str()

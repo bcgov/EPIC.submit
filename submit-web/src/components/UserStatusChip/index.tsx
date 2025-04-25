@@ -6,7 +6,7 @@ type StyleProps = {
   label: string;
 };
 
-export type UserPackageStatus = "ACTIVE" | "PENDING" | "REJECTED";
+export type UserPackageStatus = "ACTIVE" | "PENDING" | "REJECTED" | "REVOKED";
 
 const statusStyles: Record<UserPackageStatus, StyleProps> = {
   ACTIVE: {
@@ -26,6 +26,15 @@ const statusStyles: Record<UserPackageStatus, StyleProps> = {
       height: "24px",
     },
     label: "Invited",
+  },
+  REVOKED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+      background: BCDesignTokens.supportSurfaceColorDanger,
+      height: "24px",
+    },
+    label: "Revoked",
   },
   REJECTED: {
     sx: {

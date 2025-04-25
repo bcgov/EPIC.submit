@@ -7,7 +7,7 @@ from flask import current_app
 
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import ResourceNotFoundError
-from submit_api.models import AccountProject as AccountProjectModel
+from submit_api.models import AccountProject as AccountProjectModel, User
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
@@ -18,6 +18,7 @@ from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
+from submit_api.utils.token_info import TokenInfo
 
 
 class InvitationService:
@@ -42,7 +43,8 @@ class InvitationService:
 
         with session_scope() as session:
 
-            account = InvitationService._get_or_create_account(account_id, proponent_id, project_ids, session)
+            account = InvitationService._get_or_create_account(
+                account_id, proponent_id, project_ids, session)
             session.flush()
             invitation = InvitationService._create_invitation_record(invite_data,
                                                                      role,
@@ -50,7 +52,8 @@ class InvitationService:
                                                                      token,
                                                                      session)
             if role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
-                InvitationService._create_email_queue_record(invitation.id, session)
+                InvitationService._create_email_queue_record(
+                    invitation.id, session)
 
             return {
                 'invitation': invitation,
@@ -78,9 +81,11 @@ class InvitationService:
         with session_scope() as session:
             user = InvitationService._create_user(payload, session)
 
-            account_user = InvitationService._create_account_user(user.id, invitation.account_id, payload, session)
+            account_user = InvitationService._create_account_user(
+                user.id, invitation.account_id, payload, session)
 
-            role = InvitationService._assign_user_role(account_user.id, invitation, session)
+            role = InvitationService._assign_user_role(
+                account_user.id, invitation, session)
 
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
@@ -99,6 +104,38 @@ class InvitationService:
         return role
 
     @staticmethod
+    def get_invitation_by_id(invitation_id):
+        """Retrieve an invitation by invitation_id."""
+        invitation = InvitationsModel.find_by_id(invitation_id)
+        InvitationService._validate_invitation_access(invitation)
+        return invitation
+
+    @staticmethod
+    def _validate_invitation_access(invitation):
+        """Validate if the current user has access to the invitation."""
+        auth_guid = TokenInfo.get_id()
+        user = User.get_by_guid(auth_guid)
+
+        if not user:
+            raise ResourceNotFoundError("User not found")
+
+        if user.type == UserType.STAFF.value:
+            return True
+
+        if user.type == UserType.PROPONENT.value:
+            try:
+                if not user.account_user or not user.account_user.account:
+                    raise ResourceNotFoundError("User account not found")
+
+                if invitation.account.proponent_id != user.account_user.account.proponent_id:
+                    raise ResourceNotFoundError("No access to this invitation")
+            except AttributeError as e:
+                raise ResourceNotFoundError(
+                    "Invalid invitation or user account structure") from e
+
+        return True
+
+    @staticmethod
     def _get_or_create_account(account_id, proponent_id, project_ids, session):
         """Retrieve or create an account based on proponent_id or account_id."""
         if account_id:
@@ -107,7 +144,8 @@ class InvitationService:
         if proponent_id:
             return InvitationService._get_or_create_account_by_proponent(proponent_id, project_ids, session)
 
-        raise ResourceNotFoundError("No valid account found for the provided data.")
+        raise ResourceNotFoundError(
+            "No valid account found for the provided data.")
 
     @staticmethod
     def _get_account_by_id(account_id):
@@ -121,14 +159,16 @@ class InvitationService:
         if not account:
             account_data = {'proponent_id': proponent_id}
             account = AccountModel.create_account(account_data, session)
-            InvitationService._create_account_projects(account.id, project_ids, session)
+            InvitationService._create_account_projects(
+                account.id, project_ids, session)
         return account
 
     @staticmethod
     def _create_account_projects(account_id, project_ids, session):
         """Create account projects."""
         for project_id in project_ids:
-            AccountProjectModel.create_account_project(account_id, project_id, session)
+            AccountProjectModel.create_account_project(
+                account_id, project_id, session)
         session.flush()
 
     @staticmethod
@@ -179,7 +219,8 @@ class InvitationService:
         return AccountUserService.assign_role({
             "account_user_id": account_user_id,
             "role_id": invitation.role_id,
-            "account_project_id": None,  # TODO: Add account_project_ids for users onboarded by project admin
+            # TODO: Add account_project_ids for users onboarded by project admin
+            "account_project_id": None,
             "package_ids": invitation.package_ids,
         }, session)
 
@@ -187,7 +228,8 @@ class InvitationService:
     def _generate_signup_url(token):
         """Generate a full URL with token for invitation."""
         base_url = current_app.config['BASE_APP_URL']
-        signup_path = current_app.config.get('SIGNUP_URL_PATH', '/proponent/registration')
+        signup_path = current_app.config.get(
+            'SIGNUP_URL_PATH', '/proponent/registration')
 
         # Construct the URL by joining base, path, and token
         return urljoin(base_url, f"{signup_path}?token={token}")
@@ -212,9 +254,30 @@ class InvitationService:
     @staticmethod
     def revoke_invitation(token):
         """Revoke an invitation by updating its status."""
-        invitation = InvitationsModel.query.filter_by(token=token, status=InvitationStatus.PENDING.value).first()
+        invitation = InvitationsModel.query.filter_by(
+            token=token, status=InvitationStatus.PENDING.value).first()
         if invitation:
             invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
             return True
         return False
+
+    @staticmethod
+    def resend_invitation(token):
+        """Resend an invitation and extend its expiry date by a week."""
+        with session_scope() as session:
+            invitation = InvitationsModel.query.filter_by(token=token).first()
+
+            if not invitation or invitation.status != InvitationStatus.PENDING.value:
+                return False
+
+            # Extend expiry date by 1 week from current date
+            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)
+
+            # Create new email queue record for resending
+            if invitation.role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+                InvitationService._create_email_queue_record(
+                    invitation.id, session)
+
+            session.add(invitation)
+            return True

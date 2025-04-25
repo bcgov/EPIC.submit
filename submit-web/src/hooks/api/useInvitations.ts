@@ -3,11 +3,13 @@ import {
   useMutation,
   UseMutationOptions,
   useQuery,
+  useQueryClient,
 } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 import { Invitation } from "@/models/Invitation";
 import { submitRequest, publicRequest } from "@/utils/axiosUtils";
 import { Role } from "@/models/AccountUser";
+import { useAccount } from "@/store/accountStore";
 
 export const useCreateInvitation = (options?: Options) => {
   return useMutation({
@@ -74,6 +76,7 @@ export type AcceptInvitationResponse = {
   user_id: number;
   role: Role;
 };
+
 const acceptInvitation = (
   token: string | undefined,
   data: CreateAccountRequest
@@ -103,5 +106,42 @@ export const useAcceptInvitation = ({
   return useMutation({
     mutationFn: (data: CreateAccountRequest) => acceptInvitation(token, data),
     ...rest,
+  });
+};
+
+export const useResendInvitation = (options?: Options) => {
+  return useMutation({
+    mutationFn: (invitationId: number) => resendInvitation(invitationId),
+    ...options,
+  });
+};
+
+const resendInvitation = (invitationId: number) => {
+  return submitRequest({
+    url: `/invitations/id/${invitationId}/resend`,
+    method: "post",
+  });
+};
+
+export const useRevokeInvitation = (options?: Options) => {
+  const queryClient = useQueryClient();
+  const { accountId } = useAccount();
+
+  return useMutation({
+    mutationFn: (invitationId: number) => revokeInvitation(invitationId),
+    ...options,
+    onSuccess: (data) => {
+      options?.onSuccess?.(data);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_USERS, accountId],
+      });
+    },
+  });
+};
+
+const revokeInvitation = (invitationId: number) => {
+  return submitRequest({
+    url: `/invitations/id/${invitationId}`,
+    method: "delete",
   });
 };
