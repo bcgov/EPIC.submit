@@ -106,15 +106,34 @@ class InvitationService:
     @staticmethod
     def get_invitation_by_id(invitation_id):
         """Retrieve an invitation by invitation_id."""
+        invitation = InvitationsModel.find_by_id(invitation_id)
+        InvitationService._validate_invitation_access(invitation)
+        return invitation
+
+    @staticmethod
+    def _validate_invitation_access(invitation):
+        """Validate if the current user has access to the invitation."""
         auth_guid = TokenInfo.get_id()
         user = User.get_by_guid(auth_guid)
+
         if not user:
             raise ResourceNotFoundError("User not found")
-        invitation = InvitationsModel.find_by_id(invitation_id)
-        if invitation.account.proponent_id != user.account_user.account.proponent_id:
-            raise ResourceNotFoundError("No access to this invitation")
 
-        return invitation
+        if user.type == UserType.STAFF.value:
+            return True
+
+        if user.type == UserType.PROPONENT.value:
+            try:
+                if not user.account_user or not user.account_user.account:
+                    raise ResourceNotFoundError("User account not found")
+
+                if invitation.account.proponent_id != user.account_user.account.proponent_id:
+                    raise ResourceNotFoundError("No access to this invitation")
+            except AttributeError:
+                raise ResourceNotFoundError(
+                    "Invalid invitation or user account structure")
+
+        return True
 
     @staticmethod
     def _get_or_create_account(account_id, proponent_id, project_ids, session):
