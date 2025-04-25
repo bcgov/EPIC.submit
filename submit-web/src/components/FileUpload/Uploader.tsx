@@ -11,7 +11,7 @@ interface UploaderProps {
   error?: boolean;
   maxSize?: number;
 }
-const MAX_FILE_SIZE = 250 * 1024 * 1024;
+const MAX_FILE_SIZE = 500 * 1024 * 1024;
 
 const Uploader = ({
   height = "10em",

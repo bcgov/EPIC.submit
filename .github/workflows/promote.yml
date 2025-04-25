@@ -1,0 +1,59 @@
+name: Promote
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_env:
+        description: "Source environment (e.g., dev/test)"
+        required: true
+        default: "dev"
+      target_env:
+        description: "Target environment (e.g., test/prod)"
+        required: true
+        default: "test"
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./
+
+jobs:
+  promote:
+    runs-on: ubuntu-22.04
+    environment:
+      name: ${{ github.event.inputs.target_env }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to OpenShift
+        run: |
+          oc login --server=${{ secrets.OPENSHIFT_LOGIN_REGISTRY }} --token=${{ secrets.OPENSHIFT_SA_TOKEN }}
+
+      - name: Backup current target images with timestamp
+        run: |
+          TIMESTAMP=$(date +%Y-%m-%d-%H%M)
+          oc project ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
+
+          echo "Backing up current target images with tag: -backup-${TIMESTAMP}"
+
+          oc tag submit-api:${{ github.event.inputs.target_env }} submit-api:${{ github.event.inputs.target_env }}-backup-${TIMESTAMP}
+          oc tag submit-web:${{ github.event.inputs.target_env }} submit-web:${{ github.event.inputs.target_env }}-backup-${TIMESTAMP}
+          oc tag submit-cron:${{ github.event.inputs.target_env }} submit-cron:${{ github.event.inputs.target_env }}-backup-${TIMESTAMP}
+
+      - name: Promote images from source to target
+        run: |
+          oc project ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
+
+          echo "Promoting from ${{ github.event.inputs.source_env }} to ${{ github.event.inputs.target_env }}"
+
+          oc tag submit-api:${{ github.event.inputs.source_env }} submit-api:${{ github.event.inputs.target_env }}
+          oc tag submit-web:${{ github.event.inputs.source_env }} submit-web:${{ github.event.inputs.target_env }}
+          oc tag submit-cron:${{ github.event.inputs.source_env }} submit-cron:${{ github.event.inputs.target_env }}
+
+      - name: Rollout to target environment
+        run: |
+          echo "Triggering rollout in ${{ github.event.inputs.target_env }}"
+
+          oc rollout restart deployment/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }}
+          oc rollout restart deployment/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }}
+          oc rollout restart deployment/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }}

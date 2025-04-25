@@ -14,6 +14,10 @@ from submit_api.models.update_request import UpdateRequestType
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.package import PackageService
 from submit_api.utils.token_info import TokenInfo
+from submit_api.models.email_queue import EmailQueue as EmailQueueModel
+from submit_api.models.email_queue import EntityType
+from submit_api.utils.constants import (
+    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 
 
 class ConsultationRecordService:
@@ -27,7 +31,8 @@ class ConsultationRecordService:
         item.reviewed_on = reviewed_on
         package_metadata = PackageMetadata.get_by_package_id(item.package_id)
         if not package_metadata:
-            package_metadata = PackageMetadata(package_id=item.package_id, json={})
+            package_metadata = PackageMetadata(
+                package_id=item.package_id, json={})
         existing_json = package_metadata.json if package_metadata.json else {}
         package_metadata.json = {
             **existing_json,
@@ -43,11 +48,14 @@ class ConsultationRecordService:
             actor_id=TokenInfo.get_id(),
             session=session
         )
-        current_app.logger.info(f"Consultation record approved for item {item.id}.")
+        current_app.logger.info(
+            f"Consultation record approved for item {item.id}.")
 
-        current_app.logger.info(f"Starting MP review for package {item.package_id}.")
+        current_app.logger.info(
+            f"Starting MP review for package {item.package_id}.")
         PackageService.start_mp_review(item.package_id, session)
-        current_app.logger.info(f"MP review started for package {item.package_id}.")
+        current_app.logger.info(
+            f"MP review started for package {item.package_id}.")
 
         return item
 
@@ -64,6 +72,8 @@ class ConsultationRecordService:
             actor_id=TokenInfo.get_id(),
             session=session
         )
+        cls._create_rejection_email_queue(
+            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
         item.status = ItemStatus.UNDER_CONSULTATION_CHECK.value
         session.add(item)
         session.flush()
@@ -93,7 +103,8 @@ class ConsultationRecordService:
     @classmethod
     def _create_update_request(cls, data, session):
         """Create an update request."""
-        current_app.logger.info(f"Creating update request for new package {data.get('package_id')}.")
+        current_app.logger.info(
+            f"Creating update request for new package {data.get('package_id')}.")
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
             submission_item_types=data.get('item_types'),
@@ -102,4 +113,14 @@ class ConsultationRecordService:
             type=data.get('type')
         )
         session.add(update_request)
-        current_app.logger.info(f"Update request created for new package {data.get('package_id')}.")
+        current_app.logger.info(
+            f"Update request created for new package {data.get('package_id')}.")
+
+    @classmethod
+    def _create_rejection_email_queue(cls, package_id, template_name):
+        """Create an email queue record for an update request."""
+        email_queue = EmailQueueModel(
+            entity_id=package_id, entity_type=EntityType.PACKAGE.value,
+            template_name=template_name
+        )
+        email_queue.save()
