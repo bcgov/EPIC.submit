@@ -11,7 +11,10 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { InfoBox } from "@/components/Submission/InfoBox";
-import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
+import {
+  useGetPackageVersionsByOriginalPackageId,
+  useGetStaffSubmissionPackage,
+} from "@/hooks/api/usePackages";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
@@ -21,7 +24,8 @@ import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-
+import WarningBox from "@/components/Shared/WarningBox";
+import { SuccessBox } from "@/components/Shared/SuccessBox";
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
@@ -45,6 +49,14 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
+
+  const { data: packageVersions } = useGetPackageVersionsByOriginalPackageId({
+    originalPackageId: submissionPackage?.version?.original_package_id,
+  });
+
+  const last_approved_package_version = packageVersions?.find(
+    (packageVersion) => packageVersion.is_approved
+  );
 
   const navigate = useNavigate();
 
@@ -121,6 +133,23 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
+              <WarningBox
+                sx={{
+                  mb: BCDesignTokens.layoutMarginMedium,
+                  p: BCDesignTokens.layoutPaddingSmall,
+                }}
+              >
+                <Typography variant="body1">
+                  This submission is still pending EAO review. Until finalized,
+                  it is not considered enforceable.
+                </Typography>
+              </WarningBox>
+              <SuccessBox>
+                <Typography variant="body1">
+                  This submission is still pending EAO review. Until finalized,
+                  it is not considered enforceable.
+                </Typography>
+              </SuccessBox>
               <InfoBox submissionPackage={submissionPackage} />
               <Box
                 sx={{

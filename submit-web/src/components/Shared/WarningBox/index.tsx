@@ -6,7 +6,11 @@ type WarningBoxProps = {
   children: React.ReactNode;
 } & BoxProps;
 
-export default function WarningBox({ children }: WarningBoxProps) {
+export default function WarningBox({
+  children,
+  sx,
+  ...otherProps
+}: WarningBoxProps) {
   return (
     <Box
       sx={{
@@ -14,7 +18,9 @@ export default function WarningBox({ children }: WarningBoxProps) {
         backgroundColor: BCDesignTokens.supportSurfaceColorWarning,
         borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
         p: BCDesignTokens.layoutPaddingMedium,
+        ...sx,
       }}
+      {...otherProps}
     >
       {children}
     </Box>
