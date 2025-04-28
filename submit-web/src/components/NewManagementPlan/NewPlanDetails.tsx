@@ -83,14 +83,10 @@ export const NewPlanDetails = ({
       sx={{
         padding: "16px 0px",
       }}
-      spacing={4}
+      spacing={3}
     >
       <Grid item xs={12}>
-        <Typography variant="body2">
-          You are submitting this Management Plan:
-        </Typography>
-      </Grid>
-      <Grid item xs={12}>
+        <Typography variant="body2">This submission is:</Typography>
         <Typography
           variant="body1"
           fontWeight={theme.typography.fontWeightBold}
@@ -137,7 +133,6 @@ export const NewPlanDetails = ({
                 fontSize: theme.typography.body2.fontSize,
                 fontStyle: theme.typography.body2.fontStyle,
                 lineHeight: theme.typography.body2.lineHeight,
-                fontWeight: theme.typography.fontWeightBold,
               }}
             >
               {consultedParties.map((stakeholder: string) => (
@@ -148,7 +143,9 @@ export const NewPlanDetails = ({
         )}
       <Grid item xs={12}>
         <FormControl sx={{ width: "100%" }}>
-          <FormLabel>Is this correct?</FormLabel>
+          <FormLabel sx={{ fontWeight: theme.typography.fontWeightBold }}>
+            Is this correct?
+          </FormLabel>
           <RadioGroup
             sx={{ mb: BCDesignTokens.layoutMarginSmall }}
             name="isCorrect"
