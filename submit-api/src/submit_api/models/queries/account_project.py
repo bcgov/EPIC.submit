@@ -13,16 +13,18 @@
 # limitations under the License.
 """Model to handle all complex queries related to Account Project."""
 
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
+from sqlalchemy.sql import exists
 from sqlalchemy.orm import joinedload, contains_eager
-
 from submit_api.enums.role import RoleEnum
+from submit_api.models.package import PackageStatus
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
 from submit_api.models.user import UserType
 from submit_api.schemas.project import AccountProjectSchema, StaffAccountProjectSchema
 from submit_api.utils.token_info import TokenInfo
+from submit_api.models.update_request import UpdateRequest, UpdateRequestType
 
 
 class ProjectQueries:
@@ -36,11 +38,13 @@ class ProjectQueries:
     @classmethod
     def get_account_project_by_id(cls, account_project_id: int):
         """Find account project by id."""
-        query = db.session.query(AccountProject).filter(AccountProject.id == account_project_id)
+        query = db.session.query(AccountProject).filter(
+            AccountProject.id == account_project_id)
 
         package_query = cls._filter_packages_by_user_access()
         if package_query:
-            filtered_package_ids = [row[0] for row in package_query.with_entities(Package.id).all()]
+            filtered_package_ids = [
+                row[0] for row in package_query.with_entities(Package.id).all()]
             query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
                      .options(contains_eager(AccountProject.packages)))
 
@@ -52,7 +56,8 @@ class ProjectQueries:
         package_query = cls._filter_by_search_criteria(search_options)
         package_query = cls._filter_packages_by_user_access(package_query)
 
-        result = [row[0] for row in package_query.with_entities(Package.id).all()] if package_query else None
+        result = [row[0] for row in package_query.with_entities(
+            Package.id).all()] if package_query else None
         return result
 
     @classmethod
@@ -87,7 +92,8 @@ class ProjectQueries:
         account_projects = (
             db.session.query(AccountProject)
             .filter(AccountProject.id.in_(account_project_ids))
-            .options(joinedload(AccountProject.packages))  # Ensure packages are loaded
+            # Ensure packages are loaded
+            .options(joinedload(AccountProject.packages))
         ).all()
 
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
@@ -119,7 +125,8 @@ class ProjectQueries:
         if not account_project_ids:
             return [], 0  # Return empty list if no matching projects
 
-        account_projects_list = cls.get_full_account_projects(account_project_ids, is_proponent, filtered_package_ids)
+        account_projects_list = cls.get_full_account_projects(
+            account_project_ids, is_proponent, filtered_package_ids)
 
         return account_projects_list, total
 
@@ -132,9 +139,11 @@ class ProjectQueries:
         query = db.session.query(Package).join(AccountProject).join(Project)
 
         if search_options.search_text:
-            query = cls._filter_by_search_text(query, search_options.search_text)
+            query = cls._filter_by_search_text(
+                query, search_options.search_text)
         if search_options.status:
-            query = cls._filter_by_submission_status(query, search_options.status)
+            query = cls._filter_by_submission_status(
+                query, search_options.status)
         if search_options.submitted_on_start or search_options.submitted_on_end:
             query = cls._filter_by_submission_dates(
                 query, search_options.submitted_on_start, search_options.submitted_on_end
@@ -184,8 +193,41 @@ class ProjectQueries:
 
     @classmethod
     def _filter_by_submission_status(cls, query, statuses):
-        """Filter by submission status using overlap."""
-        return query.filter(Package.status.op("@>")([status.value for status in statuses]))
+        """Filter by submission status, with special handling for revision required."""
+        revision_required_value = PackageStatus.REVISION_REQUIRED.value
+
+        # Separate normal statuses and check if revision_required is included
+        normal_statuses = [
+            status.value for status in statuses if status.value != revision_required_value]
+        include_revision_required = any(
+            status.value == revision_required_value for status in statuses)
+
+        filters = []
+
+        if normal_statuses:
+            filters.append(Package.status.op("@>")(normal_statuses))
+
+        if include_revision_required:
+            filters.append(cls._revision_required_filter())
+
+        return query.filter(or_(*filters)) if filters else query
+
+    @classmethod
+    def _revision_required_filter(cls):
+        """Builds the filter for packages requiring revision."""
+        return and_(
+            ~Package.status.op("@>")([
+                PackageStatus.COMPLETED.value,
+                PackageStatus.PARTIALLY_COMPLETED.value,
+            ]),
+            exists().where(
+                and_(
+                    UpdateRequest.submission_package_id == Package.id,
+                    UpdateRequest.type == UpdateRequestType.REVIEW.value,
+                    UpdateRequest.active.is_(True),
+                )
+            )
+        )
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
