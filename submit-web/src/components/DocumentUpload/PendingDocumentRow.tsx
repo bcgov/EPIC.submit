@@ -68,7 +68,8 @@ export default function PendingDocumentRow({
         queryKey: [QUERY_KEY.SUBMISSION_ITEM, documentSubmission.item_id],
       });
     } catch (error) {
-      notify.error("Failed to upload document");
+      console.error("Error uploading document:", error);
+      notify.error("Failed to upload document. Please try again later.");
       removePendingFile(documentItem.id);
     }
   };
