@@ -23,7 +23,7 @@ export const useFileStore = create<FileStoreState>((set) => ({
   pendingFiles: [],
   addPendingFile: (file, folder) => {
     set((prev) => {
-      const id = Math.max(...prev.files.map((doc) => doc.id), 0) + 1;
+      const id = Math.max(...prev.pendingFiles.map((doc) => doc.id), 0) + 1;
       const document = { id, file, folder };
       return { pendingFiles: [...prev.pendingFiles, document] };
     });
