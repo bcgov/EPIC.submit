@@ -7,7 +7,9 @@ import { Case, Default, Switch } from "react-if";
 type SuccessBoxProps = {
   submissionPackageType: PackageType;
 };
-export const SuccessBox = ({ submissionPackageType }: SuccessBoxProps) => {
+export const SubmissionSuccessBox = ({
+  submissionPackageType,
+}: SuccessBoxProps) => {
   return (
     <Box
       sx={{

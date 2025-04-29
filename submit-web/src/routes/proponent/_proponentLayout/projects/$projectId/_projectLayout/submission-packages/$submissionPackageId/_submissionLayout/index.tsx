@@ -34,6 +34,7 @@ import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import WarningBox from "@/components/Shared/WarningBox";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
+import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
@@ -254,7 +255,9 @@ export default function SubmissionPage() {
               </Box>
               <When condition={isPackageSubmitted && openRequests.length === 0}>
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>
-                  <SuccessBox submissionPackageType={submissionPackage.type} />
+                  <SubmissionSuccessBox
+                    submissionPackageType={submissionPackage.type}
+                  />
                 </Box>
               </When>
               <Box
