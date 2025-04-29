@@ -23,12 +23,12 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { isAuthenticated, isLoading, signinRedirect } = useAuth();
 
-  if (isAuthenticated) {
-    return <Navigate to="/oidc-callback" />;
-  }
-
   if (isLoading) {
     return <PageLoader />;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/oidc-callback" />;
   }
 
   return (
