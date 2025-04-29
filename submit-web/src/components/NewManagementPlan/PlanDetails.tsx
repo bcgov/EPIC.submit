@@ -29,7 +29,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
     );
 
   return (
-    <TabBox title="Plan Details">
+    <TabBox title="Create New Submission">
       <When condition={Boolean(existingPlan) && !newlyCreatedPlan}>
         <ExistingPlanDetails existingPlan={existingPlan} />
       </When>

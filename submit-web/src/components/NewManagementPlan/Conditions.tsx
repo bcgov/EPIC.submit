@@ -115,7 +115,7 @@ export const Conditions = () => {
         flexDirection: "column",
       }}
     >
-      <BarBlueTitle title="Condition(s)" bold={false} />
+      <BarBlueTitle title="Create New Submission" bold={false} />
       <Grid
         container
         sx={{
@@ -123,14 +123,15 @@ export const Conditions = () => {
         }}
       >
         <Grid item xs={12}>
-          <Typography variant="body1">
-            What condition is this management plan for?
+          <Typography variant="body1" fontWeight={"bold"}>
+            What condition is this submission plan for?
           </Typography>
         </Grid>
         <Grid item xs={12}>
           <Typography
             variant="body2"
             color={BCDesignTokens.typographyColorPlaceholder}
+            mb={1}
           >
             Please note: you can only submit one Management Plan per submission
           </Typography>
@@ -170,14 +171,6 @@ export const Conditions = () => {
                 );
               })}
           </TextField>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography
-            variant="body1"
-            sx={{ marginTop: BCDesignTokens.layoutMarginMedium }}
-          >
-            What are the supporting conditions for this management plan?
-          </Typography>
         </Grid>
         {supportingConditions.map((input, index) => (
           <Grid key={`input-${input}`} item xs={12} container spacing={1}>
