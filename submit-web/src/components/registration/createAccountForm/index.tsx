@@ -59,7 +59,7 @@ function CreateAccountForm() {
     if (userId) {
       navigateToNextStep();
     }
-  }, [userId]);
+  }, [userId, navigateToNextStep]);
 
   const { data: projects } = useLoadProjectsByProponentId(
     invitation?.proponent_id,
