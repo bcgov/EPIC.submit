@@ -53,12 +53,13 @@ export default function RouterProviderWithAuthContext() {
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
+
     return authentication.events.addAccessTokenExpiring(() => {
       // eslint-disable-next-line no-console
       console.log("AccessTokenExpiring: Refreshing token");
       authentication.signinSilent();
     });
-  }, [authentication, authentication.events, authentication.signinSilent]);
+  }, [authentication]);
 
   return (
     <RouterProvider
