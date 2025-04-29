@@ -24,6 +24,7 @@ import { YellowBar } from "@/components/Shared/YellowBar";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { useCallback, useEffect } from "react";
+import { USER_TYPE } from "@/models/User";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -58,7 +59,7 @@ function CreateAccountForm() {
     if (userId) {
       navigateToNextStep();
     }
-  }, [userId, navigateToNextStep]);
+  }, [userId]);
 
   const { data: projects } = useLoadProjectsByProponentId(
     invitation?.proponent_id,
@@ -69,15 +70,15 @@ function CreateAccountForm() {
       userId: data.user_id,
       userManagementRole: data.role,
       roles: data.role.permissions,
+      userType: USER_TYPE.PROPONENT,
     });
 
-    queryClient.invalidateQueries({
+    queryClient.refetchQueries({
       queryKey: [QUERY_KEY.USER_ACCOUNT_DATA],
     });
-    queryClient.invalidateQueries({
+    queryClient.refetchQueries({
       queryKey: [QUERY_KEY.ACCOUNT_USER],
     });
-    navigateToNextStep();
   };
 
   const { mutate: doCreateAccount, isPending: isCreatingAccount } =
