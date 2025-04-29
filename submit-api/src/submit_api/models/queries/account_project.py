@@ -202,31 +202,29 @@ class ProjectQueries:
         include_revision_required = any(
             status.value == revision_required_value for status in statuses)
 
-        filters = []
-
         if normal_statuses:
-            filters.append(Package.status.op("@>")(normal_statuses))
+            query = query.filter(Package.status.op("@>")(normal_statuses))
 
         if include_revision_required:
-            filters.append(cls._revision_required_filter())
+            query = cls._revision_required_filter(query)
 
-        return query.filter(or_(*filters)) if filters else query
+        return query
 
     @classmethod
-    def _revision_required_filter(cls):
-        """Builds the filter for packages requiring revision."""
-        return and_(
+    def _revision_required_filter(cls, query):
+        """Joins UpdateRequest and filters for packages requiring revision."""
+        return query.join(
+            UpdateRequest,
+            and_(
+                UpdateRequest.submission_package_id == Package.id,
+                UpdateRequest.type == UpdateRequestType.REVIEW.value,
+                UpdateRequest.active.is_(True),
+            )
+        ).filter(
             ~Package.status.op("@>")([
                 PackageStatus.COMPLETED.value,
                 PackageStatus.PARTIALLY_COMPLETED.value,
-            ]),
-            exists().where(
-                and_(
-                    UpdateRequest.submission_package_id == Package.id,
-                    UpdateRequest.type == UpdateRequestType.REVIEW.value,
-                    UpdateRequest.active.is_(True),
-                )
-            )
+            ])
         )
 
     @classmethod
