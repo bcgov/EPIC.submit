@@ -202,12 +202,15 @@ export default function SubmissionPage() {
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
-                    p: BCDesignTokens.layoutPaddingSmall,
+                    p: BCDesignTokens.layoutPaddingMedium,
                   }}
                 >
-                  <Typography variant="body1">
-                    This submission is still pending EAO review. Until
-                    finalized, it is not considered enforceable.
+                  <Typography
+                    variant="body1"
+                    color={BCDesignTokens.typographyColorPrimary}
+                  >
+                    Please Note: This submission is still pending EAO review.
+                    Until finalized, it is not considered enforceable.
                   </Typography>
                 </WarningBox>
               </When>
@@ -215,7 +218,7 @@ export default function SubmissionPage() {
                 <SuccessBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
-                    p: BCDesignTokens.layoutPaddingSmall,
+                    p: BCDesignTokens.layoutPaddingMedium,
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
