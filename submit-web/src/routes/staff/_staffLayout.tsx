@@ -5,9 +5,10 @@ import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
+import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { REDIRECT } from "../login";
+
 const IDIR = "idir";
 
 export const Route = createFileRoute("/staff/_staffLayout")({
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/staff/_staffLayout")({
       if (!authentication?.isAuthenticated) {
         return redirect({
           to: "/login",
-          search: `?from=${REDIRECT.staff}`,
+          search: `?from=${LOGIN_REDIRECT.staff}`,
         });
       }
 

@@ -3,6 +3,7 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useAccount } from "@/store/accountStore";
 import { OidcConfig } from "@/utils/config";
+import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Grid } from "@mui/material";
 import {
   createFileRoute,
@@ -19,28 +20,25 @@ export const Route = createFileRoute("/login")({
   }),
 });
 
-export const REDIRECT = {
-  proponent: "/proponent",
-  staff: "/staff",
-};
-
 function Login() {
   const { signinRedirect, isAuthenticated } = useAuth();
   const { reset } = useAccount();
   const navigate = useNavigate();
+
   const { from } = useSearch({
     from: "/login",
   });
+
   useEffect(() => {
     if (!isAuthenticated) {
-      if (from === REDIRECT.staff) {
+      if (from === LOGIN_REDIRECT.staff) {
         signinRedirect({
           redirect_uri: `${OidcConfig.redirect_uri}`,
           extraQueryParams: {
             kc_idp_hint: OidcConfig.kc_idp_hint,
           },
         });
-      } else if (from !== REDIRECT.proponent) {
+      } else if (from !== LOGIN_REDIRECT.proponent) {
         navigate({
           to: "/logout",
         });
@@ -51,9 +49,9 @@ function Login() {
         to: "/oidc-callback",
       });
     }
-  }, [isAuthenticated, navigate, signinRedirect]);
+  }, [isAuthenticated, navigate, signinRedirect, from, reset]);
 
-  if (!isAuthenticated && from !== REDIRECT.staff) {
+  if (!isAuthenticated && from !== LOGIN_REDIRECT.staff) {
     return (
       <PageGrid>
         <Grid item xs={12}>

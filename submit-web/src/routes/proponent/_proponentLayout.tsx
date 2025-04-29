@@ -4,16 +4,16 @@ import { PageLoader } from "@/components/Shared/PageLoader";
 import { useIsMobile } from "@/hooks/common";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
+import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { REDIRECT } from "../login";
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
   beforeLoad: ({ context: { authentication, account } }) => {
     if (!authentication.isLoading && !authentication?.isAuthenticated) {
       return redirect({
         to: "/login",
-        search: `?from=${REDIRECT.proponent}`,
+        search: `?from=${LOGIN_REDIRECT.proponent}`,
       });
     }
 

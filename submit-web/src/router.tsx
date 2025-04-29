@@ -1,8 +1,4 @@
-import {
-  createRouter,
-  RouterProvider,
-  useNavigate,
-} from "@tanstack/react-router";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
 import { QueryClient, useQuery } from "@tanstack/react-query";
@@ -63,7 +59,7 @@ export default function RouterProviderWithAuthContext() {
       console.log("AccessTokenExpiring: Refreshing token");
       authentication.signinSilent();
     });
-  }, [authentication.events, authentication.signinSilent]);
+  }, [authentication]);
 
   return (
     <RouterProvider

@@ -1,22 +1,11 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
-import {
-  Typography,
-  Button,
-  Grid,
-  Paper,
-  Box,
-  Link,
-  Container,
-  Stack,
-} from "@mui/material";
+import { Typography, Grid, Paper, Box, Link, Container } from "@mui/material";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { OidcConfig } from "@/utils/config";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { BCDesignTokens } from "epic.theme";
-import { IDENTITY_PROVIDERS } from "@/models/User";
 import { useGetInvitation } from "@/hooks/api/useInvitations";
 import { useCreateAccountForm } from "@/components/registration/formStore";
 import { LoginOptions } from "@/components/Login/LoginOptions";
@@ -27,7 +16,6 @@ export const Route = createFileRoute("/proponent/registration/")({
 
 function Registration() {
   const { token } = Route.useSearch<{ token: string }>();
-  const auth = useAuth();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { setInvitation, invitation } = useCreateAccountForm();
 
