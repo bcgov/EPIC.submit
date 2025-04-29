@@ -42,3 +42,4 @@ from .user import User
 from .invitations import Invitations
 from .submission_item_note import SubmissionItemNote
 from .activity_log import ActivityLog
+from .user_status import UserStatus

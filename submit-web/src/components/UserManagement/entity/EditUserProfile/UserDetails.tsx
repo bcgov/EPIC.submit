@@ -9,6 +9,7 @@ import { useAccount } from "@/store/accountStore";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import EditIcon from "@mui/icons-material/Edit";
 import { useNavigate } from "@tanstack/react-router";
+import { UserPackageStatus } from "@/components/UserStatusChip";
 
 interface UserDetailsProps {
   user: AccountUserWithRole;
@@ -18,7 +19,10 @@ function UserDetails({ user }: UserDetailsProps) {
   const [userData, setUserData] = useState(user);
   const account = useAccount();
   const showEdit = account.userId !== user.user_id;
-
+  const INACTIVE_STATUS: UserPackageStatus = "INACTIVE";
+  const isContributor =
+    userData.role?.role_name === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
+  const isInactive = userData.status === INACTIVE_STATUS;
   const navigate = useNavigate();
   const handleEditClick = () => {
     navigate({ to: "/proponent/user-management/edit-role" });
@@ -71,73 +75,96 @@ function UserDetails({ user }: UserDetailsProps) {
           </Grid>
         </Box>
         <UserInfoBox userData={userData} showEdit={showEdit} />
-        {userData.role?.role_name === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR && 
-         showEdit && (
-          <Container
-            maxWidth="sm"
-            sx={{
-              pb: BCDesignTokens.layoutPaddingSmall,
-              alignSelf: "flex-start",
-              m: 0,
-              marginTop: 3,
-            }}
-          >
+        {isInactive ? (
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                background: BCDesignTokens.supportSurfaceColorSuccess,
+                border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+                borderRadius: 1,
+                mt: 3,
+                mx: 2,
               }}
             >
-              <Typography
-                variant="h5"
+              <Box
                 sx={{
-                  color: BCDesignTokens.themeBlue100,
-                  fontWeight: 700,
-                }}
-              >
-                Current Access
-              </Typography>
-
-              <IconButton
-                size="small"
-                onClick={handleEditClick}
-                sx={{
-                  padding: 0,
-                  marginLeft: 3,
                   display: "flex",
-                  alignItems: "center",
-                  gap: 0.5,
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  alignItems: "flex-start",
+                  padding: "8px",
                 }}
               >
-                <EditIcon
-                  htmlColor={BCDesignTokens.iconsColorLink}
-                  fontSize="small"
-                />
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 400, color: BCDesignTokens.iconsColorLink }}
-                >
-                  Edit Access
+                <Typography variant="body1" color="black">
+                  This user has been successfully deactivated.
                 </Typography>
-              </IconButton>
+              </Box>
             </Box>
-            <Divider
-              sx={{ backgroundColor: BCDesignTokens.themeGold100, height: 1, mb: 2 }}
-            />
-            {Array.isArray(userData.role?.package_names) && userData.role.package_names.length > 0 && (
-              <ul style={{ paddingLeft: '1.25rem', marginTop: 4 }}>
-                {userData.role.package_names.map((name, index) => (
-                  <li key={index}>
-                    <Typography variant="body2" color="inherit">
-                      {name}
-                    </Typography>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Container>
-        )}
+          ) : isContributor && showEdit && (
+            <Container
+              maxWidth="sm"
+              sx={{
+                pb: BCDesignTokens.layoutPaddingSmall,
+                alignSelf: "flex-start",
+                m: 0,
+                marginTop: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  sx={{
+                    color: BCDesignTokens.themeBlue100,
+                    fontWeight: 700,
+                  }}
+                >
+                  Current Access
+                </Typography>
+
+                <IconButton
+                  size="small"
+                  onClick={handleEditClick}
+                  sx={{
+                    padding: 0,
+                    marginLeft: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                  }}
+                >
+                  <EditIcon
+                    htmlColor={BCDesignTokens.iconsColorLink}
+                    fontSize="small"
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ fontWeight: 400, color: BCDesignTokens.iconsColorLink }}
+                  >
+                    Edit Access
+                  </Typography>
+                </IconButton>
+              </Box>
+              <Divider
+                sx={{ backgroundColor: BCDesignTokens.themeGold100, height: 1, mb: 2 }}
+              />
+              {Array.isArray(userData.role?.package_names) && userData.role.package_names.length > 0 && (
+                <ul style={{ paddingLeft: '1.25rem', marginTop: 4 }}>
+                  {userData.role.package_names.map((name, index) => (
+                    <li key={index}>
+                      <Typography variant="body2" color="inherit">
+                        {name}
+                      </Typography>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Container>
+          )}
       </Paper>
     </TableBox>
   );

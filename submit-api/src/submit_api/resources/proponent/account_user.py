@@ -122,3 +122,34 @@ class EditUserRole(Resource):
 
         except ResourceNotFoundError as e:
             return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/user/<string:account_user_id>/status", methods=["PATCH", "OPTIONS"])
+class EditUserStatus(Resource):
+    """Resource for editing a user's status."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Edit a user's status")
+    @API.expect(account_user_list_model)
+    @API.response(
+        code=HTTPStatus.OK, model=account_user_list_model, description="Account user"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def patch(account_user_id):
+        """Edit a user's status."""
+        user_guid = auth.sub
+        try:
+            data = request.get_json()
+            if data.get('active', None) is None:
+                return {'message': 'active field is required'}, HTTPStatus.BAD_REQUEST
+            updated_status_data = AccountUserService.reactivate_deactivate_user(
+                user_guid, account_user_id, active=data.get('active'))
+            return AccountUserSchema().dump(updated_status_data), HTTPStatus.OK
+        except PermissionDeniedError as e:
+            return jsonify({"message": str(e)}), HTTPStatus.FORBIDDEN
+
+        except ResourceNotFoundError as e:
+            return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND

@@ -5,9 +5,11 @@ import {
   Button,
   Container,
   Divider,
+  FormControlLabel,
   Grid,
   Paper,
   Stack,
+  Switch,
   Typography,
 } from "@mui/material";
 import { AccountUserWithRole } from "@/models/AccountUser";
@@ -20,7 +22,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import Form from "@/components/Shared/Forms/common";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSaveUserRole } from "@/hooks/api/useAccountUsers";
+import { useSaveUserRole, useSaveUserStatus } from "@/hooks/api/useAccountUsers";
 import { useNavigate } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
@@ -32,6 +34,10 @@ import ControlledMultiSelect, {
 import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { useMemo } from "react";
+import { UserPackageStatus } from "@/components/UserStatusChip";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import { useUserStore } from "./../../entity/userStore";
 
 const userSchema = yup.object().shape({
   role_name: yup.string().required("Please select a role."),
@@ -53,6 +59,7 @@ interface UpdateUserRoleProps {
 }
 
 function UpdateUserRole({ userData }: UpdateUserRoleProps) {
+  const { selectedUser, setSelectedUser } = useUserStore();
   const { accountId } = useAccount();
   const [user, setUser] = useState(userData);
   const navigate = useNavigate();
@@ -75,6 +82,70 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
       onError: onCreateFailure,
     },
   });
+
+  const onUpdateStatusFailure = (error?: Error) => {
+    setCloseModal();
+    const errorMessage = error?.message || "An unexpected error occurred.";
+    notify.error(errorMessage);
+  };
+
+  const onUpdateStatusSuccess = (updatedStatusUser: AccountUserWithRole) => {
+    setCloseModal();
+    notify.success("User status updated successfully");
+    if (selectedUser) {
+      setSelectedUser(updatedStatusUser);
+    }
+    setUser(updatedStatusUser);
+    navigate({ to: "/proponent/user-management/user-details" });
+  };
+
+  const { mutate: updateUserStatus, isPending: isPendingStatusUpdate } = useSaveUserStatus({
+    account_user_id,
+    options: {
+      onSuccess: onUpdateStatusSuccess,
+      onError: onUpdateStatusFailure,
+    },
+  });
+
+  const ACTIVE_STATUS: UserPackageStatus = "ACTIVE";
+
+  const {
+    setOpen: setOpenModal,
+    setClose: setCloseModal,
+    setIsLoading,
+  } = useModal();
+
+  const handleSwitchChange = () => {
+    const isEnabling = user.status !== ACTIVE_STATUS; // if currently not active, we are enabling
+    openConfirmationModal(isEnabling);
+  };
+
+  const handleConfirm = () => {
+    const request = {
+      active: user.status === ACTIVE_STATUS ? false : true,
+    };
+    updateUserStatus(request);
+  };
+
+  useEffect(() => {
+    setIsLoading(isPendingStatusUpdate);
+  }, [isPendingStatusUpdate, setIsLoading]);
+
+  const openConfirmationModal = (isEnabling: boolean) => {
+    setOpenModal(
+      <ConfirmationModal
+        onConfirm={handleConfirm}
+        title={isEnabling ? "Enable User" : "Disable User"}
+        description={
+          isEnabling
+            ? "You are activating this user. They will regain access to your project and submissions.\nPlease confirm the activation of this user."
+            : "You are deactivating this user. If you go ahead, this user will lose all access to your project and submissions.\nPlease confirm the deactivation of this user."
+        }
+        confirmText="Confirm"
+        cancelText="Cancel"
+      />
+    );
+  };
 
   const methods = useForm<UserSchema>({
     resolver: yupResolver(userSchema),
@@ -179,7 +250,6 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
             </Box>
             <UserInfoBox userData={user} showEdit={false} />
             <Container
-              maxWidth="sm"
               sx={{
                 pb: BCDesignTokens.layoutPaddingSmall,
                 alignSelf: "flex-start",
@@ -199,16 +269,51 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
               <Divider
                 sx={{ backgroundColor: BCDesignTokens.themeGold100, height: 1 }}
               />
-              <Typography
-                variant="body2"
+              <Box
                 sx={{
-                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                   mt: BCDesignTokens.layoutMarginMedium,
                   mb: BCDesignTokens.layoutMarginSmall,
                 }}
               >
-                What Role would you like to assign this User?
-              </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  What Role would you like to assign this User?
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={user.status === ACTIVE_STATUS}
+                      onChange={handleSwitchChange}
+                      sx={{
+                        "& .MuiSwitch-switchBase": {
+                          color: BCDesignTokens.supportBorderColorDanger, // thumb color when unchecked
+                        },
+                        "& .MuiSwitch-track": {
+                          backgroundColor: BCDesignTokens.supportBorderColorDanger, // track color when unchecked
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked": {
+                          color: BCDesignTokens.supportBorderColorSuccess, // thumb color when checked
+                        },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
+                          backgroundColor: BCDesignTokens.supportBorderColorSuccess, // track color when checked
+                        },
+                      }}
+                    />
+                  }
+                  label={
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      User Account Active
+                    </Typography>
+                  }
+                  labelPlacement="start"
+                  sx={{
+                    ml: 2,
+                    ".MuiFormControlLabel-label": { fontWeight: 600 },
+                  }}
+                />
+              </Box>
               <ControlledRadioGroup name="role_name">
                 <FormOptions error={Boolean(errors["role_name"])} />
               </ControlledRadioGroup>

@@ -9,8 +9,10 @@ from submit_api.models import Package as PackageModel
 from submit_api.models import Role as RoleModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
+from submit_api.models.user_status import UserStatusEnum
 from submit_api.models.db import db
 from submit_api.models.invitations import InvitationStatus
+from submit_api.services.keycloak import KeycloakService
 
 
 class AccountUserService:
@@ -35,10 +37,11 @@ class AccountUserService:
         user_list = []
         for user in users:
             user_data = user.to_dict()
-            user_data["status"] = "ACTIVE"
-            # Add package_name to role if applicable
+            user_data["status"] = cls._fetch_user_status_name(user_data.get("user_id"))
+            # Add package_name to active role if applicable
             role = user_data.get("role")
-            if role and (pkg_ids := role.get("package_ids")):
+            user_data["role"] = role if role.get("active") else []
+            if role and role.get("active") and (pkg_ids := role.get("package_ids")):
                 role["package_names"] = [
                     package_name_map[pkg_id] for pkg_id in pkg_ids if pkg_id in package_name_map]
 
@@ -62,6 +65,12 @@ class AccountUserService:
     def _fetch_users(account_id):
         """Fetch active users from the `account_users` table."""
         return AccountUserModel.query.filter(AccountUserModel.account_id == account_id).all()
+
+    @staticmethod
+    def _fetch_user_status_name(user_id):
+        """Fetch only the user's status name."""
+        user = UserModel.query.filter(UserModel.id == user_id).first()
+        return user.user_status.status_name if user else None
 
     @staticmethod
     def _fetch_roles(users):
@@ -166,7 +175,7 @@ class AccountUserService:
         """Fetch an user for a user id."""
         user = AccountUserModel.get_by_guid(guid)
         user_dict = user.to_dict()
-        user_dict["status"] = "ACTIVE"
+        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
 
     @staticmethod
@@ -214,7 +223,7 @@ class AccountUserService:
 
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         user_dict = account_user.to_dict()
-        user_dict["status"] = "ACTIVE"
+        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
 
     @staticmethod
@@ -244,3 +253,36 @@ class AccountUserService:
         if not role:
             raise ResourceNotFoundError(f"Invalid role name: {role_name}")
         return role
+
+    @classmethod
+    def reactivate_deactivate_user(cls, user_guid, account_user_id, active: bool):
+        """Enable or disable a user account."""
+        AccountUserService._validate_user_permission(user_guid, account_user_id)
+
+        # Update user and role status
+        account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        account_user.user.status_id = (
+            UserStatusEnum.ACTIVE.value if active else UserStatusEnum.INACTIVE.value
+        )
+        account_user.role.active = active
+        db.session.commit()
+
+        # Update Keycloak login access
+        KeycloakService.toggle_user_enabled_status(
+            user_id=account_user.user.auth_guid, enabled=active
+        )
+
+        # Refresh and prepare user data
+        updated_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        user_dict = updated_user.to_dict()
+        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
+
+        role = user_dict.get("role")
+        if not role.get("active"):
+            user_dict["role"] = []
+        else:
+            package_ids = role.get("package_ids", [])
+            package_name_map = cls._fetch_package_names(package_ids)
+            role["package_names"] = [package_name_map[pid] for pid in package_ids if pid in package_name_map]
+
+        return user_dict
