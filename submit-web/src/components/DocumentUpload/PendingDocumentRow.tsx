@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { useMounted } from "@/hooks/common";
 import { useFileStore } from "@/store/fileStore";
+import { isAxiosError } from "axios";
 
 type DocumentTableRowProps = Readonly<{
   documentItem: any;
@@ -68,8 +69,12 @@ export default function PendingDocumentRow({
         queryKey: [QUERY_KEY.SUBMISSION_ITEM, documentSubmission.item_id],
       });
     } catch (error) {
-      console.error("Error uploading document:", error);
-      notify.error("Failed to upload document. Please try again later.");
+      const errorMessage = isAxiosError(error)
+        ? error.response?.data?.message
+        : "";
+      notify.error(
+        `Failed to upload document. Please try again later. ${errorMessage}`,
+      );
       removePendingFile(documentItem.id);
     }
   };
