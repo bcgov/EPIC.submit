@@ -212,18 +212,14 @@ class ProjectQueries:
     @classmethod
     def _revision_required_filter(cls, query):
         """Joins UpdateRequest and filters for packages requiring revision."""
-        return query.filter(
+        return query.join(UpdateRequest).filter(
+            UpdateRequest.submission_package_id == Package.id,
+            UpdateRequest.type == UpdateRequestType.REVIEW.value,
+            UpdateRequest.active.is_(True),
             ~Package.status.op("@>")([
                 PackageStatus.COMPLETED.value,
                 PackageStatus.PARTIALLY_COMPLETED.value,
             ])
-        ).join(
-            UpdateRequest,
-            and_(
-                UpdateRequest.submission_package_id == Package.id,
-                UpdateRequest.type == UpdateRequestType.REVIEW.value,
-                UpdateRequest.active.is_(True),
-            )
         )
 
     @classmethod
