@@ -85,11 +85,14 @@ export default function SubmissionItemReviewConfirmation({
             },
           });
         }}
+        onCancel={() => {
+          onClick();
+        }}
         title={title}
         description={description}
         confirmText={confirmText}
         cancelText="Start Later"
-      />,
+      />
     );
   };
 
