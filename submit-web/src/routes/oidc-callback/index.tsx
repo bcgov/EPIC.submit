@@ -13,7 +13,6 @@ function OidcCallback() {
   const token = params.get("token");
 
   const account = useAccount();
-
   if (token) {
     return (
       <Navigate
@@ -45,5 +44,5 @@ function OidcCallback() {
     return <Navigate to="/proponent/projects" />;
   }
 
-  return <PageLoader />;
+  return <Navigate to="/logout" />;
 }
