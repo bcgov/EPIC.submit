@@ -145,6 +145,16 @@ const statusStyles: Record<
     },
     label: "Revision Required",
   },
+  REVISION_REQUESTED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+      width: "150px",
+    },
+    label: "Revision Requested",
+  },
   CREATED: {
     sx: {
       borderRadius: 1,
