@@ -11,7 +11,10 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { InfoBox } from "@/components/Submission/InfoBox";
-import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
+import {
+  useGetPackageVersionsByOriginalPackageId,
+  useGetStaffSubmissionPackage,
+} from "@/hooks/api/usePackages";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
@@ -21,7 +24,10 @@ import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-
+import WarningBox from "@/components/Shared/WarningBox";
+import { SuccessBox } from "@/components/Shared/SuccessBox";
+import { When } from "react-if";
+import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
@@ -45,6 +51,17 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
+
+  const { data: packageVersions } = useGetPackageVersionsByOriginalPackageId({
+    originalPackageId: submissionPackage?.version?.original_package_id,
+    enabled: Boolean(submissionPackage?.version?.original_package_id),
+  });
+
+  const isLatestApprovedPackageVersion = packageVersions?.find(
+    (packageVersion) =>
+      packageVersion.is_approved &&
+      packageVersion.package_id === submissionPackageId
+  );
 
   const navigate = useNavigate();
 
@@ -121,6 +138,48 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
+              <When
+                condition={
+                  submissionPackage.submitted_on &&
+                  !isLatestApprovedPackageVersion
+                }
+              >
+                <WarningBox
+                  sx={{
+                    mb: BCDesignTokens.layoutMarginMedium,
+                    p: BCDesignTokens.layoutPaddingMedium,
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    color={BCDesignTokens.typographyColorPrimary}
+                  >
+                    Please Note: This submission is still pending EAO review.
+                    Until finalized, it is not considered enforceable.
+                  </Typography>
+                </WarningBox>
+              </When>
+              <When condition={Boolean(isLatestApprovedPackageVersion)}>
+                <SuccessBox
+                  sx={{
+                    mb: BCDesignTokens.layoutMarginMedium,
+                    p: BCDesignTokens.layoutPaddingMedium,
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    width: "fit-content",
+                  }}
+                >
+                  <GppGoodOutlinedIcon fontSize="large" />
+                  <Typography
+                    variant="body1"
+                    color={BCDesignTokens.supportBorderColorSuccess}
+                  >
+                    This submission is the version the EAO has finalized for
+                    implementation.
+                  </Typography>
+                </SuccessBox>
+              </When>
               <InfoBox submissionPackage={submissionPackage} />
               <Box
                 sx={{
