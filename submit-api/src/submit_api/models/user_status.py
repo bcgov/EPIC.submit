@@ -3,9 +3,9 @@
 Manages the User status
 """
 
+from enum import IntEnum
 from .base_model import BaseModel
 from .db import db
-from enum import IntEnum
 
 
 class UserStatusEnum(IntEnum):
