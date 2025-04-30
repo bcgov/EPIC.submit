@@ -13,7 +13,7 @@
 # limitations under the License.
 """Model to handle all complex queries related to Account Project."""
 
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from sqlalchemy.orm import joinedload, contains_eager
 from submit_api.enums.role import RoleEnum
 from submit_api.models.package import PackageStatus
