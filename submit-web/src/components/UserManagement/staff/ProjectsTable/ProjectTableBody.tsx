@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Proponent } from "@/models/Proponent";
 import { TableCell, TableRow } from "@mui/material";
 import { Invitation, InvitationStatus } from "@/models/Invitation";
