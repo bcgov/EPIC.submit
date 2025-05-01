@@ -61,6 +61,12 @@ export default function RouterProviderWithAuthContext() {
     });
   }, [authentication]);
 
+  useEffect(() => {
+    if (authentication.user?.expired) {
+      console.log("AccessToken expired");
+    }
+  }, [authentication]);
+
   return (
     <RouterProvider
       router={router}
