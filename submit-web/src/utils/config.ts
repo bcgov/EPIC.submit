@@ -59,6 +59,6 @@ export const OidcConfig = {
   scope: "openid profile email",
   revokeTokensOnSignout: true,
   response_type: "code",
-  automaticSilentRenew: true,
+  automaticSilentRenew: false,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),
 };
