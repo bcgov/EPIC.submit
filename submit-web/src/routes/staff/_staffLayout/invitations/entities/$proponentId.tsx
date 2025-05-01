@@ -10,11 +10,16 @@ import { createFileRoute, useParams } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/invitations/entities/$proponentId"
+  "/staff/_staffLayout/invitations/entities/$proponentId",
 )({
   component: ProponentPage,
   loader: ({ context: { queryClient }, params: { proponentId } }) =>
-    queryClient.ensureQueryData(getProponentOptions(Number(proponentId))),
+    queryClient.ensureQueryData(
+      getProponentOptions(Number(proponentId), {
+        includeProjects: true,
+        includeInvitations: true,
+      }),
+    ),
   meta: ({ loaderData, params }) => [
     { title: "Invitations", path: "/staff/invitations" },
     {
@@ -39,7 +44,7 @@ function ProponentPage() {
     getProponentOptions(proponentId, {
       includeProjects: true,
       includeInvitations: true,
-    })
+    }),
   );
 
   useEffect(() => {
