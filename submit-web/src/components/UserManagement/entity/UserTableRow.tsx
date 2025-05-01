@@ -122,7 +122,7 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
       <PlainTableCell align="left" width={"10%"}>
         <UserStatusChip status={user.status} />
       </PlainTableCell>
-      <PlainTableCell align="left" width={"30%"}>
+      <PlainTableCell align="left" width={"25%"}>
         {!isRevoked && (
           <Box display={"flex"} gap={2} justifyContent={"space-between"} pr={2}>
             {isPending && (
