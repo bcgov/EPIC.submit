@@ -8,9 +8,9 @@ export const Route = createFileRoute("/error")({
 });
 
 function ErrorPage() {
-  const { isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
-  if (!isAuthenticated) {
+  if (user?.expired) {
     return <Navigate to="/logout" />;
   }
 

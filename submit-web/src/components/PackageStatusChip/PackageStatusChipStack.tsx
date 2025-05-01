@@ -12,6 +12,8 @@ import {
 } from "@/models/UpdateRequest";
 import { useMemo } from "react";
 import { filterOpenUpdateRequests } from "@/utils";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 
 type PackageStatusChipStackProps = {
   submissionPackage: SubmissionPackage;
@@ -20,6 +22,8 @@ export const PackageStatusChipStack = ({
   submissionPackage,
 }: PackageStatusChipStackProps) => {
   const { status } = submissionPackage;
+  const { userType } = useAccount();
+  const isProponent = userType === USER_TYPE.PROPONENT;
 
   const isUpdateRequested = useMemo(() => {
     return (
@@ -33,7 +37,7 @@ export const PackageStatusChipStack = ({
         [
           PACKAGE_STATUS.COMPLETED.value,
           PACKAGE_STATUS.PARTIALLY_COMPLETED.value,
-        ].includes(_status),
+        ].includes(_status)
       )
     )
       return false;
@@ -41,7 +45,7 @@ export const PackageStatusChipStack = ({
       submissionPackage.update_requests.filter(
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value &&
-          updateRequest.active,
+          updateRequest.active
       ).length > 0
     );
   }, [submissionPackage.update_requests, status]);
@@ -52,7 +56,7 @@ export const PackageStatusChipStack = ({
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
           updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-          updateRequest.active,
+          updateRequest.active
       ).length > 0
     );
   }, [submissionPackage.update_requests]);
@@ -70,7 +74,11 @@ export const PackageStatusChipStack = ({
         </When>
         <When condition={isRevisionRequired}>
           <PackageStatusChip
-            status={NON_CANONICAL_PACKAGE_STATUS.REVISION_REQUIRED}
+            status={
+              isProponent
+                ? NON_CANONICAL_PACKAGE_STATUS.REVISION_REQUIRED
+                : NON_CANONICAL_PACKAGE_STATUS.REVISION_REQUESTED
+            }
           />
         </When>
         <When condition={isUpdated}>

@@ -6,7 +6,7 @@ type StyleProps = {
   label: string;
 };
 
-export type UserPackageStatus = "ACTIVE" | "PENDING" | "REJECTED" | "REVOKED";
+export type UserPackageStatus = "ACTIVE" | "PENDING" | "REJECTED" | "REVOKED" | "INACTIVE";
 
 const statusStyles: Record<UserPackageStatus, StyleProps> = {
   ACTIVE: {
@@ -44,6 +44,15 @@ const statusStyles: Record<UserPackageStatus, StyleProps> = {
       height: "24px",
     },
     label: "Rejected",
+  },
+  INACTIVE: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+    },
+    label: "Deactivated",
   },
 };
 

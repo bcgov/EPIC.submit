@@ -27,6 +27,8 @@ class User(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     auth_guid = Column(db.String(), nullable=False, unique=True)
     type = Column(Enum(UserType), nullable=False)
+    status_id = db.Column(db.Integer, db.ForeignKey('user_status.id'), nullable=False, default=1)
+    user_status = db.relationship('UserStatus', back_populates='users', lazy='joined')
     account_user = db.relationship(
         'AccountUser', uselist=False, back_populates='user')
     staff_user = db.relationship(

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Keycloak admin functions."""
+import json
 import requests
 from flask import current_app
 
@@ -188,3 +189,15 @@ class KeycloakService:
             timeout=timeout,
         )
         return response.json().get("access_token")
+
+    @staticmethod
+    def toggle_user_enabled_status(user_id: str, enabled: bool):
+        """Toggle the enabled status of a user in Keycloak."""
+        user_data = {
+            "enabled": enabled
+        }
+        KeycloakService._request_keycloak(
+            f"users/{user_id}",
+            http_method=HttpMethod.PUT,
+            data=json.dumps(user_data)
+        )
