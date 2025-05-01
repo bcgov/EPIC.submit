@@ -60,7 +60,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       </Box>
       <Divider />
       <DialogContent>
-        <Typography variant="body1">{description}</Typography>
+        <Typography variant="body1" sx={{ whiteSpace: 'pre-line' }}>{description}</Typography>
       </DialogContent>
       <Divider />
       <DialogActions sx={{ padding: "1rem" }}>
