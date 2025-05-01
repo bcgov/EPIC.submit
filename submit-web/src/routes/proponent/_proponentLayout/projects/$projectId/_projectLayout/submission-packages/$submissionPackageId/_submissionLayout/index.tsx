@@ -31,7 +31,6 @@ import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
-import WarningBox from "@/components/Shared/WarningBox";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";

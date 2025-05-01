@@ -24,7 +24,6 @@ import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import WarningBox from "@/components/Shared/WarningBox";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { When } from "react-if";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
