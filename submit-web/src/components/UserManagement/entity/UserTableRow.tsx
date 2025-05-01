@@ -20,6 +20,7 @@ import {
 } from "@/hooks/api/useInvitations";
 import { When } from "react-if";
 import { BCDesignTokens } from "epic.theme";
+import InfoIcon from "@mui/icons-material/Info";
 
 export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   const { setSelectedUser } = useUserStore();
@@ -70,30 +71,34 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
 
   return (
     <TableRow>
+      <PlainTableCell align="left" width={"10%"}>
+        <Typography
+          variant="body1"
+          sx={{
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            maxWidth: "200px",
+          }}
+        >
+          {user.work_email_address}
+        </Typography>
+      </PlainTableCell>
       <PlainTableCell align="left" width={"25%"}>
-        <Typography variant="body1">{user.work_email_address}</Typography>
+        <Typography variant="body1">
+          {!isPending && !isRevoked && user.full_name}
+        </Typography>
       </PlainTableCell>
-      <PlainTableCell align="left" width={"15%"}>
-        <Typography variant="body1">{user.full_name}</Typography>
-      </PlainTableCell>
-      <PlainTableCell align="left" width={"20%"}>
+      <PlainTableCell align="left" width={"30%"}>
         <When condition={isSpecificSubmissionContributor}>
           <Tooltip
-            slotProps={{
-              tooltip: {
-                sx: {
-                  border: `2px solid ${BCDesignTokens.themeGold80}`,
-                  backgroundColor: "white",
-                },
-              },
-            }}
             title={
               <Box>
                 {user.role.package_names?.map((packageName) => (
                   <Typography
                     key={packageName}
-                    variant="body1"
-                    sx={{ color: BCDesignTokens.typographyColorPrimary }}
+                    variant="body2"
+                    sx={{ color: BCDesignTokens.typographyColorPrimaryInvert }}
                   >
                     • {packageName}
                   </Typography>
@@ -101,7 +106,13 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
               </Box>
             }
           >
-            <span>{roleDetails[user.role.role_name]?.label}</span>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+              {roleDetails[user.role.role_name]?.label}
+              <InfoIcon
+                fontSize="small"
+                sx={{ color: BCDesignTokens.typographyColorPrimary }}
+              />
+            </span>
           </Tooltip>
         </When>
         <When condition={user?.role && !isSpecificSubmissionContributor}>
