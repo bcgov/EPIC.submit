@@ -13,14 +13,14 @@ import { useMemo, useState } from "react";
 type RegistrationUrlCellProps = {
   project: Project;
   pendingInvitation?: Invitation;
-  accountProjectId?: number;
+  allProjectInvitations: Invitation[];
   addInvitation: (invitation: Invitation) => void;
 };
 
 export const RegistrationUrlCell = ({
   project,
   pendingInvitation,
-  accountProjectId,
+  allProjectInvitations,
   addInvitation,
 }: RegistrationUrlCellProps) => {
   const [tooltipText, setTooltipText] = useState("Copy");
@@ -56,7 +56,8 @@ export const RegistrationUrlCell = ({
     setTimeout(() => setTooltipText("Copy"), 2000);
   };
 
-  if (accountProjectId) {
+  // If there are invitations but none are pending, show nothing
+  if (!pendingInvitation && allProjectInvitations.length === 0) {
     return <PlainTableCell colSpan={2} />;
   }
 
