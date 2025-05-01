@@ -19,7 +19,8 @@ class ProjectService:
     def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None,
                                    is_proponent=True):
         """Get projects by account id."""
-        projects, _ = ProjectQueries.get_filtered_account_projects_paginated(account_id, search_options, is_proponent)
+        projects, _ = ProjectQueries.get_filtered_account_projects_paginated(
+            account_id, search_options, is_proponent)
         return projects
 
     @classmethod
@@ -29,7 +30,8 @@ class ProjectService:
         if not user.account_user:
             return []
         account_user = user.account_user
-        projects = cls.get_projects_by_account_id(account_user.account_id, search_options=None, is_proponent=True)
+        projects = cls.get_projects_by_account_id(
+            account_user.account_id, search_options=None, is_proponent=True)
         return projects
 
     @classmethod
