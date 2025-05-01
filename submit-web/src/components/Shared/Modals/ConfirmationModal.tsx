@@ -18,7 +18,11 @@ type ConfirmationModalProps = {
   description: string;
   onConfirm: () => void;
   confirmText?: string;
+  // Either show cancel or secondary action, but not both
   cancelText?: string;
+  onCancel?: () => void;
+  secondaryActionText?: string;
+  onSecondaryAction?: () => void;
 };
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -27,8 +31,24 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   confirmText,
   cancelText,
+  onCancel,
+  secondaryActionText,
+  onSecondaryAction,
 }) => {
   const { setClose, isLoading } = useModal();
+
+  const handleCancel = () => {
+    onCancel?.();
+    setClose();
+  };
+
+  const handleSecondaryAction = () => {
+    onSecondaryAction?.();
+    setClose();
+  };
+
+  // Only show cancel button if secondary action is not provided
+  const showCancel = !secondaryActionText;
 
   return (
     <Box sx={modalStyle}>
@@ -44,9 +64,19 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       </DialogContent>
       <Divider />
       <DialogActions sx={{ padding: "1rem" }}>
-        <Button onClick={setClose} color="secondary" sx={{ border: 0 }}>
-          {cancelText ?? "Cancel"}
-        </Button>
+        {showCancel ? (
+          <Button onClick={handleCancel} color="secondary" sx={{ border: 0 }}>
+            {cancelText ?? "Cancel"}
+          </Button>
+        ) : (
+          <Button
+            onClick={handleSecondaryAction}
+            color="secondary"
+            sx={{ border: 0 }}
+          >
+            {secondaryActionText}
+          </Button>
+        )}
         <LoadingButton
           loading={isLoading}
           variant="contained"
