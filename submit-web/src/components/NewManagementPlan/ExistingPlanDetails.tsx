@@ -47,7 +47,7 @@ export const ExistingPlanDetails = ({
       sx={{
         padding: "16px 0px",
       }}
-      spacing={4}
+      spacing={3}
     >
       <Grid item xs={12}>
         <WarningBox gap={2}>
@@ -112,7 +112,6 @@ export const ExistingPlanDetails = ({
                 fontSize: theme.typography.body2.fontSize,
                 fontStyle: theme.typography.body2.fontStyle,
                 lineHeight: theme.typography.body2.lineHeight,
-                fontWeight: theme.typography.fontWeightBold,
               }}
             >
               {consultedParties.map((stakeholder: string) => (
