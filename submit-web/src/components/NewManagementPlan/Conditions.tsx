@@ -115,7 +115,11 @@ export const Conditions = () => {
         flexDirection: "column",
       }}
     >
-      <BarBlueTitle title="Create New Submission" bold={false} />
+      <BarBlueTitle
+        title="Create New Submission"
+        bold={false}
+        fullWidth={false}
+      />
       <Grid
         container
         sx={{
@@ -124,7 +128,7 @@ export const Conditions = () => {
       >
         <Grid item xs={12}>
           <Typography variant="body1" fontWeight={"bold"}>
-            What condition is this submission plan for?
+            What condition is this submission for?
           </Typography>
         </Grid>
         <Grid item xs={12}>

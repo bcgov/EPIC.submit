@@ -61,6 +61,13 @@ export default function RouterProviderWithAuthContext() {
     });
   }, [authentication]);
 
+  useEffect(() => {
+    if (authentication.user?.expired) {
+      // eslint-disable-next-line no-console
+      console.log("AccessToken expired");
+    }
+  }, [authentication]);
+
   return (
     <RouterProvider
       router={router}

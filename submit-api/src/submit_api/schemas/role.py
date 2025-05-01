@@ -22,3 +22,4 @@ class UserRoleSchema(Schema):
     package_names = fields.List(fields.String(), allow_none=True)
     role_name = fields.Pluck(RoleSchema, "role_name", data_key="role_name", attribute="role")
     permissions = fields.List(fields.Str())
+    active = fields.Bool(data_key="active")

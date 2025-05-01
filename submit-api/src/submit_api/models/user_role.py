@@ -18,6 +18,7 @@ class UserRole(BaseModel):
     account_project_id = Column(Integer, ForeignKey("account_projects.id"),
                                 nullable=True)  # NULL for account-wide roles
     package_ids = Column(ARRAY(Integer), nullable=True)  # NULL for project-wide roles
+    active = Column(db.Boolean, nullable=False, default=True)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
     role = db.relationship("Role", lazy="joined")
     account_user = db.relationship("AccountUser", back_populates="role", lazy="select")
@@ -52,7 +53,8 @@ class UserRole(BaseModel):
             "package_ids": self.package_ids,
             "role_id": self.role_id,
             "role": self.role.to_dict(),
-            "permissions": self.permissions
+            "permissions": self.permissions,
+            "active": self.active
         }
 
     @classmethod
