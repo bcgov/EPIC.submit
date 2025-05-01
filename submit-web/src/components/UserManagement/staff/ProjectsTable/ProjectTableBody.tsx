@@ -23,26 +23,27 @@ export const ProjectTableBody = ({
     }));
   }, []);
 
-  const { pendingInvitations, allInvitations } = useMemo(() => {
+  const { pendingInvitations, usedInvitations } = useMemo(() => {
     const pendingMap = new Map<number, Invitation>();
-    const allMap = new Map<number, Invitation[]>();
+    const usedMap = new Map<number, Invitation[]>();
 
     proponent.invitations?.forEach((invitation) => {
       invitation.project_ids.forEach((project_id) => {
-        // Track all invitations
-        if (!allMap.has(project_id)) {
-          allMap.set(project_id, []);
+        // Track only USED invitations
+        if (invitation.status === InvitationStatus.USED) {
+          if (!usedMap.has(project_id)) {
+            usedMap.set(project_id, []);
+          }
+          usedMap.get(project_id)?.push(invitation);
         }
-        allMap.get(project_id)?.push(invitation);
-
-        // Track only pending ones
-        if (invitation.status === InvitationStatus.PENDING) {
+        // Track pending ones separately
+        else if (invitation.status === InvitationStatus.PENDING) {
           pendingMap.set(project_id, invitation);
         }
       });
     });
 
-    return { pendingInvitations: pendingMap, allInvitations: allMap };
+    return { pendingInvitations: pendingMap, usedInvitations: usedMap };
   }, [proponent.invitations]);
 
   if (isError) {
@@ -68,7 +69,7 @@ export const ProjectTableBody = ({
           <PlainTableCell>{project.name}</PlainTableCell>
           <RegistrationUrlCell
             pendingInvitation={pendingInvitations.get(project.id)}
-            allProjectInvitations={allInvitations.get(project.id) || []}
+            usedProjectInvitations={usedInvitations.get(project.id) || []}
             project={project}
             addInvitation={addInvitation}
           />
