@@ -221,7 +221,6 @@ export default function NewUserForm() {
                 </Typography>
                 <ControlledMultiSelect
                   multiple
-                  selectAll
                   name="package_ids"
                   options={options}
                 />
