@@ -23,25 +23,33 @@ export const ProjectTableBody = ({
     }));
   }, []);
 
-  const projectInvitationMap = useMemo(() => {
-    const map = new Map<number, Invitation>();
-    proponent.invitations
-      ?.filter((invitation) => invitation.status === InvitationStatus.PENDING)
-      .forEach((invitation) => {
-        invitation.project_ids.forEach((project_id) => {
-          map.set(project_id, invitation);
-        });
-      });
-    return map;
-  }, [proponent.invitations]);
+  const { pendingInvitations, usedInvitations } = useMemo(() => {
+    const pendingMap = new Map<number, Invitation>();
+    const usedMap = new Map<number, Invitation[]>();
+    const now = new Date();
 
-  const projectAccountProjectMap = useMemo(() => {
-    const map = new Map<number, number>();
-    proponent.account_projects?.forEach((account_project) => {
-      map.set(account_project.project_id, account_project.id);
+    proponent.invitations?.forEach((invitation) => {
+      // Parse expiry date
+      const expiry = new Date(invitation.expiry_date);
+      if (expiry < now) return; // Skip expired invitations
+
+      invitation.project_ids.forEach((project_id) => {
+        // Track only USED invitations
+        if (invitation.status === InvitationStatus.USED) {
+          if (!usedMap.has(project_id)) {
+            usedMap.set(project_id, []);
+          }
+          usedMap.get(project_id)?.push(invitation);
+        }
+        // Track pending ones separately
+        else if (invitation.status === InvitationStatus.PENDING) {
+          pendingMap.set(project_id, invitation);
+        }
+      });
     });
-    return map;
-  }, [proponent.account_projects]);
+
+    return { pendingInvitations: pendingMap, usedInvitations: usedMap };
+  }, [proponent.invitations]);
 
   if (isError) {
     return (
@@ -65,8 +73,8 @@ export const ProjectTableBody = ({
         <TableRow key={project.id}>
           <PlainTableCell>{project.name}</PlainTableCell>
           <RegistrationUrlCell
-            pendingInvitation={projectInvitationMap.get(project.id)}
-            accountProjectId={projectAccountProjectMap.get(project.id)}
+            pendingInvitation={pendingInvitations.get(project.id)}
+            usedProjectInvitations={usedInvitations.get(project.id) || []}
             project={project}
             addInvitation={addInvitation}
           />
