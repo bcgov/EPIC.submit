@@ -13,7 +13,7 @@ export const TabBox = ({ title, children, ...rest }: TabBoxProps) => {
       }}
       {...rest}
     >
-      <BarBlueTitle title={title} bold={false} />
+      <BarBlueTitle title={title} bold />
       {children}
     </Box>
   );
