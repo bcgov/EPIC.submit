@@ -22,7 +22,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import Form from "@/components/Shared/Forms/common";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useSaveUserRole, useSaveUserStatus } from "@/hooks/api/useAccountUsers";
+import {
+  useSaveUserRole,
+  useSaveUserStatus,
+} from "@/hooks/api/useAccountUsers";
 import { useNavigate } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
@@ -99,13 +102,14 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
     navigate({ to: "/proponent/user-management/user-details" });
   };
 
-  const { mutate: updateUserStatus, isPending: isPendingStatusUpdate } = useSaveUserStatus({
-    account_user_id,
-    options: {
-      onSuccess: onUpdateStatusSuccess,
-      onError: onUpdateStatusFailure,
-    },
-  });
+  const { mutate: updateUserStatus, isPending: isPendingStatusUpdate } =
+    useSaveUserStatus({
+      account_user_id,
+      options: {
+        onSuccess: onUpdateStatusSuccess,
+        onError: onUpdateStatusFailure,
+      },
+    });
 
   const ACTIVE_STATUS: UserPackageStatus = "ACTIVE";
 
@@ -184,9 +188,9 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
         Object.values(accountProject.packages).map((pkg) => ({
           value: String(pkg.id),
           label: pkg.name,
-        })),
+        }))
       ) || [],
-    [accountPackages],
+    [accountPackages]
   );
 
   useEffect(() => {
@@ -198,7 +202,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
       const matchingPackageIds = accountPackages.flatMap((accountProject) =>
         Object.values(accountProject.packages)
           .filter((pkg) => user.role.package_ids.includes(pkg.id))
-          .map((pkg) => String(pkg.id)),
+          .map((pkg) => String(pkg.id))
       );
 
       methods.setValue("package_ids", matchingPackageIds);
@@ -291,14 +295,17 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
                           color: BCDesignTokens.supportBorderColorDanger, // thumb color when unchecked
                         },
                         "& .MuiSwitch-track": {
-                          backgroundColor: BCDesignTokens.supportBorderColorDanger, // track color when unchecked
+                          backgroundColor:
+                            BCDesignTokens.supportBorderColorDanger, // track color when unchecked
                         },
                         "& .MuiSwitch-switchBase.Mui-checked": {
                           color: BCDesignTokens.supportBorderColorSuccess, // thumb color when checked
                         },
-                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-                          backgroundColor: BCDesignTokens.supportBorderColorSuccess, // track color when checked
-                        },
+                        "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track":
+                          {
+                            backgroundColor:
+                              BCDesignTokens.supportBorderColorSuccess, // track color when checked
+                          },
                       }}
                     />
                   }
@@ -329,7 +336,6 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
                 </Typography>
                 <ControlledMultiSelect
                   multiple
-                  selectAll
                   name="package_ids"
                   options={options}
                 />
