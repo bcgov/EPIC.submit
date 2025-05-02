@@ -1,4 +1,4 @@
-"""management plan review service."""
+"""IEM terms of engagement review service."""
 from datetime import datetime
 
 from flask import current_app
@@ -16,6 +16,7 @@ from submit_api.models.submission import SubmissionType
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequest, UpdateRequestStatus
 from submit_api.schemas.submission import CreateSubmissionRequestSchema
+from submit_api.services.management_plan_service import ManagementPlanService
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.package import PackageService
 from submit_api.services.submission import SubmissionService
@@ -26,8 +27,8 @@ from submit_api.utils.constants import (
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 
 
-class ManagementPlanService:
-    """management plan review service."""
+class IEMTermsOfEngagementService:
+    """IEM terms of engagement review service."""
 
     @classmethod
     def reject_management_plan_form(cls, item, session):
@@ -38,7 +39,7 @@ class ManagementPlanService:
         update_request_data = cls._prepare_update_request_data(new_item, item)
         cls._create_mp_update_request(update_request_data, session)
         cls._log_management_plan_rejection_activity(item, session)
-        cls.deactivate_update_requests(item.package_id, session)
+        cls._deactivate_update_requests(item.package_id, session)
         cls._create_rejection_email_queue(
             item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
         current_app.logger.info(
@@ -197,16 +198,41 @@ class ManagementPlanService:
     def approve_management_plan(cls, item, session):
         """Approve management plan."""
         package = PackageModel.find_by_id(item.package_id)
-        cls.update_item_status_mp_approval(item, package, session)
-        cls.update_package_for_completion(item, package, session)
-        cls.deactivate_update_requests(package.id, session, package)
-        cls._log_activity_mp_approval(package, session)
+        ManagementPlanService.update_item_status_mp_approval(item, package, session)
+        ManagementPlanService.update_package_for_completion(item, package, session)
+        ManagementPlanService.deactivate_update_requests(package.id, session, package)
+        cls._log_activity_iem_approval(package, session)
         current_app.logger.info(
-            f"Management plan form approved for item {item.id}.")
+            f"IEM plan form approved for item {item.id}.")
         return item
 
-    @staticmethod
-    def get_package_submitted_to_eao_for(self, package):
+    @classmethod
+    def _log_activity_iem_approval(cls, package, session):
+        """Log activity for iem approval."""
+        current_app.logger.info(
+            f"Logging activity for iem approval for package {package.id}.")
+        submitted_to_eao_for = ManagementPlanService.get_package_submitted_to_eao_for(package)
+        activity_type_condition_map = {
+            ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ActivityActionType.IEM_ACCEPTED.value,
+            ManagementPlanSubmissionPurpose.APPROVAL.value: ActivityActionType.IEM_APPROVED.value,
+            ManagementPlanSubmissionPurpose.SATISFACTION.value: ActivityActionType.IEM_SATISFIED.value,
+            ManagementPlanSubmissionPurpose.REVIEW.value: ActivityActionType.IEM_REVIEWED.value,
+        }
+        action_type = activity_type_condition_map.get(submitted_to_eao_for)
+        if not action_type:
+            raise ResourceNotFoundError(
+                f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
+        ActivityLogService.log_activity(
+            entity_id=package.id,
+            action=action_type,
+            entity_version=package.version.version,
+            session=session
+        )
+        current_app.logger.info(
+            f"Activity logged for management plan approval for package {package.id}.")
+
+    @classmethod
+    def _get_package_submitted_to_eao_for(cls, package):
         """Get the condition from the package."""
         current_app.logger.info(
             f"Retrieving submitted_to_eao_for for package {package.id}.")
@@ -227,81 +253,6 @@ class ManagementPlanService:
         current_app.logger.info(
             f"Retrieved submitted_to_eao_for for package {package.id}.")
         return submitted_to_eao_for
-
-    @classmethod
-    def update_item_status_mp_approval(cls, item, package, session):
-        """Update the status of the item for approval."""
-        current_app.logger.info(
-            f"Approving management plan form for item {item.id}.")
-        submitted_to_eao_for = cls.get_package_submitted_to_eao_for(package)
-
-        mp_purpose_status_map = {
-            ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ItemStatus.ACCEPTED,
-            ManagementPlanSubmissionPurpose.APPROVAL.value: ItemStatus.APPROVED,
-            ManagementPlanSubmissionPurpose.SATISFACTION.value: ItemStatus.SATISFIED,
-            ManagementPlanSubmissionPurpose.REVIEW.value: ItemStatus.REVIEWED,
-        }
-        status = mp_purpose_status_map.get(submitted_to_eao_for)
-        if not status:
-            raise ResourceNotFoundError(
-                f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
-        item.status = status
-        session.add(item)
-        session.flush()
-        current_app.logger.info(
-            f"Management plan form {status.value} for item {item.id}.")
-
-    @classmethod
-    def update_package_for_completion(cls, item, package, session):
-        """Update package for completion."""
-        current_app.logger.info(
-            f"Updating package for completion for item {item.id}.")
-        package.completed_on = datetime.utcnow()
-        session.add(package)
-        session.flush()
-        current_app.logger.info(
-            f"Package updated for completion for item {item.id}.")
-
-    @classmethod
-    def _log_activity_mp_approval(cls, package, session):
-        """Log activity for management plan approval."""
-        current_app.logger.info(
-            f"Logging activity for management plan approval for package {package.id}.")
-        submitted_to_eao_for = cls.get_package_submitted_to_eao_for(package)
-        activity_type_condition_map = {
-            ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ActivityActionType.MP_ACCEPTED.value,
-            ManagementPlanSubmissionPurpose.APPROVAL.value: ActivityActionType.MP_APPROVED.value,
-            ManagementPlanSubmissionPurpose.SATISFACTION.value: ActivityActionType.MP_SATISFIED.value,
-            ManagementPlanSubmissionPurpose.REVIEW.value: ActivityActionType.MP_REVIEWED.value,
-        }
-        action_type = activity_type_condition_map.get(submitted_to_eao_for)
-        if not action_type:
-            raise ResourceNotFoundError(
-                f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
-        ActivityLogService.log_activity(
-            entity_id=package.id,
-            action=action_type,
-            entity_version=package.version.version,
-            session=session
-        )
-        current_app.logger.info(
-            f"Activity logged for management plan approval for package {package.id}.")
-
-    @classmethod
-    def deactivate_update_requests(cls, package_id, session, package=None):
-        """Deactivate all update requests for the package."""
-        if not package:
-            package = PackageModel.find_by_id(package_id)
-        current_app.logger.info(
-            f"Deactivating update requests for package {package.id}.")
-        update_requests = package.update_requests
-        for update_request in update_requests:
-            update_request.active = False
-            update_request.status = UpdateRequestStatus.CLOSED.value
-            session.add(update_request)
-        session.flush()
-        current_app.logger.info(
-            f"Update requests deactivated for package {package.id}.")
 
     @classmethod
     def _create_rejection_email_queue(cls, package_id, template_name):
