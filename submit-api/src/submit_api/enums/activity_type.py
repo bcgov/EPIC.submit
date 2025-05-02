@@ -46,3 +46,4 @@ class ActivityActionType(enum.Enum):
     REVISION_REQUIRED = "Revision Required"
     MP_REVIEW_FAILED = "MP Review Failed"
     REVISION_REQUESTED = "Revision Requested"
+    START_IEM_REVIEW = "Start IEM Review"
