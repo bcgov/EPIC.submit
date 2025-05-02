@@ -31,7 +31,6 @@ import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
-import WarningBox from "@/components/Shared/WarningBox";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";
@@ -177,7 +176,10 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  mb: BCDesignTokens.layoutMarginXlarge,
+
+                  mb: isLatestApprovedPackageVersion
+                    ? 0
+                    : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={submissionPackage.name} />
@@ -194,32 +196,12 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <When
-                condition={
-                  submissionPackage.submitted_on &&
-                  !isLatestApprovedPackageVersion
-                }
-              >
-                <WarningBox
-                  sx={{
-                    mb: BCDesignTokens.layoutMarginMedium,
-                    p: BCDesignTokens.layoutPaddingMedium,
-                  }}
-                >
-                  <Typography
-                    variant="body1"
-                    color={BCDesignTokens.typographyColorPrimary}
-                  >
-                    Please Note: This submission is still pending EAO review.
-                    Until finalized, it is not considered enforceable.
-                  </Typography>
-                </WarningBox>
-              </When>
               <When condition={Boolean(isLatestApprovedPackageVersion)}>
                 <SuccessBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
-                    p: BCDesignTokens.layoutPaddingMedium,
+                    py: BCDesignTokens.layoutPaddingXsmall,
+                    px: BCDesignTokens.layoutPaddingSmall,
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
@@ -228,8 +210,8 @@ export default function SubmissionPage() {
                 >
                   <GppGoodOutlinedIcon fontSize="large" />
                   <Typography
-                    variant="body1"
-                    color={BCDesignTokens.supportBorderColorSuccess}
+                    variant="body2"
+                    color={BCDesignTokens.typographyColorPrimary}
                   >
                     This submission is the version the EAO has finalized for
                     implementation.
