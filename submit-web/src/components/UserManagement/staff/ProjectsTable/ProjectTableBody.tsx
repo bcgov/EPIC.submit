@@ -26,8 +26,13 @@ export const ProjectTableBody = ({
   const { pendingInvitations, usedInvitations } = useMemo(() => {
     const pendingMap = new Map<number, Invitation>();
     const usedMap = new Map<number, Invitation[]>();
+    const now = new Date();
 
     proponent.invitations?.forEach((invitation) => {
+      // Parse expiry date
+      const expiry = new Date(invitation.expiry_date);
+      if (expiry < now) return; // Skip expired invitations
+
       invitation.project_ids.forEach((project_id) => {
         // Track only USED invitations
         if (invitation.status === InvitationStatus.USED) {
