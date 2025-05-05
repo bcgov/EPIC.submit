@@ -32,11 +32,11 @@ class ManagementPlanService:
     @classmethod
     def reject_management_plan_form(cls, item, session):
         """Reject management plan form."""
-        cls._update_item_status_mp_rejection(item)
-        cls._update_package_metadata_mp_rejection(item, session)
-        _, new_item = cls._create_new_package_version(item, session)
-        update_request_data = cls._prepare_update_request_data(new_item, item)
-        cls._create_mp_update_request(update_request_data, session)
+        cls.update_item_status_mp_rejection(item)
+        cls.update_package_metadata_mp_rejection(item, session)
+        _, new_item = cls.create_new_package_version(item, session)
+        update_request_data = cls.prepare_update_request_data(new_item, item)
+        cls.create_mp_update_request(update_request_data, session)
         cls._log_management_plan_rejection_activity(item, session)
         cls.deactivate_update_requests(item.package_id, session)
         cls._create_rejection_email_queue(
@@ -46,7 +46,7 @@ class ManagementPlanService:
         return item
 
     @classmethod
-    def _prepare_update_request_data(cls, new_item, old_item):
+    def prepare_update_request_data(cls, new_item, old_item):
         """Prepare the update request data."""
         item_review = SubmissionReview.get_active_review_by_item_id(
             old_item.id)
@@ -77,7 +77,7 @@ class ManagementPlanService:
             f"Activity logged for management plan rejection for package {package.id}.")
 
     @classmethod
-    def _update_item_status_mp_rejection(cls, item):
+    def update_item_status_mp_rejection(cls, item):
         """Update the status and review date of the item for rejection."""
         current_app.logger.info(
             f"Rejecting management plan form for item {item.id}.")
@@ -88,7 +88,7 @@ class ManagementPlanService:
             f"Management plan form rejected for item {item.id}.")
 
     @classmethod
-    def _update_package_metadata_mp_rejection(cls, item, session):
+    def update_package_metadata_mp_rejection(cls, item, session):
         """Update package metadata with review completion date for rejection."""
         current_app.logger.info(
             f"Updating package metadata for package {item.package_id}.")
@@ -120,7 +120,7 @@ class ManagementPlanService:
         return package_metadata
 
     @classmethod
-    def _create_new_package_version(cls, item, session):
+    def create_new_package_version(cls, item, session):
         """Create a new package version and retrieve new management plan item for rejection."""
         current_app.logger.info(
             f"Creating new package version for item {item.id}.")
@@ -178,7 +178,7 @@ class ManagementPlanService:
             "Contact information form copied from old version.")
 
     @classmethod
-    def _create_mp_update_request(cls, data, session):
+    def create_mp_update_request(cls, data, session):
         """Create an update request."""
         current_app.logger.info(
             f"Creating update request for new management plan {data.get('package_id')}.")
