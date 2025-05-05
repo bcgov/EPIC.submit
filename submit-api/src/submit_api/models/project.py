@@ -75,8 +75,10 @@ class Project(db.Model):
         accounts_ids = [account_id for account_id, in accounts_ids]
 
         if include_invitations and accounts_ids:
-            invitations = Invitations.query.filter(Invitations.account_id.in_(accounts_ids),
-                                                   Invitations.status == InvitationStatus.PENDING.value).all()
+            invitations = Invitations.query.filter(
+                Invitations.account_id.in_(accounts_ids),
+                Invitations.status.in_([InvitationStatus.PENDING.value, InvitationStatus.USED.value])
+            ).all()
             proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
 
         if include_projects:

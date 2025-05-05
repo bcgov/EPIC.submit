@@ -56,8 +56,8 @@ export const RegistrationUrlCell = ({
     setTimeout(() => setTooltipText("Copy"), 2000);
   };
 
-  // If there are invitations but none are pending, show nothing
-  if (!pendingInvitation && usedProjectInvitations.length > 0) {
+  // If there is a used invitation there exists a project admin. Show nothing
+  if (usedProjectInvitations.length > 0) {
     return <PlainTableCell colSpan={2} />;
   }
 
