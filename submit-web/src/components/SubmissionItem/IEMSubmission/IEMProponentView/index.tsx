@@ -15,7 +15,7 @@ import {
 } from "@/models/Submission";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { DocumentUploadSection } from "./DocumentUploadSection";
-import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
+import { IEM_DOCUMENT_FOLDERS } from "./constants";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,13 +26,13 @@ import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
-export const managementPlanSubmissionSchema = yup.object().shape({
+export const iemSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
   allRequirementsAddressed: yup
     .string()
     .required("Please answer this question."),
   informationAccurate: yup.string().required("Please answer this question."),
-  managementPlans: yup
+  iems: yup
     .array()
     .of(yup.string())
     .required("Please upload at least one document.")
@@ -41,10 +41,8 @@ export const managementPlanSubmissionSchema = yup.object().shape({
   notes: yup.string(),
 });
 
-export type ManagementPlanSubmissionForm = yup.InferType<
-  typeof managementPlanSubmissionSchema
->;
-export const ManagementPlanSubmissionProponentView = () => {
+export type IemSubmissionForm = yup.InferType<typeof iemSubmissionSchema>;
+export const IemSubmissionProponentView = () => {
   const {
     projectId: accountProjectIdParam,
     submissionPackageId,
@@ -95,25 +93,24 @@ export const ManagementPlanSubmissionProponentView = () => {
     if (!documentSubmissions) return {};
 
     return {
-      managementPlans: documentSubmissions
+      iems: documentSubmissions
         .filter(
           (submission) =>
-            submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+            submission.submitted_document.folder === IEM_DOCUMENT_FOLDERS.IEM,
         )
         .map((submission) => submission.submitted_document.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+            IEM_DOCUMENT_FOLDERS.SUPPORTING,
         )
         .map((submission) => submission.submitted_document.url),
     };
   }, [documentSubmissions]);
 
-  const methods = useForm<ManagementPlanSubmissionForm>({
-    resolver: yupResolver(managementPlanSubmissionSchema),
+  const methods = useForm<IemSubmissionForm>({
+    resolver: yupResolver(iemSubmissionSchema),
     mode: "onSubmit",
     defaultValues: {
       ...defaultFormValues,
@@ -151,12 +148,12 @@ export const ManagementPlanSubmissionProponentView = () => {
     return () => setIsOpen(false);
   }, [isCreatingSubmissionPending, setIsOpen]);
 
-  const handleCompleteForm = (formData: ManagementPlanSubmissionForm) => {
+  const handleCompleteForm = (formData: IemSubmissionForm) => {
     saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value); // Add default status here
   };
 
   const saveSubmission = async (
-    formData: ManagementPlanSubmissionForm,
+    formData: IemSubmissionForm,
     status: SubmissionItemStatus,
   ) => {
     const {
@@ -201,7 +198,7 @@ export const ManagementPlanSubmissionProponentView = () => {
         <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <Grid item xs={12}>
-              <BarBlueTitle title="Management Plan Requirements" />
+              <BarBlueTitle title="Independent Environmental Monitor Terms of Engagement Requirements" />
             </Grid>
             <Grid item xs={12}>
               <FormFieldSection errors={errors} />

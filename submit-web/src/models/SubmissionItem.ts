@@ -25,6 +25,7 @@ export enum SUBMISSION_ITEM_TYPE {
   CONTACT_INFORMATION = "Contact Information Form",
   MANAGEMENT_PLAN = "Management Plan",
   CONSULTATION_RECORD = "Consultation Record(s)",
+  IEM = "IEM",
 }
 
 export const SUBMISSION_ITEM_MODAL_CONTENT: Record<

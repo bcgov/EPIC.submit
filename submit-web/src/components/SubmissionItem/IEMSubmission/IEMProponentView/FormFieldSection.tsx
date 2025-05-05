@@ -2,16 +2,16 @@ import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadio
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { FieldErrors, get } from "react-hook-form";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 import { useParams } from "@tanstack/react-router";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useMemo } from "react";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { IemSubmissionForm } from ".";
 
 type FormFieldSectionProps = Readonly<{
-  errors: FieldErrors<ManagementPlanSubmissionForm>;
+  errors: FieldErrors<IemSubmissionForm>;
 }>;
 
 export default function FormFieldSection({ errors }: FormFieldSectionProps) {
@@ -40,7 +40,8 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
       <Grid item xs={12} container>
         <Grid item xs={12}>
           <Typography variant="body1">
-            Does the plan address all the requirements in condition
+            Does the Independent Environmental Monitor Terms of Engagement
+            address all the requirements in condition
             {` ${condition}`}?
           </Typography>
 
@@ -50,10 +51,10 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1">
-            If the condition(s) associated with the plan references other
-            documents, in whole or part (e.g., project application sections),
-            does the plan address all requirements within the referenced
-            document(s)?
+            If the condition(s) associated with the Independent Environmental
+            Monitor Terms of Engagement references other documents, in whole or
+            part (e.g., project application sections), does the plan address all
+            requirements within the referenced document(s)?
           </Typography>
           <ControlledRadioGroup name="allRequirementsAddressed">
             <YesNoRadioOptions

@@ -9,7 +9,6 @@ import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
-import { FORM_TYPE } from "@/store/hideFormStore";
 import { useFormVisibilityStore } from "@/store/hideFormStore";
 
 const defaultFormData = {
@@ -34,10 +33,7 @@ export default function FormFieldSection({
   submissionId,
 }: FormFieldSectionProps) {
   const { getFormVisibility, setFormVisibility } = useFormVisibilityStore();
-  const isHidden = getFormVisibility(
-    submissionId,
-    FORM_TYPE.CONSULTATION_RECORD
-  );
+  const isHidden = getFormVisibility(submissionId);
   const mergedFormData = { ...defaultFormData, ...formData };
 
   return (
@@ -64,13 +60,7 @@ export default function FormFieldSection({
             control={
               <Switch
                 checked={isHidden}
-                onChange={() =>
-                  setFormVisibility(
-                    submissionId,
-                    FORM_TYPE.CONSULTATION_RECORD,
-                    !isHidden
-                  )
-                }
+                onChange={() => setFormVisibility(submissionId, !isHidden)}
               />
             }
             label="Hide form"

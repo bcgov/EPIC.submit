@@ -29,7 +29,7 @@ import {
   checkIfManager,
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
-import { managementPlanReviewSchema, RadioOptions } from "./constants";
+import { iemReviewSchema, RadioOptions } from "./constants";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import ActionButtons from "./ActionButtons";
@@ -38,9 +38,7 @@ import { When } from "react-if";
 import AddRequestSection from "../../AddRequestSection";
 import { NotificationBox } from "./NotificationBox";
 
-type managementPlanReviewForm = yup.InferType<
-  typeof managementPlanReviewSchema
->;
+type iemReviewForm = yup.InferType<typeof iemReviewSchema>;
 
 const getAnswersByType = (
   review: SubmissionReview,
@@ -106,8 +104,8 @@ export default function ReviewSection() {
     };
   }, [submissionItem]);
 
-  const methods = useForm<managementPlanReviewForm>({
-    resolver: yupResolver(managementPlanReviewSchema),
+  const methods = useForm<iemReviewForm>({
+    resolver: yupResolver(iemReviewSchema),
     mode: "onChange",
     defaultValues,
   });
@@ -118,7 +116,7 @@ export default function ReviewSection() {
   const staffAnswer = watch("staff.passedReview");
   const managerAnswer = watch("manager.passedReview");
 
-  const failedManagementPlan =
+  const failedIEM =
     managerAnswer === RadioOptions.NO.value ||
     (staffAnswer === RadioOptions.NO.value &&
       managerAnswer !== RadioOptions.YES.value);
@@ -142,7 +140,7 @@ export default function ReviewSection() {
         <FormProvider {...methods}>
           <form>
             <Typography variant="h6" color={"#858A8C"}>
-              Management Plan Review
+              Independent Environmental Monitor Terms of Engagement Review
             </Typography>
             <Divider
               sx={{
@@ -156,7 +154,8 @@ export default function ReviewSection() {
               sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
             >
               Based on the above information, has the holder passed the
-              Management Plan Review for the {submissionPackage?.name}?
+              Independent Environmental Monitor Terms of Engagement Review for
+              the {submissionPackage?.name}?
             </Typography>
 
             <ControlledRadioGroup
@@ -207,7 +206,7 @@ export default function ReviewSection() {
               </>
             </PermissionsGate>
             <NotesSection />
-            <When condition={failedManagementPlan}>
+            <When condition={failedIEM}>
               <AccordionSummary
                 expandIcon={null}
                 aria-controls="panel1-content"

@@ -14,7 +14,7 @@ import { get } from "lodash";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useParams } from "@tanstack/react-router";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { ManagementPlanSubmissionForm } from "../ManagementPlanProponentView";
+import { IemSubmissionForm } from "../IEMProponentView";
 
 const defaultFormData = {
   conditionSatisfied: "",
@@ -24,7 +24,7 @@ const defaultFormData = {
 };
 
 type FormFieldSectionProps = Readonly<{
-  formData: Partial<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
+  formData: Partial<IemSubmissionForm>; // Replace FormValues with your actual form schema interface
 }>;
 
 export default function FormFieldSection({ formData }: FormFieldSectionProps) {
@@ -68,7 +68,7 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               mt: BCDesignTokens.layoutMarginSmall,
             }}
           >
-            Management Plan Requirements
+            Independent Environmental Monitor Terms of Engagement Requirements
           </Typography>
           <FormControlLabel
             control={
@@ -88,7 +88,8 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
           <Grid item xs={12} container>
             <Grid item xs={12}>
               <Typography variant="body1">
-                Does the plan address all the requirements in condition
+                Does the Independent Environmental Monitor Terms of Engagement
+                address all the requirements in condition
                 {` ${condition}`}?
               </Typography>
               <RadioGroup value={mergedFormData.conditionSatisfied}>
@@ -97,10 +98,12 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body1">
-                If the condition(s) associated with the plan reference other
+                If the condition(s) associated with the Independent
+                Environmental Monitor Terms of Engagement reference other
                 documents, in whole or part (e.g., project application
-                sections), does the plan address all requirements within the
-                referenced document(s)?
+                sections), does the Independent Environmental Monitor Terms of
+                Engagement address all requirements within the referenced
+                document(s)?
               </Typography>
               <RadioGroup value={mergedFormData.allRequirementsAddressed}>
                 <YesNoRadioOptions disabled error={false} />
