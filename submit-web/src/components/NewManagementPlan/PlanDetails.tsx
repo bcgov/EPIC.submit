@@ -31,7 +31,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
 
   return (
     <TabBox title="Create New Submission">
-      <If condition={!isLoading}>
+      <If condition={isLoading}>
         <Then>
           <Grid
             container
