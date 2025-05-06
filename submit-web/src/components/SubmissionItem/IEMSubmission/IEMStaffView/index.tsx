@@ -9,7 +9,7 @@ import InternalDocumentSection from "../../InternalDocumentSection";
 import ReviewSection from "./ReviewSection";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 
-export const ManagementPlanSubmissionStaffView = () => {
+export const IEMStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
     useParams({
       from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",

@@ -228,6 +228,10 @@ def get_package_status(status, user_type, version_obj):
             UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
             UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
         },
+        PackageStatus.IEM_AWAITING_MANAGER_APPROVAL.value: {
+            UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
+            UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
+        },
         PackageStatus.REVIEW_REJECTED.value: {
             UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,
             UserType.STAFF: PackageStatus.REVIEW_REJECTED.value

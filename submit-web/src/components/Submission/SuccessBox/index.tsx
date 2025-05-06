@@ -1,4 +1,4 @@
-import { SUBMISSION_PACKAGE_TYPE } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/components/Shared/types";
 import { PackageType } from "@/models/Package";
 import { Box, Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -21,8 +21,7 @@ export const SubmissionSuccessBox = ({
       <Switch>
         <Case
           condition={
-            submissionPackageType.name ===
-            SUBMISSION_PACKAGE_TYPE.MANAGEMENT_PLAN
+            submissionPackageType.name === SubmissionPackageType.MANAGEMENT_PLAN
           }
         >
           <Box

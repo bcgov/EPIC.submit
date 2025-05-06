@@ -7,7 +7,7 @@ import { PlanDetails } from "./PlanDetails";
 import { NewManagementPlanForm } from "./types";
 
 type TabPanelProps = {
-  onSubmit: (formData: NewManagementPlanForm) => void;
+  onSubmit: (formData: Partial<NewManagementPlanForm>) => void;
 };
 export const TabPanel = ({ onSubmit }: TabPanelProps) => {
   const { step } = useManagementPlanForm();

@@ -42,13 +42,13 @@ export const Conditions = () => {
     useManagementPlanForm();
 
   const [mainCondition, setMainCondition] = useState<Condition | null>(
-    formData?.main_condition || null
+    formData?.main_condition || null,
   );
 
   const [supportingConditions, setSupportingConditions] = useState<number[]>(
     Array.from(formData.supporting_conditions || []).map(
-      (condition: Condition) => condition.condition_number ?? 0
-    )
+      (condition: Condition) => condition.condition_number ?? 0,
+    ),
   );
 
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -62,7 +62,7 @@ export const Conditions = () => {
       ...formData,
       main_condition: mainCondition,
       supporting_conditions: conditions?.filter((c) =>
-        supportingConditions.includes(c.condition_number!)
+        supportingConditions.includes(c.condition_number!),
       ),
     });
 
@@ -82,11 +82,11 @@ export const Conditions = () => {
 
   const handleAnotherSupportingCondition = (
     index: number,
-    conditionName: string
+    conditionName: string,
   ) => {
     if (supportingConditions.length > MAX_SUPPORTING_CONDITIONS) return;
     const newCondition = conditions?.find(
-      (c) => c.condition_name === conditionName
+      (c) => c.condition_name === conditionName,
     );
 
     if (newCondition?.condition_number != null) {
@@ -148,7 +148,7 @@ export const Conditions = () => {
             onChange={(e) => {
               setMainCondition(
                 conditions?.find((c) => c.condition_name === e.target.value) ||
-                  null
+                  null,
               );
               if (errorText) {
                 setErrorText(null);
@@ -160,7 +160,7 @@ export const Conditions = () => {
               ?.filter(
                 (condition) =>
                   condition.condition_number !== null && // Ensure condition_number is not null
-                  !supportingConditions.includes(condition.condition_number)
+                  !supportingConditions.includes(condition.condition_number),
               )
               .map((condition) => {
                 const conditionLabel = `Condition ${condition.condition_number} - ${condition.condition_name}`;
@@ -206,8 +206,8 @@ export const Conditions = () => {
                           mainCondition?.condition_number && // Exclude selected main condition
                         condition.condition_number !== null && // Ensure condition_number is not null
                         !supportingConditions.includes(
-                          condition.condition_number
-                        ) // Exclude conditions already selected
+                          condition.condition_number,
+                        ), // Exclude conditions already selected
                     )
                     .map((condition) => (
                       <MenuItem
@@ -221,7 +221,7 @@ export const Conditions = () => {
                     (c) =>
                       c.condition_name ===
                       (conditions?.find((c) => c.condition_number === input)
-                        ?.condition_name || "")
+                        ?.condition_name || ""),
                   ) && (
                     <MenuItem
                       key={
@@ -244,7 +244,7 @@ export const Conditions = () => {
               <IconButton
                 onClick={() => {
                   setSupportingConditions(
-                    supportingConditions.filter((c) => c !== input)
+                    supportingConditions.filter((c) => c !== input),
                   );
                 }}
               >

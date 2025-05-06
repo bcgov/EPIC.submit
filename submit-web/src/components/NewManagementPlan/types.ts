@@ -7,10 +7,12 @@ export type NewMPFormDataFieldData<T> = {
 export type NewMPFormData = {
   main_condition: Condition;
   supporting_conditions?: Condition[];
+  type: string;
 };
 
 export type NewManagementPlanForm = {
   name: NewMPFormDataFieldData<string>;
   main_condition: Condition;
   supporting_conditions?: Condition[];
+  type: string;
 };

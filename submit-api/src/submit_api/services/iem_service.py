@@ -18,8 +18,8 @@ class IEMTermsOfEngagementService:
     """IEM terms of engagement review service."""
 
     @classmethod
-    def reject_management_plan_form(cls, item, session):
-        """Reject management plan form."""
+    def reject_iem_form(cls, item, session):
+        """Reject iem form."""
         ManagementPlanService.update_item_status_mp_rejection(item)
         ManagementPlanService.update_package_metadata_mp_rejection(item, session)
         _, new_item = ManagementPlanService.create_new_package_version(item, session)
@@ -35,9 +35,9 @@ class IEMTermsOfEngagementService:
 
     @classmethod
     def _log_iem_rejection_activity(cls, item, session):
-        """Log activity for management plan rejection."""
+        """Log activity for iem rejection."""
         current_app.logger.info(
-            f"Logging activity for management plan rejection for package {item.package_id}.")
+            f"Logging activity for iem rejection for package {item.package_id}.")
         package = PackageModel.find_by_id(item.package_id)
         ActivityLogService.log_activity(
             entity_id=package.id,
@@ -46,11 +46,11 @@ class IEMTermsOfEngagementService:
             session=session
         )
         current_app.logger.info(
-            f"Activity logged for management plan rejection for package {package.id}.")
+            f"Activity logged for iem rejection for package {package.id}.")
 
     @classmethod
-    def approve_management_plan(cls, item, session):
-        """Approve management plan."""
+    def approve_iem(cls, item, session):
+        """Approve iem."""
         package = PackageModel.find_by_id(item.package_id)
         ManagementPlanService.update_item_status_mp_approval(item, package, session)
         ManagementPlanService.update_package_for_completion(item, package, session)
@@ -83,7 +83,7 @@ class IEMTermsOfEngagementService:
             session=session
         )
         current_app.logger.info(
-            f"Activity logged for management plan approval for package {package.id}.")
+            f"Activity logged for iem approval for package {package.id}.")
 
     @classmethod
     def _create_rejection_email_queue(cls, package_id, template_name):

@@ -23,7 +23,7 @@ PACKAGE_TYPE_IEM = 'IEM'
 ITEM_TYPE_IEM_TERMS = 'IEM Terms of Engagement'
 ITEM_TYPE_CONSULTATION_RECORDS = 'Consultation Record(s)'
 ITEM_TYPE_CONTACT_INFORMATION_FORM = 'Contact Information Form'
-FORM_SUBMISSION = 'FORM_SUBMISSION'
+DOCUMENT_UPLOAD = 'DOCUMENT_UPLOAD'
 
 
 def upgrade():
@@ -51,6 +51,7 @@ def upgrade():
         sa.Column('item_type_id', sa.Integer),
         sa.Column('created_date', sa.DateTime, default=datetime.utcnow),
         sa.Column('created_by', sa.String, default='system'),
+        sa.Column("sort_order", sa.Integer(), nullable=True, server_default="0"),
     )
 
     # Insert new package type
@@ -67,7 +68,7 @@ def upgrade():
 
     # Insert new item types
     op.bulk_insert(item_types, [
-        {'name': ITEM_TYPE_IEM_TERMS, 'created_date': datetime.utcnow(), 'submission_method': FORM_SUBMISSION},
+        {'name': ITEM_TYPE_IEM_TERMS, 'created_date': datetime.utcnow(), 'submission_method': DOCUMENT_UPLOAD},
     ])
 
     # Retrieve item type IDs using parameterized query
@@ -81,11 +82,11 @@ def upgrade():
 
     # Insert package item types
     op.bulk_insert(package_item_types, [
-        {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_IEM_TERMS],
+        {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_IEM_TERMS], 'sort_order': 2,
          'created_date': datetime.utcnow()},
-        {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_CONSULTATION_RECORDS],
+        {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_CONSULTATION_RECORDS], 'sort_order': 1,
          'created_date': datetime.utcnow()},
-        {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_CONTACT_INFORMATION_FORM],
+        {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_CONTACT_INFORMATION_FORM], 'sort_order': 0,
          'created_date': datetime.utcnow()},
     ])
 

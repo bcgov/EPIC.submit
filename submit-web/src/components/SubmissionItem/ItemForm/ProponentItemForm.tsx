@@ -7,6 +7,8 @@ import { ConsultationRecordUpdateForm } from "../ConsultationRecord/Consultation
 import { ConsultationRecordProponentView } from "../ConsultationRecord/ConsultationRecordProponentView";
 import { ManagementPlanUpdateForm } from "../ManagementPlanSubmission/ManagementPlanUpdateForm";
 import { ContactInformationEntityView } from "../ContactInformation/ContactInformationEntityView";
+import { IemSubmissionProponentView } from "../IEMSubmission/IEMProponentView";
+import { IEMUpdateForm } from "../IEMSubmission/IEMUpdateForm";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
@@ -16,9 +18,11 @@ const createFormMap = {
   [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: ContactInformationEntityView,
   [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: ManagementPlanSubmissionProponentView,
   [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: ConsultationRecordProponentView,
+  [SUBMISSION_ITEM_TYPE.IEM]: IemSubmissionProponentView,
 };
 
 export const ProponentItemForm = ({ submissionItem }: ItemFormProps) => {
+  console.log(submissionItem.type);
   const Component = createFormMap[submissionItem.type.name];
   return Component ? <Component /> : null;
 };
@@ -27,6 +31,7 @@ const updateFormMap = {
   [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: ConsultationRecordUpdateForm,
   [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: ManagementPlanUpdateForm,
   [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: ContactInformationEntityView,
+  [SUBMISSION_ITEM_TYPE.IEM]: IEMUpdateForm,
 };
 
 export const ProponentItemUpdateForm = ({ submissionItem }: ItemFormProps) => {

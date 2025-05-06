@@ -116,7 +116,7 @@ export const DocumentUploadSection = () => {
           </Typography>
         </Box>
         <ControlledFileUpload
-          name="managementPlans"
+          name="iems"
           height={"13.125rem"}
           onDrop={(acceptedFiles) =>
             handleOnDrop(acceptedFiles, IEM_DOCUMENT_FOLDERS.IEM)
