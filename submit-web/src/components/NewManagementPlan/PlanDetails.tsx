@@ -5,8 +5,9 @@ import { useManagementPlanForm } from "./formStore";
 import { useAccount } from "@/store/accountStore";
 import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { ExistingPlanDetails } from "./ExistingPlanDetails";
-import { When } from "react-if";
+import { Else, If, Then, When } from "react-if";
 import { useState } from "react";
+import { CircularProgress, Grid } from "@mui/material";
 
 type PlanDetailsProps = {
   onSubmit: (formData: NewManagementPlanForm) => void;
@@ -15,7 +16,7 @@ type PlanDetailsProps = {
 export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   const { formData } = useManagementPlanForm();
   const { accountId } = useAccount();
-  const { data: accountProjects } = useGetAccountProjectsByAccount({
+  const { data: accountProjects, isLoading } = useGetAccountProjectsByAccount({
     accountId,
   });
   const [newlyCreatedPlan, setNewlyCreatedPlan] = useState(false);
@@ -30,15 +31,32 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
 
   return (
     <TabBox title="Create New Submission">
-      <When condition={Boolean(existingPlan) && !newlyCreatedPlan}>
-        <ExistingPlanDetails existingPlan={existingPlan} />
-      </When>
-      <When condition={!existingPlan}>
-        <NewPlanDetails
-          onSubmit={onSubmit}
-          setNewlyCreatedPlan={setNewlyCreatedPlan}
-        />
-      </When>
+      <If condition={!isLoading}>
+        <Then>
+          <Grid
+            container
+            sx={{
+              padding: "16px 0px",
+            }}
+            spacing={3}
+          >
+            <Grid item xs={12}>
+              <CircularProgress size={40} />
+            </Grid>
+          </Grid>
+        </Then>
+        <Else>
+          <When condition={Boolean(existingPlan) && !newlyCreatedPlan}>
+            <ExistingPlanDetails existingPlan={existingPlan} />
+          </When>
+          <When condition={!existingPlan}>
+            <NewPlanDetails
+              onSubmit={onSubmit}
+              setNewlyCreatedPlan={setNewlyCreatedPlan}
+            />
+          </When>
+        </Else>
+      </If>
     </TabBox>
   );
 };
