@@ -17,7 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AccountProject } from "@/models/Project";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
-import { camelCase } from "lodash";
+import { camelCase, get } from "lodash";
 
 export type UploadObject = {
   id: number;
@@ -70,8 +70,8 @@ export default function PendingRow({
     [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: S3_FOLDER.CONSULTATION_RECORDS,
     [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: S3_FOLDER.MANAGEMENT_PLANS,
   };
-  const submissionTypeName = submissionItem?.type?.name;
-  const internalStaffSubFolder = folderMap[submissionTypeName as keyof typeof folderMap] || "";
+  const submissionTypeName = submissionItem?.type?.name || "";
+  const internalStaffSubFolder = get(folderMap, submissionTypeName, "");
 
   const uploadObject = async () => {
     try {
