@@ -1,3 +1,13 @@
+## May 05, 2025
+
+- **Bug**: File uploaded to incorrect folder in S3 [🎟️SUBMIT-525](https://eao-dst.atlassian.net/browse/SUBMIT-525)
+  - Fix supporting document upload path on replacement
+  - Ensure internal staff docs stay within project folder
+
+## May 02, 2025
+
+- Below changes deployed to test
+
 ## April 30, 2025
 
 - **Feature**: EAO/Entity - display text to inform which package version is the enforceable version
