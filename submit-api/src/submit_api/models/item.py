@@ -5,6 +5,7 @@ Manages the item
 
 from __future__ import annotations
 
+from collections import defaultdict
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -49,8 +50,32 @@ class Item(BaseModel):
 
     @property
     def submitted_submissions(self):
-        """Return only submissions that are not pending."""
-        return [s for s in self.submissions if s.status != SubmissionStatus.PENDING]
+        """Return the latest visible submission for each submission thread."""
+
+        print(f"[DEBUG] Item {self.id}: Processing submissions")
+
+        grouped = defaultdict(list)
+        for sub in self.submissions:
+            root_id = sub.root_submission_id or sub.id
+            grouped[root_id].append(sub)
+
+        result = []
+        for group in grouped.values():
+            sorted_group = sorted(
+                group, key=lambda s: (s.major_version, s.minor_version), reverse=True
+            )
+            for s in sorted_group:
+                print(
+                    f"[DEBUG] Submission ID: {s.id}, Status: {s.status}, Version: {s.version}"
+                )
+            visible = next(
+                (s for s in sorted_group if s.status != SubmissionStatus.PENDING), None
+            )
+            if visible:
+                result.append(visible)
+
+        print(f"[DEBUG] Returning {len(result)} submissions")
+        return result
 
     @hybrid_property
     def review(self):
