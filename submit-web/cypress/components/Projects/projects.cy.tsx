@@ -38,6 +38,6 @@ describe("<ProjectsPage />", () => {
 
     cy.wait("@getProjects");
     cy.contains("Test Project");
-    cy.contains("Management Plans");
+    cy.contains("Submissions");
   });
 });

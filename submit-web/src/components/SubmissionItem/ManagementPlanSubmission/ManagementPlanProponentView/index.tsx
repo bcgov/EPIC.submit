@@ -1,6 +1,5 @@
 import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
@@ -15,7 +14,11 @@ import {
 } from "@/models/Submission";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { DocumentUploadSection } from "./DocumentUploadSection";
-import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./constants";
+import {
+  MANAGEMENT_PLAN_DOCUMENT_FOLDERS,
+  ManagementPlanSubmissionForm,
+  managementPlanSubmissionSchema,
+} from "./constants";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,24 +29,6 @@ import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
-export const managementPlanSubmissionSchema = yup.object().shape({
-  conditionSatisfied: yup.string().required("Please answer this question."),
-  allRequirementsAddressed: yup
-    .string()
-    .required("Please answer this question."),
-  informationAccurate: yup.string().required("Please answer this question."),
-  managementPlans: yup
-    .array()
-    .of(yup.string())
-    .required("Please upload at least one document.")
-    .min(1, "Please upload at least one document."),
-  supportingDocuments: yup.array().of(yup.string()),
-  notes: yup.string(),
-});
-
-export type ManagementPlanSubmissionForm = yup.InferType<
-  typeof managementPlanSubmissionSchema
->;
 export const ManagementPlanSubmissionProponentView = () => {
   const {
     projectId: accountProjectIdParam,
