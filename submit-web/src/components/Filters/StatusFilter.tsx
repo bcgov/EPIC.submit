@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { useProjectFilters } from "./projectFilterStore";
 import {
-  SUBMISSION_ITEM_STATUS,
+  EAO_SUBMISSION_ITEM_FILTERS,
   PROPONENT_SUBMISSION_ITEM_FILTERS,
 } from "@/models/Submission";
 import { SubmissionStatusChip } from "../SubmissionStatusChip";
@@ -21,9 +21,9 @@ function StatusFilter() {
   const { userType } = useAccount();
   const isProponent = userType === USER_TYPE.PROPONENT;
 
-  const statusFilters = isProponent
+  const statusFilters = !isProponent
     ? PROPONENT_SUBMISSION_ITEM_FILTERS
-    : SUBMISSION_ITEM_STATUS;
+    : EAO_SUBMISSION_ITEM_FILTERS;
 
   const handleChange = (event: SelectChangeEvent<string[]>) => {
     const value = event.target.value as string[];

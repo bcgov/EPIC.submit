@@ -29,7 +29,13 @@ export type SubmissionItemStatus =
   | "FAILED_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
   | "REVISION_REQUIRED"
-  | "APPROVED";
+  | "APPROVED"
+  | "REVIEWED"
+  | "ACCEPTED"
+  | "SATISFIED"
+  | "UPDATE_REQUESTED"
+  | "UPDATED"
+  | "AWAITING_MANAGER_APPROVAL";
 
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
@@ -71,11 +77,95 @@ export const SUBMISSION_ITEM_STATUS: Record<
     value: "REVISION_REQUIRED",
     label: "Revision Required",
   },
+  REVIEWED: {
+    value: "REVIEWED",
+    label: "Reviewed",
+  },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
+  },
+  SATISFIED: {
+    value: "SATISFIED",
+    label: "Satisfied",
+  },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
+  },
+  UPDATED: {
+    value: "UPDATED",
+    label: "Updated",
+  },
+  AWAITING_MANAGER_APPROVAL: {
+    value: "AWAITING_MANAGER_APPROVAL",
+    label: "Awaiting Manager Approval",
+  },
 };
 
-export const PROPONENT_SUBMISSION_ITEM_FILTERS: Record<
-  SubmissionItemStatus,
-  { value: SubmissionItemStatus; label: string }
+export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
+  Record<SubmissionItemStatus, { value: SubmissionItemStatus; label: string }>
+> = {
+  NEW_SUBMISSION: {
+    value: "NEW_SUBMISSION",
+    label: "New Submission",
+  },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
+  },
+  UPDATED: {
+    value: "UPDATED",
+    label: "Updated",
+  },
+  COMPLETED: {
+    value: "COMPLETED",
+    label: "Completed",
+  },
+  PARTIALLY_COMPLETED: {
+    value: "PARTIALLY_COMPLETED",
+    label: "Partially Completed",
+  },
+  SUBMITTED: {
+    value: "SUBMITTED",
+    label: "Submitted",
+  },
+  FAILED_CONSULTATION_CHECK: {
+    value: "FAILED_CONSULTATION_CHECK",
+    label: "Failed Consultation Check",
+  },
+  PASSED_CONSULTATION_CHECK: {
+    value: "PASSED_CONSULTATION_CHECK",
+    label: "Passed Consultation Check",
+  },
+  APPROVED: {
+    value: "APPROVED",
+    label: "Approved",
+  },
+  REVISION_REQUIRED: {
+    value: "REVISION_REQUIRED",
+    label: "Revision Required",
+  },
+  REVIEWED: {
+    value: "REVIEWED",
+    label: "Reviewed",
+  },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
+  },
+  SATISFIED: {
+    value: "SATISFIED",
+    label: "Satisfied",
+  },
+  AWAITING_MANAGER_APPROVAL: {
+    value: "AWAITING_MANAGER_APPROVAL",
+    label: "Awaiting Manager Approval",
+  },
+};
+
+export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
+  Record<SubmissionItemStatus, { value: SubmissionItemStatus; label: string }>
 > = {
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
