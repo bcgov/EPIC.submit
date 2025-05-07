@@ -21,7 +21,7 @@ function StatusFilter() {
   const { userType } = useAccount();
   const isProponent = userType === USER_TYPE.PROPONENT;
 
-  const statusFilters = !isProponent
+  const statusFilters = isProponent
     ? PROPONENT_SUBMISSION_ITEM_FILTERS
     : EAO_SUBMISSION_ITEM_FILTERS;
 
