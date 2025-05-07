@@ -5,9 +5,13 @@ import { Controller, useFormContext } from "react-hook-form";
 
 type ControlledFileUploadProps = FileUploadProps & {
   name: string;
+  maxFiles?: number;
+  maxFilesErrorMessage?: string;
 };
 export const ControlledFileUpload = ({
   name,
+  maxFiles,
+  maxFilesErrorMessage,
   onDrop,
   ...otherProps
 }: ControlledFileUploadProps) => {
@@ -20,6 +24,7 @@ export const ControlledFileUpload = ({
 
   const error = get(errors, name);
   const helperText = error?.message?.toString() ?? "";
+  const currentFiles = getValues(name) || [];
 
   return (
     <Controller
@@ -30,6 +35,10 @@ export const ControlledFileUpload = ({
           <FileUpload
             {...otherProps}
             onDrop={(acceptedFiles: File[]) => {
+              if (maxFiles && currentFiles.length + acceptedFiles.length > maxFiles) {
+                // Handle error: maxFiles limit exceeded
+                return;
+              }
               if (acceptedFiles.length === 0) return;
               // Get current values and add the new file
               const currentValues = getValues(name) || [];
@@ -39,6 +48,9 @@ export const ControlledFileUpload = ({
               onDrop(acceptedFiles);
             }}
             error={Boolean(error)}
+            maxFiles={maxFiles}
+            maxFilesErrorMessage={maxFilesErrorMessage}
+            currentFileCount={currentFiles.length}
           />
           {error && <FormHelperText error>{helperText}</FormHelperText>}
         </Stack>
