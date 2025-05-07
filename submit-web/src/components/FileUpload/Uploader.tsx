@@ -10,6 +10,9 @@ interface UploaderProps {
   onDrop?: (acceptedFiles: File[]) => void;
   error?: boolean;
   maxSize?: number;
+  maxFiles?: number;
+  maxFilesErrorMessage?: string;
+  currentFileCount?: number;
 }
 const MAX_FILE_SIZE = 500 * 1024 * 1024;
 
@@ -22,8 +25,12 @@ const Uploader = ({
   error = false,
   children,
   maxSize = MAX_FILE_SIZE,
+  maxFiles,
+  maxFilesErrorMessage,
+  currentFileCount = 0
 }: UploaderProps) => {
   const [sizeError, setSizeError] = useState<string | null>(null);
+  const [fileCountError, setFileCountError] = useState<string | null>(null);
 
   return (
     <Dropzone
@@ -38,10 +45,23 @@ const Uploader = ({
           setSizeError(
             `This file exceeds the ${maxSize / (1024 * 1024)} MB limit.`
           );
-        } else {
-          setSizeError(null);
-          onDrop(acceptedFiles);
+          setFileCountError(null);
+          return;
         }
+
+        if (maxFiles && currentFileCount + acceptedFiles.length > maxFiles) {
+          setFileCountError(
+            maxFilesErrorMessage ||
+              `You can only upload up to ${maxFiles} file${maxFiles > 1 ? "s" : ""}.`
+          );
+          setSizeError(null);
+          return;
+        }
+  
+        // Clear errors and proceed
+        setSizeError(null);
+        setFileCountError(null);
+        onDrop(acceptedFiles);
       }}
       accept={accept}
     >
@@ -77,6 +97,14 @@ const Uploader = ({
               {sizeError}
             </FormHelperText>
           )}{" "}
+          {fileCountError && (
+            <FormHelperText
+              error
+              style={{ textAlign: "left", marginTop: "8px" }}
+            >
+              {fileCountError}
+            </FormHelperText>
+          )}
         </section>
       )}
     </Dropzone>

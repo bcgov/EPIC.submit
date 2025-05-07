@@ -53,17 +53,6 @@ export const DocumentUploadSection = () => {
   }, [submissionItem, getDocumentSubmissions, initializeFiles]);
 
   const handleOnDrop = (acceptedFiles: File[], folder: string) => {
-    const isManagementPlanFolder =
-      folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN;
-
-    if (
-      isManagementPlanFolder &&
-      (managementPlanDocuments.length > 0 || pendingManagementPlanDocuments.length > 0)
-    ) {
-      notify.error("You can only submit one Management Plan/IEM Terms of Engagement per submission. Please add supporting documents in the section below.");
-      return;
-    }
-
     addPendingFile(acceptedFiles[0], folder);
   };
 
@@ -138,6 +127,10 @@ export const DocumentUploadSection = () => {
               acceptedFiles,
               MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
             )
+          }
+          maxFiles={1}
+          maxFilesErrorMessage={
+            "You can only submit one Management Plan/IEM Terms of Engagement per submission. Please add supporting documents in the section below."
           }
         />
         <Typography
