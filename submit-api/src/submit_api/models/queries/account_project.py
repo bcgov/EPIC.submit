@@ -222,12 +222,12 @@ class ProjectQueries:
     @classmethod
     def _revision_required_filter(cls, query):
         """Joins updateRequest with alias and filters for packages requiring revision."""
-        reviewRequest = aliased(UpdateRequest)
+        review_request = aliased(UpdateRequest)
         return query.join(
-            reviewRequest, reviewRequest.submission_package_id == Package.id
+            review_request, review_request.submission_package_id == Package.id
         ).filter(
-            reviewRequest.type == UpdateRequestType.REVIEW.value,
-            reviewRequest.active.is_(True),
+            review_request.type == UpdateRequestType.REVIEW.value,
+            review_request.active.is_(True),
             ~Package.status.op("@>")([
                 PackageStatus.COMPLETED.value,
                 PackageStatus.PARTIALLY_COMPLETED.value,
@@ -237,19 +237,19 @@ class ProjectQueries:
     @classmethod
     def _update_status_filter(cls, query, include_update_requested, include_updated):
         """Join updateRequest with alias and apply appropriate update filters."""
-        updateReq = aliased(UpdateRequest)
+        update_request = aliased(UpdateRequest)
         conditions = [
-            updateReq.type == UpdateRequestType.UPDATE.value,
-            updateReq.active.is_(True),
+            update_request.type == UpdateRequestType.UPDATE.value,
+            update_request.active.is_(True),
         ]
 
         if include_updated:
-            conditions.append(updateReq.status == UpdateRequestStatus.PENDING_REVIEW.value)
+            conditions.append(update_request.status == UpdateRequestStatus.PENDING_REVIEW.value)
 
         if include_update_requested:
-            conditions.append(updateReq.status != UpdateRequestStatus.ACCEPTED.value)
+            conditions.append(update_request.status != UpdateRequestStatus.ACCEPTED.value)
 
-        return query.join(updateReq, updateReq.submission_package_id == Package.id).filter(*conditions)
+        return query.join(update_request, update_request.submission_package_id == Package.id).filter(*conditions)
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
