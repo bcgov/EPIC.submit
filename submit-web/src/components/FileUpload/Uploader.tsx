@@ -32,6 +32,13 @@ const Uploader = ({
   const [sizeError, setSizeError] = useState<string | null>(null);
   const [fileCountError, setFileCountError] = useState<string | null>(null);
 
+  const clearErrors = () => {
+    if (sizeError || fileCountError) {
+      setSizeError(null);
+      setFileCountError(null);
+    }
+  };
+
   return (
     <Dropzone
       maxSize={maxSize}
@@ -59,8 +66,7 @@ const Uploader = ({
         }
   
         // Clear errors and proceed
-        setSizeError(null);
-        setFileCountError(null);
+        clearErrors();
         onDrop(acceptedFiles);
       }}
       accept={accept}
