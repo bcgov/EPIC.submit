@@ -37,6 +37,7 @@ import NotesSection from "../../NotesSection";
 import { When } from "react-if";
 import AddRequestSection from "../../AddRequestSection";
 import { NotificationBox } from "./NotificationBox";
+import { get } from "lodash";
 
 type iemReviewForm = yup.InferType<typeof iemReviewSchema>;
 
@@ -83,16 +84,10 @@ export default function ReviewSection() {
 
     return {
       staff: {
-        passedReview:
-          staffAnswers?.passedReview instanceof String
-            ? staffAnswers.passedReview
-            : "",
+        passedReview: get(staffAnswers, "passedReview", ""),
       },
       manager: {
-        passedReview:
-          managerAnswers?.passedReview instanceof String
-            ? managerAnswers.passedReview
-            : "",
+        passedReview: get(managerAnswers, "passedReview", ""),
       },
       update_request: {
         reason: managerAnswers?.reason ?? staffAnswers?.reason ?? "",

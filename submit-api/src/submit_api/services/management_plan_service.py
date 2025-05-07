@@ -206,7 +206,7 @@ class ManagementPlanService:
         return item
 
     @staticmethod
-    def get_package_submitted_to_eao_for(self, package):
+    def get_package_submitted_to_eao_for(package):
         """Get the condition from the package."""
         current_app.logger.info(
             f"Retrieving submitted_to_eao_for for package {package.id}.")

@@ -22,7 +22,6 @@ const createFormMap = {
 };
 
 export const ProponentItemForm = ({ submissionItem }: ItemFormProps) => {
-  console.log(submissionItem.type);
   const Component = createFormMap[submissionItem.type.name];
   return Component ? <Component /> : null;
 };

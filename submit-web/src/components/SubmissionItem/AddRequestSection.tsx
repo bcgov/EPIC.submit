@@ -28,7 +28,6 @@ export default function AddRequestSection({
       packageId: Number(submissionPackageId),
     }).queryKey,
   );
-  console.log(submissionPackage?.items);
   const filteredItems = useMemo(() => {
     if (!submissionPackage?.items) return [];
     return submissionPackage.items.filter(

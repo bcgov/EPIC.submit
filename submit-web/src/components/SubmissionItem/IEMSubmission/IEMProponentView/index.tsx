@@ -178,19 +178,15 @@ export const IemSubmissionProponentView = () => {
   };
 
   const saveAndClose = () => {
-    console.log("A");
     if (!Object.keys(dirtyFields).length) {
-      console.log("B");
       navigate({
         to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
       });
       return;
     }
-    console.log("C");
     const formData = {
       ...methods.getValues(),
     };
-    console.log("D");
     saveSubmission(formData, SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value);
   };
 

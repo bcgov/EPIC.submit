@@ -71,10 +71,6 @@ export const NewPlanDetails = ({
     return undefined;
   }, [formData]);
 
-  console.log(submissionPackageType);
-
-  console.log(formData);
-
   const handleCreateSubmission = () => {
     setNewlyCreatedPlan(true);
     onSubmit({
