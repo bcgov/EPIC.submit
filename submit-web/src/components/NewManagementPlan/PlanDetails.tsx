@@ -29,34 +29,29 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
         formData?.main_condition?.condition_number
     );
 
+  if (isLoading) {
+    return (
+      <TabBox title="Create New Submission">
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <CircularProgress size={40} />
+          </Grid>
+        </Grid>
+      </TabBox>
+    );
+  }
+
   return (
     <TabBox title="Create New Submission">
-      <If condition={isLoading}>
-        <Then>
-          <Grid
-            container
-            sx={{
-              padding: "16px 0px",
-            }}
-            spacing={3}
-          >
-            <Grid item xs={12}>
-              <CircularProgress size={40} />
-            </Grid>
-          </Grid>
-        </Then>
-        <Else>
-          <When condition={Boolean(existingPlan) && !newlyCreatedPlan}>
-            <ExistingPlanDetails existingPlan={existingPlan} />
-          </When>
-          <When condition={!existingPlan}>
-            <NewPlanDetails
-              onSubmit={onSubmit}
-              setNewlyCreatedPlan={setNewlyCreatedPlan}
-            />
-          </When>
-        </Else>
-      </If>
+      <When condition={Boolean(existingPlan) && !newlyCreatedPlan}>
+        <ExistingPlanDetails existingPlan={existingPlan} />
+      </When>
+      <When condition={!existingPlan}>
+        <NewPlanDetails
+          onSubmit={onSubmit}
+          setNewlyCreatedPlan={setNewlyCreatedPlan}
+        />
+      </When>
     </TabBox>
   );
 };
