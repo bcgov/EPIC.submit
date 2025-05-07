@@ -14,7 +14,7 @@
 """Model to handle all complex queries related to Account Project."""
 
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload, contains_eager
+from sqlalchemy.orm import joinedload, contains_eager, aliased
 from submit_api.enums.role import RoleEnum
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User
@@ -192,7 +192,7 @@ class ProjectQueries:
 
     @classmethod
     def _filter_by_submission_status(cls, query, statuses):
-        """Filter by submission status, with special handling for revision required."""
+        """Filter by submission status, with special handling for revision required and update flags."""
         revision_required_value = PackageStatus.REVISION_REQUIRED.value
         update_requested_value = NonCanonicalPackageStatus.UPDATE_REQUESTED.value
         updated_value = NonCanonicalPackageStatus.UPDATED.value
@@ -203,19 +203,16 @@ class ProjectQueries:
         ]
 
         include_revision_required = any(
-            status.value == revision_required_value for status in statuses)
+            status.value == revision_required_value for status in statuses
+        )
         include_update_requested = any(status.value == update_requested_value for status in statuses)
         include_updated = any(status.value == updated_value for status in statuses)
 
-        # Separate normal statuses and check if revision_required is included
         if canonical_statuses:
             query = query.filter(Package.status.op("@>")(canonical_statuses))
 
         if include_revision_required:
             query = cls._revision_required_filter(query)
-
-        if include_update_requested:
-            query = cls._update_requested_filter(query)
 
         if include_update_requested or include_updated:
             query = cls._update_status_filter(query, include_update_requested, include_updated)
@@ -224,11 +221,13 @@ class ProjectQueries:
 
     @classmethod
     def _revision_required_filter(cls, query):
-        """Joins UpdateRequest and filters for packages requiring revision."""
-        return query.join(UpdateRequest).filter(
-            UpdateRequest.submission_package_id == Package.id,
-            UpdateRequest.type == UpdateRequestType.REVIEW.value,
-            UpdateRequest.active.is_(True),
+        """Joins UpdateRequest with alias and filters for packages requiring revision."""
+        ReviewRequest = aliased(UpdateRequest)
+        return query.join(
+            ReviewRequest, ReviewRequest.submission_package_id == Package.id
+        ).filter(
+            ReviewRequest.type == UpdateRequestType.REVIEW.value,
+            ReviewRequest.active.is_(True),
             ~Package.status.op("@>")([
                 PackageStatus.COMPLETED.value,
                 PackageStatus.PARTIALLY_COMPLETED.value,
@@ -237,39 +236,20 @@ class ProjectQueries:
 
     @classmethod
     def _update_status_filter(cls, query, include_update_requested, include_updated):
-        """Join UpdateRequest once and apply appropriate update filters."""
-        query = query.join(UpdateRequest, UpdateRequest.submission_package_id == Package.id)
-
-        conditions = [UpdateRequest.type == UpdateRequestType.UPDATE.value,
-                    UpdateRequest.active.is_(True)]
-
-        if include_update_requested:
-            conditions.append(UpdateRequest.status != UpdateRequestStatus.ACCEPTED.value)
+        """Join UpdateRequest with alias and apply appropriate update filters."""
+        UpdateReq = aliased(UpdateRequest)
+        conditions = [
+            UpdateReq.type == UpdateRequestType.UPDATE.value,
+            UpdateReq.active.is_(True),
+        ]
 
         if include_updated:
-            conditions.append(UpdateRequest.status == UpdateRequestStatus.PENDING_REVIEW.value)
+            conditions.append(UpdateReq.status == UpdateRequestStatus.PENDING_REVIEW.value)
 
-        return query.filter(*conditions)
+        if include_update_requested:
+            conditions.append(UpdateReq.status != UpdateRequestStatus.ACCEPTED.value)
 
-    @classmethod
-    def _update_requested_filter(cls, query):
-        """Joins UpdateRequest and filters for packages with active update requests."""
-        return query.join(UpdateRequest).filter(
-            UpdateRequest.submission_package_id == Package.id,
-            UpdateRequest.type == UpdateRequestType.UPDATE.value,
-            UpdateRequest.active.is_(True),
-            UpdateRequest.status != UpdateRequestStatus.ACCEPTED.value
-        )
-
-    @classmethod
-    def _updated_filter(cls, query):
-        """Joins UpdateRequest and filters for packages with pending review updates."""
-        return query.join(UpdateRequest).filter(
-            UpdateRequest.submission_package_id == Package.id,
-            UpdateRequest.type == UpdateRequestType.UPDATE.value,
-            UpdateRequest.status == UpdateRequestStatus.PENDING_REVIEW.value,
-            UpdateRequest.active.is_(True)
-        )
+        return query.join(UpdateReq, UpdateReq.submission_package_id == Package.id).filter(*conditions)
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):

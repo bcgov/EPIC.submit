@@ -39,7 +39,8 @@ export type SubmissionItemStatus =
   | "UPDATED"
   | "AWAITING_MANAGER_APPROVAL"
   | "REVISION_REQUESTED"
-  | "NO_REVISION_REQUIRED";
+  | "NO_REVISION_REQUIRED"
+  | "UNDER_REVIEW";
 
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
@@ -112,6 +113,10 @@ export const SUBMISSION_ITEM_STATUS: Record<
   NO_REVISION_REQUIRED: {
     value: "NO_REVISION_REQUIRED",
     label: "No Revision Required",
+  },
+  UNDER_REVIEW: {
+    value: "UNDER_REVIEW",
+    label: "Under Review",
   },
 };
 
