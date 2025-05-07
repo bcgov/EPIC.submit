@@ -179,6 +179,16 @@ const statusStyles: Record<string, StyleProps> = {
       width: "78px",
     },
   },
+  REVIEWED: {
+    label: "Reviewed",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+      width: "78px",
+    },
+  },
   NO_REVISION_REQUIRED: {
     label: "No Revision Required",
     sx: {
