@@ -16,14 +16,14 @@
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload, contains_eager
 from submit_api.enums.role import RoleEnum
-from submit_api.models.package import PackageStatus
+from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
 from submit_api.models.user import UserType
 from submit_api.schemas.project import AccountProjectSchema, StaffAccountProjectSchema
 from submit_api.utils.token_info import TokenInfo
-from submit_api.models.update_request import UpdateRequest, UpdateRequestType
+from submit_api.models.update_request import UpdateRequest, UpdateRequestType, UpdateRequestStatus
 
 
 class ProjectQueries:
@@ -194,18 +194,31 @@ class ProjectQueries:
     def _filter_by_submission_status(cls, query, statuses):
         """Filter by submission status, with special handling for revision required."""
         revision_required_value = PackageStatus.REVISION_REQUIRED.value
+        update_requested_value = NonCanonicalPackageStatus.UPDATE_REQUESTED.value
+        updated_value = NonCanonicalPackageStatus.UPDATED.value
 
-        # Separate normal statuses and check if revision_required is included
-        normal_statuses = [
-            status.value for status in statuses if status.value != revision_required_value]
+        canonical_statuses = [
+            status.value for status in statuses
+            if isinstance(status, PackageStatus) and status.value != revision_required_value
+        ]
+
         include_revision_required = any(
             status.value == revision_required_value for status in statuses)
+        include_update_requested = any(status.value == update_requested_value for status in statuses)
+        include_updated = any(status.value == updated_value for status in statuses)
 
-        if normal_statuses:
-            query = query.filter(Package.status.op("@>")(normal_statuses))
+        # Separate normal statuses and check if revision_required is included
+        if canonical_statuses:
+            query = query.filter(Package.status.op("@>")(canonical_statuses))
 
         if include_revision_required:
             query = cls._revision_required_filter(query)
+
+        if include_update_requested:
+            query = cls._update_requested_filter(query)
+
+        if include_update_requested or include_updated:
+            query = cls._update_status_filter(query, include_update_requested, include_updated)
 
         return query
 
@@ -220,6 +233,42 @@ class ProjectQueries:
                 PackageStatus.COMPLETED.value,
                 PackageStatus.PARTIALLY_COMPLETED.value,
             ])
+        )
+
+    @classmethod
+    def _update_status_filter(cls, query, include_update_requested, include_updated):
+        """Join UpdateRequest once and apply appropriate update filters."""
+        query = query.join(UpdateRequest, UpdateRequest.submission_package_id == Package.id)
+
+        conditions = [UpdateRequest.type == UpdateRequestType.UPDATE.value,
+                    UpdateRequest.active.is_(True)]
+
+        if include_update_requested:
+            conditions.append(UpdateRequest.status != UpdateRequestStatus.ACCEPTED.value)
+
+        if include_updated:
+            conditions.append(UpdateRequest.status == UpdateRequestStatus.PENDING_REVIEW.value)
+
+        return query.filter(*conditions)
+
+    @classmethod
+    def _update_requested_filter(cls, query):
+        """Joins UpdateRequest and filters for packages with active update requests."""
+        return query.join(UpdateRequest).filter(
+            UpdateRequest.submission_package_id == Package.id,
+            UpdateRequest.type == UpdateRequestType.UPDATE.value,
+            UpdateRequest.active.is_(True),
+            UpdateRequest.status != UpdateRequestStatus.ACCEPTED.value
+        )
+
+    @classmethod
+    def _updated_filter(cls, query):
+        """Joins UpdateRequest and filters for packages with pending review updates."""
+        return query.join(UpdateRequest).filter(
+            UpdateRequest.submission_package_id == Package.id,
+            UpdateRequest.type == UpdateRequestType.UPDATE.value,
+            UpdateRequest.status == UpdateRequestStatus.PENDING_REVIEW.value,
+            UpdateRequest.active.is_(True)
         )
 
     @classmethod

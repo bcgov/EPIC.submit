@@ -170,10 +170,6 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "SATISFIED",
     label: "Satisfied",
   },
-  PASSED_CONSULTATION_CHECK: {
-    value: "PASSED_CONSULTATION_CHECK",
-    label: "Passed Consultation Check",
-  },
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
@@ -190,6 +186,14 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
+  },
+  UPDATED: {
+    value: "UPDATED",
+    label: "Updated",
+  },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
   },
   REVISION_REQUIRED: {
     value: "REVISION_REQUIRED",
