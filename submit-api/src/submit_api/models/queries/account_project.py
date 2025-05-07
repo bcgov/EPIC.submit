@@ -221,13 +221,13 @@ class ProjectQueries:
 
     @classmethod
     def _revision_required_filter(cls, query):
-        """Joins UpdateRequest with alias and filters for packages requiring revision."""
-        ReviewRequest = aliased(UpdateRequest)
+        """Joins updateRequest with alias and filters for packages requiring revision."""
+        reviewRequest = aliased(UpdateRequest)
         return query.join(
-            ReviewRequest, ReviewRequest.submission_package_id == Package.id
+            reviewRequest, reviewRequest.submission_package_id == Package.id
         ).filter(
-            ReviewRequest.type == UpdateRequestType.REVIEW.value,
-            ReviewRequest.active.is_(True),
+            reviewRequest.type == UpdateRequestType.REVIEW.value,
+            reviewRequest.active.is_(True),
             ~Package.status.op("@>")([
                 PackageStatus.COMPLETED.value,
                 PackageStatus.PARTIALLY_COMPLETED.value,
@@ -236,20 +236,20 @@ class ProjectQueries:
 
     @classmethod
     def _update_status_filter(cls, query, include_update_requested, include_updated):
-        """Join UpdateRequest with alias and apply appropriate update filters."""
-        UpdateReq = aliased(UpdateRequest)
+        """Join updateRequest with alias and apply appropriate update filters."""
+        updateReq = aliased(UpdateRequest)
         conditions = [
-            UpdateReq.type == UpdateRequestType.UPDATE.value,
-            UpdateReq.active.is_(True),
+            updateReq.type == UpdateRequestType.UPDATE.value,
+            updateReq.active.is_(True),
         ]
 
         if include_updated:
-            conditions.append(UpdateReq.status == UpdateRequestStatus.PENDING_REVIEW.value)
+            conditions.append(updateReq.status == UpdateRequestStatus.PENDING_REVIEW.value)
 
         if include_update_requested:
-            conditions.append(UpdateReq.status != UpdateRequestStatus.ACCEPTED.value)
+            conditions.append(updateReq.status != UpdateRequestStatus.ACCEPTED.value)
 
-        return query.join(UpdateReq, UpdateReq.submission_package_id == Package.id).filter(*conditions)
+        return query.join(updateReq, updateReq.submission_package_id == Package.id).filter(*conditions)
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):

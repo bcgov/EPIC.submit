@@ -15,6 +15,7 @@ from .db import db
 
 class NonCanonicalPackageStatus(enum.Enum):
     """Enum for non-canonical package statuses."""
+
     UPDATED = "UPDATED"
     UPDATE_REQUESTED = "UPDATE_REQUESTED"
 
