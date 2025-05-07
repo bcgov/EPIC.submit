@@ -122,17 +122,9 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "NEW_SUBMISSION",
     label: "New Submission",
   },
-  UPDATE_REQUESTED: {
-    value: "UPDATE_REQUESTED",
-    label: "Update Requested",
-  },
   UPDATED: {
     value: "UPDATED",
     label: "Updated",
-  },
-  COMPLETED: {
-    value: "COMPLETED",
-    label: "Completed",
   },
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
@@ -142,6 +134,18 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "SUBMITTED",
     label: "Submitted",
   },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
+  },
+  REVISION_REQUESTED: {
+    value: "REVISION_REQUESTED",
+    label: "Revision Requested",
+  },
+  AWAITING_MANAGER_APPROVAL: {
+    value: "AWAITING_MANAGER_APPROVAL",
+    label: "Awaiting Manager Approval",
+  },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
     label: "Failed Consultation Check",
@@ -150,17 +154,9 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
   },
-  APPROVED: {
-    value: "APPROVED",
-    label: "Approved",
-  },
-  NO_REVISION_REQUIRED: {
-    value: "NO_REVISION_REQUIRED",
-    label: "No Revision Required",
-  },
-  REVISION_REQUESTED: {
-    value: "REVISION_REQUESTED",
-    label: "Revision Requested",
+  COMPLETED: {
+    value: "COMPLETED",
+    label: "Completed",
   },
   REVIEWED: {
     value: "REVIEWED",
@@ -174,9 +170,17 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "SATISFIED",
     label: "Satisfied",
   },
-  AWAITING_MANAGER_APPROVAL: {
-    value: "AWAITING_MANAGER_APPROVAL",
-    label: "Awaiting Manager Approval",
+  PASSED_CONSULTATION_CHECK: {
+    value: "PASSED_CONSULTATION_CHECK",
+    label: "Passed Consultation Check",
+  },
+  APPROVED: {
+    value: "APPROVED",
+    label: "Approved",
+  },
+  NO_REVISION_REQUIRED: {
+    value: "NO_REVISION_REQUIRED",
+    label: "No Revision Required",
   },
 };
 
