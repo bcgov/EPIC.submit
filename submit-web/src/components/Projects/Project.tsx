@@ -68,7 +68,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
         >
           <CardInnerBox>
             <Typography variant="h4" fontWeight={400}>
-              Management Plans
+              Submissions
             </Typography>
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
           </CardInnerBox>

@@ -28,7 +28,7 @@ import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { When } from "react-if";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -39,7 +39,7 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey
+      .queryKey,
   );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
@@ -59,7 +59,7 @@ export default function SubmissionPage() {
   const isLatestApprovedPackageVersion = packageVersions?.find(
     (packageVersion) =>
       packageVersion.is_approved &&
-      packageVersion.package_id === submissionPackageId
+      packageVersion.package_id === submissionPackageId,
   );
 
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ export default function SubmissionPage() {
           >
             <Box sx={{ pb: BCDesignTokens.layoutPaddingSmall }}>
               <Typography variant="h4" fontWeight={400}>
-                Management Plans
+                Submissions
               </Typography>
               <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
             </Box>

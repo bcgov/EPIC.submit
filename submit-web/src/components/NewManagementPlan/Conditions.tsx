@@ -137,7 +137,7 @@ export const Conditions = () => {
             color={BCDesignTokens.typographyColorPlaceholder}
             mb={1}
           >
-            Please note: you can only submit one Management Plan per submission
+            Please note: you can only submit one submission per condition.
           </Typography>
         </Grid>
         <Grid item xs md={6} lg={4}>

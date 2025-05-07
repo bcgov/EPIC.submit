@@ -55,7 +55,7 @@ export const SubmissionFormContainer = ({
         >
           <CardInnerBox sx={{ pl: 0, pb: BCDesignTokens.layoutPaddingMedium }}>
             <Typography variant="h4" fontWeight={400}>
-              Management Plans
+              Submissions
             </Typography>
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
           </CardInnerBox>
