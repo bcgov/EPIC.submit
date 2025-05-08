@@ -5,14 +5,12 @@ Manages the item
 
 from __future__ import annotations
 
-from collections import defaultdict
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from ..enums.item_status import ItemStatus
 from .base_model import BaseModel
 from .db import db
-from submit_api.models.submission import SubmissionStatus
 
 
 class Item(BaseModel):
