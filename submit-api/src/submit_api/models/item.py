@@ -12,7 +12,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from ..enums.item_status import ItemStatus
 from .base_model import BaseModel
 from .db import db
-from submit_api.models.submission import SubmissionStatus
+from submit_api.models.submission import SubmissionStatus, Submission
 
 
 class Item(BaseModel):
@@ -51,11 +51,14 @@ class Item(BaseModel):
     @property
     def submitted_submissions(self):
         """Return the latest visible submission for each submission thread."""
-
-        print(f"[DEBUG] Item {self.id}: Processing submissions")
+        # Query all submissions directly, including inactive ones
+        all_submissions = Submission.query.filter_by(
+            item_id=self.id,
+            deleted=False  # Still filter out deleted ones
+        ).order_by(Submission.created_date.asc()).all()
 
         grouped = defaultdict(list)
-        for sub in self.submissions:
+        for sub in all_submissions:
             root_id = sub.root_submission_id or sub.id
             grouped[root_id].append(sub)
 
@@ -64,17 +67,15 @@ class Item(BaseModel):
             sorted_group = sorted(
                 group, key=lambda s: (s.major_version, s.minor_version), reverse=True
             )
-            for s in sorted_group:
-                print(
-                    f"[DEBUG] Submission ID: {s.id}, Status: {s.status}, Version: {s.version}"
-                )
+            
+            # Find the most recent non-PENDING submission
             visible = next(
                 (s for s in sorted_group if s.status != SubmissionStatus.PENDING), None
             )
+       
             if visible:
                 result.append(visible)
-
-        print(f"[DEBUG] Returning {len(result)} submissions")
+              
         return result
 
     @hybrid_property

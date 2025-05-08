@@ -41,7 +41,6 @@ export default function StaffSubmissionItemTableRow({
 
   const { submitted_on } = submissionPackage;
 
-  console.log(submitted_submissions);
   const name = item.type.name;
   const hasDocument =
     item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
