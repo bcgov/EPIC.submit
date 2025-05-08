@@ -148,9 +148,8 @@ export default function ReviewSection() {
               variant="body1"
               sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
             >
-              Based on the above information, has the holder passed the
-              Independent Environmental Monitor Terms of Engagement Review for
-              the {submissionPackage?.name}?
+              Based on the above information, has the holder passed the review
+              of the Independent Environmental Monitor Terms of Engagement?
             </Typography>
 
             <ControlledRadioGroup
