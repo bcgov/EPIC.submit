@@ -11,19 +11,21 @@ import {
   Typography,
 } from "@mui/material";
 import { When } from "react-if";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useManagementPlanForm } from "./formStore";
 import { theme } from "@/styles/theme";
 import WarningBox from "../Shared/WarningBox";
 import { BCDesignTokens } from "epic.theme";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { NewManagementPlanForm } from "./types";
+import { get } from "lodash";
+import { SubmissionPackageType } from "../Shared/types";
 
 const YES = "yes";
 const NO = "no";
 
 type NewPlanDetailsProps = {
-  onSubmit: (formData: NewManagementPlanForm) => void;
+  onSubmit: (formData: Partial<NewManagementPlanForm>) => void;
   setNewlyCreatedPlan: (newlyCreatedPlan: boolean) => void;
 };
 
@@ -39,7 +41,7 @@ export const NewPlanDetails = ({
   });
 
   const handleIsCorrectChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setIsCorrect(event.target.value);
   };
@@ -54,25 +56,36 @@ export const NewPlanDetails = ({
   const handleBack = () => {
     setStep(Math.min(step - 1, 0));
   };
+  const managementPlanName =
+    get(formData, "main_condition.condition_attributes.deliverable_name[0]") ??
+    get(formData, "main_condition.condition_name");
+
+  const submissionPackageType = useMemo(() => {
+    const type = get(formData, "main_condition.condition_attributes");
+    if (get(type, "requires_iem_terms_of_engagement") === "true") {
+      return SubmissionPackageType.IEM;
+    }
+    if (get(type, "requires_management_plan") === "true") {
+      return SubmissionPackageType.MANAGEMENT_PLAN;
+    }
+    return undefined;
+  }, [formData]);
 
   const handleCreateSubmission = () => {
-    const mainCondition = formData?.main_condition;
-    const managementPlanName =
-      mainCondition?.condition_attributes?.deliverable_name[0] ||
-      mainCondition?.condition_name;
     setNewlyCreatedPlan(true);
     onSubmit({
       name: {
         label: managementPlanName || "",
         value: managementPlanName || "",
       },
+      type: submissionPackageType,
       ...formData,
     });
   };
 
   const mainCondition = formData?.main_condition;
   const consultedParties = Array.isArray(
-    mainCondition?.condition_attributes?.parties_required_to_be_consulted
+    mainCondition?.condition_attributes?.parties_required_to_be_consulted,
   )
     ? mainCondition?.condition_attributes?.parties_required_to_be_consulted
     : [];
@@ -91,7 +104,7 @@ export const NewPlanDetails = ({
           variant="body1"
           fontWeight={theme.typography.fontWeightBold}
         >
-          {mainCondition?.condition_attributes?.deliverable_name[0]}
+          {managementPlanName}
         </Typography>
       </Grid>
       <Grid item xs={12}>

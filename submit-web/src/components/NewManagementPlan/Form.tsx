@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { NewManagementPlanForm } from "./types";
 
 type FormProps = {
-  onSubmit: (formData: NewManagementPlanForm) => void;
+  onSubmit: (formData: Partial<NewManagementPlanForm>) => void;
 };
 export const Form = ({ onSubmit }: FormProps) => {
   const { reset } = useManagementPlanForm();

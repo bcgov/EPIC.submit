@@ -6,6 +6,7 @@ export const S3_FOLDER = {
   SUPPORTING_DOCUMENTS: "supporting_documents",
   CONSULTATION_RECORDS: "consultation_records",
   SUBMISSIONS: "submissions",
+  IEMS: "iems",
 };
 
 type AuthHeaderRequestData = {
@@ -24,7 +25,9 @@ type PresignedUrlRequestPayload = {
   relative_url?: string;
   action?: string;
 };
-const fetchPresignedUrl = async (requestPayload: PresignedUrlRequestPayload) => {
+const fetchPresignedUrl = async (
+  requestPayload: PresignedUrlRequestPayload,
+) => {
   const response = await documentRequest({
     url: "/storage-operations/presigned-urls",
     params: { "public-read": false },
@@ -35,7 +38,7 @@ const fetchPresignedUrl = async (requestPayload: PresignedUrlRequestPayload) => 
   if (!response?.presigned_url) {
     throw new Error("Failed to fetch pre-signed URL");
   }
-  
+
   return response;
 };
 
@@ -79,7 +82,7 @@ const getObject = (presignedUrl: string) => {
 export const downloadObject = async (file: AuthHeaderRequestData) => {
   const presignedUrlData = await fetchPresignedUrl({
     relative_url: file.s3sourceuri,
-    action: PresignedUrlAction.GET
+    action: PresignedUrlAction.GET,
   });
 
   return getObject(presignedUrlData.presigned_url);
@@ -92,7 +95,7 @@ type DeleteDocumentProps = {
 export const deleteDocument = async (data: DeleteDocumentProps) => {
   const presignedUrlData = await fetchPresignedUrl({
     relative_url: data.filepath,
-    action: PresignedUrlAction.DELETE
+    action: PresignedUrlAction.DELETE,
   });
 
   return requestAxios({

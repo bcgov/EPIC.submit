@@ -45,12 +45,12 @@ const Uploader = ({
       onDrop={(acceptedFiles, rejectedFiles) => {
         // Check if any files exceed the maximum size
         const oversizedFiles = rejectedFiles.filter(
-          (file) => file.file.size > maxSize
+          (file) => file.file.size > maxSize,
         );
 
         if (oversizedFiles.length > 0) {
           setSizeError(
-            `This file exceeds the ${maxSize / (1024 * 1024)} MB limit.`
+            `This file exceeds the ${maxSize / (1024 * 1024)} MB limit.`,
           );
           setFileCountError(null);
           return;

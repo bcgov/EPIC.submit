@@ -6,6 +6,7 @@ import { Case, Switch } from "react-if";
 import { ManagementPlanSubmissionStaffView } from "../ManagementPlanSubmission/ManagementPlanStaffView";
 import { ConsultationRecordStaffView } from "../ConsultationRecord/ConsultationRecordStaffView";
 import { ContactInformationStaffView } from "../ContactInformation/ContactInformationStaffView";
+import { IEMStaffView } from "../IEMSubmission/IEMStaffView";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
@@ -33,6 +34,9 @@ export const StaffItemForm = ({ submissionItem }: ItemFormProps) => {
         }
       >
         <ConsultationRecordStaffView />
+      </Case>
+      <Case condition={submissionItem.type.name === SUBMISSION_ITEM_TYPE.IEM}>
+        <IEMStaffView />
       </Case>
     </Switch>
   );

@@ -9,7 +9,7 @@ import { When } from "react-if";
 import { useState } from "react";
 
 type PlanDetailsProps = {
-  onSubmit: (formData: NewManagementPlanForm) => void;
+  onSubmit: (formData: Partial<NewManagementPlanForm>) => void;
 };
 
 export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
@@ -25,7 +25,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
     .find(
       (pkg) =>
         pkg?.meta?.main_condition?.condition_number ===
-        formData?.main_condition?.condition_number
+        formData?.main_condition?.condition_number,
     );
 
   return (

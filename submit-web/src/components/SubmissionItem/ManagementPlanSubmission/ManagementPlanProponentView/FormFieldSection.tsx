@@ -9,9 +9,10 @@ import { useParams } from "@tanstack/react-router";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useMemo } from "react";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-interface FormFieldSectionProps {
-  errors: FieldErrors<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
-}
+
+type FormFieldSectionProps = Readonly<{
+  errors: FieldErrors<ManagementPlanSubmissionForm>;
+}>;
 
 export default function FormFieldSection({ errors }: FormFieldSectionProps) {
   const {

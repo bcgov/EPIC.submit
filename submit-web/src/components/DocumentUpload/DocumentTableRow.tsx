@@ -40,7 +40,7 @@ export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
       borderTopRightRadius: 5,
       borderBottomRightRadius: 5,
     },
-  })
+  }),
 );
 
 export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
@@ -51,7 +51,7 @@ export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
     "&:hover": {
       backgroundColor: BCDesignTokens.themeBlue40,
     },
-  })
+  }),
 );
 
 export const DocumentTableCell = styled(TableCell)(() => ({
@@ -82,7 +82,7 @@ export const PackageTableRow = ({
   const childrenWithProps = React.Children.map(children, (child) =>
     React.isValidElement(child)
       ? React.cloneElement(child, { error } as any)
-      : child
+      : child,
   );
 
   return <StyledTableRow {...otherProps}>{childrenWithProps}</StyledTableRow>;
@@ -112,7 +112,10 @@ export default function DocumentTableRow({
     try {
       if (pendingGetObject) return;
       setPendingGetObject(true);
-      await getObjectFromS3({ name: submitted_document.name, url: submitted_document.url });
+      await getObjectFromS3({
+        name: submitted_document.name,
+        url: submitted_document.url,
+      });
     } catch (e) {
       notify.error("Failed to download submission");
     } finally {
@@ -127,7 +130,7 @@ export default function DocumentTableRow({
     const newValue = prev.filter(
       (value) =>
         value !== submitted_document.url && // filter out URL for uploaded documents
-        value !== submitted_document.name // filter out filename for pending documents
+        value !== submitted_document.name, // filter out filename for pending documents
     );
 
     setValue(formFieldName, newValue, { shouldValidate: true });

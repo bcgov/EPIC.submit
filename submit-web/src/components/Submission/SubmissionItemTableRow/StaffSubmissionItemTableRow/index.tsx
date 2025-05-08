@@ -21,6 +21,8 @@ import { SubmissionItemTableRowProps } from "..";
 import SubmissionItemReviewConfirmation from "../../SubmissionItemReviewConfirmation";
 import DocumentRow from "../../DocumentRow";
 import StaffStatusCell from "./StaffStatusCell";
+import { useMemo } from "react";
+import { SubmissionItemTypeLabelMap } from "../constant";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -41,7 +43,13 @@ export default function StaffSubmissionItemTableRow({
 
   const { submitted_on } = submissionPackage;
 
-  const name = item.type.name;
+  const name = useMemo(() => {
+    if (Object.keys(SubmissionItemTypeLabelMap).includes(item.type.name)) {
+      return SubmissionItemTypeLabelMap[item.type.name];
+    }
+    return item.type.name;
+  }, [item.type.name]);
+
   const hasDocument =
     item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
 

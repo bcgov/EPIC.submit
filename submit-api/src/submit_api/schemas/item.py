@@ -116,6 +116,10 @@ def get_item_status(status, user_type):
             UserType.PROPONENT: ItemStatus.UNDER_REVIEW.value,
             UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value
         },
+        ItemStatus.IEM_AWAITING_MANAGER_APPROVAL.value: {
+            UserType.PROPONENT: ItemStatus.UNDER_REVIEW.value,
+            UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value
+        },
         ItemStatus.REVIEW_REJECTED.value: {
             UserType.PROPONENT: ItemStatus.REVISION_REQUIRED.value,
             UserType.STAFF: ItemStatus.REVIEW_REJECTED.value
