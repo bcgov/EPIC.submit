@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 import {
   Chip,
@@ -16,17 +16,20 @@ import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
 import { ConsultationRecordForm } from "../constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { SubmissionPackageType } from "@/components/Shared/types";
 
 type FormFieldSectionProps = Readonly<{
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   errors: FieldErrors<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
   partiesList: Array<string>;
+  packageType: SubmissionPackageType;
 }>;
 
 export default function FormFieldSection({
   methods,
   errors,
   partiesList,
+  packageType,
 }: FormFieldSectionProps) {
   const { fields, append, remove } = useFieldArray({
     control: methods.control,
@@ -51,6 +54,26 @@ export default function FormFieldSection({
     methods.trigger("consultedParties");
   };
 
+  const MANAGEMENT_PLAN = useMemo(() => {
+    if (packageType === SubmissionPackageType.MANAGEMENT_PLAN) {
+      return "Management Plan";
+    }
+    if (packageType === SubmissionPackageType.IEM) {
+      return "Individual Environmental Monitoring Plan Terms of Engagement";
+    }
+    return "";
+  }, [packageType]);
+
+  const PLAN = useMemo(() => {
+    if (packageType === SubmissionPackageType.MANAGEMENT_PLAN) {
+      return "plan";
+    }
+    if (packageType === SubmissionPackageType.IEM) {
+      return "Individual Environmental Monitoring Plan Terms of Engagement";
+    }
+    return "";
+  }, [packageType]);
+
   return (
     <>
       <Grid item xs={12}>
@@ -70,7 +93,7 @@ export default function FormFieldSection({
             <Typography variant="body1">
               These parties have been identified as requiring consultation.
               Please include any additional parties that have been consulted
-              while developing this Management Plan.
+              while developing this {MANAGEMENT_PLAN}.
             </Typography>
           </Grid>
         </Grid>
@@ -170,7 +193,7 @@ export default function FormFieldSection({
         <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
           <Typography variant="body1">
             Were all parties listed above consulted/engaged on the development
-            of this plan?
+            of this {PLAN}?
           </Typography>
           <ControlledRadioGroup name="allPartiesConsulted">
             <YesNoRadioOptions error={Boolean(errors["allPartiesConsulted"])} />
@@ -178,8 +201,8 @@ export default function FormFieldSection({
         </Grid>
         <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
           <Typography variant="body1">
-            Was the plan provided to all parties listed above for review and
-            comment during plan development?
+            Was the {PLAN} provided to all parties listed above for review and
+            comment during {PLAN} development?
           </Typography>
           <ControlledRadioGroup name="planWasReviewed">
             <YesNoRadioOptions error={Boolean(errors["planWasReviewed"])} />
@@ -189,7 +212,7 @@ export default function FormFieldSection({
           <Typography variant="body1">
             Have written explanations been provided to each party listed above
             on how comments were fully and impartially considered and addressed
-            in the plan?
+            in the {PLAN}?
           </Typography>
           <ControlledRadioGroup name="writtenExplanationsProvidedToParties">
             <YesNoRadioOptions
@@ -199,7 +222,7 @@ export default function FormFieldSection({
         </Grid>
         <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
           <Typography variant="body1">
-            For comments not addressed in this plan, have written explanations
+            For comments not addressed in this {PLAN}, have written explanations
             been provided to the commenters as to why the comments were not
             addressed?
           </Typography>

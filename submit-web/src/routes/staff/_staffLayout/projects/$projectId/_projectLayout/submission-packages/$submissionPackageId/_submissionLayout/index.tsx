@@ -98,7 +98,7 @@ export default function SubmissionPage() {
           >
             <Box sx={{ pb: BCDesignTokens.layoutPaddingSmall }}>
               <Typography variant="h4" fontWeight={400}>
-                Submissions
+                Management Plans and Related Documents
               </Typography>
               <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
             </Box>

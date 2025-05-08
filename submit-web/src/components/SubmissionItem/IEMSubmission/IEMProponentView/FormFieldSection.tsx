@@ -8,7 +8,7 @@ import { useParams } from "@tanstack/react-router";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useMemo } from "react";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { IemSubmissionForm } from ".";
+import { IemSubmissionForm } from "./constants";
 
 type FormFieldSectionProps = Readonly<{
   errors: FieldErrors<IemSubmissionForm>;
@@ -53,8 +53,9 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
           <Typography variant="body1">
             If the condition(s) associated with the Independent Environmental
             Monitor Terms of Engagement references other documents, in whole or
-            part (e.g., project application sections), does the plan address all
-            requirements within the referenced document(s)?
+            part (e.g., project application sections), does the Independent
+            Environmental Monitor Terms of Engagement address all requirements
+            within the referenced document(s)?
           </Typography>
           <ControlledRadioGroup name="allRequirementsAddressed">
             <YesNoRadioOptions

@@ -14,7 +14,7 @@ import { get } from "lodash";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useParams } from "@tanstack/react-router";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { IemSubmissionForm } from "../IEMProponentView";
+import { IemSubmissionForm } from "../IEMProponentView/constants";
 
 const defaultFormData = {
   conditionSatisfied: "",

@@ -1,9 +1,10 @@
+import { SubmissionPackageType } from "@/components/Shared/types";
 import { SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
 
 export type PackageType = {
   id: number;
-  name: string;
+  name: SubmissionPackageType;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus

@@ -10,6 +10,8 @@ import { When } from "react-if";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "../constants";
 import { useFormVisibilityStore } from "@/store/hideFormStore";
+import { SubmissionPackageType } from "@/components/Shared/types";
+import { useMemo } from "react";
 
 const defaultFormData = {
   consultedParties: [],
@@ -25,16 +27,38 @@ type FormFieldSectionProps = Readonly<{
   formData: Partial<ConsultationRecordForm>;
   partiesList: Array<string>;
   submissionId: number;
+  packageType: SubmissionPackageType;
 }>;
 
 export default function FormFieldSection({
   formData = defaultFormData,
   partiesList,
   submissionId,
+  packageType,
 }: FormFieldSectionProps) {
   const { getFormVisibility, setFormVisibility } = useFormVisibilityStore();
   const isHidden = getFormVisibility(submissionId);
   const mergedFormData = { ...defaultFormData, ...formData };
+
+  const MANAGEMENT_PLAN = useMemo(() => {
+    if (packageType === SubmissionPackageType.MANAGEMENT_PLAN) {
+      return "Management Plan";
+    }
+    if (packageType === SubmissionPackageType.IEM) {
+      return "Individual Environmental Monitoring Plan Terms of Engagement";
+    }
+    return "";
+  }, [packageType]);
+
+  const PLAN = useMemo(() => {
+    if (packageType === SubmissionPackageType.MANAGEMENT_PLAN) {
+      return "plan";
+    }
+    if (packageType === SubmissionPackageType.IEM) {
+      return "Individual Environmental Monitoring Plan Terms of Engagement";
+    }
+    return "";
+  }, [packageType]);
 
   return (
     <>
@@ -87,7 +111,7 @@ export default function FormFieldSection({
               <Typography variant="body1">
                 These parties have been identified as requiring consultation.
                 Please include any additional parties that have been consulted
-                while developing this Management Plan.
+                while developing this {MANAGEMENT_PLAN}.
               </Typography>
             </Grid>
           </Grid>
@@ -120,7 +144,7 @@ export default function FormFieldSection({
           <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
             <Typography variant="body1">
               Were all parties listed above consulted/engaged on the development
-              of this plan?
+              of this {PLAN}?
             </Typography>
             <RadioGroup value={mergedFormData.allPartiesConsulted}>
               <YesNoRadioOptions disabled error={false} />
@@ -128,8 +152,8 @@ export default function FormFieldSection({
           </Grid>
           <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
             <Typography variant="body1">
-              Was the plan provided to all parties listed above for review and
-              comment during plan development?
+              Was the {PLAN} provided to all parties listed above for review and
+              comment during {PLAN} development?
             </Typography>
             <RadioGroup value={mergedFormData.planWasReviewed}>
               <YesNoRadioOptions disabled error={false} />
@@ -139,7 +163,7 @@ export default function FormFieldSection({
             <Typography variant="body1">
               Have written explanations been provided to each party listed above
               on how comments were fully and impartially considered and
-              addressed in the plan?
+              addressed in the {PLAN}?
             </Typography>
             <RadioGroup
               value={mergedFormData.writtenExplanationsProvidedToParties}
@@ -149,9 +173,9 @@ export default function FormFieldSection({
           </Grid>
           <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
             <Typography variant="body1">
-              For comments not addressed in this plan, have written explanations
-              been provided to the commenters as to why the comments were not
-              addressed?
+              For comments not addressed in this {PLAN}, have written
+              explanations been provided to the commenters as to why the
+              comments were not addressed?
             </Typography>
             <RadioGroup
               value={mergedFormData.writtenExplanationsProvidedToCommenters}

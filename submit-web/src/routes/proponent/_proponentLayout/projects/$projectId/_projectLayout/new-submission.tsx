@@ -120,7 +120,7 @@ export function NewManagementPlan() {
             }}
           >
             <Typography variant="h4" fontWeight={400}>
-              Submissions
+              Management Plans and Related Documents
             </Typography>
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
             <Box
