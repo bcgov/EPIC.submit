@@ -4,6 +4,7 @@ Manages the item schema
 """
 
 from marshmallow import EXCLUDE, Schema, fields, pre_dump, post_dump
+from collections import defaultdict
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionType, SubmissionStatus
@@ -30,7 +31,8 @@ class ItemSubmissionSchema(Schema):
     type = fields.Enum(data_key="type", enum=SubmissionType)
     submitted_document_id = fields.Int(data_key="submitted_document_id")
     submitted_form_id = fields.Int(data_key="submitted_form_id")
-    submitted_form = fields.Nested(SubmittedFormSchema, data_key="submitted_form")
+    submitted_form = fields.Nested(
+        SubmittedFormSchema, data_key="submitted_form")
     submitted_document = fields.Nested(
         SubmittedDocumentSchema, data_key="submitted_document"
     )
@@ -69,7 +71,8 @@ class ItemSchema(Schema):
     version = fields.Int(data_key="version")
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
-    submissions = fields.Nested(ItemSubmissionSchema, data_key="submissions", many=True)
+    submissions = fields.Nested(
+        ItemSubmissionSchema, data_key="submissions", many=True)
     sort_order = fields.Int(data_key="sort_order")
 
     @post_dump
@@ -154,3 +157,35 @@ class StaffItemSchema(ItemSchema):
         many=True,
         attribute="submitted_submissions",
     )
+
+    @post_dump
+    def filter_submitted_submissions(self, data, **kwargs):
+        """Filter submissions to only show non-PENDING and non-PENDING_REPLACEMENT."""
+        item = self.context.get('obj')
+        if not item:
+            return data
+
+        grouped = defaultdict(list)
+        for sub in item.submissions:
+            root_id = sub.root_submission_id or sub.id
+            grouped[root_id].append(sub)
+
+        result = []
+        for group in grouped.values():
+            sorted_group = sorted(
+                group, key=lambda s: (s.major_version, s.minor_version), reverse=True
+            )
+
+            # Find the most recent non-PENDING and non-PENDING_REPLACEMENT submission
+            visible = next(
+                (s for s in sorted_group if s.status not in [
+                    SubmissionStatus.PENDING,
+                    SubmissionStatus.PENDING_REPLACEMENT
+                ]), None
+            )
+
+            if visible:
+                result.append(visible)
+
+        data['submitted_submissions'] = result
+        return data

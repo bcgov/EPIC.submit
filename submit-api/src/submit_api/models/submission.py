@@ -27,6 +27,7 @@ class SubmissionStatus(enum.Enum):
     REJECTED = 'REJECTED'
     APPROVED = 'APPROVED'
     PENDING = 'PENDING'
+    PENDING_REPLACEMENT = 'PENDING_REPLACEMENT'
 
 
 class Submission(BaseModel):
@@ -35,19 +36,26 @@ class Submission(BaseModel):
     __tablename__ = 'submissions'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    submitted_form_id = Column(db.Integer, ForeignKey('submitted_forms.id'), nullable=True)
+    submitted_form_id = Column(db.Integer, ForeignKey(
+        'submitted_forms.id'), nullable=True)
     item_id = Column(db.Integer, ForeignKey('items.id'), nullable=False)
     type = Column(Enum(SubmissionType), nullable=False)
-    submitted_document_id = Column(db.Integer, ForeignKey('submitted_documents.id'), nullable=True)
-    submitted_form = db.relationship('SubmittedForm', foreign_keys=[submitted_form_id], lazy='joined')
-    submitted_document = db.relationship('SubmittedDocument', foreign_keys=[submitted_document_id], lazy='joined')
-    created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
-    submitted_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')
+    submitted_document_id = Column(db.Integer, ForeignKey(
+        'submitted_documents.id'), nullable=True)
+    submitted_form = db.relationship('SubmittedForm', foreign_keys=[
+                                     submitted_form_id], lazy='joined')
+    submitted_document = db.relationship('SubmittedDocument', foreign_keys=[
+                                         submitted_document_id], lazy='joined')
+    created_by = Column(db.String, ForeignKey(
+        'users.auth_guid'), nullable=False)
+    submitted_by_user = db.relationship(
+        'User', foreign_keys=[created_by], lazy='joined')
     major_version = Column(db.Integer, nullable=False, default=1)
     minor_version = Column(db.Integer, nullable=False, default=1)
     active = Column(db.Boolean, nullable=False, default=True)
     deleted = Column(db.Boolean, nullable=False, default=False)
-    status = Column(Enum(SubmissionStatus), nullable=True, default=SubmissionStatus.PENDING)
+    status = Column(Enum(SubmissionStatus), nullable=True,
+                    default=SubmissionStatus.PENDING)
     root_submission_id = Column(db.Integer, ForeignKey('submissions.id'),
                                 nullable=True)  # the base or root id of submisison
 

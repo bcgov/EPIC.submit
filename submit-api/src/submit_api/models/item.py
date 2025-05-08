@@ -12,7 +12,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from ..enums.item_status import ItemStatus
 from .base_model import BaseModel
 from .db import db
-from submit_api.models.submission import SubmissionStatus, Submission
+from submit_api.models.submission import SubmissionStatus
 
 
 class Item(BaseModel):
@@ -40,46 +40,15 @@ class Item(BaseModel):
                             backref="item", lazy="select")
     reviewed_on = Column(db.DateTime, nullable=True)
     review_start_date = Column(db.DateTime, nullable=True)
-    # Main relationship for all non-deleted submissions
-    all_submissions = db.relationship(
+    submissions = db.relationship(
         "Submission",
         lazy="joined",
-        primaryjoin="and_(Submission.item_id == Item.id, Submission.deleted.is_(False))",
+        primaryjoin="and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))",
         order_by="Submission.created_date.asc()",
     )
 
     # add unique constraint package_id and type_id
     __table_args__ = (db.UniqueConstraint("package_id", "type_id"),)
-
-    @property
-    def submissions(self):
-        """Get only active submissions."""
-        return [sub for sub in self.all_submissions if sub.active]
-
-    @property
-    def submitted_submissions(self):
-        """Return the latest visible submission for each submission thread."""
-        grouped = defaultdict(list)
-        for sub in self.all_submissions:  # Use the main relationship
-            root_id = sub.root_submission_id or sub.id
-            grouped[root_id].append(sub)
-
-        result = []
-        for group in grouped.values():
-            sorted_group = sorted(
-                group, key=lambda s: (s.major_version, s.minor_version), reverse=True
-            )
-
-            # Find the most recent non-PENDING submission
-            visible = next(
-                (s for s in sorted_group if s.status !=
-                 SubmissionStatus.PENDING), None
-            )
-
-            if visible:
-                result.append(visible)
-
-        return result
 
     @hybrid_property
     def review(self):
