@@ -142,7 +142,6 @@ class StaffItemSchema(ItemSchema):
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
-
         unknown = EXCLUDE
 
     internal_staff_documents = fields.Nested(
@@ -151,22 +150,12 @@ class StaffItemSchema(ItemSchema):
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
     notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)
     review_start_date = fields.DateTime(data_key="review_start_date")
-    submitted_submissions = fields.Nested(
-        ItemSubmissionSchema,
-        data_key="submitted_submissions",
-        many=True,
-        attribute="submitted_submissions",
-    )
+    submitted_submissions = fields.Method('get_submitted_submissions')
 
-    @post_dump
-    def filter_submitted_submissions(self, data, **kwargs):
-        """Filter submissions to only show non-PENDING and non-PENDING_REPLACEMENT."""
-        item = self.context.get('obj')
-        if not item:
-            return data
-
+    def get_submitted_submissions(self, obj):
+        """Get only non-PENDING and non-PENDING_REPLACEMENT submissions."""
         grouped = defaultdict(list)
-        for sub in item.submissions:
+        for sub in obj.submissions:
             root_id = sub.root_submission_id or sub.id
             grouped[root_id].append(sub)
 
@@ -185,7 +174,7 @@ class StaffItemSchema(ItemSchema):
             )
 
             if visible:
-                result.append(visible)
+                # Serialize the submission using ItemSubmissionSchema
+                result.append(ItemSubmissionSchema().dump(visible))
 
-        data['submitted_submissions'] = result
-        return data
+        return result
