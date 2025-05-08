@@ -30,8 +30,6 @@ import {
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
 import { iemReviewSchema, RadioOptions } from "./constants";
-import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { SubmissionPackage } from "@/models/Package";
 import ActionButtons from "./ActionButtons";
 import NotesSection from "../../NotesSection";
 import { When } from "react-if";
@@ -54,7 +52,7 @@ export default function ReviewSection() {
   const isStaff = useMemo(() => checkIfStaff(roles), [roles]);
   const isManager = useMemo(() => checkIfManager(roles), [roles]);
 
-  const { submissionId: submissionItemId, submissionPackageId } = useParams({
+  const { submissionId: submissionItemId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
@@ -62,11 +60,6 @@ export default function ReviewSection() {
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
       .queryKey,
-  );
-  const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
-    getStaffSubmissionPackageQueryOptions({
-      packageId: Number(submissionPackageId),
-    }).queryKey,
   );
 
   const defaultValues = useMemo(() => {
