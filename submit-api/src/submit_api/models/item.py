@@ -34,14 +34,17 @@ class Item(BaseModel):
     internal_staff_documents = db.relationship(
         "InternalStaffDocument", backref="item", lazy="select"
     )
-    reviews = db.relationship("SubmissionReview", backref="item", lazy="select")
-    notes = db.relationship("SubmissionItemNote", backref="item", lazy="select")
+    reviews = db.relationship(
+        "SubmissionReview", backref="item", lazy="select")
+    notes = db.relationship("SubmissionItemNote",
+                            backref="item", lazy="select")
     reviewed_on = Column(db.DateTime, nullable=True)
     review_start_date = Column(db.DateTime, nullable=True)
-    submissions = db.relationship(
+    # Main relationship for all non-deleted submissions
+    all_submissions = db.relationship(
         "Submission",
         lazy="joined",
-        primaryjoin="and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))",
+        primaryjoin="and_(Submission.item_id == Item.id, Submission.deleted.is_(False))",
         order_by="Submission.created_date.asc()",
     )
 
@@ -49,16 +52,15 @@ class Item(BaseModel):
     __table_args__ = (db.UniqueConstraint("package_id", "type_id"),)
 
     @property
+    def submissions(self):
+        """Get only active submissions."""
+        return [sub for sub in self.all_submissions if sub.active]
+
+    @property
     def submitted_submissions(self):
         """Return the latest visible submission for each submission thread."""
-        # Query all submissions directly, including inactive ones
-        all_submissions = Submission.query.filter_by(
-            item_id=self.id,
-            deleted=False  # Still filter out deleted ones
-        ).order_by(Submission.created_date.asc()).all()
-
         grouped = defaultdict(list)
-        for sub in all_submissions:
+        for sub in self.all_submissions:  # Use the main relationship
             root_id = sub.root_submission_id or sub.id
             grouped[root_id].append(sub)
 
@@ -67,15 +69,16 @@ class Item(BaseModel):
             sorted_group = sorted(
                 group, key=lambda s: (s.major_version, s.minor_version), reverse=True
             )
-            
+
             # Find the most recent non-PENDING submission
             visible = next(
-                (s for s in sorted_group if s.status != SubmissionStatus.PENDING), None
+                (s for s in sorted_group if s.status !=
+                 SubmissionStatus.PENDING), None
             )
-       
+
             if visible:
                 result.append(visible)
-              
+
         return result
 
     @hybrid_property
