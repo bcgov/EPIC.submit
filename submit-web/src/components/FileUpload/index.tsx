@@ -9,6 +9,9 @@ export type FileUploadProps = {
   accept?: Accept;
   onDrop: (acceptedFiles: File[]) => void;
   error?: boolean;
+  maxFiles?: number;
+  maxFilesErrorMessage?: string;
+  currentFileCount?: number;
 };
 export const FileUpload = ({
   height = "10em",
@@ -22,9 +25,20 @@ export const FileUpload = ({
   },
   error = false,
   onDrop,
+  maxFiles,
+  maxFilesErrorMessage,
+  currentFileCount
 }: FileUploadProps) => {
   return (
-    <Uploader height={height} accept={accept} onDrop={onDrop} error={error}>
+    <Uploader
+      height={height}
+      accept={accept}
+      onDrop={onDrop}
+      error={error}
+      maxFiles={maxFiles}
+      maxFilesErrorMessage={maxFilesErrorMessage}
+      currentFileCount={currentFileCount}
+    >
       <Box sx={{ p: BCDesignTokens.layoutPaddingSmall }}>
         <UploaderIcon />
       </Box>
