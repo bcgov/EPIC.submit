@@ -128,6 +128,10 @@ export const DocumentUploadSection = () => {
               MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
             )
           }
+          maxFiles={1}
+          maxFilesErrorMessage={
+            "You can only submit one Management Plan/IEM Terms of Engagement per submission. Please add supporting documents in the section below."
+          }
         />
         <Typography
           variant="body2"

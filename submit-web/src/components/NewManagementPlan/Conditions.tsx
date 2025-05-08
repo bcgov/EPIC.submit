@@ -115,11 +115,7 @@ export const Conditions = () => {
         flexDirection: "column",
       }}
     >
-      <BarBlueTitle
-        title="Create New Submission"
-        bold={false}
-        fullWidth={false}
-      />
+      <BarBlueTitle title="Create New Submission" bold fullWidth={false} />
       <Grid
         container
         sx={{
