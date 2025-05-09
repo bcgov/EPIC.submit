@@ -10,7 +10,7 @@ from submit_api.models.submission import SubmissionType
 
 from submit_cron.utils import constants
 from submit_cron.models import db
-from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
 from submit_cron.utils.datetime import convert_utc_to_local_str
 
 
@@ -18,7 +18,7 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
     """Handles sending email notifications for package submissions."""
 
     @classmethod
-    def prepare_package_submission_email_confirmation(cls, package: PackageModel) -> EmailDetails:
+    def prepare_package_submission_email_confirmation(cls, package: PackageModel, template_name) -> EmailDetails:
         """Prepare email details for package submission confirmation."""
         submitter = cls._get_submitter(package.submitted_by)
         if not submitter:
@@ -33,9 +33,10 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
             raise BadRequestError(f"Proponent with ID {submitter.account.proponent_id} not found")
 
         document_submissions = cls._get_document_submissions_from_package(package)
-
+        email_template_name = template_name if template_name else MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+        if template_name ==
         email_details = EmailDetails(
-            template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
+            template_name=email_template_name,
             body_args={
                 'submitter_name': submitter.full_name,
                 'submission_date': convert_utc_to_local_str(package.submitted_on),
