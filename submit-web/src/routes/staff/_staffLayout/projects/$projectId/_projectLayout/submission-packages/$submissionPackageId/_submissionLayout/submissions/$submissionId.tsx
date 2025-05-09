@@ -3,6 +3,7 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { StaffItemForm } from "@/components/SubmissionItem/ItemForm/StaffItemForm";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
+import { getSubmissionItemLabel } from "@/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
@@ -21,7 +22,7 @@ export const Route = createFileRoute(
     </PageGrid>
   ),
   meta: ({ loaderData: submissionItem }) => [
-    { title: submissionItem.type.name },
+    { title: getSubmissionItemLabel(submissionItem.type.name) },
   ],
 });
 

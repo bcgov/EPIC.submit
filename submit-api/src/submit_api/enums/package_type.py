@@ -10,5 +10,5 @@ import enum
 class PackageTypeEnum(enum.Enum):
     """Enum for package types."""
 
-    MANAGEMENT_PLAN = 'MANAGEMENT_PLAN'
+    MANAGEMENT_PLAN = 'Management Plan'
     IEM = 'IEM'

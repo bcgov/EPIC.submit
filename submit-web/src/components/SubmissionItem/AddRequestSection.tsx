@@ -11,6 +11,7 @@ import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import WarningBox from "@/components/Shared/WarningBox";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import Stack from "@mui/material/Stack";
+import { getSubmissionItemLabel } from "@/utils";
 
 type AddRequestSectionProps = {
   readonly disabled?: boolean;
@@ -56,7 +57,7 @@ export default function AddRequestSection({
           <FormControlLabel
             key={item.id}
             control={<Checkbox value={item.type_id} />}
-            label={item.type.name}
+            label={getSubmissionItemLabel(item.type.name)}
           />
         ))}
       </ControlledCheckboxGroup>
