@@ -113,7 +113,7 @@ export const useGetStaffSubmissionPackage = ({
 };
 
 type GetPackageVersionsByOriginalPackageId = {
-  originalPackageId: number;
+  originalPackageId?: number;
 };
 const getPackageVersionsByOriginalPackageId = ({
   originalPackageId,
@@ -124,7 +124,7 @@ const getPackageVersionsByOriginalPackageId = ({
 };
 
 type UseGetPackageVersionsByOriginalPackageIdParams = {
-  originalPackageId: number;
+  originalPackageId?: number;
   enabled?: boolean;
 };
 export const getPackageVersionsByOriginalPackageIdQueryOptions = ({

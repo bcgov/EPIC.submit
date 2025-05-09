@@ -53,7 +53,7 @@ class ConsultationRecordService:
 
         current_app.logger.info(
             f"Starting MP review for package {item.package_id}.")
-        PackageService.start_mp_review(item.package_id, session)
+        PackageService.start_review(item.package_id, session)
         current_app.logger.info(
             f"MP review started for package {item.package_id}.")
 

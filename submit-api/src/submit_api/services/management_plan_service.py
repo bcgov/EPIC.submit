@@ -32,13 +32,13 @@ class ManagementPlanService:
     @classmethod
     def reject_management_plan_form(cls, item, session):
         """Reject management plan form."""
-        cls._update_item_status_mp_rejection(item)
-        cls._update_package_metadata_mp_rejection(item, session)
-        _, new_item = cls._create_new_package_version(item, session)
-        update_request_data = cls._prepare_update_request_data(new_item, item)
-        cls._create_mp_update_request(update_request_data, session)
+        cls.update_item_status_mp_rejection(item)
+        cls.update_package_metadata_mp_rejection(item, session)
+        _, new_item = cls.create_new_package_version(item, session)
+        update_request_data = cls.prepare_update_request_data(new_item, item)
+        cls.create_mp_update_request(update_request_data, session)
         cls._log_management_plan_rejection_activity(item, session)
-        cls._deactivate_update_requests(item.package_id, session)
+        cls.deactivate_update_requests(item.package_id, session)
         cls._create_rejection_email_queue(
             item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
         current_app.logger.info(
@@ -46,7 +46,7 @@ class ManagementPlanService:
         return item
 
     @classmethod
-    def _prepare_update_request_data(cls, new_item, old_item):
+    def prepare_update_request_data(cls, new_item, old_item):
         """Prepare the update request data."""
         item_review = SubmissionReview.get_active_review_by_item_id(
             old_item.id)
@@ -77,7 +77,7 @@ class ManagementPlanService:
             f"Activity logged for management plan rejection for package {package.id}.")
 
     @classmethod
-    def _update_item_status_mp_rejection(cls, item):
+    def update_item_status_mp_rejection(cls, item):
         """Update the status and review date of the item for rejection."""
         current_app.logger.info(
             f"Rejecting management plan form for item {item.id}.")
@@ -88,7 +88,7 @@ class ManagementPlanService:
             f"Management plan form rejected for item {item.id}.")
 
     @classmethod
-    def _update_package_metadata_mp_rejection(cls, item, session):
+    def update_package_metadata_mp_rejection(cls, item, session):
         """Update package metadata with review completion date for rejection."""
         current_app.logger.info(
             f"Updating package metadata for package {item.package_id}.")
@@ -120,7 +120,7 @@ class ManagementPlanService:
         return package_metadata
 
     @classmethod
-    def _create_new_package_version(cls, item, session):
+    def create_new_package_version(cls, item, session):
         """Create a new package version and retrieve new management plan item for rejection."""
         current_app.logger.info(
             f"Creating new package version for item {item.id}.")
@@ -178,7 +178,7 @@ class ManagementPlanService:
             "Contact information form copied from old version.")
 
     @classmethod
-    def _create_mp_update_request(cls, data, session):
+    def create_mp_update_request(cls, data, session):
         """Create an update request."""
         current_app.logger.info(
             f"Creating update request for new management plan {data.get('package_id')}.")
@@ -197,16 +197,16 @@ class ManagementPlanService:
     def approve_management_plan(cls, item, session):
         """Approve management plan."""
         package = PackageModel.find_by_id(item.package_id)
-        cls._update_item_status_mp_approval(item, package, session)
-        cls._update_package_for_completion(item, package, session)
-        cls._deactivate_update_requests(package.id, session, package)
+        cls.update_item_status_mp_approval(item, package, session)
+        cls.update_package_for_completion(item, package, session)
+        cls.deactivate_update_requests(package.id, session, package)
         cls._log_activity_mp_approval(package, session)
         current_app.logger.info(
             f"Management plan form approved for item {item.id}.")
         return item
 
-    @classmethod
-    def _get_package_submitted_to_eao_for(cls, package):
+    @staticmethod
+    def get_package_submitted_to_eao_for(package):
         """Get the condition from the package."""
         current_app.logger.info(
             f"Retrieving submitted_to_eao_for for package {package.id}.")
@@ -229,11 +229,11 @@ class ManagementPlanService:
         return submitted_to_eao_for
 
     @classmethod
-    def _update_item_status_mp_approval(cls, item, package, session):
+    def update_item_status_mp_approval(cls, item, package, session):
         """Update the status of the item for approval."""
         current_app.logger.info(
             f"Approving management plan form for item {item.id}.")
-        submitted_to_eao_for = cls._get_package_submitted_to_eao_for(package)
+        submitted_to_eao_for = cls.get_package_submitted_to_eao_for(package)
 
         mp_purpose_status_map = {
             ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ItemStatus.ACCEPTED,
@@ -252,7 +252,7 @@ class ManagementPlanService:
             f"Management plan form {status.value} for item {item.id}.")
 
     @classmethod
-    def _update_package_for_completion(cls, item, package, session):
+    def update_package_for_completion(cls, item, package, session):
         """Update package for completion."""
         current_app.logger.info(
             f"Updating package for completion for item {item.id}.")
@@ -267,12 +267,12 @@ class ManagementPlanService:
         """Log activity for management plan approval."""
         current_app.logger.info(
             f"Logging activity for management plan approval for package {package.id}.")
-        submitted_to_eao_for = cls._get_package_submitted_to_eao_for(package)
+        submitted_to_eao_for = cls.get_package_submitted_to_eao_for(package)
         activity_type_condition_map = {
             ManagementPlanSubmissionPurpose.ACCEPTANCE.value: ActivityActionType.MP_ACCEPTED.value,
             ManagementPlanSubmissionPurpose.APPROVAL.value: ActivityActionType.MP_APPROVED.value,
             ManagementPlanSubmissionPurpose.SATISFACTION.value: ActivityActionType.MP_SATISFIED.value,
-            ManagementPlanSubmissionPurpose.REVIEW.value: ActivityActionType.MP_ACCEPTED.value,
+            ManagementPlanSubmissionPurpose.REVIEW.value: ActivityActionType.MP_REVIEWED.value,
         }
         action_type = activity_type_condition_map.get(submitted_to_eao_for)
         if not action_type:
@@ -288,7 +288,7 @@ class ManagementPlanService:
             f"Activity logged for management plan approval for package {package.id}.")
 
     @classmethod
-    def _deactivate_update_requests(cls, package_id, session, package=None):
+    def deactivate_update_requests(cls, package_id, session, package=None):
         """Deactivate all update requests for the package."""
         if not package:
             package = PackageModel.find_by_id(package_id)

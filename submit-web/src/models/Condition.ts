@@ -11,6 +11,7 @@ export type ConditionAttribute = {
   parties_required_to_be_consulted: string;
   requires_consultation: string;
   requires_management_plan: string;
+  requires_iem_terms_of_engagement: string;
   submitted_to_eao_for: string;
   time_associated_with_submission_milestone: string;
 };

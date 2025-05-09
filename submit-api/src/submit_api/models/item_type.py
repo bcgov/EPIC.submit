@@ -27,6 +27,7 @@ class SubmissionItemType(enum.Enum):
     CONSULTATION_RECORD = 'Consultation Record(s)'
     MANAGEMENT_PLAN_FORM = 'Management Plan'
     CONTACT_INFORMATION = 'Contact Information Form'
+    IEM = 'IEM Terms of Engagement'
 
 
 class ItemType(BaseModel):

@@ -2,11 +2,6 @@ import { Note } from "@/components/SubmissionItem/Note";
 import { Submission, SubmissionItemStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
 
-export type SubmissionItemTypeName =
-  | "Contact Information Form"
-  | "Management Plan"
-  | "Consultation Record(s)";
-
 type SubmissionItemMethod = "FORM_SUBMISSION" | "DOCUMENT_UPLOAD";
 export const SUBMISSION_ITEM_METHOD: Record<
   SubmissionItemMethod,
@@ -17,7 +12,7 @@ export const SUBMISSION_ITEM_METHOD: Record<
 });
 export type SubmissionItemType = {
   id: number;
-  name: SubmissionItemTypeName;
+  name: SUBMISSION_ITEM_TYPE;
   submission_method: SubmissionItemMethod;
 };
 
@@ -25,6 +20,7 @@ export enum SUBMISSION_ITEM_TYPE {
   CONTACT_INFORMATION = "Contact Information Form",
   MANAGEMENT_PLAN = "Management Plan",
   CONSULTATION_RECORD = "Consultation Record(s)",
+  IEM = "IEM Terms of Engagement",
 }
 
 export const SUBMISSION_ITEM_MODAL_CONTENT: Record<

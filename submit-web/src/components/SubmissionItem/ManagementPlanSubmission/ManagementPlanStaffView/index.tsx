@@ -1,4 +1,3 @@
-import * as yup from "yup";
 import { useMemo } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_TYPE } from "@/models/Submission";
@@ -10,24 +9,6 @@ import InternalDocumentSection from "../../InternalDocumentSection";
 import ReviewSection from "./ReviewSection";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 
-const managementPlanSubmissionSchema = yup.object().shape({
-  conditionSatisfied: yup.string().required("Please answer this question."),
-  allRequirementsAddressed: yup
-    .string()
-    .required("Please answer this question."),
-  informationAccurate: yup.string().required("Please answer this question."),
-  managementPlans: yup
-    .array()
-    .of(yup.string())
-    .required("Please upload at least one document.")
-    .min(1, "Please upload at least one document."),
-  supportingDocuments: yup.array().of(yup.string()),
-  notes: yup.string(),
-});
-
-export type ManagementPlanSubmissionForm = yup.InferType<
-  typeof managementPlanSubmissionSchema
->;
 export const ManagementPlanSubmissionStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
     useParams({

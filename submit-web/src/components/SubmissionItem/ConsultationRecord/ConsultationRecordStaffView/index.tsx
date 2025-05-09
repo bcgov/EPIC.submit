@@ -65,12 +65,15 @@ export const ConsultationRecordStaffView = () => {
 
   if (!accountProject) return <Navigate to="/error" />;
 
+  if (!submissionPackage) return <Navigate to="/error" />;
+
   return (
     <SubmissionFormContainer>
       <FormFieldSection
         formData={formData}
         partiesList={partiesList}
         submissionId={submissionId}
+        packageType={submissionPackage.type.name}
       />
       <InternalDocumentSection />
       <ReviewSection />

@@ -44,7 +44,7 @@ type managementPlanReviewForm = yup.InferType<
 
 const getAnswersByType = (
   review: SubmissionReview,
-  type: SubmissionReviewEntryType
+  type: SubmissionReviewEntryType,
 ) => {
   if (!review?.entries) return {};
   return review.entries?.find((entry) => entry.type === type)?.entry;
@@ -62,12 +62,12 @@ export default function ReviewSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey
+      .queryKey,
   );
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getStaffSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey
+    }).queryKey,
   );
 
   const defaultValues = useMemo(() => {
@@ -76,29 +76,31 @@ export default function ReviewSection() {
     const review = submissionItem.review;
     const staffAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
     );
     const managerAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
     );
 
     return {
       staff: {
-        passedReview: staffAnswers?.passedReview
-          ? String(staffAnswers.passedReview)
-          : "",
+        passedReview:
+          staffAnswers?.passedReview instanceof String
+            ? staffAnswers.passedReview
+            : "",
       },
       manager: {
-        passedReview: managerAnswers?.passedReview
-          ? String(managerAnswers.passedReview)
-          : "",
+        passedReview:
+          managerAnswers?.passedReview instanceof String
+            ? managerAnswers.passedReview
+            : "",
       },
       update_request: {
-        reason: managerAnswers?.reason || staffAnswers?.reason || "",
+        reason: managerAnswers?.reason ?? staffAnswers?.reason ?? "",
         submission_item_types:
-          managerAnswers?.submission_item_types ||
-          staffAnswers?.submission_item_types ||
+          managerAnswers?.submission_item_types ??
+          staffAnswers?.submission_item_types ??
           [],
       },
     };

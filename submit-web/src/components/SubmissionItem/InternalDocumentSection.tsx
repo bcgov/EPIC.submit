@@ -21,7 +21,7 @@ export default function InternalDocumentSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
-      .queryKey
+      .queryKey,
   );
   const internalStaffDocuments = useMemo(() => {
     return submissionItem?.internal_staff_documents || [];
@@ -56,7 +56,7 @@ export default function InternalDocumentSection() {
           }}
         >
           These documents will be accessible during your review and will be
-          saved with the Management Plan Package.
+          saved with the submission Package.
         </Typography>
       </Grid>
       <Grid item xs={12} mt={BCDesignTokens.layoutMarginXlarge}>

@@ -26,13 +26,13 @@ export default function AddRequestSection({
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getStaffSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey
+    }).queryKey,
   );
   const filteredItems = useMemo(() => {
     if (!submissionPackage?.items) return [];
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
     );
   }, [submissionPackage?.items]);
 

@@ -28,6 +28,7 @@ import {
   UPDATE_REQUEST_TYPE,
 } from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
+import { SubmissionItemTypeLabelMap } from "./constant";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -39,7 +40,14 @@ export default function ProponentSubmissionItemTableRow({
   });
 
   const { id, submissions, status, type_id } = item;
-  const name = item.type.name;
+
+  const name = useMemo(() => {
+    if (Object.keys(SubmissionItemTypeLabelMap).includes(item.type.name)) {
+      return SubmissionItemTypeLabelMap[item.type.name];
+    }
+    return item.type.name;
+  }, [item.type.name]);
+
   const has_document =
     item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
 
