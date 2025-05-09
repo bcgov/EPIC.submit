@@ -1,4 +1,4 @@
-"""empty message
+""" merge two revisions 860b9deb7d0c and b92c15f6a7b5
 
 Revision ID: 826fa830606a
 Revises: 860b9deb7d0c, b92c15f6a7b5
