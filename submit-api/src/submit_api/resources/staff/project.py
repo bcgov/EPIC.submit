@@ -14,13 +14,13 @@
 """API endpoints for managing a project resource."""
 
 from http import HTTPStatus
-from flask import request
+from flask import request, abort
 
 from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
-from submit_api.models.package import PackageStatus
+from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
@@ -58,7 +58,15 @@ class AccountProjects(Resource):
         search_text = args.get('search_text')
         submitted_on_start = args.get('submitted_on_start')
         submitted_on_end = args.get('submitted_on_end')
-        status = list(map(PackageStatus, args.getlist('status[]')))
+        raw_statuses = args.getlist("status[]")
+        status = []
+        for _status in raw_statuses:
+            if _status in PackageStatus._value2member_map_:
+                status.append(PackageStatus(_status))
+            elif _status in NonCanonicalPackageStatus._value2member_map_:
+                status.append(NonCanonicalPackageStatus(_status))
+            else:
+                abort(400, f"Unknown status: {_status}")
         page = int(args.get('page', DEFAULT_PAGE))  # Default to page 1
         page_size = int(args.get('page_size', DEFAULT_PAGE_SIZE))  # Default to 10 items per page
 

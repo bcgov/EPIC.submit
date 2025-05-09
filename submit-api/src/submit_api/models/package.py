@@ -13,6 +13,13 @@ from .base_model import BaseModel
 from .db import db
 
 
+class NonCanonicalPackageStatus(enum.Enum):
+    """Enum for non-canonical package statuses."""
+
+    UPDATED = "UPDATED"
+    UPDATE_REQUESTED = "UPDATE_REQUESTED"
+
+
 class PackageStatus(enum.Enum):
     """Enum for package statuses."""
 
