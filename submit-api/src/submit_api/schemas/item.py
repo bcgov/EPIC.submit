@@ -92,6 +92,25 @@ class ItemSchema(Schema):
 
         return data
 
+    @post_dump
+    def filter_submissions_by_status(self, data, many, **kwargs):
+        """Filter submissions based on their status before returning the item."""
+
+        # Filter out submissions with status PENDING_REPLACEMENT
+        submissions = data.get("submissions", [])
+        filtered_submissions = [
+            submission for submission in submissions
+            if submission.get("status") != SubmissionStatus.PENDING_REPLACEMENT
+        ]
+
+        data["submissions"] = filtered_submissions
+
+        # Optionally: Remove the entire item if all submissions are filtered out
+        if not filtered_submissions:
+            return []
+
+        return data
+
 
 def get_item_status(status, user_type):
     """Get the local (Pacific Timezone) datetime."""
@@ -173,7 +192,6 @@ class StaffItemSchema(ItemSchema):
             visible = next(
                 (s for s in sorted_group if s.status not in [
                     SubmissionStatus.PENDING,
-                    SubmissionStatus.PENDING_REPLACEMENT
                 ]), None
             )
 
