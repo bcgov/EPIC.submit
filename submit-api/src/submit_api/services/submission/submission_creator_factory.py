@@ -113,10 +113,14 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 # root id is the first submission id in the chain
                 root_submission_id=submission.root_submission_id
             )
-            new_submission.status = SubmissionStatus.PENDING_REPLACEMENT
             if submission.status == SubmissionStatus.PENDING:
+                # For pending submissions, we can safely mark as deleted since they're not yet reviewed
                 submission.deleted = True
                 submission.active = False
+            else:
+                # For other submissions, keep them active but mark as pending replacement
+                submission.status = SubmissionStatus.PENDING_REPLACEMENT
+
             session.add(submission)
             return new_submission
 
