@@ -2,6 +2,7 @@
 export type NonCanonicalSubmissionStatus =
   | "PENDING_MANAGER_REVIEW"
   | "REVISION_REQUIRED"
+  | "REVISION_REQUESTED"
   | "UPDATED"
   | "UPDATE_REQUESTED"
   | "NO_REVISION_REQUIRED"
@@ -14,6 +15,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
   UPDATE_REQUESTED: "UPDATE_REQUESTED",
   REVISION_REQUIRED: "REVISION_REQUIRED",
+  REVISION_REQUESTED: "REVISION_REQUESTED",
   UPDATED: "UPDATED",
   FAILED: "FAILED",
   NO_REVISION_REQUIRED: "NO_REVISION_REQUIRED",
@@ -29,7 +31,16 @@ export type SubmissionItemStatus =
   | "FAILED_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
   | "REVISION_REQUIRED"
-  | "APPROVED";
+  | "APPROVED"
+  | "REVIEWED"
+  | "ACCEPTED"
+  | "SATISFIED"
+  | "UPDATE_REQUESTED"
+  | "UPDATED"
+  | "AWAITING_MANAGER_APPROVAL"
+  | "REVISION_REQUESTED"
+  | "NO_REVISION_REQUIRED"
+  | "UNDER_REVIEW";
 
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
@@ -71,19 +82,54 @@ export const SUBMISSION_ITEM_STATUS: Record<
     value: "REVISION_REQUIRED",
     label: "Revision Required",
   },
+  REVIEWED: {
+    value: "REVIEWED",
+    label: "Reviewed",
+  },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
+  },
+  SATISFIED: {
+    value: "SATISFIED",
+    label: "Satisfied",
+  },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
+  },
+  UPDATED: {
+    value: "UPDATED",
+    label: "Updated",
+  },
+  AWAITING_MANAGER_APPROVAL: {
+    value: "AWAITING_MANAGER_APPROVAL",
+    label: "Awaiting Manager Approval",
+  },
+  REVISION_REQUESTED: {
+    value: "REVISION_REQUESTED",
+    label: "Revision Requested",
+  },
+  NO_REVISION_REQUIRED: {
+    value: "NO_REVISION_REQUIRED",
+    label: "No Revision Required",
+  },
+  UNDER_REVIEW: {
+    value: "UNDER_REVIEW",
+    label: "Under Review",
+  },
 };
 
-export const PROPONENT_SUBMISSION_ITEM_FILTERS: Record<
-  SubmissionItemStatus,
-  { value: SubmissionItemStatus; label: string }
+export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
+  Record<SubmissionItemStatus, { value: SubmissionItemStatus; label: string }>
 > = {
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
   },
-  COMPLETED: {
-    value: "COMPLETED",
-    label: "Completed",
+  UPDATED: {
+    value: "UPDATED",
+    label: "Updated",
   },
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
@@ -93,6 +139,83 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Record<
     value: "SUBMITTED",
     label: "Submitted",
   },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
+  },
+  REVISION_REQUESTED: {
+    value: "REVISION_REQUESTED",
+    label: "Revision Requested",
+  },
+  AWAITING_MANAGER_APPROVAL: {
+    value: "AWAITING_MANAGER_APPROVAL",
+    label: "Awaiting Manager Approval",
+  },
+  FAILED_CONSULTATION_CHECK: {
+    value: "FAILED_CONSULTATION_CHECK",
+    label: "Failed Consultation Check",
+  },
+  PASSED_CONSULTATION_CHECK: {
+    value: "PASSED_CONSULTATION_CHECK",
+    label: "Passed Consultation Check",
+  },
+  COMPLETED: {
+    value: "COMPLETED",
+    label: "Completed",
+  },
+  REVIEWED: {
+    value: "REVIEWED",
+    label: "Reviewed",
+  },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
+  },
+  SATISFIED: {
+    value: "SATISFIED",
+    label: "Satisfied",
+  },
+  APPROVED: {
+    value: "APPROVED",
+    label: "Approved",
+  },
+  NO_REVISION_REQUIRED: {
+    value: "NO_REVISION_REQUIRED",
+    label: "No Revision Required",
+  },
+};
+
+export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
+  Record<SubmissionItemStatus, { value: SubmissionItemStatus; label: string }>
+> = {
+  NEW_SUBMISSION: {
+    value: "NEW_SUBMISSION",
+    label: "New Submission",
+  },
+  UPDATED: {
+    value: "UPDATED",
+    label: "Updated",
+  },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
+  },
+  REVISION_REQUIRED: {
+    value: "REVISION_REQUIRED",
+    label: "Revision Required",
+  },
+  PARTIALLY_COMPLETED: {
+    value: "PARTIALLY_COMPLETED",
+    label: "Partially Completed",
+  },
+  SUBMITTED: {
+    value: "SUBMITTED",
+    label: "Submitted",
+  },
+  COMPLETED: {
+    value: "COMPLETED",
+    label: "Completed",
+  },
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
@@ -101,9 +224,17 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Record<
     value: "APPROVED",
     label: "Approved",
   },
-  REVISION_REQUIRED: {
-    value: "REVISION_REQUIRED",
-    label: "Revision Required",
+  NO_REVISION_REQUIRED: {
+    value: "NO_REVISION_REQUIRED",
+    label: "No Revision Required",
+  },
+  SATISFIED: {
+    value: "SATISFIED",
+    label: "Satisfied",
+  },
+  REVIEWED: {
+    value: "REVIEWED",
+    label: "Reviewed",
   },
 };
 
