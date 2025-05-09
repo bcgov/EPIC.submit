@@ -23,6 +23,14 @@ export enum SUBMISSION_ITEM_TYPE {
   IEM = "IEM Terms of Engagement",
 }
 
+export const SubmissionItemTypeLabelMap = {
+  [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: "Contact Information Form",
+  [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: "Management Plan",
+  [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: "Consultation Record(s)",
+  [SUBMISSION_ITEM_TYPE.IEM]:
+    "Independent Engagement Monitor Terms of Engagement",
+};
+
 export const SUBMISSION_ITEM_MODAL_CONTENT: Record<
   string,
   { title: string; description: string; confirmText: string }

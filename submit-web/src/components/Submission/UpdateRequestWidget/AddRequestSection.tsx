@@ -16,6 +16,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Form from "@/components/Shared/Forms/common";
 import ControlledCheckboxGroup from "@/components/Shared/controlled/ControlledCheckboxGroup";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import { getSubmissionItemLabel } from "@/utils";
 
 const requestUpdateSchema = yup.object().shape({
   reason: yup.string().required("Please enter the reason."),
@@ -70,7 +71,7 @@ export default function AddRequestSection({
   const filteredItems = useMemo(() => {
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
     );
   }, [submissionPackage.items]);
 
@@ -93,7 +94,7 @@ export default function AddRequestSection({
               <FormControlLabel
                 key={item.id}
                 control={<Checkbox value={item.type_id} sx={{ py: 0 }} />}
-                label={item.type.name}
+                label={getSubmissionItemLabel(item.type.name)}
               />
             ))}
           </ControlledCheckboxGroup>
