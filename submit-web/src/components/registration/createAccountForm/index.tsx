@@ -9,7 +9,7 @@ import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { Save } from "@mui/icons-material";
-import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText, Stack } from "@mui/material";
+import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";

@@ -6,8 +6,10 @@ import { useAccount } from "./store/accountStore";
 import { useEffect, useState } from "react";
 import { getAccountQueryOptions } from "./hooks/api/useAccounts";
 import TermsModal from "@/components/Shared/Modals/TermsModal";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useRecordUserTermsOfService } from "@/hooks/api/useAccountUsers";
 import { USER_TYPE } from "@/models/User";
+import { isAxiosError } from "axios";
 
 const queryClient = new QueryClient();
 // Create a new router instance
@@ -54,14 +56,19 @@ export default function RouterProviderWithAuthContext() {
     !termsAccepted &&
     data.userType !== USER_TYPE.STAFF;
 
-  const { mutate: recordTermsOfService } = useRecordUserTermsOfService(
-    () => {
+  const { mutate: recordTermsOfService } = useRecordUserTermsOfService({
+    onSuccess: () => {
       setTermsAccepted(true);
     },
-    (error) => {
-      console.error("Failed to record terms of service:", error);
+    onError: (error) => {
+      const defaultMessage = "Failed to record terms of service";
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data as any)?.message ?? defaultMessage
+        : defaultMessage;
+
+      notify.error(errorMessage);
     },
-  );
+  });
 
   useEffect(() => {
     if (isFetched) {

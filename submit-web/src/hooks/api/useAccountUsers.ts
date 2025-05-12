@@ -1,6 +1,7 @@
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
-import { OnErrorType, OnSuccessType, submitRequest } from "@/utils/axiosUtils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { submitRequest } from "@/utils/axiosUtils";
+import { UseMutationOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { isAxiosError } from "axios";
@@ -169,7 +170,7 @@ type TermsUpdateRequest = {
 const recordUserTermsOfService = ({
   account_user_id,
   ...rest
-}: TermsUpdateRequest) => {
+}: TermsUpdateRequest): Promise<any> => {
   return submitRequest({
     url: `/accounts/user/${account_user_id}/terms-of-service`,
     method: "patch",
@@ -178,12 +179,10 @@ const recordUserTermsOfService = ({
 };
 
 export const useRecordUserTermsOfService = (
-  onSuccess: OnSuccessType,
-  onError: OnErrorType,
+  options?: UseMutationOptions<any, AxiosError, TermsUpdateRequest>
 ) => {
-  return useMutation({
+  return useMutation<any, AxiosError, TermsUpdateRequest>({
     mutationFn: recordUserTermsOfService,
-    onSuccess,
-    onError,
+    ...options,
   });
 };
