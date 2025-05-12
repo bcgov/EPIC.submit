@@ -294,7 +294,7 @@ class PackageService:
         submissions = [
             submission for item in package.items for submission in item.submissions]
         for submission in submissions:
-            if (submission.status == SubmissionStatus.PENDING_REPLACEMENT):
+            if submission.status == SubmissionStatus.PENDING_REPLACEMENT:
                 submission.active = False
                 submission.status = status
             else:
