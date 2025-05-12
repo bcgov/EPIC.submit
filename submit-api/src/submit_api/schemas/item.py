@@ -100,7 +100,7 @@ class ItemSchema(Schema):
 
         filtered_submissions = [
             submission for submission in submissions
-            if submission.get("status") != SubmissionStatus.PENDING_REPLACEMENT
+            if submission.get("status") != SubmissionStatus.PENDING_REPLACEMENT.value
         ]
 
         data["submissions"] = filtered_submissions
