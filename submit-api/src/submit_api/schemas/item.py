@@ -70,8 +70,7 @@ class ItemSchema(Schema):
     version = fields.Int(data_key="version")
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
-    submissions = fields.Nested(
-        ItemSubmissionSchema, data_key="submissions", many=True)
+    submissions = fields.Method('filter_submissions_by_status')
     sort_order = fields.Int(data_key="sort_order")
 
     @post_dump
@@ -91,7 +90,6 @@ class ItemSchema(Schema):
 
         return data
 
-    @post_dump
     def filter_submissions_by_status(self, data, many, **kwargs):
         """Filter submissions based on their status before returning the item."""
         # Filter out submissions with status PENDING_REPLACEMENT
@@ -171,7 +169,7 @@ class StaffItemSchema(ItemSchema):
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
     notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)
     review_start_date = fields.DateTime(data_key="review_start_date")
-    submitted_submissions = fields.Method('get_submitted_submissions')
+    submissions = fields.Method('get_submitted_submissions')
 
     def get_submitted_submissions(self, obj):
         """Get only non-PENDING submissions."""

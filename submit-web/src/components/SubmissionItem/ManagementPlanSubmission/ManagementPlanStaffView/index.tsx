@@ -25,7 +25,7 @@ export const ManagementPlanSubmissionStaffView = () => {
     itemId: Number(submissionItemId),
   });
 
-  const formSubmission = submissionItem?.submitted_submissions?.find(
+  const formSubmission = submissionItem?.submissions?.find(
     (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
 

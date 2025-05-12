@@ -45,7 +45,7 @@ export default function StaffStatusCell({
 
     if (!last_update_request) return false;
     return Boolean(
-      submissionItem.submitted_submissions?.find((submission) =>
+      submissionItem.submissions?.find((submission) =>
         dayjs(submission.created_date).isAfter(last_update_request.created_date)
       )
     );

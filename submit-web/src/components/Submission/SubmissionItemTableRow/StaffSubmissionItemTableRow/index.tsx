@@ -39,7 +39,7 @@ export default function StaffSubmissionItemTableRow({
       })
     );
 
-  const { submitted_submissions, id } = item;
+  const { submissions, id } = item;
 
   const { submitted_on } = submissionPackage;
 
@@ -114,7 +114,7 @@ export default function StaffSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       <When condition={submitted_on}>
-        {submitted_submissions
+        {submissions
           ?.filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
           .map((submission) => (
             <DocumentRow
