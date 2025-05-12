@@ -107,15 +107,15 @@ function CreateAccountForm() {
   const { handleSubmit } = methods;
 
   const openTermsDialog = () => {
-    setHasScrolledToBottom(false); // reset scroll state
-    setAgreedInDialog(false);      // reset agree state
-    setTermsOpen(true);
-  };
+    setShowTermsError(false);
 
-  const closeTermsDialog = () => {
-    setTermsOpen(false);
-    setHasScrolledToBottom(false);
-    setAgreedInDialog(false);
+    // Open modal through global modal store
+    setOpenModal(
+      <TermsModal
+        onAgreeConfirmed={handleAgreeClick}
+        setVersionId={setVersionId}
+      />
+    );
   };
 
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
