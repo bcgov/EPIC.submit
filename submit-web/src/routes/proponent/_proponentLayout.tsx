@@ -37,8 +37,9 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
+  const { isReady, needsTermsAgreement, handleAgree } = useTermsAgreement(account, !account.isLoading);
 
-  if (account.isLoading) {
+  if (account.isLoading || !isReady) {
     return <PageLoader />;
   }
 
