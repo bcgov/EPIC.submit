@@ -18,6 +18,7 @@ class NonCanonicalPackageStatus(enum.Enum):
 
     UPDATED = "UPDATED"
     UPDATE_REQUESTED = "UPDATE_REQUESTED"
+    REVISION_REQUESTED = "REVISION_REQUESTED"
 
 
 class PackageStatus(enum.Enum):

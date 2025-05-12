@@ -220,6 +220,10 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
   },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
+  },
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
