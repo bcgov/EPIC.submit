@@ -13,7 +13,7 @@ export function useTermsAgreement(data: any, isFetched: boolean) {
   const needsTermsAgreement = useMemo(() => {
     if (!isReady) return false;
     
-    return !Boolean(data?.hasAgreedToTerms) && !termsAccepted;
+    return !data?.hasAgreedToTerms && !termsAccepted;
   }, [isReady, data?.hasAgreedToTerms, termsAccepted]);
 
   const { mutate: recordTermsOfService } = useRecordUserTermsOfService({
