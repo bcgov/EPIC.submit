@@ -270,8 +270,7 @@ class PackageService:
         """Update package submission details."""
         if status not in SubmissionStatus.__members__:
             raise BadRequestError("Invalid status")
-        submissions = [
-            submission for item in package.items for submission in item.submissions]
+        submissions = [submission for item in package.items for submission in item.submissions]
         for submission in submissions:
             if submission.status == SubmissionStatus.PENDING_REPLACEMENT:
                 submission.active = False
@@ -320,18 +319,17 @@ class PackageService:
         with session_scope() as session:
             package = cls._get_and_validate_complete_package(package_id)
             if package.submitted_on:
-                submitted_package: PackageModel = cls._resubmit_package(
-                    package, session)
+                submitted_package: PackageModel = cls._resubmit_package(package, session)
             else:
-                submitted_package: PackageModel = cls._submit_package(
-                    package, session)
+                submitted_package: PackageModel = cls._submit_package(package, session)
 
             return submitted_package
 
     @classmethod
     def _submit_package(cls, package, session):
         """Submit the package by updating its status and items."""
-        cls._update_items_status(package.items, ItemStatus.SUBMITTED.value, session)
+        cls._update_items_status(
+            package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_package_status(package.id, session, package)
         cls._update_package_submission_details(package, session)
         cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
@@ -354,7 +352,7 @@ class PackageService:
         cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
         cls._deactivate_revision_required_requests(package, session)
-        cls._update_update_requests(ssession, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
+        cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
         cls._deactivate_reviews(package, session)
         cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
         return package
@@ -382,8 +380,7 @@ class PackageService:
         if not update_request:
             raise BadRequestError("Update request not found")
         if update_request.submission_package_id != package.id:
-            raise BadRequestError(
-                "Update request does not belong to the specified package")
+            raise BadRequestError("Update request does not belong to the specified package")
         if update_request.status != UpdateRequestStatus.PENDING_REVIEW.value:
             raise BadRequestError("Update request is not pending review")
 
