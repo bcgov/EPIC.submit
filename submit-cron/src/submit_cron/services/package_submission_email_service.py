@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from flask import current_app
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
 from submit_api.models.project import Project as ProjectModel
@@ -10,7 +11,7 @@ from submit_api.models.submission import SubmissionType
 
 from submit_cron.utils import constants
 from submit_cron.models import db
-from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE
 from submit_cron.utils.datetime import convert_utc_to_local_str
 
 
@@ -18,13 +19,14 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
     """Handles sending email notifications for package submissions."""
 
     @classmethod
-    def prepare_package_submission_email_confirmation(cls, package: PackageModel) -> EmailDetails:
+    def prepare_package_submission_email_confirmation(cls, package: PackageModel, template_name) -> EmailDetails:
         """Prepare email details for package submission confirmation."""
         submitter = cls._get_submitter(package.submitted_by)
         if not submitter:
             raise BadRequestError(f"Submitter with auth_guid {package.submitted_by} not found")
 
         sender_email = cls.get_email_sender_for_package_type(package.type.name)
+
         if not sender_email:
             raise BadRequestError(f"Sender email not found for package type: {package.type.name}")
 
@@ -33,9 +35,21 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
             raise BadRequestError(f"Proponent with ID {submitter.account.proponent_id} not found")
 
         document_submissions = cls._get_document_submissions_from_package(package)
+        email_template_name = template_name or MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
+
+        if email_template_name == MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE:
+            staff_email = current_app.config.get('STAFF_SUPPORT_MAIL_ID')
+            if not staff_email:
+                raise BadRequestError("STAFF_SUPPORT_MAIL_ID is not configured")
+
+            recipients = [staff_email]
+            subject = f"{proponent.proponent_name} submitted {package.name}"
+        else:
+            recipients = [submitter.work_email_address]
+            subject = f"Confirmation of receipt for {package.name}"
 
         email_details = EmailDetails(
-            template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
+            template_name=email_template_name,
             body_args={
                 'submitter_name': submitter.full_name,
                 'submission_date': convert_utc_to_local_str(package.submitted_on),
@@ -43,9 +57,9 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
                 'package_name': package.name,
                 'documents': [submission.submitted_document.name for submission in document_submissions]
             },
-            subject=f'Confirmation of receipt for {package.name}',
+            subject=subject,
             sender=sender_email,
-            recipients=[submitter.work_email_address],
+            recipients=recipients,
         )
         print(
             f"Sending email from {email_details.sender} to {', '.join(email_details.recipients)} for package: {email_details.body_args['package_name']}")
