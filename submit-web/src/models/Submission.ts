@@ -144,7 +144,7 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     label: "Update Requested",
   },
   REVISION_REQUESTED: {
-    value: "REVISION_REQUESTED",
+    value: "REVISION_REQUIRED",
     label: "Revision Requested",
   },
   AWAITING_MANAGER_APPROVAL: {
@@ -219,6 +219,10 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
+  },
+  ACCEPTED: {
+    value: "ACCEPTED",
+    label: "Accepted",
   },
   APPROVED: {
     value: "APPROVED",
