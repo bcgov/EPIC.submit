@@ -78,7 +78,6 @@ class InvitationService:
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
             return {"error": "Invalid invitation token"}
-        print(payload)
         agreed_terms = payload.get("agreed_terms")
         agreed_terms_of_service_id = payload.get("agreed_terms_of_service_id")
         # Check if terms were accepted
