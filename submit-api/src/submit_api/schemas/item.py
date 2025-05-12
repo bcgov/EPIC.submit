@@ -98,6 +98,7 @@ class ItemSchema(Schema):
 
         # Filter out submissions with status PENDING_REPLACEMENT
         submissions = data.get("submissions", [])
+
         filtered_submissions = [
             submission for submission in submissions
             if submission.get("status") != SubmissionStatus.PENDING_REPLACEMENT
@@ -105,7 +106,6 @@ class ItemSchema(Schema):
 
         data["submissions"] = filtered_submissions
 
-        # Optionally: Remove the entire item if all submissions are filtered out
         if not filtered_submissions:
             return []
 
