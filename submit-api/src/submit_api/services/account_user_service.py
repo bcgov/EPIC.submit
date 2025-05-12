@@ -311,7 +311,7 @@ class AccountUserService:
         terms_id = update_data.get('agreed_terms_of_service_id')
         if not terms_id:
             raise ValueError("'agreed_terms_of_service_id' is required.")
-        
+
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         if not account_user:
             raise ResourceNotFoundError(f"Account user with ID {account_user_id} not found.")
