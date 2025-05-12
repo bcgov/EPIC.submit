@@ -4,8 +4,6 @@ Manages the item schema
 """
 
 from marshmallow import EXCLUDE, Schema, fields, pre_dump, post_dump
-from collections import defaultdict
-
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.user import UserType
@@ -157,7 +155,7 @@ class StaffItemSchema(ItemSchema):
 
         unknown = EXCLUDE
 
-    internal_staff_documents = fields.Nested(InternalStaffDocumentSchema, 
+    internal_staff_documents = fields.Nested(InternalStaffDocumentSchema,
                                              data_key="internal_staff_documents", many=True)
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
     notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)
