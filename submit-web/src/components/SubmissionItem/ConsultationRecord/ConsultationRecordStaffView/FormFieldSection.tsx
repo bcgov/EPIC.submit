@@ -45,7 +45,7 @@ export default function FormFieldSection({
       return "Management Plan";
     }
     if (packageType === SubmissionPackageType.IEM) {
-      return "Individual Environmental Monitoring Plan Terms of Engagement";
+      return "Independent Environmental Monitor Terms of Engagement";
     }
     return "";
   }, [packageType]);
@@ -55,7 +55,7 @@ export default function FormFieldSection({
       return "plan";
     }
     if (packageType === SubmissionPackageType.IEM) {
-      return "Individual Environmental Monitoring Plan Terms of Engagement";
+      return "Independent Environmental Monitor Terms of Engagement";
     }
     return "";
   }, [packageType]);

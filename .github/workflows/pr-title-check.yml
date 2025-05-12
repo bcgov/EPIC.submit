@@ -1,0 +1,20 @@
+name: Check PR Title for Jira Ticket
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title contains Jira ticket
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          echo "Checking PR title: $TITLE"
+          
+          # Regex: looks for something like SUBMIT-123 anywhere in the title
+          if [[ ! "$TITLE" =~ SUBMIT-[0-9]+ ]]; then
+            echo "PR title must include a Jira ticket number like SUBMIT-123"
+            exit 1
+          fi

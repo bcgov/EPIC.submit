@@ -121,6 +121,16 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Revision Required",
   },
+  REVISION_REQUESTED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid #F18A15`,
+      background: "#FFDEB8",
+      height: "24px",
+      width: "150px",
+    },
+    label: "Revision Requested",
+  },
   UPDATED: {
     sx: {
       borderRadius: 1,
@@ -157,6 +167,16 @@ const statusStyles: Record<string, StyleProps> = {
       background: BCDesignTokens.supportSurfaceColorSuccess,
       height: "24px",
       width: "86px",
+    },
+  },
+  REVIEWED: {
+    label: "Reviewed",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+      width: "85px",
     },
   },
   ACCEPTED: {

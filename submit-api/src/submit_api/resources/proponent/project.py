@@ -15,12 +15,12 @@
 
 from http import HTTPStatus
 
-from flask import request
+from flask import request, abort
 from flask_restx import Namespace, Resource, cors
 
 from submit_api.auth import auth
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
-from submit_api.models.package import PackageStatus
+from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import AccountProjectSchema, AddProjectSchema, ProjectSchema
 from submit_api.services.project_service import ProjectService
@@ -60,7 +60,15 @@ class ProjectsByAccount(Resource):
         search_text = args.get('search_text')
         submitted_on_start = args.get('submitted_on_start')
         submitted_on_end = args.get('submitted_on_end')
-        status = list(map(PackageStatus, args.getlist('status[]')))
+        raw_statuses = args.getlist("status[]")
+        status = []
+        for _status in raw_statuses:
+            if _status in PackageStatus._value2member_map_:
+                status.append(PackageStatus(_status))
+            elif _status in NonCanonicalPackageStatus._value2member_map_:
+                status.append(NonCanonicalPackageStatus(_status))
+            else:
+                abort(400, f"Unknown status: {_status}")
         search_options = AccountProjectSearchOptions(
             search_text=search_text,
             submitted_on_start=submitted_on_start,

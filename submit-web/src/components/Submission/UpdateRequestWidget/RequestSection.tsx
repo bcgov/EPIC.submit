@@ -16,6 +16,7 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { UpdateRequestStatusChip } from "../../UpdateRequestStatusChip";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { getSubmissionItemLabel } from "@/utils";
 
 type UpdateRequestProps = Readonly<{
   updateRequest: UpdateRequest;
@@ -71,11 +72,15 @@ export default function RequestSection({
         <Switch>
           <Case condition={type === UPDATE_REQUEST_TYPE.REVIEW.value}>
             Revision required for{" "}
-            {submissionItems.map((item) => item.type.name).join(", ")}
+            {submissionItems
+              .map((item) => getSubmissionItemLabel(item.type.name))
+              .join(", ")}
           </Case>
           <Case condition={type === UPDATE_REQUEST_TYPE.UPDATE.value}>
             Update requested for{" "}
-            {submissionItems.map((item) => item.type.name).join(", ")}
+            {submissionItems
+              .map((item) => getSubmissionItemLabel(item.type.name))
+              .join(", ")}
           </Case>
         </Switch>
       </Typography>
