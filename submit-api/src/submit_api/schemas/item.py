@@ -93,19 +93,12 @@ class ItemSchema(Schema):
     def filter_submissions_by_status(self, obj):
         """Filter submissions based on their status before returning the item."""
         # Filter out submissions with status PENDING_REPLACEMENT
-        submissions = obj.get("submissions", [])
-
-        filtered_submissions = [
-            submission for submission in submissions
-            if submission.get("status") != SubmissionStatus.PENDING_REPLACEMENT.value
+        result = [
+            ItemSubmissionSchema().dump(sub)
+            for sub in obj.submissions
+            if sub.status not in [SubmissionStatus.PENDING_REPLACEMENT]
         ]
-
-        obj["submissions"] = filtered_submissions
-
-        if not filtered_submissions:
-            return []
-
-        return obj
+        return result
 
 
 def get_item_status(status, user_type):
