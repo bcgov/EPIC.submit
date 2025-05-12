@@ -138,8 +138,7 @@ class PackageService:
         package_metadata = PackageMetadataModel.get_by_package_id(package_id)
 
         if not package_metadata:
-            raise ValueError(
-                f"Package metadata for package_id {package_id} does not exist.")
+            raise ValueError(f"Package metadata for package_id {package_id} does not exist.")
 
         metadata = package_metadata.json or {}
         new_metadata = {**metadata, **metadata_updates}
@@ -164,8 +163,7 @@ class PackageService:
     @classmethod
     def get_all_package_versions_by_original_package_id(cls, original_package_id):
         """Get all package versions by original package id."""
-        all_package_versions = PackageVersionModel.get_all_by_original_package_id(
-            original_package_id)
+        all_package_versions = PackageVersionModel.get_all_by_original_package_id(original_package_id)
         return all_package_versions
 
     @staticmethod
@@ -205,8 +203,7 @@ class PackageService:
 
         if any(item.status.value != ItemStatus.COMPLETED.value for item in package.items):
             current_app.logger.info(f"Package {package_id} has incomplete items")
-            raise BadRequestError(
-                "All items must be completed before completing the package")
+            raise BadRequestError("All items must be completed before completing the package")
 
         current_app.logger.info(f"Package {package_id} is ready to submit")
         return package
@@ -216,17 +213,13 @@ class PackageService:
         """Validate that the package is in a state that allows resubmission."""
         current_app.logger.info(f"Validating package {package.id} for resubmission")
         if not package.submitted_on:
-            raise BadRequestError(
-                "Cannot resubmit a package that has not been submitted")
+            raise BadRequestError("Cannot resubmit a package that has not been submitted")
         if package.status == PackageStatus.APPROVED:
-            raise BadRequestError(
-                "Cannot resubmit a package that has been approved")
+            raise BadRequestError("Cannot resubmit a package that has been approved")
         if package.status == PackageStatus.REJECTED:
-            raise BadRequestError(
-                "Cannot resubmit a package that has been rejected")
+            raise BadRequestError("Cannot resubmit a package that has been rejected")
         if not package.update_requests:
-            raise BadRequestError(
-                "Cannot resubmit a package that has no update requests")
+            raise BadRequestError("Cannot resubmit a package that has no update requests")
         current_app.logger.info(f"Package {package.id} is ready to resubmit")
         return package
 
@@ -258,8 +251,7 @@ class PackageService:
         if not cr_item:
             raise BadRequestError("Consultation record not found in package")
         if cr_item.status != ItemStatus.SUBMITTED:
-            raise BadRequestError(
-                "Consultation record in package is not submitted")
+            raise BadRequestError("Consultation record in package is not submitted")
         cr_item.status = data.get('status')
         cr_item.review_start_date = data.get('review_start_date')
         session.add(cr_item)
@@ -324,8 +316,7 @@ class PackageService:
     def submit_package(cls, package_id):
         """Submit the package by updating its status and items."""
         cls._validate_account_user()
-        authorization.check_has_permission(
-            [ProponentPermissionsEnum.SUBMIT_PACKAGE.value])
+        authorization.check_has_permission([ProponentPermissionsEnum.SUBMIT_PACKAGE.value])
         with session_scope() as session:
             package = cls._get_and_validate_complete_package(package_id)
             if package.submitted_on:
@@ -340,16 +331,13 @@ class PackageService:
     @classmethod
     def _submit_package(cls, package, session):
         """Submit the package by updating its status and items."""
-        cls._update_items_status(
-            package.items, ItemStatus.SUBMITTED.value, session)
+        cls._update_items_status(package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_package_status(package.id, session, package)
         cls._update_package_submission_details(package, session)
-        cls.update_submission_status(
-            package, SubmissionStatus.SUBMITTED.value, session)
+        cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._create_email_queue_record(package, session)
-        cls._log_activity_submission(
-            package, ActivityActionType.ORIGINAL_SUBMISSION.value, session)
+        cls._log_activity_submission(package, ActivityActionType.ORIGINAL_SUBMISSION.value, session)
         return package
 
     @classmethod
@@ -359,21 +347,16 @@ class PackageService:
         open_update_requests = [request for request in package.update_requests
                                 if request.status != UpdateRequestStatus.ACCEPTED.value]
         if not open_update_requests:
-            raise BadRequestError(
-                "Cannot resubmit a package that has no open update requests")
+            raise BadRequestError("Cannot resubmit a package that has no open update requests")
         if package.completed_on:
-            raise BadRequestError(
-                "Cannot resubmit a package that has been completed")
+            raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_package_submission_details(package, session)
-        cls.update_submission_status(
-            package, SubmissionStatus.SUBMITTED.value, session)
+        cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
         cls._deactivate_revision_required_requests(package, session)
-        cls._update_update_requests(
-            session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
+        cls._update_update_requests(ssession, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
         cls._deactivate_reviews(package, session)
-        cls._log_activity_submission(
-            package, ActivityActionType.UPDATED_SUBMISSION.value, session)
+        cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
         return package
 
     @classmethod
@@ -454,8 +437,7 @@ class PackageService:
         cls._update_review_item(review_item, item_data, session)
         cls._update_package_status(package_id, session, package)
         new_metadata = {
-            PackageMetadataFields.REVIEW_START_DATE.value: item_data.get(
-                'review_start_date')
+            PackageMetadataFields.REVIEW_START_DATE.value: item_data.get('review_start_date')
         }
         cls._update_package_metadata(session, package_id, new_metadata)
         cls._log_activity_start_review(package, session)
@@ -501,8 +483,7 @@ class PackageService:
                 package.items, item_data, session)
             cls._update_package_status(package_id, session, package)
             new_metadata = {
-                PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: item_data.get(
-                    'review_start_date')
+                PackageMetadataFields.CONSULTATION_CHECK_START_DATE.value: item_data.get('review_start_date')
             }
             cls._update_package_metadata(session, package_id, new_metadata)
             cls._log_activity_start_consultation_check(package, session)
@@ -662,11 +643,9 @@ class PackageService:
         if not update_request:
             raise ResourceNotFoundError("Update request not found")
         if update_request.submission_package_id != package_id:
-            raise BadRequestError(
-                "Update request does not belong to the specified package")
+            raise BadRequestError("Update request does not belong to the specified package")
         if update_request.note:
-            raise BadRequestError(
-                "Note already exists for the update request")
+            raise BadRequestError("Note already exists for the update request")
         if not update_request.active:
             raise BadRequestError("Update request is not active")
         cls._validate_account_user()
