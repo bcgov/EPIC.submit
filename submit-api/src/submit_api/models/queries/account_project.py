@@ -200,7 +200,8 @@ class ProjectQueries:
 
         canonical_statuses = [
             status.value for status in statuses
-            if isinstance(status, PackageStatus) and status.value != revision_required_value and status.value != revision_requested_value
+            if isinstance(status, PackageStatus) and status.value != revision_required_value 
+            and status.value != revision_requested_value
         ]
 
         include_revision_required = any(
