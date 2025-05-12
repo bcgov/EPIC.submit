@@ -23,8 +23,7 @@ from submit_api.schemas.submission import CreateSubmissionRequestSchema, Submiss
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.util import cors_preflight
 
-API = Namespace(
-    "submissions", description="Endpoints for Submission Management")
+API = Namespace("submissions", description="Endpoints for Submission Management")
 """Custom exception messages
 """
 
@@ -53,8 +52,7 @@ class SubmissionByItem(Resource):
     def post(submission_item_id):
         """Create a submission."""
         create_submission_data = CreateSubmissionRequestSchema().load(API.payload)
-        created_submission = SubmissionService.create_submission(
-            submission_item_id, create_submission_data)
+        created_submission = SubmissionService.create_submission(submission_item_id, create_submission_data)
         return SubmissionSchema().dump(created_submission), HTTPStatus.CREATED
 
 
@@ -75,8 +73,7 @@ class Submissions(Resource):
     def patch(submission_id):
         """Edit a submission."""
         edit_submission_data = CreateSubmissionRequestSchema().load(API.payload)
-        edited_submission = SubmissionService.edit_submission_form(
-            submission_id, edit_submission_data)
+        edited_submission = SubmissionService.edit_submission_form(submission_id, edit_submission_data)
         return SubmissionSchema().dump(edited_submission), HTTPStatus.OK
 
 
@@ -118,8 +115,7 @@ class DocumentSubmission(Resource):
     def post(submission_id):
         """Replace a submission document."""
         new_submission_data = CreateSubmissionRequestSchema().load(API.payload)
-        created_submission = SubmissionService.replace_submission(
-            submission_id, new_submission_data)
+        created_submission = SubmissionService.replace_submission(submission_id, new_submission_data)
         return SubmissionSchema().dump(created_submission), HTTPStatus.CREATED
 
     @staticmethod

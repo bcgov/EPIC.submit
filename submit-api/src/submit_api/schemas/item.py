@@ -34,8 +34,7 @@ class ItemSubmissionSchema(Schema):
     submitted_form = fields.Nested(
         SubmittedFormSchema, data_key="submitted_form")
     submitted_document = fields.Nested(
-        SubmittedDocumentSchema, data_key="submitted_document"
-    )
+        SubmittedDocumentSchema, data_key="submitted_document")
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
@@ -80,15 +79,15 @@ class ItemSchema(Schema):
         """Map status."""
         auth_guid = TokenInfo.get_id()
         if not auth_guid:
-            data["status"] = []
+            data['status'] = []
             return data
         user = UserService.get_by_auth_guid(auth_guid)
         user_type = user.type if user else None
 
-        status = data["status"]
+        status = data['status']
         new_status = get_item_status(status, user_type)
 
-        data["status"] = new_status
+        data['status'] = new_status
 
         return data
 
@@ -122,11 +121,11 @@ def get_item_status(status, user_type):
         ItemStatus.NEW_SUBMISSION.value: {UserType.PROPONENT: "", UserType.STAFF: ""},
         ItemStatus.PARTIALLY_COMPLETED.value: {
             UserType.PROPONENT: ItemStatus.PARTIALLY_COMPLETED.value,
-            UserType.STAFF: "",
+            UserType.STAFF: ''
         },
         ItemStatus.COMPLETED.value: {
             UserType.PROPONENT: ItemStatus.COMPLETED.value,
-            UserType.STAFF: "",
+            UserType.STAFF: ''
         },
         ItemStatus.CC_AWAITING_MANAGER_APPROVAL.value: {
             UserType.PROPONENT: ItemStatus.UNDER_CONSULTATION_CHECK.value,
@@ -134,7 +133,7 @@ def get_item_status(status, user_type):
         },
         ItemStatus.MP_AWAITING_MANAGER_APPROVAL.value: {
             UserType.PROPONENT: ItemStatus.UNDER_REVIEW.value,
-            UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value,
+            UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value
         },
         ItemStatus.IEM_AWAITING_MANAGER_APPROVAL.value: {
             UserType.PROPONENT: ItemStatus.UNDER_REVIEW.value,
@@ -142,16 +141,16 @@ def get_item_status(status, user_type):
         },
         ItemStatus.REVIEW_REJECTED.value: {
             UserType.PROPONENT: ItemStatus.REVISION_REQUIRED.value,
-            UserType.STAFF: ItemStatus.REVIEW_REJECTED.value,
+            UserType.STAFF: ItemStatus.REVIEW_REJECTED.value
         },
         ItemStatus.SATISFIED.value: {
             UserType.PROPONENT: ItemStatus.NO_REVISION_REQUIRED.value,
-            UserType.STAFF: ItemStatus.SATISFIED.value,
+            UserType.STAFF: ItemStatus.SATISFIED.value
         },
         ItemStatus.REVIEWED.value: {
             UserType.PROPONENT: ItemStatus.REVIEWED.value,
-            UserType.STAFF: ItemStatus.REVIEWED.value,
-        },
+            UserType.STAFF: ItemStatus.REVIEWED.value
+        }
     }
     if status in package_status_mapping:
         return package_status_mapping[status][user_type]
@@ -167,9 +166,8 @@ class StaffItemSchema(ItemSchema):
 
         unknown = EXCLUDE
 
-    internal_staff_documents = fields.Nested(
-        InternalStaffDocumentSchema, data_key="internal_staff_documents", many=True
-    )
+    internal_staff_documents = fields.Nested(InternalStaffDocumentSchema, 
+                                             data_key="internal_staff_documents", many=True)
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
     notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)
     review_start_date = fields.DateTime(data_key="review_start_date")
