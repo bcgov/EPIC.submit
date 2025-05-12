@@ -1,5 +1,5 @@
 import { Dialog, DialogActions, DialogContent, Button, Box } from "@mui/material";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import { useTermsOfServiceData } from "@/hooks/api/useTermsOfService";
 import { useModal } from "./modalStore";
 
@@ -23,13 +23,6 @@ const TermsModal: React.FC<TermsModalProps> = ({
       setHasScrolledToBottom(true);
     }
   };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    if (!open) {
-      setHasScrolledToBottom(false);
-    }
-  }, [open]);
 
   const handleAgree = () => {
     if (termsData?.version) {
