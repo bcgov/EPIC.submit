@@ -144,7 +144,7 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     label: "Update Requested",
   },
   REVISION_REQUESTED: {
-    value: "REVISION_REQUIRED",
+    value: "REVISION_REQUESTED",
     label: "Revision Requested",
   },
   AWAITING_MANAGER_APPROVAL: {

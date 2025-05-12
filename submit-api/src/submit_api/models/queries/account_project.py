@@ -194,19 +194,23 @@ class ProjectQueries:
     def _filter_by_submission_status(cls, query, statuses):
         """Filter by submission status, with special handling for revision required and update flags."""
         revision_required_value = PackageStatus.REVISION_REQUIRED.value
+        revision_requested_value = NonCanonicalPackageStatus.REVISION_REQUESTED.value
         update_requested_value = NonCanonicalPackageStatus.UPDATE_REQUESTED.value
         updated_value = NonCanonicalPackageStatus.UPDATED.value
 
         canonical_statuses = [
             status.value for status in statuses
-            if isinstance(status, PackageStatus) and status.value != revision_required_value
+            if isinstance(status, PackageStatus) and status.value != revision_required_value and status.value != revision_requested_value
         ]
 
         include_revision_required = any(
-            status.value == revision_required_value for status in statuses
+            status.value in (revision_required_value, revision_requested_value)
+            for status in statuses
         )
-        include_update_requested = any(status.value == update_requested_value for status in statuses)
-        include_updated = any(status.value == updated_value for status in statuses)
+        include_update_requested = any(
+            status.value == update_requested_value for status in statuses)
+        include_updated = any(
+            status.value == updated_value for status in statuses)
 
         if canonical_statuses:
             query = query.filter(Package.status.op("@>")(canonical_statuses))
@@ -215,7 +219,8 @@ class ProjectQueries:
             query = cls._revision_required_filter(query)
 
         if include_update_requested or include_updated:
-            query = cls._update_status_filter(query, include_update_requested, include_updated)
+            query = cls._update_status_filter(
+                query, include_update_requested, include_updated)
 
         return query
 
@@ -244,10 +249,12 @@ class ProjectQueries:
         ]
 
         if include_updated:
-            conditions.append(update_request.status == UpdateRequestStatus.PENDING_REVIEW.value)
+            conditions.append(update_request.status ==
+                              UpdateRequestStatus.PENDING_REVIEW.value)
 
         if include_update_requested:
-            conditions.append(update_request.status != UpdateRequestStatus.ACCEPTED.value)
+            conditions.append(update_request.status !=
+                              UpdateRequestStatus.ACCEPTED.value)
 
         return query.join(update_request, update_request.submission_package_id == Package.id).filter(*conditions)
 
