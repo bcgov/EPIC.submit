@@ -94,7 +94,7 @@ class _Config():  # pylint: disable=too-few-public-methods
     SENDER_EMAIL = os.getenv('SENDER_EMAIL')
     SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH', '/proponent/registration')
 
-    STAFF_SUPPORT_MAIL_ID = os.getenv('STAFF_SUPPORT_MAIL_ID', 'EAO.ManagementPlanSupport@gov.bc.ca')
+    STAFF_SUPPORT_MAIL_ID = os.getenv('STAFF_SUPPORT_MAIL_ID', '')
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods

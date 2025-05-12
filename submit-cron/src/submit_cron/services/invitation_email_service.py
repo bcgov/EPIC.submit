@@ -8,7 +8,7 @@ from submit_api.enums.role import RoleEnum
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 
 from submit_cron.models import db
-from submit_cron.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
+from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from urllib.parse import urljoin
 
 

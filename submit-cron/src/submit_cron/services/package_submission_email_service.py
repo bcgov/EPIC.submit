@@ -26,7 +26,6 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
             raise BadRequestError(f"Submitter with auth_guid {package.submitted_by} not found")
 
         sender_email = cls.get_email_sender_for_package_type(package.type.name)
-        recipients = [submitter.work_email_address]
 
         if not sender_email:
             raise BadRequestError(f"Sender email not found for package type: {package.type.name}")
@@ -40,6 +39,9 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
 
         if email_template_name == MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE:
             staff_email = current_app.config.get('STAFF_SUPPORT_MAIL_ID')
+            if not staff_email:
+                raise BadRequestError("STAFF_SUPPORT_MAIL_ID is not configured")
+
             recipients = [staff_email]
             subject = f"{proponent.proponent_name} submitted {package.name}"
         else:
