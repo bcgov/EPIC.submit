@@ -1,7 +1,7 @@
-'''Submission item model class.
+"""Submission item model class.
 
 Manages the item
-'''
+"""
 
 from __future__ import annotations
 
@@ -23,15 +23,12 @@ class Item(BaseModel):
     type_id = Column(db.Integer, ForeignKey('item_types.id'), nullable=False)
     sort_order = Column(db.Integer, nullable=True, default=0)
     type = db.relationship('ItemType', foreign_keys=[type_id], lazy='joined')
-    status = Column(
-        Enum(ItemStatus), nullable=False, default=ItemStatus.NEW_SUBMISSION.value
-    )
+    status = Column(Enum(ItemStatus), nullable=False,
+                    default=ItemStatus.NEW_SUBMISSION.value)
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String(255), nullable=True)
     version = Column(db.Integer, nullable=False, default=1)
-    internal_staff_documents = db.relationship(
-        'InternalStaffDocument', backref='item', lazy='select'
-    )
+    internal_staff_documents = db.relationship('InternalStaffDocument', backref='item', lazy='select')
     reviews = db.relationship('SubmissionReview', backref='item', lazy='select')
     notes = db.relationship('SubmissionItemNote', backref='item', lazy='select')
     reviewed_on = Column(db.DateTime, nullable=True)
@@ -40,7 +37,7 @@ class Item(BaseModel):
         'Submission',
         lazy='joined',
         primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))',
-        order_by='Submission.created_date.asc()',
+        order_by='Submission.created_date.asc()'
     )
 
     # add unique constraint package_id and type_id

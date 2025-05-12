@@ -46,8 +46,7 @@ class PackageService:
     @classmethod
     def create_new_package_from_original(cls, current_package_id, session):
         """Create a new package version."""
-        current_app.logger.info(
-            f"Creating a new package version for package {current_package_id}")
+        current_app.logger.info(f"Creating a new package version for package {current_package_id}")
         current_package = PackageModel.find_by_id(current_package_id)
         package_version = PackageVersionModel.get_by_id(
             current_package.version_id)
@@ -60,14 +59,12 @@ class PackageService:
          .info(f"Original package {package_version.original_package_id} has {len(all_package_versions)} versions"))
         latest_version = max(
             package_version.version for package_version in all_package_versions)
-        current_app.logger.info(
-            f"Latest version for package {current_package_id} is {latest_version}")
+        current_app.logger.info(f"Latest version for package {current_package_id} is {latest_version}")
         if latest_version != package_version.version:
             raise BadRequestError(
                 "Cannot create a new version for a package that is not the latest version")
         new_version = latest_version + 1
-        current_app.logger.info(
-            f"Creating new version {new_version} for package {current_package_id}")
+        current_app.logger.info(f"Creating new version {new_version} for package {current_package_id}")
         new_package_data = {
             "name": current_package.name,
         }
@@ -77,8 +74,7 @@ class PackageService:
         new_version = cls._create_package_version(
             session, original_package_id=package_version.original_package_id, version=new_version)
         new_package.version_id = new_version.id
-        current_app.logger.info(
-            f"Created new package {new_package.id} for package {current_package_id}")
+        current_app.logger.info(f"Created new package {new_package.id} for package {current_package_id}")
         session.add(new_package)
         new_metadata = {
             PackageMetadataFields.CONDITION.value: current_package.meta.json.get(
@@ -89,8 +85,7 @@ class PackageService:
         cls._create_package_metadata(
             session, new_package.id, new_metadata)
         cls._create_items(session, new_package.id, package_type)
-        current_app.logger.info(
-            f"Created new version {new_version.id} for package {current_package_id}")
+        current_app.logger.info(f"Created new version {new_version.id} for package {current_package_id}")
         return new_package
 
     @classmethod
@@ -114,8 +109,7 @@ class PackageService:
     @staticmethod
     def _create_package(session, account_project_id, request_data, package_type):
         """Create a new package."""
-        current_app.logger.info(
-            f"Creating a new package for account project {account_project_id}")
+        current_app.logger.info(f"Creating a new package for account project {account_project_id}")
         package_data = {
             "account_project_id": account_project_id,
             "name": request_data.get("name"),
@@ -124,8 +118,7 @@ class PackageService:
         package = PackageModel(**package_data)
         session.add(package)
         session.flush()
-        current_app.logger.info(
-            f"Created package {package.id} for account project {account_project_id}")
+        current_app.logger.info(f"Created package {package.id} for account project {account_project_id}")
         return package
 
     @staticmethod
@@ -158,16 +151,14 @@ class PackageService:
     @classmethod
     def _create_package_version(cls, session, original_package_id, version=1):
         """Create a new package version."""
-        current_app.logger.info(
-            f"Creating a new package version for package {original_package_id}")
+        current_app.logger.info(f"Creating a new package version for package {original_package_id}")
         package_version = PackageVersionModel(
             original_package_id=original_package_id,
             version=version
         )
         session.add(package_version)
         session.flush()
-        current_app.logger.info(
-            f"Created package version {package_version.id} for package {original_package_id}")
+        current_app.logger.info(f"Created package version {package_version.id} for package {original_package_id}")
         return package_version
 
     @classmethod
@@ -190,8 +181,7 @@ class PackageService:
         }
 
         for item_type in package_type.item_types:
-            current_app.logger.info(
-                f"Creating item for package {package_id} with item type {item_type.name}")
+            current_app.logger.info(f"Creating item for package {package_id} with item type {item_type.name}")
             package_item_type = item_type_to_package_item_type.get(
                 item_type.id)
             if package_item_type:
@@ -214,8 +204,7 @@ class PackageService:
             return cls._validate_package_for_resubmit(package)
 
         if any(item.status.value != ItemStatus.COMPLETED.value for item in package.items):
-            current_app.logger.info(
-                f"Package {package_id} has incomplete items")
+            current_app.logger.info(f"Package {package_id} has incomplete items")
             raise BadRequestError(
                 "All items must be completed before completing the package")
 
@@ -225,8 +214,7 @@ class PackageService:
     @classmethod
     def _validate_package_for_resubmit(cls, package) -> PackageModel:
         """Validate that the package is in a state that allows resubmission."""
-        current_app.logger.info(
-            f"Validating package {package.id} for resubmission")
+        current_app.logger.info(f"Validating package {package.id} for resubmission")
         if not package.submitted_on:
             raise BadRequestError(
                 "Cannot resubmit a package that has not been submitted")
@@ -279,8 +267,7 @@ class PackageService:
     @staticmethod
     def _update_package_submission_details(package, session):
         """Update package submission details."""
-        current_app.logger.info(
-            f"Updating submission details for package {package.id}")
+        current_app.logger.info(f"Updating submission details for package {package.id}")
         package.submitted_on = datetime.utcnow()
         package.submitted_by = TokenInfo.get_id()
 
@@ -304,8 +291,7 @@ class PackageService:
     @staticmethod
     def _deactivate_revision_required_requests(package, session):
         """Update package submission details."""
-        current_app.logger.info(
-            f"Deactivating revision required requests for package {package.id}")
+        current_app.logger.info(f"Deactivating revision required requests for package {package.id}")
         revision_required_requests = [request for request in package.update_requests
                                       if request.type == UpdateRequestType.REVIEW]
         for request in revision_required_requests:
@@ -316,8 +302,7 @@ class PackageService:
     @staticmethod
     def _update_update_requests(session, package, status, active=True):
         """Update package submission details."""
-        current_app.logger.info(
-            f"Updating update requests for package {package.id}")
+        current_app.logger.info(f"Updating update requests for package {package.id}")
         revision_required_requests = [request for request in package.update_requests
                                       if request.type == UpdateRequestType.UPDATE]
         for request in revision_required_requests:
@@ -433,8 +418,7 @@ class PackageService:
     @classmethod
     def _deactivate_reviews(cls, package, session):
         """Deactivate all reviews for the package."""
-        current_app.logger.info(
-            f"Deactivating reviews for package {package.id}")
+        current_app.logger.info(f"Deactivating reviews for package {package.id}")
         reviews = [item.review for item in package.items if item.review]
         for review in reviews:
             review.active = False
@@ -458,12 +442,10 @@ class PackageService:
         """Common logic for starting the review process."""
         review_item = cls._get_review_item(package)
         if not review_item:
-            current_app.logger.info(
-                f"Review form not found in package {package_id}")
+            current_app.logger.info(f"Review form not found in package {package_id}")
             raise BadRequestError("Review form not found in package")
         if review_item.status != ItemStatus.SUBMITTED:
-            current_app.logger.info(
-                f"Review form in package {package_id} is not submitted")
+            current_app.logger.info(f"Review form in package {package_id} is not submitted")
             return
         item_data = {
             'status': ItemStatus.UNDER_REVIEW.value,
@@ -546,8 +528,7 @@ class PackageService:
     @staticmethod
     def _create_email_queue_record(package, session):
         """Create email queue records for proponent and staff."""
-        current_app.logger.info(
-            f"Creating email queue records for package {package.id}")
+        current_app.logger.info(f"Creating email queue records for package {package.id}")
 
         # Email to the submitter (Proponent)
         email_to_proponent = EmailQueueModel(
@@ -565,8 +546,7 @@ class PackageService:
         )
         session.add(email_to_staff)
 
-        current_app.logger.info(
-            f"Email queue records created for package {package.id}")
+        current_app.logger.info(f"Email queue records created for package {package.id}")
 
     @classmethod
     def _get_state_updater(cls, status) -> callable:
