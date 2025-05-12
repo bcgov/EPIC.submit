@@ -100,7 +100,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             submission: SubmissionModel = SubmissionModel.find_by_id(
                 submission_id)
             if status := submission.status not in [SubmissionStatus.SUBMITTED,
-                                                   SubmissionStatus.REJECTED, SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
+                                                   SubmissionStatus.REJECTED,
+                                                   SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
                 raise BadRequestError(
                     f"Cannot replace a document with status {status}.")
             submitted_document = self._create_submitted_document(

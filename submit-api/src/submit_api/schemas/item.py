@@ -95,7 +95,6 @@ class ItemSchema(Schema):
     @post_dump
     def filter_submissions_by_status(self, data, many, **kwargs):
         """Filter submissions based on their status before returning the item."""
-
         # Filter out submissions with status PENDING_REPLACEMENT
         submissions = data.get("submissions", [])
 
@@ -165,6 +164,7 @@ class StaffItemSchema(ItemSchema):
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
+
         unknown = EXCLUDE
 
     internal_staff_documents = fields.Nested(
