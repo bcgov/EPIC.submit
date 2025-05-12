@@ -305,22 +305,23 @@ class AccountUserService:
     @classmethod
     def record_user_terms_of_service(cls, account_user_id, update_data):
         """Record user's terms of service."""
-        if not update_data.get('agreed_terms'):
+        if not update_data.get('has_agreed_to_terms'):
             raise ValueError("User must agree to the terms of service.")
 
-        terms_id = update_data.get('agreed_terms_of_service_id')
-        if not terms_id:
-            raise ValueError("'agreed_terms_of_service_id' is required.")
+        terms_of_service_version_id = update_data.get('terms_of_service_version_id')
+        if not terms_of_service_version_id:
+            raise ValueError("'terms_of_service_version_id' is required.")
 
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         if not account_user:
             raise ResourceNotFoundError(f"Account user with ID {account_user_id} not found.")
 
-        terms_of_service = TermsOfServiceModel.get_active_terms_of_service_by_id(terms_id)
+        terms_of_service = TermsOfServiceModel.get_active_terms_of_service_by_version(
+            terms_of_service_version_id)
         if not terms_of_service:
-            raise ResourceNotFoundError(f"Terms of service with ID {terms_id} not found")
+            raise ResourceNotFoundError(f"Terms of service with ID {terms_of_service_version_id} not found")
 
-        account_user.agreed_terms_of_service_id = terms_id
+        account_user.terms_of_service_version_id = terms_of_service_version_id
         account_user.terms_of_service_accepted_date = datetime.utcnow()
         db.session.commit()
 

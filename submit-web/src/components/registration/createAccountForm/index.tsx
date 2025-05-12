@@ -28,6 +28,7 @@ import { useCallback, useEffect } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
 import TermsModal from "@/components/Shared/Modals/TermsModal";
+import { useModal } from "@/components/Shared/Modals/modalStore";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -50,23 +51,14 @@ function CreateAccountForm() {
   const { setAccount, userId } = useAccount();
   const navigate = useNavigate();
 
-  const [termsOpen, setTermsOpen] = useState(false);
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [agreedInDialog, setAgreedInDialog] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
-  const [termsId, settermsId] = useState<number | null>(null);
+  const [versionId, setVersionId] = useState<number | null>(null);
+  const { setOpen: setOpenModal } = useModal();
 
   const handleAgreeClick = () => {
     setTermsAccepted(true);
-    setTermsOpen(false);
   };
-
-  useEffect(() => {
-    if (agreedInDialog && hasScrolledToBottom) {
-      setTermsAccepted(true);
-    }
-  }, [agreedInDialog, hasScrolledToBottom]);
 
   const navigateToNextStep = useCallback(() => {
     if (invitation?.is_first_time) {
@@ -116,15 +108,15 @@ function CreateAccountForm() {
   const { handleSubmit } = methods;
 
   const openTermsDialog = () => {
-    setHasScrolledToBottom(false); // reset scroll state
-    setAgreedInDialog(false);      // reset agree state
-    setTermsOpen(true);
-  };
+    setShowTermsError(false);
 
-  const closeTermsDialog = () => {
-    setTermsOpen(false);
-    setHasScrolledToBottom(false);
-    setAgreedInDialog(false);
+    // Open modal through global modal store
+    setOpenModal(
+      <TermsModal
+        onAgreeConfirmed={handleAgreeClick}
+        setVersionId={setVersionId}
+      />
+    );
   };
 
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
@@ -143,8 +135,8 @@ function CreateAccountForm() {
       auth_guid: user?.profile.sub,
       proponent_id: invitation.account_id,
       extension_number: data.extension_number,
-      agreed_terms_of_service_id: termsId,
-      agreed_terms: termsAccepted,
+      terms_of_service_version_id: versionId,
+      has_agreed_to_terms: termsAccepted,
     };
     doCreateAccount(accountData);
   };
@@ -159,8 +151,8 @@ function CreateAccountForm() {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body1">
-            Thank you for taking a few minutes to set up the{" "}
-            {projects?.[0]?.name || ""} account.
+            Please provide your information to set up your account for{" "}
+            {projects?.[0]?.name || ""}.
             <br />
             <br />
             {invitation?.role.role_name ===
@@ -208,30 +200,37 @@ function CreateAccountForm() {
           <Grid item xs={12}>
             <FormProvider {...methods}>
               <form onSubmit={handleSubmit(onSubmitHandler)}>
-                <ControlledTextField
-                  name="givenName"
-                  label="Your Given Name"
-                  fullWidth
-                  InputLabelProps={{
-                    sx: { fontWeight: 700, marginBottom: "0", color: "red" },
-                  }}
-                />
-                <ControlledTextField
-                  name="surname"
-                  label="Your Surname"
-                  fullWidth
-                  InputLabelProps={{
-                    sx: { fontWeight: 700 },
-                  }}
-                />
-                <ControlledTextField
-                  name="position"
-                  label={`Position/Role`}
-                  fullWidth
-                  InputLabelProps={{
-                    sx: { fontWeight: 700 },
-                  }}
-                />
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="givenName"
+                    label="Your Given Name"
+                    fullWidth
+                    InputLabelProps={{
+                      sx: { fontWeight: 700, marginBottom: "0", color: "red" },
+                    }}
+                    sx={{ mb: 0 }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="surname"
+                    label="Your Surname"
+                    fullWidth
+                    InputLabelProps={{
+                      sx: { fontWeight: 700 },
+                    }}
+                    sx={{ mb: 0 }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="position"
+                    label="Position/Role"
+                    fullWidth
+                    InputLabelProps={{ sx: { fontWeight: 700 } }}
+                    sx={{ mb: 0 }}
+                  />
+                </Grid>
                 <Grid item xs={12} container spacing={1}>
                   <Grid item xs={8.5}>
                     <ControlledInputMask
@@ -257,21 +256,27 @@ function CreateAccountForm() {
                     />
                   </Grid>
                 </Grid>
-                <ControlledTextField
-                  name="email"
-                  label="Your Work Email Address"
-                  fullWidth
-                  InputLabelProps={{
-                    sx: { fontWeight: 700, marginTop: 2 },
-                  }}
-                />
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="email"
+                    label="Your Work Email Address"
+                    fullWidth
+                    InputLabelProps={{ sx: { fontWeight: 700 } }}
+                  />
+                </Grid>
                 <Grid container spacing={1} alignItems="flex-start" marginBottom={4}>
                   <Grid item>
                     <Checkbox
                       checked={termsAccepted}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        openTermsDialog();
+                      onChange={(e) => {
+                        const checked = e.target.checked;
+                        if (checked) {
+                          e.preventDefault();
+                          openTermsDialog();
+                        } else {
+                          setTermsAccepted(false);
+                          setVersionId(null);
+                        }
                       }}
                       name="terms"
                       sx={{ p: 0, mr: 1 }}
@@ -313,12 +318,6 @@ function CreateAccountForm() {
                     To continue, please read the Terms and Conditions. The agreement button will unlock once you scroll to the end.
                   </FormHelperText>
                 )}
-                <TermsModal
-                  open={termsOpen}
-                  onClose={closeTermsDialog}
-                  onAgreeConfirmed={handleAgreeClick}
-                  settermsId={settermsId}
-                />
                 <Box mt={2}>
                   <Button
                     type="submit"

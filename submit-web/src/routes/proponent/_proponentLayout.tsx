@@ -7,6 +7,8 @@ import { useAccount } from "@/store/accountStore";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import TermsModal from "@/components/Shared/Modals/TermsModal";
+import { useTermsAgreement } from "@/hooks/api/useTermsAgreement";
 
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
@@ -36,18 +38,26 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
+  const { isReady, needsTermsAgreement, handleAgree } = useTermsAgreement(account, !account.isLoading);
 
-  if (account.isLoading) {
+  if (account.isLoading || !isReady) {
     return <PageLoader />;
   }
 
   return (
-    <div>
-      <BreadcrumbNav />
-      <Box flexDirection={"row"} display={"flex"}>
-        {!isMobile && <SideNavBar />}
-        <Outlet />
-      </Box>
-    </div>
+    <>
+      {needsTermsAgreement && (
+        <TermsModal onAgreeConfirmed={handleAgree}/>
+      )}
+      {!needsTermsAgreement && (
+        <div>
+          <BreadcrumbNav />
+          <Box flexDirection={"row"} display={"flex"}>
+            {!isMobile && <SideNavBar />}
+            <Outlet />
+          </Box>
+        </div>
+      )}
+    </>
   );
 }

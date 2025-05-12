@@ -34,5 +34,5 @@ class AccountCreateSchema(Schema):
     proponent_id = fields.Int(data_key="proponent_id")
     auth_guid = fields.Str(data_key="auth_guid")
     extension_number = fields.Str(data_key="extension_number")
-    agreed_terms_of_service_id = fields.Int(data_key="agreed_terms_of_service_id")
-    agreed_terms = fields.Bool(data_key="agreed_terms")
+    terms_of_service_version_id = fields.Int(data_key="terms_of_service_version_id")
+    has_agreed_to_terms = fields.Bool(data_key="has_agreed_to_terms")

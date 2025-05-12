@@ -78,14 +78,14 @@ class InvitationService:
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
             return {"error": "Invalid invitation token"}
-        agreed_terms = payload.get("agreed_terms")
-        agreed_terms_of_service_id = payload.get("agreed_terms_of_service_id")
+        has_agreed_to_terms = payload.get("has_agreed_to_terms")
+        terms_of_service_version_id = payload.get("terms_of_service_version_id")
         # Check if terms were accepted
-        if not agreed_terms:
+        if not has_agreed_to_terms:
             raise ValueError("Terms must be accepted to create a user.")
 
-        # Check if the agreed_terms_id corresponds to an active record
-        terms_record = TermsOfServiceModel.get_active_terms_of_service_by_id(agreed_terms_of_service_id)
+        # Check if the terms_of_service_version_id corresponds to an active record
+        terms_record = TermsOfServiceModel.get_active_terms_of_service_by_version(terms_of_service_version_id)
         if not terms_record:
             raise ValueError("Invalid or inactive Terms and Conditions reference.")
 
@@ -224,7 +224,7 @@ class InvitationService:
             "position": payload.get("position"),
             "user_id": user_id,
             "extension_number": payload.get("extension_number"),
-            "agreed_terms_of_service_id": payload.get("agreed_terms_of_service_id")
+            "terms_of_service_version_id": payload.get("terms_of_service_version_id")
         }, session)
 
     @staticmethod

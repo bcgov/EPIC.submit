@@ -25,8 +25,8 @@ class AccountUserSchema(Schema):
     role = fields.Nested(UserRoleSchema)
     status = fields.Str(required=False)
     account = fields.Nested(AccountSchema, data_key="account", dump_only=True)
-    agreed_terms_of_service_id = fields.Int(data_key="agreed_terms_of_service_id")
-    agreed_terms = fields.Bool(data_key="agreed_terms")
+    terms_of_service_version_id = fields.Int(data_key="terms_of_service_version_id")
+    has_agreed_to_terms = fields.Bool(data_key="has_agreed_to_terms")
 
 
 class EditRoleSchema(Schema):
@@ -39,5 +39,5 @@ class EditRoleSchema(Schema):
 class EditTermsOfServiceSchema(Schema):
     """Update user terms of service schema."""
 
-    agreed_terms_of_service_id = fields.Int(data_key="agreed_terms_of_service_id")
-    agreed_terms = fields.Bool(data_key="agreed_terms")
+    terms_of_service_version_id = fields.Int(data_key="terms_of_service_version_id")
+    has_agreed_to_terms = fields.Bool(data_key="has_agreed_to_terms")

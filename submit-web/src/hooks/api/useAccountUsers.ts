@@ -164,8 +164,8 @@ export const useSaveUserStatus = ({
 
 type TermsUpdateRequest = {
   account_user_id: number;
-  agreed_terms_of_service_id: number | null;
-  agreed_terms: boolean;
+  terms_of_service_version_id: number | null;
+  has_agreed_to_terms: boolean;
 };
 const recordUserTermsOfService = ({
   account_user_id,

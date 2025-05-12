@@ -48,6 +48,6 @@ class TermsOfService(BaseModel):
         return cls.query.filter_by(active=True).first()
 
     @classmethod
-    def get_active_terms_of_service_by_id(cls, agreed_term_id) -> TermsOfService | None:
+    def get_active_terms_of_service_by_version(cls, terms_of_service_version_id) -> TermsOfService | None:
         """Get the currently active terms of service."""
-        return cls.query.filter_by(id=agreed_term_id, active=True).first()
+        return cls.query.filter_by(version=terms_of_service_version_id, active=True).first()

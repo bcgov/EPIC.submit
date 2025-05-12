@@ -1,20 +1,18 @@
 import { Dialog, DialogActions, DialogContent, Button, Box } from "@mui/material";
 import { useRef, useState, useEffect } from "react";
 import { useTermsOfServiceData } from "@/hooks/api/useTermsOfService";
+import { useModal } from "./modalStore";
 
 type TermsModalProps = {
-  open: boolean;
-  onClose: () => void;
-  onAgreeConfirmed: (agreedTermsId: number | null) => void;
-  settermsId?: (id: number | null) => void;
+  onAgreeConfirmed: (agreedTermsVersionId: number | null) => void;
+  setVersionId?: (id: number | null) => void;
 };
 
 const TermsModal: React.FC<TermsModalProps> = ({
-  open,
-  onClose,
   onAgreeConfirmed,
-  settermsId
+  setVersionId
 }) => {
+  const { setClose } = useModal();
   const scrollBoxRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const { data: termsData } = useTermsOfServiceData();
@@ -33,15 +31,15 @@ if (el && el.scrollTop + el.clientHeight >= el.scrollHeight - 5) {
   }, [open]);
 
   const handleAgree = () => {
-    if (termsData?.id) {
-      settermsId?.(termsData.id);
-      onAgreeConfirmed(termsData.id); // pass the ID directly
-      onClose();
+    if (termsData?.version) {
+      setVersionId?.(termsData.version);
+      onAgreeConfirmed(termsData.version); // pass the ID directly
+      setClose();
     }
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
+    <Dialog open onClose={setClose} maxWidth="lg" fullWidth>
       <DialogContent
         onScroll={handleScroll}
         ref={scrollBoxRef}

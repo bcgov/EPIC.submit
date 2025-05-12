@@ -23,7 +23,7 @@ export type AccountUser = {
   work_contact_number: string;
   account: Account;
   role: Role;
-  agreed_terms: boolean;
+  has_agreed_to_terms: boolean;
 };
 
 export type AccountUserWithRole = {

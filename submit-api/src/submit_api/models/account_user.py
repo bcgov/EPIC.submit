@@ -7,6 +7,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import Column, ForeignKey
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import column_property
 
 from .base_model import BaseModel
@@ -32,8 +33,20 @@ class AccountUser(BaseModel):
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
     role = db.relationship('UserRole', back_populates='account_user', uselist=False)
-    agreed_terms_of_service_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.id'), nullable=True)
+    terms_of_service_version_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.version'), nullable=True)
     terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
+
+    terms_of_service = db.relationship(
+        'TermsOfService',
+        primaryjoin='AccountUser.terms_of_service_version_id == TermsOfService.version',
+        lazy='joined',
+        uselist=False
+    )
+
+    @hybrid_property
+    def has_agreed_to_terms(self) -> bool:
+        """Return True if terms_of_service_version_id points to an active TermsOfService."""
+        return bool(self.terms_of_service and self.terms_of_service.active)
 
     def to_dict(self):
         """Convert AccountUser ORM object to dictionary."""
@@ -63,7 +76,7 @@ class AccountUser(BaseModel):
             work_contact_number=data.get('work_contact_number', None),
             user_id=data.get('user_id', None),
             extension_number=data.get('extension_number', None),
-            agreed_terms_of_service_id=data.get('agreed_terms_of_service_id')
+            terms_of_service_version_id=data.get('terms_of_service_version_id')
         )
         if session:
             session.add(account_user)
