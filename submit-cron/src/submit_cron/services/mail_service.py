@@ -6,15 +6,17 @@ from submit_api.exceptions import BadRequestError
 from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.email_queue import EmailQueue, EmailStatus
+from functools import partial
 
 from submit_cron.services.package_submission_email_service import PackageSubmissionEmailService
 from submit_cron.services.ches_service import ChesApiService
 from submit_cron.models import db
 from submit_cron.services.invitation_email_service import InvitationEmailService
 from submit_cron.services.request_update_email_service import RequestUpdateEmailService
-from submit_cron.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, \
+from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, \
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, \
-    NEW_USER_INVITATION_EMAIL_TEMPLATE
+    NEW_USER_INVITATION_EMAIL_TEMPLATE,MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE
+
 
 
 class EmailService:  # pylint: disable=too-few-public-methods
@@ -44,6 +46,8 @@ class EmailService:  # pylint: disable=too-few-public-methods
         email_processors = {
             MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE: cls._process_package_submission_email,
             MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE: cls._process_request_update_creation_email,
+            # staff email uses the same content, but just a different template..so reusing the same method passing template name
+            MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE: partial(cls._process_package_submission_email, template_name=MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE),
             NEW_USER_INVITATION_EMAIL_TEMPLATE: cls._process_new_user_invitation_email
         }
         template = email_entry.template_name
@@ -52,14 +56,14 @@ class EmailService:  # pylint: disable=too-few-public-methods
         return email_processors.get(template)
 
     @staticmethod
-    def _process_package_submission_email(email_entry: EmailQueue):
+    def _process_package_submission_email(email_entry: EmailQueue, template_name=None ):
         """Process email entry for package submission."""
         package_id = email_entry.entity_id
         package: PackageModel = db.session.get(PackageModel, package_id)
         if not package:
             raise BadRequestError(f"Package with ID {package_id} not found.")
 
-        email_details = PackageSubmissionEmailService.prepare_package_submission_email_confirmation(package)
+        email_details = PackageSubmissionEmailService.prepare_package_submission_email_confirmation(package, template_name)
 
         # Send the email using ChesApiService
         EmailService.send_email(email_details)
