@@ -106,6 +106,18 @@ function CreateAccountForm() {
 
   const { handleSubmit } = methods;
 
+  const openTermsDialog = () => {
+    setHasScrolledToBottom(false); // reset scroll state
+    setAgreedInDialog(false);      // reset agree state
+    setTermsOpen(true);
+  };
+
+  const closeTermsDialog = () => {
+    setTermsOpen(false);
+    setHasScrolledToBottom(false);
+    setAgreedInDialog(false);
+  };
+
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
     if (!termsAccepted) {
       setShowTermsError(true);
