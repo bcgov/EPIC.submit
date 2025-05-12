@@ -7,15 +7,16 @@ import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { ExistingPlanDetails } from "./ExistingPlanDetails";
 import { When } from "react-if";
 import { useState } from "react";
+import { CircularProgress, Grid } from "@mui/material";
 
 type PlanDetailsProps = {
-  onSubmit: (formData: NewManagementPlanForm) => void;
+  onSubmit: (formData: Partial<NewManagementPlanForm>) => void;
 };
 
 export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
   const { formData } = useManagementPlanForm();
   const { accountId } = useAccount();
-  const { data: accountProjects } = useGetAccountProjectsByAccount({
+  const { data: accountProjects, isLoading } = useGetAccountProjectsByAccount({
     accountId,
   });
   const [newlyCreatedPlan, setNewlyCreatedPlan] = useState(false);
@@ -25,8 +26,20 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
     .find(
       (pkg) =>
         pkg?.meta?.main_condition?.condition_number ===
-        formData?.main_condition?.condition_number
+        formData?.main_condition?.condition_number,
     );
+
+  if (isLoading) {
+    return (
+      <TabBox title="Create New Submission">
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <CircularProgress size={40} />
+          </Grid>
+        </Grid>
+      </TabBox>
+    );
+  }
 
   return (
     <TabBox title="Create New Submission">

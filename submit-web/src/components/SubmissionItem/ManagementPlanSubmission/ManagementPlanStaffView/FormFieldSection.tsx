@@ -7,15 +7,14 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { When } from "react-if";
 import { useFormVisibilityStore } from "@/store/hideFormStore";
-import { FORM_TYPE } from "@/store/hideFormStore";
 import { useMemo } from "react";
 import { get } from "lodash";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useParams } from "@tanstack/react-router";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { ManagementPlanSubmissionForm } from "../ManagementPlanProponentView";
 
 const defaultFormData = {
   conditionSatisfied: "",
@@ -24,9 +23,9 @@ const defaultFormData = {
   notes: "",
 };
 
-interface FormFieldSectionProps {
+type FormFieldSectionProps = Readonly<{
   formData: Partial<ManagementPlanSubmissionForm>; // Replace FormValues with your actual form schema interface
-}
+}>;
 
 export default function FormFieldSection({ formData }: FormFieldSectionProps) {
   const {
@@ -38,10 +37,7 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
   });
   const mergedFormData = { ...defaultFormData, ...formData };
   const { getFormVisibility, setFormVisibility } = useFormVisibilityStore();
-  const isHidden = getFormVisibility(
-    Number(submissionItemId),
-    FORM_TYPE.MANAGEMENT_PLAN
-  );
+  const isHidden = getFormVisibility(Number(submissionItemId));
   const { data: submissionPackage } = useGetSubmissionPackage({
     packageId: Number(submissionPackageId),
     enabled: Boolean(accountProjectIdParam),
@@ -79,11 +75,7 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               <Switch
                 checked={isHidden}
                 onChange={() =>
-                  setFormVisibility(
-                    Number(submissionItemId),
-                    FORM_TYPE.MANAGEMENT_PLAN,
-                    !isHidden
-                  )
+                  setFormVisibility(Number(submissionItemId), !isHidden)
                 }
               />
             }

@@ -21,7 +21,7 @@ import {
 } from "@/components/Shared/Table/common";
 import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
 import { useMemo } from "react";
-import { filterOpenUpdateRequests } from "@/utils";
+import { filterOpenUpdateRequests, getSubmissionItemLabel } from "@/utils";
 import dayjs from "dayjs";
 import {
   UPDATE_REQUEST_STATUS,
@@ -39,7 +39,11 @@ export default function ProponentSubmissionItemTableRow({
   });
 
   const { id, submissions, status, type_id } = item;
-  const name = item.type.name;
+
+  const name = useMemo(() => {
+    return getSubmissionItemLabel(item.type.name);
+  }, [item.type.name]);
+
   const has_document =
     item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
 

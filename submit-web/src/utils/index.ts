@@ -5,6 +5,8 @@ import {
   UPDATE_REQUEST_TYPE,
   UpdateRequest,
 } from "@/models/UpdateRequest";
+import { get } from "lodash";
+import { SubmissionItemTypeLabelMap } from "@/models/SubmissionItem";
 
 export const stringToBoolean = (
   value: string | boolean,
@@ -38,4 +40,9 @@ export const filterOpenUpdateRequests = (updateRequests: UpdateRequest[]) => {
       updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
       updateRequest.active,
   );
+};
+
+export const getSubmissionItemLabel = (itemType?: string) => {
+  if (!itemType) return "";
+  return get(SubmissionItemTypeLabelMap, itemType, itemType);
 };

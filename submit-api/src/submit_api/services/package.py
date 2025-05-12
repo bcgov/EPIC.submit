@@ -6,6 +6,7 @@ from flask import current_app
 
 from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.package_type import PackageTypeEnum
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, User
@@ -28,7 +29,8 @@ from submit_api.models.user import UserType
 from submit_api.services import authorization
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.constants import (
-    MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
+    MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
+    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -235,11 +237,11 @@ class PackageService:
         session.flush()
 
     @staticmethod
-    def _update_mp_item(mp_item, data, session):
+    def _update_review_item(review_item, data, session):
         """Update the status of all items in the package."""
-        mp_item.status = data.get('status')
-        mp_item.review_start_date = data.get('review_start_date')
-        session.add(mp_item)
+        review_item.status = data.get('status')
+        review_item.review_start_date = data.get('review_start_date')
+        session.add(review_item)
 
     @staticmethod
     def _update_cr_status(items, data, session):
@@ -399,47 +401,64 @@ class PackageService:
             session.add(review)
 
     @classmethod
-    def start_mp_review(cls, package_id, _session=None):
+    def start_review(cls, package_id, _session=None):
         """Start the review process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)
 
         if _session is None:
             with session_scope() as session:
-                cls.start_mp_review_process(package, package_id, session)
+                cls.start_review_process(package, package_id, session)
         else:
-            cls.start_mp_review_process(package, package_id, _session)
+            cls.start_review_process(package, package_id, _session)
 
         return package
 
     @classmethod
-    def start_mp_review_process(cls, package, package_id, session):
+    def start_review_process(cls, package, package_id, session):
         """Common logic for starting the review process."""
-        mp_item = next((item for item in package.items
-                        if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value), None)
-        if not mp_item:
-            current_app.logger.info(f"Management plan form not found in package {package_id}")
-            raise BadRequestError("Management plan form not found in package")
-        if mp_item.status != ItemStatus.SUBMITTED:
-            current_app.logger.info(f"Management plan form in package {package_id} is not submitted")
+        review_item = cls._get_review_item(package)
+        if not review_item:
+            current_app.logger.info(f"Review form not found in package {package_id}")
+            raise BadRequestError("Review form not found in package")
+        if review_item.status != ItemStatus.SUBMITTED:
+            current_app.logger.info(f"Review form in package {package_id} is not submitted")
             return
         item_data = {
             'status': ItemStatus.UNDER_REVIEW.value,
             'review_start_date': datetime.utcnow().isoformat()
         }
-        cls._update_mp_item(mp_item, item_data, session)
+        cls._update_review_item(review_item, item_data, session)
         cls._update_package_status(package_id, session, package)
         new_metadata = {
             PackageMetadataFields.REVIEW_START_DATE.value: item_data.get('review_start_date')
         }
         cls._update_package_metadata(session, package_id, new_metadata)
-        cls._log_activity_start_mp_review(package, session)
+        cls._log_activity_start_review(package, session)
 
     @staticmethod
-    def _log_activity_start_mp_review(package, session):
+    def _get_review_item(package):
+        """Get the review item from the package."""
+        if package.type.name == PackageTypeEnum.IEM.value:
+            return next((item for item in package.items
+                         if item.type.name == SubmissionItemType.IEM.value), None)
+        if package.type.name == PackageTypeEnum.MANAGEMENT_PLAN.value:
+            return next((item for item in package.items
+                         if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value), None)
+        raise BadRequestError("Unsupported package type")
+
+    @staticmethod
+    def _log_activity_start_review(package, session):
         """Log activity for starting management plan review."""
+        review_action_map = {
+            PackageTypeEnum.IEM.value: ActivityActionType.START_IEM_REVIEW.value,
+            PackageTypeEnum.MANAGEMENT_PLAN.value: ActivityActionType.START_MP_REVIEW.value
+        }
+        action = review_action_map.get(package.type.name)
+        if not action:
+            raise BadRequestError("Unsupported package type for review")
         ActivityLogService.log_activity(
             entity_id=package.id,
-            action=ActivityActionType.START_MP_REVIEW.value,
+            action=action,
             entity_version=package.version.version,
             session=session
         )
@@ -482,13 +501,26 @@ class PackageService:
 
     @staticmethod
     def _create_email_queue_record(package, session):
-        """Create an email queue record."""
-        current_app.logger.info(f"Creating email queue record for package {package.id}")
-        email_queue = EmailQueueModel(
-            entity_id=package.id, entity_type=EntityType.PACKAGE.value,
+        """Create email queue records for proponent and staff."""
+        current_app.logger.info(f"Creating email queue records for package {package.id}")
+
+        # Email to the submitter (Proponent)
+        email_to_proponent = EmailQueueModel(
+            entity_id=package.id,
+            entity_type=EntityType.PACKAGE.value,
             template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
         )
-        session.add(email_queue)
+        session.add(email_to_proponent)
+
+        # Email to the staff
+        email_to_staff = EmailQueueModel(
+            entity_id=package.id,
+            entity_type=EntityType.PACKAGE.value,
+            template_name=MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE
+        )
+        session.add(email_to_staff)
+
+        current_app.logger.info(f"Email queue records created for package {package.id}")
 
     @classmethod
     def _get_state_updater(cls, status) -> callable:
@@ -497,7 +529,7 @@ class PackageService:
             lambda: cls._unsupported_status,
             {
                 PackageStatus.SUBMITTED.value: cls.submit_package,
-                PackageStatus.UNDER_REVIEW.value: cls.start_mp_review,
+                PackageStatus.UNDER_REVIEW.value: cls.start_review,
                 PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
             }
         )
@@ -572,9 +604,9 @@ class PackageService:
         package = cls.get_package_by_id(package_id)
         if not package:
             raise ResourceNotFoundError("Package not found")
-        if package.status == PackageStatus.APPROVED:
+        if package.completed_on:
             raise BadRequestError(
-                "Cannot create a review for a package that has been approved")
+                "Cannot create a review for a package that has been completed")
         if package.status == PackageStatus.REJECTED:
             raise BadRequestError(
                 "Cannot create a review for a package that has been rejected")

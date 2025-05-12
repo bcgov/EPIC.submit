@@ -1,19 +1,9 @@
 import { create } from "zustand";
 
-export enum FORM_TYPE {
-  CONSULTATION_RECORD = "CONSULTATION_RECORD",
-  MANAGEMENT_PLAN = "MANAGEMENT_PLAN",
-  // Add other form types as needed
-}
-
 type FormVisibilityState = {
   hiddenForms: Record<string, boolean>; // key format: `${submissionId}-${formType}`
-  setFormVisibility: (
-    submissionId: number,
-    formType: FORM_TYPE,
-    isHidden: boolean
-  ) => void;
-  getFormVisibility: (submissionId: number, formType: FORM_TYPE) => boolean;
+  setFormVisibility: (submissionId: number, isHidden: boolean) => void;
+  getFormVisibility: (submissionId: number) => boolean;
   resetFormVisibility: (submissionId: number) => void;
 };
 
@@ -21,21 +11,17 @@ export const useFormVisibilityStore = create<FormVisibilityState>(
   (set, get) => ({
     hiddenForms: {},
 
-    setFormVisibility: (
-      submissionId: number,
-      formType: FORM_TYPE,
-      isHidden: boolean
-    ) => {
+    setFormVisibility: (submissionId: number, isHidden: boolean) => {
       set((state) => ({
         hiddenForms: {
           ...state.hiddenForms,
-          [`${submissionId}-${formType}`]: isHidden,
+          [`${submissionId}`]: isHidden,
         },
       }));
     },
 
-    getFormVisibility: (submissionId: number, formType: FORM_TYPE) => {
-      return get().hiddenForms[`${submissionId}-${formType}`] || false;
+    getFormVisibility: (submissionId: number) => {
+      return get().hiddenForms[`${submissionId}`] || false;
     },
 
     resetFormVisibility: (submissionId: number) => {
@@ -50,5 +36,5 @@ export const useFormVisibilityStore = create<FormVisibilityState>(
         return { hiddenForms: newHiddenForms };
       });
     },
-  })
+  }),
 );

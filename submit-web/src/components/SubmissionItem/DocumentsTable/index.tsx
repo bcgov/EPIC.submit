@@ -23,6 +23,7 @@ import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { AccountProject } from "@/models/Project";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { camelCase } from "lodash";
+import { getSubmissionItemLabel } from "@/utils";
 
 type DocumentsTableProps = Readonly<{
   folder: string;
@@ -34,7 +35,7 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
 
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData<AccountProject>(
-    getAccountProjectQueryOptions(Number(projectId)).queryKey
+    getAccountProjectQueryOptions(Number(projectId)).queryKey,
   );
   const projectName = camelCase(accountProject?.project.name ?? "");
 
@@ -84,7 +85,7 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
           <SubmitTablePrimaryRow>
             <SubmitPrimaryRowTableCell>
               <Typography fontWeight={"bold"}>
-                {submissionItem.type.name}
+                {getSubmissionItemLabel(submissionItem.type.name)}
               </Typography>
             </SubmitPrimaryRowTableCell>
             <SubmitPrimaryRowTableCell colSpan={2} />

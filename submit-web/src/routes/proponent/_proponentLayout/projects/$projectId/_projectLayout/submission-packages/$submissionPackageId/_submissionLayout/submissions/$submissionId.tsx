@@ -8,6 +8,7 @@ import {
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
+import { getSubmissionItemLabel } from "@/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 
@@ -27,7 +28,7 @@ export const Route = createFileRoute(
   errorComponent: () => <Navigate to="/error" />,
   pendingComponent: LoadingSkeleton,
   meta: ({ loaderData: submissionItem }) => [
-    { title: submissionItem.type.name },
+    { title: getSubmissionItemLabel(submissionItem.type.name) },
   ],
 });
 

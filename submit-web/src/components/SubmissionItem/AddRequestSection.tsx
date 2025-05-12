@@ -11,6 +11,7 @@ import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import WarningBox from "@/components/Shared/WarningBox";
 import PriorityHighIcon from "@mui/icons-material/PriorityHigh";
 import Stack from "@mui/material/Stack";
+import { getSubmissionItemLabel } from "@/utils";
 
 type AddRequestSectionProps = {
   readonly disabled?: boolean;
@@ -26,13 +27,13 @@ export default function AddRequestSection({
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getStaffSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey
+    }).queryKey,
   );
   const filteredItems = useMemo(() => {
     if (!submissionPackage?.items) return [];
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD
+        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
     );
   }, [submissionPackage?.items]);
 
@@ -56,7 +57,7 @@ export default function AddRequestSection({
           <FormControlLabel
             key={item.id}
             control={<Checkbox value={item.type_id} />}
-            label={item.type.name}
+            label={getSubmissionItemLabel(item.type.name)}
           />
         ))}
       </ControlledCheckboxGroup>

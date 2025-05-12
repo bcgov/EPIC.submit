@@ -105,6 +105,13 @@ class PackageQueries:
                 PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value)
 
     @classmethod
+    def _add_awaiting_iem_manager_review(cls, aggregated_statuses: set, statuses: list[str]):
+        """Find packages that have been rejected during review"""
+        if any(status == ItemStatus.IEM_AWAITING_MANAGER_APPROVAL.value for status in statuses):
+            aggregated_statuses.add(
+                PackageStatus.IEM_AWAITING_MANAGER_APPROVAL.value)
+
+    @classmethod
     def aggregate_item_statuses(cls, items: list):
         """Aggregate item statuses"""
         statuses = [item.status.value if isinstance(item.status, ItemStatus)

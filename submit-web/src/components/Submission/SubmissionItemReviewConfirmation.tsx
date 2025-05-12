@@ -13,16 +13,19 @@ import { PACKAGE_STATUS } from "@/models/Package";
 import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
+import { get } from "lodash";
 
 const acceptedSubmissionItemTypes = [
   SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD,
   SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN,
+  SUBMISSION_ITEM_TYPE.IEM,
 ];
 
 const ItemTypePackageStatusMap = {
   [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]:
     PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value,
   [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: PACKAGE_STATUS.UNDER_REVIEW.value,
+  [SUBMISSION_ITEM_TYPE.IEM]: PACKAGE_STATUS.UNDER_REVIEW.value,
 };
 
 type SubmissionItemReviewConfirmationProps = Readonly<{
@@ -66,6 +69,8 @@ export default function SubmissionItemReviewConfirmation({
     setIsLoading(updatingSubmission);
   }, [updatingSubmission, setIsLoading]);
 
+  const packageStatus = get(ItemTypePackageStatusMap, itemType, null);
+
   const openConfirmationModal = () => {
     const { title, description, confirmText } = SUBMISSION_ITEM_MODAL_CONTENT[
       itemType
@@ -81,7 +86,7 @@ export default function SubmissionItemReviewConfirmation({
           updateStateSubmissionPackage({
             packageId: packageId,
             data: {
-              status: ItemTypePackageStatusMap[itemType],
+              status: packageStatus,
             },
           });
         }}
@@ -92,7 +97,7 @@ export default function SubmissionItemReviewConfirmation({
         description={description}
         confirmText={confirmText}
         secondaryActionText="Start Later"
-      />
+      />,
     );
   };
 
@@ -108,10 +113,7 @@ export default function SubmissionItemReviewConfirmation({
   };
 
   const handleConfirmationClick = () => {
-    if (
-      !acceptedSubmissionItemTypes.includes(itemType) ||
-      !ItemTypePackageStatusMap[itemType]
-    ) {
+    if (!acceptedSubmissionItemTypes.includes(itemType) || !packageStatus) {
       notify.error(`Cannot start review on this item type: ${itemType}`);
       return;
     }

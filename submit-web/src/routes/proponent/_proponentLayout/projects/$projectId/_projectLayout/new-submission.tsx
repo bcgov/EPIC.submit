@@ -8,7 +8,7 @@ import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropSt
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { SUBMISSION_PACKAGE_TYPE } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/components/Shared/types";
 import { useCreateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionPackage } from "@/models/Package";
@@ -72,12 +72,14 @@ export function NewManagementPlan() {
     return () => setIsOpen(false);
   }, [isCreatingSubmissionPackagePending, setIsOpen]);
 
-  const onCreateSubmissionPackage = (metadata: NewManagementPlanForm) => {
-    const { name, ...restMetadata } = metadata;
+  const onCreateSubmissionPackage = (
+    metadata: Partial<NewManagementPlanForm>,
+  ) => {
+    const { name, type, ...restMetadata } = metadata;
     const newSubmissionPackageRequest = {
-      name: name?.value ?? SUBMISSION_PACKAGE_TYPE.MANAGEMENT_PLAN,
+      name: name?.value ?? SubmissionPackageType.MANAGEMENT_PLAN,
       metadata: restMetadata,
-      type: SUBMISSION_PACKAGE_TYPE.MANAGEMENT_PLAN,
+      type: type,
     };
     createSubmissionPackage({
       accountProjectId: Number(projectId),
@@ -118,7 +120,7 @@ export function NewManagementPlan() {
             }}
           >
             <Typography variant="h4" fontWeight={400}>
-              Management Plans
+              Management Plans and Related Documents
             </Typography>
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
             <Box

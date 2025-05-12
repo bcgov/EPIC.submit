@@ -16,6 +16,7 @@ from submit_api.models.submission_review import SubmissionReview, SubmissionRevi
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.consultation_record_service import ConsultationRecordService
+from submit_api.services.iem_service import IEMTermsOfEngagementService
 from submit_api.services.management_plan_service import ManagementPlanService
 from submit_api.utils.token_info import TokenInfo
 
@@ -141,6 +142,8 @@ class SubmissionReviewService:
             return ItemStatus.MP_AWAITING_MANAGER_APPROVAL
         if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
             return ItemStatus.CC_AWAITING_MANAGER_APPROVAL
+        if item.type.name == SubmissionItemType.IEM.value:
+            return ItemStatus.IEM_AWAITING_MANAGER_APPROVAL
         raise UnprocessableEntityError("Item type is not supported.")
 
     @classmethod
@@ -177,6 +180,7 @@ class SubmissionReviewService:
             {
                 SubmissionItemType.CONSULTATION_RECORD.value: ConsultationRecordService.approve_consultation_record,
                 SubmissionItemType.MANAGEMENT_PLAN_FORM.value: ManagementPlanService.approve_management_plan,
+                SubmissionItemType.IEM.value: IEMTermsOfEngagementService.approve_iem,
             }
         )
         current_app.logger.debug(f"Approval processor retrieved for item {item.id} of type {item_type}")
@@ -213,6 +217,7 @@ class SubmissionReviewService:
             {
                 SubmissionItemType.MANAGEMENT_PLAN_FORM.value: ManagementPlanService.reject_management_plan_form,
                 SubmissionItemType.CONSULTATION_RECORD.value: ConsultationRecordService.reject_consultation_record,
+                SubmissionItemType.IEM.value: IEMTermsOfEngagementService.reject_iem_form,
             }
         )
         current_app.logger.debug(f"Rejection processor retrieved for item {item.id} of type {item_type}")
