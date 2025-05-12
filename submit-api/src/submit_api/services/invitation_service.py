@@ -14,6 +14,7 @@ from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
 from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
 from submit_api.models.role import Role as RoleModel
+from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
@@ -77,6 +78,17 @@ class InvitationService:
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
             return {"error": "Invalid invitation token"}
+        print(payload)
+        agreed_terms = payload.get("agreed_terms")
+        agreed_terms_of_service_id = payload.get("agreed_terms_of_service_id")
+        # Check if terms were accepted
+        if not agreed_terms:
+            raise ValueError("Terms must be accepted to create a user.")
+
+        # Check if the agreed_terms_id corresponds to an active record
+        terms_record = TermsOfServiceModel.get_active_terms_of_service_by_id(agreed_terms_of_service_id)
+        if not terms_record:
+            raise ValueError("Invalid or inactive Terms and Conditions reference.")
 
         with session_scope() as session:
             user = InvitationService._create_user(payload, session)
@@ -212,7 +224,8 @@ class InvitationService:
             "work_contact_number": payload.get("work_contact_number"),
             "position": payload.get("position"),
             "user_id": user_id,
-            "extension_number": payload.get("extension_number")
+            "extension_number": payload.get("extension_number"),
+            "agreed_terms_of_service_id": payload.get("agreed_terms_of_service_id")
         }, session)
 
     @staticmethod

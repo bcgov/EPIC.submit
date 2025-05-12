@@ -3,8 +3,11 @@ import { routeTree } from "@/routeTree.gen";
 import { useAuth } from "react-oidc-context";
 import { QueryClient, useQuery } from "@tanstack/react-query";
 import { useAccount } from "./store/accountStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getAccountQueryOptions } from "./hooks/api/useAccounts";
+import TermsModal from "@/components/Shared/Modals/TermsModal";
+import { useRecordUserTermsOfService } from "@/hooks/api/useAccountUsers";
+import { USER_TYPE } from "@/models/User";
 
 const queryClient = new QueryClient();
 // Create a new router instance
@@ -42,6 +45,24 @@ export default function RouterProviderWithAuthContext() {
   const account = useAccount();
   const { setAccount } = account;
 
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const hasValidAccountData = !!data?.userId;
+  const needsTermsAgreement =
+    isFetched &&
+    hasValidAccountData &&
+    !data.agreedTerms &&
+    !termsAccepted &&
+    data.userType !== USER_TYPE.STAFF;
+
+  const { mutate: recordTermsOfService } = useRecordUserTermsOfService(
+    () => {
+      setTermsAccepted(true);
+    },
+    (error) => {
+      console.error("Failed to record terms of service:", error);
+    },
+  );
+
   useEffect(() => {
     if (isFetched) {
       router.invalidate();
@@ -68,16 +89,37 @@ export default function RouterProviderWithAuthContext() {
     }
   }, [authentication]);
 
+  const handleAgree = (termsId: number | null) => {
+    if (!data?.userManagementRole?.account_user_id || !termsId) return;
+
+    recordTermsOfService({
+      account_user_id: data.userManagementRole.account_user_id,
+      agreed_terms_of_service_id: termsId,
+      agreed_terms: true,
+    });
+  };
+
   return (
-    <RouterProvider
-      router={router}
-      context={{
-        authentication,
-        account: {
-          ...account,
-          ...(data ?? {}),
-        },
-      }}
-    />
+    <>
+      {needsTermsAgreement && (
+        <TermsModal
+          open
+          onClose={() => {}}
+          onAgreeConfirmed={handleAgree}
+        />
+      )}
+      {!needsTermsAgreement && (
+        <RouterProvider
+          router={router}
+          context={{
+            authentication,
+            account: {
+              ...account,
+              ...(data ?? {}),
+            },
+          }}
+        />
+      )}
+    </>
   );
 }

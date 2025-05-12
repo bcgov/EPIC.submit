@@ -21,7 +21,7 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.account_user import AccountUserSchema, EditRoleSchema
+from submit_api.schemas.account_user import AccountUserSchema, EditRoleSchema, EditTermsOfServiceSchema
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.utils.util import cors_preflight
 
@@ -148,6 +148,34 @@ class EditUserStatus(Resource):
             updated_status_data = AccountUserService.reactivate_deactivate_user(
                 user_guid, account_user_id, active=data.get('active'))
             return AccountUserSchema().dump(updated_status_data), HTTPStatus.OK
+        except PermissionDeniedError as e:
+            return jsonify({"message": str(e)}), HTTPStatus.FORBIDDEN
+
+        except ResourceNotFoundError as e:
+            return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
+
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/user/<string:account_user_id>/terms-of-service", methods=["PATCH", "OPTIONS"])
+class EditUserTermsOfService(Resource):
+    """Resource for editing a user's terms of service."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Edit a user's terms of service")
+    @API.expect(account_user_list_model)
+    @API.response(
+        code=HTTPStatus.OK, model=account_user_list_model, description="Account user"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.require
+    @cors.crossdomain(origin="*")
+    def patch(account_user_id):
+        """Edit a user's terms of service."""
+        update_data = EditTermsOfServiceSchema().load(API.payload)
+        try:
+            updated_user_terms_of_service = AccountUserService.record_user_terms_of_service(
+                account_user_id, update_data)
+            return AccountUserSchema().dump(updated_user_terms_of_service), HTTPStatus.OK
         except PermissionDeniedError as e:
             return jsonify({"message": str(e)}), HTTPStatus.FORBIDDEN
 

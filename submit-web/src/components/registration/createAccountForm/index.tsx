@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
@@ -8,7 +9,7 @@ import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { Save } from "@mui/icons-material";
-import { CircularProgress, Grid, Typography } from "@mui/material";
+import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
@@ -25,6 +26,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { useCallback, useEffect } from "react";
 import { USER_TYPE } from "@/models/User";
+import { theme } from "@/styles/theme";
+import TermsModal from "@/components/Shared/Modals/TermsModal";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -46,6 +49,24 @@ function CreateAccountForm() {
   const { setStep, invitation } = useCreateAccountForm();
   const { setAccount, userId } = useAccount();
   const navigate = useNavigate();
+
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [agreedInDialog, setAgreedInDialog] = useState(false);
+  const [showTermsError, setShowTermsError] = useState(false);
+  const [termsId, settermsId] = useState<number | null>(null);
+
+  const handleAgreeClick = () => {
+    setTermsAccepted(true);
+    setTermsOpen(false);
+  };
+
+  useEffect(() => {
+    if (agreedInDialog && hasScrolledToBottom) {
+      setTermsAccepted(true);
+    }
+  }, [agreedInDialog, hasScrolledToBottom]);
 
   const navigateToNextStep = useCallback(() => {
     if (invitation?.is_first_time) {
@@ -94,7 +115,24 @@ function CreateAccountForm() {
 
   const { handleSubmit } = methods;
 
+  const openTermsDialog = () => {
+    setHasScrolledToBottom(false); // reset scroll state
+    setAgreedInDialog(false);      // reset agree state
+    setTermsOpen(true);
+  };
+
+  const closeTermsDialog = () => {
+    setTermsOpen(false);
+    setHasScrolledToBottom(false);
+    setAgreedInDialog(false);
+  };
+
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
+    if (!termsAccepted) {
+      setShowTermsError(true);
+      return;
+    }
+
     if (!user?.profile.sub || !invitation) return;
     const accountData = {
       first_name: data.givenName,
@@ -105,6 +143,8 @@ function CreateAccountForm() {
       auth_guid: user?.profile.sub,
       proponent_id: invitation.account_id,
       extension_number: data.extension_number,
+      agreed_terms_of_service_id: termsId,
+      agreed_terms: termsAccepted,
     };
     doCreateAccount(accountData);
   };
@@ -222,31 +262,87 @@ function CreateAccountForm() {
                   label="Your Work Email Address"
                   fullWidth
                   InputLabelProps={{
-                    sx: { fontWeight: 700 },
+                    sx: { fontWeight: 700, marginTop: 2 },
                   }}
                 />
-                <Button
-                  type="submit"
-                  color="primary"
-                  startIcon={
-                    isCreatingAccount ? (
-                      <CircularProgress
-                        size={16}
-                        sx={{
-                          color: BCDesignTokens.iconsColorPrimaryInvert,
+                <Grid container spacing={1} alignItems="flex-start" marginBottom={4}>
+                  <Grid item>
+                    <Checkbox
+                      checked={termsAccepted}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        openTermsDialog();
+                      }}
+                      name="terms"
+                      sx={{ p: 0, mr: 1 }}
+                    />
+                  </Grid>
+                  <Grid item xs>
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: '0.875rem',
+                        lineHeight: '1.4375em',
+                        color: 'text.primary',
+                        display: 'inline',
+                      }}
+                    >
+                      I agree to the{" "}
+                      <Box
+                        component="span"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openTermsDialog();
                         }}
-                      />
-                    ) : (
-                      <Save />
-                    )
-                  }
-                  sx={{
-                    height: "43px",
-                    width: "91px",
-                  }}
-                >
-                  Save
-                </Button>
+                        sx={{
+                          textDecoration: 'underline',
+                          cursor: 'pointer',
+                          color: theme.palette.primary.main,
+                          fontWeight: 700,
+                          ml: '2px',
+                        }}
+                      >
+                        Terms of Services
+                      </Box>
+                    </Typography>
+                  </Grid>
+                </Grid>
+                {showTermsError && (
+                  <FormHelperText error>
+                    To continue, please read the Terms and Conditions. The agreement button will unlock once you scroll to the end.
+                  </FormHelperText>
+                )}
+                <TermsModal
+                  open={termsOpen}
+                  onClose={closeTermsDialog}
+                  onAgreeConfirmed={handleAgreeClick}
+                  settermsId={settermsId}
+                />
+                <Box mt={2}>
+                  <Button
+                    type="submit"
+                    color="primary"
+                    startIcon={
+                      isCreatingAccount ? (
+                        <CircularProgress
+                          size={16}
+                          sx={{
+                            color: BCDesignTokens.iconsColorPrimaryInvert,
+                          }}
+                        />
+                      ) : (
+                        <Save />
+                      )
+                    }
+                    sx={{
+                      height: "43px",
+                      width: "91px",
+                    }}
+                  >
+                    Save
+                  </Button>
+                </Box>
               </form>
             </FormProvider>
           </Grid>

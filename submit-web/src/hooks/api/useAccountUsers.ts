@@ -1,5 +1,5 @@
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
-import { submitRequest } from "@/utils/axiosUtils";
+import { OnErrorType, OnSuccessType, submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
@@ -158,5 +158,32 @@ export const useSaveUserStatus = ({
         options.onError(new Error(errorMessage));
       }
     },
+  });
+};
+
+type TermsUpdateRequest = {
+  account_user_id: number;
+  agreed_terms_of_service_id: number | null;
+  agreed_terms: boolean;
+};
+const recordUserTermsOfService = ({
+  account_user_id,
+  ...rest
+}: TermsUpdateRequest) => {
+  return submitRequest({
+    url: `/accounts/user/${account_user_id}/terms-of-service`,
+    method: "patch",
+    data: rest,
+  });
+};
+
+export const useRecordUserTermsOfService = (
+  onSuccess: OnSuccessType,
+  onError: OnErrorType,
+) => {
+  return useMutation({
+    mutationFn: recordUserTermsOfService,
+    onSuccess,
+    onError,
   });
 };

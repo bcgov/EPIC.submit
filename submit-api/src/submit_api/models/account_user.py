@@ -4,6 +4,8 @@ Manages the account user
 """
 from __future__ import annotations
 
+from datetime import datetime
+
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import column_property
 
@@ -30,6 +32,8 @@ class AccountUser(BaseModel):
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
     role = db.relationship('UserRole', back_populates='account_user', uselist=False)
+    agreed_terms_of_service_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.id'), nullable=True)
+    terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
 
     def to_dict(self):
         """Convert AccountUser ORM object to dictionary."""
@@ -58,7 +62,8 @@ class AccountUser(BaseModel):
             work_email_address=data.get('work_email_address', None),
             work_contact_number=data.get('work_contact_number', None),
             user_id=data.get('user_id', None),
-            extension_number=data.get('extension_number', None)
+            extension_number=data.get('extension_number', None),
+            agreed_terms_of_service_id=data.get('agreed_terms_of_service_id')
         )
         if session:
             session.add(account_user)
