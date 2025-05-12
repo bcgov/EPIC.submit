@@ -19,11 +19,12 @@ const TermsModal: React.FC<TermsModalProps> = ({
 
   const handleScroll = () => {
     const el = scrollBoxRef.current;
-if (el && el.scrollTop + el.clientHeight >= el.scrollHeight - 5) {
-  setHasScrolledToBottom(true);
-}
+    if (el && el.scrollTop + el.clientHeight >= el.scrollHeight - 5) {
+      setHasScrolledToBottom(true);
+    }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!open) {
       setHasScrolledToBottom(false);
