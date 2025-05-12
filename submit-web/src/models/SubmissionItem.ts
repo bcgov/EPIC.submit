@@ -63,7 +63,6 @@ export interface SubmissionItem {
   review?: SubmissionReview;
   notes?: Note[];
   review_start_date?: string;
-  submitted_submissions?: Submission[];
 }
 
 export type InternalStaffDocumentType = "S3" | "LINK";
