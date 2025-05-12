@@ -274,10 +274,8 @@ class PackageService:
         for submission in submissions:
             if submission.status == SubmissionStatus.PENDING_REPLACEMENT:
                 submission.active = False
-                submission.status = status
-            else:
-                submission.status = status
-                session.add(submission)
+            submission.status = status
+            session.add(submission)
 
     @staticmethod
     def _deactivate_revision_required_requests(package, session):

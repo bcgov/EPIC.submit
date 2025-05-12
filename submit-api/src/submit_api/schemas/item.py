@@ -174,27 +174,10 @@ class StaffItemSchema(ItemSchema):
     submitted_submissions = fields.Method('get_submitted_submissions')
 
     def get_submitted_submissions(self, obj):
-        """Get only non-PENDING and non-PENDING_REPLACEMENT submissions."""
-        grouped = defaultdict(list)
-        for sub in obj.submissions:
-            root_id = sub.root_submission_id or sub.id
-            grouped[root_id].append(sub)
-
-        result = []
-        for group in grouped.values():
-            sorted_group = sorted(
-                group, key=lambda s: (s.major_version, s.minor_version), reverse=True
-            )
-
-            # Find the most recent non-PENDING and non-PENDING_REPLACEMENT submission
-            visible = next(
-                (s for s in sorted_group if s.status not in [
-                    SubmissionStatus.PENDING,
-                ]), None
-            )
-
-            if visible:
-                # Serialize the submission using ItemSubmissionSchema
-                result.append(ItemSubmissionSchema().dump(visible))
-
+        """Get only non-PENDING submissions."""
+        result = [
+            ItemSubmissionSchema().dump(sub)
+            for sub in obj.submissions
+            if sub.status not in [SubmissionStatus.PENDING]
+        ]
         return result
