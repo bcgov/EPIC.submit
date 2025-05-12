@@ -46,8 +46,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         email_processors = {
             MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE: cls._process_package_submission_email,
             MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE: cls._process_request_update_creation_email,
-            MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE: cls._process_request_update_creation_email,
-            # staff email uses the same content..but just a different template..so reusing the same method
+            # staff email uses the same content, but just a different template..so reusing the same method passing template name
             MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE: partial(cls._process_package_submission_email, template_name=MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE),
             NEW_USER_INVITATION_EMAIL_TEMPLATE: cls._process_new_user_invitation_email
         }
