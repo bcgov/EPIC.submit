@@ -89,7 +89,7 @@ export const useGetActivityLog = ({
   id,
   entityType,
   isAdmin = false,
-  enabled = true,
+  enabled = undefined,
 }: UseGetActivityLogForAdminByIdParams & { isAdmin?: boolean }) => {
   // Always call both hooks
   const adminResult = useGetActivityLogForAdmin({

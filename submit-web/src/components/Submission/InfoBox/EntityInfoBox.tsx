@@ -67,7 +67,9 @@ export const EntityInfoBox = ({ submissionPackage }: InfoBoxProps) => {
         <VersionGroup currentPackageVersion={version} />
       </Grid>
       <Grid item xs={12} container mt={"16px"}>
-        <SubmissionHistory submissionPackageId={String(submissionPackage.id)} />
+        <SubmissionHistory
+          submissionPackageId={String(version.original_package_id)}
+        />
       </Grid>
     </Grid>
   );

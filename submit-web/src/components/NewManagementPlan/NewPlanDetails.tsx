@@ -57,7 +57,7 @@ export const NewPlanDetails = ({
     setStep(Math.min(step - 1, 0));
   };
   const managementPlanName =
-    get(formData, "main_condition.condition_attributes.deliverable_name[0]") ??
+    formData?.main_condition?.condition_attributes?.deliverable_name?.[0] ??
     get(formData, "main_condition.condition_name");
 
   const submissionPackageType = useMemo(() => {

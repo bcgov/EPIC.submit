@@ -7,6 +7,7 @@ import { useAccount } from "@/store/accountStore";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
   beforeLoad: ({ context: { authentication, account } }) => {
