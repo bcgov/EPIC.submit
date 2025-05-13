@@ -8,7 +8,7 @@ import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import TermsModal from "@/components/Shared/Modals/TermsModal";
-import { useTermsAgreement } from "@/hooks/api/useTermsAgreement";
+import { useTermsOfService } from "@/hooks/api/useTermsOfService";
 
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
@@ -38,26 +38,23 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
-  const { isReady, needsTermsAgreement, handleAgree } = useTermsAgreement(account, !account.isLoading);
+  const { isReady, needsTermsAgreement, handleAgree } = useTermsOfService();
 
   if (account.isLoading || !isReady) {
     return <PageLoader />;
   }
 
+  if (needsTermsAgreement) {
+    return <TermsModal onAgreeConfirmed={handleAgree}/>;
+  }
+
   return (
-    <>
-      {needsTermsAgreement && (
-        <TermsModal onAgreeConfirmed={handleAgree}/>
-      )}
-      {!needsTermsAgreement && (
-        <div>
-          <BreadcrumbNav />
-          <Box flexDirection={"row"} display={"flex"}>
-            {!isMobile && <SideNavBar />}
-            <Outlet />
-          </Box>
-        </div>
-      )}
-    </>
+    <div>
+      <BreadcrumbNav />
+      <Box flexDirection={"row"} display={"flex"}>
+        {!isMobile && <SideNavBar />}
+        <Outlet />
+      </Box>
+    </div>
   );
 }
