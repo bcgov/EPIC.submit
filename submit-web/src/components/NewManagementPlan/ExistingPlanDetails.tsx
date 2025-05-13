@@ -80,7 +80,7 @@ export const ExistingPlanDetails = ({
           fontWeight={theme.typography.fontWeightBold}
         >
           Condition{" "}
-          {`${mainCondition.condition_number} - ${mainCondition.condition_name}`}
+          {`${mainCondition?.condition_number} - ${mainCondition?.condition_name}`}
         </Typography>
       </Grid>
       <When

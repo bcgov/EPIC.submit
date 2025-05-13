@@ -228,7 +228,7 @@ class SubmissionReviewService:
         """Log activity for approving or rejecting the Management Plan review."""
         package = PackageModel.find_by_id(item.package_id)
         ActivityLogService.log_activity(
-            entity_id=package.id,
+            entity_id=package.version.original_package_id,
             action=action,
             entity_version=package.version.version,
             session=session

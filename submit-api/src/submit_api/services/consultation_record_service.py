@@ -42,7 +42,7 @@ class ConsultationRecordService:
         session.add(package_metadata)
         package = Package.find_by_id(item.package_id)
         ActivityLogService.log_activity(
-            entity_id=package.id,
+            entity_id=package.version.original_package_id,
             action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
             entity_version=package.version.version,
             actor_id=TokenInfo.get_id(),
@@ -66,7 +66,7 @@ class ConsultationRecordService:
         cls._create_update_request(update_request_data, session)
         package = Package.find_by_id(item.package_id)
         ActivityLogService.log_activity(
-            entity_id=package.id,
+            entity_id=package.version.original_package_id,
             action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
             entity_version=package.version.version,
             actor_id=TokenInfo.get_id(),

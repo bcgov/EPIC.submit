@@ -69,7 +69,9 @@ export const AdminInfoBox = ({ submissionPackage }: InfoBoxProps) => {
       </Grid>
 
       <Grid item xs={12} container mt={"16px"}>
-        <SubmissionHistory submissionPackageId={String(submissionPackage.id)} />
+        <SubmissionHistory
+          submissionPackageId={String(version.original_package_id)}
+        />
       </Grid>
     </Grid>
   );

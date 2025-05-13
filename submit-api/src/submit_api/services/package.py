@@ -384,7 +384,7 @@ class PackageService:
     def _log_activity_submission(package, action, session):
         """Log activity for package submission."""
         ActivityLogService.log_activity(
-            entity_id=package.id,
+            entity_id=package.version.original_package_id,
             action=action,
             actor_type=ActorTypeEnum.ENTITY.value,
             entity_version=package.version.version,
@@ -457,7 +457,7 @@ class PackageService:
         if not action:
             raise BadRequestError("Unsupported package type for review")
         ActivityLogService.log_activity(
-            entity_id=package.id,
+            entity_id=package.version.original_package_id,
             action=action,
             entity_version=package.version.version,
             session=session
@@ -488,7 +488,7 @@ class PackageService:
     def _log_activity_start_consultation_check(package, session):
         """Log activity for starting consultation check."""
         ActivityLogService.log_activity(
-            entity_id=package.id,
+            entity_id=package.version.original_package_id,
             action=ActivityActionType.START_CONSULTATION_CHECK.value,
             entity_version=package.version.version,
             session=session
@@ -576,7 +576,7 @@ class PackageService:
     def _log_activity_update_request(package):
         """Log activity for update request creation."""
         ActivityLogService.log_activity(
-            entity_id=package.id,
+            entity_id=package.version.original_package_id,
             action=ActivityActionType.UPDATE_REQUESTED.value,
             entity_version=package.version.version,
         )
