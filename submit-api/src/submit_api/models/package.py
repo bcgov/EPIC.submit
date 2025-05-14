@@ -22,6 +22,7 @@ class NonCanonicalPackageStatus(enum.Enum):
 
     @classmethod
     def check_value(cls, value):
+        """Check if a value is a valid non-canonical package status."""
         for member in cls:
             if member.value == value:
                 return member
@@ -57,6 +58,7 @@ class PackageStatus(enum.Enum):
 
     @classmethod
     def check_value(cls, value):
+        """Check if a value is a valid package status."""
         for member in cls:
             if member.value == value:
                 return member
