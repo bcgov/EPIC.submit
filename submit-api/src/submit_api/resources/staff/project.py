@@ -61,13 +61,11 @@ class AccountProjects(Resource):
         raw_statuses = args.getlist("status[]")
         status = []
         for _status in raw_statuses:
-            try:
-                status.append(PackageStatus(_status))
-            except ValueError:
-                try:
-                    status.append(NonCanonicalPackageStatus(_status))
-                except ValueError:
-                    abort(400, f"Unknown status: {_status}")
+            result = PackageStatus.check_value(_status) or NonCanonicalPackageStatus.check_value(_status)
+            if result:
+                status.append(result)
+            else:
+                abort(400, f"Unknown status: {_status}")
         page = int(args.get('page', DEFAULT_PAGE))  # Default to page 1
         page_size = int(args.get('page_size', DEFAULT_PAGE_SIZE))  # Default to 10 items per page
 

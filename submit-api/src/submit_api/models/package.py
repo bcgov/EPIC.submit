@@ -20,6 +20,13 @@ class NonCanonicalPackageStatus(enum.Enum):
     UPDATE_REQUESTED = "UPDATE_REQUESTED"
     REVISION_REQUESTED = "REVISION_REQUESTED"
 
+    @classmethod
+    def check_value(cls, value):
+        for member in cls:
+            if member.value == value:
+                return member
+        return None
+
 
 class PackageStatus(enum.Enum):
     """Enum for package statuses."""
@@ -47,6 +54,13 @@ class PackageStatus(enum.Enum):
     REVISION_REQUIRED = 'REVISION_REQUIRED'
     NO_REVISION_REQUIRED = 'NO_REVISION_REQUIRED'
     RESUBMITTED = 'RESUBMITTED'
+
+    @classmethod
+    def check_value(cls, value):
+        for member in cls:
+            if member.value == value:
+                return member
+        return None
 
 
 class Package(BaseModel):

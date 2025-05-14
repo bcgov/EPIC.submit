@@ -63,13 +63,11 @@ class ProjectsByAccount(Resource):
         raw_statuses = args.getlist("status[]")
         status = []
         for _status in raw_statuses:
-            try:
-                status.append(PackageStatus(_status))
-            except ValueError:
-                try:
-                    status.append(NonCanonicalPackageStatus(_status))
-                except ValueError:
-                    abort(400, f"Unknown status: {_status}")
+            result = PackageStatus.check_value(_status) or NonCanonicalPackageStatus.check_value(_status)
+            if result:
+                status.append(result)
+            else:
+                abort(400, f"Unknown status: {_status}")
         search_options = AccountProjectSearchOptions(
             search_text=search_text,
             submitted_on_start=submitted_on_start,
