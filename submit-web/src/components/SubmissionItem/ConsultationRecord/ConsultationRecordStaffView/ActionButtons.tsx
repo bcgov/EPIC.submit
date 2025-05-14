@@ -22,7 +22,7 @@ import {
   checkIfManager,
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
-import { UnfinishedUploadsCheck } from "@/components/UnfinishedUploadsCheck";
+import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 
 export default function ActionButtons() {
   const {

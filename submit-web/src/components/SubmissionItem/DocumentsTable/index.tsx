@@ -27,8 +27,12 @@ import { getSubmissionItemLabel } from "@/utils";
 
 type DocumentsTableProps = Readonly<{
   folder: string;
+  setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
-export default function DocumentsTable({ folder }: DocumentsTableProps) {
+export default function DocumentsTable({
+  folder,
+  setIsPendingUpload,
+}: DocumentsTableProps) {
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -94,6 +98,7 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
                 folder={folder}
                 folderPath={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${folder}/`}
                 handleAddDocument={handleAddSubmission}
+                setIsPendingUpload={setIsPendingUpload}
               />
             </SubmitPrimaryRowTableCell>
           </SubmitTablePrimaryRow>
@@ -102,6 +107,7 @@ export default function DocumentsTable({ folder }: DocumentsTableProps) {
               key={documentSubmission.id}
               documentSubmission={documentSubmission}
               folderPath={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${folder}/`}
+              setIsPendingUpload={setIsPendingUpload}
             />
           ))}
         </TableBody>

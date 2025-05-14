@@ -22,7 +22,7 @@ import {
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
 import { iemReviewSchema, RadioOptions } from "./constants";
-import { UnfinishedUploadsCheck } from "@/components/UnfinishedUploadsCheck";
+import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 
 export default function ActionButtons() {
   const {

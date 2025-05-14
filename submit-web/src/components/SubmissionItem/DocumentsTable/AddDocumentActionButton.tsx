@@ -7,16 +7,19 @@ import { createSubmission } from "@/hooks/api/useSubmissions";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 
 type AddDocumentActionButtonProps = {
   handleAddDocument: (submission: Submission) => void;
   folder: string;
   folderPath: string;
+  setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
 };
 export const AddDocumentActionButton = ({
   handleAddDocument,
   folder,
   folderPath,
+  setIsPendingUpload,
 }: AddDocumentActionButtonProps) => {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -31,6 +34,7 @@ export const AddDocumentActionButton = ({
     const fileToUpload = files[0];
     try {
       setIsAddingDocument(true);
+      setIsPendingUpload(true);
       const uploadedFile = await saveObject({
         file: fileToUpload,
         fileDetails: {
@@ -55,8 +59,12 @@ export const AddDocumentActionButton = ({
       handleAddDocument(addedSubmission);
     } catch (e) {
       notify.error("Failed to add document");
+      if (isAxiosError(e)) {
+        notify.error(e.response?.data.message);
+      }
     } finally {
       setIsAddingDocument(false);
+      setIsPendingUpload(false);
     }
   };
   return (

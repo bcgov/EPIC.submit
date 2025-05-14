@@ -1,4 +1,4 @@
-import { UnfinishedUploadsCheck } from "@/components/UnfinishedUploadsCheck";
+import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { Button, Grid } from "@mui/material";
 
 export default function ActionButtons({

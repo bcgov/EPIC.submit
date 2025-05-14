@@ -14,11 +14,13 @@ import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
   folderPath: string;
+  setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
 }>;
 
 export default function Row({
   documentSubmission,
   folderPath,
+  setIsPendingUpload,
 }: DocumentRowProps) {
   const { submissionPackageId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -68,6 +70,7 @@ export default function Row({
     const fileToUpload = files[0];
     try {
       setIsReplacingDocument(true);
+      setIsPendingUpload(true);
       const resolvedFolderPath =
         currentSubmission.submitted_document.folder ===
         MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
@@ -97,6 +100,7 @@ export default function Row({
       notify.error("Failed to replace document");
     } finally {
       setIsReplacingDocument(false);
+      setIsPendingUpload(false);
     }
   };
 

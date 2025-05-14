@@ -1,20 +1,22 @@
 import { useFileStore } from "@/store/fileStore";
 import React from "react";
-import { useModal } from "./Shared/Modals/modalStore";
-import UpdateModal from "./Shared/Modals/UpdateModal";
-
+import { useModal } from "../Modals/modalStore";
+import UpdateModal from "../Modals/UpdateModal";
 type UnfinishedUploadsCheck = {
   children: React.ReactNode;
+  condition?: boolean;
 };
 export const UnfinishedUploadsCheck = ({
   children,
+  condition,
 }: UnfinishedUploadsCheck) => {
   const { pendingFiles } = useFileStore();
   const { setOpen: setOpenModal } = useModal();
 
   const handleClick = (onClick: () => void) => () => {
+    const isConditionMet = condition ?? pendingFiles.length > 0;
     if (!onClick) return;
-    if (pendingFiles.length > 0) {
+    if (isConditionMet) {
       setOpenModal(
         <UpdateModal
           title="About to lose your changes"
