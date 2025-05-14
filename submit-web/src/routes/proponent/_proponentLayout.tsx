@@ -37,15 +37,8 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
-  const { isReady, needsTermsAgreement, checkAndShowTermsModal } = useTermsOfService();
 
-  useEffect(() => {
-    if (isReady && needsTermsAgreement) {
-      checkAndShowTermsModal();
-    }
-  }, [checkAndShowTermsModal, isReady, needsTermsAgreement]);
-
-  if (account.isLoading || !isReady) {
+  if (account.isLoading) {
     return <PageLoader />;
   }
 
