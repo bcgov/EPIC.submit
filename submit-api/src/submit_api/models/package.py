@@ -104,3 +104,9 @@ class Package(BaseModel):
     def get_all_package_by_ids(cls, package_ids: list[int]):
         """Return model by package ids."""
         return cls.query.filter(Package.id.in_(package_ids)).all()
+
+    @classmethod
+    def get_account_project_id_by_package_id(cls, package_id: int) -> int | None:
+        """Return only the account_project_id for a given package id."""
+        result = db.session.query(cls.account_project_id).filter(cls.id == package_id).scalar()
+        return result

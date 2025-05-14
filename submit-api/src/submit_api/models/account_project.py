@@ -52,6 +52,11 @@ class AccountProject(BaseModel):
         return cls.query.all()
 
     @classmethod
+    def get_by_account_id(cls, account_id: int) -> AccountProject | None:
+        """Return the AccountProject object for the given account_id."""
+        return cls.query.filter_by(account_id=account_id).first()
+
+    @classmethod
     def create_account_project(cls, account_id, project_id, session=None) -> AccountProject:
         """Create account project."""
         account_project = AccountProject(
