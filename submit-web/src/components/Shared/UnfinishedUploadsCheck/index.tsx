@@ -4,17 +4,17 @@ import { useModal } from "../Modals/modalStore";
 import UpdateModal from "../Modals/UpdateModal";
 type UnfinishedUploadsCheck = {
   children: React.ReactNode;
-  condition?: boolean;
+  customCondition?: boolean;
 };
 export const UnfinishedUploadsCheck = ({
   children,
-  condition,
+  customCondition,
 }: UnfinishedUploadsCheck) => {
   const { pendingFiles } = useFileStore();
   const { setOpen: setOpenModal } = useModal();
 
   const handleClick = (onClick: () => void) => () => {
-    const isConditionMet = condition ?? pendingFiles.length > 0;
+    const isConditionMet = customCondition ?? pendingFiles.length > 0;
     if (!onClick) return;
     if (isConditionMet) {
       setOpenModal(

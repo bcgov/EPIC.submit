@@ -28,7 +28,7 @@ export const ManagementPlanUpdateForm = () => {
           setIsPendingUpload={setIsPendingUpload}
         />
       </Box>
-      <UnfinishedUploadsCheck condition={isPendingUpload}>
+      <UnfinishedUploadsCheck customCondition={isPendingUpload}>
         <Button
           sx={{
             mt: "3em",
