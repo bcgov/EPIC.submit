@@ -183,7 +183,7 @@ export const ManagementPlanSubmissionProponentView = () => {
   return (
     <SubmissionFormContainer>
       <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
+        <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <Grid item xs={12}>
               <BarBlueTitle title="Management Plan Requirements" />
@@ -192,7 +192,10 @@ export const ManagementPlanSubmissionProponentView = () => {
               <FormFieldSection errors={errors} />
               <DocumentUploadSection />
             </Grid>
-            <ActionButtons saveAndClose={saveAndClose} />
+            <ActionButtons
+              onSubmit={handleSubmit(handleCompleteForm)}
+              saveAndClose={saveAndClose}
+            />
           </Grid>
         </Form>
       </FormProvider>
