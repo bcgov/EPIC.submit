@@ -27,7 +27,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import { useCallback, useEffect } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
-import { useTermsOfService } from "@/hooks/api/useTermsOfService";
+import { useTermsOfService } from "@/components/Shared/TermsOfService";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),

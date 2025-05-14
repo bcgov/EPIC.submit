@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import SideNavBar from "@/components/Shared/layout/SideNav/SideNavBar";
 import { PageLoader } from "@/components/Shared/PageLoader";
@@ -8,7 +7,7 @@ import { useAccount } from "@/store/accountStore";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { useTermsOfService } from "@/hooks/api/useTermsOfService";
+import { TermsOfServiceProvider } from "@/components/Shared/TermsOfService";
 
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
@@ -38,25 +37,20 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
-  const { isReady, needsTermsAgreement, checkAndShowTermsModal } = useTermsOfService();
 
-  useEffect(() => {
-    if (isReady && needsTermsAgreement) {
-      checkAndShowTermsModal();
-    }
-  }, [checkAndShowTermsModal, isReady, needsTermsAgreement]);
-
-  if (account.isLoading || !isReady) {
+  if (account.isLoading) {
     return <PageLoader />;
   }
 
   return (
     <div>
-      <BreadcrumbNav />
-      <Box flexDirection={"row"} display={"flex"}>
-        {!isMobile && <SideNavBar />}
-        <Outlet />
-      </Box>
+      <TermsOfServiceProvider>
+        <BreadcrumbNav />
+        <Box flexDirection={"row"} display={"flex"}>
+          {!isMobile && <SideNavBar />}
+          <Outlet />
+        </Box>
+      </TermsOfServiceProvider>
     </div>
   );
 }

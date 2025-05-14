@@ -1,46 +1,50 @@
-import { useQuery } from "@tanstack/react-query";
-import { submitRequest } from "@/utils/axiosUtils";
-import { QUERY_KEY } from "./constants";
-import { useState, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 import { useRecordUserTermsOfService } from "@/hooks/api/useAccountUsers";
-import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import TermsModal from "@/components/Shared/Modals/TermsModal";
 import { isAxiosError } from "axios";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useAccount } from "@/store/accountStore";
-import TermsModal from "@/components/Shared/Modals/TermsModal";
-import { useModal } from "@/components/Shared/Modals/modalStore";
+import { USER_TYPE } from "@/models/User";
 
-const fetchTermsOfService = () => {
-  return submitRequest({ url: "/terms-of-service" });
+type TermsContextType = {
+  isReady: boolean;
+  needsTermsAgreement: boolean;
+  termsAccepted: boolean;
+  versionId: number | null;
+  setVersionId: (id: number | null) => void;
+  setTermsAccepted: (accepted: boolean) => void;
+  showTermsModal: () => void;
 };
 
-export const useTermsOfServiceData = () => {
-  return useQuery({
-    queryKey: [QUERY_KEY.TERMS_OF_SERVICE],
-    queryFn: fetchTermsOfService,
-  });
-}
+const TermsContext = createContext<TermsContextType | undefined>(undefined);
 
-export function useTermsOfService() {
+export const TermsOfServiceProvider = ({ children }: { children: ReactNode }) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [versionId, setVersionId] = useState<number | null>(null);
   const { setOpen: setOpenModal } = useModal();
-
   const account = useAccount();
 
   const isProponent = account?.userType === USER_TYPE.PROPONENT;
 
   const isReady =
-    !account.isLoading && !!account?.userId && account.userType === USER_TYPE.PROPONENT && account.accountId !== 0;
+    !account.isLoading &&
+    !!account?.userId &&
+    account.userType === USER_TYPE.PROPONENT &&
+    account.accountId !== 0;
 
   const needsTermsAgreement = useMemo(() => {
     if (!isProponent || termsAccepted) return false;
-
     if (account?.hasAgreedToTerms !== undefined) {
       return !account.hasAgreedToTerms;
     }
-
-    // If no account info yet, assume user hasn't agreed
     return true;
   }, [isProponent, termsAccepted, account?.hasAgreedToTerms]);
 
@@ -51,7 +55,6 @@ export function useTermsOfService() {
       const errorMessage = isAxiosError(error)
         ? (error.response?.data as any)?.message ?? defaultMessage
         : defaultMessage;
-
       notify.error(errorMessage);
     },
   });
@@ -68,20 +71,8 @@ export function useTermsOfService() {
     });
   };
 
-  const checkAndShowTermsModal = () => {
-    if (!needsTermsAgreement) return;
-
-    setOpenModal(
-      <TermsModal
-        onAgreeConfirmed={handleAgree}
-        setVersionId={setVersionId}
-      />
-    );
-  };
-
   const showTermsModal = () => {
     setTermsAccepted(true);
-
     setOpenModal(
       <TermsModal
         onAgreeConfirmed={handleAgree}
@@ -90,14 +81,36 @@ export function useTermsOfService() {
     );
   };
 
-  return {
+  useEffect(() => {
+    if (isReady && needsTermsAgreement) {
+      setOpenModal(
+        <TermsModal
+          onAgreeConfirmed={handleAgree}
+          setVersionId={setVersionId}
+        />
+      );
+    }
+  }, [isReady, needsTermsAgreement]);
+
+  const value = {
     isReady,
     needsTermsAgreement,
     termsAccepted,
     versionId,
     setVersionId,
     setTermsAccepted,
-    checkAndShowTermsModal,
     showTermsModal,
   };
-}
+
+  return (
+    <TermsContext.Provider value={value}>{children}</TermsContext.Provider>
+  );
+};
+
+export const useTermsOfService = () => {
+  const context = useContext(TermsContext);
+  if (context === undefined) {
+    throw new Error("useTermsOfService must be used within a TermsOfServiceProvider");
+  }
+  return context;
+};
