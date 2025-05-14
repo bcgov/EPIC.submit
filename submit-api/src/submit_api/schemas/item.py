@@ -4,7 +4,6 @@ Manages the item schema
 """
 
 from marshmallow import EXCLUDE, Schema, fields, pre_dump, post_dump
-
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.user import UserType
@@ -45,8 +44,11 @@ class ItemSubmissionSchema(Schema):
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
         """Get submitted by."""
-        obj.submitted_by = obj.submitted_by_user.account_user.full_name\
-            if obj.submitted_by_user and obj.submitted_by_user.account_user else None
+        obj.submitted_by = (
+            obj.submitted_by_user.account_user.full_name
+            if obj.submitted_by_user and obj.submitted_by_user.account_user
+            else None
+        )
         return obj
 
 
@@ -66,8 +68,7 @@ class ItemSchema(Schema):
     version = fields.Int(data_key="version")
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
-    submissions = fields.Nested(
-        ItemSubmissionSchema, data_key="submissions", many=True)
+    submissions = fields.Method('filter_submissions_by_status')
     sort_order = fields.Int(data_key="sort_order")
 
     @post_dump
@@ -87,6 +88,16 @@ class ItemSchema(Schema):
 
         return data
 
+    def filter_submissions_by_status(self, obj):
+        """Filter submissions based on their status before returning the item."""
+        # Filter out submissions with status PENDING_REPLACEMENT
+        result = [
+            ItemSubmissionSchema().dump(sub)
+            for sub in obj.submissions
+            if sub.status not in [SubmissionStatus.PENDING_REPLACEMENT]
+        ]
+        return result
+
 
 def get_item_status(status, user_type):
     """Get the local (Pacific Timezone) datetime."""
@@ -96,10 +107,7 @@ def get_item_status(status, user_type):
         return status
 
     package_status_mapping = {
-        ItemStatus.NEW_SUBMISSION.value: {
-            UserType.PROPONENT: '',
-            UserType.STAFF: ''
-        },
+        ItemStatus.NEW_SUBMISSION.value: {UserType.PROPONENT: "", UserType.STAFF: ""},
         ItemStatus.PARTIALLY_COMPLETED.value: {
             UserType.PROPONENT: ItemStatus.PARTIALLY_COMPLETED.value,
             UserType.STAFF: ''
@@ -110,7 +118,7 @@ def get_item_status(status, user_type):
         },
         ItemStatus.CC_AWAITING_MANAGER_APPROVAL.value: {
             UserType.PROPONENT: ItemStatus.UNDER_CONSULTATION_CHECK.value,
-            UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value
+            UserType.STAFF: ItemStatus.AWAITING_MANAGER_APPROVAL.value,
         },
         ItemStatus.MP_AWAITING_MANAGER_APPROVAL.value: {
             UserType.PROPONENT: ItemStatus.UNDER_REVIEW.value,
@@ -152,3 +160,13 @@ class StaffItemSchema(ItemSchema):
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
     notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)
     review_start_date = fields.DateTime(data_key="review_start_date")
+    submissions = fields.Method('get_submitted_submissions')
+
+    def get_submitted_submissions(self, obj):
+        """Get only non-PENDING submissions."""
+        result = [
+            ItemSubmissionSchema().dump(sub)
+            for sub in obj.submissions
+            if sub.status not in [SubmissionStatus.PENDING]
+        ]
+        return result
