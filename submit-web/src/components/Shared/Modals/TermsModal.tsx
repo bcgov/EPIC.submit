@@ -33,7 +33,13 @@ const TermsModal: React.FC<TermsModalProps> = ({
   };
 
   return (
-    <Dialog open onClose={setClose} maxWidth="lg" fullWidth>
+    <Dialog
+      open
+      onClose={() => {}}
+      maxWidth="lg"
+      fullWidth
+      disableEscapeKeyDown
+    >
       <DialogContent
         onScroll={handleScroll}
         ref={scrollBoxRef}

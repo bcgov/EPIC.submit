@@ -27,8 +27,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import { useCallback, useEffect } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
-import TermsModal from "@/components/Shared/Modals/TermsModal";
-import { useModal } from "@/components/Shared/Modals/modalStore";
+import { useTermsOfService } from "@/hooks/api/useTermsOfService";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -51,14 +50,14 @@ function CreateAccountForm() {
   const { setAccount, userId } = useAccount();
   const navigate = useNavigate();
 
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
-  const [versionId, setVersionId] = useState<number | null>(null);
-  const { setOpen: setOpenModal } = useModal();
-
-  const handleAgreeClick = () => {
-    setTermsAccepted(true);
-  };
+  const {
+    termsAccepted,
+    versionId,
+    setTermsAccepted,
+    setVersionId,
+    showTermsModal,
+  } = useTermsOfService();
 
   const navigateToNextStep = useCallback(() => {
     if (invitation?.is_first_time) {
@@ -106,18 +105,6 @@ function CreateAccountForm() {
   });
 
   const { handleSubmit } = methods;
-
-  const openTermsDialog = () => {
-    setShowTermsError(false);
-
-    // Open modal through global modal store
-    setOpenModal(
-      <TermsModal
-        onAgreeConfirmed={handleAgreeClick}
-        setVersionId={setVersionId}
-      />
-    );
-  };
 
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
     if (!termsAccepted) {
@@ -272,7 +259,7 @@ function CreateAccountForm() {
                         const checked = e.target.checked;
                         if (checked) {
                           e.preventDefault();
-                          openTermsDialog();
+                          showTermsModal();
                         } else {
                           setTermsAccepted(false);
                           setVersionId(null);
@@ -298,7 +285,7 @@ function CreateAccountForm() {
                         component="span"
                         onClick={(e) => {
                           e.stopPropagation();
-                          openTermsDialog();
+                          showTermsModal();
                         }}
                         sx={{
                           textDecoration: 'underline',

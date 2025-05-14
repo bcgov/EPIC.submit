@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
 import SideNavBar from "@/components/Shared/layout/SideNav/SideNavBar";
 import { PageLoader } from "@/components/Shared/PageLoader";
@@ -7,7 +8,6 @@ import { useAccount } from "@/store/accountStore";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import TermsModal from "@/components/Shared/Modals/TermsModal";
 import { useTermsOfService } from "@/hooks/api/useTermsOfService";
 
 export const Route = createFileRoute("/proponent/_proponentLayout")({
@@ -38,14 +38,16 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
-  const { isReady, needsTermsAgreement, handleAgree } = useTermsOfService();
+  const { isReady, needsTermsAgreement, checkAndShowTermsModal } = useTermsOfService();
+
+  useEffect(() => {
+    if (isReady && needsTermsAgreement) {
+      checkAndShowTermsModal();
+    }
+  }, [checkAndShowTermsModal, isReady, needsTermsAgreement]);
 
   if (account.isLoading || !isReady) {
     return <PageLoader />;
-  }
-
-  if (needsTermsAgreement) {
-    return <TermsModal onAgreeConfirmed={handleAgree}/>;
   }
 
   return (
