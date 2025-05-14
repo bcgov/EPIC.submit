@@ -1,7 +1,7 @@
 """account_terms_of_service
 
 Revision ID: 4f8c0a55cb6a
-Revises: 826fa830606a
+Revises: a98a64e73ffb
 Create Date: 2025-05-09 16:17:06.676534
 
 """
@@ -14,7 +14,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '4f8c0a55cb6a'
-down_revision = '826fa830606a'
+down_revision = 'a98a64e73ffb'
 branch_labels = None
 depends_on = None
 

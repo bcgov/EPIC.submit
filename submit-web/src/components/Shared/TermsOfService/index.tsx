@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useContext,
-  useMemo,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import { useCallback, useMemo, useEffect, ReactNode } from "react";
 import { useRecordUserTermsOfService } from "@/hooks/api/useAccountUsers";
 import { useAccount } from "@/store/accountStore";
 import { useModal } from "@/components/Shared/Modals/modalStore";
@@ -13,40 +6,35 @@ import TermsModal from "@/components/Shared/Modals/TermsModal";
 import { isAxiosError } from "axios";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { USER_TYPE } from "@/models/User";
-
-type TermsContextType = {
-  isReady: boolean;
-  needsTermsAgreement: boolean;
-  termsAccepted: boolean;
-  versionId: number | null;
-  setVersionId: (id: number | null) => void;
-  setTermsAccepted: (accepted: boolean) => void;
-  showTermsModal: () => void;
-};
-
-const TermsContext = createContext<TermsContextType | undefined>(undefined);
+import { useTermsStore } from "@/store/termsStore";
 
 export const TermsOfServiceProvider = ({ children }: { children: ReactNode }) => {
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [versionId, setVersionId] = useState<number | null>(null);
-  const { setOpen: setOpenModal } = useModal();
+  const {
+    termsAccepted,
+    setTermsAccepted,
+    setVersionId,
+    showTermsModalFlag,
+    setShowTermsModalFlag
+  } = useTermsStore();
+
   const account = useAccount();
+  const { setOpen: setOpenModal } = useModal();
 
   const isProponent = account?.userType === USER_TYPE.PROPONENT;
 
   const isReady =
     !account.isLoading &&
     !!account?.userId &&
-    account.userType === USER_TYPE.PROPONENT &&
+    isProponent &&
     account.accountId !== 0;
 
   const needsTermsAgreement = useMemo(() => {
-    if (!isProponent || termsAccepted) return false;
+    if (!isProponent || termsAccepted || showTermsModalFlag) return false;
     if (account?.hasAgreedToTerms !== undefined) {
       return !account.hasAgreedToTerms;
     }
     return true;
-  }, [isProponent, termsAccepted, account?.hasAgreedToTerms]);
+  }, [isProponent, termsAccepted, account?.hasAgreedToTerms, showTermsModalFlag]);
 
   const { mutate: recordTermsOfService } = useRecordUserTermsOfService({
     onSuccess: () => setTermsAccepted(true),
@@ -59,30 +47,35 @@ export const TermsOfServiceProvider = ({ children }: { children: ReactNode }) =>
     },
   });
 
-  const handleAgree = (acceptedVersionId: number | null) => {
-    if (!account?.userManagementRole?.account_user_id || !acceptedVersionId) return;
+  const handleAgree = useCallback((acceptedVersionId: number | null) => {
+    if (!showTermsModalFlag) {
+      if (!account?.userManagementRole?.account_user_id || !acceptedVersionId) return;
 
-    setVersionId(acceptedVersionId);
+      setVersionId(acceptedVersionId);
 
-    recordTermsOfService({
-      account_user_id: account.userManagementRole.account_user_id,
-      terms_of_service_version_id: acceptedVersionId,
-      has_agreed_to_terms: true,
-    });
-  };
-
-  const showTermsModal = () => {
-    setTermsAccepted(true);
-    setOpenModal(
-      <TermsModal
-        onAgreeConfirmed={handleAgree}
-        setVersionId={setVersionId}
-      />
-    );
-  };
+      recordTermsOfService({
+        account_user_id: account.userManagementRole.account_user_id,
+        terms_of_service_version_id: acceptedVersionId,
+        has_agreed_to_terms: true,
+      });
+    } else {
+      setTermsAccepted(true);
+      setVersionId(acceptedVersionId);
+      setShowTermsModalFlag(false);
+    }
+  },
+    [
+      showTermsModalFlag,
+      account?.userManagementRole?.account_user_id,
+      setVersionId,
+      recordTermsOfService,
+      setTermsAccepted,
+      setShowTermsModalFlag,
+    ]
+  );
 
   useEffect(() => {
-    if (isReady && needsTermsAgreement) {
+    if ((isReady && needsTermsAgreement) || showTermsModalFlag) {
       setOpenModal(
         <TermsModal
           onAgreeConfirmed={handleAgree}
@@ -90,27 +83,7 @@ export const TermsOfServiceProvider = ({ children }: { children: ReactNode }) =>
         />
       );
     }
-  }, [isReady, needsTermsAgreement]);
+  }, [isReady, needsTermsAgreement, showTermsModalFlag, handleAgree, setVersionId, setOpenModal]);
 
-  const value = {
-    isReady,
-    needsTermsAgreement,
-    termsAccepted,
-    versionId,
-    setVersionId,
-    setTermsAccepted,
-    showTermsModal,
-  };
-
-  return (
-    <TermsContext.Provider value={value}>{children}</TermsContext.Provider>
-  );
-};
-
-export const useTermsOfService = () => {
-  const context = useContext(TermsContext);
-  if (context === undefined) {
-    throw new Error("useTermsOfService must be used within a TermsOfServiceProvider");
-  }
-  return context;
+  return <>{children}</>
 };

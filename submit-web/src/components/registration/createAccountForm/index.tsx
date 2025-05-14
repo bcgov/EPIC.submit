@@ -27,7 +27,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import { useCallback, useEffect } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
-import { useTermsOfService } from "@/components/Shared/TermsOfService";
+import { useTermsStore } from "@/store/termsStore";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -56,8 +56,8 @@ function CreateAccountForm() {
     versionId,
     setTermsAccepted,
     setVersionId,
-    showTermsModal,
-  } = useTermsOfService();
+    setShowTermsModalFlag
+  } = useTermsStore();
 
   const navigateToNextStep = useCallback(() => {
     if (invitation?.is_first_time) {
@@ -259,7 +259,7 @@ function CreateAccountForm() {
                         const checked = e.target.checked;
                         if (checked) {
                           e.preventDefault();
-                          showTermsModal();
+                          setShowTermsModalFlag(true);
                         } else {
                           setTermsAccepted(false);
                           setVersionId(null);
@@ -285,7 +285,7 @@ function CreateAccountForm() {
                         component="span"
                         onClick={(e) => {
                           e.stopPropagation();
-                          showTermsModal();
+                          setShowTermsModalFlag(true);
                         }}
                         sx={{
                           textDecoration: 'underline',
