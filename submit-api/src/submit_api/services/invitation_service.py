@@ -14,6 +14,7 @@ from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
 from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
 from submit_api.models.role import Role as RoleModel
+from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.user import UserType
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
@@ -77,6 +78,16 @@ class InvitationService:
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
             return {"error": "Invalid invitation token"}
+        has_agreed_to_terms = payload.get("has_agreed_to_terms")
+        terms_of_service_version_id = payload.get("terms_of_service_version_id")
+        # Check if terms were accepted
+        if not has_agreed_to_terms:
+            raise ValueError("Terms must be accepted to create a user.")
+
+        # Check if the terms_of_service_version_id corresponds to an active record
+        terms_record = TermsOfServiceModel.get_active_terms_of_service_by_version(terms_of_service_version_id)
+        if not terms_record:
+            raise ValueError("Invalid or inactive Terms and Conditions reference.")
 
         with session_scope() as session:
             user = InvitationService._create_user(payload, session)
@@ -84,8 +95,10 @@ class InvitationService:
             account_user = InvitationService._create_account_user(
                 user.id, invitation.account_id, payload, session)
 
+            account_project: AccountProjectModel = AccountProjectModel.get_by_account_id(invitation.account_id)
+
             role = InvitationService._assign_user_role(
-                account_user.id, invitation, session)
+                account_user.id, account_project.id, invitation, session)
 
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
@@ -210,17 +223,17 @@ class InvitationService:
             "work_contact_number": payload.get("work_contact_number"),
             "position": payload.get("position"),
             "user_id": user_id,
-            "extension_number": payload.get("extension_number")
+            "extension_number": payload.get("extension_number"),
+            "terms_of_service_version_id": payload.get("terms_of_service_version_id")
         }, session)
 
     @staticmethod
-    def _assign_user_role(account_user_id, invitation, session):
+    def _assign_user_role(account_user_id, account_project_id, invitation, session):
         """Assign the role to the user."""
         return AccountUserService.assign_role({
             "account_user_id": account_user_id,
             "role_id": invitation.role_id,
-            # TODO: Add account_project_ids for users onboarded by project admin
-            "account_project_id": None,
+            "account_project_id": account_project_id,
             "package_ids": invitation.package_ids,
         }, session)
 

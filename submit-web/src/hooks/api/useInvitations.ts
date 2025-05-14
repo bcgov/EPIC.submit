@@ -69,6 +69,8 @@ type CreateAccountRequest = {
   proponent_id: number;
   auth_guid: string;
   extension_number?: string;
+  terms_of_service_version_id: number | null;
+  has_agreed_to_terms: boolean;
 };
 
 export type AcceptInvitationResponse = {

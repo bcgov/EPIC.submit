@@ -32,6 +32,7 @@ from .proponent.project import API as PROJECT_API
 from .proponent.submission import API as SUBMISSION_API
 from .proponent.user import API as USER_API
 from .proponent.account_user import API as ACCOUNT_USER_API
+from .proponent.account_terms_of_service import API as ACCOUNT_TERMS_OF_SERVICE_API
 from .proponent.invitation import API as INVITATION_API
 from .proponent.activity_log import API as ACTIVITY_LOG_API
 from .staff.internal_document import API as STAFF_INTERNAL_DOCUMENT_API
@@ -78,6 +79,7 @@ API.add_namespace(SUBMISSION_API)
 API.add_namespace(INVITATION_API)
 API.add_namespace(ACCOUNT_USER_API)
 API.add_namespace(ACTIVITY_LOG_API)
+API.add_namespace(ACCOUNT_TERMS_OF_SERVICE_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,

@@ -14,6 +14,7 @@ export type AccountStoreState = {
   userId: number;
   isLoading: boolean;
   userType?: UserType;
+  hasAgreedToTerms: boolean;
   roles?: string[];
   userManagementRole?: Role;
   error?: AxiosError;
@@ -27,6 +28,7 @@ export const initialAccountState = {
   userId: 0,
   isLoading: true,
   userType: undefined,
+  hasAgreedToTerms: false,
   roles: [],
   userManagementRole: undefined,
   error: undefined,

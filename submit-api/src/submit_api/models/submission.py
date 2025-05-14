@@ -27,6 +27,7 @@ class SubmissionStatus(enum.Enum):
     REJECTED = 'REJECTED'
     APPROVED = 'APPROVED'
     PENDING = 'PENDING'
+    PENDING_REPLACEMENT = 'PENDING_REPLACEMENT'
 
 
 class Submission(BaseModel):
@@ -65,7 +66,9 @@ class Submission(BaseModel):
 
     @classmethod
     def find_all_versions(cls, root_submission_id: int):
-        """Fetch all versions of a submission given its root submission ID."""
-        return (cls.query.filter_by(root_submission_id=root_submission_id, deleted=False)
+        """Fetch all versions of a submission given its root submission ID, excluding PENDING."""
+        return (cls.query
+                .filter_by(root_submission_id=root_submission_id, deleted=False)
+                .filter(cls.status != SubmissionStatus.PENDING)
                 .order_by(cls.major_version.desc(), cls.minor_version.desc())
                 .all())

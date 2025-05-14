@@ -36,7 +36,7 @@ export default function StaffSubmissionItemTableRow({
     useSuspenseQuery(
       getStaffSubmissionPackageQueryOptions({
         packageId: Number(submissionPackageId),
-      }),
+      })
     );
 
   const { submissions, id } = item;
@@ -115,7 +115,7 @@ export default function StaffSubmissionItemTableRow({
       </SubmitTablePrimaryRow>
       <When condition={submitted_on}>
         {submissions
-          .filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
+          ?.filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
           .map((submission) => (
             <DocumentRow
               submissionItem={item}

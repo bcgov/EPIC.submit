@@ -23,6 +23,7 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import PackageSchema, PostPackageRequestSchema, PostPackageState, \
     CreateUpdateRequestNoteSchema
 from submit_api.services.package import PackageService
+from submit_api.services import authorization
 from submit_api.utils.util import cors_preflight
 
 
@@ -59,6 +60,7 @@ class Package(Resource):
     @auth.require
     def get(package_id):
         """Get package by id."""
+        authorization.check_assigned_on_package(package_id)
         package = PackageService.get_package_by_id(package_id)
         return PackageSchema().dump(package), HTTPStatus.OK
 

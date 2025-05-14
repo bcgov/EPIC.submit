@@ -93,9 +93,11 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     def replace(self, submission_id, request_data):
         """Replace a document submission."""
         with session_scope() as session:
-            submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
+            submission: SubmissionModel = SubmissionModel.find_by_id(
+                submission_id)
             if status := submission.status not in [SubmissionStatus.SUBMITTED,
-                                                   SubmissionStatus.REJECTED, SubmissionStatus.PENDING]:
+                                                   SubmissionStatus.REJECTED,
+                                                   SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
                 raise BadRequestError(f"Cannot replace a document with status {status}.")
             submitted_document = self._create_submitted_document(session, request_data)
             new_submission = self._create_submission(
@@ -103,13 +105,17 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 item_id=submission.item_id,
                 submitted_document_id=submitted_document.id,
                 original_submission_id=submission.id,  # original is the immediate parent id
-                root_submission_id=submission.root_submission_id  # root id is the first submission id in the chain
+                # root id is the first submission id in the chain
+                root_submission_id=submission.root_submission_id
             )
             if submission.status == SubmissionStatus.PENDING:
+                # For pending submissions, we can safely mark as deleted since they're not yet reviewed
                 submission.deleted = True
                 submission.active = False
             else:
-                submission.active = False
+                # For other submissions, keep them active but mark as pending replacement
+                submission.status = SubmissionStatus.PENDING_REPLACEMENT
+
             session.add(submission)
             return new_submission
 

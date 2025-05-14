@@ -2,6 +2,7 @@
 
 Manages the item
 """
+
 from __future__ import annotations
 
 from sqlalchemy import Column, Enum, ForeignKey

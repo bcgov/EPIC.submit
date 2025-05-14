@@ -272,6 +272,8 @@ class PackageService:
             raise BadRequestError("Invalid status")
         submissions = [submission for item in package.items for submission in item.submissions]
         for submission in submissions:
+            if submission.status == SubmissionStatus.PENDING_REPLACEMENT:
+                submission.active = False
             submission.status = status
             session.add(submission)
 
@@ -636,11 +638,9 @@ class PackageService:
         if not update_request:
             raise ResourceNotFoundError("Update request not found")
         if update_request.submission_package_id != package_id:
-            raise BadRequestError(
-                "Update request does not belong to the specified package")
+            raise BadRequestError("Update request does not belong to the specified package")
         if update_request.note:
-            raise BadRequestError(
-                "Note already exists for the update request")
+            raise BadRequestError("Note already exists for the update request")
         if not update_request.active:
             raise BadRequestError("Update request is not active")
         cls._validate_account_user()
