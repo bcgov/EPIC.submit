@@ -1,4 +1,3 @@
-import { useFileStore } from "@/store/fileStore";
 import { useMediaQuery, useTheme } from "@mui/material";
 import { useEffect } from "react";
 

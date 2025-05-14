@@ -3,7 +3,6 @@ import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import DocumentsTable from "../../DocumentsTable";
-import { UnfinishedUploadsCheck } from "@/components/UnfinishedUploadsCheck";
 
 export const ConsultationRecordUpdateForm = () => {
   const navigate = useNavigate();
@@ -16,20 +15,18 @@ export const ConsultationRecordUpdateForm = () => {
       <Box width={"100%"}>
         <DocumentsTable folder={S3_FOLDER.CONSULTATION_RECORDS} />
       </Box>
-      <UnfinishedUploadsCheck>
-        <Button
-          sx={{
-            mt: "3em",
-          }}
-          onClick={() =>
-            navigate({
-              to: `/proponent/projects/${projectId}/submission-packages/${submissionPackageId}`,
-            })
-          }
-        >
-          Save & Exit
-        </Button>
-      </UnfinishedUploadsCheck>
+      <Button
+        sx={{
+          mt: "3em",
+        }}
+        onClick={() =>
+          navigate({
+            to: `/proponent/projects/${projectId}/submission-packages/${submissionPackageId}`,
+          })
+        }
+      >
+        Save & Exit
+      </Button>
     </SubmissionFormContainer>
   );
 };

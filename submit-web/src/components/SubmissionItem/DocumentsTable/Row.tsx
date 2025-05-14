@@ -8,9 +8,7 @@ import { useReplaceSubmussion } from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
-import {
-  MANAGEMENT_PLAN_DOCUMENT_FOLDERS
-} from "./../ManagementPlanSubmission/ManagementPlanProponentView/constants";
+import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./../ManagementPlanSubmission/ManagementPlanProponentView/constants";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 
 type DocumentRowProps = Readonly<{
@@ -18,7 +16,10 @@ type DocumentRowProps = Readonly<{
   folderPath: string;
 }>;
 
-export default function Row({ documentSubmission, folderPath }: DocumentRowProps) {
+export default function Row({
+  documentSubmission,
+  folderPath,
+}: DocumentRowProps) {
   const { submissionPackageId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -68,7 +69,8 @@ export default function Row({ documentSubmission, folderPath }: DocumentRowProps
     try {
       setIsReplacingDocument(true);
       const resolvedFolderPath =
-        currentSubmission.submitted_document.folder === MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
+        currentSubmission.submitted_document.folder ===
+        MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
           ? `${folderPath}${S3_FOLDER.SUPPORTING_DOCUMENTS}`
           : folderPath;
       const uploadedFile = await saveObject({
