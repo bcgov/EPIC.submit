@@ -63,12 +63,13 @@ class ProjectsByAccount(Resource):
         raw_statuses = args.getlist("status[]")
         status = []
         for _status in raw_statuses:
-            if _status in PackageStatus._value2member_map_:
+            try:
                 status.append(PackageStatus(_status))
-            elif _status in NonCanonicalPackageStatus._value2member_map_:
-                status.append(NonCanonicalPackageStatus(_status))
-            else:
-                abort(400, f"Unknown status: {_status}")
+            except ValueError:
+                try:
+                    status.append(NonCanonicalPackageStatus(_status))
+                except ValueError:
+                    abort(400, f"Unknown status: {_status}")
         search_options = AccountProjectSearchOptions(
             search_text=search_text,
             submitted_on_start=submitted_on_start,
