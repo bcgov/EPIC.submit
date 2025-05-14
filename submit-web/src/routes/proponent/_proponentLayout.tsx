@@ -7,6 +7,7 @@ import { useAccount } from "@/store/accountStore";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { TermsOfServiceProvider } from "@/components/Shared/TermsOfService";
 
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,
@@ -43,11 +44,13 @@ function ProponentLayout() {
 
   return (
     <div>
-      <BreadcrumbNav />
-      <Box flexDirection={"row"} display={"flex"}>
-        {!isMobile && <SideNavBar />}
-        <Outlet />
-      </Box>
+      <TermsOfServiceProvider>
+        <BreadcrumbNav />
+        <Box flexDirection={"row"} display={"flex"}>
+          {!isMobile && <SideNavBar />}
+          <Outlet />
+        </Box>
+      </TermsOfServiceProvider>
     </div>
   );
 }

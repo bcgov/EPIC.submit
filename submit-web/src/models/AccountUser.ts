@@ -4,6 +4,7 @@ import { USER_MANAGEMENT_ROLE } from "./Role";
 
 export type Role = {
   account_project_id: number | null;
+  account_user_id: number;
   package_ids: number[];
   package_names: string[];
   role_id: number;
@@ -22,6 +23,7 @@ export type AccountUser = {
   work_contact_number: string;
   account: Account;
   role: Role;
+  has_agreed_to_terms: boolean;
 };
 
 export type AccountUserWithRole = {

@@ -1,4 +1,5 @@
 """Service for account user management."""
+from datetime import datetime
 from flask import current_app
 
 from submit_api.enums.role import RoleEnum
@@ -8,6 +9,7 @@ from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import Invitations as InvitationsModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import Role as RoleModel
+from submit_api.models import TermsOfService as TermsOfServiceModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.user_status import UserStatusEnum
@@ -299,3 +301,28 @@ class AccountUserService:
             role["package_names"] = [package_name_map[pid] for pid in package_ids if pid in package_name_map]
 
         return user_dict
+
+    @classmethod
+    def record_user_terms_of_service(cls, account_user_id, update_data):
+        """Record user's terms of service."""
+        if not update_data.get('has_agreed_to_terms'):
+            raise ValueError("User must agree to the terms of service.")
+
+        terms_of_service_version_id = update_data.get('terms_of_service_version_id')
+        if not terms_of_service_version_id:
+            raise ValueError("'terms_of_service_version_id' is required.")
+
+        account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        if not account_user:
+            raise ResourceNotFoundError(f"Account user with ID {account_user_id} not found.")
+
+        terms_of_service = TermsOfServiceModel.get_active_terms_of_service_by_version(
+            terms_of_service_version_id)
+        if not terms_of_service:
+            raise ResourceNotFoundError(f"Terms of service with ID {terms_of_service_version_id} not found")
+
+        account_user.terms_of_service_version_id = terms_of_service_version_id
+        account_user.terms_of_service_accepted_date = datetime.utcnow()
+        db.session.commit()
+
+        return AccountUserModel.get_users_by_account_user_id(account_user_id)

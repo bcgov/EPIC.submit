@@ -4,6 +4,7 @@ import { Box } from "@mui/material";
 import CreateAccountForm from "./createAccountForm";
 import { CREATE_ACCOUNT_STEPS } from "./constants";
 import AddProjects from "./addProjects";
+import { TermsOfServiceProvider } from "@/components/Shared/TermsOfService";
 
 export const TabPanel = () => {
   const { step } = useCreateAccountForm();
@@ -12,7 +13,9 @@ export const TabPanel = () => {
     <Box>
       <Switch>
         <Case condition={step === CREATE_ACCOUNT_STEPS.CREATE_ACCOUNT_FORM}>
-          <CreateAccountForm />
+          <TermsOfServiceProvider>
+            <CreateAccountForm />
+          </TermsOfServiceProvider>
         </Case>
         <Case condition={step === CREATE_ACCOUNT_STEPS.ADD_PROJECTS}>
           <AddProjects />
