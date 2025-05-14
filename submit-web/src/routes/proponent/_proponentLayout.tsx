@@ -37,14 +37,16 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
-  const { isReady, needsTermsAgreement, handleAgree } = useTermsOfService();
+  const { isReady, needsTermsAgreement, checkAndShowTermsModal } = useTermsOfService();
+
+  useEffect(() => {
+    if (isReady && needsTermsAgreement) {
+      checkAndShowTermsModal();
+    }
+  }, [checkAndShowTermsModal, isReady, needsTermsAgreement]);
 
   if (account.isLoading || !isReady) {
     return <PageLoader />;
-  }
-
-  if (needsTermsAgreement) {
-    return <TermsModal onAgreeConfirmed={handleAgree}/>;
   }
 
   return (

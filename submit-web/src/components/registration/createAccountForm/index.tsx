@@ -106,18 +106,6 @@ function CreateAccountForm() {
 
   const { handleSubmit } = methods;
 
-  const openTermsDialog = () => {
-    setShowTermsError(false);
-
-    // Open modal through global modal store
-    setOpenModal(
-      <TermsModal
-        onAgreeConfirmed={handleAgreeClick}
-        setVersionId={setVersionId}
-      />
-    );
-  };
-
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
     if (!termsAccepted) {
       setShowTermsError(true);
