@@ -4,6 +4,7 @@ from flask import current_app
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
+from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import Invitations as InvitationsModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import Role as RoleModel
@@ -150,8 +151,11 @@ class AccountUserService:
         role = RoleModel.find_by_id(role_id)
         if not role:
             raise ValueError(f"Invalid role ID: {role_id}")
-        # dont need account project id for ACCOUNT_PRIMARY_ADMIN
-        account_project_id = None if role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value else account_project_id
+
+        # ideally UI should be passing this.. fetch it if UI doesnt send it..
+        if not account_project_id:
+            account_project_id = cls._fetch_account_project_id(account_user_id)
+
         # only for SPECIFIC_SUBMISSION_CONTRIBUTOR , save package id
         package_ids = package_ids if role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value else None
         role_data = {
@@ -169,6 +173,15 @@ class AccountUserService:
             "account_project_id": role_data.get("account_project_id"),
             "package_ids": role_data.get("package_ids")
         }
+
+    @classmethod
+    def _fetch_account_project_id(cls, account_user_id):
+        # works under the assumption one user has only one project, account
+        account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        if not account_user:
+            raise ValueError(f"Invalid account user ID: {account_user_id}")
+        account_project = AccountProjectModel.get_by_account_id(account_user.account_id)
+        return account_project.id
 
     @classmethod
     def get_account_user(cls, guid):

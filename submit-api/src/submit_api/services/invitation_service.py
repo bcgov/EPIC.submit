@@ -84,8 +84,10 @@ class InvitationService:
             account_user = InvitationService._create_account_user(
                 user.id, invitation.account_id, payload, session)
 
+            account_project: AccountProjectModel = AccountProjectModel.get_by_account_id(invitation.account_id)
+
             role = InvitationService._assign_user_role(
-                account_user.id, invitation, session)
+                account_user.id, account_project.id, invitation, session)
 
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
@@ -214,13 +216,12 @@ class InvitationService:
         }, session)
 
     @staticmethod
-    def _assign_user_role(account_user_id, invitation, session):
+    def _assign_user_role(account_user_id, account_project_id, invitation, session):
         """Assign the role to the user."""
         return AccountUserService.assign_role({
             "account_user_id": account_user_id,
             "role_id": invitation.role_id,
-            # TODO: Add account_project_ids for users onboarded by project admin
-            "account_project_id": None,
+            "account_project_id": account_project_id,
             "package_ids": invitation.package_ids,
         }, session)
 
