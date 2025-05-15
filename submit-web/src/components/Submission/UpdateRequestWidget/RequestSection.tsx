@@ -39,9 +39,10 @@ export default function RequestSection({
   const createdDate = dateUtils.formatDate(created_date);
 
   const { userType } = useAccount();
+  const isProponent = userType === USER_TYPE.PROPONENT;
 
   const submissionItems = submissionPackage.items.filter((item) =>
-    submission_item_types.includes(item.type_id),
+    submission_item_types.includes(item.type_id)
   );
 
   const { mutate: acceptUpdateRequest, isPending: isUpdating } =
@@ -71,7 +72,7 @@ export default function RequestSection({
       >
         <Switch>
           <Case condition={type === UPDATE_REQUEST_TYPE.REVIEW.value}>
-            Revision required for{" "}
+            Revision {isProponent ? "required" : "requested"} for{" "}
             {submissionItems
               .map((item) => getSubmissionItemLabel(item.type.name))
               .join(", ")}
@@ -96,32 +97,28 @@ export default function RequestSection({
         <Typography variant="body1" sx={{ mb: 1 }}>
           {reason}
         </Typography>
-        <When
-          condition={updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value}
-        >
-          <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
-            {status === UPDATE_REQUEST_STATUS.ACCEPTED.value ? (
-              <UpdateRequestStatusChip
-                status={UPDATE_REQUEST_STATUS.ACCEPTED.value}
-              />
-            ) : (
-              <LoadingButton
-                variant="contained"
-                color="secondary"
-                disabled={status !== UPDATE_REQUEST_STATUS.PENDING_REVIEW.value}
-                onClick={() =>
-                  acceptUpdateRequest({
-                    packageId: updateRequest.submission_package_id,
-                    updateRequestId: updateRequest.id,
-                  })
-                }
-                loading={isUpdating}
-              >
-                Accept Update
-              </LoadingButton>
-            )}
-          </PermissionsGate>
-        </When>
+        <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+          {status === UPDATE_REQUEST_STATUS.ACCEPTED.value ? (
+            <UpdateRequestStatusChip
+              status={UPDATE_REQUEST_STATUS.ACCEPTED.value}
+            />
+          ) : (
+            <LoadingButton
+              variant="contained"
+              color="secondary"
+              disabled={status !== UPDATE_REQUEST_STATUS.PENDING_REVIEW.value}
+              onClick={() =>
+                acceptUpdateRequest({
+                  packageId: updateRequest.submission_package_id,
+                  updateRequestId: updateRequest.id,
+                })
+              }
+              loading={isUpdating}
+            >
+              Accept Update
+            </LoadingButton>
+          )}
+        </PermissionsGate>
       </Box>
 
       <When condition={Boolean(note)}>
@@ -135,7 +132,7 @@ export default function RequestSection({
           {note}
         </Typography>
       </When>
-      <When condition={userType === USER_TYPE.PROPONENT}>
+      <When condition={isProponent}>
         <AddRequestNoteSection updateRequest={updateRequest} />
       </When>
     </Box>
