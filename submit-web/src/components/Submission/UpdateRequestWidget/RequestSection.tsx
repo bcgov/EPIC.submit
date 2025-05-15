@@ -39,6 +39,7 @@ export default function RequestSection({
   const createdDate = dateUtils.formatDate(created_date);
 
   const { userType } = useAccount();
+  const isProponent = userType === USER_TYPE.PROPONENT;
 
   const submissionItems = submissionPackage.items.filter((item) =>
     submission_item_types.includes(item.type_id)
@@ -71,7 +72,7 @@ export default function RequestSection({
       >
         <Switch>
           <Case condition={type === UPDATE_REQUEST_TYPE.REVIEW.value}>
-            Revision required for{" "}
+            Revision {isProponent ? "required" : "requested"} for{" "}
             {submissionItems
               .map((item) => getSubmissionItemLabel(item.type.name))
               .join(", ")}
@@ -131,7 +132,7 @@ export default function RequestSection({
           {note}
         </Typography>
       </When>
-      <When condition={userType === USER_TYPE.PROPONENT}>
+      <When condition={isProponent}>
         <AddRequestNoteSection updateRequest={updateRequest} />
       </When>
     </Box>
