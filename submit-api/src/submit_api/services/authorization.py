@@ -56,7 +56,7 @@ def check_assigned_on_package(package_id):
 
         return
 
-    if user_role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
+    if user_role.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
         if package_id in user_role.package_ids:
             return
 
