@@ -207,7 +207,7 @@ export const ConsultationRecordProponentView = () => {
   return (
     <SubmissionFormContainer>
       <FormProvider {...methods}>
-        <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
+        <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <FormFieldSection
               packageType={submissionPackage.type.name}
@@ -224,7 +224,10 @@ export const ConsultationRecordProponentView = () => {
                   <UpdateRequestWidget submissionPackage={submissionPackage} />
                 </Grid>
               )}
-            <ActionButtons saveAndClose={saveAndClose} />
+            <ActionButtons
+              onSubmit={handleSubmit(handleCompleteForm)}
+              saveAndClose={saveAndClose}
+            />
           </Grid>
         </Form>
       </FormProvider>

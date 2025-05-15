@@ -2,7 +2,6 @@ import React from "react";
 import { UseFormReturn } from "react-hook-form";
 
 type FormProps = {
-  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
   children: React.ReactNode;
   methods: UseFormReturn<any>;
 } & React.FormHTMLAttributes<HTMLFormElement>;
@@ -20,7 +19,7 @@ const useSmoothScroll = () => {
     elapsedTime: number,
     startPosition: number,
     distance: number,
-    duration: number
+    duration: number,
   ): number => {
     const halfDuration = duration / 2;
     elapsedTime /= halfDuration;
@@ -47,7 +46,7 @@ const useSmoothScroll = () => {
         elapsedTime,
         startPosition,
         distance,
-        SCROLL_CONSTANTS.DURATION
+        SCROLL_CONSTANTS.DURATION,
       );
 
       window.scrollTo(0, nextPosition);

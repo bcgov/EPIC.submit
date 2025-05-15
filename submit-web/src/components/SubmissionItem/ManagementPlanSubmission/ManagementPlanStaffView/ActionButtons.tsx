@@ -22,6 +22,7 @@ import {
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
 import { managementPlanReviewSchema, RadioOptions } from "./constants";
+import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 
 export default function ActionButtons() {
   const {
@@ -214,36 +215,42 @@ export default function ActionButtons() {
     <Grid item xs={12} container spacing={2} mt="2em">
       <When condition={isStaff || isManager}>
         <Grid item xs={12} sm="auto">
-          <LoadingButton
-            color="secondary"
-            onClick={handleSaveAndClose}
-            disabled={isLoading}
-            loading={isSavingAndClosing}
-          >
-            Save & Exit
-          </LoadingButton>
+          <UnfinishedUploadsCheck>
+            <LoadingButton
+              color="secondary"
+              onClick={handleSaveAndClose}
+              disabled={isLoading}
+              loading={isSavingAndClosing}
+            >
+              Save & Exit
+            </LoadingButton>
+          </UnfinishedUploadsCheck>
         </Grid>
       </When>
       <When condition={isStaff}>
         <Grid item xs={12} sm="auto">
-          <LoadingButton
-            disabled={isLoading || isSaveDisabled}
-            loading={isSendingToManager}
-            onClick={handleSendToManager}
-          >
-            Send Recommendations to Manager
-          </LoadingButton>
+          <UnfinishedUploadsCheck>
+            <LoadingButton
+              disabled={isLoading || isSaveDisabled}
+              loading={isSendingToManager}
+              onClick={handleSendToManager}
+            >
+              Send Recommendations to Manager
+            </LoadingButton>
+          </UnfinishedUploadsCheck>
         </Grid>
       </When>
       <When condition={isManager}>
         <Grid item xs={12} sm="auto">
-          <LoadingButton
-            disabled={isLoading || isSaveDisabled}
-            loading={isCompletingReview}
-            onClick={handleCompletingReview}
-          >
-            Complete Review
-          </LoadingButton>
+          <UnfinishedUploadsCheck>
+            <LoadingButton
+              disabled={isLoading || isSaveDisabled}
+              loading={isCompletingReview}
+              onClick={handleCompletingReview}
+            >
+              Complete Review
+            </LoadingButton>
+          </UnfinishedUploadsCheck>
         </Grid>
       </When>
     </Grid>

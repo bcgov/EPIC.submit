@@ -1,54 +1,46 @@
-import { Button, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import { useModal } from "./modalStore";
 import { modalStyle } from "./constants";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface UpdateModalProps {
-  header: string;
-  subText: { text: string; bold?: boolean }[];
+  title: string;
+  description: string;
 }
 
-const UpdateModal = ({ header, subText }: UpdateModalProps) => {
+const UpdateModal = ({ title, description }: UpdateModalProps) => {
   const { setClose } = useModal();
 
   return (
-    <Grid
-      container
-      direction="row"
-      justifyContent="flex-start"
-      alignItems="space-between"
-      rowSpacing={2}
-      sx={{ ...modalStyle }}
-    >
-      <Grid container direction="row" item xs={12}>
-        <Grid item xs={12}>
-          <Typography variant="h1" sx={{ mb: 2 }}>
-            {header}
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid container direction="row" item xs={12}>
-        {subText.map((subtext) => (
-          <Grid key={subtext.text} item xs={12}>
-            <Typography variant="body1" sx={{ mb: 1 }}>
-              {subtext.text}
-            </Typography>
-          </Grid>
-        ))}
-        <Grid
-          item
-          container
-          direction={{ xs: "column", sm: "row" }}
-          xs={12}
-          justifyContent="flex-end"
-          spacing={1}
-          sx={{ mt: "1em" }}
-        >
-          <Button onClick={setClose} sx={{ m: 1 }}>
-            Close
-          </Button>
-        </Grid>
-      </Grid>
-    </Grid>
+    <Box sx={modalStyle}>
+      <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+        <DialogTitle>{title}</DialogTitle>
+        <IconButton onClick={setClose}>
+          <CloseIcon />
+        </IconButton>
+      </Box>
+      <Divider />
+      <DialogContent>
+        <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+          {description}
+        </Typography>
+      </DialogContent>
+      <Divider />
+      <DialogActions sx={{ padding: "1rem" }}>
+        <Button onClick={setClose} color="primary" sx={{ mr: 1 }}>
+          Close
+        </Button>
+      </DialogActions>
+    </Box>
   );
 };
 

@@ -22,6 +22,7 @@ import {
   checkIfManager,
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
+import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 
 export default function ActionButtons() {
   const {
@@ -109,6 +110,7 @@ export default function ActionButtons() {
       }
     }
   };
+
   const handleSendToManager = async () => {
     try {
       setIsSendingToManager(true);
@@ -207,36 +209,42 @@ export default function ActionButtons() {
     <Grid item xs={12} container spacing={2} mt="20px">
       <When condition={isStaff || isManager}>
         <Grid item xs={12} sm="auto">
-          <LoadingButton
-            color="secondary"
-            onClick={handleSaveAndClose}
-            disabled={isLoading}
-            loading={isSavingAndClosing}
-          >
-            Save & Exit
-          </LoadingButton>
+          <UnfinishedUploadsCheck>
+            <LoadingButton
+              color="secondary"
+              onClick={handleSaveAndClose}
+              disabled={isLoading}
+              loading={isSavingAndClosing}
+            >
+              Save & Exit
+            </LoadingButton>
+          </UnfinishedUploadsCheck>
         </Grid>
       </When>
       <When condition={isStaff}>
         <Grid item xs={12} sm="auto">
-          <LoadingButton
-            disabled={isLoading || isSaveDisabled}
-            loading={isSendingToManager}
-            onClick={handleSendToManager}
-          >
-            Send Recommendations to Manager
-          </LoadingButton>
+          <UnfinishedUploadsCheck>
+            <LoadingButton
+              disabled={isLoading || isSaveDisabled}
+              loading={isSendingToManager}
+              onClick={handleSendToManager}
+            >
+              Send Recommendations to Manager
+            </LoadingButton>
+          </UnfinishedUploadsCheck>
         </Grid>
       </When>
       <When condition={isManager}>
         <Grid item xs={12} sm="auto">
-          <LoadingButton
-            disabled={isLoading || isSaveDisabled}
-            loading={isCompletingConsultationCheck}
-            onClick={handleCompletingConsultationCheck}
-          >
-            Complete Consultation Check
-          </LoadingButton>
+          <UnfinishedUploadsCheck>
+            <LoadingButton
+              disabled={isLoading || isSaveDisabled}
+              loading={isCompletingConsultationCheck}
+              onClick={handleCompletingConsultationCheck}
+            >
+              Complete Consultation Check
+            </LoadingButton>
+          </UnfinishedUploadsCheck>
         </Grid>
       </When>
     </Grid>

@@ -28,7 +28,7 @@ export const SubmissionItemTypeLabelMap = {
   [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: "Management Plan",
   [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: "Consultation Record(s)",
   [SUBMISSION_ITEM_TYPE.IEM]:
-    "Independent Engagement Monitor Terms of Engagement",
+    "Independent Environmental Monitor Terms of Engagement",
 };
 
 export const SUBMISSION_ITEM_MODAL_CONTENT: Record<
