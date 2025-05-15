@@ -284,8 +284,7 @@ class PackageService:
         revision_required_requests = [request for request in package.update_requests
                                       if request.type == UpdateRequestType.REVIEW]
         for request in revision_required_requests:
-            request.active = False
-            request.status = UpdateRequestStatus.CLOSED.value
+            request.status = UpdateRequestStatus.PENDING_REVIEW.value
             session.add(request)
 
     @staticmethod
