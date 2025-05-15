@@ -61,10 +61,9 @@ class AccountProjects(Resource):
         raw_statuses = args.getlist("status[]")
         status = []
         for _status in raw_statuses:
-            if _status in PackageStatus._value2member_map_:
-                status.append(PackageStatus(_status))
-            elif _status in NonCanonicalPackageStatus._value2member_map_:
-                status.append(NonCanonicalPackageStatus(_status))
+            result = PackageStatus.check_value(_status) or NonCanonicalPackageStatus.check_value(_status)
+            if result:
+                status.append(result)
             else:
                 abort(400, f"Unknown status: {_status}")
         page = int(args.get('page', DEFAULT_PAGE))  # Default to page 1
