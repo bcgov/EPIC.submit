@@ -92,4 +92,52 @@ def upgrade():
 
 
 def downgrade():
-    pass
+    conn = op.get_bind()
+    meta = sa.MetaData()
+    meta.bind = conn
+
+    # Define tables
+    package_types = sa.Table('package_types', meta, autoload_with=conn)
+    item_types = sa.Table('item_types', meta, autoload_with=conn)
+    package_item_types = sa.Table('package_item_types', meta, autoload_with=conn)
+
+    # Get package_type_id for IEM
+    iem_package_type_id = conn.execute(
+        sa.select(package_types.c.id).where(package_types.c.name == PACKAGE_TYPE_IEM)
+    ).scalar()
+
+    # Get item_type_ids for the 3 item types
+    item_type_ids = dict(conn.execute(
+        sa.select(item_types.c.name, item_types.c.id)
+        .where(item_types.c.name.in_([
+            ITEM_TYPE_IEM_TERMS,
+            ITEM_TYPE_CONSULTATION_RECORDS,
+            ITEM_TYPE_CONTACT_INFORMATION_FORM
+        ]))
+    ).fetchall())
+
+    # Delete from package_item_types
+    for item_name, item_id in item_type_ids.items():
+        conn.execute(
+            package_item_types.delete().where(
+                sa.and_(
+                    package_item_types.c.package_type_id == iem_package_type_id,
+                    package_item_types.c.item_type_id == item_id
+                )
+            )
+        )
+
+    # Delete item_types
+    conn.execute(
+        item_types.delete().where(item_types.c.name.in_([
+            ITEM_TYPE_IEM_TERMS,
+            ITEM_TYPE_CONSULTATION_RECORDS,
+            ITEM_TYPE_CONTACT_INFORMATION_FORM
+        ]))
+    )
+
+    # Delete package_type
+    conn.execute(
+        package_types.delete().where(package_types.c.name == PACKAGE_TYPE_IEM)
+    )
+
