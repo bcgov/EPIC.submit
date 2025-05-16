@@ -34,7 +34,7 @@ type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
 const getAnswersByType = (
   review: SubmissionReview,
-  type: SubmissionReviewEntryType,
+  type: SubmissionReviewEntryType
 ) => {
   if (!review?.entries) return {};
   return review.entries?.find((entry) => entry.type === type)?.entry;
@@ -52,7 +52,7 @@ export default function ReviewSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
 
   const defaultValues = useMemo(() => {
@@ -61,11 +61,11 @@ export default function ReviewSection() {
     const review = submissionItem.review;
     const staffAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
     );
     const managerAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION
     );
 
     return {
@@ -133,8 +133,10 @@ export default function ReviewSection() {
                 bgcolor: BCDesignTokens.themeBlue60,
                 width: 1,
                 my: BCDesignTokens.layoutMarginXsmall,
+                mb: BCDesignTokens.layoutMarginMedium,
               }}
             />
+            <NotesSection />
             <Typography
               variant="body1"
               sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
@@ -180,7 +182,6 @@ export default function ReviewSection() {
                 </ControlledRadioGroup>
               </>
             </PermissionsGate>
-            <NotesSection />
             <When condition={failedConsultationCheck}>
               <AddRequestSection disabled={isFormDisabled} />
             </When>
