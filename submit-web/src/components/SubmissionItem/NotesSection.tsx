@@ -32,7 +32,7 @@ export default function NotesSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
+      .queryKey
   );
 
   const notes = submissionItem?.notes;
@@ -119,7 +119,7 @@ export default function NotesSection() {
                 color: "#38598A",
               }}
             >
-              View Notes
+              EAO Internal Notes
             </Typography>
             {notes && notes.length > 0 && (
               <Chip
