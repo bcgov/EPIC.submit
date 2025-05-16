@@ -24,6 +24,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.item_type import SubmissionItemType
+from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
 from submit_api.services import authorization
@@ -350,7 +351,7 @@ class PackageService:
         cls._create_email_queue_record(package, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
-        cls._deactivate_reviews(package, session)
+        cls._deactivate_fail_reviews(package, session)
         cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
         return package
 
@@ -393,11 +394,12 @@ class PackageService:
         )
 
     @classmethod
-    def _deactivate_reviews(cls, package, session):
-        """Deactivate all reviews for the package."""
-        current_app.logger.info(f"Deactivating reviews for package {package.id}")
-        reviews = [item.review for item in package.items if item.review]
-        for review in reviews:
+    def _deactivate_fail_reviews(cls, package, session):
+        """Deactivate all fail reviews for the package."""
+        current_app.logger.info(f"Deactivating fail reviews for package {package.id}")
+        fail_reviews = [item.review for item in package.items
+                        if item.review and item.review.status == SubmissionReviewStatus.REJECTED]
+        for review in fail_reviews:
             review.active = False
             session.add(review)
 
