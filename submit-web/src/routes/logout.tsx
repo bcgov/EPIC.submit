@@ -17,11 +17,11 @@ function Logout() {
 
   useMounted(() => {
     signoutSilent();
-    reset();
   });
 
   useEffect(() => {
     if (!isAuthenticated) {
+      reset();
       navigate({
         to: "/",
       });
