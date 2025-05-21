@@ -22,7 +22,7 @@ import { usePackageTableStore } from "@/components/Submission/packageTableStore"
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Link, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
@@ -34,8 +34,9 @@ import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";
+import { GreyBox } from "@/components/Shared/GreyBox";
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -64,7 +65,7 @@ export default function SubmissionPage() {
   const isLatestApprovedPackageVersion = packageVersions?.find(
     (packageVersion) =>
       packageVersion.is_approved &&
-      packageVersion.package_id === submissionPackageId,
+      packageVersion.package_id === submissionPackageId
   );
   const {
     mutate: updateStateSubmissionPackage,
@@ -94,7 +95,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          }),
+          })
       )
     ) {
       setIsValidating(true);
@@ -118,15 +119,25 @@ export default function SubmissionPage() {
   const openRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-      updateRequest.active,
+      updateRequest.active
   );
 
   const openOrPendingRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
         updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
-      updateRequest.active,
+      updateRequest.active
   );
+
+  const isUnderReview =
+    (isPackageSubmitted && openOrPendingRequests.length > 0) ||
+    submissionPackage.status.some((_status) =>
+      [
+        PACKAGE_STATUS.UNDER_REVIEW.value,
+        PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value,
+      ].includes(_status)
+    );
+
   const isSubmitDisabled =
     isPackageSubmitted && openOrPendingRequests.length === 0;
 
@@ -235,12 +246,30 @@ export default function SubmissionPage() {
               >
                 <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <When condition={isPackageSubmitted && openRequests.length === 0}>
+              <When condition={isPackageSubmitted && !isUnderReview}>
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>
                   <SubmissionSuccessBox
                     submissionPackageType={submissionPackage.type}
                   />
                 </Box>
+              </When>
+              <When condition={isUnderReview}>
+                <GreyBox
+                  sx={{
+                    py: BCDesignTokens.layoutPaddingMedium,
+                    px: BCDesignTokens.layoutPaddingSmall,
+                  }}
+                >
+                  {" "}
+                  <Typography variant="body1" color={"black"}>
+                    If you have any questions or need to add, replace, or delete
+                    documents in your submission, please contact the EAO at{" "}
+                    <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
+                      EAO.ManagementPlanSupport@gov.bc.ca
+                    </Link>
+                    .
+                  </Typography>
+                </GreyBox>
               </When>
               <Box
                 sx={{
