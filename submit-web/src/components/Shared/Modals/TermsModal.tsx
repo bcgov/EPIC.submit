@@ -1,7 +1,8 @@
 import { Dialog, DialogActions, DialogContent, Button, Box } from "@mui/material";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useTermsOfServiceData } from "@/hooks/api/useTermsOfService";
 import { useModal } from "./modalStore";
+import { BCDesignTokens } from "epic.theme";
 
 type TermsModalProps = {
   onAgreeConfirmed: (agreedTermsVersionId: number | null) => void;
@@ -16,6 +17,11 @@ const TermsModal: React.FC<TermsModalProps> = ({
   const scrollBoxRef = useRef<HTMLDivElement>(null);
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const { data: termsData } = useTermsOfServiceData();
+  const [showMessage, setShowMessage] = useState(false);
+
+  const handleFakeClick = () => {
+    setShowMessage(true);
+  };
 
   const handleScroll = () => {
     const el = scrollBoxRef.current;
@@ -24,7 +30,17 @@ const TermsModal: React.FC<TermsModalProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (hasScrolledToBottom) {
+      setShowMessage(false);
+    }
+  }, [hasScrolledToBottom]);
+
   const handleAgree = () => {
+    if (!hasScrolledToBottom) {
+      return;
+    }
+
     if (termsData?.version) {
       setVersionId?.(termsData.version);
       onAgreeConfirmed(termsData.version); // pass the ID directly
@@ -54,16 +70,52 @@ const TermsModal: React.FC<TermsModalProps> = ({
         sx={{
           borderTop: '1px solid',
           borderColor: 'divider',
-          marginRight: '10px',
+          flexDirection: 'column',
+          alignItems: 'stretch',
+          px: 3,
+          py: 2,
+          gap: 1.5,
         }}
       >
-        <Button
-          variant="contained"
-          onClick={handleAgree}
-          disabled={!hasScrolledToBottom}
-        >
-          I Agree to the Terms and Conditions
-        </Button>
+        <Box sx={{ position: 'relative', alignSelf: 'flex-end' }}>
+          <Button
+            variant="contained"
+            onClick={handleAgree}
+            disabled={!hasScrolledToBottom}
+          >
+            I Agree to the Terms and Conditions
+          </Button>
+
+          {!hasScrolledToBottom && (
+            <Box
+              onClick={handleFakeClick}
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                cursor: 'not-allowed',
+                zIndex: 1,
+              }}
+            />
+          )}
+        </Box>
+
+        {showMessage && (
+          <Box
+            sx={{
+              backgroundColor: BCDesignTokens.themeGold10,
+              padding: '12px 16px',
+              borderRadius: '4px',
+              mt: 1,
+              border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+            }}
+          >
+            To continue, please read the Terms and Conditions. The agreement button will unlock once you scroll to the end.
+          </Box>
+        )}
+
       </DialogActions>
     </Dialog>
   );

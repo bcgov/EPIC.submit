@@ -295,7 +295,7 @@ function CreateAccountForm() {
                           ml: '2px',
                         }}
                       >
-                        Terms of Services
+                        Terms and Conditions
                       </Box>
                     </Typography>
                   </Grid>
