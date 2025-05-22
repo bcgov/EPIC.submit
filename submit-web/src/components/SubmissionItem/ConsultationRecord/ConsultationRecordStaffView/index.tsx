@@ -4,10 +4,7 @@ import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import InternalDocumentSection from "../../InternalDocumentSection";
 import FormFieldSection from "./FormFieldSection";
-import {
-  getSubmissionItemForStaffQueryOptions,
-  useGetSubmissionItemForStaff,
-} from "@/hooks/api/useItems";
+import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import ReviewSection from "./ReviewSection";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";

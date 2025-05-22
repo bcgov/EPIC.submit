@@ -26,7 +26,7 @@ function Logout() {
         to: "/",
       });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, reset]);
 
   return <PageLoader />;
 }
