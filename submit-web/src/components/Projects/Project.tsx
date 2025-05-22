@@ -31,10 +31,10 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const { userType } = useAccount();
 
   const activeSubmissionPackages = accountProject.packages.filter(
-    (subPackage) => !subPackage.completed_on,
+    (subPackage) => !subPackage.completed_on
   );
   const pastSubmissionPackages = accountProject.packages.filter((subPackage) =>
-    Boolean(subPackage.completed_on),
+    Boolean(subPackage.completed_on)
   );
 
   const { name, ea_certificate } = accountProject.project;
@@ -68,7 +68,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
         >
           <CardInnerBox>
             <Typography variant="h4" fontWeight={400}>
-              Management Plans and Related Documents
+              Management Plans & Related Documents
             </Typography>
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
           </CardInnerBox>
