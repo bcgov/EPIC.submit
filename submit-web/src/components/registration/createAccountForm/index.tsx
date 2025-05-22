@@ -145,10 +145,6 @@ function CreateAccountForm() {
             {invitation?.role.role_name ===
               USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
               <>
-                First of all, please create your Project Administrator Account
-                for {projects?.[0]?.name ?? ""}.
-                <br />
-                <br />
                 Project Administrators can
                 <ul style={{ paddingTop: "0rem", marginTop: "0rem" }}>
                   <li>Access all the submissions</li>
