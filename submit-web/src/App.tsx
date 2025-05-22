@@ -11,23 +11,23 @@ import LoaderBackdropProvider from "./components/Shared/Overlays/LoaderBackdropP
 import { createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 
-const queryClient = new QueryClient();
-export const router = createRouter({
-  routeTree,
-  context: {
-    // authentication will initially be undefined
-    // We'll be passing down the authentication state from within a React component
-    authentication: undefined!,
-    account: undefined!,
-    queryClient,
-  },
-  defaultPreload: "intent",
-  // Since we're using React Query, we don't want loader calls to ever be stale
-  // This will ensure that the loader is always called when the route is preloaded or visited
-  defaultPreloadStaleTime: 0,
-});
-
 function App() {
+  const queryClient = new QueryClient();
+  const router = createRouter({
+    routeTree,
+    context: {
+      // authentication will initially be undefined
+      // We'll be passing down the authentication state from within a React component
+      authentication: undefined!,
+      account: undefined!,
+      queryClient,
+    },
+    defaultPreload: "intent",
+    // Since we're using React Query, we don't want loader calls to ever be stale
+    // This will ensure that the loader is always called when the route is preloaded or visited
+    defaultPreloadStaleTime: 0,
+  });
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
@@ -35,7 +35,7 @@ function App() {
           <ModalProvider />
           <SnackBarProvider />
           <LoaderBackdropProvider />
-          <RouterProviderWithAuthContext />
+          <RouterProviderWithAuthContext router={router} />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>

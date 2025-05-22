@@ -4,9 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "./store/accountStore";
 import { useEffect } from "react";
 import { getAccountQueryOptions } from "./hooks/api/useAccounts";
-import { router } from "./App";
 
-export default function RouterProviderWithAuthContext() {
+type RouterProviderWithAuthContextProps = Readonly<{
+  router: any;
+}>;
+export default function RouterProviderWithAuthContext({
+  router,
+}: RouterProviderWithAuthContextProps) {
   const authentication = useAuth();
   const { data, isFetched } = useQuery(
     getAccountQueryOptions({
@@ -25,7 +29,7 @@ export default function RouterProviderWithAuthContext() {
         ...data,
       });
     }
-  }, [isFetched, data, setAccount]);
+  }, [isFetched, data, setAccount, router]);
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
@@ -42,7 +46,7 @@ export default function RouterProviderWithAuthContext() {
       // eslint-disable-next-line no-console
       console.log("AccessToken expired");
     }
-  }, [authentication]);
+  }, [authentication.user?.expired]);
 
   return (
     <RouterProvider
