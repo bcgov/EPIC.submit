@@ -18,6 +18,9 @@ import { StatusCell } from "./StatusCell";
 import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
 import DocumentsSubTable from "../ItemsTable/DocumentsSubTable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { BCDesignTokens } from "epic.theme";
+import { ActionButton } from "./ActionButton";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -105,7 +108,9 @@ export default function DocumentRow({
             <StatusCell submittedDocument={documentSubmission} />
           </Box>
         </SubmitTableCell>
-        <SubmitTableCell align="right" width={"10%"}></SubmitTableCell>
+        <SubmitTableCell align="right" width={"10%"}>
+          <ActionButton submission={documentSubmission} />
+        </SubmitTableCell>
       </SubmitTableRow>
       {expanded && (
         <TableRow>
