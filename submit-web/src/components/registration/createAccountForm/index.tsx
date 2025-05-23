@@ -9,7 +9,7 @@ import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { Save } from "@mui/icons-material";
-import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText } from "@mui/material";
+import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText, Tooltip } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
@@ -249,21 +249,36 @@ function CreateAccountForm() {
                 </Grid>
                 <Grid container spacing={1} alignItems="flex-start" marginBottom={4}>
                   <Grid item>
-                    <Checkbox
-                      checked={termsAccepted}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        if (checked) {
-                          e.preventDefault();
-                          setShowTermsModalFlag(true);
-                        } else {
-                          setTermsAccepted(false);
-                          setVersionId(null);
-                        }
+                    <Tooltip
+                      title={termsAccepted ? "You have already agreed to the Terms and Conditions" : ""}
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            maxWidth: 200,
+                            whiteSpace: 'normal',
+                          },
+                        },
                       }}
-                      name="terms"
-                      sx={{ p: 0, mr: 1 }}
-                    />
+                    >
+                      <span>
+                        <Checkbox
+                          checked={termsAccepted}
+                          disabled={termsAccepted}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            if (checked) {
+                              e.preventDefault();
+                              setShowTermsModalFlag(true);
+                            } else {
+                              setTermsAccepted(false);
+                              setVersionId(null);
+                            }
+                          }}
+                          name="terms"
+                          sx={{ p: 0, mr: 1 }}
+                        />
+                      </span>
+                    </Tooltip>
                   </Grid>
                   <Grid item xs>
                     <Typography
