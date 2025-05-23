@@ -3,11 +3,12 @@ import { Navigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { booleanToString } from "@/utils";
-import { useGetSubmissionItemForStaff } from "@/hooks/api/useItems";
+import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import FormFieldSection from "./FormFieldSection";
 import InternalDocumentSection from "../../InternalDocumentSection";
 import ReviewSection from "./ReviewSection";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const IEMStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
@@ -21,9 +22,9 @@ export const IEMStaffView = () => {
     accountProjectId,
   });
 
-  const { data: submissionItem } = useGetSubmissionItemForStaff({
-    itemId: Number(submissionItemId),
-  });
+  const { data: submissionItem } = useSuspenseQuery(
+    getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) }),
+  );
 
   const formSubmission = submissionItem?.submissions?.find(
     (submission) => submission.type === SUBMISSION_TYPE.FORM,

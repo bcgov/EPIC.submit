@@ -36,6 +36,7 @@ export function Submission() {
     notify.error("Failed to load submission item");
     return <Navigate to="/error" />;
   }
+
   return (
     <PageGrid>
       <StaffItemForm submissionItem={submissionItem} />
