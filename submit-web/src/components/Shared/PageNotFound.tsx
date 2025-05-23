@@ -1,4 +1,4 @@
-import { Toolbar, Grid, Typography, Box } from "@mui/material";
+import { Toolbar, Grid, Typography, Box, Link } from "@mui/material";
 import ErrorSvg from "@/assets/images/404.svg";
 
 export default function PageNotFound() {
@@ -45,15 +45,15 @@ export default function PageNotFound() {
               <li>{"Check that the web URL has been entered correctly."}</li>
               <li>
                 {`Go to our `}
-                <a href="/">homepage</a>
+                <Link href="/">homepage</Link>
                 {` and browse through our past and current engagements.`}
               </li>
-              <li>{`Telephone Device for the Deaf(TDD) across B.C.: 711`}</li>
+              <li>{`Telephone Device for the Deaf (TDD) across B.C.: 711`}</li>
               <li>
                 {`If you would like to email us please contact `}
-                <a href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
+                <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
                   EAO.ManagementPlanSupport@gov.bc.ca
-                </a>
+                </Link>
               </li>
             </ul>
           </Box>
