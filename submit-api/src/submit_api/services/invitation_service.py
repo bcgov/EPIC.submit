@@ -2,8 +2,6 @@
 import datetime
 import uuid
 from urllib.parse import urljoin
-from http import HTTPStatus
-
 from flask import current_app
 
 from submit_api.enums.role import RoleEnum
@@ -36,11 +34,11 @@ class InvitationService:
         """Check if a user with the given email already exists in the account."""
         # Check for active users
         existing_user = AccountUserService.get_users_by_account(
-            account_id, 
-            include_roles=True, 
+            account_id,
+            include_roles=True,
             include_invitees=True
         )
-  
+
         for user in existing_user:
             work_email = user.get('work_email_address')
             if work_email and work_email.lower() == email.lower():
