@@ -34,7 +34,7 @@ type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
 const getAnswersByType = (
   review: SubmissionReview,
-  type: SubmissionReviewEntryType
+  type: SubmissionReviewEntryType,
 ) => {
   if (!review?.entries) return {};
   return review.entries?.find((entry) => entry.type === type)?.entry;
@@ -52,7 +52,7 @@ export default function ReviewSection() {
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey
+      .queryKey,
   );
 
   const defaultValues = useMemo(() => {
@@ -61,29 +61,25 @@ export default function ReviewSection() {
     const review = submissionItem.review;
     const staffAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
+      SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
     );
     const managerAnswers = getAnswersByType(
       review,
-      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION
+      SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
     );
 
     return {
       staff: {
-        passedConsultationCheck: staffAnswers?.passedConsultationCheck
-          ? String(staffAnswers.passedConsultationCheck)
-          : "",
+        passedConsultationCheck: staffAnswers?.passedConsultationCheck ?? "",
       },
       manager: {
-        passedConsultationCheck: managerAnswers?.passedConsultationCheck
-          ? String(managerAnswers.passedConsultationCheck)
-          : "",
+        passedConsultationCheck: managerAnswers?.passedConsultationCheck ?? "",
       },
       update_request: {
-        reason: managerAnswers?.reason || staffAnswers?.reason || "",
+        reason: managerAnswers?.reason ?? staffAnswers?.reason ?? "",
         submission_item_types:
-          managerAnswers?.submission_item_types ||
-          staffAnswers?.submission_item_types ||
+          managerAnswers?.submission_item_types ??
+          staffAnswers?.submission_item_types ??
           [],
       },
     };
