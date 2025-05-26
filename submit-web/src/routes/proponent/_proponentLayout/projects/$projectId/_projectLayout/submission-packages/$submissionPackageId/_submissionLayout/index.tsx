@@ -16,7 +16,7 @@ import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { Unless, When } from "react-if";
+import { Case, Switch, Unless, When } from "react-if";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
@@ -253,44 +253,47 @@ export default function SubmissionPage() {
               >
                 <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <When
-                condition={
-                  (isPackageSubmitted &&
-                    openOrPendingRequests.length > 0 &&
-                    !isRevisionRequired) ||
-                  isFirstSubmission
-                }
-              >
-                <Box mb={BCDesignTokens.layoutMarginXlarge}>
-                  <SubmissionSuccessBox
-                    submissionPackageType={submissionPackage.type}
-                  />
-                </Box>
-              </When>
-              <When
-                condition={
-                  openOrPendingRequests.length === 0 &&
-                  isUnderReview &&
-                  isPackageSubmitted
-                }
-              >
-                <GreyBox
-                  sx={{
-                    py: BCDesignTokens.layoutPaddingMedium,
-                    px: BCDesignTokens.layoutPaddingSmall,
-                  }}
+              <Switch>
+                <Case
+                  condition={
+                    (isPackageSubmitted &&
+                      openOrPendingRequests.length > 0 &&
+                      !isRevisionRequired) ||
+                    isFirstSubmission
+                  }
                 >
-                  {" "}
-                  <Typography variant="body1" color={"black"}>
-                    If you have any questions or need to add, replace, or delete
-                    documents in your submission, please contact the EAO at{" "}
-                    <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-                      EAO.ManagementPlanSupport@gov.bc.ca
-                    </Link>
-                    .
-                  </Typography>
-                </GreyBox>
-              </When>
+                  <Box mb={BCDesignTokens.layoutMarginXlarge}>
+                    <SubmissionSuccessBox
+                      submissionPackageType={submissionPackage.type}
+                    />
+                  </Box>
+                </Case>
+                <Case
+                  condition={
+                    openOrPendingRequests.length === 0 &&
+                    isUnderReview &&
+                    isPackageSubmitted
+                  }
+                >
+                  <GreyBox
+                    sx={{
+                      py: BCDesignTokens.layoutPaddingMedium,
+                      px: BCDesignTokens.layoutPaddingSmall,
+                    }}
+                  >
+                    {" "}
+                    <Typography variant="body1" color={"black"}>
+                      If you have any questions or need to add, replace, or
+                      delete documents in your submission, please contact the
+                      EAO at{" "}
+                      <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
+                        EAO.ManagementPlanSupport@gov.bc.ca
+                      </Link>
+                      .
+                    </Typography>
+                  </GreyBox>
+                </Case>
+              </Switch>
               <Box
                 sx={{
                   pt: BCDesignTokens.layoutPaddingXlarge,
