@@ -138,12 +138,15 @@ export default function NewUserForm() {
           <UserManagementModal
             title="User Already Exists"
             description="This email address already has an active user in your EPIC.submit account."
-            instructions={[
-              "Navigate to the User Management table",
-              "Find the user by name",
-              "Click 'View/Edit User Access' to open their details page",
-              "Select 'Edit Access' to modify permissions or manage submission collaborators",
-            ]}
+            instructions={{
+              title: "To edit a user's access permissions:",
+              steps: [
+                "Navigate to the User Management table",
+                "Find the user by name",
+                "Click 'View/Edit User Access' to open their details page",
+                "Select 'Edit Access' to modify permissions or manage submission collaborators",
+              ],
+            }}
             onClose={() => closeModal()}
           />
         );
@@ -152,12 +155,15 @@ export default function NewUserForm() {
           <UserManagementModal
             title="Pending Invitation"
             description="This email address already has a pending invitation to EPIC.submit."
-            instructions={[
-              "Go to the User Management table",
-              "Locate the user by their name",
-              "Click the 'Resend Email Invite' button",
-              "Once sent, the user will receive a new invitation email with instructions to join EPIC.submit",
-            ]}
+            instructions={{
+              title: "To resend the invitation:",
+              steps: [
+                "Go to the User Management table",
+                "Locate the user by their name",
+                "Click the 'Resend Email Invite' button",
+                "Once sent, the user will receive a new invitation email with instructions to join EPIC.submit",
+              ],
+            }}
             onClose={() => closeModal()}
           />
         );

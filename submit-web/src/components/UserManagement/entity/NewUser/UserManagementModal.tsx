@@ -15,7 +15,10 @@ import { modalStyle } from "@/components/Shared/Modals/constants";
 type UserManagementModalProps = {
   title: string;
   description: string;
-  instructions: string[];
+  instructions: {
+    title: string;
+    steps: string[];
+  };
   onClose: () => void;
 };
 
@@ -36,7 +39,6 @@ const UserManagementModal = ({
       >
         <DialogTitle
           sx={{
-            color: BCDesignTokens.themeBlue100,
             fontWeight: 700,
             fontSize: "1.5rem",
             p: 3,
@@ -63,19 +65,27 @@ const UserManagementModal = ({
         </Typography>
         <Box
           sx={{
-            bgcolor: BCDesignTokens.surfaceColorBackgroundLightGray,
             p: 2,
             borderRadius: 1,
-            border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
           }}
         >
-          {instructions.map((instruction, index) => (
+          <Typography
+            variant="body1"
+            sx={{
+              fontWeight: 700,
+              mb: 2,
+              color: BCDesignTokens.typographyColorPrimary,
+            }}
+          >
+            {instructions.title}
+          </Typography>
+          {instructions.steps.map((step, index) => (
             <Typography
               key={index}
               variant="body2"
               sx={{
                 color: BCDesignTokens.typographyColorSecondary,
-                mb: index === instructions.length - 1 ? 0 : 1,
+                mb: index === instructions.steps.length - 1 ? 0 : 1,
                 pl: 2,
                 position: "relative",
                 "&::before": {
@@ -86,7 +96,7 @@ const UserManagementModal = ({
                 },
               }}
             >
-              {instruction}
+              {step}
             </Typography>
           ))}
         </Box>
