@@ -27,6 +27,9 @@ import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import UserManagementModal from "./UserManagementModal";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
@@ -47,6 +50,8 @@ type NewUserSchema = yup.InferType<typeof newUser>;
 export default function NewUserForm() {
   const { accountId, proponentId } = useAccount();
   const navigate = useNavigate();
+  const { setOpen: setOpenModal, setClose: closeModal } = useModal();
+
   const { mutate: createInvite, isPending: isPendingInvitation } =
     useCreateInvitation({
       onSuccess: () => {
@@ -59,6 +64,16 @@ export default function NewUserForm() {
     });
   const { data: accountPackages } = useGetAccountPackagesByAccountId({
     accountId: accountId,
+  });
+
+  const {
+    data: users,
+    isPending: isUsersLoading,
+    isError: isUsersError,
+  } = useGetUserByAccountId({
+    accountId,
+    includeInvitees: true,
+    includeRoles: true,
   });
 
   const methods = useForm<NewUserSchema>({
@@ -74,10 +89,19 @@ export default function NewUserForm() {
   const {
     handleSubmit,
     formState: { errors },
+    watch,
   } = methods;
-  const { watch } = methods;
 
-  const selectedRole = watch("role_name"); // Watch the selected radio value
+  const email = watch("email");
+  const selectedRole = watch("role_name");
+
+  // Check if email exists and get its status
+  const existingUser = useMemo(() => {
+    if (!email || !users) return null;
+    return users.find(
+      (user) => user.work_email_address?.toLowerCase() === email.toLowerCase()
+    );
+  }, [email, users]);
 
   const getProjectIds = () => {
     const packageIds = watch("package_ids") || [];
@@ -95,18 +119,50 @@ export default function NewUserForm() {
   };
 
   const handleCompleteForm = (formData: NewUserSchema) => {
-    const { email, role_name, package_ids } = formData;
-
-    const request = {
-      proponent_id: proponentId,
-      account_id: accountId,
-      role_name,
-      email,
-      project_ids: getProjectIds(),
-      package_ids: package_ids ? package_ids.map(Number) : undefined,
-    };
-
-    createInvite(request);
+    if (!existingUser) {
+      // No existing user, proceed with invitation
+      const { email, role_name, package_ids } = formData;
+      const request = {
+        proponent_id: proponentId,
+        account_id: accountId,
+        role_name,
+        email,
+        project_ids: getProjectIds(),
+        package_ids: package_ids ? package_ids.map(Number) : undefined,
+      };
+      createInvite(request);
+    } else {
+      // Show appropriate modal based on user status
+      if (existingUser.status === "ACTIVE") {
+        setOpenModal(
+          <UserManagementModal
+            title="User Already Exists"
+            description="This email address already has an active user in your EPIC.submit account."
+            instructions={[
+              "Navigate to the User Management table",
+              "Find the user by name",
+              "Click 'View/Edit User Access' to open their details page",
+              "Select 'Edit Access' to modify permissions or manage submission collaborators",
+            ]}
+            onClose={() => closeModal()}
+          />
+        );
+      } else if (existingUser.status === "PENDING") {
+        setOpenModal(
+          <UserManagementModal
+            title="Pending Invitation"
+            description="This email address already has a pending invitation to EPIC.submit."
+            instructions={[
+              "Go to the User Management table",
+              "Locate the user by their name",
+              "Click the 'Resend Email Invite' button",
+              "Once sent, the user will receive a new invitation email with instructions to join EPIC.submit",
+            ]}
+            onClose={() => closeModal()}
+          />
+        );
+      }
+    }
   };
 
   const options: OptionType[] = useMemo(
@@ -231,7 +287,11 @@ export default function NewUserForm() {
                 spacing={2}
                 sx={{ mt: BCDesignTokens.layoutMarginXlarge }}
               >
-                <LoadingButton type="submit" loading={isPendingInvitation}>
+                <LoadingButton
+                  type="submit"
+                  loading={isPendingInvitation}
+                  disabled={isUsersLoading}
+                >
                   Add User
                 </LoadingButton>
                 <Button
