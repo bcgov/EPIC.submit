@@ -17,16 +17,16 @@ function Logout() {
 
   useMounted(() => {
     signoutSilent();
-    reset();
   });
 
   useEffect(() => {
     if (!isAuthenticated) {
+      reset();
       navigate({
         to: "/",
       });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, reset]);
 
   return <PageLoader />;
 }

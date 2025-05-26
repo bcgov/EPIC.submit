@@ -9,7 +9,7 @@ import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { Save } from "@mui/icons-material";
-import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText } from "@mui/material";
+import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText, Tooltip } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
@@ -145,10 +145,6 @@ function CreateAccountForm() {
             {invitation?.role.role_name ===
               USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
               <>
-                First of all, please create your Project Administrator Account
-                for {projects?.[0]?.name ?? ""}.
-                <br />
-                <br />
                 Project Administrators can
                 <ul style={{ paddingTop: "0rem", marginTop: "0rem" }}>
                   <li>Access all the submissions</li>
@@ -253,21 +249,36 @@ function CreateAccountForm() {
                 </Grid>
                 <Grid container spacing={1} alignItems="flex-start" marginBottom={4}>
                   <Grid item>
-                    <Checkbox
-                      checked={termsAccepted}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        if (checked) {
-                          e.preventDefault();
-                          setShowTermsModalFlag(true);
-                        } else {
-                          setTermsAccepted(false);
-                          setVersionId(null);
-                        }
+                    <Tooltip
+                      title={termsAccepted ? "You have already agreed to the Terms and Conditions" : ""}
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            maxWidth: 200,
+                            whiteSpace: 'normal',
+                          },
+                        },
                       }}
-                      name="terms"
-                      sx={{ p: 0, mr: 1 }}
-                    />
+                    >
+                      <span>
+                        <Checkbox
+                          checked={termsAccepted}
+                          disabled={termsAccepted}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            if (checked) {
+                              e.preventDefault();
+                              setShowTermsModalFlag(true);
+                            } else {
+                              setTermsAccepted(false);
+                              setVersionId(null);
+                            }
+                          }}
+                          name="terms"
+                          sx={{ p: 0, mr: 1 }}
+                        />
+                      </span>
+                    </Tooltip>
                   </Grid>
                   <Grid item xs>
                     <Typography
@@ -295,7 +306,7 @@ function CreateAccountForm() {
                           ml: '2px',
                         }}
                       >
-                        Terms of Services
+                        Terms and Conditions
                       </Box>
                     </Typography>
                   </Grid>

@@ -19,7 +19,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission"
 )({
   component: NewManagementPlan,
   meta: () => [{ title: "New Submission Package" }],
@@ -73,7 +73,7 @@ export function NewManagementPlan() {
   }, [isCreatingSubmissionPackagePending, setIsOpen]);
 
   const onCreateSubmissionPackage = (
-    metadata: Partial<NewManagementPlanForm>,
+    metadata: Partial<NewManagementPlanForm>
   ) => {
     const { name, type, ...restMetadata } = metadata;
     const newSubmissionPackageRequest = {
@@ -120,7 +120,7 @@ export function NewManagementPlan() {
             }}
           >
             <Typography variant="h4" fontWeight={400}>
-              Management Plans and Related Documents
+              Management Plans & Related Documents
             </Typography>
             <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
             <Box

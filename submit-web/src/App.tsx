@@ -8,10 +8,26 @@ import RouterProviderWithAuthContext from "@/router";
 import ModalProvider from "./components/Shared/Modals/ModalProvider";
 import SnackBarProvider from "./components/Shared/Snackbar/SnackBarProvider";
 import LoaderBackdropProvider from "./components/Shared/Overlays/LoaderBackdropProvider";
-
-const queryClient = new QueryClient();
+import { createRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
 
 function App() {
+  const queryClient = new QueryClient();
+  const router = createRouter({
+    routeTree,
+    context: {
+      // authentication will initially be undefined
+      // We'll be passing down the authentication state from within a React component
+      authentication: undefined!,
+      account: undefined!,
+      queryClient,
+    },
+    defaultPreload: "intent",
+    // Since we're using React Query, we don't want loader calls to ever be stale
+    // This will ensure that the loader is always called when the route is preloaded or visited
+    defaultPreloadStaleTime: 0,
+  });
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider theme={theme}>
@@ -19,7 +35,7 @@ function App() {
           <ModalProvider />
           <SnackBarProvider />
           <LoaderBackdropProvider />
-          <RouterProviderWithAuthContext />
+          <RouterProviderWithAuthContext router={router} />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
