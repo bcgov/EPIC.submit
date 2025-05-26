@@ -2,6 +2,7 @@
 import datetime
 import uuid
 from urllib.parse import urljoin
+from http import HTTPStatus
 
 from flask import current_app
 
@@ -31,19 +32,48 @@ class InvitationService:
         return str(uuid.uuid4())
 
     @staticmethod
+    def _check_existing_user(email, account_id):
+        """Check if a user with the given email already exists in the account."""
+        # Check for active users
+        existing_user = AccountUserService.get_users_by_account(
+            account_id, 
+            include_roles=True, 
+            include_invitees=True
+        )
+  
+        for user in existing_user:
+            work_email = user.get('work_email_address')
+            if work_email and work_email.lower() == email.lower():
+                return {
+                    'status': user.get('status'),
+                    'work_email_address': work_email
+                }
+        return None
+
+    @staticmethod
     def create_invitation(invite_data):
         """Create and persist a new invitation token."""
+        email = invite_data.get('email')
+        account_id = invite_data.get('account_id')
+
+        # Check for existing user
+        existing_user = InvitationService._check_existing_user(email, account_id)
+        if existing_user:
+            return {
+                'success': False,
+                'error': 'User already exists',
+                'existing_user': existing_user
+            }
+
         token = InvitationService.generate_uuid_token()
 
         role_name = invite_data.get('role_name')
-        account_id = invite_data.get('account_id')
         proponent_id = invite_data.get('proponent_id')
         project_ids = invite_data.get('project_ids')
 
         role = InvitationService._validate_fetch_role(role_name)
 
         with session_scope() as session:
-
             account = InvitationService._get_or_create_account(
                 account_id, proponent_id, project_ids, session)
             session.flush()
@@ -57,6 +87,7 @@ class InvitationService:
                     invitation.id, session)
 
             return {
+                'success': True,
                 'invitation': invitation,
                 'url': InvitationService._generate_signup_url(token),
                 'role_name': role_name
