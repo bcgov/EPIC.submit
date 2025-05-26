@@ -27,7 +27,10 @@ import { ContentBox } from "@/components/Shared/ContentBox";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import ItemsTable from "@/components/Submission/ItemsTable";
-import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
+import {
+  UPDATE_REQUEST_STATUS,
+  UPDATE_REQUEST_TYPE,
+} from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
@@ -116,10 +119,12 @@ export default function SubmissionPage() {
   }
 
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
-  const openRequests = submissionPackage.update_requests.filter(
+
+  const isRevisionRequired = submissionPackage.update_requests.some(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-      updateRequest.active
+      updateRequest.active &&
+      updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
   );
 
   const openOrPendingRequests = submissionPackage.update_requests.filter(
@@ -129,14 +134,12 @@ export default function SubmissionPage() {
       updateRequest.active
   );
 
-  const isUnderReview =
-    (isPackageSubmitted && openOrPendingRequests.length > 0) ||
-    submissionPackage.status.some((_status) =>
-      [
-        PACKAGE_STATUS.UNDER_REVIEW.value,
-        PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value,
-      ].includes(_status)
-    );
+  const isUnderReview = submissionPackage.status.some((_status) =>
+    [
+      PACKAGE_STATUS.UNDER_REVIEW.value,
+      PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value,
+    ].includes(_status)
+  );
 
   const isSubmitDisabled =
     isPackageSubmitted && openOrPendingRequests.length === 0;
@@ -246,14 +249,26 @@ export default function SubmissionPage() {
               >
                 <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <When condition={isPackageSubmitted && !isUnderReview}>
+              <When
+                condition={
+                  isPackageSubmitted &&
+                  openOrPendingRequests.length > 0 &&
+                  !isRevisionRequired
+                }
+              >
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>
                   <SubmissionSuccessBox
                     submissionPackageType={submissionPackage.type}
                   />
                 </Box>
               </When>
-              <When condition={isUnderReview}>
+              <When
+                condition={
+                  openOrPendingRequests.length === 0 &&
+                  isUnderReview &&
+                  isPackageSubmitted
+                }
+              >
                 <GreyBox
                   sx={{
                     py: BCDesignTokens.layoutPaddingMedium,
