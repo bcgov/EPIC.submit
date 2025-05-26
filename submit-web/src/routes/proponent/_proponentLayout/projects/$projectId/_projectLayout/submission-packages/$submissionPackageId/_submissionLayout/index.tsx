@@ -120,6 +120,10 @@ export default function SubmissionPage() {
 
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
 
+  const isFirstSubmission = submissionPackage.status.includes(
+    PACKAGE_STATUS.SUBMITTED.value
+  );
+
   const isRevisionRequired = submissionPackage.update_requests.some(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
@@ -251,9 +255,10 @@ export default function SubmissionPage() {
               </Box>
               <When
                 condition={
-                  isPackageSubmitted &&
-                  openOrPendingRequests.length > 0 &&
-                  !isRevisionRequired
+                  (isPackageSubmitted &&
+                    openOrPendingRequests.length > 0 &&
+                    !isRevisionRequired) ||
+                  isFirstSubmission
                 }
               >
                 <Box mb={BCDesignTokens.layoutMarginXlarge}>
