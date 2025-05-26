@@ -66,11 +66,7 @@ export default function NewUserForm() {
     accountId: accountId,
   });
 
-  const {
-    data: users,
-    isPending: isUsersLoading,
-    isError: isUsersError,
-  } = useGetUserByAccountId({
+  const { data: users, isPending: isUsersLoading } = useGetUserByAccountId({
     accountId,
     includeInvitees: true,
     includeRoles: true,
