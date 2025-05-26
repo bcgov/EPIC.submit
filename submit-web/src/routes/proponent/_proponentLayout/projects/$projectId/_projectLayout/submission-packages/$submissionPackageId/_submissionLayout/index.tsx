@@ -131,10 +131,15 @@ export default function SubmissionPage() {
       updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
   );
 
-  const openOrPendingRequests = submissionPackage.update_requests.filter(
+  const pendingRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
-      (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
-        updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
+      updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
+      updateRequest.active
+  );
+
+  const openRequests = submissionPackage.update_requests.filter(
+    (updateRequest) =>
+      updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
       updateRequest.active
   );
 
@@ -146,7 +151,9 @@ export default function SubmissionPage() {
   );
 
   const isSubmitDisabled =
-    isPackageSubmitted && openOrPendingRequests.length === 0;
+    isPackageSubmitted &&
+    pendingRequests.length === 0 &&
+    openRequests.length === 0;
 
   return (
     <PageGrid>
@@ -257,7 +264,7 @@ export default function SubmissionPage() {
                 <Case
                   condition={
                     (isPackageSubmitted &&
-                      openOrPendingRequests.length > 0 &&
+                      pendingRequests.length > 0 &&
                       !isRevisionRequired) ||
                     isFirstSubmission
                   }
@@ -270,7 +277,8 @@ export default function SubmissionPage() {
                 </Case>
                 <Case
                   condition={
-                    openOrPendingRequests.length === 0 &&
+                    openRequests.length === 0 &&
+                    pendingRequests.length === 0 &&
                     isUnderReview &&
                     isPackageSubmitted
                   }
