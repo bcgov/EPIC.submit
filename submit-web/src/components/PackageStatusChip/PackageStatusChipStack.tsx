@@ -37,7 +37,7 @@ export const PackageStatusChipStack = ({
         [
           PACKAGE_STATUS.COMPLETED.value,
           PACKAGE_STATUS.PARTIALLY_COMPLETED.value,
-        ].includes(_status)
+        ].includes(_status),
       )
     )
       return false;
@@ -45,7 +45,7 @@ export const PackageStatusChipStack = ({
       submissionPackage.update_requests.filter(
         (updateRequest) =>
           updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value &&
-          updateRequest.active
+          updateRequest.active,
       ).length > 0
     );
   }, [submissionPackage.update_requests, status]);
@@ -54,9 +54,8 @@ export const PackageStatusChipStack = ({
     return (
       submissionPackage.update_requests.filter(
         (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
           updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-          updateRequest.active
+          updateRequest.active,
       ).length > 0
     );
   }, [submissionPackage.update_requests]);
@@ -72,7 +71,7 @@ export const PackageStatusChipStack = ({
             status={NON_CANONICAL_PACKAGE_STATUS.UPDATE_REQUESTED}
           />
         </When>
-        <When condition={isRevisionRequired}>
+        <When condition={isRevisionRequired && !isUpdated}>
           <PackageStatusChip
             status={
               isProponent
