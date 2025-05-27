@@ -32,7 +32,7 @@ class VisibilityTypeEnum(enum.Enum):
 class ActivityActionType(enum.Enum):
     """Enum for activity type statuses."""
 
-    ORIGINAL_SUBMISSION = "Original Submission"
+    ORIGINAL_SUBMISSION = "Submitted to EAO"
     UPDATED_SUBMISSION = "Updated Submission"
     START_CONSULTATION_CHECK = "Start Consultation Check"
     UPDATE_REQUESTED = "Update Requested"
