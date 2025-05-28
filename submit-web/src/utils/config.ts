@@ -37,6 +37,8 @@ const OIDC_AUTHORITY =
 const CLIENT_ID =
   window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID;
 
+const SUPPORT_EMAIL = "EAO.ManagementPlanSupport@gov.bc.ca";
+
 export const AppConfig = {
   apiUrl: `${API_URL}`,
   documentUrl: `${OBJECT_STORAGE_URL}`,
@@ -46,6 +48,7 @@ export const AppConfig = {
   appTitle: APP_TITLE,
   appUrl: APP_URL,
   clientId: CLIENT_ID,
+  supportEmail: SUPPORT_EMAIL,
 };
 
 const trimmedAppUrl = APP_URL?.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;

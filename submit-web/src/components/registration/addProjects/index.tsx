@@ -13,6 +13,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useEffect, useMemo, useState } from "react";
 import { Else, If, Then } from "react-if";
 import { ProjectCard } from "./ProjectCard";
+import { AppConfig } from "@/utils/config";
 
 function AddProjects() {
   const navigate = useNavigate();
@@ -78,8 +79,8 @@ function AddProjects() {
           <Typography variant="body1">
             If you have any questions about the type of documents you can submit
             on EPIC.submit, please contact{" "}
-            <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-              EAO.ManagementPlanSupport@gov.bc.ca
+            <Link href={`mailto:${AppConfig.supportEmail}`}>
+              {AppConfig.supportEmail}
             </Link>
             .
           </Typography>
@@ -121,10 +122,10 @@ function AddProjects() {
             <WarningBox>
               Please Contact the EAO at
               <Link
-                href="mailto:EAO.ManagementPlanSupport@gov.bc.ca"
+                href={`mailto:${AppConfig.supportEmail}`}
                 sx={{ ml: BCDesignTokens.layoutMarginXsmall }}
               >
-                EAO.ManagementPlanSupport@gov.bc.ca.
+                {AppConfig.supportEmail}
               </Link>
             </WarningBox>
           </Grid>

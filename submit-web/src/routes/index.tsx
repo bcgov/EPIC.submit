@@ -12,7 +12,7 @@ import {
 import { useAuth } from "react-oidc-context";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { OidcConfig } from "@/utils/config";
+import { OidcConfig, AppConfig } from "@/utils/config";
 import { BCDesignTokens } from "epic.theme";
 import { IDENTITY_PROVIDERS } from "@/models/User";
 
@@ -222,8 +222,8 @@ function Index() {
             <Typography variant="body1" mt={1}>
               For assistance with EPIC.submit, please contact the EAO support
               team at{" "}
-              <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-                EAO.ManagementPlanSupport@gov.bc.ca
+              <Link href={`mailto:${AppConfig.supportEmail}`}>
+                {AppConfig.supportEmail}
               </Link>
             </Typography>
           </Paper>
