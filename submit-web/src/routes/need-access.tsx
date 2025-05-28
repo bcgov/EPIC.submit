@@ -3,6 +3,7 @@ import { Container, Typography } from "@mui/material";
 import { createFileRoute } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { YellowBar } from "@/components/Shared/YellowBar";
+import { AppConfig } from "@/utils/config";
 
 export const Route = createFileRoute("/need-access")({
   component: NeedAccess,
@@ -39,8 +40,8 @@ function NeedAccess() {
         <p>
           If you believe you should have access to EPIC.submit , please contact{" "}
           the Environmental Assessment Office at{" "}
-          <Link href="mailto:eao.managementplansupport@gov.bc.ca">
-            eao.managementplansupport@gov.bc.ca
+          <Link href={`mailto:${AppConfig.supportEmail}`}>
+            {AppConfig.supportEmail}
           </Link>
           .
         </p>

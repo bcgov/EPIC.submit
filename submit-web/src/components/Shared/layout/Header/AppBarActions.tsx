@@ -74,14 +74,14 @@ export default function AppBarActions() {
     if (isProponent && user_data?.account_user) {
       return getUserGreeting(
         user_data.account_user.first_name,
-        user_data.account_user.last_name,
+        user_data.account_user.last_name
       );
     }
 
     if (user_data?.staff_user) {
       return getUserGreeting(
         user_data.staff_user.first_name,
-        user_data.staff_user.last_name,
+        user_data.staff_user.last_name
       );
     }
 
@@ -127,7 +127,9 @@ export default function AppBarActions() {
               >
                 {isProponent && (
                   <MenuItem
-                    onClick={() => handleNavigate("/proponent/profile")}
+                    onClick={() =>
+                      handleNavigate("/proponent/user-management/edit-profile")
+                    }
                   >
                     My Profile
                   </MenuItem>
