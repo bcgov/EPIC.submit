@@ -38,6 +38,8 @@ import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";
 import { GreyBox } from "@/components/Shared/GreyBox";
+import { AppConfig } from "@/utils/config";
+
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
@@ -294,8 +296,8 @@ export default function SubmissionPage() {
                       If you have any questions or need to add, replace, or
                       delete documents in your submission, please contact the
                       EAO at{" "}
-                      <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-                        EAO.ManagementPlanSupport@gov.bc.ca
+                      <Link href={`mailto:${AppConfig.supportEmail}`}>
+                        {AppConfig.supportEmail}
                       </Link>
                       .
                     </Typography>

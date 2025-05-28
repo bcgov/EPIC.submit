@@ -3,6 +3,7 @@ import { PackageType } from "@/models/Package";
 import { Box, Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { Case, Default, Switch } from "react-if";
+import { AppConfig } from "@/utils/config";
 
 type SuccessBoxProps = {
   submissionPackageType: PackageType;
@@ -40,8 +41,8 @@ export const SubmissionSuccessBox = ({
             <Typography variant="body1" mt="40px" color={"black"}>
               If you have any questions or need to add, replace, or delete
               documents in your submission, please contact the EAO at{" "}
-              <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-                EAO.ManagementPlanSupport@gov.bc.ca
+              <Link href={`mailto:${AppConfig.supportEmail}`}>
+                {AppConfig.supportEmail}
               </Link>
               .
             </Typography>
@@ -67,8 +68,8 @@ export const SubmissionSuccessBox = ({
             <Typography variant="body1" mt="40px" color={"black"}>
               If you have any questions, or need to add, replace, or delete
               documents in your submission, please contact the EAO at{" "}
-              <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-                EAO.ManagementPlanSupport@gov.bc.ca
+              <Link href={`mailto:${AppConfig.supportEmail}`}>
+                {AppConfig.supportEmail}
               </Link>
               .
             </Typography>

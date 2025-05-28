@@ -9,6 +9,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useGetInvitation } from "@/hooks/api/useInvitations";
 import { useCreateAccountForm } from "@/components/registration/formStore";
 import { LoginOptions } from "@/components/Login/LoginOptions";
+import { AppConfig } from "@/utils/config";
 
 export const Route = createFileRoute("/proponent/registration/")({
   component: Registration,
@@ -186,8 +187,8 @@ function Registration() {
             <Typography variant="body1" mt={1}>
               For assistance with EPIC.submit, please contact the EAO support
               team at{" "}
-              <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-                EAO.ManagementPlanSupport@gov.bc.ca
+              <Link href={`mailto:${AppConfig.supportEmail}`}>
+                {AppConfig.supportEmail}
               </Link>
             </Typography>
           </Paper>

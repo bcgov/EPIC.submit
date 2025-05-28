@@ -1,5 +1,6 @@
 import { Toolbar, Grid, Typography, Box, Link } from "@mui/material";
 import ErrorSvg from "@/assets/images/404.svg";
+import { AppConfig } from "@/utils/config";
 
 export default function PageNotFound() {
   return (
@@ -51,8 +52,8 @@ export default function PageNotFound() {
               <li>{`Telephone Device for the Deaf (TDD) across B.C.: 711`}</li>
               <li>
                 {`If you would like to email us please contact `}
-                <Link href="mailto:EAO.ManagementPlanSupport@gov.bc.ca">
-                  EAO.ManagementPlanSupport@gov.bc.ca
+                <Link href={`mailto:${AppConfig.supportEmail}`}>
+                  {AppConfig.supportEmail}
                 </Link>
               </li>
             </ul>

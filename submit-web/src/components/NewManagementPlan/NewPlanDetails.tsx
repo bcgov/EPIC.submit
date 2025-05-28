@@ -20,6 +20,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { NewManagementPlanForm } from "./types";
 import { get } from "lodash";
 import { SubmissionPackageType } from "../Shared/types";
+import { AppConfig } from "@/utils/config";
 
 const YES = "yes";
 const NO = "no";
@@ -41,7 +42,7 @@ export const NewPlanDetails = ({
   });
 
   const handleIsCorrectChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setIsCorrect(event.target.value);
   };
@@ -85,7 +86,7 @@ export const NewPlanDetails = ({
 
   const mainCondition = formData?.main_condition;
   const consultedParties = Array.isArray(
-    mainCondition?.condition_attributes?.parties_required_to_be_consulted,
+    mainCondition?.condition_attributes?.parties_required_to_be_consulted
   )
     ? mainCondition?.condition_attributes?.parties_required_to_be_consulted
     : [];
@@ -183,10 +184,10 @@ export const NewPlanDetails = ({
               correct condition but the information displayed is incorrect for
               that condition, please contact the EAO at
               <Link
-                href="mailto:EAO.ManagementPlanSupport@gov.bc.ca"
+                href={`mailto:${AppConfig.supportEmail}`}
                 sx={{ ml: BCDesignTokens.layoutMarginXsmall }}
               >
-                EAO.ManagementPlanSupport@gov.bc.ca.
+                {AppConfig.supportEmail}
               </Link>
             </WarningBox>
           )}
