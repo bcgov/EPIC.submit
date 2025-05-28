@@ -74,7 +74,7 @@ export default function Row({
       const resolvedFolderPath =
         currentSubmission.submitted_document.folder ===
         MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
-          ? `${folderPath}${S3_FOLDER.SUPPORTING_DOCUMENTS}`
+          ? `${folderPath}${S3_FOLDER.SUPPORTING_DOCUMENTS.value}`
           : folderPath;
       const uploadedFile = await saveObject({
         file: fileToUpload,

@@ -1,12 +1,35 @@
+import { SubmissionPackageType } from "@/components/Shared/types";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
 
 export const S3_FOLDER = {
-  INTERNAL_STAFF_DOCUMENTS: "internal_staff_documents",
-  MANAGEMENT_PLANS: "management_plans",
-  SUPPORTING_DOCUMENTS: "supporting_documents",
-  CONSULTATION_RECORDS: "consultation_records",
-  SUBMISSIONS: "submissions",
-  IEMS: "iems",
+  INTERNAL_STAFF_DOCUMENTS: {
+    value: "internal_staff_documents",
+    label: "Internal Staff Documents",
+  },
+  MANAGEMENT_PLANS: { value: "management_plans", label: "Management Plans" },
+  SUPPORTING_DOCUMENTS: {
+    value: "supporting_documents",
+    label: "Supporting Documents",
+  },
+  CONSULTATION_RECORDS: {
+    value: "consultation_records",
+    label: "Consultation Records",
+  },
+  SUBMISSIONS: { value: "submissions", label: "Submissions" },
+  IEMS: { value: "iems", label: "IEMs" },
+};
+
+export const PACKAGE_TYPE_S3_FOLDER_MAP = {
+  [SubmissionPackageType.MANAGEMENT_PLAN]: [
+    S3_FOLDER.MANAGEMENT_PLANS,
+    S3_FOLDER.SUPPORTING_DOCUMENTS,
+    S3_FOLDER.CONSULTATION_RECORDS,
+  ],
+  [SubmissionPackageType.IEM]: [
+    S3_FOLDER.IEMS,
+    S3_FOLDER.SUPPORTING_DOCUMENTS,
+    S3_FOLDER.CONSULTATION_RECORDS,
+  ],
 };
 
 type AuthHeaderRequestData = {

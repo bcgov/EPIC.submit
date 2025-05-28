@@ -2,7 +2,10 @@ import { IconButton, Menu, MenuItem } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Submission } from "@/models/Submission";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import FileOrganizeModal from "./FileOrganizeModal";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import { useParams } from "@tanstack/react-router";
 
 type ActionButtonProps = Readonly<{
   submission: Submission;
@@ -10,6 +13,11 @@ type ActionButtonProps = Readonly<{
 export const ActionButton = ({ submission }: ActionButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const { setOpen: setModalOpen } = useModal();
+
+  const { submissionPackageId } = useParams({
+    strict: false,
+  });
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -18,6 +26,18 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  useEffect(() => {
+    if (anchorEl && submission) {
+      // If the anchor element is set and submission exists, open the modal
+      setModalOpen(
+        <FileOrganizeModal
+          submission={submission}
+          submissionPackageId={submissionPackageId}
+        />,
+      );
+    }
+  }, [anchorEl, submission]);
 
   return (
     <>

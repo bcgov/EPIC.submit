@@ -24,7 +24,7 @@ export const ManagementPlanUpdateForm = () => {
     <SubmissionFormContainer>
       <Box width={"100%"}>
         <DocumentsTable
-          folder={S3_FOLDER.MANAGEMENT_PLANS}
+          folder={S3_FOLDER.MANAGEMENT_PLANS.value}
           setIsPendingUpload={setIsPendingUpload}
         />
       </Box>

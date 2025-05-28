@@ -96,7 +96,7 @@ export default function DocumentsTable({
             <SubmitPrimaryRowTableCell align="right">
               <AddDocumentActionButton
                 folder={folder}
-                folderPath={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${folder}/`}
+                folderPath={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${folder}/`}
                 handleAddDocument={handleAddSubmission}
                 setIsPendingUpload={setIsPendingUpload}
               />
@@ -106,7 +106,7 @@ export default function DocumentsTable({
             <Row
               key={documentSubmission.id}
               documentSubmission={documentSubmission}
-              folderPath={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${folder}/`}
+              folderPath={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${folder}/`}
               setIsPendingUpload={setIsPendingUpload}
             />
           ))}

@@ -136,7 +136,7 @@ export const DocumentUploadSection = () => {
             header={"Independent Environmental Monitor Terms of Engagement"}
             documents={managementPlanDocuments}
             pendingDocuments={pendingManagementPlanDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.IEMS}/`}
+            folder={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.IEMS.value}/`}
             formFieldName={"iems"}
           />
         </Box>
@@ -180,7 +180,7 @@ export const DocumentUploadSection = () => {
             formFieldName={"supportingDocuments"}
             documents={supportingDocuments}
             pendingDocuments={pendingSupportingDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.IEMS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}/`}
+            folder={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.IEMS.value}/${S3_FOLDER.SUPPORTING_DOCUMENTS.value}/`}
           />
         </Box>
       </Grid>

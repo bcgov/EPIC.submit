@@ -24,7 +24,7 @@ export const ConsultationRecordUpdateForm = () => {
     <SubmissionFormContainer>
       <Box width={"100%"}>
         <DocumentsTable
-          folder={S3_FOLDER.CONSULTATION_RECORDS}
+          folder={S3_FOLDER.CONSULTATION_RECORDS.value}
           setIsPendingUpload={setIsPendingUpload}
         />
       </Box>

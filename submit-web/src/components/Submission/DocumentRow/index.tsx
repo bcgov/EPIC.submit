@@ -18,8 +18,6 @@ import { StatusCell } from "./StatusCell";
 import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
 import DocumentsSubTable from "../ItemsTable/DocumentsSubTable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { BCDesignTokens } from "epic.theme";
 import { ActionButton } from "./ActionButton";
 
 type DocumentRowProps = Readonly<{
