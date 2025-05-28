@@ -131,14 +131,6 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "UPDATED",
     label: "Updated",
   },
-  PARTIALLY_COMPLETED: {
-    value: "PARTIALLY_COMPLETED",
-    label: "Partially Completed",
-  },
-  SUBMITTED: {
-    value: "SUBMITTED",
-    label: "Submitted",
-  },
   UPDATE_REQUESTED: {
     value: "UPDATE_REQUESTED",
     label: "Update Requested",
@@ -158,10 +150,6 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
-  },
-  COMPLETED: {
-    value: "COMPLETED",
-    label: "Completed",
   },
   REVIEWED: {
     value: "REVIEWED",
@@ -227,10 +215,6 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
-  },
-  NO_REVISION_REQUIRED: {
-    value: "NO_REVISION_REQUIRED",
-    label: "No Revision Required",
   },
   SATISFIED: {
     value: "SATISFIED",
