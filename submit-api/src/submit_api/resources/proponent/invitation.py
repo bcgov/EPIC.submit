@@ -54,6 +54,7 @@ class InvitationsResource(Resource):
         description="Invitation token created",
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Invalid input data")
+    @API.response(HTTPStatus.CONFLICT, "User already exists")
     @auth.require
     @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
@@ -63,13 +64,12 @@ class InvitationsResource(Resource):
 
         result = InvitationService.create_invitation(payload)
 
-        # Extract invitation and URL from result
-        invitation = result["invitation"]
-        invitation_url = result["url"]
+        if not result['success']:
+            return result, HTTPStatus.CONFLICT
 
         # Return invitation data with the URL
-        response = InvitationSchema().dump(invitation)
-        response['invitation_url'] = invitation_url
+        response = InvitationSchema().dump(result['invitation'])
+        response['invitation_url'] = result['url']
 
         return response, HTTPStatus.CREATED
 
