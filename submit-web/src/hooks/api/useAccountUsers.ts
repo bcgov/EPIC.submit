@@ -1,6 +1,11 @@
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 import { submitRequest } from "@/utils/axiosUtils";
-import { UseMutationOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  UseMutationOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
@@ -14,7 +19,9 @@ type GetUserProfileByGuidOptions = {
   guid?: string;
 };
 
-export const useAccountGetUserByGuid = ({ guid }: GetUserProfileByGuidOptions) => {
+export const useAccountGetUserByGuid = ({
+  guid,
+}: GetUserProfileByGuidOptions) => {
   return useQuery({
     queryKey: [QUERY_KEY.ACCOUNT_USERS, guid],
     queryFn: () => getUserProfileByGuid(guid),
@@ -68,6 +75,9 @@ export const useSaveUserProfile = ({
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY.ACCOUNT_USER, guid],
         });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.ACCOUNT_USERS, guid],
+        });
       }
     },
   });
@@ -77,7 +87,10 @@ type EditUserRequest = {
   role_name: string;
   package_ids?: number[];
 };
-export const editUserRole = (account_user_id: number, data: EditUserRequest) => {
+export const editUserRole = (
+  account_user_id: number,
+  data: EditUserRequest
+) => {
   return submitRequest<AccountUserWithRole>({
     url: `/accounts/user/${account_user_id}/role`,
     method: "patch",
@@ -110,7 +123,7 @@ export const useSaveUserRole = ({
     onError: (error: any) => {
       const defaultMessage = "An error occurred while updating the user role.";
       const errorMessage = isAxiosError(error)
-        ? error.response?.data.message ?? defaultMessage
+        ? (error.response?.data.message ?? defaultMessage)
         : defaultMessage;
 
       if (options?.onError) {
@@ -123,7 +136,10 @@ export const useSaveUserRole = ({
 type EditUserStatusRequest = {
   active: boolean;
 };
-export const editUserStatus = (account_user_id: number, data: EditUserStatusRequest) => {
+export const editUserStatus = (
+  account_user_id: number,
+  data: EditUserStatusRequest
+) => {
   return submitRequest<AccountUserWithRole>({
     url: `/accounts/user/${account_user_id}/status`,
     method: "patch",
@@ -150,9 +166,10 @@ export const useSaveUserStatus = ({
       }
     },
     onError: (error: any) => {
-      const defaultMessage = "An error occurred while updating the user status.";
+      const defaultMessage =
+        "An error occurred while updating the user status.";
       const errorMessage = isAxiosError(error)
-        ? error.response?.data.message ?? defaultMessage
+        ? (error.response?.data.message ?? defaultMessage)
         : defaultMessage;
 
       if (options?.onError) {
