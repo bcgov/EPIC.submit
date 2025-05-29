@@ -8,7 +8,6 @@ import { useReplaceSubmussion } from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
-import { MANAGEMENT_PLAN_DOCUMENT_FOLDERS } from "./../ManagementPlanSubmission/ManagementPlanProponentView/constants";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 
 type DocumentRowProps = Readonly<{
@@ -73,7 +72,7 @@ export default function Row({
       setIsPendingUpload(true);
       const resolvedFolderPath =
         currentSubmission.submitted_document.folder ===
-        MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING
+        S3_FOLDER.SUPPORTING_DOCUMENTS.value
           ? `${folderPath}${S3_FOLDER.SUPPORTING_DOCUMENTS.value}`
           : folderPath;
       const uploadedFile = await saveObject({

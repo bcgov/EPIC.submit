@@ -12,10 +12,15 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { modalStyle } from "@/components/Shared/Modals/constants";
 import { Submission } from "@/models/Submission";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { useMemo, useState } from "react";
 import { PACKAGE_TYPE_S3_FOLDER_MAP } from "@/hooks/api/useObjectStorage";
+import { FoldersList } from "./FoldersList";
+import {
+  getSubmittedDocumentsByPackageIdForStaffQueryOptions,
+  getSubmittedDocumentsForStaffQueryOptions,
+} from "@/hooks/api/useSubmittedDocuments";
 
 type UpdateModalProps = {
   submission: Submission;
@@ -26,7 +31,6 @@ const FileOrganizeModal = ({
   submission,
   submissionPackageId,
 }: UpdateModalProps) => {
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
   const { setClose } = useModal();
 
   const { data: submissionPackage } = useSuspenseQuery(
@@ -35,8 +39,12 @@ const FileOrganizeModal = ({
     }),
   );
 
-  // get all documents in the package
-  const documents = [];
+  const { data: submissions, isLoading: isSubmissionsLoading } = useQuery(
+    getSubmittedDocumentsByPackageIdForStaffQueryOptions({
+      packageId: submissionPackageId,
+    }),
+  );
+
   const folders = useMemo(() => {
     if (!submissionPackage) return [];
 
@@ -61,10 +69,11 @@ const FileOrganizeModal = ({
       </Box>
       <Divider />
       <DialogContent>
-        <Typography
-          variant="body1"
-          sx={{ whiteSpace: "pre-line" }}
-        ></Typography>
+        {isSubmissionsLoading ? (
+          <Typography>Loading...</Typography>
+        ) : (
+          <FoldersList folders={folders} submissions={submissions} />
+        )}
       </DialogContent>
       <Divider />
       <DialogActions sx={{ padding: "1rem" }}>

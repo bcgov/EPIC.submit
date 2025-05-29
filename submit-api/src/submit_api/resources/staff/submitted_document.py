@@ -84,3 +84,25 @@ class ItemFailedDocuments(Resource):
         """Get all failed documents by item id."""
         documents = DocumentService.get_failed_documents_by_item_id(item_id)
         return SubmissionSchema(many=True).dump(documents), HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route(
+    "/submissions/packages/<int:package_id>",
+    methods=["GET", "OPTIONS"],
+)
+class ItemFailedDocuments(Resource):
+    """Resource for managing submitted documents."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get submitted documents")
+    @API.response(
+        code=HTTPStatus.OK, model=document_list_model, description="Get documents"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
+    @cors.crossdomain(origin="*")
+    def get(package_id):
+        """Get all failed documents by package id."""
+        documents = DocumentService.get_submissions_by_package_id(package_id)
+        return SubmissionSchema(many=True).dump(documents), HTTPStatus.OK
