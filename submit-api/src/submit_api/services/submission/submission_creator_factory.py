@@ -23,7 +23,7 @@ class SubmissionCreatorFactory(Protocol):
     def replace(self, submission_id, request_data) -> SubmissionModel:
         """Replace a submission."""
         raise BadRequestError("Replace not supported for this submission type.")
-    
+
     def move(self, submission_id, request_data) -> SubmissionModel:
         """Move a submission."""
         raise BadRequestError("Move not supported for this submission type.")
@@ -133,7 +133,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             .filter(
                 SubmissionModel.root_submission_id == moved_submission.root_submission_id,
                 SubmissionModel.item_id == moved_submission.item_id,
-                SubmissionModel.deleted == False,
+                SubmissionModel.deleted is False,
                 SubmissionModel.id != moved_submission.id,
                 SubmissionModel.major_version == moved_submission.major_version,
                 SubmissionModel.minor_version > moved_submission.minor_version,
@@ -153,8 +153,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         active_exists = session.query(SubmissionModel).filter(
             SubmissionModel.root_submission_id == moved_submission.root_submission_id,
             SubmissionModel.id != moved_submission.id,
-            SubmissionModel.deleted == False,
-            SubmissionModel.active == True
+            SubmissionModel.deleted is False,
+            SubmissionModel.active is True
         ).first()
 
         if active_exists:
@@ -168,7 +168,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 SubmissionModel.item_id == moved_submission.item_id,
                 SubmissionModel.root_submission_id == moved_submission.root_submission_id,
                 SubmissionModel.id != moved_submission.id,
-                SubmissionModel.deleted == False,
+                SubmissionModel.deleted is False,
             )
             .order_by(SubmissionModel.major_version.desc(), SubmissionModel.minor_version.desc())
             .all()

@@ -57,7 +57,7 @@ class SubmissionService:
         submission_data = request_data.get("data")
         submission = submission_creator.replace(submission_id, submission_data)
         return submission
-    
+
     @classmethod
     def move_submission(cls, submission_id, request_data):
         """Move an existing submission document."""
