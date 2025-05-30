@@ -2,10 +2,11 @@ import { IconButton, Menu, MenuItem } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Submission } from "@/models/Submission";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import FileOrganizeModal from "./FileOrganizeModal";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { useParams } from "@tanstack/react-router";
+import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 
 type ActionButtonProps = Readonly<{
   submission: Submission;
@@ -13,7 +14,7 @@ type ActionButtonProps = Readonly<{
 export const ActionButton = ({ submission }: ActionButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-  const { setOpen: setModalOpen } = useModal();
+  const { setOpen: setModalOpen, setIsLoading, setClose } = useModal();
 
   const { submissionPackageId } = useParams({
     strict: false,
@@ -35,6 +36,35 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
       />,
     );
     handleClose();
+  };
+
+  const handleDelete = () => {
+    // Implement delete functionality here
+    // This could involve calling an API to delete the submission
+    // and then updating the UI accordingly.
+    console.log("Delete action triggered for submission:", submission.id);
+    handleClose();
+
+    setModalOpen(
+      <ConfirmationModal
+        onConfirm={() => {
+          setIsLoading(true);
+          // Call the API to delete the submission here
+          // mock API call
+          setTimeout(() => {
+            setIsLoading(false);
+            setClose();
+          }, 1000);
+        }}
+        onCancel={() => {
+          setClose();
+        }}
+        title={"Document Deletion Warning"}
+        description={"Warning: This action cannot be undone."}
+        confirmText={"Delete Document"}
+        secondaryActionText="Cancel"
+      />,
+    );
   };
 
   return (
@@ -89,7 +119,7 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={handleMove}>Move</MenuItem>
-        <MenuItem onClick={handleClose}>Delete</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
     </>
   );
