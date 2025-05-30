@@ -6,7 +6,6 @@ from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
-from submit_api.models.queries.item import ItemQueries
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
@@ -195,7 +194,6 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         if not previous_version.active:
             previous_version.active = True
             session.add(previous_version)
-
         return
 
     def _move_to_folder(self, session, submission, request_data):
