@@ -6,6 +6,7 @@ from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
+from submit_api.models.queries.item import ItemQueries
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
@@ -22,6 +23,10 @@ class SubmissionCreatorFactory(Protocol):
     def replace(self, submission_id, request_data) -> SubmissionModel:
         """Replace a submission."""
         raise BadRequestError("Replace not supported for this submission type.")
+    
+    def move(self, submission_id, request_data) -> SubmissionModel:
+        """Move a submission."""
+        raise BadRequestError("Move not supported for this submission type.")
 
 
 class FormSubmissionCreator(SubmissionCreatorFactory):
@@ -117,6 +122,91 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 submission.status = SubmissionStatus.PENDING_REPLACEMENT
 
             session.add(submission)
+            return new_submission
+
+    @staticmethod
+    def _shift_versions_down_after_removal(session, moved_submission):
+        """Shift minor versions down after removing a submission from the middle of the version chain."""
+        # Get submissions with a higher version
+        higher_versions = (
+            session.query(SubmissionModel)
+            .filter(
+                SubmissionModel.root_submission_id == moved_submission.root_submission_id,
+                SubmissionModel.item_id == moved_submission.item_id,
+                SubmissionModel.deleted == False,
+                SubmissionModel.id != moved_submission.id,
+                SubmissionModel.major_version == moved_submission.major_version,
+                SubmissionModel.minor_version > moved_submission.minor_version,
+            )
+            .order_by(SubmissionModel.minor_version.asc())
+            .all()
+        )
+
+        for submission in higher_versions:
+            submission.minor_version -= 1
+            session.add(submission)
+
+    @staticmethod
+    def _restore_previous_active_submission(session, moved_submission):
+        """Restore the most recent previous version if none are currently active."""
+        # Check if there is any other active submission for the same root_submission_id
+        active_exists = session.query(SubmissionModel).filter(
+            SubmissionModel.root_submission_id == moved_submission.root_submission_id,
+            SubmissionModel.id != moved_submission.id,
+            SubmissionModel.deleted == False,
+            SubmissionModel.active == True
+        ).first()
+
+        if active_exists:
+            # No need to restore — an active submission already exists
+            return
+
+        # Find the latest previous non-deleted submission
+        previous_versions = (
+            session.query(SubmissionModel)
+            .filter(
+                SubmissionModel.item_id == moved_submission.item_id,
+                SubmissionModel.root_submission_id == moved_submission.root_submission_id,
+                SubmissionModel.id != moved_submission.id,
+                SubmissionModel.deleted == False,
+            )
+            .order_by(SubmissionModel.major_version.desc(), SubmissionModel.minor_version.desc())
+            .all()
+        )
+
+        for prev in previous_versions:
+            if not prev.active:
+                prev.active = True
+                session.add(prev)
+                break
+
+    def move(self, submission_id, request_data):
+        """Move a document submission."""
+        with session_scope() as session:
+            submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
+            item: ItemModel = ItemModel.find_by_id(submission.item_id)
+            package_id = item.package_id
+            folder_name = request_data.get("folder")
+            new_item_id = ItemQueries.get_item_id_for_folder(package_id, folder_name)
+
+            if status := submission.status not in [SubmissionStatus.SUBMITTED,
+                                                   SubmissionStatus.REJECTED,
+                                                   SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
+                raise BadRequestError(f"Cannot replace a document with status {status}.")
+            submitted_document = self._create_submitted_document(session, request_data)
+            new_submission = self._create_submission(
+                session=session,
+                item_id=new_item_id,
+                submitted_document_id=submitted_document.id
+            )
+            submission.active = False
+            submission.deleted = True
+
+            session.add(submission)
+
+            self._shift_versions_down_after_removal(session, submission)
+            self._restore_previous_active_submission(session, submission)
+
             return new_submission
 
     @classmethod
