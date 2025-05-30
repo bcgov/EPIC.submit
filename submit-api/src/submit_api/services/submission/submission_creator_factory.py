@@ -162,9 +162,16 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         """Move document to a specific folder."""
         # Check if there is any other active submission for the same root_submission_id
         if status := submission.status not in [SubmissionStatus.SUBMITTED,
-                                                SubmissionStatus.REJECTED,
-                                                SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
+                                               SubmissionStatus.REJECTED,
+                                               SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
             raise BadRequestError(f"Cannot replace a document with status {status}.")
+
+        # Fill missing name from previous submitted document
+        if not request_data.get('name'):
+            previous_doc = SubmittedDocumentModel.find_by_id(submission.submitted_document_id)
+            if previous_doc:
+                request_data['name'] = previous_doc.name
+
         submitted_document = self._create_submitted_document(session, request_data)
         new_submission = self._create_submission(
             session=session,
