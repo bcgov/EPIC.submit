@@ -27,6 +27,7 @@ FOLDER_TO_ITEM_TYPE = {
     'iems': SubmissionItemType.IEM,
 }
 
+
 class ItemQueries:
     """Provides complex item-related queries for submissions."""
 
@@ -36,7 +37,8 @@ class ItemQueries:
         Retrieve the item ID associated with a given folder name and package.
 
         This is used to resolve the item to which a document should be moved,
-        based on the logical folder requested by the frontend."""
+        based on the logical folder requested by the frontend.
+        """
         try:
             item_type_enum = FOLDER_TO_ITEM_TYPE[folder_name]
         except KeyError:
