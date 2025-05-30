@@ -23,7 +23,7 @@ class SubmissionCreatorFactory(Protocol):
     def replace(self, submission_id, request_data) -> SubmissionModel:
         """Replace a submission."""
         raise BadRequestError("Replace not supported for this submission type.")
-    
+
     def move(self, submission_id, request_data) -> SubmissionModel:
         """Move a submission."""
         raise BadRequestError("Move not supported for this submission type.")
