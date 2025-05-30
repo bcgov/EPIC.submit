@@ -69,7 +69,12 @@ const FileOrganizeModal = ({
         {isSubmissionsLoading ? (
           <Typography>Loading...</Typography>
         ) : (
-          <FoldersList folders={folders} submissions={submissions} />
+          <FoldersList
+            folders={folders}
+            submissions={submissions}
+            submissionToMove={submission}
+            packageId={Number(submissionPackageId)}
+          />
         )}
       </DialogContent>
       <Divider />

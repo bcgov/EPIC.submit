@@ -220,3 +220,48 @@ export const useGetFailedSubmissionsByItemId = (
     ...options,
   });
 };
+
+type MoveSubmissionProps = {
+  submissionId: number;
+  targetFolder: string;
+  targetSubmissionId?: number;
+};
+export const moveSubmission = ({
+  submissionId,
+  targetFolder,
+  targetSubmissionId,
+}: MoveSubmissionProps) => {
+  return submitRequest<Submission>({
+    url: `/submissions/${submissionId}/document/move`,
+    method: "POST",
+    data: {
+      target_folder: targetFolder,
+      target_submission_id: targetSubmissionId,
+    },
+  });
+};
+
+type UseMoveSubmissionParams = {
+  packageId: number;
+  submissionId: number;
+} & Options;
+export const useMoveSubmission = ({
+  packageId,
+  submissionId,
+  ...options
+}: UseMoveSubmissionParams) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: moveSubmission,
+    onSuccess: (data) => {
+      if (_onSuccess) {
+        _onSuccess(data);
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+    },
+    ...restOptions,
+  });
+};

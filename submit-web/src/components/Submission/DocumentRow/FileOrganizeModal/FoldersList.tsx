@@ -12,12 +12,20 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useMemo, useState } from "react";
 import { Submission } from "@/models/Submission";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+import { useMoveSubmission } from "@/hooks/api/useSubmissions";
 
 type FoldersListProps = {
   folders: { value: string; label: string }[];
   submissions?: Submission[];
+  submissionToMove: Submission;
+  packageId: number;
 };
-export const FoldersList = ({ folders, submissions }: FoldersListProps) => {
+export const FoldersList = ({
+  folders,
+  submissions,
+  submissionToMove,
+  packageId,
+}: FoldersListProps) => {
   const [selectedFolder, setSelectedFolder] = useState<{
     label: string;
     value: string;
@@ -25,8 +33,10 @@ export const FoldersList = ({ folders, submissions }: FoldersListProps) => {
   const [locked, setLocked] = useState(false);
   const [moveTarget, setMoveTarget] = useState<string | number | null>(null);
 
-  console.log(submissions);
-  console.log(selectedFolder);
+  const { mutateAsync: moveSubmission } = useMoveSubmission({
+    packageId: packageId,
+    submissionId: submissionToMove.id,
+  });
 
   const filteredSubmissions = useMemo(() => {
     if (!submissions || !selectedFolder) return submissions;
@@ -36,6 +46,46 @@ export const FoldersList = ({ folders, submissions }: FoldersListProps) => {
         submission.submitted_document.folder === selectedFolder.value,
     );
   }, [submissions, selectedFolder]);
+
+  const handleOnTopOfExistingSubmission = async (
+    targetSubmissionId: number,
+  ) => {
+    if (locked || !selectedFolder) return;
+    setLocked(true);
+    setMoveTarget(targetSubmissionId);
+
+    try {
+      await moveSubmission({
+        submissionId: submissionToMove.id,
+        targetFolder: selectedFolder.value,
+        targetSubmissionId: targetSubmissionId,
+      });
+    } catch (error) {
+      console.error("Error moving submission:", error);
+    } finally {
+      setLocked(false);
+      setMoveTarget(null);
+    }
+  };
+
+  const handleMoveToFolder = async (folderValue: string) => {
+    if (locked) return;
+    setLocked(true);
+    setMoveTarget(folderValue);
+
+    try {
+      await moveSubmission({
+        submissionId: submissionToMove.id,
+        targetFolder: folderValue,
+      });
+      setSelectedFolder(null);
+    } catch (error) {
+      console.error("Error moving submission:", error);
+    } finally {
+      setLocked(false);
+      setMoveTarget(null);
+    }
+  };
 
   if (selectedFolder) {
     return (
@@ -85,15 +135,7 @@ export const FoldersList = ({ folders, submissions }: FoldersListProps) => {
                         label="Move on Top"
                         disabled={locked}
                         onClick={() => {
-                          if (locked) return;
-                          setLocked(true);
-                          setMoveTarget(submission.id);
-                          // Logic to move the document to the top
-                          // After moving, reset the locked state
-                          setTimeout(() => {
-                            setLocked(false);
-                            setMoveTarget(null);
-                          }, 1000);
+                          handleOnTopOfExistingSubmission(submission.id);
                         }}
                         sx={{
                           borderRadius: 10,
@@ -143,16 +185,7 @@ export const FoldersList = ({ folders, submissions }: FoldersListProps) => {
                 label="Move"
                 disabled={locked}
                 onClick={() => {
-                  if (locked) return;
-                  setLocked(true);
-                  setMoveTarget(folder.value);
-                  // Logic to move the document to the top
-                  // After moving, reset the locked state
-                  setTimeout(() => {
-                    setLocked(false);
-                    setMoveTarget(null);
-                    setSelectedFolder(null);
-                  }, 1000);
+                  handleMoveToFolder(folder.value);
                 }}
                 sx={{
                   borderRadius: 10,
