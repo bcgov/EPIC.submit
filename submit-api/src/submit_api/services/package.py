@@ -333,7 +333,7 @@ class PackageService:
         cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._create_email_queue_record(package, session)
-        cls._log_activity_submission(package, ActivityActionType.ORIGINAL_SUBMISSION.value, session)
+        cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
         return package
 
     @classmethod
