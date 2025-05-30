@@ -1,7 +1,7 @@
 """Service for submission management."""
 from typing import Protocol
 
-from submit_api.exceptions import BadRequestError
+from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
@@ -124,6 +124,41 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             return new_submission
 
     @staticmethod
+    def _fill_missing_name(request_data, submission):
+        """Find the document name if not in the request."""
+        if not request_data.get('name'):
+            previous_doc = SubmittedDocumentModel.find_by_id(submission.submitted_document_id)
+            if previous_doc:
+                request_data['name'] = previous_doc.name
+
+    def _create_next_version_of_target(self, session, submission, request_data):
+        """Replace an existing target submission with a new version."""
+        target_submission_id = request_data.get("target_submission_id")
+        target_submission: SubmissionModel = SubmissionModel.find_by_id(target_submission_id)
+
+        if not target_submission:
+            raise ResourceNotFoundError(f"Target submission with ID {target_submission_id} not found.")
+
+        self._fill_missing_name(request_data, submission)
+        submitted_document = self._create_submitted_document(session, request_data)
+
+        new_submission = self._create_submission(
+            session=session,
+            item_id=target_submission.item_id,
+            submitted_document_id=submitted_document.id,
+            original_submission_id=target_submission.id,
+            root_submission_id=target_submission.root_submission_id,
+        )
+
+        target_submission.active = False
+        session.add(target_submission)
+
+        submission.active = False
+        session.add(submission)
+
+        return new_submission
+
+    @staticmethod
     def _restore_previous_active_submission(session, moved_submission):
         """Restore the most recent previous version if none are currently active."""
         # Check if there is any other active submission for the same root_submission_id
@@ -166,13 +201,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                                                SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
             raise BadRequestError(f"Cannot replace a document with status {status}.")
 
-        # Fill missing name from previous submitted document
-        if not request_data.get('name'):
-            previous_doc = SubmittedDocumentModel.find_by_id(submission.submitted_document_id)
-            if previous_doc:
-                request_data['name'] = previous_doc.name
-
+        self._fill_missing_name(request_data, submission)
         submitted_document = self._create_submitted_document(session, request_data)
+
         new_submission = self._create_submission(
             session=session,
             item_id=request_data.get('item_id'),
@@ -190,9 +221,11 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         with session_scope() as session:
             submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
 
-            moved_submission = self._move_to_folder(session, submission, request_data)
-
-            self._restore_previous_active_submission(session, submission)
+            if request_data.get("target_submission_id"):
+                moved_submission = self._create_next_version_of_target(session, submission, request_data)
+            else:
+                moved_submission = self._move_to_folder(session, submission, request_data)
+                self._restore_previous_active_submission(session, submission)
 
             return moved_submission
 
