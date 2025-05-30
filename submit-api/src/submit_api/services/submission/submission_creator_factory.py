@@ -155,7 +155,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         if not previous_version.active:
             previous_version.active = True
             session.add(previous_version)
-        
+
         return
 
     def _move_to_folder(self, session, submission, request_data):
