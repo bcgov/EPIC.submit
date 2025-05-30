@@ -27,17 +27,15 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
     setAnchorEl(null);
   };
 
-  useEffect(() => {
-    if (anchorEl && submission) {
-      // If the anchor element is set and submission exists, open the modal
-      setModalOpen(
-        <FileOrganizeModal
-          submission={submission}
-          submissionPackageId={submissionPackageId}
-        />,
-      );
-    }
-  }, [anchorEl, submission]);
+  const handleMove = () => {
+    setModalOpen(
+      <FileOrganizeModal
+        submission={submission}
+        submissionPackageId={submissionPackageId}
+      />,
+    );
+    handleClose();
+  };
 
   return (
     <>
@@ -90,7 +88,7 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
-        <MenuItem onClick={handleClose}>Move</MenuItem>
+        <MenuItem onClick={handleMove}>Move</MenuItem>
         <MenuItem onClick={handleClose}>Delete</MenuItem>
       </Menu>
     </>

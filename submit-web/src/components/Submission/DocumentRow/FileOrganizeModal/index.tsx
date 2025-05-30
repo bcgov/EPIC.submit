@@ -14,13 +14,10 @@ import { modalStyle } from "@/components/Shared/Modals/constants";
 import { Submission } from "@/models/Submission";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { PACKAGE_TYPE_S3_FOLDER_MAP } from "@/hooks/api/useObjectStorage";
 import { FoldersList } from "./FoldersList";
-import {
-  getSubmittedDocumentsByPackageIdForStaffQueryOptions,
-  getSubmittedDocumentsForStaffQueryOptions,
-} from "@/hooks/api/useSubmittedDocuments";
+import { getSubmittedDocumentsByPackageIdForStaffQueryOptions } from "@/hooks/api/useSubmittedDocuments";
 
 type UpdateModalProps = {
   submission: Submission;
