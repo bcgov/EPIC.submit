@@ -6,6 +6,7 @@ from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
+from submit_api.models.queries.item import ItemQueries
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
@@ -22,6 +23,10 @@ class SubmissionCreatorFactory(Protocol):
     def replace(self, submission_id, request_data) -> SubmissionModel:
         """Replace a submission."""
         raise BadRequestError("Replace not supported for this submission type.")
+    
+    def move(self, submission_id, request_data) -> SubmissionModel:
+        """Move a submission."""
+        raise BadRequestError("Move not supported for this submission type.")
 
     def move(self, submission_id, request_data) -> SubmissionModel:
         """Move a submission."""
