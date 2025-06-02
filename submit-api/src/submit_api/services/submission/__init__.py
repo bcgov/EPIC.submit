@@ -59,6 +59,16 @@ class SubmissionService:
         return submission
 
     @classmethod
+    def move_submission(cls, submission_id, request_data):
+        """Move an existing submission document."""
+        submission = cls.get_submission_by_id(submission_id)
+        cls._check_assigned_on_package(submission.item_id)
+        submission_type = request_data.get("type")
+        submission_creator = cls.make_submission_creator(submission_type)
+        submission_data = request_data.get("data")
+        return submission_creator.move(submission_id, submission_data)
+
+    @classmethod
     def get_submission_by_id_and_validate_edit(cls, submission_id):
         """Get submission by id."""
         submission = cls.get_submission_by_id(submission_id)
