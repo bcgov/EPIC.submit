@@ -17,6 +17,7 @@ export const useCreateInvitation = (options?: Options) => {
     ...options,
   });
 };
+
 type CreateInvitation = {
   account_id?: number;
   proponent_id: number;
@@ -25,6 +26,7 @@ type CreateInvitation = {
   project_ids: number[];
   package_ids?: number[];
 };
+
 const createInvitation = ({
   account_id,
   proponent_id,
