@@ -223,6 +223,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
 
             if request_data.get("target_submission_id"):
                 moved_submission = self._create_next_version_of_target(session, submission, request_data)
+                self._restore_previous_active_submission(session, submission)
             else:
                 moved_submission = self._move_to_folder(session, submission, request_data)
                 self._restore_previous_active_submission(session, submission)
