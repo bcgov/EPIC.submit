@@ -145,13 +145,6 @@ export default function SubmissionPage() {
       updateRequest.active
   );
 
-  const isUnderReview = submissionPackage.status.some((_status) =>
-    [
-      PACKAGE_STATUS.UNDER_REVIEW.value,
-      PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value,
-    ].includes(_status)
-  );
-
   const isSubmitDisabled =
     isPackageSubmitted &&
     pendingRequests.length === 0 &&
