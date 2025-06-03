@@ -31,7 +31,7 @@ from submit_api.services import authorization
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
-    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE)
+    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -121,6 +121,44 @@ class PackageService:
         session.flush()
         current_app.logger.info(f"Created package {package.id} for account project {account_project_id}")
         return package
+
+    @classmethod
+    def create_new_package_version_with_contacts(cls, package_id):
+        """Create a new package version with contact information and cleanup."""
+        with session_scope() as session:
+            current_app.logger.info(f"Creating new package version for package {package_id}")
+
+            original_package = PackageModel.find_by_id(package_id)
+            if not original_package:
+                raise ResourceNotFoundError(f"Package {package_id} not found")
+
+            new_package = cls.create_new_package_from_original(package_id, session)
+
+            cls._copy_contact_information_from_old_version(original_package, new_package)
+
+            # new_package.status = PackageStatus.PENDING_RESUBMISSION.value
+
+            cls.deactivate_update_requests(original_package.id, session)
+
+            cls._create_resubmission_email_queue(original_package.id)
+
+            cls._log_package_version_creation_activity(original_package, new_package, session)
+
+            session.add(new_package)
+            session.flush()
+
+            current_app.logger.info(f"New package version created for {new_package.name}")
+            return new_package
+
+    @classmethod
+    def _create_resubmission_email_queue(cls, package_id):
+        """Create an email queue record for resubmission invitation."""
+        email_queue = EmailQueueModel(
+            entity_id=package_id,
+            entity_type=EntityType.PACKAGE.value,
+            template_name=MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE
+        )
+        email_queue.save()
 
     @staticmethod
     def _create_package_metadata(session, package_id, metadata):
