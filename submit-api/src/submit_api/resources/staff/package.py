@@ -20,10 +20,11 @@ from flask_restx import Namespace, Resource, cors
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateRequestSchema, StaffPackageSchema, \
-    PackageVersionSchema
+    PackageVersionSchema, CreatePackageVersionSchema, PackageSchema
 from submit_api.services.package import PackageService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
+from submit_api.models.db import session_scope
 
 
 API = Namespace("packages", description="Endpoints for Package Management")
@@ -68,7 +69,7 @@ class Package(Resource):
 @cors_preflight("GET, OPTIONS")
 @API.route(
     "/<int:original_package_id>/versions",
-    methods=["GET", "OPTIONS"],
+    methods=["GET", "POST", "OPTIONS"],
 )
 class PackageVersions(Resource):
     """Resource for managing a packages versions."""
@@ -84,6 +85,25 @@ class PackageVersions(Resource):
         """Get a package."""
         package_versions = PackageService.get_all_package_versions_by_original_package_id(original_package_id)
         return PackageVersionSchema(many=True).dump(package_versions), HTTPStatus.OK
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Create a new package version")
+    @API.response(
+        code=HTTPStatus.CREATED, model=package_model, description="Create a new package version"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @cors.crossdomain(origin="*")
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    def post(original_package_id):
+        """Create a new package version."""
+        package_version_data = CreatePackageVersionSchema().load(API.payload)
+        with session_scope() as session:
+            package_with_created_package_version = PackageService.create_new_package_from_original(
+                package_version_data["package_id"],
+                session
+            )
+        return PackageSchema().dump(package_with_created_package_version), HTTPStatus.CREATED
 
 
 @cors_preflight("POST, PATCH, OPTIONS")
