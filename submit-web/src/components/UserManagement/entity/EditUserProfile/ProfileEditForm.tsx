@@ -12,6 +12,7 @@ import {
   FormHelperText,
   Paper,
   Typography,
+  Link,
 } from "@mui/material";
 import { useSaveUserProfile } from "@/hooks/api/useAccountUsers";
 import { notify } from "../../../Shared/Snackbar/snackbarStore";
@@ -123,6 +124,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
   return (
     <TableBox mainLabel={"User Management"}>
       <Paper
+        elevation={0}
         sx={{
           maxWidth: "1448px",
           border: `1px solid ${BCDesignTokens.themeGray40}`,
@@ -236,7 +238,10 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                     marginBottom: "40px",
                   }}
                 >
-                  * To change your email address, please contact "tbd"
+                  * To change your email address, please contact{" "}
+                  <Link href="mailto:EAO.EPICsystem@gov.bc.ca">
+                    EAO.EPICsystem@gov.bc.ca
+                  </Link>
                 </FormHelperText>
                 <Button
                   type="submit"

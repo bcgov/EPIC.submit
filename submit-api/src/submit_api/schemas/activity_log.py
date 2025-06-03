@@ -7,9 +7,9 @@ from submit_api.models.user import UserType
 def get_activity_action(action: str, user_type: str) -> str:
     """Map activity log actions based on user type (Proponent/Staff)."""
     action_mapping = {
-        ActivityActionType.ORIGINAL_SUBMISSION.value: {
-            UserType.PROPONENT: ActivityActionType.ORIGINAL_SUBMISSION.value,
-            UserType.STAFF: ActivityActionType.ORIGINAL_SUBMISSION.value,
+        ActivityActionType.SUBMITTED_TO_EAO.value: {
+            UserType.PROPONENT: ActivityActionType.SUBMITTED_TO_EAO.value,
+            UserType.STAFF: ActivityActionType.SUBMITTED_TO_EAO.value,
         },
         ActivityActionType.UPDATED_SUBMISSION.value: {
             UserType.PROPONENT: ActivityActionType.UPDATED_SUBMISSION.value,
