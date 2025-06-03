@@ -58,7 +58,7 @@ class Item(Resource):
 
 
 @cors_preflight("GET, OPTIONS, POST")
-@API.route("/<int:item_id>/1", methods=["GET", "OPTIONS", "POST"])
+@API.route("/<int:item_id>/review", methods=["GET", "OPTIONS", "POST"])
 class ItemReview(Resource):
     """Resource for managing submission item reviews."""
 
