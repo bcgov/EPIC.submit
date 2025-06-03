@@ -1,3 +1,4 @@
+import { AppConfig } from "@/utils/config";
 import {
   Paper,
   Container,
@@ -31,10 +32,10 @@ export default function ErrorPage() {
               return to our home page and try again. If the problem persists,
               contact our support team at{" "}
               <MuiLink
-                href="mailto:EAO.ManagementPlanSupport@gov.bc.ca"
+                href={`mailto:${AppConfig.supportEmail}`}
                 sx={{ ml: BCDesignTokens.layoutMarginXsmall }}
               >
-                EAO.ManagementPlanSupport@gov.bc.ca.
+                {AppConfig.supportEmail}
               </MuiLink>
             </Typography>
           </Box>

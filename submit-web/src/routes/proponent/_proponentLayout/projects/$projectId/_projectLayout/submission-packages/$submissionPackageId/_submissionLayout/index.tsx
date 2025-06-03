@@ -16,24 +16,30 @@ import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { Unless, When } from "react-if";
+import { Case, Switch, Unless, When } from "react-if";
 import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/Submission/packageTableStore";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Link, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import ItemsTable from "@/components/Submission/ItemsTable";
-import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
+import {
+  UPDATE_REQUEST_STATUS,
+  UPDATE_REQUEST_TYPE,
+} from "@/models/UpdateRequest";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";
+import { GreyBox } from "@/components/Shared/GreyBox";
+import { AppConfig } from "@/utils/config";
+
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
@@ -115,20 +121,41 @@ export default function SubmissionPage() {
   }
 
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
+
+  const isFirstSubmission = submissionPackage.status.includes(
+    PACKAGE_STATUS.SUBMITTED.value
+  );
+
+  const isRevisionRequired = submissionPackage.update_requests.some(
+    (updateRequest) =>
+      updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+      updateRequest.active &&
+      updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
+  );
+
+  const pendingRequests = submissionPackage.update_requests.filter(
+    (updateRequest) =>
+      updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
+      updateRequest.active
+  );
+
   const openRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
       updateRequest.active
   );
 
-  const openOrPendingRequests = submissionPackage.update_requests.filter(
-    (updateRequest) =>
-      (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
-        updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
-      updateRequest.active
+  const isUnderReview = submissionPackage.status.some((_status) =>
+    [
+      PACKAGE_STATUS.UNDER_REVIEW.value,
+      PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value,
+    ].includes(_status)
   );
+
   const isSubmitDisabled =
-    isPackageSubmitted && openOrPendingRequests.length === 0;
+    isPackageSubmitted &&
+    pendingRequests.length === 0 &&
+    openRequests.length === 0;
 
   return (
     <PageGrid>
@@ -235,13 +262,48 @@ export default function SubmissionPage() {
               >
                 <ItemsTable submissionPackage={submissionPackage} />
               </Box>
-              <When condition={isPackageSubmitted && openRequests.length === 0}>
-                <Box mb={BCDesignTokens.layoutMarginXlarge}>
-                  <SubmissionSuccessBox
-                    submissionPackageType={submissionPackage.type}
-                  />
-                </Box>
-              </When>
+              <Switch>
+                <Case
+                  condition={
+                    (isPackageSubmitted &&
+                      pendingRequests.length > 0 &&
+                      !isRevisionRequired) ||
+                    isFirstSubmission
+                  }
+                >
+                  <Box mb={BCDesignTokens.layoutMarginXlarge}>
+                    <SubmissionSuccessBox
+                      submissionPackageType={submissionPackage.type}
+                    />
+                  </Box>
+                </Case>
+                <Case
+                  condition={
+                    openRequests.length === 0 &&
+                    pendingRequests.length === 0 &&
+                    isUnderReview &&
+                    isPackageSubmitted
+                  }
+                >
+                  <GreyBox
+                    sx={{
+                      py: BCDesignTokens.layoutPaddingMedium,
+                      px: BCDesignTokens.layoutPaddingSmall,
+                    }}
+                  >
+                    {" "}
+                    <Typography variant="body1" color={"black"}>
+                      If you have any questions or need to add, replace, or
+                      delete documents in your submission, please contact the
+                      EAO at{" "}
+                      <Link href={`mailto:${AppConfig.supportEmail}`}>
+                        {AppConfig.supportEmail}
+                      </Link>
+                      .
+                    </Typography>
+                  </GreyBox>
+                </Case>
+              </Switch>
               <Box
                 sx={{
                   pt: BCDesignTokens.layoutPaddingXlarge,
