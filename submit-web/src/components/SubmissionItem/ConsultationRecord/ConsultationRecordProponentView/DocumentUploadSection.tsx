@@ -16,6 +16,7 @@ import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
@@ -119,7 +120,10 @@ export const DocumentUploadSection = () => {
             documents={files}
             pendingDocuments={pendingFiles}
             header={"Consultation Record(s)"}
-            folder={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.CONSULTATION_RECORDS.value}/`}
+            folder={getSubmissionFolderName({
+              projectName: projectName,
+              sectionName: S3_FOLDER.CONSULTATION_RECORDS.value,
+            })}
             formFieldName={"consultationRecords"}
           />
         </Box>

@@ -16,7 +16,7 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
   const open = Boolean(anchorEl);
   const { setOpen: setModalOpen, setIsLoading, setClose } = useModal();
 
-  const { submissionPackageId } = useParams({
+  const { submissionPackageId, projectId } = useParams({
     strict: false,
   });
 
@@ -33,6 +33,7 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
       <FileOrganizeModal
         submission={submission}
         submissionPackageId={submissionPackageId}
+        accountProjectId={projectId}
       />,
     );
     handleClose();

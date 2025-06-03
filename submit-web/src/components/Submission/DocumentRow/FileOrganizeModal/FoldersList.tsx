@@ -13,18 +13,24 @@ import { useMemo, useState } from "react";
 import { Submission } from "@/models/Submission";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useMoveSubmission } from "@/hooks/api/useSubmissions";
+import { copyObject } from "@/hooks/api/useObjectStorage";
+import { SubmissionPackage } from "@/models/Package";
+import { AccountProject } from "@/models/Project";
+import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 type FoldersListProps = {
   folders: { value: string; label: string }[];
   submissions?: Submission[];
   submissionToMove: Submission;
-  packageId: number;
+  submissionPackage: SubmissionPackage;
+  accountProject?: AccountProject;
 };
 export const FoldersList = ({
   folders,
   submissions,
   submissionToMove,
-  packageId,
+  submissionPackage,
+  accountProject,
 }: FoldersListProps) => {
   const [selectedFolder, setSelectedFolder] = useState<{
     label: string;
@@ -34,9 +40,17 @@ export const FoldersList = ({
   const [moveTarget, setMoveTarget] = useState<string | number | null>(null);
 
   const { mutateAsync: moveSubmission } = useMoveSubmission({
-    packageId: packageId,
+    packageId: Number(submissionPackage.id),
     submissionId: submissionToMove.id,
   });
+
+  console.log(submissionPackage);
+
+  // const { refetch, isFetchedAfterMount } = useQuery(
+  //   getStaffSubmissionPackageQueryOptions({
+  //     packageId: packageId,
+  //   }),
+  // );
 
   const filteredSubmissions = useMemo(() => {
     if (!submissions || !selectedFolder) return submissions;
@@ -55,10 +69,18 @@ export const FoldersList = ({
     setMoveTarget(targetSubmissionId);
 
     try {
-      await moveSubmission({
-        submissionId: submissionToMove.id,
-        targetFolder: selectedFolder.value,
-        targetSubmissionId: targetSubmissionId,
+      // await moveSubmission({
+      //   submissionId: submissionToMove.id,
+      //   targetFolder: selectedFolder.value,
+      //   targetSubmissionId: targetSubmissionId,
+      // });
+      await copyObject({
+        relativeUrl: submissionToMove.submitted_document.url,
+        destinationFolder: getSubmissionFolderName({
+          projectName: accountProject?.project.name ?? "",
+          sectionName: selectedFolder.value,
+        }),
+        filename: submissionToMove.submitted_document.name,
       });
     } catch (error) {
       console.error("Error moving submission:", error);
@@ -74,9 +96,17 @@ export const FoldersList = ({
     setMoveTarget(folderValue);
 
     try {
-      await moveSubmission({
-        submissionId: submissionToMove.id,
-        targetFolder: folderValue,
+      // await moveSubmission({
+      //   submissionId: submissionToMove.id,
+      //   targetFolder: folderValue,
+      // });
+      await copyObject({
+        relativeUrl: submissionToMove.submitted_document.url,
+        destinationFolder: getSubmissionFolderName({
+          projectName: accountProject?.project.name ?? "",
+          sectionName: folderValue,
+        }),
+        filename: submissionToMove.submitted_document.name,
       });
       setSelectedFolder(null);
     } catch (error) {

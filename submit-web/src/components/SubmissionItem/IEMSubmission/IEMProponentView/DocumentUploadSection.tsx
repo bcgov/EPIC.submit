@@ -16,6 +16,7 @@ import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { IEM_DOCUMENT_FOLDERS } from "./constants";
+import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
@@ -136,7 +137,10 @@ export const DocumentUploadSection = () => {
             header={"Independent Environmental Monitor Terms of Engagement"}
             documents={managementPlanDocuments}
             pendingDocuments={pendingManagementPlanDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.IEMS.value}/`}
+            folder={getSubmissionFolderName({
+              projectName: projectName,
+              sectionName: S3_FOLDER.IEMS.value,
+            })}
             formFieldName={"iems"}
           />
         </Box>
@@ -180,7 +184,10 @@ export const DocumentUploadSection = () => {
             formFieldName={"supportingDocuments"}
             documents={supportingDocuments}
             pendingDocuments={pendingSupportingDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.IEMS.value}/${S3_FOLDER.SUPPORTING_DOCUMENTS.value}/`}
+            folder={getSubmissionFolderName({
+              projectName: projectName,
+              sectionName: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
+            })}
           />
         </Box>
       </Grid>

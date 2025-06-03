@@ -5,6 +5,10 @@ import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import DocumentsTable from "../../DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
+import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { AccountProject } from "@/models/Project";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 export const IEMUpdateForm = () => {
   const navigate = useNavigate();
@@ -13,6 +17,12 @@ export const IEMUpdateForm = () => {
   });
 
   const [isPendingUpload, setIsPendingUpload] = useState(false);
+
+  const queryClient = useQueryClient();
+  const accountProject = queryClient.getQueryData<AccountProject>([
+    QUERY_KEY.ACCOUNT_PROJECT,
+    Number(projectId),
+  ]);
 
   const handleSaveAndExit = () => {
     navigate({
@@ -24,7 +34,10 @@ export const IEMUpdateForm = () => {
     <SubmissionFormContainer>
       <Box width={"100%"}>
         <DocumentsTable
-          folder={S3_FOLDER.IEMS.value}
+          folder={getSubmissionFolderName({
+            projectName: accountProject?.project.name ?? "",
+            sectionName: S3_FOLDER.IEMS.value,
+          })}
           setIsPendingUpload={setIsPendingUpload}
         />
       </Box>

@@ -15,6 +15,7 @@ import { AccountProject } from "@/models/Project";
 import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
@@ -140,7 +141,10 @@ export const DocumentUploadSection = () => {
             header={"Management Plan"}
             documents={managementPlanDocuments}
             pendingDocuments={pendingManagementPlanDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS.value}/`}
+            folder={getSubmissionFolderName({
+              projectName: projectName,
+              sectionName: S3_FOLDER.MANAGEMENT_PLANS.value,
+            })}
             formFieldName={"managementPlans"}
           />
         </Box>
@@ -184,7 +188,10 @@ export const DocumentUploadSection = () => {
             formFieldName={"supportingDocuments"}
             documents={supportingDocuments}
             pendingDocuments={pendingSupportingDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.MANAGEMENT_PLANS.value}/${S3_FOLDER.SUPPORTING_DOCUMENTS.value}/`}
+            folder={getSubmissionFolderName({
+              projectName: projectName,
+              sectionName: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
+            })}
           />
         </Box>
       </Grid>

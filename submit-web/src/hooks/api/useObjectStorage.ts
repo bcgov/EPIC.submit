@@ -1,5 +1,6 @@
 import { SubmissionPackageType } from "@/components/Shared/types";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
+import { relative } from "path";
 
 export const S3_FOLDER = {
   INTERNAL_STAFF_DOCUMENTS: {
@@ -108,6 +109,8 @@ export const downloadObject = async (file: AuthHeaderRequestData) => {
     action: PresignedUrlAction.GET,
   });
 
+  console.log(file.s3sourceuri);
+
   return getObject(presignedUrlData.presigned_url);
 };
 
@@ -124,5 +127,29 @@ export const deleteDocument = async (data: DeleteDocumentProps) => {
   return requestAxios({
     url: presignedUrlData.presigned_url,
     method: "delete",
+  });
+};
+
+export const copyObject = async ({
+  relativeUrl,
+  destinationFolder,
+  filename,
+}: {
+  relativeUrl: string;
+  destinationFolder: string;
+  filename: string;
+}) => {
+  return documentRequest({
+    url: "/storage-operations/objects",
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      action: "copy",
+      relative_url: relativeUrl,
+      destination_folder: destinationFolder,
+      filename: filename,
+    }, // No body needed for copy
   });
 };

@@ -123,33 +123,33 @@ export default function SubmissionPage() {
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
 
   const isFirstSubmission = submissionPackage.status.includes(
-    PACKAGE_STATUS.SUBMITTED.value
+    PACKAGE_STATUS.SUBMITTED.value,
   );
 
   const isRevisionRequired = submissionPackage.update_requests.some(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
       updateRequest.active &&
-      updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
+      updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
   );
 
   const pendingRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-      updateRequest.active
+      updateRequest.active,
   );
 
   const openRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-      updateRequest.active
+      updateRequest.active,
   );
 
   const isUnderReview = submissionPackage.status.some((_status) =>
     [
       PACKAGE_STATUS.UNDER_REVIEW.value,
       PACKAGE_STATUS.UNDER_CONSULTATION_CHECK.value,
-    ].includes(_status)
+    ].includes(_status),
   );
 
   const isSubmitDisabled =
