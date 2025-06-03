@@ -60,11 +60,11 @@ class PackageUtils:
         current_app.logger.info(
             "Copying contact information from old version.")
         old_contact_info_item = next((item for item in old_package.items
-                                    if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
+                                     if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
         new_contact_info_item = next((item for item in new_package.items
-                                    if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
+                                     if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), None)
         old_submission = next((submission for submission in old_contact_info_item.submissions
-                             if submission.type == SubmissionType.FORM), None)
+                              if submission.type == SubmissionType.FORM), None)
         if not old_submission or not old_submission.submitted_form:
             current_app.logger.error(
                 "Old contact information form not found and could not be copied.")
