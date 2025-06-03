@@ -281,7 +281,6 @@ export default function SubmissionPage() {
                   condition={
                     openRequests.length === 0 &&
                     pendingRequests.length === 0 &&
-                    isUnderReview &&
                     isPackageSubmitted
                   }
                 >
