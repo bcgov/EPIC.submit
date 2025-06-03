@@ -19,7 +19,7 @@ SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP = {
 }
 
 SUBMISSION_PACKAGE_TYPE_SENDER_MAP = {
-    'Management Plan': 'The Management Plan Team at the Environmental Assessment Office'
+    'Management Plan': 'The Management Plan Team at the Environmental Assessment Office',
     'IEM': 'EAO.ManagementPlanSupport@gov.bc.ca'
 }
 
