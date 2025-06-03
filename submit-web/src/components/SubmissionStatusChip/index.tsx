@@ -137,7 +137,7 @@ const statusStyles: Record<string, StyleProps> = {
       border: `1px solid #9B6BDA`,
       background: "#F6E4FF",
       height: "24px",
-      width: "79px",
+      width: "85px",
     },
     label: "Updated",
   },
@@ -196,7 +196,7 @@ const statusStyles: Record<string, StyleProps> = {
       border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
       background: BCDesignTokens.supportSurfaceColorSuccess,
       height: "24px",
-      width: "78px",
+      width: "85px",
     },
   },
   REVIEWED: {
