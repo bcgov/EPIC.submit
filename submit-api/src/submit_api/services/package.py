@@ -33,6 +33,7 @@ from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
+from submit_api.services.package_utils import PackageUtils
 
 
 class PackageService:
@@ -134,15 +135,16 @@ class PackageService:
 
             new_package = cls.create_new_package_from_original(package_id, session)
 
-            cls._copy_contact_information_from_old_version(original_package, new_package)
+            PackageUtils.copy_contact_information_from_old_version(original_package, new_package)
 
             # new_package.status = PackageStatus.PENDING_RESUBMISSION.value
 
-            cls.deactivate_update_requests(original_package.id, session)
+            PackageUtils.deactivate_update_requests(original_package.id, session, original_package)
 
-            cls._create_resubmission_email_queue(original_package.id)
-
-            cls._log_package_version_creation_activity(original_package, new_package, session)
+            PackageUtils.create_email_queue(
+                original_package.id,
+                MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE
+            )
 
             session.add(new_package)
             session.flush()

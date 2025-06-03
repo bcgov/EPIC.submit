@@ -24,6 +24,7 @@ from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
+from submit_api.services.package_utils import PackageUtils
 
 
 class ManagementPlanService:
@@ -290,24 +291,9 @@ class ManagementPlanService:
     @classmethod
     def deactivate_update_requests(cls, package_id, session, package=None):
         """Deactivate all update requests for the package."""
-        if not package:
-            package = PackageModel.find_by_id(package_id)
-        current_app.logger.info(
-            f"Deactivating update requests for package {package.id}.")
-        update_requests = package.update_requests
-        for update_request in update_requests:
-            update_request.active = False
-            update_request.status = UpdateRequestStatus.CLOSED.value
-            session.add(update_request)
-        session.flush()
-        current_app.logger.info(
-            f"Update requests deactivated for package {package.id}.")
+        PackageUtils.deactivate_update_requests(package_id, session, package)
 
     @classmethod
     def _create_rejection_email_queue(cls, package_id, template_name):
         """Create an email queue record for an update request."""
-        email_queue = EmailQueueModel(
-            entity_id=package_id, entity_type=EntityType.PACKAGE.value,
-            template_name=template_name
-        )
-        email_queue.save()
+        PackageUtils.create_email_queue(package_id, template_name)
