@@ -24,6 +24,7 @@ from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateR
 from submit_api.services.package import PackageService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
+from submit_api.models.db import session_scope
 
 
 API = Namespace("packages", description="Endpoints for Package Management")
