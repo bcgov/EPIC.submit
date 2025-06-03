@@ -40,7 +40,8 @@ export type SubmissionItemStatus =
   | "AWAITING_MANAGER_APPROVAL"
   | "REVISION_REQUESTED"
   | "NO_REVISION_REQUIRED"
-  | "UNDER_REVIEW";
+  | "UNDER_REVIEW"
+  | "UNDER_CONSULTATION_CHECK";
 
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
@@ -118,6 +119,10 @@ export const SUBMISSION_ITEM_STATUS: Record<
     value: "UNDER_REVIEW",
     label: "Under Review",
   },
+  UNDER_CONSULTATION_CHECK: {
+    value: "UNDER_CONSULTATION_CHECK",
+    label: "Under Consultation Check",
+  },
 };
 
 export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
@@ -134,6 +139,14 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
   UPDATE_REQUESTED: {
     value: "UPDATE_REQUESTED",
     label: "Update Requested",
+  },
+  UNDER_REVIEW: {
+    value: "UNDER_REVIEW",
+    label: "Under Review",
+  },
+  UNDER_CONSULTATION_CHECK: {
+    value: "UNDER_CONSULTATION_CHECK",
+    label: "Under Consultation Check",
   },
   REVISION_REQUESTED: {
     value: "REVISION_REQUESTED",
@@ -166,10 +179,6 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
-  },
-  NO_REVISION_REQUIRED: {
-    value: "NO_REVISION_REQUIRED",
-    label: "No Revision Required",
   },
 };
 
