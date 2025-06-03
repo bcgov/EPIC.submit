@@ -131,3 +131,24 @@ class DocumentSubmission(Resource):
         """Delete a submission document."""
         deleted_submission = SubmissionService.delete_submission(submission_id)
         return SubmissionSchema().dump(deleted_submission), HTTPStatus.OK
+
+
+@cors_preflight("OPTIONS, POST")
+@API.route("/<int:submission_id>/document/move", methods=["POST", "OPTIONS"])
+class DocumentSubmissionMove(Resource):
+    """Resource to move a document submission."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Move a document submission")
+    @API.expect(create_submission_model)
+    @API.response(
+        code=HTTPStatus.OK, model=submission_model, description="Submission moved"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cors.crossdomain(origin="*")
+    @auth.require
+    def post(submission_id):
+        """Move a submission document."""
+        move_submission_data = CreateSubmissionRequestSchema().load(API.payload)
+        created_submission = SubmissionService.move_submission(submission_id, move_submission_data)
+        return SubmissionSchema().dump(created_submission), HTTPStatus.CREATED
