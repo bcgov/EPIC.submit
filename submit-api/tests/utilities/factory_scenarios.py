@@ -30,46 +30,17 @@ CONFIG = get_named_config('testing')
 class TestJwtClaims(dict, Enum):
     """Test scenarios of jwt claims."""
 
-    no_role = {
-        'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
-        'sub': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302065',
-        'firstname': fake.first_name(),
-        'lastname': fake.last_name(),
-        'preferred_username': fake.user_name(),
-        "aud": "epic-submit",
-        'realm_access': {
-            'roles': [
-            ]
-        }
-    }
-
-    public_user_role = {
-        'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
-        'sub': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302064',
-        "aud": "epic-submit",
-        'given_name': fake.first_name(),
-        'family_name': fake.last_name(),
-        'preferred_username': fake.user_name(),
-        'email': fake.email(),
-        'tenant_id': 1,
-        'realm_access': {
-            'roles': [
-                'public_user'
-            ]
-        }
-    }
-
     staff_admin_role = {
         'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
-        'sub': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302064',
-        'idp_userid': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302064',
+        'sub': 'f7a4a1d4-73a8-4cbc-a40f-bb1145302065',
+        'idp_userid': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302065',
         'preferred_username': f'{fake.user_name()}@idir',
         'given_name': fake.first_name(),
         'family_name': fake.last_name(),
         'tenant_id': 1,
         'email': 'staff@gov.bc.ca',
         'identity_provider': 'IDIR',
-        "aud": CONFIG.JWT_OIDC_AUDIENCE,  # usually "epic-submit"
+        "aud": CONFIG.JWT_OIDC_TEST_AUDIENCE,  # usually "epic-submit"
         'realm_access': {
             'roles': [
                 'staff',
@@ -80,13 +51,14 @@ class TestJwtClaims(dict, Enum):
                 'view_users',
                 'view_private_engagements',
                 'create_admin_user',
-                'view_all_surveys'
+                'view_all_surveys',
+                'eao_view'
             ]
         },
         'resource_access': {
-            CONFIG.JWT_OIDC_AUDIENCE: {
+            CONFIG.JWT_OIDC_TEST_AUDIENCE: {
                 'roles': [
-                    'eao_view'  # ✅ This is critical
+                    'eao_view'
                 ]
             }
         }

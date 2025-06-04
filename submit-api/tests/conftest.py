@@ -61,7 +61,7 @@ def app():
 def app_context(app):
     """Automatically push and pop the app context for every test."""
     with app.app_context():
-        g.jwt_oidc_token_info = TokenJWTClaims.default
+        #g.jwt_oidc_token_info = TokenJWTClaims.default
         yield
 
 
@@ -101,7 +101,7 @@ def db(app):  # pylint: disable=redefined-outer-name, invalid-name
     Drops schema, and recreate.
     """
     with app.app_context():
-        g.jwt_oidc_token_info = TokenJWTClaims.default
+        # g.jwt_oidc_token_info = TokenJWTClaims.default
         create_schema_sql = text(
             f"""DROP SCHEMA public CASCADE;
                              CREATE SCHEMA public;
@@ -133,7 +133,7 @@ def db(app):  # pylint: disable=redefined-outer-name, invalid-name
 def session(app, db):  # db is your _db from submit_api.models
     """Return a function-scoped session with nested transaction."""
     with app.app_context():
-        g.jwt_oidc_token_info = TokenJWTClaims.default
+        #g.jwt_oidc_token_info = TokenJWTClaims.default
         connection = db.engine.connect()
         transaction = connection.begin()
 
@@ -179,19 +179,3 @@ def client_id():
     #     _id = (base64.urlsafe_b64encode(uuid.uuid4().bytes)).replace('=', '')
 
     return f"client-{_id}"
-
-
-@pytest.fixture()
-def auth_header(jwt):
-    """Create a basic admin header for tests."""
-    default_claims = TokenJWTClaims.default.value
-    headers = factory_auth_header(jwt=jwt, claims=default_claims)
-    return headers
-
-
-@pytest.fixture()
-def auth_header_super_user(jwt):
-    """Create a super user header."""
-    super_user_claims = TokenJWTClaims.super_user.value
-    headers = factory_auth_header(jwt=jwt, claims=super_user_claims)
-    return headers

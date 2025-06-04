@@ -8,16 +8,15 @@ from tests.utilities.factory_utils import (
     factory_project_model,
     factory_account_model,
     factory_account_project_model,
-    factory_auth_header
+    factory_auth_header, factory_user_model
 )
 
 
 def test_get_project_by_id(client, session, jwt):
     # Create a user with matching auth_guid from claims
-    staff_user = User.create_user({
-        'auth_guid': TestJwtClaims.staff_admin_role['sub'],
-        'type': UserType.STAFF
-    }, session=session)
+
+    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    factory_user_model(auth_guid=auth_guid)
 
     # Setup account, project, and account-project link
     account = factory_account_model()

@@ -135,7 +135,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     JWT_OIDC_TEST_KEYS = {
         "keys": [
             {
-                "kid": "epic-submit",
+                "kid": JWT_OIDC_TEST_AUDIENCE,
                 "kty": "RSA",
                 "alg": "RS256",
                 "use": "sig",
@@ -151,7 +151,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     JWT_OIDC_TEST_PRIVATE_KEY_JWKS = {
         "keys": [
             {
-                "kid": "epic-submit",
+                "kid":  JWT_OIDC_TEST_AUDIENCE,
                 "kty": "RSA",
                 "alg": "RS256",
                 "use": "sig",

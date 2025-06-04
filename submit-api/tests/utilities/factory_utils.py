@@ -29,6 +29,7 @@ from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
 from submit_api.models.invitations import Invitations
 from submit_api.models.invitations import InvitationStatus
+from submit_api.models.user import UserType
 
 CONFIG = get_named_config("testing")
 fake = Faker()
@@ -75,6 +76,21 @@ def factory_account_model(proponent_id=1234):
     db.session.add(account)
     db.session.commit()
     return account
+
+def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):
+    from submit_api.models.user import User
+
+    user = User(
+        auth_guid=auth_guid or fake.uuid4(),
+        type=user_type,
+        status_id=1
+    )
+    if session:
+        session.add(user)
+        session.flush()
+    else:
+        user.save()
+    return user
 
 
 def factory_account_project_model(account_id, project_id):
