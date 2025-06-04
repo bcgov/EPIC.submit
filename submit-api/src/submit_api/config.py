@@ -131,7 +131,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv("JWT_OIDC_TEST_WELL_KNOWN_CONFIG")
     JWT_OIDC_TEST_ALGORITHMS = os.getenv("JWT_OIDC_TEST_ALGORITHMS")
     JWT_OIDC_TEST_JWKS_URI = os.getenv("JWT_OIDC_TEST_JWKS_URI", default=None)
-    JWT_OIDC_CACHING_ENABLED = os.getenv('JWT_OIDC_CACHING_ENABLED', 'True')          
+    JWT_OIDC_CACHING_ENABLED = os.getenv('JWT_OIDC_CACHING_ENABLED', 'True')
     JWT_OIDC_TEST_KEYS = {
         "keys": [
             {
