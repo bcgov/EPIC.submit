@@ -9,7 +9,7 @@ import {
 import FolderIcon from "@mui/icons-material/Folder";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Submission } from "@/models/Submission";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useMoveSubmission } from "@/hooks/api/useSubmissions";
@@ -32,6 +32,29 @@ type FoldersListProps = {
   submissionPackage: SubmissionPackage;
   accountProject?: AccountProject;
 };
+
+const MoveChip = ({
+  loading,
+  label,
+  disabled,
+  onClick,
+}: {
+  loading: boolean;
+  label: string;
+  disabled: boolean;
+  onClick: () => void;
+}) =>
+  loading ? (
+    <CircularProgress size={20} />
+  ) : (
+    <Chip
+      label={label}
+      disabled={disabled}
+      onClick={onClick}
+      sx={{ borderRadius: 10 }}
+    />
+  );
+
 export const FoldersList = ({
   folders,
   submissions,
@@ -60,141 +83,127 @@ export const FoldersList = ({
 
   const filteredSubmissions = useMemo(() => {
     if (!submissions || !selectedFolder) return submissions;
-
     return submissions.filter(
       (submission) =>
         submission.submitted_document.folder === selectedFolder.value,
     );
   }, [submissions, selectedFolder]);
 
-  const handleOnTopOfExistingSubmission = async (
-    targetSubmissionId: number,
-  ) => {
-    if (locked || !selectedFolder) return;
-    setLocked(true);
-    setMoveTarget(targetSubmissionId);
+  const getItemTypeByFolder = useCallback(
+    (
+      packageTypeMap: Record<string, { value: string; label: string }[]>,
+      folderValue: string,
+    ) => {
+      for (const [itemType, folders] of Object.entries(packageTypeMap)) {
+        if (folders.some((folder) => folder.value === folderValue)) {
+          return itemType;
+        }
+      }
+      return undefined;
+    },
+    [],
+  );
 
-    const itemId = submissions?.find(
-      (submission) => submission.id === targetSubmissionId,
-    )?.item_id;
+  const getItemFromFolder = useCallback(
+    (folderValue: string) => {
+      if (!submissionPackage?.type || !folderValue) return undefined;
+      const packageTypeMap =
+        NEW_PACKAGE_TYPE_S3_FOLDER_MAP[submissionPackage.type.name];
+      if (!packageTypeMap) return undefined;
+      const itemType = getItemTypeByFolder(packageTypeMap, folderValue);
+      if (!itemType) return undefined;
+      return submissionPackage.items.find((item) => item.type.name === itemType)
+        ?.id;
+    },
+    [submissionPackage, getItemTypeByFolder],
+  );
 
-    if (!itemId) {
-      notify.error("No item found for the target submission");
-      setLocked(false);
-      setMoveTarget(null);
-      return;
-    }
+  const handleMove = useCallback(
+    async ({
+      itemId,
+      folderValue,
+      targetSubmissionId,
+    }: {
+      itemId: number;
+      folderValue: string;
+      targetSubmissionId?: number;
+    }) => {
+      setLocked(true);
+      setMoveTarget(targetSubmissionId ?? folderValue);
 
-    try {
-      const copyObjectResponse = await copyObject({
-        relativeUrl: submissionToMove.submitted_document.url,
-        destinationFolder: getSubmissionFolderName({
-          projectName: accountProject?.project.name ?? "",
-          sectionName: selectedFolder.value,
-        }),
-        filename: submissionToMove.submitted_document.name,
-      });
+      try {
+        const copyObjectResponse = await copyObject({
+          relativeUrl: submissionToMove.submitted_document.url,
+          destinationFolder: getSubmissionFolderName({
+            projectName: accountProject?.project.name ?? "",
+            sectionName: folderValue,
+          }),
+          filename: submissionToMove.submitted_document.name,
+        });
 
-      if (copyObjectResponse.status !== "success") {
+        if (copyObjectResponse.status !== "success") {
+          notify.error(
+            "Failed to move submission" +
+              (folderValue ? " to folder " + folderValue : "") +
+              ": " +
+              copyObjectResponse.message,
+          );
+          return;
+        }
+
+        await moveSubmission({
+          submissionId: submissionToMove.id,
+          destinationItemId: itemId,
+          newPath: copyObjectResponse.new_relative_url ?? "",
+          ...(targetSubmissionId ? { targetSubmissionId } : {}),
+        });
+
+        setSelectedFolder(null);
+      } catch (error) {
+        console.error("Error moving submission:", error);
         notify.error(
-          `Failed to move submission: ${copyObjectResponse.message}`,
+          `Failed to move submission: ${isAxiosError(error) ? error.message : "Internal error"}`,
         );
+      } finally {
+        setLocked(false);
+        setMoveTarget(null);
+        refetch();
+      }
+    },
+    [accountProject, moveSubmission, refetch, submissionToMove],
+  );
+
+  const handleOnTopOfExistingSubmission = useCallback(
+    async (targetSubmissionId: number) => {
+      if (locked || !selectedFolder) return;
+      const itemId = submissions?.find(
+        (submission) => submission.id === targetSubmissionId,
+      )?.item_id;
+      if (!itemId) {
+        notify.error("No item found for the target submission");
         return;
       }
-
-      await moveSubmission({
-        submissionId: submissionToMove.id,
-        destinationItemId: itemId,
-        newPath: copyObjectResponse.new_relative_url ?? "",
+      await handleMove({
+        itemId,
+        folderValue: selectedFolder.value,
         targetSubmissionId,
       });
+    },
+    [locked, selectedFolder, submissions, handleMove],
+  );
 
-      setSelectedFolder(null);
-    } catch (error) {
-      console.error("Error moving submission:", error);
-      notify.error(
-        `Failed to move submission: ${isAxiosError(error) ? error.message : "Internal error"}`,
-      );
-    } finally {
-      setLocked(false);
-      setMoveTarget(null);
-      refetch();
-    }
-  };
-
-  const getItemTypeByFolder = (
-    packageTypeMap: Record<string, { value: string; label: string }[]>,
-    folderValue: string,
-  ) => {
-    for (const [itemType, folders] of Object.entries(packageTypeMap)) {
-      if (folders.map((folder) => folder.value).includes(folderValue)) {
-        return itemType;
-      }
-    }
-    return undefined;
-  };
-
-  const getItemFromFolder = (folderValue: string) => {
-    if (!submissionPackage?.type || !folderValue) return undefined;
-
-    const packageTypeMap =
-      NEW_PACKAGE_TYPE_S3_FOLDER_MAP[submissionPackage.type.name];
-    if (!packageTypeMap) return undefined;
-
-    const itemType = getItemTypeByFolder(packageTypeMap, folderValue);
-
-    if (!itemType) return undefined;
-
-    // Find the item in the package with the matching type name
-    return submissionPackage.items.find((item) => item.type.name === itemType)
-      ?.id;
-  };
-
-  const handleMoveToFolder = async (folderValue: string) => {
-    if (locked) return;
-    setLocked(true);
-    setMoveTarget(folderValue);
-
-    const itemId = getItemFromFolder(folderValue);
-    if (!itemId) {
-      notify.error(`No item found for folder ${folderValue}`);
-      setLocked(false);
-      setMoveTarget(null);
-      return;
-    }
-
-    try {
-      const copyObjectResponse = await copyObject({
-        relativeUrl: submissionToMove.submitted_document.url,
-        destinationFolder: getSubmissionFolderName({
-          projectName: accountProject?.project.name ?? "",
-          sectionName: folderValue,
-        }),
-        filename: submissionToMove.submitted_document.name,
-      });
-
-      if (copyObjectResponse.status !== "success") {
-        notify.error(
-          `Failed to move submission to folder ${folderValue}: ${copyObjectResponse.message}`,
-        );
+  const handleMoveToFolder = useCallback(
+    async (folderValue: string) => {
+      if (locked) return;
+      const itemId = getItemFromFolder(folderValue);
+      if (!itemId) {
+        notify.error(`No item found for folder ${folderValue}`);
         return;
       }
-
-      await moveSubmission({
-        submissionId: submissionToMove.id,
-        destinationItemId: itemId,
-        newPath: copyObjectResponse.new_relative_url ?? "",
-      });
-
-      setSelectedFolder(null);
-    } catch (error) {
-      console.error("Error moving submission:", error);
-    } finally {
-      setLocked(false);
-      setMoveTarget(null);
-      refetch();
-    }
-  };
+      await handleMove({ itemId, folderValue });
+    },
+    [locked, getItemFromFolder, handleMove],
+  );
 
   if (selectedFolder) {
     return (
@@ -204,59 +213,44 @@ export const FoldersList = ({
             size="small"
             onClick={() => setSelectedFolder(null)}
             aria-label="Back to folders"
-            sx={{ marginRight: 1 }}
+            sx={{ mr: 1 }}
             disabled={locked}
           >
             <ChevronLeftIcon />
           </IconButton>
-
           <Typography variant="subtitle1">{selectedFolder.label}</Typography>
         </Box>
-        <Box sx={{ padding: 2, border: "1px solid #ccc", borderRadius: 1 }}>
+        <Box sx={{ p: 2, border: "1px solid #ccc", borderRadius: 1 }}>
           {filteredSubmissions?.length ? (
             <Stack direction="column" spacing={1}>
               {filteredSubmissions.map((submission) => (
                 <Stack
                   key={submission.id}
-                  direction={"row"}
-                  justifyContent={"space-between"}
+                  direction="row"
+                  justifyContent="space-between"
                   spacing={1}
                 >
-                  <Stack
-                    key={submission.id}
-                    direction="row"
-                    alignItems="center"
-                    spacing={1}
-                  >
+                  <Stack direction="row" alignItems="center" spacing={1}>
                     <InsertDriveFileIcon />
-                    <Typography variant="body2" style={{ marginLeft: 8 }}>
+                    <Typography variant="body2" sx={{ ml: 1 }}>
                       {submission.submitted_document.name}
                     </Typography>
                   </Stack>
-                  <div
-                    key={submission.id}
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
-                    {moveTarget === submission.id ? (
-                      <CircularProgress size={20} />
-                    ) : (
-                      <Chip
-                        label="Move on Top"
-                        disabled={locked}
-                        onClick={() => {
-                          handleOnTopOfExistingSubmission(submission.id);
-                        }}
-                        sx={{
-                          borderRadius: 10,
-                        }}
-                      />
-                    )}
-                  </div>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <MoveChip
+                      loading={moveTarget === submission.id}
+                      label="Move on Top"
+                      disabled={locked}
+                      onClick={() =>
+                        handleOnTopOfExistingSubmission(submission.id)
+                      }
+                    />
+                  </Box>
                 </Stack>
               ))}
             </Stack>
           ) : (
-            <Typography variant="body1" style={{ marginLeft: 8 }}>
+            <Typography variant="body1" sx={{ ml: 1 }}>
               No documents in this folder.
             </Typography>
           )}
@@ -266,50 +260,36 @@ export const FoldersList = ({
   }
 
   return (
-    <Stack direction={"column"} spacing={2}>
+    <Stack direction="column" spacing={2}>
       {folders.map((folder) => (
         <Stack
           key={folder.value}
-          direction={"row"}
-          justifyContent={"space-between"}
+          direction="row"
+          justifyContent="space-between"
           spacing={1}
         >
-          <div
-            key={folder.value}
-            style={{ display: "flex", alignItems: "center" }}
-          >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
             <FolderIcon />
-            <Typography variant="body1" style={{ marginLeft: 8 }}>
+            <Typography variant="body1" sx={{ ml: 1 }}>
               {folder.label}
             </Typography>
-          </div>
-          <div
-            key={folder.value}
-            style={{ display: "flex", alignItems: "center" }}
-          >
-            {moveTarget === folder.value ? (
-              <CircularProgress size={20} />
-            ) : (
-              <Chip
-                label="Move"
-                disabled={locked}
-                onClick={() => {
-                  handleMoveToFolder(folder.value);
-                }}
-                sx={{
-                  borderRadius: 10,
-                }}
-              />
-            )}
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <MoveChip
+              loading={moveTarget === folder.value}
+              label="Move"
+              disabled={locked}
+              onClick={() => handleMoveToFolder(folder.value)}
+            />
             <IconButton
               size="small"
               onClick={() => setSelectedFolder(folder)}
-              sx={{ marginLeft: 1 }}
+              sx={{ ml: 1 }}
               disabled={locked}
             >
               <ChevronRightIcon />
             </IconButton>
-          </div>
+          </Box>
         </Stack>
       ))}
     </Stack>
