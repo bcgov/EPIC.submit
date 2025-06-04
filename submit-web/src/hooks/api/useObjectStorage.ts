@@ -117,8 +117,6 @@ export const downloadObject = async (file: AuthHeaderRequestData) => {
     action: PresignedUrlAction.GET,
   });
 
-  console.log(file.s3sourceuri);
-
   return getObject(presignedUrlData.presigned_url);
 };
 

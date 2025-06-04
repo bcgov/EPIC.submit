@@ -24,6 +24,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { useModal } from "@/components/Shared/Modals/modalStore";
 
 type FoldersListProps = {
   folders: { value: string; label: string }[];
@@ -68,6 +69,7 @@ export const FoldersList = ({
   } | null>(null);
   const [locked, setLocked] = useState(false);
   const [moveTarget, setMoveTarget] = useState<string | number | null>(null);
+  const { setClose } = useModal();
 
   const { mutateAsync: moveSubmission, isSuccess } = useMoveSubmission({
     packageId: Number(submissionPackage.id),
@@ -159,6 +161,11 @@ export const FoldersList = ({
         });
 
         setSelectedFolder(null);
+        notify.success(
+          `Submission moved successfully${
+            folderValue ? " to folder " + folderValue : ""
+          }`,
+        );
       } catch (error) {
         console.error("Error moving submission:", error);
         notify.error(
@@ -168,6 +175,7 @@ export const FoldersList = ({
         setLocked(false);
         setMoveTarget(null);
         refetch();
+        setClose();
       }
     },
     [accountProject, moveSubmission, refetch, submissionToMove],

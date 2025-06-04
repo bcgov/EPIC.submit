@@ -237,9 +237,12 @@ export const moveSubmission = ({
     url: `/submissions/${submissionId}/document/move`,
     method: "POST",
     data: {
-      url: newPath,
-      target_submission_id: targetSubmissionId,
-      destination_item_id: destinationItemId,
+      data: {
+        url: newPath,
+        target_submission_id: targetSubmissionId,
+        item_id: destinationItemId,
+      },
+      type: SUBMISSION_TYPE.DOCUMENT,
     },
   });
 };

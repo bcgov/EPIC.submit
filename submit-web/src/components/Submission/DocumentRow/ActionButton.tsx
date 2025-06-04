@@ -43,7 +43,6 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
     // Implement delete functionality here
     // This could involve calling an API to delete the submission
     // and then updating the UI accordingly.
-    console.log("Delete action triggered for submission:", submission.id);
     handleClose();
 
     setModalOpen(
