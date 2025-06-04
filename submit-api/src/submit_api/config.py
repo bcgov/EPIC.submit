@@ -121,9 +121,8 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     DB_NAME = os.getenv("DATABASE_TEST_NAME", "postgres")
     DB_HOST = os.getenv("DATABASE_TEST_HOST", "localhost")
     DB_PORT = os.getenv("DATABASE_TEST_PORT", "5432")
-    SQLALCHEMY_DATABASE_URI = (
-        f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}"
-    )
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_TEST_URL',
+                                        f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}')
     JWT_OIDC_TEST_MODE = True
     # JWT_OIDC_ISSUER = _get_config('JWT_OIDC_TEST_ISSUER')
     JWT_OIDC_TEST_AUDIENCE = os.getenv("JWT_OIDC_TEST_AUDIENCE")

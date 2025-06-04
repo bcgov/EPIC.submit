@@ -57,7 +57,7 @@ class Auth:  # pylint: disable=too-few-public-methods
             @Auth.require
             @wraps(f)
             def wrapper(*args, **kwargs):
-                if jwt.contains_role(roles):  # pylint: disable=no-value-for-parameter
+                if jwt.contains_role(g.token_info,roles):  # pylint: disable=no-value-for-parameter
                     return f(*args, **kwargs)
 
                 raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
