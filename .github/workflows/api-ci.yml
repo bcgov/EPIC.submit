@@ -52,7 +52,6 @@ jobs:
   testing:
      needs: setup-job
      env:
-       FLASK_ENV: "testing"
        DATABASE_TEST_URL: "postgresql://postgres:postgres@localhost:5432/postgres"
        JWT_OIDC_TEST_ISSUER: "http://localhost:8081/auth/realms/demo"
        JWT_OIDC_TEST_WELL_KNOWN_CONFIG: "http://localhost:8081/auth/realms/demo/.well-known/openid-configuration"
