@@ -1,6 +1,6 @@
 import { SubmissionPackageType } from "@/components/Shared/types";
+import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
-import { relative } from "path";
 
 export const S3_FOLDER = {
   INTERNAL_STAFF_DOCUMENTS: {
@@ -20,17 +20,25 @@ export const S3_FOLDER = {
   IEMS: { value: "iems", label: "IEMs" },
 };
 
-export const PACKAGE_TYPE_S3_FOLDER_MAP = {
-  [SubmissionPackageType.MANAGEMENT_PLAN]: [
-    S3_FOLDER.MANAGEMENT_PLANS,
-    S3_FOLDER.SUPPORTING_DOCUMENTS,
-    S3_FOLDER.CONSULTATION_RECORDS,
-  ],
-  [SubmissionPackageType.IEM]: [
-    S3_FOLDER.IEMS,
-    S3_FOLDER.SUPPORTING_DOCUMENTS,
-    S3_FOLDER.CONSULTATION_RECORDS,
-  ],
+export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
+  [SubmissionPackageType.MANAGEMENT_PLAN]: {
+    [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: [
+      S3_FOLDER.MANAGEMENT_PLANS,
+      S3_FOLDER.SUPPORTING_DOCUMENTS,
+    ],
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
+      S3_FOLDER.CONSULTATION_RECORDS,
+    ],
+  },
+  [SubmissionPackageType.IEM]: {
+    [SUBMISSION_ITEM_TYPE.IEM]: [
+      S3_FOLDER.IEMS,
+      S3_FOLDER.SUPPORTING_DOCUMENTS,
+    ],
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
+      S3_FOLDER.CONSULTATION_RECORDS,
+    ],
+  },
 };
 
 type AuthHeaderRequestData = {
@@ -130,6 +138,17 @@ export const deleteDocument = async (data: DeleteDocumentProps) => {
   });
 };
 
+type CopyObjectResponse = {
+  message: string;
+  status: "success" | "error";
+  document: {
+    name: string;
+    unique_name: string;
+    path: string;
+    project_id: number | null;
+  };
+  new_relative_url?: string;
+};
 export const copyObject = async ({
   relativeUrl,
   destinationFolder,
@@ -139,7 +158,7 @@ export const copyObject = async ({
   destinationFolder: string;
   filename: string;
 }) => {
-  return documentRequest({
+  return documentRequest<CopyObjectResponse>({
     url: "/storage-operations/objects",
     method: "post",
     headers: {

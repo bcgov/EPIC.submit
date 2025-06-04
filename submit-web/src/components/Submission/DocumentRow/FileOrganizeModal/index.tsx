@@ -19,7 +19,7 @@ import {
 } from "@tanstack/react-query";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { useMemo } from "react";
-import { PACKAGE_TYPE_S3_FOLDER_MAP } from "@/hooks/api/useObjectStorage";
+import { NEW_PACKAGE_TYPE_S3_FOLDER_MAP } from "@/hooks/api/useObjectStorage";
 import { FoldersList } from "./FoldersList";
 import { getSubmittedDocumentsByPackageIdForStaffQueryOptions } from "@/hooks/api/useSubmittedDocuments";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
@@ -55,26 +55,22 @@ const FileOrganizeModal = ({
   // );
 
   const queryClient = useQueryClient();
-  console.log("accountProjectId", accountProjectId);
   const accountProject = queryClient.getQueryData<AccountProject>(
     getAccountProjectForStaffQueryOptions(Number(accountProjectId)).queryKey,
   );
 
-  console.log("accountProject", accountProject);
-
   const folders = useMemo(() => {
     if (!submissionPackage) return [];
 
-    if (
-      !Object.keys(PACKAGE_TYPE_S3_FOLDER_MAP).includes(
-        submissionPackage.type.name,
-      )
-    ) {
-      return [];
-    }
+    const packageTypeFolders =
+      NEW_PACKAGE_TYPE_S3_FOLDER_MAP[submissionPackage.type.name];
+    if (!packageTypeFolders) return [];
 
-    return PACKAGE_TYPE_S3_FOLDER_MAP[submissionPackage.type.name];
-  }, [submissionPackage]);
+    const folders = Object.values(packageTypeFolders).flatMap(
+      (itemTypeFolders) => itemTypeFolders,
+    );
+    return folders ?? [];
+  }, [submissionPackage, submission]);
 
   const isLoading = isSubmissionsLoading;
 

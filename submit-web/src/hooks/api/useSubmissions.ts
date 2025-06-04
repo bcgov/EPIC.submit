@@ -129,7 +129,7 @@ export const useReplaceSubmussion = ({
   const { onSuccess: _onSuccess, ...restOptions } = options;
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (params: ReplaceSubmissionParams) => replacteSubmission(params),
+    mutationFn: (params: ReplaceSubmissionParams) => replaceSubmission(params),
     onSuccess: (data) => {
       if (_onSuccess) {
         _onSuccess(data);
@@ -146,7 +146,7 @@ type ReplaceSubmissionParams = {
   submissionId: number;
   data: FormType;
 };
-export const replacteSubmission = ({
+export const replaceSubmission = ({
   submissionId,
   data,
 }: ReplaceSubmissionParams) => {
@@ -223,20 +223,23 @@ export const useGetFailedSubmissionsByItemId = (
 
 type MoveSubmissionProps = {
   submissionId: number;
-  targetFolder: string;
+  newPath: string;
   targetSubmissionId?: number;
+  destinationItemId: number;
 };
 export const moveSubmission = ({
   submissionId,
-  targetFolder,
+  newPath,
   targetSubmissionId,
+  destinationItemId,
 }: MoveSubmissionProps) => {
   return submitRequest<Submission>({
     url: `/submissions/${submissionId}/document/move`,
     method: "POST",
     data: {
-      target_folder: targetFolder,
+      url: newPath,
       target_submission_id: targetSubmissionId,
+      destination_item_id: destinationItemId,
     },
   });
 };

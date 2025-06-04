@@ -13,10 +13,17 @@ import { useMemo, useState } from "react";
 import { Submission } from "@/models/Submission";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useMoveSubmission } from "@/hooks/api/useSubmissions";
-import { copyObject } from "@/hooks/api/useObjectStorage";
+import {
+  copyObject,
+  NEW_PACKAGE_TYPE_S3_FOLDER_MAP,
+} from "@/hooks/api/useObjectStorage";
 import { SubmissionPackage } from "@/models/Package";
 import { AccountProject } from "@/models/Project";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { isAxiosError } from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 
 type FoldersListProps = {
   folders: { value: string; label: string }[];
@@ -39,18 +46,17 @@ export const FoldersList = ({
   const [locked, setLocked] = useState(false);
   const [moveTarget, setMoveTarget] = useState<string | number | null>(null);
 
-  const { mutateAsync: moveSubmission } = useMoveSubmission({
+  const { mutateAsync: moveSubmission, isSuccess } = useMoveSubmission({
     packageId: Number(submissionPackage.id),
     submissionId: submissionToMove.id,
   });
 
-  console.log(submissionPackage);
-
-  // const { refetch, isFetchedAfterMount } = useQuery(
-  //   getStaffSubmissionPackageQueryOptions({
-  //     packageId: packageId,
-  //   }),
-  // );
+  const { refetch } = useQuery(
+    getStaffSubmissionPackageQueryOptions({
+      packageId: submissionPackage.id,
+      enabled: isSuccess,
+    }),
+  );
 
   const filteredSubmissions = useMemo(() => {
     if (!submissions || !selectedFolder) return submissions;
@@ -68,13 +74,19 @@ export const FoldersList = ({
     setLocked(true);
     setMoveTarget(targetSubmissionId);
 
+    const itemId = submissions?.find(
+      (submission) => submission.id === targetSubmissionId,
+    )?.item_id;
+
+    if (!itemId) {
+      notify.error("No item found for the target submission");
+      setLocked(false);
+      setMoveTarget(null);
+      return;
+    }
+
     try {
-      // await moveSubmission({
-      //   submissionId: submissionToMove.id,
-      //   targetFolder: selectedFolder.value,
-      //   targetSubmissionId: targetSubmissionId,
-      // });
-      await copyObject({
+      const copyObjectResponse = await copyObject({
         relativeUrl: submissionToMove.submitted_document.url,
         destinationFolder: getSubmissionFolderName({
           projectName: accountProject?.project.name ?? "",
@@ -82,12 +94,60 @@ export const FoldersList = ({
         }),
         filename: submissionToMove.submitted_document.name,
       });
+
+      if (copyObjectResponse.status !== "success") {
+        notify.error(
+          `Failed to move submission: ${copyObjectResponse.message}`,
+        );
+        return;
+      }
+
+      await moveSubmission({
+        submissionId: submissionToMove.id,
+        destinationItemId: itemId,
+        newPath: copyObjectResponse.new_relative_url ?? "",
+        targetSubmissionId,
+      });
+
+      setSelectedFolder(null);
     } catch (error) {
       console.error("Error moving submission:", error);
+      notify.error(
+        `Failed to move submission: ${isAxiosError(error) ? error.message : "Internal error"}`,
+      );
     } finally {
       setLocked(false);
       setMoveTarget(null);
+      refetch();
     }
+  };
+
+  const getItemTypeByFolder = (
+    packageTypeMap: Record<string, { value: string; label: string }[]>,
+    folderValue: string,
+  ) => {
+    for (const [itemType, folders] of Object.entries(packageTypeMap)) {
+      if (folders.map((folder) => folder.value).includes(folderValue)) {
+        return itemType;
+      }
+    }
+    return undefined;
+  };
+
+  const getItemFromFolder = (folderValue: string) => {
+    if (!submissionPackage?.type || !folderValue) return undefined;
+
+    const packageTypeMap =
+      NEW_PACKAGE_TYPE_S3_FOLDER_MAP[submissionPackage.type.name];
+    if (!packageTypeMap) return undefined;
+
+    const itemType = getItemTypeByFolder(packageTypeMap, folderValue);
+
+    if (!itemType) return undefined;
+
+    // Find the item in the package with the matching type name
+    return submissionPackage.items.find((item) => item.type.name === itemType)
+      ?.id;
   };
 
   const handleMoveToFolder = async (folderValue: string) => {
@@ -95,12 +155,16 @@ export const FoldersList = ({
     setLocked(true);
     setMoveTarget(folderValue);
 
+    const itemId = getItemFromFolder(folderValue);
+    if (!itemId) {
+      notify.error(`No item found for folder ${folderValue}`);
+      setLocked(false);
+      setMoveTarget(null);
+      return;
+    }
+
     try {
-      // await moveSubmission({
-      //   submissionId: submissionToMove.id,
-      //   targetFolder: folderValue,
-      // });
-      await copyObject({
+      const copyObjectResponse = await copyObject({
         relativeUrl: submissionToMove.submitted_document.url,
         destinationFolder: getSubmissionFolderName({
           projectName: accountProject?.project.name ?? "",
@@ -108,12 +172,27 @@ export const FoldersList = ({
         }),
         filename: submissionToMove.submitted_document.name,
       });
+
+      if (copyObjectResponse.status !== "success") {
+        notify.error(
+          `Failed to move submission to folder ${folderValue}: ${copyObjectResponse.message}`,
+        );
+        return;
+      }
+
+      await moveSubmission({
+        submissionId: submissionToMove.id,
+        destinationItemId: itemId,
+        newPath: copyObjectResponse.new_relative_url ?? "",
+      });
+
       setSelectedFolder(null);
     } catch (error) {
       console.error("Error moving submission:", error);
     } finally {
       setLocked(false);
       setMoveTarget(null);
+      refetch();
     }
   };
 
