@@ -98,7 +98,7 @@ class PackageVersions(Resource):
         """Create a new package version."""
         package_version_data = CreatePackageVersionSchema().load(API.payload)
         package_with_created_package_version = PackageService.create_new_package_version_with_contacts(
-            package_version_data["package_id"]
+            package_version_data.get("package_id")
         )
         return PackageSchema().dump(package_with_created_package_version), HTTPStatus.CREATED
 
