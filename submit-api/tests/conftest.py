@@ -12,12 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Common setup and fixtures for the pytest suite used by this service."""
-import os
 from random import random
 
 import pytest
 from faker import Faker
-from flask import g
 from flask_migrate import Migrate, upgrade
 from sqlalchemy import event, text
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -26,10 +24,6 @@ from submit_api import create_app
 from submit_api.auth import jwt as _jwt
 from submit_api.config import get_named_config
 from submit_api.models import db as _db
-
-from .utilities.factory_scenario import TokenJWTClaims
-from .utilities.factory_utils import factory_auth_header
-
 
 fake = Faker()
 CONFIG = get_named_config("testing")
@@ -61,7 +55,7 @@ def app():
 def app_context(app):
     """Automatically push and pop the app context for every test."""
     with app.app_context():
-        #g.jwt_oidc_token_info = TokenJWTClaims.default
+        # g.jwt_oidc_token_info = TokenJWTClaims.default
         yield
 
 
@@ -133,7 +127,7 @@ def db(app):  # pylint: disable=redefined-outer-name, invalid-name
 def session(app, db):  # db is your _db from submit_api.models
     """Return a function-scoped session with nested transaction."""
     with app.app_context():
-        #g.jwt_oidc_token_info = TokenJWTClaims.default
+        # g.jwt_oidc_token_info = TokenJWTClaims.default
         connection = db.engine.connect()
         transaction = connection.begin()
 

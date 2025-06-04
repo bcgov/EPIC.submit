@@ -1,10 +1,11 @@
-import pytest
 from http import HTTPStatus
+
 from tests.utilities.factory_utils import (
     factory_project_with_proponent,
     factory_account_model,
     factory_invitation_model,
 )
+
 
 def test_get_all_proponents(client, session):
     factory_project_with_proponent(proponent_id=1234, proponent_name="TestProponent")
@@ -18,6 +19,7 @@ def test_get_all_proponents(client, session):
 
 
 def test_get_proponent_by_id(client, session):
+    """Test for proponents."""
     project = factory_project_with_proponent(proponent_id=5678, proponent_name="SingleProponent")
 
     response = client.get(f"/api/staff/proponents/{project.proponent_id}")
@@ -31,6 +33,7 @@ def test_get_proponent_by_id(client, session):
 
 
 def test_get_proponent_with_projects(client, session):
+    """Test for proponents."""
     project = factory_project_with_proponent(proponent_id=9999, proponent_name="ProjProponent")
 
     response = client.get(f"/api/staff/proponents/{project.proponent_id}?include-projects=true")
@@ -45,6 +48,7 @@ def test_get_proponent_with_projects(client, session):
 
 
 def test_get_proponent_with_invitations(client, session):
+    """Test for proponents."""
     project = factory_project_with_proponent(proponent_id=3333, proponent_name="InviteProponent")
     account = factory_account_model(proponent_id=project.proponent_id)
     factory_invitation_model(account_id=account.id, status="PENDING")
@@ -60,11 +64,13 @@ def test_get_proponent_with_invitations(client, session):
 
 
 def test_get_proponent_full_data(client, session):
+    """Test for proponents."""
     project = factory_project_with_proponent(proponent_id=4444, proponent_name="FullProponent")
     account = factory_account_model(proponent_id=project.proponent_id)
     factory_invitation_model(account_id=account.id, status="USED")
 
-    response = client.get(f"/api/staff/proponents/{project.proponent_id}?include-invitations=true&include-projects=true")
+    response = client.get(
+        f"/api/staff/proponents/{project.proponent_id}?include-invitations=true&include-projects=true")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()

@@ -1,8 +1,5 @@
-import pytest
 from http import HTTPStatus
 
-from submit_api.models import User
-from submit_api.models.user import UserType
 from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
     factory_project_model,

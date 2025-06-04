@@ -24,11 +24,11 @@ from flask import g
 
 from src.submit_api.config import get_named_config
 from submit_api.models import db
-from submit_api.models.project import Project
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
-from submit_api.models.invitations import Invitations
 from submit_api.models.invitations import InvitationStatus
+from submit_api.models.invitations import Invitations
+from submit_api.models.project import Project
 from submit_api.models.user import UserType
 
 CONFIG = get_named_config("testing")
@@ -72,12 +72,14 @@ def factory_project_model(name="Test Project", proponent_id=1234, proponent_name
 
 
 def factory_account_model(proponent_id=1234):
+    """Factory account model."""
     account = Account(proponent_id=proponent_id)
     db.session.add(account)
     db.session.commit()
     return account
 
 def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):
+    """Factory user model."""
     from submit_api.models.user import User
 
     user = User(
@@ -94,6 +96,7 @@ def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):
 
 
 def factory_account_project_model(account_id, project_id):
+    """Factory account project model."""
     account_project = AccountProject(account_id=account_id, project_id=project_id)
     db.session.add(account_project)
     db.session.commit()
@@ -101,6 +104,7 @@ def factory_account_project_model(account_id, project_id):
 
 
 def factory_project_with_proponent(**kwargs):
+    """Factory project."""
     project = Project(
         name=kwargs.get("name", fake.company()),
         proponent_id=kwargs.get("proponent_id", fake.random_int(min=1000, max=9999)),

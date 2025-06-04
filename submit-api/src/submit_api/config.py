@@ -151,7 +151,7 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     JWT_OIDC_TEST_PRIVATE_KEY_JWKS = {
         "keys": [
             {
-                "kid":  JWT_OIDC_TEST_AUDIENCE,
+                "kid": JWT_OIDC_TEST_AUDIENCE,
                 "kty": "RSA",
                 "alg": "RS256",
                 "use": "sig",
