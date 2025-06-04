@@ -27,10 +27,6 @@ class SubmissionCreatorFactory(Protocol):
         """Move a submission."""
         raise BadRequestError("Move not supported for this submission type.")
 
-    def move(self, submission_id, request_data) -> SubmissionModel:
-        """Move a submission."""
-        raise BadRequestError("Move not supported for this submission type.")
-
 
 class FormSubmissionCreator(SubmissionCreatorFactory):
     """Form submission creator."""
@@ -236,6 +232,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         if not previous_version.active:
             previous_version.active = True
             session.add(previous_version)
+
         return
 
     def _move_to_folder(self, session, submission, request_data):
