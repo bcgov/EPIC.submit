@@ -1,3 +1,8 @@
+"""Test Proponent.
+
+Tests for proponents.
+"""
+
 from http import HTTPStatus
 
 from tests.utilities.factory_utils import (
@@ -8,6 +13,7 @@ from tests.utilities.factory_utils import (
 
 
 def test_get_all_proponents(client, session):
+    """Test all get proponents."""
     factory_project_with_proponent(proponent_id=1234, proponent_name="TestProponent")
 
     response = client.get("/api/staff/proponents")

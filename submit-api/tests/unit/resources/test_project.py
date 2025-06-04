@@ -1,3 +1,7 @@
+"""Test Project.
+
+Test for project.
+"""
 from http import HTTPStatus
 
 from tests.utilities.factory_scenarios import TestJwtClaims
@@ -10,8 +14,7 @@ from tests.utilities.factory_utils import (
 
 
 def test_get_project_by_id(client, session, jwt):
-    # Create a user with matching auth_guid from claims
-
+    """Test get project by id."""
     auth_guid = TestJwtClaims.staff_admin_role['sub']
     factory_user_model(auth_guid=auth_guid)
 

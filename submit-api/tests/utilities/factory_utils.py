@@ -59,6 +59,7 @@ def generate_abbreviation(number_of_characters):
 
 
 def factory_project_model(name="Test Project", proponent_id=1234, proponent_name="Test Proponent"):
+    """Factory project model."""
     project = Project(
         name=name,
         proponent_id=proponent_id,

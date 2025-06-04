@@ -1,7 +1,13 @@
+"""Test Utils.
+
+Test Utility for creating factory.
+"""
+
 from submit_api.models import db
-from submit_api.models.project import Project
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
+from submit_api.models.project import Project
+
 
 def factory_project_model(name="Test Project", proponent_id=1234, proponent_name="Test Proponent"):
     """Factory project model."""
@@ -16,12 +22,14 @@ def factory_project_model(name="Test Project", proponent_id=1234, proponent_name
     db.session.commit()
     return project
 
+
 def factory_account_model(proponent_id=1234):
     """Factory account model."""
     account = Account(proponent_id=proponent_id)
     db.session.add(account)
     db.session.commit()
     return account
+
 
 def factory_account_project_model(account_id, project_id):
     """Factory account project model."""
