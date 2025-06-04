@@ -20,11 +20,12 @@ from faker import Faker
 from flask import g
 from flask_migrate import Migrate, upgrade
 from sqlalchemy import event, text
+from sqlalchemy.orm import sessionmaker, scoped_session
 
-from src.submit_api import create_app
-from src.submit_api import db as _db
-from src.submit_api import get_named_config
-from src.submit_api.auth import jwt as _jwt
+from submit_api import create_app
+from submit_api.auth import jwt as _jwt
+from submit_api.config import get_named_config
+from submit_api.models import db as _db
 
 from .utilities.factory_scenario import TokenJWTClaims
 from .utilities.factory_utils import factory_auth_header
@@ -37,15 +38,14 @@ CONFIG = get_named_config("testing")
 @pytest.fixture(scope="session")
 def app():
     """Return a session-wide application configured in TEST mode."""
-    os.environ["FLASK_ENV"] = "testing"
     _app = create_app(run_mode="testing")
     with _app.app_context():
         # Create the schema each time before the test starts
         drop_schema_sql = text(
-            f"""CREATE SCHEMA IF NOT EXISTS public;
-                 GRANT ALL ON SCHEMA public TO {CONFIG.DB_USER};
-                 GRANT ALL ON SCHEMA public TO public;
-            """
+            f"""              CREATE SCHEMA IF NOT EXISTS public;
+                             GRANT ALL ON SCHEMA public TO {CONFIG.DB_USER};
+                             GRANT ALL ON SCHEMA public TO public;
+                          """
         )
 
         sess = _db.session()
@@ -54,6 +54,7 @@ def app():
         upgrade()  # Apply migrations
         yield _app
         _db.session.remove()
+    return _app
 
 
 @pytest.fixture(autouse=True)
@@ -67,7 +68,6 @@ def app_context(app):
 @pytest.fixture(scope="function")
 def app_request():
     """Return a session-wide application configured in TEST mode."""
-    os.environ["FLASK_ENV"] = "testing"
     _app = create_app(run_mode="testing")
     return _app
 
@@ -130,58 +130,45 @@ def db(app):  # pylint: disable=redefined-outer-name, invalid-name
 
 
 @pytest.fixture(scope="function")
-def session(app, db):  # pylint: disable=redefined-outer-name, invalid-name
-    """Return a function-scoped session."""
+def session(app, db):  # db is your _db from submit_api.models
+    """Return a function-scoped session with nested transaction."""
     with app.app_context():
         g.jwt_oidc_token_info = TokenJWTClaims.default
-        conn = db.engine.connect()
-        txn = conn.begin()
+        connection = db.engine.connect()
+        transaction = connection.begin()
 
-        options = dict(bind=conn, binds={})
-        sess = db.create_scoped_session(options=options)
+        # Use SQLAlchemy directly to create a scoped session
+        session_factory = sessionmaker(bind=connection)
+        scoped_sess = scoped_session(session_factory)
 
-        # establish  a SAVEPOINT just before beginning the test
-        # (http://docs.sqlalchemy.org/en/latest/orm/session_transaction.html#using-savepoint)
-        sess.begin_nested()
+        # Begin a nested transaction (savepoint)
+        scoped_sess.begin_nested()
 
-        @event.listens_for(sess(), "after_transaction_end")
-        def restart_savepoint(sess2, trans):  # pylint: disable=unused-variable
-            # Detecting whether this is indeed the nested transaction of the test
-            if (
-                trans.nested and not trans._parent.nested
-            ):  # pylint: disable=protected-access
-                # Handle where test DOESN'T session.commit(),
-                sess2.expire_all()
-                sess.begin_nested()
+        # Restart nested transaction after each test transaction ends
+        @event.listens_for(scoped_sess(), "after_transaction_end")
+        def restart_savepoint(sess2, trans):
+            if trans.nested and not trans._parent.nested:
+                sess2.begin_nested()
 
-        db.session = sess
+        db.session = scoped_sess
 
-        sql = text("select 1")
-        sess.execute(sql)
+        yield scoped_sess
 
-        yield sess
-
-        # Cleanup
-        sess.remove()
-        # This instruction rollsback any commit that were executed in the tests.
-        txn.rollback()
-        conn.close()
+        scoped_sess.remove()
+        transaction.rollback()
+        connection.close()
 
 
 @pytest.fixture(scope="session", autouse=True)
 def cleanup_database(app, db):
     """Clean up the database after all tests have been executed."""
     yield
-    # Perform cleanup tasks here
     with app.app_context():
-        # Optionally, you can run downgrades or other cleanup tasks
         print("Cleaning up database...")
-        #  downgrade()  # If you need to revert schema changes
-        # You can also drop the schema if necessary:
-        drop_schema_sql = text("""DROP SCHEMA public CASCADE;""")
-        sess = _db.session()
-        sess.execute(drop_schema_sql)
-        sess.commit()
+        engine = db.engine
+        with engine.connect() as connection:
+            connection.execute(text("DROP SCHEMA public CASCADE; CREATE SCHEMA public;"))
+            connection.commit()
         print("Database cleanup completed.")
 
 
@@ -197,6 +184,14 @@ def client_id():
 @pytest.fixture()
 def auth_header(jwt):
     """Create a basic admin header for tests."""
-    default_claims = TokenJWTClaims.default
+    default_claims = TokenJWTClaims.default.value
     headers = factory_auth_header(jwt=jwt, claims=default_claims)
+    return headers
+
+
+@pytest.fixture()
+def auth_header_super_user(jwt):
+    """Create a super user header."""
+    super_user_claims = TokenJWTClaims.super_user.value
+    headers = factory_auth_header(jwt=jwt, claims=super_user_claims)
     return headers
