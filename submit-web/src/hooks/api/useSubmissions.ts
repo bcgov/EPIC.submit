@@ -249,11 +249,9 @@ export const moveSubmission = ({
 
 type UseMoveSubmissionParams = {
   packageId: number;
-  submissionId: number;
 } & Options;
 export const useMoveSubmission = ({
   packageId,
-  submissionId,
   ...options
 }: UseMoveSubmissionParams) => {
   const { onSuccess: _onSuccess, ...restOptions } = options;

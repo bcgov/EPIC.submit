@@ -73,7 +73,6 @@ export const FoldersList = ({
 
   const { mutateAsync: moveSubmission, isSuccess } = useMoveSubmission({
     packageId: Number(submissionPackage.id),
-    submissionId: submissionToMove.id,
   });
 
   const { refetch } = useQuery(
@@ -167,7 +166,6 @@ export const FoldersList = ({
           }`,
         );
       } catch (error) {
-        console.error("Error moving submission:", error);
         notify.error(
           `Failed to move submission: ${isAxiosError(error) ? error.message : "Internal error"}`,
         );
@@ -178,7 +176,7 @@ export const FoldersList = ({
         setClose();
       }
     },
-    [accountProject, moveSubmission, refetch, submissionToMove],
+    [accountProject, moveSubmission, refetch, submissionToMove, setClose],
   );
 
   const handleOnTopOfExistingSubmission = useCallback(

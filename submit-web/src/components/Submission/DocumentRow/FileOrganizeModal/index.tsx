@@ -70,7 +70,7 @@ const FileOrganizeModal = ({
       (itemTypeFolders) => itemTypeFolders,
     );
     return folders ?? [];
-  }, [submissionPackage, submission]);
+  }, [submissionPackage]);
 
   const isLoading = isSubmissionsLoading;
 
