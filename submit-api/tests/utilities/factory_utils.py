@@ -78,6 +78,7 @@ def factory_account_model(proponent_id=1234):
     db.session.commit()
     return account
 
+
 def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):
     """Factory user model."""
     from submit_api.models.user import User
