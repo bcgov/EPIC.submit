@@ -140,12 +140,12 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     def _validate_not_same_submission(submission, target_submission):
         if submission.id == target_submission.id:
             raise BadRequestError("Cannot replace a submission with itself.")
-        
+
     @staticmethod
     def _validate_target_is_active(target_submission):
         if not (target_submission.active and not target_submission.deleted):
             raise BadRequestError("Cannot replace a submission that is not active.")
-        
+
     @staticmethod
     def _validate_same_package(submission, target_submission):
         submission_item = ItemModel.find_by_id(submission.item_id)
@@ -177,7 +177,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
 
         if not target_submission:
             raise ResourceNotFoundError(f"Target submission with ID {target_submission_id} not found.")
-        
+
         self._validate_move_request(submission, target_submission)
 
         self._fill_missing_name(request_data, submission)
@@ -240,7 +240,10 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         self._validate_move_request(submission)
 
         destination_item_id = request_data.get('destination_item_id')
-        if destination_item_id == submission.item_id:
+        destination_url = request_data.get('destination_url')
+
+        submitted_document = SubmittedDocumentModel.find_by_id(submission.submitted_document_id)
+        if destination_url == submitted_document.url:
             # No move needed — return current submission as-is
             return submission
 
