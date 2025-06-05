@@ -14,7 +14,6 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequest
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.services.package import PackageService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
