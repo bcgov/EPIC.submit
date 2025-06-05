@@ -124,6 +124,45 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             return new_submission
 
     @staticmethod
+    def _validate_status_allowed(submission):
+        """Ensure the submission is in a state that allows movement."""
+        allowed_statuses = [
+            SubmissionStatus.SUBMITTED,
+            SubmissionStatus.REJECTED,
+            SubmissionStatus.PENDING,
+            SubmissionStatus.PENDING_REPLACEMENT
+        ]
+
+        if submission.status not in allowed_statuses:
+            raise BadRequestError(f"Cannot move a document with status {submission.status}.")
+
+    @staticmethod
+    def _validate_not_same_submission(submission, target_submission):
+        if submission.id == target_submission.id:
+            raise BadRequestError("Cannot replace a submission with itself.")
+
+    @staticmethod
+    def _validate_target_is_active(target_submission):
+        if not (target_submission.active and not target_submission.deleted):
+            raise BadRequestError("Cannot replace a submission that is not active.")
+
+    @staticmethod
+    def _validate_same_package(submission, target_submission):
+        submission_item = ItemModel.find_by_id(submission.item_id)
+        target_submission_item = ItemModel.find_by_id(target_submission.item_id)
+        if submission_item.package_id != target_submission_item.package_id:
+            raise BadRequestError("Cannot replace a submission in a different package.")
+
+    def _validate_move_request(self, submission, target_submission=None):
+        """Run all validations before creating a new version of the target submission."""
+        self._validate_status_allowed(submission)
+
+        if target_submission:
+            self._validate_not_same_submission(submission, target_submission)
+            self._validate_target_is_active(target_submission)
+            self._validate_same_package(submission, target_submission)
+
+    @staticmethod
     def _fill_missing_name(request_data, submission):
         """Find the document name if not in the request."""
         if not request_data.get('name'):
@@ -138,6 +177,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
 
         if not target_submission:
             raise ResourceNotFoundError(f"Target submission with ID {target_submission_id} not found.")
+
+        self._validate_move_request(submission, target_submission)
 
         self._fill_missing_name(request_data, submission)
         submitted_document = self._create_submitted_document(session, request_data)
@@ -154,6 +195,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         session.add(target_submission)
 
         submission.active = False
+        submission.deleted = True
         session.add(submission)
 
         return new_submission
@@ -195,18 +237,22 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
 
     def _move_to_folder(self, session, submission, request_data):
         """Move document to a specific folder."""
-        # Check if there is any other active submission for the same root_submission_id
-        if status := submission.status not in [SubmissionStatus.SUBMITTED,
-                                               SubmissionStatus.REJECTED,
-                                               SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]:
-            raise BadRequestError(f"Cannot replace a document with status {status}.")
+        self._validate_move_request(submission)
+
+        destination_item_id = request_data.get('destination_item_id')
+        destination_url = request_data.get('destination_url')
+
+        submitted_document = SubmittedDocumentModel.find_by_id(submission.submitted_document_id)
+        if destination_url == submitted_document.url:
+            # No move needed — return current submission as-is
+            return submission
 
         self._fill_missing_name(request_data, submission)
         submitted_document = self._create_submitted_document(session, request_data)
 
         new_submission = self._create_submission(
             session=session,
-            item_id=request_data.get('item_id'),
+            item_id=destination_item_id,
             submitted_document_id=submitted_document.id
         )
         submission.active = False
@@ -254,9 +300,11 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     @staticmethod
     def _create_submitted_document(session, request_data):
         """Create a new submitted document."""
+        url = request_data.get('url') or request_data.get('destination_url')
+
         submitted_document = SubmittedDocumentModel(
             name=request_data.get('name'),
-            url=request_data.get('url'),
+            url=url,
             folder=request_data.get('folder')
         )
         session.add(submitted_document)
