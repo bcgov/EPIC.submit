@@ -18,7 +18,7 @@ from submit_api.services.package import PackageService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
-from submit_api.services.package_utils import PackageUtils
+from submit_api.services.package_version_service import PackageVersionService
 
 
 class ManagementPlanService:
@@ -126,11 +126,10 @@ class ManagementPlanService:
                 f"Package version not found for item {item.id}.")
             raise ResourceNotFoundError(
                 f"Package version not found for item {item.id}.")
-        new_package = PackageService.create_new_package_from_original(
-            package.id, session)
-        PackageUtils.copy_contact_information_from_old_version(package, new_package)
+        new_package = PackageVersionService.create_new_package_version(package.id, session)
+        PackageVersionService.copy_contact_information(package, new_package)
         current_app.logger.info(
-            f"New package version created for item {item.id}.")
+            f"New package version created for {new_package.name}.")
         new_items = new_package.items
         new_item = next(
             (i for i in new_items if i.type.name == item.type.name), None)
@@ -258,9 +257,9 @@ class ManagementPlanService:
     @classmethod
     def deactivate_update_requests(cls, package_id, session, package=None):
         """Deactivate all update requests for the package."""
-        PackageUtils.deactivate_update_requests(package_id, session, package)
+        PackageVersionService.deactivate_update_requests(package_id, session, package)
 
     @classmethod
     def _create_rejection_email_queue(cls, package_id, template_name):
         """Create an email queue record for an update request."""
-        PackageUtils.create_email_queue(package_id, template_name)
+        PackageVersionService.create_email_queue(package_id, template_name)

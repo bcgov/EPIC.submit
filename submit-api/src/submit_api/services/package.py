@@ -33,7 +33,7 @@ from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
-from submit_api.services.package_utils import PackageUtils
+from submit_api.services.package_version_service import PackageVersionService
 
 
 class PackageService:
@@ -48,47 +48,7 @@ class PackageService:
     @classmethod
     def create_new_package_from_original(cls, current_package_id, session):
         """Create a new package version."""
-        current_app.logger.info(f"Creating a new package version for package {current_package_id}")
-        current_package = PackageModel.find_by_id(current_package_id)
-        package_version = PackageVersionModel.get_by_id(
-            current_package.version_id)
-        all_package_versions = PackageVersionModel.get_all_by_original_package_id(
-            package_version.original_package_id)
-        if not all_package_versions:
-            raise BadRequestError(
-                "Cannot create a new version for a package that has no versions")
-        (current_app.logger
-         .info(f"Original package {package_version.original_package_id} has {len(all_package_versions)} versions"))
-        latest_version = max(
-            package_version.version for package_version in all_package_versions)
-        current_app.logger.info(f"Latest version for package {current_package_id} is {latest_version}")
-        if latest_version != package_version.version:
-            raise BadRequestError(
-                "Cannot create a new version for a package that is not the latest version")
-        new_version = latest_version + 1
-        current_app.logger.info(f"Creating new version {new_version} for package {current_package_id}")
-        new_package_data = {
-            "name": current_package.name,
-        }
-        package_type = current_package.type
-        new_package = cls._create_package(
-            session, current_package.account_project_id, new_package_data, package_type)
-        new_version = cls._create_package_version(
-            session, original_package_id=package_version.original_package_id, version=new_version)
-        new_package.version_id = new_version.id
-        current_app.logger.info(f"Created new package {new_package.id} for package {current_package_id}")
-        session.add(new_package)
-        new_metadata = {
-            PackageMetadataFields.CONDITION.value: current_package.meta.json.get(
-                PackageMetadataFields.CONDITION.value, None),
-            PackageMetadataFields.SUPPORTING_CONDITIONS.value: current_package.meta.json.get(
-                PackageMetadataFields.SUPPORTING_CONDITIONS.value, None),
-        }
-        cls._create_package_metadata(
-            session, new_package.id, new_metadata)
-        cls._create_items(session, new_package.id, package_type)
-        current_app.logger.info(f"Created new version {new_version.id} for package {current_package_id}")
-        return new_package
+        return PackageVersionService.create_new_package_version(current_package_id, session)
 
     @classmethod
     def create_first_package(cls, account_project_id, request_data):
@@ -135,13 +95,11 @@ class PackageService:
 
             new_package = cls.create_new_package_from_original(package_id, session)
 
-            PackageUtils.copy_contact_information_from_old_version(original_package, new_package)
+            PackageVersionService.copy_contact_information(original_package, new_package)
 
-            # new_package.status = PackageStatus.PENDING_RESUBMISSION.value
+            PackageVersionService.deactivate_update_requests(original_package.id, session, original_package)
 
-            PackageUtils.deactivate_update_requests(original_package.id, session, original_package)
-
-            PackageUtils.create_email_queue(
+            PackageVersionService.create_email_queue(
                 original_package.id,
                 MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE
             )
