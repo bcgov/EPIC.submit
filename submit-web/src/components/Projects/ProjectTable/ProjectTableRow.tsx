@@ -5,9 +5,9 @@ import { USER_TYPE } from "@/models/User";
 import ProponentTableRow from "./ProponentTableRow";
 import StaffTableRow from "./StaffTableRow";
 
-interface ProjectRowProps {
+type ProjectRowProps = Readonly<{
   subPackage: SubmissionPackage;
-}
+}>;
 
 export default function ProjectTableRow({ subPackage }: ProjectRowProps) {
   const { userType } = useAccount();

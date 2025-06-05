@@ -26,4 +26,5 @@ export const QUERY_KEY = Object.freeze({
   USER_ACCOUNT_DATA: "user-account-data",
   FAILED_SUBMISSIONS: "failed-submissions",
   TERMS_OF_SERVICE: "terms-of-service",
+  PACKAGE_DOCUMENT_SUBMISSIONS: "package-document-submissions",
 });

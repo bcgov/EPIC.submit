@@ -1,4 +1,5 @@
-import { downloadObject } from "@/hooks/api/useObjectStorage";
+import { downloadObject, S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { camelCase } from "lodash";
 
 export type Order = "asc" | "desc";
 
@@ -41,4 +42,15 @@ export const getObjectFromS3 = async ({
   link.setAttribute("download", name);
   document.body.appendChild(link);
   link.click();
+};
+
+export const getSubmissionFolderName = ({
+  projectName,
+  sectionName,
+}: {
+  projectName: string;
+  sectionName: string;
+}) => {
+  const sanitizedProjectName = projectName.replace(/[^a-zA-Z0-9]/g, "");
+  return `${S3_FOLDER.SUBMISSIONS.value}/${camelCase(sanitizedProjectName)}/${sectionName}/`;
 };

@@ -129,7 +129,7 @@ export const useReplaceSubmussion = ({
   const { onSuccess: _onSuccess, ...restOptions } = options;
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (params: ReplaceSubmissionParams) => replacteSubmission(params),
+    mutationFn: (params: ReplaceSubmissionParams) => replaceSubmission(params),
     onSuccess: (data) => {
       if (_onSuccess) {
         _onSuccess(data);
@@ -146,7 +146,7 @@ type ReplaceSubmissionParams = {
   submissionId: number;
   data: FormType;
 };
-export const replacteSubmission = ({
+export const replaceSubmission = ({
   submissionId,
   data,
 }: ReplaceSubmissionParams) => {
@@ -218,5 +218,54 @@ export const useGetFailedSubmissionsByItemId = (
     enabled: Boolean(submissionItemId),
     ...defaultUseQueryOptions,
     ...options,
+  });
+};
+
+type MoveSubmissionProps = {
+  submissionId: number;
+  newPath: string;
+  targetSubmissionId?: number;
+  destinationItemId: number;
+};
+export const moveSubmission = ({
+  submissionId,
+  newPath,
+  targetSubmissionId,
+  destinationItemId,
+}: MoveSubmissionProps) => {
+  return submitRequest<Submission>({
+    url: `/submissions/${submissionId}/document/move`,
+    method: "POST",
+    data: {
+      data: {
+        url: newPath,
+        target_submission_id: targetSubmissionId,
+        item_id: destinationItemId,
+      },
+      type: SUBMISSION_TYPE.DOCUMENT,
+    },
+  });
+};
+
+type UseMoveSubmissionParams = {
+  packageId: number;
+} & Options;
+export const useMoveSubmission = ({
+  packageId,
+  ...options
+}: UseMoveSubmissionParams) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: moveSubmission,
+    onSuccess: (data) => {
+      if (_onSuccess) {
+        _onSuccess(data);
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+    },
+    ...restOptions,
   });
 };

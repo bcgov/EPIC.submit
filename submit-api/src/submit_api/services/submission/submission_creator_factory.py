@@ -229,7 +229,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             .first()
         )
 
-        if not previous_version.active:
+        if previous_version and not previous_version.active:
             previous_version.active = True
             session.add(previous_version)
 

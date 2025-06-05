@@ -77,8 +77,9 @@ export default function PendingRow({
       .queryKey,
   );
   const folderMap = {
-    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: S3_FOLDER.CONSULTATION_RECORDS,
-    [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: S3_FOLDER.MANAGEMENT_PLANS,
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]:
+      S3_FOLDER.CONSULTATION_RECORDS.value,
+    [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: S3_FOLDER.MANAGEMENT_PLANS.value,
   };
   const submissionTypeName = getSubmissionItemLabel(submissionItem?.type.name);
   const internalStaffSubFolder = get(folderMap, submissionTypeName, "");
@@ -89,7 +90,7 @@ export default function PendingRow({
         file: pendingDocument.file,
         fileDetails: {
           filename: pendingDocument.file.name,
-          folder: `${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.INTERNAL_STAFF_DOCUMENTS}/${internalStaffSubFolder}`,
+          folder: `${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.INTERNAL_STAFF_DOCUMENTS.value}/${internalStaffSubFolder}`,
         },
       });
 
