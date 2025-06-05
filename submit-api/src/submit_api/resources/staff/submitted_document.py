@@ -91,7 +91,7 @@ class ItemFailedDocuments(Resource):
     "/submissions/packages/<int:package_id>",
     methods=["GET", "OPTIONS"],
 )
-class ItemFailedDocuments(Resource):
+class SubmittedDocuments(Resource):
     """Resource for managing submitted documents."""
 
     @staticmethod
@@ -103,6 +103,6 @@ class ItemFailedDocuments(Resource):
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     @cors.crossdomain(origin="*")
     def get(package_id):
-        """Get all failed documents by package id."""
+        """Get all submitted documents by package id."""
         documents = DocumentService.get_submissions_by_package_id(package_id)
         return SubmissionSchema(many=True).dump(documents), HTTPStatus.OK

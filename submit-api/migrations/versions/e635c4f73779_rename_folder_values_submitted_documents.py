@@ -1,7 +1,7 @@
 """ Update folder values in submitted_documents table
 
 Revision ID: e635c4f73779
-Revises: 4f8c0a55cb6a
+Revises: 32778cbd0c4a
 Create Date: 2025-05-29 12:57:15.038180
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy import String
 
 # revision identifiers, used by Alembic.
 revision = 'e635c4f73779'
-down_revision = '4f8c0a55cb6a'
+down_revision = '32778cbd0c4a'
 branch_labels = None
 depends_on = None
 
