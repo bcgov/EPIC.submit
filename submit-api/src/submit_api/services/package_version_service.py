@@ -38,11 +38,11 @@ class PackageVersionService:
 
         new_version = latest_version + 1
         new_package = cls._create_package(
-            session, current_package.account_project_id, 
+            session, current_package.account_project_id,
             {"name": current_package.name}, current_package.type)
 
         new_version = cls._create_package_version(
-            session, original_package_id=package_version.original_package_id, 
+            session, original_package_id=package_version.original_package_id,
             version=new_version)
 
         new_package.version_id = new_version.id
@@ -119,18 +119,18 @@ class PackageVersionService:
         """Copy contact information from old version to new version."""
         old_contact_info_item = next(
             (item for item in old_package.items
-             if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), 
+             if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value),
             None
         )
         new_contact_info_item = next(
             (item for item in new_package.items
-             if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value), 
+             if item.type.name == SubmissionItemType.CONTACT_INFORMATION.value),
             None
         )
 
         old_submission = next(
             (submission for submission in old_contact_info_item.submissions
-             if submission.type == SubmissionType.FORM), 
+             if submission.type == SubmissionType.FORM),
             None
         )
 
