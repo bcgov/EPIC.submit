@@ -82,13 +82,16 @@ export const FoldersList = ({
     }),
   );
 
+  console.log(submissions);
+  console.log(submissionToMove);
   const filteredSubmissions = useMemo(() => {
     if (!submissions || !selectedFolder) return submissions;
     return submissions.filter(
       (submission) =>
-        submission.submitted_document.folder === selectedFolder.value,
+        submission.submitted_document.folder === selectedFolder.value &&
+        submission.id !== submissionToMove.id, // Exclude the submission being moved
     );
-  }, [submissions, selectedFolder]);
+  }, [submissions, selectedFolder, submissionToMove]);
 
   const getItemTypeByFolder = useCallback(
     (
@@ -129,6 +132,7 @@ export const FoldersList = ({
       folderValue: string;
       targetSubmissionId?: number;
     }) => {
+      console.log("folderValue", folderValue);
       setLocked(true);
       setMoveTarget(targetSubmissionId ?? folderValue);
 
@@ -157,6 +161,7 @@ export const FoldersList = ({
           destinationItemId: itemId,
           newPath: copyObjectResponse.new_relative_url ?? "",
           ...(targetSubmissionId ? { targetSubmissionId } : {}),
+          destinationFolder: folderValue,
         });
 
         setSelectedFolder(null);
@@ -206,6 +211,7 @@ export const FoldersList = ({
         notify.error(`No item found for folder ${folderValue}`);
         return;
       }
+      console.log("Moving to folder:", folderValue);
       await handleMove({ itemId, folderValue });
     },
     [locked, getItemFromFolder, handleMove],

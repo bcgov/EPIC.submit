@@ -14,11 +14,7 @@ import {
 } from "@/models/Submission";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { DocumentUploadSection } from "./DocumentUploadSection";
-import {
-  IEM_DOCUMENT_FOLDERS,
-  IemSubmissionForm,
-  iemSubmissionSchema,
-} from "./constants";
+import { IemSubmissionForm, iemSubmissionSchema } from "./constants";
 import { booleanToString, stringToBoolean } from "@/utils";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,6 +24,7 @@ import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 
 export const IemSubmissionProponentView = () => {
   const {
@@ -83,14 +80,14 @@ export const IemSubmissionProponentView = () => {
       iems: documentSubmissions
         .filter(
           (submission) =>
-            submission.submitted_document.folder === IEM_DOCUMENT_FOLDERS.IEM,
+            submission.submitted_document.folder === S3_FOLDER.IEMS.value,
         )
         .map((submission) => submission.submitted_document.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            IEM_DOCUMENT_FOLDERS.SUPPORTING,
+            S3_FOLDER.SUPPORTING_DOCUMENTS.value,
         )
         .map((submission) => submission.submitted_document.url),
     };

@@ -1,6 +1,8 @@
 """Service for submission management."""
 from typing import Protocol
 
+from flask import current_app
+
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
@@ -129,8 +131,6 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         allowed_statuses = [
             SubmissionStatus.SUBMITTED,
             SubmissionStatus.REJECTED,
-            SubmissionStatus.PENDING,
-            SubmissionStatus.PENDING_REPLACEMENT
         ]
 
         if submission.status not in allowed_statuses:
@@ -181,6 +181,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         self._validate_move_request(submission, target_submission)
 
         self._fill_missing_name(request_data, submission)
+        request_data['folder'] = target_submission.submitted_document.folder
         submitted_document = self._create_submitted_document(session, request_data)
 
         new_submission = self._create_submission(
@@ -189,6 +190,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             submitted_document_id=submitted_document.id,
             original_submission_id=target_submission.id,
             root_submission_id=target_submission.root_submission_id,
+            status=submission.status,
+            created_by=submission.created_by
         )
 
         target_submission.active = False
@@ -238,6 +241,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     def _move_to_folder(self, session, submission, request_data):
         """Move document to a specific folder."""
         self._validate_move_request(submission)
+        current_app.logger.info("Moving document submission %s to folder %s", submission.id, request_data.get('destination_folder'))
 
         destination_item_id = request_data.get('destination_item_id')
         destination_url = request_data.get('destination_url')
@@ -248,12 +252,16 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             return submission
 
         self._fill_missing_name(request_data, submission)
+
+        request_data['folder'] = request_data.get('destination_folder')
         submitted_document = self._create_submitted_document(session, request_data)
 
         new_submission = self._create_submission(
             session=session,
             item_id=destination_item_id,
-            submitted_document_id=submitted_document.id
+            submitted_document_id=submitted_document.id,
+            status=submission.status,
+            created_by=submission.created_by
         )
         submission.active = False
         submission.deleted = True
@@ -302,6 +310,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         """Create a new submitted document."""
         url = request_data.get('url') or request_data.get('destination_url')
 
+        if not request_data.get('folder'):
+            raise BadRequestError("Folder is required for document submission.")
+        print(f"Creating submitted document with URL: {url} and folder: {request_data.get('folder')}")
         submitted_document = SubmittedDocumentModel(
             name=request_data.get('name'),
             url=url,
@@ -312,8 +323,15 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         return submitted_document
 
     @staticmethod
-    def _create_submission(session, item_id, submitted_document_id, original_submission_id=None,
-                           root_submission_id=None):
+    def _create_submission(
+            session,
+            item_id,
+            submitted_document_id,
+            status=SubmissionStatus.PENDING,
+            original_submission_id=None,
+            root_submission_id=None,
+            created_by=TokenInfo.get_id()
+    ):
         """Create a new submission."""
         major_version, minor_version = DocumentSubmissionCreator.get_document_version(item_id, original_submission_id)
         submission = SubmissionModel(
@@ -322,8 +340,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             submitted_document_id=submitted_document_id,
             major_version=major_version,
             minor_version=minor_version,
-            created_by=TokenInfo.get_id(),
-            root_submission_id=root_submission_id
+            created_by=created_by,
+            root_submission_id=root_submission_id,
+            status=status,
         )
         session.add(submission)
         session.flush()
