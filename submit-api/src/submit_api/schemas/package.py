@@ -13,7 +13,7 @@ from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
-
+from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema
 
 class PackageVersionSchema(Schema):
     """Schema for serializing individual package versions."""
@@ -173,6 +173,9 @@ class StaffPackageSchema(PackageSchema):
         unknown = EXCLUDE
 
     items = fields.Nested(StaffItemSchema, data_key="items", many=True)
+    internal_staff_documents = fields.Nested(InternalStaffDocumentSchema,
+                                           data_key="internal_staff_documents",
+                                           many=True)
     review_status = fields.Method('get_review_status')
     update_requests = fields.Nested(
         PackageUpdateRequestSchema, data_key="update_requests", many=True, attribute="all_update_requests")

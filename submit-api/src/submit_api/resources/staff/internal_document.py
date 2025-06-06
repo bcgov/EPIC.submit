@@ -38,7 +38,7 @@ internal_document = ApiHelper.convert_ma_schema_to_restx_model(
 
 
 @cors_preflight("OPTIONS, POST, DELETE")
-@API.route("/submission-items/<int:submission_item_id>", methods=["POST", "OPTIONS", "DELETE"])
+@API.route("/packages/<int:package_id>", methods=["POST", "OPTIONS", "DELETE"])
 class InternalStaffDocuments(Resource):
     """Resource for managing projects."""
 
@@ -51,11 +51,11 @@ class InternalStaffDocuments(Resource):
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cors.crossdomain(origin="*")
-    def post(submission_item_id):
+    def post(package_id):
         """Create an internal staff document."""
         create_document_data = PostInternalStaffDocument().load(API.payload)
         created_document = (InternalStaffDocumentService
-                            .create_internal_staff_document(submission_item_id, create_document_data))
+                            .create_internal_staff_document(package_id, create_document_data))
         return InternalStaffDocumentSchema().dump(created_document), HTTPStatus.CREATED
 
     @staticmethod
