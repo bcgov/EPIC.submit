@@ -174,10 +174,10 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             raise BadRequestError("Cannot replace a submission with itself.")
 
     @staticmethod
-    def _validate_target_is_active(target_submission):
-        if not (target_submission.active and not target_submission.deleted):
+    def _validate_submission_is_active(submission):
+        if not (submission.active and not submission.deleted):
             current_app.logger.warning(
-                "Move validation failed: target submission %s is not active.", target_submission.id
+                "Move validation failed: submission %s is not active.", submission.id
             )
             raise BadRequestError("Cannot replace a submission that is not active.")
 
@@ -196,10 +196,11 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         """Run all validations before creating a new version of the target submission."""
         current_app.logger.debug("Validating move request for submission_id: %s.", submission.id)
         self._validate_status_allowed(submission)
+        self._validate_submission_is_active(submission)
 
         if target_submission:
             self._validate_not_same_submission(submission, target_submission)
-            self._validate_target_is_active(target_submission)
+            self._validate_submission_is_active(target_submission)
             self._validate_same_package(submission, target_submission)
         current_app.logger.debug("Move request validation successful for submission_id: %s.", submission.id)
 
