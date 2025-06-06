@@ -48,5 +48,5 @@ export const getSubmittedDocumentsByPackageIdForStaffQueryOptions = ({
       submitRequest<Submission[]>({
         url: `/staff/documents/submissions/packages/${packageId}`,
       }),
-    ...defaultUseQueryOptions,
+    staleTime: 0,
   });
