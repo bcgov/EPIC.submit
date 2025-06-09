@@ -310,7 +310,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         destination_url = request_data.get('destination_url')
 
         submitted_document = SubmittedDocumentModel.find_by_id(submission.submitted_document_id)
-        if destination_url == submitted_document.url:
+        if destination_url == submitted_document.url and submission.minor_version == 1:
             current_app.logger.info("Destination URL is the same. No move needed for submission_id: %s.", submission.id)
             return submission
 
