@@ -238,9 +238,9 @@ export const moveSubmission = ({
     method: "POST",
     data: {
       data: {
-        url: newPath,
+        destination_url: newPath,
         target_submission_id: targetSubmissionId,
-        item_id: destinationItemId,
+        destination_item_id: destinationItemId,
       },
       type: SUBMISSION_TYPE.DOCUMENT,
     },
