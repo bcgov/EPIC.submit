@@ -59,7 +59,6 @@ export interface SubmissionItem {
   type_id: number;
   version: number;
   submissions: Submission[];
-  internal_staff_documents?: InternalStaffDocument[];
   review?: SubmissionReview;
   notes?: Note[];
   review_start_date?: string;

@@ -7,6 +7,8 @@ import {
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
 import { useFileStore } from "@/store/fileStore";
+import { BCDesignTokens } from "epic.theme";
+import { useNavigate, useParams } from "@tanstack/react-router";
 
 type InternalDocumentsProps = Readonly<{
   numColumns?: number;
@@ -16,7 +18,16 @@ export default function Rows({
   numColumns = 4,
   hideAction = false,
 }: InternalDocumentsProps) {
+  const { projectId, submissionPackageId } = useParams({ strict: false });
+
   const { pendingFiles, files } = useFileStore();
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate({
+      to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/internal-documents`,
+    });
+  };
 
   return (
     <>
@@ -40,7 +51,22 @@ export default function Rows({
             </Typography>
           </MuiLink>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="right" colSpan={numColumns - 1} />
+        <SubmitPrimaryRowTableCell align="right" colSpan={numColumns - 1}>
+          <Typography
+            variant="body2"
+            sx={{
+              color: BCDesignTokens.typographyColorLink,
+              "&:hover": {
+                cursor: "pointer",
+                textDecoration: "underline",
+              },
+              mx: 2,
+            }}
+            onClick={handleClick}
+          >
+            Add/Manage Documents
+          </Typography>
+        </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       {files.map((document) => (
         <Row
