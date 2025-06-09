@@ -103,7 +103,10 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     def _create(self, item_id, request_data, session):
         """Create a new document submission."""
         submitted_document = self._create_submitted_document(session, request_data)
-        submission: SubmissionModel = self._create_submission(session, item_id, submitted_document.id)
+        submission: SubmissionModel = self._create_submission(session, {
+            "item_id": item_id,
+            "submitted_document_id": submitted_document.id
+        })
 
         return submission
 
@@ -130,11 +133,15 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
 
             submitted_document = self._create_submitted_document(session, request_data)
             new_submission = self._create_submission(
-                session=session,
-                item_id=submission.item_id,
-                submitted_document_id=submitted_document.id,
-                original_submission_id=submission.id,
-                root_submission_id=submission.root_submission_id
+                session,
+                {
+                    "item_id": submission.item_id,
+                    "submitted_document_id": submitted_document.id,
+                    "original_submission_id": submission.id,
+                    "root_submission_id": submission.root_submission_id,
+                    "status": SubmissionStatus.PENDING,
+                    "created_by": TokenInfo.get_id()
+                }
             )
             current_app.logger.info("New submission created with id: %s to replace submission_id: %s.",
                                     new_submission.id, submission_id)
@@ -230,15 +237,16 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         self._fill_missing_name(request_data, submission)
         request_data['folder'] = target_submission.submitted_document.folder
         submitted_document = self._create_submitted_document(session, request_data)
-
         new_submission = self._create_submission(
-            session=session,
-            item_id=target_submission.item_id,
-            submitted_document_id=submitted_document.id,
-            original_submission_id=target_submission.id,
-            root_submission_id=target_submission.root_submission_id,
-            status=submission.status,
-            created_by=submission.created_by
+            session,
+            {
+                "item_id": target_submission.item_id,
+                "submitted_document_id": submitted_document.id,
+                "original_submission_id": target_submission.id,
+                "root_submission_id": target_submission.root_submission_id,
+                "status": submission.status,
+                "created_by": submission.created_by
+            }
         )
         current_app.logger.info("Created new version submission with id: %s.", new_submission.id)
 
@@ -312,11 +320,13 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         new_submitted_document = self._create_submitted_document(session, request_data)
 
         new_submission = self._create_submission(
-            session=session,
-            item_id=destination_item_id,
-            submitted_document_id=new_submitted_document.id,
-            status=submission.status,
-            created_by=submission.created_by
+            session,
+            {
+                "item_id": destination_item_id,
+                "submitted_document_id": new_submitted_document.id,
+                "status": submission.status,
+                "created_by": submission.created_by
+            }
         )
         current_app.logger.info("Created new submission with id: %s for the move operation.", new_submission.id)
         current_app.logger.info("Deactivating and deleting original submission_id: %s.", submission.id)
@@ -337,7 +347,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 raise ResourceNotFoundError(f"Submission with ID {submission_id} not found.")
 
             if request_data.get("target_submission_id"):
-                current_app.logger.info("Move operation is a 'create next version' for submission_id: %s.", submission_id)
+                current_app.logger.info("Move operation is a 'create next version' for submission_id: %s.",
+                                        submission_id)
                 moved_submission = self._create_next_version_of_target(session, submission, request_data)
             else:
                 current_app.logger.info("Move operation is a 'move to folder' for submission_id: %s.", submission_id)
@@ -395,27 +406,21 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         return submitted_document
 
     @staticmethod
-    def _create_submission(
-            session,
-            item_id,
-            submitted_document_id,
-            status=SubmissionStatus.PENDING,
-            original_submission_id=None,
-            root_submission_id=None,
-            created_by=TokenInfo.get_id()
-    ):
+    def _create_submission(session, submission_data):
         """Create a new submission."""
         current_app.logger.debug("Creating new SubmissionModel for document.")
-        major_version, minor_version = DocumentSubmissionCreator.get_document_version(item_id, original_submission_id)
+        major_version, minor_version = DocumentSubmissionCreator.get_document_version(
+            submission_data.get("item_id"), submission_data.get("original_submission_id")
+        )
         submission = SubmissionModel(
-            item_id=item_id,
-            type=SubmissionType.DOCUMENT,
-            submitted_document_id=submitted_document_id,
+            item_id=submission_data.get("item_id"),
+            type=submission_data.get("type", SubmissionType.DOCUMENT),
+            submitted_document_id=submission_data.get("submitted_document_id"),
             major_version=major_version,
             minor_version=minor_version,
-            created_by=created_by,
-            root_submission_id=root_submission_id,
-            status=status,
+            created_by=submission_data.get("created_by", TokenInfo.get_id()),
+            root_submission_id=submission_data.get("root_submission_id"),
+            status=submission_data.get("status", SubmissionStatus.PENDING),
         )
         session.add(submission)
         session.flush()
