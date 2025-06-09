@@ -28,7 +28,6 @@ class Item(BaseModel):
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String(255), nullable=True)
     version = Column(db.Integer, nullable=False, default=1)
-    internal_staff_documents = db.relationship('InternalStaffDocument', backref='item', lazy='select')
     reviews = db.relationship('SubmissionReview', backref='item', lazy='select')
     notes = db.relationship('SubmissionItemNote', backref='item', lazy='select')
     reviewed_on = Column(db.DateTime, nullable=True)
