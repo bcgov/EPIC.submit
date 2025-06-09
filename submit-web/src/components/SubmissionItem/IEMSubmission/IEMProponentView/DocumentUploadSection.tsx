@@ -15,7 +15,6 @@ import { AccountProject } from "@/models/Project";
 import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { IEM_DOCUMENT_FOLDERS } from "./constants";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 export const DocumentUploadSection = () => {
@@ -64,20 +63,21 @@ export const DocumentUploadSection = () => {
 
   const managementPlanDocuments = files?.filter(
     (submission) =>
-      submission.submitted_document.folder === IEM_DOCUMENT_FOLDERS.IEM,
+      submission.submitted_document.folder === S3_FOLDER.IEMS.value,
   );
 
   const supportingDocuments = files?.filter(
     (submission) =>
-      submission.submitted_document.folder === IEM_DOCUMENT_FOLDERS.SUPPORTING,
+      submission.submitted_document.folder ===
+      S3_FOLDER.SUPPORTING_DOCUMENTS.value,
   );
 
   const pendingManagementPlanDocuments = pendingFiles.filter(
-    (document) => document.folder === IEM_DOCUMENT_FOLDERS.IEM,
+    (document) => document.folder === S3_FOLDER.IEMS.value,
   );
 
   const pendingSupportingDocuments = pendingFiles.filter(
-    (document) => document.folder === IEM_DOCUMENT_FOLDERS.SUPPORTING,
+    (document) => document.folder === S3_FOLDER.SUPPORTING_DOCUMENTS.value,
   );
   const projectName = camelCase(accountProject?.project.name ?? "");
 
@@ -120,7 +120,7 @@ export const DocumentUploadSection = () => {
           name="iems"
           height={"13.125rem"}
           onDrop={(acceptedFiles) =>
-            handleOnDrop(acceptedFiles, IEM_DOCUMENT_FOLDERS.IEM)
+            handleOnDrop(acceptedFiles, S3_FOLDER.IEMS.value)
           }
         />
         <Typography
@@ -166,7 +166,7 @@ export const DocumentUploadSection = () => {
           name="supportingDocuments"
           height={"13.125rem"}
           onDrop={(acceptedFiles) =>
-            handleOnDrop(acceptedFiles, IEM_DOCUMENT_FOLDERS.SUPPORTING)
+            handleOnDrop(acceptedFiles, S3_FOLDER.SUPPORTING_DOCUMENTS.value)
           }
         />
         <Typography
