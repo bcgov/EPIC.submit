@@ -5,27 +5,25 @@ import { InternalStaffDocument } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "./constants";
 
 type CreateInternalStaffDocumentFormType = {
-  submission_item_id: number;
+  package_id: number;
   document: Partial<InternalStaffDocument>;
 };
 export const createInternalStaffDocument = ({
-  submission_item_id,
+  package_id,
   document,
 }: CreateInternalStaffDocumentFormType) => {
   return submitRequest<InternalStaffDocument>({
-    url: `/staff/internal-staff-documents/submission-items/${submission_item_id}`,
+    url: `/staff/internal-staff-documents/packages/${package_id}`,
     method: "post",
     data: document,
   });
 };
 
 type UseCreateInternalStaffDocumentProps = {
-  itemId: number;
   packageId: number;
   options?: Options;
 };
 export const useCreateInternalStaffDocument = ({
-  itemId,
   packageId,
   options,
 }: UseCreateInternalStaffDocumentProps) => {
@@ -37,9 +35,6 @@ export const useCreateInternalStaffDocument = ({
       if (options?.onSuccess) {
         options.onSuccess();
       }
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_ITEM, itemId],
-      });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
       });
