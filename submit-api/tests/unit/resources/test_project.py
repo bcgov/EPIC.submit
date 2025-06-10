@@ -2,8 +2,10 @@
 
 Test for project.
 """
+import copy
 from http import HTTPStatus
 
+from submit_api import get_named_config
 from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
     factory_project_model,
@@ -11,6 +13,8 @@ from tests.utilities.factory_utils import (
     factory_account_project_model,
     factory_auth_header, factory_user_model
 )
+
+CONFIG = get_named_config("testing")
 
 
 def test_get_project_by_id(client, session, jwt):
@@ -36,3 +40,37 @@ def test_get_project_by_id(client, session, jwt):
     data = response.get_json()
     assert data["id"] == account_project.id
     assert data["project"]["name"] == "TestProject"
+
+
+def test_get_project_by_id_no_roles(client, session, jwt):
+    """Test project access with valid JWT but no roles."""
+    # Clone the staff_admin_role and remove all roles
+    claims = copy.deepcopy(TestJwtClaims.staff_admin_role.value)
+    claims["realm_access"]["roles"] = []
+    claims["resource_access"][CONFIG.JWT_OIDC_TEST_AUDIENCE]["roles"] = []
+
+    auth_guid = claims['sub']
+    factory_user_model(auth_guid=auth_guid)
+
+    account = factory_account_model()
+    project = factory_project_model(name="TestProjectNoRoles", proponent_id=111222)
+    account_project = factory_account_project_model(account_id=account.id, project_id=project.id)
+
+    session.flush()
+    headers = factory_auth_header(jwt=jwt, claims=claims)
+
+    response = client.get(f"/api/staff/projects/{account_project.id}", headers=headers)
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+def test_get_project_by_id_invalid_jwt(client):
+    """Test project access with invalid JWT token."""
+    invalid_token = "Bearer this.is.not.valid"
+
+    response = client.get(
+        "/api/staff/projects/1",  # Any ID works since we expect auth failure
+        headers={"Authorization": invalid_token}
+    )
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED

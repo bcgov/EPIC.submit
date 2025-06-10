@@ -113,6 +113,16 @@ class SubmissionService:
         return submission
 
     @classmethod
+    def soft_delete_submission(cls, submission_id):
+        """Delete a submission."""
+        submission = SubmissionModel.find_by_id(submission_id)
+        if not submission:
+            raise ValueError("Submission not found.")
+        submission_creator = cls.make_submission_creator(submission.type.value)
+        deleted_submission = submission_creator.soft_delete(submission_id)
+        return deleted_submission
+
+    @classmethod
     def get_all_versions(cls, submission_id):
         """Fetch all versions of a submission by its root submission ID."""
         with session_scope():

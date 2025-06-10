@@ -19,6 +19,8 @@ import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmatio
 import DocumentsSubTable from "../ItemsTable/DocumentsSubTable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ActionButton } from "./ActionButton";
+import PermissionsGate from "@/components/Shared/PermissionGate";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -107,7 +109,9 @@ export default function DocumentRow({
           </Box>
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"10%"}>
-          <ActionButton submission={documentSubmission} />
+          <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+            <ActionButton submission={documentSubmission} />
+          </PermissionsGate>
         </SubmitTableCell>
       </SubmitTableRow>
       {expanded && (
