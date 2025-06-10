@@ -30,8 +30,8 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
         if not sender_email:
             raise BadRequestError(f"Sender email not found for package type: {package.type.name}")
 
-        proponent = cls._get_proponent(submitter.account.proponent_id)
-        if not proponent:
+        project = cls._get_project(submitter.account.proponent_id)
+        if not project:
             raise BadRequestError(f"Proponent with ID {submitter.account.proponent_id} not found")
 
         document_submissions = cls._get_document_submissions_from_package(package)
@@ -43,7 +43,7 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
                 raise BadRequestError("STAFF_SUPPORT_MAIL_ID is not configured")
 
             recipients = [staff_email]
-            subject = f"{proponent.proponent_name} submitted {package.name}"
+            subject = f"SUBMISSION - {project.name} - {package.name} - {package.submitted_on.strftime('%Y-%m-%d')}"
         else:
             recipients = [submitter.work_email_address]
             subject = f"Confirmation of receipt for {package.name}"
@@ -51,9 +51,10 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
         email_details = EmailDetails(
             template_name=email_template_name,
             body_args={
+                'project_name': project.name,
                 'submitter_name': submitter.full_name,
                 'submission_date': convert_utc_to_local_str(package.submitted_on),
-                'certificate_holder_name': proponent.proponent_name,
+                'certificate_holder_name': project.proponent_name,
                 'package_name': package.name,
                 'documents': [submission.submitted_document.name for submission in document_submissions]
             },
@@ -91,6 +92,6 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
         )
 
     @staticmethod
-    def _get_proponent(proponent_id: int) -> ProjectModel:
-        """Retrieve the proponent by their ID."""
+    def _get_project(proponent_id: int) -> ProjectModel:
+        """Retrieve the Project by proponent ID."""
         return db.session.query(ProjectModel).filter(ProjectModel.proponent_id == proponent_id).first()
