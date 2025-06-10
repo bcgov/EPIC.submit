@@ -40,7 +40,7 @@ export default function PendingRow({
   } = pendingDocument;
 
   const { submissionPackageId, projectId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/internal-documents",
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/internal-documents/",
   });
 
   const { completeFileUpload, removePendingFile } = useFileStore();

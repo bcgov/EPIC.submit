@@ -36,7 +36,6 @@ export default function Table() {
               </Typography>
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
-            <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
             <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </TableHead>

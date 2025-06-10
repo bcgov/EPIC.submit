@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import InternalDocumentSection from "../../InternalDocumentSection";
 import FormFieldSection from "./FormFieldSection";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import ReviewSection from "./ReviewSection";
@@ -26,11 +25,11 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const { data: submissionItem } = useSuspenseQuery(
-    getSubmissionItemForStaffQueryOptions({ itemId: submissionId }),
+    getSubmissionItemForStaffQueryOptions({ itemId: submissionId })
   );
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
 
   const formData = useMemo(() => {
@@ -56,7 +55,7 @@ export const ConsultationRecordStaffView = () => {
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey,
+    }).queryKey
   );
 
   const partiesList =
@@ -75,7 +74,6 @@ export const ConsultationRecordStaffView = () => {
         submissionId={submissionId}
         packageType={submissionPackage.type.name}
       />
-      <InternalDocumentSection />
       <ReviewSection />
     </SubmissionFormContainer>
   );

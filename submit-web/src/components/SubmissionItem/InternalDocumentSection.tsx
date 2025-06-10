@@ -1,16 +1,17 @@
 import FileUpload from "@/components/FileUpload";
-import { Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useEffect, useMemo } from "react";
 import InternalDocumentsTable from "./InternalDocuments/Table";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useFileStore } from "@/store/fileStore";
 import AddFileLinkSection from "./AddFileLinkSection";
 import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
 
 export default function InternalDocumentSection() {
-  const { packageId: submissionPackageId } = useParams({
+  const navigate = useNavigate();
+  const { submissionPackageId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/internal-documents/",
   });
 
@@ -78,10 +79,22 @@ export default function InternalDocumentSection() {
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <AddFileLinkSection submissionItemId={Number(submissionPackageId)} />
+        <AddFileLinkSection packageId={Number(submissionPackageId)} />
       </Grid>
       <Grid item xs={12} mt="32px">
         <InternalDocumentsTable />
+      </Grid>
+      <Grid item xs={12} mt="32px">
+        <Button
+          color="secondary"
+          onClick={() =>
+            navigate({
+              to: `/staff/projects/${submissionPackage?.account_project_id}/submission-packages/${submissionPackageId}`,
+            })
+          }
+        >
+          Close
+        </Button>
       </Grid>
     </Grid>
   );
