@@ -29,6 +29,10 @@ class SubmissionCreatorFactory(Protocol):
         """Move a submission."""
         raise BadRequestError("Move not supported for this submission type.")
 
+    def soft_delete(self, submission_id) -> SubmissionModel:
+        """Soft delete a submission."""
+        raise BadRequestError("Soft delete not supported for this submission type.")
+
 
 class FormSubmissionCreator(SubmissionCreatorFactory):
     """Form submission creator."""
@@ -433,3 +437,19 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             session.flush()
 
         return submission
+
+    def soft_delete(self, submission_id) -> SubmissionModel:
+        """Soft delete a submission."""
+        current_app.logger.info("Soft deleting submission_id: %s.", submission_id)
+        with session_scope() as session:
+            submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
+            if not submission:
+                current_app.logger.error("Submission with id %s not found for soft delete.", submission_id)
+                raise ResourceNotFoundError(f"Submission with ID {submission_id} not found.")
+
+            submission.deleted = True
+            submission.active = False
+            session.add(submission)
+            self._restore_previous_active_submission(session, submission)
+            current_app.logger.info("Successfully soft deleted submission_id: %s.", submission.id)
+            return submission
