@@ -10,7 +10,10 @@ import { BCDesignTokens } from "epic.theme";
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import Rows from "./Rows";
 
-export default function Table() {
+type TableProps = Readonly<{
+  hideManageDocuments?: boolean;
+}>;
+export default function Table({ hideManageDocuments = false }: TableProps) {
   return (
     <TableContainer sx={{ height: "100%", cursor: "pointer" }}>
       <MuiTable>
@@ -40,7 +43,7 @@ export default function Table() {
           </TableRow>
         </TableHead>
         <TableBody>
-          <Rows numColumns={5} />
+          <Rows numColumns={5} hideManageDocuments={hideManageDocuments} />
         </TableBody>
       </MuiTable>
     </TableContainer>

@@ -82,7 +82,7 @@ export default function InternalDocumentSection() {
         <AddFileLinkSection packageId={Number(submissionPackageId)} />
       </Grid>
       <Grid item xs={12} mt="32px">
-        <InternalDocumentsTable />
+        <InternalDocumentsTable hideManageDocuments={true} />
       </Grid>
       <Grid item xs={12} mt="32px">
         <Button
