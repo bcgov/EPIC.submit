@@ -101,7 +101,7 @@ class Package(BaseModel):
         backref='package',
         lazy='joined')
 
-    internal_staff_documents = db.relationship('InternalStaffDocument', 
+    internal_staff_documents = db.relationship('InternalStaffDocument',
                                              backref='package',
                                              lazy='joined')
 
