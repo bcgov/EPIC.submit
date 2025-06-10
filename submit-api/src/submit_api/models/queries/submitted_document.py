@@ -102,7 +102,8 @@ class DocumentQueries:
                  .join(Package, Package.id == Item.package_id)
                  .filter(Package.id == package_id,
                          Submission.type == SubmissionType.DOCUMENT,
-                         Submission.active,
+                         Submission.active.is_(True),
+                         Submission.deleted.is_(False),
                          Submission.status == SubmissionStatus.SUBMITTED))
 
         return query.all()
