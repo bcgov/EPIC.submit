@@ -17,6 +17,7 @@ Test Utility for creating test scenarios.
 """
 
 from faker import Faker
+from enum import Enum
 
 from src.submit_api.config import get_named_config
 
@@ -24,3 +25,41 @@ from src.submit_api.config import get_named_config
 fake = Faker()
 
 CONFIG = get_named_config('testing')
+
+
+class TestJwtClaims(dict, Enum):
+    """Test scenarios of jwt claims."""
+
+    staff_admin_role = {
+        'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
+        'sub': 'f7a4a1d4-73a8-4cbc-a40f-bb1145302065',
+        'idp_userid': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302065',
+        'preferred_username': f'{fake.user_name()}@idir',
+        'given_name': fake.first_name(),
+        'family_name': fake.last_name(),
+        'tenant_id': 1,
+        'email': 'staff@gov.bc.ca',
+        'identity_provider': 'IDIR',
+        "aud": CONFIG.JWT_OIDC_TEST_AUDIENCE,  # usually "epic-submit"
+        'realm_access': {
+            'roles': [
+                'staff',
+                'view_engagement',
+                'create_engagement',
+                'edit_engagement',
+                'create_survey',
+                'view_users',
+                'view_private_engagements',
+                'create_admin_user',
+                'view_all_surveys',
+                'eao_view'
+            ]
+        },
+        'resource_access': {
+            CONFIG.JWT_OIDC_TEST_AUDIENCE: {
+                'roles': [
+                    'eao_view'
+                ]
+            }
+        }
+    }

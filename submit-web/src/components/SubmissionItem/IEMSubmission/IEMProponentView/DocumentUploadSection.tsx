@@ -15,7 +15,7 @@ import { AccountProject } from "@/models/Project";
 import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { IEM_DOCUMENT_FOLDERS } from "./constants";
+import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 export const DocumentUploadSection = () => {
   const { submissionId: submissionItemId, projectId } = useParams({
@@ -63,20 +63,21 @@ export const DocumentUploadSection = () => {
 
   const managementPlanDocuments = files?.filter(
     (submission) =>
-      submission.submitted_document.folder === IEM_DOCUMENT_FOLDERS.IEM,
+      submission.submitted_document.folder === S3_FOLDER.IEMS.value,
   );
 
   const supportingDocuments = files?.filter(
     (submission) =>
-      submission.submitted_document.folder === IEM_DOCUMENT_FOLDERS.SUPPORTING,
+      submission.submitted_document.folder ===
+      S3_FOLDER.SUPPORTING_DOCUMENTS.value,
   );
 
   const pendingManagementPlanDocuments = pendingFiles.filter(
-    (document) => document.folder === IEM_DOCUMENT_FOLDERS.IEM,
+    (document) => document.folder === S3_FOLDER.IEMS.value,
   );
 
   const pendingSupportingDocuments = pendingFiles.filter(
-    (document) => document.folder === IEM_DOCUMENT_FOLDERS.SUPPORTING,
+    (document) => document.folder === S3_FOLDER.SUPPORTING_DOCUMENTS.value,
   );
   const projectName = camelCase(accountProject?.project.name ?? "");
 
@@ -119,7 +120,7 @@ export const DocumentUploadSection = () => {
           name="iems"
           height={"13.125rem"}
           onDrop={(acceptedFiles) =>
-            handleOnDrop(acceptedFiles, IEM_DOCUMENT_FOLDERS.IEM)
+            handleOnDrop(acceptedFiles, S3_FOLDER.IEMS.value)
           }
         />
         <Typography
@@ -136,7 +137,10 @@ export const DocumentUploadSection = () => {
             header={"Independent Environmental Monitor Terms of Engagement"}
             documents={managementPlanDocuments}
             pendingDocuments={pendingManagementPlanDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.IEMS}/`}
+            folder={getSubmissionFolderName({
+              projectName: projectName,
+              sectionName: S3_FOLDER.IEMS.value,
+            })}
             formFieldName={"iems"}
           />
         </Box>
@@ -162,7 +166,7 @@ export const DocumentUploadSection = () => {
           name="supportingDocuments"
           height={"13.125rem"}
           onDrop={(acceptedFiles) =>
-            handleOnDrop(acceptedFiles, IEM_DOCUMENT_FOLDERS.SUPPORTING)
+            handleOnDrop(acceptedFiles, S3_FOLDER.SUPPORTING_DOCUMENTS.value)
           }
         />
         <Typography
@@ -180,7 +184,10 @@ export const DocumentUploadSection = () => {
             formFieldName={"supportingDocuments"}
             documents={supportingDocuments}
             pendingDocuments={pendingSupportingDocuments}
-            folder={`${S3_FOLDER.SUBMISSIONS}/${projectName}/${S3_FOLDER.IEMS}/${S3_FOLDER.SUPPORTING_DOCUMENTS}/`}
+            folder={getSubmissionFolderName({
+              projectName: projectName,
+              sectionName: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
+            })}
           />
         </Box>
       </Grid>

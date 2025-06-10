@@ -16,3 +16,8 @@ class DocumentService:
     def get_failed_documents_by_item_id(cls, item_id):
         """Get all failed documents by item id."""
         return DocumentQueries.get_failed_documents_by_item_id(item_id)
+
+    @classmethod
+    def get_submissions_by_package_id(cls, package_id):
+        """Get all failed documents by package id."""
+        return DocumentQueries.get_document_submissions_by_package_id(package_id)

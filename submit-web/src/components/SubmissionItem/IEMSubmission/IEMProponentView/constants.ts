@@ -1,10 +1,5 @@
 import * as yup from "yup";
 
-export const IEM_DOCUMENT_FOLDERS = Object.freeze({
-  IEM: "iem",
-  SUPPORTING: "supporting",
-});
-
 export const iemSubmissionSchema = yup.object().shape({
   conditionSatisfied: yup.string().required("Please answer this question."),
   allRequirementsAddressed: yup

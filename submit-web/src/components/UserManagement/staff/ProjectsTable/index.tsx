@@ -23,7 +23,7 @@ export const ProjectsTable = (props: TableProps) => {
     getProponentOptions(proponentId, {
       includeProjects: true,
       includeInvitations: true,
-    })
+    }),
   );
 
   useEffect(() => {

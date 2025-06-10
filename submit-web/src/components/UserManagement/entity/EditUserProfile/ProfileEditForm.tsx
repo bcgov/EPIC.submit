@@ -52,7 +52,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
   const navigate = useNavigate();
   const handleCancel = () => {
     navigate({
-      to: `/proponent/profile`,
+      to: `/`,
     });
     reset();
   };

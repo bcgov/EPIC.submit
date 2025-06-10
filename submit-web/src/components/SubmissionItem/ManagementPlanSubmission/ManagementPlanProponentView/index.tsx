@@ -15,7 +15,6 @@ import {
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
-  MANAGEMENT_PLAN_DOCUMENT_FOLDERS,
   ManagementPlanSubmissionForm,
   managementPlanSubmissionSchema,
 } from "./constants";
@@ -28,6 +27,7 @@ import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 
 export const ManagementPlanSubmissionProponentView = () => {
   const {
@@ -84,14 +84,14 @@ export const ManagementPlanSubmissionProponentView = () => {
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.MANAGEMENT_PLAN,
+            S3_FOLDER.MANAGEMENT_PLANS.value,
         )
         .map((submission) => submission.submitted_document.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
             submission.submitted_document.folder ===
-            MANAGEMENT_PLAN_DOCUMENT_FOLDERS.SUPPORTING,
+            S3_FOLDER.SUPPORTING_DOCUMENTS.value,
         )
         .map((submission) => submission.submitted_document.url),
     };

@@ -91,3 +91,18 @@ class DocumentQueries:
         )
 
         return query.all()
+
+    @classmethod
+    def get_document_submissions_by_package_id(cls, package_id):
+        """Get all failed documents by item id."""
+        session = db.session
+
+        query = (session.query(Submission)
+                 .join(Item, Item.id == Submission.item_id)
+                 .join(Package, Package.id == Item.package_id)
+                 .filter(Package.id == package_id,
+                         Submission.type == SubmissionType.DOCUMENT,
+                         Submission.active,
+                         Submission.status == SubmissionStatus.SUBMITTED))
+
+        return query.all()

@@ -36,7 +36,7 @@ export default function StaffSubmissionItemTableRow({
     useSuspenseQuery(
       getStaffSubmissionPackageQueryOptions({
         packageId: Number(submissionPackageId),
-      })
+      }),
     );
 
   const { submissions, id } = item;

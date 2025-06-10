@@ -1,12 +1,44 @@
+import { SubmissionPackageType } from "@/components/Shared/types";
+import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
 
 export const S3_FOLDER = {
-  INTERNAL_STAFF_DOCUMENTS: "internal_staff_documents",
-  MANAGEMENT_PLANS: "management_plans",
-  SUPPORTING_DOCUMENTS: "supporting_documents",
-  CONSULTATION_RECORDS: "consultation_records",
-  SUBMISSIONS: "submissions",
-  IEMS: "iems",
+  INTERNAL_STAFF_DOCUMENTS: {
+    value: "internal_staff_documents",
+    label: "Internal Staff Documents",
+  },
+  MANAGEMENT_PLANS: { value: "management_plans", label: "Management Plans" },
+  SUPPORTING_DOCUMENTS: {
+    value: "supporting_documents",
+    label: "Supporting Documents",
+  },
+  CONSULTATION_RECORDS: {
+    value: "consultation_records",
+    label: "Consultation Records",
+  },
+  SUBMISSIONS: { value: "submissions", label: "Submissions" },
+  IEMS: { value: "iems", label: "IEMs" },
+};
+
+export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
+  [SubmissionPackageType.MANAGEMENT_PLAN]: {
+    [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: [
+      S3_FOLDER.MANAGEMENT_PLANS,
+      S3_FOLDER.SUPPORTING_DOCUMENTS,
+    ],
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
+      S3_FOLDER.CONSULTATION_RECORDS,
+    ],
+  },
+  [SubmissionPackageType.IEM]: {
+    [SUBMISSION_ITEM_TYPE.IEM]: [
+      S3_FOLDER.IEMS,
+      S3_FOLDER.SUPPORTING_DOCUMENTS,
+    ],
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
+      S3_FOLDER.CONSULTATION_RECORDS,
+    ],
+  },
 };
 
 type AuthHeaderRequestData = {
@@ -101,5 +133,40 @@ export const deleteDocument = async (data: DeleteDocumentProps) => {
   return requestAxios({
     url: presignedUrlData.presigned_url,
     method: "delete",
+  });
+};
+
+type CopyObjectResponse = {
+  message: string;
+  status: "success" | "error";
+  document: {
+    name: string;
+    unique_name: string;
+    path: string;
+    project_id: number | null;
+  };
+  new_relative_url?: string;
+};
+export const copyObject = async ({
+  relativeUrl,
+  destinationFolder,
+  filename,
+}: {
+  relativeUrl: string;
+  destinationFolder: string;
+  filename: string;
+}) => {
+  return documentRequest<CopyObjectResponse>({
+    url: "/storage-operations/objects",
+    method: "post",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: {
+      action: "copy",
+      relative_url: relativeUrl,
+      destination_folder: destinationFolder,
+      filename: filename,
+    }, // No body needed for copy
   });
 };
