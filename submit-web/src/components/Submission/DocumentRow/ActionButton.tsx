@@ -7,6 +7,11 @@ import FileOrganizeModal from "./FileOrganizeModal";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { useParams } from "@tanstack/react-router";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import { useSoftDeleteSubmission } from "@/hooks/api/useSubmissions";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { isAxiosError } from "axios";
+import { useQuery } from "@tanstack/react-query";
+import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 
 type ActionButtonProps = Readonly<{
   submission: Submission;
@@ -15,10 +20,19 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const { setOpen: setModalOpen, setIsLoading, setClose } = useModal();
+  const { mutateAsync: softDeleteSubmission } = useSoftDeleteSubmission({
+    submissionItemId: submission.item_id,
+  });
 
   const { submissionPackageId, projectId } = useParams({
     strict: false,
   });
+
+  const { refetch } = useQuery(
+    getStaffSubmissionPackageQueryOptions({
+      packageId: Number(submissionPackageId),
+    }),
+  );
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -39,7 +53,25 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
     handleClose();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    try {
+      setIsLoading(true);
+      await softDeleteSubmission(submission.id);
+      await refetch();
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ??
+          "An error occurred while deleting the submission.")
+        : "An unexpected error occurred.";
+      notify.error(errorMessage);
+    } finally {
+      setIsLoading(false);
+      handleClose();
+      setClose();
+    }
+  };
+
+  const handleDeleteClick = () => {
     // Implement delete functionality here
     // This could involve calling an API to delete the submission
     // and then updating the UI accordingly.
@@ -47,15 +79,7 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
 
     setModalOpen(
       <ConfirmationModal
-        onConfirm={() => {
-          setIsLoading(true);
-          // Call the API to delete the submission here
-          // mock API call
-          setTimeout(() => {
-            setIsLoading(false);
-            setClose();
-          }, 1000);
-        }}
+        onConfirm={handleDelete}
         onCancel={() => {
           setClose();
         }}
@@ -119,7 +143,7 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <MenuItem onClick={handleMove}>Move</MenuItem>
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+        <MenuItem onClick={handleDeleteClick}>Delete</MenuItem>
       </Menu>
     </>
   );

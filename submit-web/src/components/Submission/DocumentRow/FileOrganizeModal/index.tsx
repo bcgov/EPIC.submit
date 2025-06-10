@@ -50,10 +50,6 @@ const FileOrganizeModal = ({
     }),
   );
 
-  // const { data: accountProject, isLoading: isAccountProjectLoading } = useQuery(
-  //   getAccountProjectForStaffQueryOptions(Number(accountProjectId)),
-  // );
-
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData<AccountProject>(
     getAccountProjectForStaffQueryOptions(Number(accountProjectId)).queryKey,
