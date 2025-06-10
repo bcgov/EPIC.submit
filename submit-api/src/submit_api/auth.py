@@ -52,7 +52,6 @@ class Auth:  # pylint: disable=too-few-public-methods
         Args:
             roles (list[str]): List of valid roles
         """
-
         return jwt.has_one_of_roles(roles)
 
     @classmethod
