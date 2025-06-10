@@ -438,8 +438,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
 
         return submission
 
-    @classmethod
-    def soft_delete(cls, submission_id) -> SubmissionModel:
+    def soft_delete(self, submission_id) -> SubmissionModel:
         """Soft delete a submission."""
         current_app.logger.info("Soft deleting submission_id: %s.", submission_id)
         with session_scope() as session:
@@ -451,6 +450,6 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             submission.deleted = True
             submission.active = False
             session.add(submission)
-            cls._restore_previous_active_submission(session, submission)
+            self._restore_previous_active_submission(session, submission)
             current_app.logger.info("Successfully soft deleted submission_id: %s.", submission.id)
             return submission

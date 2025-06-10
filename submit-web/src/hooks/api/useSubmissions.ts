@@ -281,7 +281,7 @@ export const moveSubmission = ({
 };
 
 type UseMoveSubmissionParams = {
-  packageId: number;
+  packageId?: number;
 } & Options;
 export const useMoveSubmission = ({
   packageId,
@@ -293,6 +293,12 @@ export const useMoveSubmission = ({
     onSuccess: (data) => {
       if (_onSuccess) {
         _onSuccess(data);
+      }
+      if (packageId) {
+        const queryClient = useQueryClient();
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        });
       }
     },
     ...restOptions,
