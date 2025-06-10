@@ -86,9 +86,10 @@ export const FoldersList = ({
     if (!submissions || !selectedFolder) return submissions;
     return submissions.filter(
       (submission) =>
-        submission.submitted_document.folder === selectedFolder.value,
+        submission.submitted_document.folder === selectedFolder.value &&
+        submission.id !== submissionToMove.id, // Exclude the submission being moved
     );
-  }, [submissions, selectedFolder]);
+  }, [submissions, selectedFolder, submissionToMove]);
 
   const getItemTypeByFolder = useCallback(
     (
@@ -157,6 +158,7 @@ export const FoldersList = ({
           destinationItemId: itemId,
           newPath: copyObjectResponse.new_relative_url ?? "",
           ...(targetSubmissionId ? { targetSubmissionId } : {}),
+          destinationFolder: folderValue,
         });
 
         setSelectedFolder(null);
@@ -179,37 +181,33 @@ export const FoldersList = ({
     [accountProject, moveSubmission, refetch, submissionToMove, setClose],
   );
 
-  const handleOnTopOfExistingSubmission = useCallback(
-    async (targetSubmissionId: number) => {
-      if (locked || !selectedFolder) return;
-      const itemId = submissions?.find(
-        (submission) => submission.id === targetSubmissionId,
-      )?.item_id;
-      if (!itemId) {
-        notify.error("No item found for the target submission");
-        return;
-      }
-      await handleMove({
-        itemId,
-        folderValue: selectedFolder.value,
-        targetSubmissionId,
-      });
-    },
-    [locked, selectedFolder, submissions, handleMove],
-  );
+  const handleOnTopOfExistingSubmission = async (
+    targetSubmissionId: number,
+  ) => {
+    if (locked || !selectedFolder) return;
+    const itemId = submissions?.find(
+      (submission) => submission.id === targetSubmissionId,
+    )?.item_id;
+    if (!itemId) {
+      notify.error("No item found for the target submission");
+      return;
+    }
+    await handleMove({
+      itemId,
+      folderValue: selectedFolder.value,
+      targetSubmissionId,
+    });
+  };
 
-  const handleMoveToFolder = useCallback(
-    async (folderValue: string) => {
-      if (locked) return;
-      const itemId = getItemFromFolder(folderValue);
-      if (!itemId) {
-        notify.error(`No item found for folder ${folderValue}`);
-        return;
-      }
-      await handleMove({ itemId, folderValue });
-    },
-    [locked, getItemFromFolder, handleMove],
-  );
+  const handleMoveToFolder = async (folderValue: string) => {
+    if (locked) return;
+    const itemId = getItemFromFolder(folderValue);
+    if (!itemId) {
+      notify.error(`No item found for folder ${folderValue}`);
+      return;
+    }
+    await handleMove({ itemId, folderValue });
+  };
 
   if (selectedFolder) {
     return (
