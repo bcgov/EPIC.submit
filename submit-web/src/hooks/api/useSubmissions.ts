@@ -288,6 +288,7 @@ export const useMoveSubmission = ({
   ...options
 }: UseMoveSubmissionParams) => {
   const { onSuccess: _onSuccess, ...restOptions } = options;
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: moveSubmission,
     onSuccess: (data) => {
@@ -295,7 +296,6 @@ export const useMoveSubmission = ({
         _onSuccess(data);
       }
       if (packageId) {
-        const queryClient = useQueryClient();
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         });
