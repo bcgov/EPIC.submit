@@ -48,12 +48,20 @@ def downgrade():
     with op.batch_alter_table('internal_staff_documents', schema=None) as batch_op:
         batch_op.add_column(sa.Column('item_id', sa.INTEGER(), autoincrement=False, nullable=True))
     
-    # Update the data to populate item_id
+    # Update the data to populate item_id by finding the corresponding item for each internal staff document
     op.execute("""
         UPDATE internal_staff_documents isd
-        SET item_id = i.id
-        FROM items i
-        WHERE isd.package_id = i.package_id
+        SET item_id = (
+            SELECT i.id 
+            FROM items i 
+            WHERE i.package_id = isd.package_id 
+            AND i.type_id = (
+                SELECT it.id 
+                FROM item_types it 
+                WHERE it.name = 'EAO Internal Documents'
+            )
+            LIMIT 1
+        )
     """)
     
     # Now make item_id non-nullable and add the foreign key
