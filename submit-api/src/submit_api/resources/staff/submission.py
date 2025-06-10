@@ -49,7 +49,7 @@ class DocumentSubmission(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cors.crossdomain(origin="*")
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_EDIT.value])
     def delete(submission_id):
         """Delete a submission document."""
         deleted_submission = SubmissionService.soft_delete_submission(submission_id)
