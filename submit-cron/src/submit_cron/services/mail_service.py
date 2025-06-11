@@ -35,7 +35,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         print(f"Number of pending emails: {len(pending_emails)}")
         for email_entry in pending_emails:
             try:
-                email_processor = EmailService._get_email_processor(email_entry)a
+                email_processor = EmailService._get_email_processor(email_entry)
                 email_processor(email_entry)
             except Exception as e:
                 # Log the error and update the status to FAILED
