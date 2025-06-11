@@ -1,14 +1,13 @@
 import { Stack } from "@mui/material";
 import { useState } from "react";
 import * as yup from "yup";
-import { useFileStore } from "@/store/fileStore";
 import { LoadingButton } from "../Shared/LoadingButton";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ControlledTextField from "../Shared/controlled/ControlledTextField";
 import { notify } from "../Shared/Snackbar/snackbarStore";
-import { createInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
+import { useCreateInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 
 const addDocumentLinkSchema = yup.object().shape({
   link: yup.string().required("Link is required."),
@@ -18,13 +17,11 @@ const addDocumentLinkSchema = yup.object().shape({
 export type AddDocumentLinkSchema = yup.InferType<typeof addDocumentLinkSchema>;
 
 type AddFileLinkSectionProps = Readonly<{
-  submissionItemId: number;
+  packageId: number;
 }>;
 export default function AddFileLinkSection({
-  submissionItemId,
+  packageId,
 }: AddFileLinkSectionProps) {
-  const { addFile } = useFileStore();
-
   const [addingLink, setAddingLink] = useState(false);
 
   const methods = useForm({
@@ -34,6 +31,10 @@ export default function AddFileLinkSection({
 
   const { handleSubmit, reset } = methods;
 
+  const { mutate: createInternalStaffDocument } =
+    useCreateInternalStaffDocument({
+      packageId,
+    });
   const handleSaveLinkText = async (data: AddDocumentLinkSchema) => {
     const { link, documentName } = addDocumentLinkSchema.validateSync(data);
     try {
@@ -43,11 +44,10 @@ export default function AddFileLinkSection({
         url: link,
         type: INTERNAL_STAFF_DOCUMENT_TYPE.LINK,
       };
-      const createdInternalStaff = await createInternalStaffDocument({
-        submission_item_id: Number(submissionItemId),
+      createInternalStaffDocument({
+        package_id: Number(packageId),
         document: documentData,
       });
-      addFile(createdInternalStaff);
       reset();
       setAddingLink(false);
     } catch (error) {

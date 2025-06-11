@@ -1,36 +1,36 @@
 import FileUpload from "@/components/FileUpload";
-import { Grid, Typography } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { useEffect, useMemo } from "react";
 import InternalDocumentsTable from "./InternalDocuments/Table";
-import { useQueryClient } from "@tanstack/react-query";
-import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useFileStore } from "@/store/fileStore";
 import AddFileLinkSection from "./AddFileLinkSection";
+import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
 
 export default function InternalDocumentSection() {
-  const { submissionId: subItemId } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  const navigate = useNavigate();
+  const { submissionPackageId } = useParams({
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/internal-documents/",
   });
 
   const { reset, addPendingFile, initializeFiles } = useFileStore();
-
-  const queryClient = useQueryClient();
-  const submissionItem = queryClient.getQueryData(
-    getSubmissionItemForStaffQueryOptions({ itemId: Number(subItemId) })
-      .queryKey,
-  );
-  const internalStaffDocuments = useMemo(() => {
-    return submissionItem?.internal_staff_documents || [];
-  }, [submissionItem]);
 
   useEffect(() => {
     return () => {
       reset();
     };
   }, [reset]);
+
+  const { data: submissionPackage } = useGetStaffSubmissionPackage({
+    packageId: Number(submissionPackageId),
+  });
+
+  const internalStaffDocuments = useMemo(
+    () => submissionPackage?.internal_staff_documents || [],
+    [submissionPackage]
+  );
 
   useEffect(() => {
     initializeFiles(internalStaffDocuments);
@@ -45,7 +45,7 @@ export default function InternalDocumentSection() {
   return (
     <Grid item container>
       <Grid item xs={12}>
-        <BarBlueTitle title="Document Upload/Links" />
+        <BarBlueTitle title="EAO Internal Documents" fullWidth bold={false} />
         <Typography
           variant="body2"
           sx={{
@@ -72,15 +72,27 @@ export default function InternalDocumentSection() {
         </Typography>
       </Grid>
       <Grid item xs={12} mt="60px">
-        <Typography variant="body1">
+        <Typography variant="body1" fontWeight={800}>
           Add Link to Document on Sharepoint
         </Typography>
       </Grid>
       <Grid item xs={12}>
-        <AddFileLinkSection submissionItemId={Number(subItemId)} />
+        <AddFileLinkSection packageId={Number(submissionPackageId)} />
       </Grid>
       <Grid item xs={12} mt="32px">
-        <InternalDocumentsTable />
+        <InternalDocumentsTable hideManageDocuments={true} />
+      </Grid>
+      <Grid item xs={12} mt="32px">
+        <Button
+          color="secondary"
+          onClick={() =>
+            navigate({
+              to: `/staff/projects/${submissionPackage?.account_project_id}/submission-packages/${submissionPackageId}`,
+            })
+          }
+        >
+          Close
+        </Button>
       </Grid>
     </Grid>
   );

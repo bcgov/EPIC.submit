@@ -15,7 +15,7 @@
 
 """Service for internal staff document service."""
 from submit_api.exceptions import ResourceNotFoundError
-from submit_api.models import Item
+from submit_api.models.package import Package as PackageModel
 from submit_api.models.internal_staff_document import InternalStaffDocument as InternalStaffDocumentModel
 from submit_api.utils.token_info import TokenInfo
 
@@ -24,17 +24,17 @@ class InternalStaffDocumentService:
     """Item management service."""
 
     @classmethod
-    def create_internal_staff_document(cls, submission_item_id, data):
+    def create_internal_staff_document(cls, package_id, data):
         """Create internal staff document."""
-        submission_item = Item.find_by_id(submission_item_id)
-        if not submission_item:
-            raise ResourceNotFoundError("Submission item not found")
+        package = PackageModel.find_by_id(package_id)
+        if not package:
+            raise ResourceNotFoundError("Package not found")
 
         internal_staff_document = InternalStaffDocumentModel(
             name=data.get("name"),
             url=data.get("url"),
             type=data.get("type"),
-            item_id=submission_item_id,
+            package_id=package_id,
             created_by=TokenInfo.get_id(),
         )
         internal_staff_document.save()

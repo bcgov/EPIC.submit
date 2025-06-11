@@ -10,19 +10,13 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
 import { useCreateInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 import { useParams } from "@tanstack/react-router";
-import {
-  INTERNAL_STAFF_DOCUMENT_TYPE,
-  SUBMISSION_ITEM_TYPE,
-  SubmissionItem,
-} from "@/models/SubmissionItem";
+import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
 import { useFileStore } from "@/store/fileStore";
 import { useMounted } from "@/hooks/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { AccountProject } from "@/models/Project";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
-import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
-import { camelCase, get } from "lodash";
-import { getSubmissionItemLabel } from "@/utils";
+import { camelCase } from "lodash";
 import { isAxiosError } from "axios";
 
 export type UploadObject = {
@@ -30,7 +24,6 @@ export type UploadObject = {
   file: File;
   folder?: string;
   pending?: boolean;
-  submissionId?: number;
 };
 
 type RowProps = Readonly<{
@@ -47,12 +40,8 @@ export default function PendingRow({
     file: { name },
   } = pendingDocument;
 
-  const {
-    submissionPackageId,
-    submissionId: submissionItemId,
-    projectId,
-  } = useParams({
-    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  const { submissionPackageId, projectId } = useParams({
+    from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/internal-documents/",
   });
 
   const { completeFileUpload, removePendingFile, pendingFiles } =
@@ -62,13 +51,12 @@ export default function PendingRow({
   const firstPendingFile = useMemo(() => {
     return pendingFiles.reduce(
       (prev, current) => (prev.id < current.id ? prev : current),
-      pendingFiles[0] ?? { id: Infinity },
+      pendingFiles[0] ?? { id: Infinity }
     );
   }, [pendingFiles]);
 
   const { mutateAsync: createInternalStaffDocument } =
     useCreateInternalStaffDocument({
-      itemId: Number(submissionItemId),
       packageId: Number(submissionPackageId),
     });
 
@@ -78,21 +66,9 @@ export default function PendingRow({
 
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData<AccountProject>(
-    getAccountProjectQueryOptions(Number(projectId)).queryKey,
+    getAccountProjectQueryOptions(Number(projectId)).queryKey
   );
   const projectName = camelCase(accountProject?.project.name ?? "");
-
-  const submissionItem = queryClient.getQueryData<SubmissionItem>(
-    getSubmissionItemQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey,
-  );
-  const folderMap = {
-    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]:
-      S3_FOLDER.CONSULTATION_RECORDS.value,
-    [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: S3_FOLDER.MANAGEMENT_PLANS.value,
-  };
-  const submissionTypeName = getSubmissionItemLabel(submissionItem?.type.name);
-  const internalStaffSubFolder = get(folderMap, submissionTypeName, "");
 
   const uploadObject = async () => {
     try {
@@ -100,7 +76,7 @@ export default function PendingRow({
         file: pendingDocument.file,
         fileDetails: {
           filename: pendingDocument.file.name,
-          folder: `${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.INTERNAL_STAFF_DOCUMENTS.value}/${internalStaffSubFolder}`,
+          folder: `${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${S3_FOLDER.INTERNAL_STAFF_DOCUMENTS.value}`,
         },
       });
 
@@ -110,7 +86,7 @@ export default function PendingRow({
         type: INTERNAL_STAFF_DOCUMENT_TYPE.S3,
       };
       const createdInternalStaff = await createInternalStaffDocument({
-        submission_item_id: Number(submissionItemId),
+        package_id: Number(submissionPackageId),
         document: documentData,
       });
 

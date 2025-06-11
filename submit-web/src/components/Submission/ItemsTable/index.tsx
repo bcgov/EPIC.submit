@@ -23,11 +23,8 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   const { isValidating } = usePackageTableStore();
 
   useEffect(() => {
-    const internalStaffDocuments = submissionItems
-      .map((item) => item.internal_staff_documents || [])
-      .flat();
-    initializeFiles(internalStaffDocuments);
-  }, [submissionItems, initializeFiles]);
+    initializeFiles(submissionPackage.internal_staff_documents || []);
+  }, [submissionPackage.internal_staff_documents, initializeFiles]);
 
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
