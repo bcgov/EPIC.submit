@@ -102,8 +102,8 @@ class Package(BaseModel):
         lazy='joined')
 
     internal_staff_documents = db.relationship('InternalStaffDocument',
-                                             backref='package',
-                                             lazy='joined')
+                                               backref='package',
+                                               lazy='joined')
 
     @property
     def update_requests(self):
