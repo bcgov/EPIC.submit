@@ -71,7 +71,7 @@ const FileOrganizeModal = ({
   const isLoading = isSubmissionsLoading;
 
   return (
-    <Box sx={modalStyle}>
+    <Box sx={{ ...modalStyle, width: "450px" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <DialogTitle>Move "{submission.submitted_document.name}"</DialogTitle>
         <IconButton onClick={setClose}>
