@@ -18,6 +18,7 @@ import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 export const DocumentUploadSection = () => {
+  const MAX_FILES = 10;
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -53,7 +54,9 @@ export const DocumentUploadSection = () => {
   }, [submissionItem, getDocumentSubmissions, initializeFiles]);
 
   const handleOnDrop = (acceptedFiles: File[], folder: string) => {
-    addPendingFile(acceptedFiles[0], folder);
+    acceptedFiles.forEach((file) => {
+      addPendingFile(file, folder);
+    });
   };
 
   if (!submissionItemId) {
@@ -172,6 +175,7 @@ export const DocumentUploadSection = () => {
           onDrop={(acceptedFiles) =>
             handleOnDrop(acceptedFiles, S3_FOLDER.SUPPORTING_DOCUMENTS.value)
           }
+          maxFiles={MAX_FILES}
         />
         <Typography
           variant="body2"

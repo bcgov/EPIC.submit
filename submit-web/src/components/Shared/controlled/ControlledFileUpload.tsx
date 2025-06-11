@@ -24,7 +24,7 @@ export const ControlledFileUpload = ({
 
   const error = get(errors, name);
   const helperText = error?.message?.toString() ?? "";
-  const currentFiles = getValues(name) || [];
+  const currentFiles = getValues(name) ?? [];
 
   return (
     <Controller
@@ -35,14 +35,18 @@ export const ControlledFileUpload = ({
           <FileUpload
             {...otherProps}
             onDrop={(acceptedFiles: File[]) => {
-              if (maxFiles && currentFiles.length + acceptedFiles.length > maxFiles) {
+              if (
+                maxFiles &&
+                currentFiles.length + acceptedFiles.length > maxFiles
+              ) {
                 // Handle error: maxFiles limit exceeded
                 return;
               }
               if (acceptedFiles.length === 0) return;
               // Get current values and add the new file
-              const currentValues = getValues(name) || [];
-              setValue(name, [...currentValues, acceptedFiles[0].name], {
+              const currentValues = getValues(name) ?? [];
+              const fileNames = acceptedFiles.map((file) => file.name);
+              setValue(name, [...currentValues, ...fileNames], {
                 shouldValidate: true,
               });
               onDrop(acceptedFiles);
