@@ -187,6 +187,36 @@ export const deleteSubmission = (submissionId: number) => {
   });
 };
 
+type UseSoftDeleteSubmissionParams = {
+  submissionItemId: number;
+} & Options;
+export const useSoftDeleteSubmission = ({
+  submissionItemId,
+  ...options
+}: UseSoftDeleteSubmissionParams) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options;
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: softDeleteSubmission,
+    onSuccess: (data) => {
+      if (_onSuccess) {
+        _onSuccess(data);
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, submissionItemId],
+      });
+    },
+    ...restOptions,
+  });
+};
+
+export const softDeleteSubmission = (submissionId: number) => {
+  return submitRequest<Submission>({
+    url: `/staff/submissions/${submissionId}/document`,
+    method: "delete",
+  });
+};
+
 export const useGetSubmissionVersions = (submissionId: number) => {
   return useQuery({
     queryKey: [QUERY_KEY.SUBMISSION_VERSIONS, submissionId],
@@ -251,7 +281,7 @@ export const moveSubmission = ({
 };
 
 type UseMoveSubmissionParams = {
-  packageId: number;
+  packageId?: number;
 } & Options;
 export const useMoveSubmission = ({
   packageId,
@@ -265,9 +295,11 @@ export const useMoveSubmission = ({
       if (_onSuccess) {
         _onSuccess(data);
       }
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-      });
+      if (packageId) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        });
+      }
     },
     ...restOptions,
   });

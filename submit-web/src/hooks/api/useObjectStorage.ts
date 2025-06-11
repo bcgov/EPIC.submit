@@ -14,29 +14,29 @@ export const S3_FOLDER = {
   },
   CONSULTATION_RECORDS: {
     value: "consultation_records",
-    label: "Consultation Records",
+    label: "Consultation Record(s)",
   },
   SUBMISSIONS: { value: "submissions", label: "Submissions" },
-  IEMS: { value: "iems", label: "IEMs" },
+  IEMS: { value: "iems", label: "IEM" },
 };
 
 export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
   [SubmissionPackageType.MANAGEMENT_PLAN]: {
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
+      S3_FOLDER.CONSULTATION_RECORDS,
+    ],
     [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: [
       S3_FOLDER.MANAGEMENT_PLANS,
       S3_FOLDER.SUPPORTING_DOCUMENTS,
     ],
+  },
+  [SubmissionPackageType.IEM]: {
     [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
       S3_FOLDER.CONSULTATION_RECORDS,
     ],
-  },
-  [SubmissionPackageType.IEM]: {
     [SUBMISSION_ITEM_TYPE.IEM]: [
       S3_FOLDER.IEMS,
       S3_FOLDER.SUPPORTING_DOCUMENTS,
-    ],
-    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
-      S3_FOLDER.CONSULTATION_RECORDS,
     ],
   },
 };

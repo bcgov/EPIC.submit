@@ -71,14 +71,13 @@ export const FoldersList = ({
   const [moveTarget, setMoveTarget] = useState<string | number | null>(null);
   const { setClose } = useModal();
 
-  const { mutateAsync: moveSubmission, isSuccess } = useMoveSubmission({
+  const { mutateAsync: moveSubmission } = useMoveSubmission({
     packageId: Number(submissionPackage.id),
   });
 
   const { refetch } = useQuery(
     getStaffSubmissionPackageQueryOptions({
       packageId: submissionPackage.id,
-      enabled: isSuccess,
     }),
   );
 
@@ -160,6 +159,7 @@ export const FoldersList = ({
           ...(targetSubmissionId ? { targetSubmissionId } : {}),
           destinationFolder: folderValue,
         });
+        await refetch();
 
         setSelectedFolder(null);
         notify.success(
@@ -174,7 +174,6 @@ export const FoldersList = ({
       } finally {
         setLocked(false);
         setMoveTarget(null);
-        refetch();
         setClose();
       }
     },
