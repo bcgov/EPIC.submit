@@ -42,6 +42,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     setClose();
   };
 
+  const handleConfirm = () => {
+    onConfirm();
+    setClose();
+  };
+
   const handleSecondaryAction = () => {
     onSecondaryAction?.();
     setClose();
@@ -82,7 +87,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         <LoadingButton
           loading={isLoading}
           variant="contained"
-          onClick={onConfirm}
+          onClick={handleConfirm}
           color="primary"
         >
           {confirmText ?? "Confirm"}

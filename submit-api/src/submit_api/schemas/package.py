@@ -36,6 +36,20 @@ class PackageVersionSchema(Schema):
         return obj.package.completed_on is not None
 
 
+class CreatePackageVersionSchema(Schema):
+    """Create package version schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    id = fields.Int(data_key="id")
+    version = fields.Int(data_key="version")
+    original_package_id = fields.Int(data_key="original_package_id")
+    package_id = fields.Int(data_key="package_id")
+
+
 class PostPackageRequestSchema(Schema):
     """package schema."""
 

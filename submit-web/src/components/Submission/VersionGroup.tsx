@@ -3,6 +3,7 @@ import {
   getStaffSubmissionPackageById,
   getSubmissionPackageById,
   useGetPackageVersionsByOriginalPackageId,
+  useCreateNewPackageVersion,
 } from "@/hooks/api/usePackages";
 import { PackageVersion, SubmissionPackage } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
@@ -16,12 +17,17 @@ import {
 } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
+import AddIcon from "@mui/icons-material/Add";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 
 type VersionGroupProps = Readonly<{
   currentPackageVersion: PackageVersion;
 }>;
+
 export default function VersionGroup({
   currentPackageVersion,
 }: VersionGroupProps) {
@@ -32,6 +38,7 @@ export default function VersionGroup({
     strict: false,
   });
   const packageId = Number(submissionPackageId);
+  const { setOpen: setOpenModal } = useModal();
 
   const navigate = useNavigate();
   const { data: packageVersions, isPending: isVersionsLoading } =
@@ -59,13 +66,48 @@ export default function VersionGroup({
     }
   };
 
+  const { mutate: createNewPackageVersion } = useCreateNewPackageVersion({
+    onSuccess: (newPackage) => {
+      notify.success("New package created successfully");
+      loadNewPackage(newPackage.id);
+    },
+    onError: () => {
+      notify.error("Failed to create new package");
+    },
+  });
+
   function handleUpdatePackageId(newPackageId: number) {
     loadNewPackage(newPackageId);
   }
 
+  const handleCreateNewPackage = () => {
+    setOpenModal(
+      <ConfirmationModal
+        title="New Submission Package"
+        description="This option will create another package so the Holder can resubmit documents. If a review is in progress, it will be cancelled, and the review will have to start over again when the holder submits a new package. Do you want to cancel the current review and create a new package?"
+        confirmText="Create New Package"
+        onConfirm={() => {
+          createNewPackageVersion({
+            originalPackageId: currentPackageVersion.original_package_id,
+            data: {
+              ...currentPackageVersion,
+              package_id: packageId,
+            },
+          });
+        }}
+      />
+    );
+  };
+
   const last_approved_package_version = packageVersions?.find(
-    (packageVersion) => packageVersion.is_approved,
+    (packageVersion) => packageVersion.is_approved
   );
+
+  const isLatestVersion = useMemo(() => {
+    if (!packageVersions) return false;
+    const latestVersion = Math.max(...packageVersions.map((v) => v.version));
+    return currentPackageVersion.version === latestVersion;
+  }, [packageVersions, currentPackageVersion.version]);
 
   if (isVersionsLoading) {
     return (
@@ -84,6 +126,18 @@ export default function VersionGroup({
       >
         <CircularProgress color="inherit" />
       </Backdrop>
+      {!isProponent && isLatestVersion && (
+        <Button
+          color="secondary"
+          sx={{
+            width: "auto",
+          }}
+          onClick={handleCreateNewPackage}
+          startIcon={<AddIcon />}
+        >
+          New
+        </Button>
+      )}
       {packageVersions?.map((packageVersion) => (
         <Button
           key={packageVersion.id}
