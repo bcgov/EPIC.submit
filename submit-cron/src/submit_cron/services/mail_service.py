@@ -17,7 +17,7 @@ from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_E
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, \
     NEW_USER_INVITATION_EMAIL_TEMPLATE, \
     MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, \
-    MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE
+    MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
 from submit_cron.services.resubmission_email_service import ResubmissionEmailService
 
 
@@ -49,7 +49,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         email_processors = {
             MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE: cls._process_package_submission_email,
             MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE: cls._process_request_update_creation_email,
-            MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE: cls._process_resubmission_invitation_email,
+            MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE: cls._process_resubmission_request_email,
             # staff email uses the same content, but just a different template..so reusing the same method passing template name
             MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE: partial(cls._process_package_submission_email, template_name=MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE),
             NEW_USER_INVITATION_EMAIL_TEMPLATE: cls._process_new_user_invitation_email
@@ -96,15 +96,15 @@ class EmailService:  # pylint: disable=too-few-public-methods
         db.session.commit()
 
     @staticmethod
-    def _process_resubmission_invitation_email(email_entry: EmailQueue):
-        """Process email entry for resubmission invitation."""
+    def _process_resubmission_request_email(email_entry: EmailQueue):
+        """Process email entry for resubmission request."""
         package_id = email_entry.entity_id
         package: PackageModel = db.session.get(PackageModel, package_id)
         if not package:
             raise BadRequestError(f"Package with ID {package_id} not found.")
 
-        email_details = ResubmissionEmailService.prepare_resubmission_invitation_email(package)
-        
+        email_details = ResubmissionEmailService.prepare_resubmission_request_email(package)
+
         # Send the email using ChesApiService
         EmailService.send_email(email_details)
 
