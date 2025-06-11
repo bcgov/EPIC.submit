@@ -19,6 +19,7 @@ import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 
 export const DocumentUploadSection = () => {
+  const MAX_FILES = 10;
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -52,12 +53,12 @@ export const DocumentUploadSection = () => {
   }, [reset]);
 
   const handleOnDrop = (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-
-    addPendingFile(
-      file,
-      CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
-    );
+    acceptedFiles.forEach((file) => {
+      addPendingFile(
+        file,
+        CONSULTATION_RECORD_DOCUMENT_FOLDERS.CONSULTATION_RECORDS,
+      );
+    });
   };
 
   if (!submissionItemId) {
@@ -106,6 +107,7 @@ export const DocumentUploadSection = () => {
           name="consultationRecords"
           height={"13.125rem"}
           onDrop={handleOnDrop}
+          maxFiles={MAX_FILES}
         />
         <Typography
           variant="body2"

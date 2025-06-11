@@ -4,7 +4,7 @@ import { createSubmission } from "@/hooks/api/useSubmissions";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "../Shared/Snackbar/snackbarStore";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
@@ -30,18 +30,27 @@ export default function PendingDocumentRow({
 
   const queryClient = useQueryClient();
 
-  const { completeFileUpload, removePendingFile } = useFileStore();
+  const { completeFileUpload, removePendingFile, pendingFiles } =
+    useFileStore();
+
+  // pending file with smallest id
+  const firstPendingFile = useMemo(() => {
+    return pendingFiles.reduce(
+      (prev, current) => (prev.id < current.id ? prev : current),
+      pendingFiles[0] ?? { id: Infinity },
+    );
+  }, [pendingFiles]);
 
   useMounted(() => {
     setIsPending(true);
   });
 
   useEffect(() => {
-    if (isPending) {
+    if (isPending && firstPendingFile.id === documentItem.id) {
       uploadObject();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPending]);
+  }, [isPending, firstPendingFile]);
 
   const uploadObject = async () => {
     try {
