@@ -5,7 +5,7 @@ import {
   Typography,
 } from "@mui/material";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
 import { useCreateInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
@@ -17,6 +17,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { AccountProject } from "@/models/Project";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { camelCase } from "lodash";
+import { isAxiosError } from "axios";
 
 export type UploadObject = {
   id: number;
@@ -43,7 +44,16 @@ export default function PendingRow({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/internal-documents/",
   });
 
-  const { completeFileUpload, removePendingFile } = useFileStore();
+  const { completeFileUpload, removePendingFile, pendingFiles } =
+    useFileStore();
+
+  // pending file with smallest id
+  const firstPendingFile = useMemo(() => {
+    return pendingFiles.reduce(
+      (prev, current) => (prev.id < current.id ? prev : current),
+      pendingFiles[0] ?? { id: Infinity }
+    );
+  }, [pendingFiles]);
 
   const { mutateAsync: createInternalStaffDocument } =
     useCreateInternalStaffDocument({
@@ -82,17 +92,20 @@ export default function PendingRow({
 
       completeFileUpload(pendingDocument.id, createdInternalStaff);
     } catch (error) {
-      notify.error("Failed to upload document");
+      const errorMessage = isAxiosError(error)
+        ? error.response?.data?.message || "Failed to upload document"
+        : "Failed to upload document";
+      notify.error(errorMessage);
       removePendingFile(pendingDocument.id);
     }
   };
 
   useEffect(() => {
-    if (pendingUpload) {
+    if (firstPendingFile.id === pendingDocument.id && pendingUpload) {
       uploadObject();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingUpload]);
+  }, [pendingUpload, firstPendingFile]);
 
   if (!accountProject) {
     notify.error("Failed to load project");
