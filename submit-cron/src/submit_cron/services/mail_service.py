@@ -35,7 +35,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         print(f"Number of pending emails: {len(pending_emails)}")
         for email_entry in pending_emails:
             try:
-                email_processor = EmailService._get_email_processor(email_entry)
+                email_processor = EmailService._get_email_processor(email_entry)a
                 email_processor(email_entry)
             except Exception as e:
                 # Log the error and update the status to FAILED
@@ -98,13 +98,17 @@ class EmailService:  # pylint: disable=too-few-public-methods
     @staticmethod
     def _process_resubmission_invitation_email(email_entry: EmailQueue):
         """Process email entry for resubmission invitation."""
-        package = PackageModel.find_by_id(email_entry.entity_id)
+        package_id = email_entry.entity_id
+        package: PackageModel = db.session.get(PackageModel, package_id)
         if not package:
-            raise BadRequestError(f"Package with ID {email_entry.entity_id} not found")
+            raise BadRequestError(f"Package with ID {package_id} not found.")
 
         email_details = ResubmissionEmailService.prepare_resubmission_invitation_email(package)
-        ChesApiService.send_email(email_details)
+        
+        # Send the email using ChesApiService
+        EmailService.send_email(email_details)
 
+        # Update the email queue status to SENT
         email_entry.status = EmailStatus.SENT.value
         email_entry.sent_at = datetime.utcnow()
         db.session.commit()
