@@ -47,27 +47,6 @@ def downgrade():
     # First add the item_id column as nullable
     with op.batch_alter_table('internal_staff_documents', schema=None) as batch_op:
         batch_op.add_column(sa.Column('item_id', sa.INTEGER(), autoincrement=False, nullable=True))
-    
-    # Update the data to populate item_id by finding the corresponding item for each internal staff document
-    op.execute("""
-        UPDATE internal_staff_documents isd
-        SET item_id = (
-            SELECT i.id 
-            FROM items i 
-            WHERE i.package_id = isd.package_id 
-            AND i.type_id = (
-                SELECT it.id 
-                FROM item_types it 
-                WHERE it.name = 'EAO Internal Documents'
-            )
-            LIMIT 1
-        )
-    """)
-    
-    # Now make item_id non-nullable and add the foreign key
-    with op.batch_alter_table('internal_staff_documents', schema=None) as batch_op:
-        batch_op.alter_column('item_id', nullable=False)
-        batch_op.create_foreign_key('internal_staff_documents_item_id_fkey', 'items', ['item_id'], ['id'])
         # Drop the package_id foreign key with its name
         batch_op.drop_constraint('internal_staff_documents_package_id_fkey', type_='foreignkey')
         batch_op.drop_column('package_id')
