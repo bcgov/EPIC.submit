@@ -15,8 +15,7 @@ export default function InternalDocumentSection() {
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
-  const { reset, addPendingFile, pendingFiles, initializeFiles } =
-    useFileStore();
+  const { reset, addPendingFile, initializeFiles } = useFileStore();
 
   const queryClient = useQueryClient();
   const submissionItem = queryClient.getQueryData(
@@ -38,10 +37,9 @@ export default function InternalDocumentSection() {
   }, [internalStaffDocuments, initializeFiles]);
 
   const handleFileDrop = (acceptedFiles: File[]) => {
-    if (pendingFiles.length > 0) {
-      return;
-    }
-    addPendingFile(acceptedFiles[0]);
+    acceptedFiles.forEach((file) => {
+      addPendingFile(file);
+    });
   };
 
   return (
@@ -63,7 +61,7 @@ export default function InternalDocumentSection() {
         <Typography variant="body1">Upload Documents</Typography>
       </Grid>
       <Grid item xs={12}>
-        <FileUpload height="13.125rem" onDrop={handleFileDrop} />
+        <FileUpload height="13.125rem" onDrop={handleFileDrop} maxFiles={10} />
         <Typography
           variant="body2"
           sx={{
