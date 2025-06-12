@@ -26,6 +26,7 @@ class InternalStaffDocumentSchema(Schema):
     created_by = fields.Str(data_key="created_by")
     created_by_user = fields.Nested(UserSchema, data_key="created_by_user")
 
+
 class PostInternalStaffDocument(Schema):
     """Post internal staff document schema."""
 
