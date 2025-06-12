@@ -45,7 +45,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
             />
           ))}
           <When condition={userType === USER_TYPE.STAFF}>
-            <InternalDocumentsRows hideAction />
+            <InternalDocumentsRows isItemsTable />
           </When>
         </TableBody>
       </Table>

@@ -12,15 +12,15 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import InternalDocumentItemRow from "./InternalDocumentItemRow";
 
 type InternalDocumentsProps = Readonly<{
-  hideAction?: boolean;
+  isItemsTable?: boolean;
   hideManageDocuments?: boolean;
 }>;
+
 export default function Rows({
-  hideAction = false,
+  isItemsTable = false,
   hideManageDocuments = false,
 }: InternalDocumentsProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
-
   const { pendingFiles, files } = useFileStore();
   const navigate = useNavigate();
 
@@ -74,7 +74,7 @@ export default function Rows({
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       {files.map((document) =>
-        hideAction ? (
+        isItemsTable ? (
           <InternalDocumentItemRow
             key={`doc-row-${document.id}`}
             internalStaffDocument={document}
@@ -83,7 +83,6 @@ export default function Rows({
           <Row
             key={`doc-row-${document.id}`}
             internalStaffDocument={document}
-            hideAction={hideAction}
           />
         )
       )}

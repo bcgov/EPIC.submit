@@ -12,20 +12,14 @@ import { BCDesignTokens } from "epic.theme";
 import { useDeleteInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 import { useParams } from "@tanstack/react-router";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
-import { Unless } from "react-if";
 import { useFileStore } from "@/store/fileStore";
 import LinkIcon from "@mui/icons-material/Link";
 
 type RowProps = Readonly<{
   internalStaffDocument: InternalStaffDocument;
-  numColumns?: number;
-  hideAction?: boolean;
 }>;
 
-export default function Row({
-  internalStaffDocument,
-  hideAction = false,
-}: RowProps) {
+export default function Row({ internalStaffDocument }: RowProps) {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     strict: false,
   });
@@ -110,24 +104,22 @@ export default function Row({
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="right" width="20%">
-        <Unless condition={hideAction}>
-          <LoadingButton
-            onClick={onRemoveClick}
-            loading={isRemovingDocument}
-            variant="text"
-            sx={{
-              color: BCDesignTokens.typographyColorLink,
-              "&:hover": {
-                backgroundColor: "transparent",
-              },
-              "&:focus": {
-                outline: "none",
-              },
-            }}
-          >
-            Remove
-          </LoadingButton>
-        </Unless>
+        <LoadingButton
+          onClick={onRemoveClick}
+          loading={isRemovingDocument}
+          variant="text"
+          sx={{
+            color: BCDesignTokens.typographyColorLink,
+            "&:hover": {
+              backgroundColor: "transparent",
+            },
+            "&:focus": {
+              outline: "none",
+            },
+          }}
+        >
+          Remove
+        </LoadingButton>
       </SubmitTableCell>
     </TableRow>
   );
