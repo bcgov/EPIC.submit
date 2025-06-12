@@ -2,6 +2,9 @@ import { useFileStore } from "@/store/fileStore";
 import React from "react";
 import { useModal } from "../Modals/modalStore";
 import UpdateModal from "../Modals/UpdateModal";
+import { WarningAmber } from "@mui/icons-material";
+import { Typography, Box } from "@mui/material";
+
 type UnfinishedUploadsCheck = {
   children: React.ReactNode;
   customCondition?: boolean;
@@ -19,8 +22,15 @@ export const UnfinishedUploadsCheck = ({
     if (isConditionMet) {
       setOpenModal(
         <UpdateModal
-          title="About to lose your changes"
-          description="You have unfinished uploads. If you leave this page, you will lose your uploads. Are you sure you want to leave this page?"
+          title={
+          <Box display="flex" alignItems="center" gap={1}>
+            <WarningAmber color="warning" />
+            <Typography variant="h6" component="span">
+              Please wait!
+            </Typography>
+          </Box>
+        }
+          description="Please remain on this page until all the documents are uploaded."
         />,
       );
     } else {
