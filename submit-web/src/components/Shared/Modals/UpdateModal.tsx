@@ -13,8 +13,8 @@ import { modalStyle } from "./constants";
 import CloseIcon from "@mui/icons-material/Close";
 
 interface UpdateModalProps {
-  title: string;
-  description: string;
+  title: React.ReactNode;
+  description: React.ReactNode;
 }
 
 const UpdateModal = ({ title, description }: UpdateModalProps) => {
