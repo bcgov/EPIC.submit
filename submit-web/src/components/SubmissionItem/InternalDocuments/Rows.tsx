@@ -9,14 +9,13 @@ import {
 import { useFileStore } from "@/store/fileStore";
 import { BCDesignTokens } from "epic.theme";
 import { useNavigate, useParams } from "@tanstack/react-router";
+import InternalDocumentItemRow from "./InternalDocumentItemRow";
 
 type InternalDocumentsProps = Readonly<{
-  numColumns?: number;
   hideAction?: boolean;
   hideManageDocuments?: boolean;
 }>;
 export default function Rows({
-  numColumns = 4,
   hideAction = false,
   hideManageDocuments = false,
 }: InternalDocumentsProps) {
@@ -53,7 +52,7 @@ export default function Rows({
             </Typography>
           </MuiLink>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="right" colSpan={numColumns - 1}>
+        <SubmitPrimaryRowTableCell align="right" colSpan={4}>
           {!hideManageDocuments && (
             <>
               <Typography
@@ -74,22 +73,27 @@ export default function Rows({
           )}
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
-      {files.map((document) => (
-        <Row
-          key={`doc-row-${document.id}`}
-          internalStaffDocument={document}
-          numColumns={5}
-          hideAction={hideAction}
-        />
-      ))}
+      {files.map((document) =>
+        hideAction ? (
+          <InternalDocumentItemRow
+            key={`doc-row-${document.id}`}
+            internalStaffDocument={document}
+          />
+        ) : (
+          <Row
+            key={`doc-row-${document.id}`}
+            internalStaffDocument={document}
+            hideAction={hideAction}
+          />
+        )
+      )}
       {pendingFiles.map((pendingDocument) => (
         <PendingRow
           key={`pending-doc-row-${pendingDocument.id}`}
           pendingDocument={pendingDocument}
-          numColumns={5}
         />
       ))}
-      <EmptyRow colSpan={5} />
+      <EmptyRow colSpan={4} />
     </>
   );
 }

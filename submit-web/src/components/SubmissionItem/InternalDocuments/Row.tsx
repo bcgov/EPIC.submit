@@ -18,13 +18,12 @@ import LinkIcon from "@mui/icons-material/Link";
 
 type RowProps = Readonly<{
   internalStaffDocument: InternalStaffDocument;
-  numColumns: number;
+  numColumns?: number;
   hideAction?: boolean;
 }>;
 
 export default function Row({
   internalStaffDocument,
-  numColumns,
   hideAction = false,
 }: RowProps) {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
@@ -41,7 +40,7 @@ export default function Row({
 
   const { removeFile } = useFileStore();
 
-  const { name, url, type } = internalStaffDocument;
+  const { name, url, type, created_by_user } = internalStaffDocument;
 
   const handleDocumentClick = () => {
     if (type === INTERNAL_STAFF_DOCUMENT_TYPE.S3) {
@@ -85,7 +84,7 @@ export default function Row({
   };
   return (
     <TableRow>
-      <SubmitTableCell>
+      <SubmitTableCell width="40%">
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Typography
             variant="body1"
@@ -104,8 +103,13 @@ export default function Row({
           )}
         </Box>
       </SubmitTableCell>
-      <SubmitTableCell align="right" colSpan={numColumns - 2}></SubmitTableCell>
-      <SubmitTableCell align="right">
+      <SubmitTableCell align="right" width="40%">
+        <Typography variant="body1" color="inherit">
+          {created_by_user.staff_user.first_name}{" "}
+          {created_by_user.staff_user.last_name}
+        </Typography>
+      </SubmitTableCell>
+      <SubmitTableCell align="right" width="20%">
         <Unless condition={hideAction}>
           <LoadingButton
             onClick={onRemoveClick}
