@@ -16,7 +16,7 @@ type TableProps = Readonly<{
 export default function Table({ hideManageDocuments = false }: TableProps) {
   return (
     <TableContainer sx={{ height: "100%", cursor: "pointer" }}>
-      <MuiTable>
+      <MuiTable sx={{ tableLayout: "fixed" }}>
         <TableHead
           sx={{
             ".MuiTableCell-root": {
@@ -25,7 +25,7 @@ export default function Table({ hideManageDocuments = false }: TableProps) {
           }}
         >
           <TableRow>
-            <SubmitTableHeadCell>
+            <SubmitTableHeadCell sx={{ width: "60%" }}>
               <Typography
                 variant="body2"
                 sx={{
@@ -38,12 +38,16 @@ export default function Table({ hideManageDocuments = false }: TableProps) {
                 Form/Document
               </Typography>
             </SubmitTableHeadCell>
-            <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
-            <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right" sx={{ width: "30%" }}>
+              Uploaded by
+            </SubmitTableHeadCell>
+            <SubmitTableHeadCell align="center" sx={{ width: "10%" }}>
+              Actions
+            </SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          <Rows numColumns={5} hideManageDocuments={hideManageDocuments} />
+          <Rows hideManageDocuments={hideManageDocuments} />
         </TableBody>
       </MuiTable>
     </TableContainer>

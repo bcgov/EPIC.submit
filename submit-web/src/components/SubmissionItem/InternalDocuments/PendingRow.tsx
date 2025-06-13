@@ -28,13 +28,9 @@ export type UploadObject = {
 
 type RowProps = Readonly<{
   pendingDocument: UploadObject;
-  numColumns?: number;
 }>;
 
-export default function PendingRow({
-  pendingDocument,
-  numColumns = 4,
-}: RowProps) {
+export default function PendingRow({ pendingDocument }: RowProps) {
   const [pendingUpload, setPendingUpload] = useState(false);
   const {
     file: { name },
@@ -128,7 +124,7 @@ export default function PendingRow({
           <MuiLink>{name}</MuiLink>
         </Typography>
       </SubmitTableCell>
-      <SubmitTableCell align="left" colSpan={numColumns - 1}>
+      <SubmitTableCell align="left" colSpan={4}>
         <CircularProgress size={20} />
       </SubmitTableCell>
     </TableRow>
