@@ -50,7 +50,7 @@ export default function InternalDocumentItemRow({
             variant="body1"
             color="inherit"
             sx={{
-              overflow: "clip",
+              overflow: "hidden",
               textOverflow: "ellipsis",
               cursor: "pointer",
               mx: 0.5,

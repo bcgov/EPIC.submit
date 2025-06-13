@@ -12,12 +12,12 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import InternalDocumentItemRow from "./InternalDocumentItemRow";
 
 type InternalDocumentsProps = Readonly<{
-  isItemsTable?: boolean;
+  layout?: "compact" | "full";
   hideManageDocuments?: boolean;
 }>;
 
 export default function Rows({
-  isItemsTable = false,
+  layout = "full",
   hideManageDocuments = false,
 }: InternalDocumentsProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
@@ -74,7 +74,7 @@ export default function Rows({
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       {files.map((document) =>
-        isItemsTable ? (
+        layout === "compact" ? (
           <InternalDocumentItemRow
             key={`doc-row-${document.id}`}
             internalStaffDocument={document}
