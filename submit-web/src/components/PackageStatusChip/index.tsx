@@ -96,6 +96,15 @@ const statusStyles: Record<
       height: "24px",
     },
   },
+  NEW: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${EAOColors.DecisionDark}`,
+      background: EAOColors.DecisionLight,
+      height: "24px",
+    },
+    label: "New",
+  },
   NEW_SUBMISSION: {
     sx: {
       borderRadius: 1,

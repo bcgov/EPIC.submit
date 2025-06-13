@@ -42,6 +42,7 @@ class PackageStatus(enum.Enum):
     PARTIALLY_COMPLETED = 'PARTIALLY_COMPLETED'
     COMPLETED = 'COMPLETED'
     NEW_SUBMISSION = 'NEW_SUBMISSION'
+    NEW = 'NEW'
     PASSED_CONSULTATION_CHECK = 'PASSED_CONSULTATION_CHECK'
     FAILED_CONSULTATION_CHECK = 'FAILED_CONSULTATION_CHECK'
     UNDER_REVIEW = 'UNDER_REVIEW'
@@ -89,7 +90,7 @@ class Package(BaseModel):
     items = db.relationship('Item', backref='package',
                             lazy='select', order_by='Item.sort_order')
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False,
-                    default=[PackageStatus.NEW_SUBMISSION.value])
+                    default=[PackageStatus.NEW.value])
     active = Column(db.Boolean, nullable=False, default=True)
     version_id = Column(db.Integer, ForeignKey(
         'package_versions.id'), nullable=True)

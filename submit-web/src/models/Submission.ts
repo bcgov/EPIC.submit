@@ -24,6 +24,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
 
 export type SubmissionItemStatus =
   | "NEW_SUBMISSION"
+  | "NEW"
   | "COMPLETED"
   | "PARTIALLY_COMPLETED"
   | "SUBMITTED"
@@ -50,6 +51,10 @@ export const SUBMISSION_ITEM_STATUS: Record<
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
+  },
+  NEW: {
+    value: "NEW",
+    label: "New",
   },
   COMPLETED: {
     value: "COMPLETED",
@@ -185,9 +190,9 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
 export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
   Record<SubmissionItemStatus, { value: SubmissionItemStatus; label: string }>
 > = {
-  NEW_SUBMISSION: {
-    value: "NEW_SUBMISSION",
-    label: "New Submission",
+  NEW: {
+    value: "NEW",
+    label: "New",
   },
   UPDATED: {
     value: "UPDATED",

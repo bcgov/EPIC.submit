@@ -11,6 +11,7 @@ class ItemStatus(enum.Enum):
     """Enum for item statuses."""
 
     NEW_SUBMISSION = 'NEW_SUBMISSION'
+    NEW = 'NEW'
     PARTIALLY_COMPLETED = 'PARTIALLY_COMPLETED'
     COMPLETED = 'COMPLETED'
     SUBMITTED = 'SUBMITTED'
