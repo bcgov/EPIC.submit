@@ -1,5 +1,5 @@
 import { SubmissionPackageType } from "@/components/Shared/types";
-import { SubmissionItem } from "./SubmissionItem";
+import { InternalStaffDocument, SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
 
 export type PackageType = {
@@ -138,6 +138,7 @@ export type SubmissionPackage = {
   account_project_id: number;
   meta?: SubmissionPackageMeta;
   days_since_submission?: number;
+  internal_staff_documents?: InternalStaffDocument[];
   review_status?: NonCanonicalPackageStatus;
   update_requests: Array<UpdateRequest>;
   version: PackageVersion;

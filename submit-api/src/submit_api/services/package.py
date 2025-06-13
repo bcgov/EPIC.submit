@@ -31,7 +31,7 @@ from submit_api.services import authorization
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
-    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE)
+    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE)
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_version_service import PackageVersionService
 
@@ -101,7 +101,7 @@ class PackageService:
 
             PackageVersionService.create_email_queue(
                 original_package.id,
-                MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE
+                MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
             )
 
             session.add(new_package)
@@ -112,11 +112,11 @@ class PackageService:
 
     @classmethod
     def _create_resubmission_email_queue(cls, package_id):
-        """Create an email queue record for resubmission invitation."""
+        """Create an email queue record for resubmission request."""
         email_queue = EmailQueueModel(
             entity_id=package_id,
             entity_type=EntityType.PACKAGE.value,
-            template_name=MANAGEMENT_PLAN_RESUBMISSION_INVITATION_EMAIL_TEMPLATE
+            template_name=MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
         )
         email_queue.save()
 

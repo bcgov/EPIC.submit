@@ -82,7 +82,7 @@ type SaveReviewRequestBody = {
 };
 export const saveSubmissionReview = (
   itemId: number,
-  data: SaveReviewRequestBody,
+  data: SaveReviewRequestBody
 ) => {
   return submitRequest<SubmissionReview>({
     url: `/staff/items/${itemId}/review`,

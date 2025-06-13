@@ -12,21 +12,14 @@ import { BCDesignTokens } from "epic.theme";
 import { useDeleteInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 import { useParams } from "@tanstack/react-router";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
-import { Unless } from "react-if";
 import { useFileStore } from "@/store/fileStore";
 import LinkIcon from "@mui/icons-material/Link";
 
 type RowProps = Readonly<{
   internalStaffDocument: InternalStaffDocument;
-  numColumns: number;
-  hideAction?: boolean;
 }>;
 
-export default function Row({
-  internalStaffDocument,
-  numColumns,
-  hideAction = false,
-}: RowProps) {
+export default function Row({ internalStaffDocument }: RowProps) {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     strict: false,
   });
@@ -41,7 +34,7 @@ export default function Row({
 
   const { removeFile } = useFileStore();
 
-  const { name, url, type } = internalStaffDocument;
+  const { name, url, type, created_by_user } = internalStaffDocument;
 
   const handleDocumentClick = () => {
     if (type === INTERNAL_STAFF_DOCUMENT_TYPE.S3) {
@@ -85,7 +78,7 @@ export default function Row({
   };
   return (
     <TableRow>
-      <SubmitTableCell>
+      <SubmitTableCell width="40%">
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Typography
             variant="body1"
@@ -104,26 +97,29 @@ export default function Row({
           )}
         </Box>
       </SubmitTableCell>
-      <SubmitTableCell align="right" colSpan={numColumns - 2}></SubmitTableCell>
-      <SubmitTableCell align="right">
-        <Unless condition={hideAction}>
-          <LoadingButton
-            onClick={onRemoveClick}
-            loading={isRemovingDocument}
-            variant="text"
-            sx={{
-              color: BCDesignTokens.typographyColorLink,
-              "&:hover": {
-                backgroundColor: "transparent",
-              },
-              "&:focus": {
-                outline: "none",
-              },
-            }}
-          >
-            Remove
-          </LoadingButton>
-        </Unless>
+      <SubmitTableCell align="right" width="40%">
+        <Typography variant="body1" color="inherit">
+          {created_by_user.staff_user.first_name}{" "}
+          {created_by_user.staff_user.last_name}
+        </Typography>
+      </SubmitTableCell>
+      <SubmitTableCell align="right" width="20%">
+        <LoadingButton
+          onClick={onRemoveClick}
+          loading={isRemovingDocument}
+          variant="text"
+          sx={{
+            color: BCDesignTokens.typographyColorLink,
+            "&:hover": {
+              backgroundColor: "transparent",
+            },
+            "&:focus": {
+              outline: "none",
+            },
+          }}
+        >
+          Remove
+        </LoadingButton>
       </SubmitTableCell>
     </TableRow>
   );

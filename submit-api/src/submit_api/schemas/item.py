@@ -7,7 +7,6 @@ from marshmallow import EXCLUDE, Schema, fields, pre_dump, post_dump
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.user import UserType
-from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema
 from submit_api.schemas.item_type import ItemTypeSchema
 from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
 from submit_api.schemas.submission_item_note import SubmissionItemNote
@@ -155,8 +154,6 @@ class StaffItemSchema(ItemSchema):
 
         unknown = EXCLUDE
 
-    internal_staff_documents = fields.Nested(InternalStaffDocumentSchema,
-                                             data_key="internal_staff_documents", many=True)
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
     notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)
     review_start_date = fields.DateTime(data_key="review_start_date")
