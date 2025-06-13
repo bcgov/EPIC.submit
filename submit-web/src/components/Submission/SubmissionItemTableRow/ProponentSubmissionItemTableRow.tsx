@@ -156,6 +156,7 @@ export default function ProponentSubmissionItemTableRow({
             key={`doc-row-${submission.id}`}
             documentSubmission={submission}
             submissionItem={item}
+            submissionPackage={submissionPackage}
           />
         ))}
       <When condition={error}>
