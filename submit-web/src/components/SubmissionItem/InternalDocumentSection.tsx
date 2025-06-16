@@ -8,6 +8,7 @@ import { useNavigate, useParams } from "@tanstack/react-router";
 import { useFileStore } from "@/store/fileStore";
 import AddFileLinkSection from "./AddFileLinkSection";
 import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
+import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 
 export default function InternalDocumentSection() {
   const navigate = useNavigate();
@@ -83,16 +84,18 @@ export default function InternalDocumentSection() {
         <InternalDocumentsTable hideManageDocuments={true} />
       </Grid>
       <Grid item xs={12} mt="32px">
-        <Button
-          color="secondary"
-          onClick={() =>
-            navigate({
-              to: `/staff/projects/${submissionPackage?.account_project_id}/submission-packages/${submissionPackageId}`,
-            })
-          }
-        >
-          Close
-        </Button>
+        <UnfinishedUploadsCheck>
+          <Button
+            color="secondary"
+            onClick={() =>
+              navigate({
+                to: `/staff/projects/${submissionPackage?.account_project_id}/submission-packages/${submissionPackageId}`,
+              })
+            }
+          >
+            Close
+          </Button>
+        </UnfinishedUploadsCheck>
       </Grid>
     </Grid>
   );
