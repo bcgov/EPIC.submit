@@ -272,16 +272,29 @@ class PackageService:
         session.add(package)
 
     @staticmethod
-    def update_submission_status(package, status, session):
+    def _update_submission_status(package, status, session):
         """Update package submission details."""
         if status not in SubmissionStatus.__members__:
             raise BadRequestError("Invalid status")
+        for item in package.items:
+            for submission in item.submissions:
+                if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value \
+                        and submission.status == SubmissionStatus.REJECTED:
+                    # Skip updating rejected consultation record submissions
+                    continue
+                submission.status = status
+                session.add(submission)
+
+    @staticmethod
+    def _deactivate_pending_replacement_submissions(package, session):
+        """Deactivate pending replacement submissions."""
+        current_app.logger.info(f"Deactivating pending replacement submissions for package {package.id}")
         submissions = [submission for item in package.items for submission in item.submissions]
         for submission in submissions:
             if submission.status == SubmissionStatus.PENDING_REPLACEMENT:
                 submission.active = False
-            submission.status = status
-            session.add(submission)
+                submission.status = SubmissionStatus.SUBMITTED.value
+                session.add(submission)
 
     @staticmethod
     def _deactivate_revision_required_requests(package, session):
@@ -335,7 +348,7 @@ class PackageService:
             package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_package_status(package.id, session, package)
         cls._update_package_submission_details(package, session)
-        cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
+        cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._create_email_queue_record(package, session)
         cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
@@ -352,7 +365,8 @@ class PackageService:
         if package.completed_on:
             raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_package_submission_details(package, session)
-        cls.update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
+        cls._deactivate_pending_replacement_submissions(package, session)
+        cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
