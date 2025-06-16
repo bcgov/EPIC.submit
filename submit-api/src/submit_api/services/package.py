@@ -97,6 +97,10 @@ class PackageService:
 
             PackageVersionService.copy_contact_information(original_package, new_package)
 
+            # Set up the submitter information from the original package
+            if original_package.submitted_by:
+                new_package.submitted_by = original_package.submitted_by
+
             PackageVersionService.deactivate_update_requests(original_package.id, session, original_package)
 
             PackageVersionService.create_email_queue(
