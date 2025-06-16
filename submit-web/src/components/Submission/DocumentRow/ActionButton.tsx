@@ -1,4 +1,4 @@
-import { IconButton, Menu, MenuItem } from "@mui/material";
+import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Submission } from "@/models/Submission";
@@ -84,7 +84,26 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
           setClose();
         }}
         title={"Document Deletion Warning"}
-        description={"Warning: This action cannot be undone."}
+        description={
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+              Warning: This action cannot be undone.
+            </Typography>
+            <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+              You are about to delete this document permanently. Once deleted,
+              it cannot be recovered.
+            </Typography>
+            <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+              Are you sure you want to proceed?
+            </Typography>
+          </Box>
+        }
         confirmText={"Delete Document"}
         secondaryActionText="Cancel"
       />,
