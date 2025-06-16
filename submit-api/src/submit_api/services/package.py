@@ -100,7 +100,7 @@ class PackageService:
             PackageVersionService.deactivate_update_requests(original_package.id, session, original_package)
 
             PackageVersionService.create_email_queue(
-                original_package.id,
+                new_package.id,
                 MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
             )
 
