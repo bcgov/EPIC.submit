@@ -97,6 +97,13 @@ class PackageService:
 
             PackageVersionService.copy_contact_information(original_package, new_package)
 
+            # Set up the submitter information from the original package
+            if original_package.submitted_by:
+                # Get the user by auth_guid
+                user = User.get_by_guid(original_package.submitted_by)
+                if user:
+                    new_package.submitted_by = user.auth_guid
+
             PackageVersionService.deactivate_update_requests(original_package.id, session, original_package)
 
             PackageVersionService.create_email_queue(

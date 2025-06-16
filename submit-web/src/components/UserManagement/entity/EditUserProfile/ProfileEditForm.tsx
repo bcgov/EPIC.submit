@@ -140,14 +140,14 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
           }}
         >
           <Grid container direction="row" alignItems="center" spacing={1}>
-            <Grid item xs={10}>
+            <Grid item md={10}>
               <Typography variant="h2" sx={{ fontWeight: 400 }}>
                 {userData.full_name}
               </Typography>
             </Grid>
             <Grid
               item
-              xs={2}
+              md={2}
               sx={{
                 display: "flex",
                 alignItems: "center",
@@ -169,7 +169,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
             alignSelf: "stretch",
           }}
         >
-          <Grid item xs={4}>
+          <Grid item md={6} sm={12} xs={12}>
             <FormProvider {...methods}>
               <form onSubmit={handleSubmit(onSubmitHandler)}>
                 <ControlledTextField
@@ -236,6 +236,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                     fontSize: "12px",
                     color: "gray",
                     marginBottom: "40px",
+                    whiteSpace: "nowrap",
                   }}
                 >
                   * To change your email address, please contact{" "}
