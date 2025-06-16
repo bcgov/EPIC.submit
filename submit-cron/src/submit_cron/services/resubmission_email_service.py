@@ -17,7 +17,7 @@ class ResubmissionEmailService:
 
         web_url = current_app.config.get('WEB_URL')
         submission_path = current_app.config.get('SUBMISSION_PATH', 'submissions')
-        submission_link = f"{web_url}/{submission_path}/{package.id}"
+        submission_link = f"{web_url}/{submission_path}/projects/{package.account_project_id}/submission-packages/{package.id}"
 
         email_details = EmailDetails(
             template_name=MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
