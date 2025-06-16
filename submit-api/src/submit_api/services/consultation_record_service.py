@@ -80,13 +80,6 @@ class ConsultationRecordService:
         return item
 
     @classmethod
-    def _update_submissions_status(cls, item, status, session):
-        """Update the status of submissions."""
-        for submission in item.submissions:
-            submission.status = status
-            session.add(submission)
-
-    @classmethod
     def _prepare_update_request_data(cls, item):
         """Prepare the update request data."""
         item_review = SubmissionReview.get_active_review_by_item_id(item.id)
