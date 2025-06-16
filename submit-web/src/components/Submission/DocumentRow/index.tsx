@@ -21,17 +21,21 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { Unless } from "react-if";
+import { SubmissionPackage } from "@/models/Package";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
   submissionItem: SubmissionItem;
   staff?: boolean;
+  submissionPackage?: SubmissionPackage;
 }>;
 
 export default function DocumentRow({
   documentSubmission,
   submissionItem,
   staff = false,
+  submissionPackage,
 }: DocumentRowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -109,9 +113,11 @@ export default function DocumentRow({
           </Box>
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"10%"}>
-          <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
-            <ActionButton submission={documentSubmission} />
-          </PermissionsGate>
+          <Unless condition={submissionPackage?.completed_on}>
+            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+              <ActionButton submission={documentSubmission} />
+            </PermissionsGate>
+          </Unless>
         </SubmitTableCell>
       </SubmitTableRow>
       {expanded && (

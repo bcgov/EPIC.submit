@@ -8,7 +8,7 @@ import { useReplaceSubmussion } from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { isAxiosError } from "axios";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -52,7 +52,10 @@ export default function Row({
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
     } catch (e) {
-      notify.error("Failed to download document");
+      const errorMessage = isAxiosError(e)
+        ? (e.response?.data?.message ?? "Failed to download document")
+        : "Failed to download document";
+      notify.error(errorMessage);
     } finally {
       setPendingGetObject(false);
     }
@@ -70,16 +73,11 @@ export default function Row({
     try {
       setIsReplacingDocument(true);
       setIsPendingUpload(true);
-      const resolvedFolderPath =
-        currentSubmission.submitted_document.folder ===
-        S3_FOLDER.SUPPORTING_DOCUMENTS.value
-          ? `${folderPath}${S3_FOLDER.SUPPORTING_DOCUMENTS.value}`
-          : folderPath;
       const uploadedFile = await saveObject({
         file: fileToUpload,
         fileDetails: {
           filename: fileToUpload.name,
-          folder: resolvedFolderPath,
+          folder: folderPath,
         },
       });
 
@@ -96,7 +94,10 @@ export default function Row({
         },
       });
     } catch (e) {
-      notify.error("Failed to replace document");
+      const errorMessage = isAxiosError(e)
+        ? (e.response?.data?.message ?? "Failed to replace document")
+        : "Failed to replace document";
+      notify.error(errorMessage);
     } finally {
       setIsReplacingDocument(false);
       setIsPendingUpload(false);

@@ -90,6 +90,7 @@ export default function Rows({
         <PendingRow
           key={`pending-doc-row-${pendingDocument.id}`}
           pendingDocument={pendingDocument}
+          numColumns={5}
         />
       ))}
       <EmptyRow colSpan={4} />

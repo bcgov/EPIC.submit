@@ -1,5 +1,5 @@
 """Service for submission management."""
-from submit_api.models import Item as ItemModel
+from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import session_scope
 from submit_api.models.submission import Submission as SubmissionModel
 from submit_api.models.submission import SubmissionType
@@ -52,6 +52,7 @@ class SubmissionService:
         """Create a new submission."""
         submission = cls.get_submission_by_id(submission_id)
         cls._check_assigned_on_package(submission.item_id)
+        cls._validate_package_is_open(submission.id)
         submission_type = request_data.get("type")
         submission_creator = cls.make_submission_creator(submission_type)
         submission_data = request_data.get("data")
@@ -63,6 +64,7 @@ class SubmissionService:
         """Move an existing submission document."""
         submission = cls.get_submission_by_id(submission_id)
         cls._check_assigned_on_package(submission.item_id)
+        cls._validate_package_is_open(submission.id)
         submission_type = request_data.get("type")
         submission_creator = cls.make_submission_creator(submission_type)
         submission_data = request_data.get("data")
@@ -107,6 +109,7 @@ class SubmissionService:
         """Delete a submission."""
         submission = SubmissionModel.find_by_id(submission_id)
         cls._check_assigned_on_package(submission.item_id)
+        cls._validate_package_is_open(submission.id)
         if not submission:
             raise ValueError("Submission not found.")
         submission.delete()
@@ -118,6 +121,7 @@ class SubmissionService:
         submission = SubmissionModel.find_by_id(submission_id)
         if not submission:
             raise ValueError("Submission not found.")
+        cls._validate_package_is_open(submission.id)
         submission_creator = cls.make_submission_creator(submission.type.value)
         deleted_submission = submission_creator.soft_delete(submission_id)
         return deleted_submission
@@ -140,3 +144,26 @@ class SubmissionService:
         if not item:
             raise ValueError("Item not found.")
         authorization.check_assigned_on_package(item.package_id)
+
+    @classmethod
+    def get_package_by_submission_id(cls, submission_id):
+        """Get package by submission id."""
+        submission = SubmissionModel.find_by_id(submission_id)
+        if not submission:
+            raise ValueError("Submission not found.")
+        item = ItemModel.find_by_id(submission.item_id)
+        if not item:
+            raise ValueError("Item not found.")
+        submission_package = PackageModel.find_by_id(item.package_id)
+        if not submission_package:
+            raise ValueError("Package not found.")
+        return submission_package
+
+    @classmethod
+    def _validate_package_is_open(cls, submission_id, submission_package=None):
+        """Validate if the package is open."""
+        if not submission_package:
+            submission_package = cls.get_package_by_submission_id(submission_id)
+        if submission_package.completed_on:
+            raise ValueError("Package is already completed.")
+        return submission_package

@@ -24,7 +24,7 @@ export const IEMUpdateForm = () => {
     <SubmissionFormContainer>
       <Box width={"100%"}>
         <DocumentsTable
-          folder={S3_FOLDER.IEMS.value}
+          folder={S3_FOLDER.SUPPORTING_DOCUMENTS.value}
           setIsPendingUpload={setIsPendingUpload}
         />
       </Box>
