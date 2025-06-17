@@ -73,7 +73,24 @@ const FileOrganizeModal = ({
   return (
     <Box sx={{ ...modalStyle, width: "450px" }}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <DialogTitle>Move "{submission.submitted_document.name}"</DialogTitle>
+        <DialogTitle>
+          Move "
+          <Box
+            component="span"
+            sx={{
+              maxWidth: 280,
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              display: "inline-block",
+              verticalAlign: "bottom",
+            }}
+            title={submission.submitted_document.name}
+          >
+            {submission.submitted_document.name}
+          </Box>
+          "
+        </DialogTitle>
         <IconButton onClick={setClose}>
           <CloseIcon />
         </IconButton>

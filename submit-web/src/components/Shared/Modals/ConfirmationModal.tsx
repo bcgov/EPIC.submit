@@ -15,7 +15,7 @@ import CloseIcon from "@mui/icons-material/Close";
 
 type ConfirmationModalProps = {
   title: string;
-  description: string;
+  description: string | React.ReactNode;
   onConfirm: () => void;
   confirmText?: string;
   // Either show cancel or secondary action, but not both
@@ -65,9 +65,13 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       </Box>
       <Divider />
       <DialogContent>
-        <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
-          {description}
-        </Typography>
+        {typeof description === "string" ? (
+          <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+            {description}
+          </Typography>
+        ) : (
+          description
+        )}
       </DialogContent>
       <Divider />
       <DialogActions sx={{ padding: "1rem" }}>

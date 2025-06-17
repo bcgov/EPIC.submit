@@ -122,6 +122,7 @@ export default function StaffSubmissionItemTableRow({
               key={`doc-row-${submission.id}`}
               documentSubmission={submission}
               staff
+              submissionPackage={submissionPackage}
             />
           ))}
       </When>

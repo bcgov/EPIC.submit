@@ -1,6 +1,7 @@
 import { Note } from "@/components/SubmissionItem/Note";
 import { Submission, SubmissionItemStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
+import { User } from "./User";
 
 type SubmissionItemMethod = "FORM_SUBMISSION" | "DOCUMENT_UPLOAD";
 export const SUBMISSION_ITEM_METHOD: Record<
@@ -79,4 +80,5 @@ export type InternalStaffDocument = {
   item_id: number;
   created_by: string;
   created_date: string;
+  created_by_user: User;
 };

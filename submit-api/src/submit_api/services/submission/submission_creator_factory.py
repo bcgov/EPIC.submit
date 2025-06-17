@@ -135,6 +135,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 )
                 raise BadRequestError(f"Cannot replace a document with status {status}.")
 
+            request_data['folder'] = submission.submitted_document.folder
             submitted_document = self._create_submitted_document(session, request_data)
             new_submission = self._create_submission(
                 session,
