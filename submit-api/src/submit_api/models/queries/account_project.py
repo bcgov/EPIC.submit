@@ -199,7 +199,9 @@ class ProjectQueries:
         updated_value = NonCanonicalPackageStatus.UPDATED.value
 
         canonical_statuses = [
-            status.value for status in statuses
+            PackageStatus.SUBMITTED.value if status.value == PackageStatus.NEW_SUBMISSION.value
+            else status.value
+            for status in statuses
             if isinstance(status, PackageStatus) and status.value != revision_required_value
             and status.value != revision_requested_value
         ]
