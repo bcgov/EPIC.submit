@@ -25,6 +25,15 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "New Submission",
   },
+  NEW: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${EAOColors.DecisionDark}`,
+      background: EAOColors.DecisionLight,
+      height: "24px",
+    },
+    label: "New",
+  },
   UNDER_REVIEW: {
     sx: {
       borderRadius: 1,

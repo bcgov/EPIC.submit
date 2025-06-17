@@ -106,7 +106,7 @@ def get_item_status(status, user_type):
         return status
 
     package_status_mapping = {
-        ItemStatus.NEW_SUBMISSION.value: {UserType.PROPONENT: "", UserType.STAFF: ""},
+        ItemStatus.NEW.value: {UserType.PROPONENT: "", UserType.STAFF: ""},
         ItemStatus.PARTIALLY_COMPLETED.value: {
             UserType.PROPONENT: ItemStatus.PARTIALLY_COMPLETED.value,
             UserType.STAFF: ''

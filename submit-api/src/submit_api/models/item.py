@@ -24,7 +24,7 @@ class Item(BaseModel):
     sort_order = Column(db.Integer, nullable=True, default=0)
     type = db.relationship('ItemType', foreign_keys=[type_id], lazy='joined')
     status = Column(Enum(ItemStatus), nullable=False,
-                    default=ItemStatus.NEW_SUBMISSION.value)
+                    default=ItemStatus.NEW.value)
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String(255), nullable=True)
     version = Column(db.Integer, nullable=False, default=1)

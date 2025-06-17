@@ -214,8 +214,8 @@ def get_package_status(status, user_type, version_obj):
 
     version = version_obj.get('version') if version_obj else 1
     package_status_mapping = {
-        PackageStatus.NEW_SUBMISSION.value: {
-            UserType.PROPONENT: PackageStatus.NEW_SUBMISSION.value if version == 1 else '',
+        PackageStatus.NEW.value: {
+            UserType.PROPONENT: PackageStatus.NEW.value if version == 1 else '',
             UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
         },
         PackageStatus.PARTIALLY_COMPLETED.value: {
