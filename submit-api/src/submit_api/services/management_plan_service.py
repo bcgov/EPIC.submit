@@ -178,7 +178,7 @@ class ManagementPlanService:
             f"Retrieving submitted_to_eao_for for package {package.id}.")
         package_metadata = package.meta
         condition = package_metadata.json.get(
-            PackageMetadataFields.CONDITION.value)
+            PackageMetadataFields.MAIN_CONDITION.value)
         if not condition:
             raise ResourceNotFoundError(
                 f"Condition not found for package {package.id}.")

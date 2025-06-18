@@ -50,8 +50,8 @@ class PackageVersionService:
         session.add(new_package)
 
         new_metadata = {
-            PackageMetadataFields.CONDITION.value: current_package.meta.json.get(
-                PackageMetadataFields.CONDITION.value, None),
+            PackageMetadataFields.MAIN_CONDITION.value: current_package.meta.json.get(
+                PackageMetadataFields.MAIN_CONDITION.value, None),
             PackageMetadataFields.SUPPORTING_CONDITIONS.value: current_package.meta.json.get(
                 PackageMetadataFields.SUPPORTING_CONDITIONS.value, None),
         }
