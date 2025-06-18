@@ -51,8 +51,10 @@ export const ManagementPlanSubmissionStaffView = () => {
 
   return (
     <SubmissionFormContainer>
-      <FormFieldSection formData={formData} />
-      <ReviewSection />
+      <div>
+        <FormFieldSection formData={formData} />
+        <ReviewSection />
+      </div>
     </SubmissionFormContainer>
   );
 };

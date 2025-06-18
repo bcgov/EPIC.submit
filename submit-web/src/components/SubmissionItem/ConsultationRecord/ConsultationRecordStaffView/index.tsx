@@ -9,6 +9,8 @@ import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { Grid } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
 
 export const ConsultationRecordStaffView = () => {
   const {
@@ -68,13 +70,15 @@ export const ConsultationRecordStaffView = () => {
 
   return (
     <SubmissionFormContainer>
-      <FormFieldSection
-        formData={formData}
-        partiesList={partiesList}
-        submissionId={submissionId}
-        packageType={submissionPackage.type.name}
-      />
-      <ReviewSection />
+      <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
+        <FormFieldSection
+          formData={formData}
+          partiesList={partiesList}
+          submissionId={submissionId}
+          packageType={submissionPackage.type.name}
+        />
+        <ReviewSection />
+      </Grid>
     </SubmissionFormContainer>
   );
 };

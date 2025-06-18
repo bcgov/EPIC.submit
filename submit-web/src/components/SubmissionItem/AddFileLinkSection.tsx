@@ -63,14 +63,14 @@ export default function AddFileLinkSection({
           <ControlledTextField
             name="link"
             sx={{
-              width: "500px",
+              width: "50%",
             }}
             placeholder="Paste link here"
           />
           <ControlledTextField
             name="documentName"
             sx={{
-              width: "230px",
+              width: "40%",
             }}
             placeholder="Document name here"
           />
@@ -79,6 +79,9 @@ export default function AddFileLinkSection({
             variant="contained"
             color="secondary"
             loading={addingLink}
+            sx={{
+              width: "10%",
+            }}
           >
             Save Link
           </LoadingButton>
