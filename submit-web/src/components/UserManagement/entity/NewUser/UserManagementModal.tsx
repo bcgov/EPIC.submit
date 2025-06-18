@@ -11,6 +11,7 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import CloseIcon from "@mui/icons-material/Close";
 import { modalStyle } from "@/components/Shared/Modals/constants";
+import { WarningAmber } from "@mui/icons-material";
 
 type UserManagementModalProps = {
   title: string;
@@ -41,9 +42,12 @@ const UserManagementModal = ({
           sx={{
             fontWeight: 700,
             fontSize: "1.5rem",
-            p: 3,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
           }}
         >
+          <WarningAmber color="warning" sx={{ fontSize: "2rem" }} />
           {title}
         </DialogTitle>
         <IconButton onClick={onClose} sx={{ mr: 2 }}>

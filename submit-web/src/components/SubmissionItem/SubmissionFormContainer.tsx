@@ -61,7 +61,7 @@ export const SubmissionFormContainer = ({
           </CardInnerBox>
           <Box
             sx={{
-              p: BCDesignTokens.layoutPaddingMedium,
+              pl: BCDesignTokens.layoutPaddingMedium,
               pt: BCDesignTokens.layoutPaddingSmall,
               display: "flex",
               flexDirection: "column",
