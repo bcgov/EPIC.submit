@@ -27,7 +27,6 @@ class SubmissionStatus(enum.Enum):
     REJECTED = 'REJECTED'
     APPROVED = 'APPROVED'
     PENDING = 'PENDING'
-    PENDING_REPLACEMENT = 'PENDING_REPLACEMENT'
 
 
 class Submission(BaseModel):

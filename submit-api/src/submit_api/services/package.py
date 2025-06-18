@@ -286,14 +286,16 @@ class PackageService:
                 session.add(submission)
 
     @staticmethod
-    def _deactivate_pending_replacement_submissions(package, session):
-        """Deactivate pending replacement submissions."""
+    def _deactivate_replaced_submissions(package, session):
+        """Deactivate replaced submissions."""
         current_app.logger.info(f"Deactivating pending replacement submissions for package {package.id}")
         submissions = [submission for item in package.items for submission in item.submissions]
+        pending_submissions = set(submission.root_submission_id for item in package.items for submission
+                                  in item.submissions if submission.status == SubmissionStatus.PENDING)
+
         for submission in submissions:
-            if submission.status == SubmissionStatus.PENDING_REPLACEMENT:
+            if submission.status != SubmissionStatus.PENDING and submission.root_submission_id in pending_submissions:
                 submission.active = False
-                submission.status = SubmissionStatus.SUBMITTED.value
                 session.add(submission)
 
     @staticmethod
