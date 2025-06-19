@@ -39,9 +39,10 @@ import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";
 import { GreyBox } from "@/components/Shared/GreyBox";
 import { AppConfig } from "@/utils/config";
+import WarningBox from "@/components/Shared/WarningBox";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -70,8 +71,21 @@ export default function SubmissionPage() {
   const isLatestApprovedPackageVersion = packageVersions?.find(
     (packageVersion) =>
       packageVersion.is_approved &&
-      packageVersion.package_id === submissionPackageId,
+      packageVersion.package_id === submissionPackageId
   );
+
+  const latestApprovedVersion = Math.max(
+    ...(packageVersions
+      ?.filter((pv) => pv.is_approved)
+      .map((pv) => pv.version) || [0])
+  );
+
+  const isNewerThanLastApprovedButNotApproved = Boolean(
+    latestApprovedVersion > 0 &&
+      !submissionPackage?.version?.is_approved &&
+      submissionPackage?.version?.version > latestApprovedVersion
+  );
+
   const {
     mutate: updateStateSubmissionPackage,
     isPending: isSubmittingPackage,
@@ -100,7 +114,7 @@ export default function SubmissionPage() {
           !isSubmissionItemReadyToSubmit({
             submissionItem: item,
             submissionPackage: submissionPackage,
-          }),
+          })
       )
     ) {
       setIsValidating(true);
@@ -123,26 +137,26 @@ export default function SubmissionPage() {
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
 
   const isFirstSubmission = submissionPackage.status.includes(
-    PACKAGE_STATUS.SUBMITTED.value,
+    PACKAGE_STATUS.SUBMITTED.value
   );
 
   const isRevisionRequired = submissionPackage.update_requests.some(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
       updateRequest.active &&
-      updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+      updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value
   );
 
   const pendingRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-      updateRequest.active,
+      updateRequest.active
   );
 
   const openRequests = submissionPackage.update_requests.filter(
     (updateRequest) =>
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-      updateRequest.active,
+      updateRequest.active
   );
 
   const isSubmitDisabled =
@@ -197,9 +211,11 @@ export default function SubmissionPage() {
                   alignItems: "center",
                   justifyContent: "space-between",
 
-                  mb: isLatestApprovedPackageVersion
-                    ? 0
-                    : BCDesignTokens.layoutMarginXlarge,
+                  mb:
+                    isLatestApprovedPackageVersion ||
+                    isNewerThanLastApprovedButNotApproved
+                      ? 0
+                      : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={submissionPackage.name} />
@@ -237,6 +253,22 @@ export default function SubmissionPage() {
                     implementation.
                   </Typography>
                 </SuccessBox>
+              </When>
+              <When condition={isNewerThanLastApprovedButNotApproved}>
+                <WarningBox
+                  sx={{
+                    mb: BCDesignTokens.layoutMarginMedium,
+                    py: BCDesignTokens.layoutPaddingSmall,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    color={BCDesignTokens.typographyColorPrimary}
+                  >
+                    Please Note: This submission is still pending EAO review.
+                    Until finalized, it is not considered enforceable.
+                  </Typography>
+                </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
               {submissionPackage?.update_requests.length > 0 && (

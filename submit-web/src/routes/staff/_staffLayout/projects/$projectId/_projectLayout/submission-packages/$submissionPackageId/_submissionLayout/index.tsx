@@ -27,8 +27,10 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import { SuccessBox } from "@/components/Shared/SuccessBox";
 import { When } from "react-if";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
+import WarningBox from "@/components/Shared/WarningBox";
+
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
 )({
   component: SubmissionPage,
 });
@@ -39,7 +41,7 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey,
+      .queryKey
   );
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
@@ -59,7 +61,19 @@ export default function SubmissionPage() {
   const isLatestApprovedPackageVersion = packageVersions?.find(
     (packageVersion) =>
       packageVersion.is_approved &&
-      packageVersion.package_id === submissionPackageId,
+      packageVersion.package_id === submissionPackageId
+  );
+
+  const latestApprovedVersion = Math.max(
+    ...(packageVersions
+      ?.filter((pv) => pv.is_approved)
+      .map((pv) => pv.version) || [0])
+  );
+
+  const isNewerThanLastApprovedButNotApproved = Boolean(
+    latestApprovedVersion > 0 &&
+      !submissionPackage?.version?.is_approved &&
+      submissionPackage?.version?.version > latestApprovedVersion
   );
 
   const navigate = useNavigate();
@@ -120,9 +134,11 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
-                  mb: isLatestApprovedPackageVersion
-                    ? 0
-                    : BCDesignTokens.layoutMarginXlarge,
+                  mb:
+                    isLatestApprovedPackageVersion ||
+                    isNewerThanLastApprovedButNotApproved
+                      ? 0
+                      : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={submissionPackage?.name} />
@@ -160,6 +176,22 @@ export default function SubmissionPage() {
                     implementation.
                   </Typography>
                 </SuccessBox>
+              </When>
+              <When condition={isNewerThanLastApprovedButNotApproved}>
+                <WarningBox
+                  sx={{
+                    mb: BCDesignTokens.layoutMarginMedium,
+                    py: BCDesignTokens.layoutPaddingSmall,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    color={BCDesignTokens.typographyColorPrimary}
+                  >
+                    Please Note: This submission is still pending EAO review.
+                    Until finalized, it is not considered enforceable.
+                  </Typography>
+                </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
               <Box
