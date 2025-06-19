@@ -137,7 +137,7 @@ export default function ProponentSubmissionItemTableRow({
               submissionPackage.update_requests.filter(
                 (updateRequest) =>
                   updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value
-              ).length === 0
+              ).length > 0
             }
           >
             <Typography
