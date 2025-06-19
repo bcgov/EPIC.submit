@@ -6,6 +6,7 @@ from submit_api.models.account_user import AccountUser as AccountUserModel
 from submit_api.utils.constants import MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.services.account_user_service import AccountUserService
+from submit_api.enums.role import RoleEnum
 
 
 class ResubmissionEmailService:
@@ -32,7 +33,7 @@ class ResubmissionEmailService:
             role = user_data.get('role')
             if (role and 
                 role.get('active') and 
-                role.get('role', {}).get('role_name') == "PROJECT_ADMIN"):
+                role.get('role', {}).get('role_name') == RoleEnum.PROJECT_ADMIN.value):
                 project_admin_users.append(user_data)
   
         return project_admin_users
