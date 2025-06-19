@@ -2,37 +2,41 @@ from flask import current_app
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
 from submit_api.models.package import Package as PackageModel
-from submit_api.models.user_role import UserRole as UserRoleModel
-from submit_api.models.role import Role as RoleModel
 from submit_api.models.account_user import AccountUser as AccountUserModel
-from submit_api.enums.role import RoleEnum
 from submit_api.utils.constants import MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
+from submit_api.models.account_project import AccountProject as AccountProjectModel
+from submit_api.services.account_user_service import AccountUserService
 
 
 class ResubmissionEmailService:
     """Handles sending email notifications for resubmission requests."""
 
     @classmethod
-    def get_project_admin_users(cls, package: PackageModel) -> list[AccountUserModel]:
+    def get_project_admin_users(cls, package: PackageModel) -> list[dict]:
         """Get all PROJECT_ADMIN users for the package's account project."""
-        account_project_id = package.account_project_id
-        
-        project_admin_role = RoleModel.get_by_name(RoleEnum.PROJECT_ADMIN.value)
-        if not project_admin_role:
-            raise BadRequestError("PROJECT_ADMIN role not found")
-        
-        project_admin_users = (
-            UserRoleModel.query
-            .join(UserRoleModel.account_user)
-            .filter(
-                UserRoleModel.role_id == project_admin_role.id,
-                UserRoleModel.account_project_id == account_project_id,
-                UserRoleModel.active == True
-            )
-            .all()
+        # Get the account_id from the package's account_project
+        account_project = AccountProjectModel.get_by_id(package.account_project_id)
+        if not account_project:
+            raise BadRequestError("Account project not found")
+
+        # Get all users for this account with roles included
+        users_data = AccountUserService.get_users_by_account(
+            account_project.account_id, 
+            include_roles=True, 
+            include_invitees=False
         )
-        
-        return [user_role.account_user for user_role in project_admin_users]
+
+        # Filter for PROJECT_ADMIN users
+        project_admin_users = []
+        for user_data in users_data:
+            role = user_data.get('role')
+            if (role and 
+                role.get('active') and 
+                role.get('role', {}).get('role_name') == "PROJECT_ADMIN"):
+                project_admin_users.append(user_data)
+  
+        return project_admin_users
+
 
     @classmethod
     def prepare_resubmission_request_email(cls, package: PackageModel, account_user: AccountUserModel) -> EmailDetails:
