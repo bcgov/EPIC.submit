@@ -6,6 +6,7 @@ from submit_api.models import PackageVersion as PackageVersionModel
 from submit_api.models import PackageMetadata as PackageMetadataModel
 from submit_api.models import PackageItemType as PackageItemTypeModel
 from submit_api.models import Item as ItemModel
+from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.update_request import UpdateRequestStatus
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
@@ -48,10 +49,11 @@ class PackageVersionService:
         new_package.version_id = new_version.id
         session.add(new_package)
 
-        # Copy metadata
         new_metadata = {
-            "condition": current_package.meta.json.get("condition", None),
-            "supporting_conditions": current_package.meta.json.get("supporting_conditions", None),
+            PackageMetadataFields.MAIN_CONDITION.value: current_package.meta.json.get(
+                PackageMetadataFields.MAIN_CONDITION.value, None),
+            PackageMetadataFields.SUPPORTING_CONDITIONS.value: current_package.meta.json.get(
+                PackageMetadataFields.SUPPORTING_CONDITIONS.value, None),
         }
         cls._create_package_metadata(session, new_package.id, new_metadata)
 
