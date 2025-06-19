@@ -44,7 +44,7 @@ export default function InternalDocumentSection() {
   };
 
   return (
-    <Grid item container>
+    <Grid container>
       <Grid item xs={12}>
         <BarBlueTitle title="EAO Internal Documents" fullWidth bold={false} />
         <Typography

@@ -8,6 +8,8 @@ import FormFieldSection from "./FormFieldSection";
 import ReviewSection from "./ReviewSection";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Grid } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
 
 export const ManagementPlanSubmissionStaffView = () => {
   const { projectId: accountProjectIdParam, submissionId: submissionItemId } =
@@ -51,8 +53,10 @@ export const ManagementPlanSubmissionStaffView = () => {
 
   return (
     <SubmissionFormContainer>
-      <FormFieldSection formData={formData} />
-      <ReviewSection />
+      <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
+        <FormFieldSection formData={formData} />
+        <ReviewSection />
+      </Grid>
     </SubmissionFormContainer>
   );
 };
