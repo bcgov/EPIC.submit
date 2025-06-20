@@ -49,7 +49,7 @@ export const useCreateSubmissionPackage = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage
+        submissionPackage,
       );
       queryClient.invalidateQueries({
         queryKey: [
@@ -76,7 +76,7 @@ export const useCreateNewPackageVersion = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage
+        submissionPackage,
       );
       queryClient.invalidateQueries({
         queryKey: [
@@ -228,12 +228,8 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
-      queryClient.invalidateQueries({
-        queryKey: [
-          QUERY_KEY.ACTIVITY_LOGS,
-          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
-          submissionPackage.id,
-        ],
+      queryClient.refetchQueries({
+        queryKey: [QUERY_KEY.ACTIVITY_LOGS],
       });
       if (options?.onSuccess) {
         options.onSuccess();
@@ -290,7 +286,7 @@ export const useCreatePackageUpdateRequest = ({
 
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-        submissionPackage
+        submissionPackage,
       );
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
@@ -337,7 +333,7 @@ export const useAcceptUpdateRequest = ({
 
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-        submissionPackage
+        submissionPackage,
       );
     },
   });
@@ -362,7 +358,7 @@ export const useCreatePackageUpdateRequesNote = ({
 
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-        submissionPackage
+        submissionPackage,
       );
     },
   });
