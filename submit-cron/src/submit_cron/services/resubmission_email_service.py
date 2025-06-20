@@ -16,13 +16,13 @@ class ResubmissionEmailService:
     def get_project_admin_users(cls, package: PackageModel) -> list[dict]:
         """Get all PROJECT_ADMIN users for the package's account project."""
         # Get the account_id from the package's account_project
-        account_project = AccountProjectModel.get_by_id(package.account_project_id)
+        account_project = AccountProjectModel.get_by_account_id(package.account_project_id)
         if not account_project:
             raise BadRequestError("Account project not found")
 
         # Get all users for this account with roles included
         users_data = AccountUserService.get_users_by_account(
-            account_project.account_id, 
+            account_project.account_id,
             include_roles=True, 
             include_invitees=False
         )
@@ -35,7 +35,7 @@ class ResubmissionEmailService:
                 role.get('active') and 
                 role.get('role', {}).get('role_name') == RoleEnum.PROJECT_ADMIN.value):
                 project_admin_users.append(user_data)
-  
+
         return project_admin_users
 
 
