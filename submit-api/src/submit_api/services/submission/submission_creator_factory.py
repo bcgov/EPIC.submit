@@ -127,7 +127,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             status = submission.status
             allowed_statuses = [SubmissionStatus.SUBMITTED,
                                 SubmissionStatus.REJECTED,
-                                SubmissionStatus.PENDING, SubmissionStatus.PENDING_REPLACEMENT]
+                                SubmissionStatus.PENDING]
             if status not in allowed_statuses:
                 current_app.logger.warning(
                     "Attempted to replace a document with non-replaceable status '%s' for submission_id: %s.",
@@ -155,11 +155,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 current_app.logger.info("Marking submission_id: %s as deleted and inactive.", submission_id)
                 submission.deleted = True
                 submission.active = False
-            else:
-                current_app.logger.info("Setting status of submission_id: %s to PENDING_REPLACEMENT.", submission_id)
-                submission.status = SubmissionStatus.PENDING_REPLACEMENT
+                session.add(submission)
 
-            session.add(submission)
             return new_submission
 
     @staticmethod
