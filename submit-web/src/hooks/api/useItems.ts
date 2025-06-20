@@ -8,7 +8,6 @@ import {
 } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 import { SubmissionReview } from "@/models/SubmissionReview";
-import { ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
 
 type GetSubmissionItemByIdParams = {
   itemId: number;
