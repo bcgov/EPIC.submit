@@ -8,6 +8,8 @@ import {
 import { Options } from "./types";
 import { PackageVersion, SubmissionPackage } from "@/models/Package";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
+import { ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
+import { USER_TYPE } from "@/models/User";
 
 const createSubmissionPackage = ({
   accountProjectId,
@@ -48,7 +50,7 @@ export const useCreateSubmissionPackage = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage,
+        submissionPackage
       );
       queryClient.invalidateQueries({
         queryKey: [
@@ -75,7 +77,7 @@ export const useCreateNewPackageVersion = (options?: Options) => {
       }
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
-        submissionPackage,
+        submissionPackage
       );
       queryClient.invalidateQueries({
         queryKey: [
@@ -91,6 +93,14 @@ export const useCreateNewPackageVersion = (options?: Options) => {
         queryKey: [
           QUERY_KEY.PACKAGE_VERSIONS,
           submissionPackage.version.original_package_id,
+        ],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.ACTIVITY_LOGS,
+          submissionPackage.version.original_package_id,
+          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
         ],
       });
     },
@@ -285,7 +295,7 @@ export const useCreatePackageUpdateRequest = ({
 
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-        submissionPackage,
+        submissionPackage
       );
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
@@ -332,7 +342,7 @@ export const useAcceptUpdateRequest = ({
 
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-        submissionPackage,
+        submissionPackage
       );
     },
   });
@@ -357,7 +367,7 @@ export const useCreatePackageUpdateRequesNote = ({
 
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-        submissionPackage,
+        submissionPackage
       );
     },
   });
