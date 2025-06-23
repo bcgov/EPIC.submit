@@ -103,7 +103,7 @@ class PackageService:
                 new_package.id,
                 MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
             )
-         
+
             ActivityLogService.log_activity(
                 entity_id=original_package.version.original_package_id,
                 action=ActivityActionType.RESUBMISSION_INVITATION.value,
