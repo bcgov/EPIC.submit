@@ -23,7 +23,8 @@ from faker import Faker
 from flask import g
 
 from src.submit_api.config import get_named_config
-from submit_api.models import db
+from submit_api.enums.item_status import ItemStatus
+from submit_api.models import db, Item, ItemType
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
 from submit_api.models.invitations import InvitationStatus
@@ -134,3 +135,49 @@ def factory_invitation_model(account_id, status=InvitationStatus.PENDING.value, 
     db.session.add(invitation)
     db.session.commit()
     return invitation
+
+
+def factory_item_type_model(name=None, code=None):
+    """Factory item type model."""
+    item_type = ItemType(
+        name=name or fake.word().capitalize(),
+        code=code or fake.lexify(text="???")
+    )
+    db.session.add(item_type)
+    db.session.commit()
+    return item_type
+
+
+def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=None):
+    """Factory item model using hardcoded item_type_id."""
+    package = package or factory_package_model()
+
+    item = Item(
+        package_id=package.id,
+        type_id=item_type_id,  # e.g., 1 = Contact Information Form
+        status=ItemStatus[status],
+        submitted_by=submitted_by or fake.email()
+    )
+    db.session.add(item)
+    db.session.commit()
+    return item
+
+
+def factory_package_model(account_project=None, name=None, status=None, package_type_id=1):
+    """Factory package model using hardcoded package_type_id."""
+    from submit_api.models.package import Package, PackageStatus
+
+    if not account_project:
+        account = factory_account_model()
+        project = factory_project_model()
+        account_project = factory_account_project_model(account.id, project.id)
+
+    package = Package(
+        account_project_id=account_project.id,
+        name=name or fake.sentence(nb_words=3),
+        type_id=package_type_id,  # Hardcoded ID from seeded data (e.g., 1 = "Management Plan")
+        status=status or [PackageStatus.NEW.value]
+    )
+    db.session.add(package)
+    db.session.commit()
+    return package

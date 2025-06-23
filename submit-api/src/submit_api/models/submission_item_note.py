@@ -5,7 +5,7 @@ Manages the submission item notes.
 
 from __future__ import annotations
 
-from sqlalchemy import Column
+from sqlalchemy import Column, Text
 
 from .base_model import BaseModel
 from .db import db
@@ -17,7 +17,7 @@ class SubmissionItemNote(BaseModel):
     __tablename__ = "submission_item_notes"
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    note = Column(db.String(255), nullable=False)
+    note = Column(Text, nullable=False)
     item_id = Column(db.Integer, db.ForeignKey("items.id"), nullable=False)
     created_by = Column(db.String, db.ForeignKey("users.auth_guid"), nullable=True)
     created_by_user = db.relationship("User", foreign_keys=[created_by], lazy="joined")

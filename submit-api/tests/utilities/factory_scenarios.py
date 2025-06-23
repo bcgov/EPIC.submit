@@ -52,7 +52,8 @@ class TestJwtClaims(dict, Enum):
                 'view_private_engagements',
                 'create_admin_user',
                 'view_all_surveys',
-                'eao_view'
+                'eao_view',
+                'eao_create'
             ]
         },
         'resource_access': {
