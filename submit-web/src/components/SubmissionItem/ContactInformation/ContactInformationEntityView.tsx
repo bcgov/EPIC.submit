@@ -18,6 +18,7 @@ import { SubmissionFormContainer } from "../SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
+import { validatePhoneNumber } from "./utils";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -28,7 +29,12 @@ const contactInformationSchema = yup.object().shape({
     extensionNumber: yup.string(),
     workPhoneNumber: yup
       .string()
-      .required("Please enter a phone number in this format: (xxx) xxx-xxxx."),
+      .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+      .test(
+        "phone-complete",
+        "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
+        validatePhoneNumber
+      ),
     workEmailAddress: yup
       .string()
       .email("Invalid email")
@@ -42,7 +48,12 @@ const contactInformationSchema = yup.object().shape({
     extensionNumber: yup.string(),
     workPhoneNumber: yup
       .string()
-      .required("Please enter a phone number in this format: (xxx) xxx-xxxx."),
+      .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+      .test(
+        "phone-complete",
+        "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
+        validatePhoneNumber
+      ),
     workEmailAddress: yup
       .string()
       .email("Invalid email")
@@ -120,6 +131,7 @@ export const ContactInformationEntityView = () => {
       notify.error("Failed to load submission item");
       return;
     }
+
     const request = {
       type: SUBMISSION_TYPE.FORM,
       data: formData,
