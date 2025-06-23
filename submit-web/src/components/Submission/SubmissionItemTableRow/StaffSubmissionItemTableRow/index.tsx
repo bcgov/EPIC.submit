@@ -9,7 +9,7 @@ import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
+import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
@@ -48,7 +48,7 @@ export default function StaffSubmissionItemTableRow({
   }, [item.type.name]);
 
   const hasDocument =
-    item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+    item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD;
 
   const actionLabel = hasDocument ? "Review" : "View";
 

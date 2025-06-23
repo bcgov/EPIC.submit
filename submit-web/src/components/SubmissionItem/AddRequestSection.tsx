@@ -2,7 +2,7 @@ import { Box, Checkbox, FormControlLabel, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
 import { SubmissionPackage } from "@/models/Package";
-import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
+import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import ControlledCheckboxGroup from "@/components/Shared/controlled/ControlledCheckboxGroup";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,7 +33,7 @@ export default function AddRequestSection({
     if (!submissionPackage?.items) return [];
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+        item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD,
     );
   }, [submissionPackage?.items]);
 

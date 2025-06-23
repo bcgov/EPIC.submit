@@ -131,6 +131,7 @@ export const ConsultationRecordProponentView = () => {
       to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
+
   const { mutate: callSaveSubmission, isPending: isCreatingSubmissionPending } =
     useSaveSubmission({
       accountProjectId,

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from "react";
 import {
-  SUBMISSION_ITEM_METHOD,
+  SubmissionItemMethod,
   SUBMISSION_ITEM_MODAL_CONTENT,
   SUBMISSION_ITEM_TYPE,
   SubmissionItem,
@@ -42,7 +42,7 @@ export default function SubmissionItemReviewConfirmation({
   const { userType } = useAccount();
   const { name: itemType, submission_method } = submissionItem.type;
   const hasDocument =
-    submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+    submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD;
   const { package_id: packageId } = submissionItem;
   const {
     setOpen: setOpenModal,
