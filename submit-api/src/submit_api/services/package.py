@@ -103,7 +103,6 @@ class PackageService:
                 new_package.id,
                 MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
             )
-            
             # Set up the submitter information from the original package
             if original_package.submitted_by:
                 # Get the user by auth_guid
