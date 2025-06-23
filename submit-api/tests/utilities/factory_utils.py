@@ -137,7 +137,6 @@ def factory_invitation_model(account_id, status=InvitationStatus.PENDING.value, 
     return invitation
 
 
-
 def factory_item_type_model(name=None, code=None):
     """Factory item type model."""
     item_type = ItemType(
@@ -162,6 +161,7 @@ def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=
     db.session.add(item)
     db.session.commit()
     return item
+
 
 def factory_package_model(account_project=None, name=None, status=None, package_type_id=1):
     """Factory package model using hardcoded package_type_id."""
