@@ -54,3 +54,4 @@ class ActivityActionType(enum.Enum):
     IEM_REVIEW_REJECTED = "IEM Review Rejected"
     IEM_REVIEW_FAILED = "IEM Review Failed"
     IEM_REVIEWED = "IEM Reviewed"
+    RESUBMISSION_INVITATION = "Resubmission Invitation"
