@@ -8,7 +8,6 @@ import {
 } from "@tanstack/react-query";
 import { QUERY_KEY } from "./constants";
 import { SubmissionReview } from "@/models/SubmissionReview";
-import { ACTIVITY_LOG_ENTITY_TYPE } from "@/models/ActivityLog";
 
 type GetSubmissionItemByIdParams = {
   itemId: number;
@@ -82,7 +81,7 @@ type SaveReviewRequestBody = {
 };
 export const saveSubmissionReview = (
   itemId: number,
-  data: SaveReviewRequestBody
+  data: SaveReviewRequestBody,
 ) => {
   return submitRequest<SubmissionReview>({
     url: `/staff/items/${itemId}/review`,
@@ -122,11 +121,7 @@ export const useSaveSubmissionReview = ({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
       queryClient.invalidateQueries({
-        queryKey: [
-          QUERY_KEY.ACTIVITY_LOGS,
-          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
-          packageId,
-        ],
+        queryKey: [QUERY_KEY.ACTIVITY_LOGS],
       });
     },
   });
