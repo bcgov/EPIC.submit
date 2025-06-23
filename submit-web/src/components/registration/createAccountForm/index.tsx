@@ -9,7 +9,15 @@ import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { Save } from "@mui/icons-material";
-import { CircularProgress, Grid, Typography, Checkbox, Box, FormHelperText, Tooltip } from "@mui/material";
+import {
+  CircularProgress,
+  Grid,
+  Typography,
+  Checkbox,
+  Box,
+  FormHelperText,
+  Tooltip,
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountForm } from "../formStore";
 import { CREATE_ACCOUNT_STEPS } from "../constants";
@@ -28,12 +36,20 @@ import { useCallback, useEffect } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
 import { useTermsStore } from "@/store/termsStore";
+import { validatePhoneNumber } from "@/components/SubmissionItem/ContactInformation/utils";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
   surname: yup.string().required("Please enter your surname."),
   position: yup.string().required("Please enter your position."),
-  phone: yup.string().required("Please enter your phone number."),
+  phone: yup
+    .string()
+    .required("Please enter your phone number.")
+    .test(
+      "phone-validation",
+      "Please enter a complete phone number in this format: (xxx) xxx-xxxx.s",
+      validatePhoneNumber
+    ),
   email: yup
     .string()
     .email("Invalid email")
@@ -56,7 +72,7 @@ function CreateAccountForm() {
     versionId,
     setTermsAccepted,
     setVersionId,
-    setShowTermsModalFlag
+    setShowTermsModalFlag,
   } = useTermsStore();
 
   const navigateToNextStep = useCallback(() => {
@@ -74,7 +90,7 @@ function CreateAccountForm() {
   }, [userId, navigateToNextStep]);
 
   const { data: projects } = useLoadProjectsByProponentId(
-    invitation?.proponent_id,
+    invitation?.proponent_id
   );
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
@@ -247,15 +263,24 @@ function CreateAccountForm() {
                     InputLabelProps={{ sx: { fontWeight: 700 } }}
                   />
                 </Grid>
-                <Grid container spacing={1} alignItems="flex-start" marginBottom={4}>
+                <Grid
+                  container
+                  spacing={1}
+                  alignItems="flex-start"
+                  marginBottom={4}
+                >
                   <Grid item>
                     <Tooltip
-                      title={termsAccepted ? "You have already agreed to the Terms and Conditions" : ""}
+                      title={
+                        termsAccepted
+                          ? "You have already agreed to the Terms and Conditions"
+                          : ""
+                      }
                       componentsProps={{
                         tooltip: {
                           sx: {
                             maxWidth: 200,
-                            whiteSpace: 'normal',
+                            whiteSpace: "normal",
                           },
                         },
                       }}
@@ -285,10 +310,10 @@ function CreateAccountForm() {
                       variant="body1"
                       sx={{
                         fontWeight: 700,
-                        fontSize: '0.875rem',
-                        lineHeight: '1.4375em',
-                        color: 'text.primary',
-                        display: 'inline',
+                        fontSize: "0.875rem",
+                        lineHeight: "1.4375em",
+                        color: "text.primary",
+                        display: "inline",
                       }}
                     >
                       I agree to the{" "}
@@ -299,11 +324,11 @@ function CreateAccountForm() {
                           setShowTermsModalFlag(true);
                         }}
                         sx={{
-                          textDecoration: 'underline',
-                          cursor: 'pointer',
+                          textDecoration: "underline",
+                          cursor: "pointer",
                           color: theme.palette.primary.main,
                           fontWeight: 700,
-                          ml: '2px',
+                          ml: "2px",
                         }}
                       >
                         Terms and Conditions
@@ -313,7 +338,8 @@ function CreateAccountForm() {
                 </Grid>
                 {showTermsError && (
                   <FormHelperText error>
-                    To continue, please read the Terms and Conditions. The agreement button will unlock once you scroll to the end.
+                    To continue, please read the Terms and Conditions. The
+                    agreement button will unlock once you scroll to the end.
                   </FormHelperText>
                 )}
                 <Box mt={2}>
