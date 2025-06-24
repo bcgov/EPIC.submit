@@ -1,6 +1,8 @@
 """Service for submission management."""
+from submit_api.enums.item_status import ItemStatus
 from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import session_scope
+from submit_api.models.item_type import SubmissionMethod
 from submit_api.models.submission import Submission as SubmissionModel
 from submit_api.models.submission import SubmissionType
 from submit_api.services import authorization
@@ -81,6 +83,17 @@ class SubmissionService:
 
         if not submission.submitted_form:
             raise ValueError("Submission form not found.")
+
+        submission_item = ItemModel.find_by_id(submission.item_id)
+        if not submission_item:
+            raise ValueError("Item not found.")
+        if submission_item.status in [ItemStatus.ACCEPTED, ItemStatus.SATISFIED,
+                                      ItemStatus.APPROVED, ItemStatus.PASSED_CONSULTATION_CHECK]:
+            raise ValueError("Section is already completed.")
+        submission_package = PackageModel.find_by_id(submission_item.package_id)
+        is_business_data = submission_item.type.submission_method = SubmissionMethod.FORM_SUBMISSION
+        if not is_business_data and submission_package.completed_on:
+            raise ValueError("Package is already completed.")
         return submission
 
     @classmethod

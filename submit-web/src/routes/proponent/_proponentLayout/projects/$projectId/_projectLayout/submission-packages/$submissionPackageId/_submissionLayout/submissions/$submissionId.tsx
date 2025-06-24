@@ -7,6 +7,7 @@ import {
 } from "@/components/SubmissionItem/ItemForm/ProponentItemForm";
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { getSubmissionItemLabel } from "@/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -57,11 +58,15 @@ export function Submission() {
     ).length > 0;
   const isPackageSubmitted = submissionPackage?.submitted_on;
 
+  const isFormSubmission =
+    submissionItem.type.submission_method ===
+    SubmissionItemMethod.FORM_SUBMISSION;
+
   if (isItemLoading || isPackageLoading) {
     return <LoadingSkeleton />;
   }
 
-  if (isPackageSubmitted && !hasPackageUpdateRequest) {
+  if (isPackageSubmitted && !hasPackageUpdateRequest && !isFormSubmission) {
     return (
       <Navigate
         to={`/proponent/projects/${projectId}/submission-packages/${submissionPackageId}`}

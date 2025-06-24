@@ -3,14 +3,11 @@ import { Submission, SubmissionItemStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
 import { User } from "./User";
 
-type SubmissionItemMethod = "FORM_SUBMISSION" | "DOCUMENT_UPLOAD";
-export const SUBMISSION_ITEM_METHOD: Record<
-  SubmissionItemMethod,
-  SubmissionItemMethod
-> = Object.freeze({
-  FORM_SUBMISSION: "FORM_SUBMISSION",
-  DOCUMENT_UPLOAD: "DOCUMENT_UPLOAD",
-});
+export enum SubmissionItemMethod {
+  FORM_SUBMISSION = "FORM_SUBMISSION",
+  DOCUMENT_UPLOAD = "DOCUMENT_UPLOAD",
+}
+
 export type SubmissionItemType = {
   id: number;
   name: SUBMISSION_ITEM_TYPE;

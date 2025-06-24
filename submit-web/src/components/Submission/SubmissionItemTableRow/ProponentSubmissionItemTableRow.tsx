@@ -9,7 +9,7 @@ import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "../../SubmissionStatusChip";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "../DocumentRow";
-import { Unless, When } from "react-if";
+import { When } from "react-if";
 import EmptyRow from "@/components/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from ".";
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
-import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
+import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { filterOpenUpdateRequests, getSubmissionItemLabel } from "@/utils";
 import dayjs from "dayjs";
@@ -40,12 +40,15 @@ export default function ProponentSubmissionItemTableRow({
 
   const { id, submissions, status, type_id } = item;
 
+  const isFormSubmission =
+    item.type.submission_method === SubmissionItemMethod.FORM_SUBMISSION;
+
   const name = useMemo(() => {
     return getSubmissionItemLabel(item.type.name);
   }, [item.type.name]);
 
   const has_document =
-    item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD;
+    item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD;
 
   const queryClient = useQueryClient();
 
@@ -124,13 +127,14 @@ export default function ProponentSubmissionItemTableRow({
           </Box>
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"}>
-          <Unless
+          <When
             condition={
-              submissionPackage?.submitted_on &&
+              isFormSubmission ||
+              !submissionPackage?.submitted_on ||
               submissionPackage.update_requests.filter(
                 (updateRequest) =>
                   updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value,
-              ).length === 0
+              ).length > 0
             }
           >
             <Typography
@@ -146,7 +150,7 @@ export default function ProponentSubmissionItemTableRow({
             >
               {actionLabel}
             </Typography>
-          </Unless>
+          </When>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       {submissions

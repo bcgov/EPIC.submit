@@ -9,7 +9,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useMemo } from "react";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { SubmissionPackage } from "@/models/Package";
-import { SUBMISSION_ITEM_METHOD } from "@/models/SubmissionItem";
+import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -71,7 +71,7 @@ export default function AddRequestSection({
   const filteredItems = useMemo(() => {
     return submissionPackage.items.filter(
       (item) =>
-        item.type.submission_method === SUBMISSION_ITEM_METHOD.DOCUMENT_UPLOAD,
+        item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD,
     );
   }, [submissionPackage.items]);
 
