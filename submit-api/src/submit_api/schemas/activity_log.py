@@ -59,6 +59,10 @@ def get_activity_action(action: str, user_type: str) -> str:
             UserType.PROPONENT: ActivityActionType.REVISION_REQUIRED.value,
             UserType.STAFF: ActivityActionType.MP_REVIEW_FAILED.value
         },
+        ActivityActionType.RESUBMISSION_INVITATION.value: {
+            UserType.PROPONENT: ActivityActionType.RESUBMISSION_INVITATION.value,
+            UserType.STAFF: ActivityActionType.RESUBMISSION_INVITATION.value
+        },
     }
 
     if action in action_mapping and user_type in action_mapping[action]:

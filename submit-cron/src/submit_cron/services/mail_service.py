@@ -106,12 +106,11 @@ class EmailService:  # pylint: disable=too-few-public-methods
         # Get all PROJECT_ADMIN users for this account project
         project_admin_users = ResubmissionEmailService.get_project_admin_users(package)
         
-        # Create individual email queue entries for each PROJECT_ADMIN
-        for account_user in project_admin_users:
-            email_details = ResubmissionEmailService.prepare_resubmission_request_email(
-                package, account_user
-            )
-            EmailService.send_email(email_details)
+        # Send email to all project admins
+        email_details = ResubmissionEmailService.prepare_resubmission_request_email(
+            package, project_admin_users
+        )
+        EmailService.send_email(email_details)
         
         # Update the original email queue status to SENT
         email_entry.status = EmailStatus.SENT.value
