@@ -15,7 +15,6 @@ export const Route = createFileRoute(
     queryClient.ensureQueryData(
       getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionId) }),
     ),
-  errorComponent: () => <Navigate to="/error" />,
   pendingComponent: () => (
     <PageGrid>
       <ContentBoxSkeleton />

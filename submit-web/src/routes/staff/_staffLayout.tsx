@@ -7,7 +7,13 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+  CatchBoundary,
+  createFileRoute,
+  Outlet,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 
 const IDIR = "idir";
 
@@ -46,18 +52,24 @@ export const Route = createFileRoute("/staff/_staffLayout")({
 function Staff() {
   const isMobile = useIsMobile();
   const { isLoading } = useAccount();
+  const navigate = useNavigate();
 
   if (isLoading) {
     return <PageLoader />;
   }
 
   return (
-    <div>
-      <BreadcrumbNav />
-      <Box flexDirection={"row"} display={"flex"}>
-        {!isMobile && <EaoSideNavBar />}
-        <Outlet />
-      </Box>
-    </div>
+    <CatchBoundary
+      getResetKey={() => "reset"}
+      onCatch={() => navigate({ to: "/error" })}
+    >
+      <div>
+        <BreadcrumbNav />
+        <Box flexDirection={"row"} display={"flex"}>
+          {!isMobile && <EaoSideNavBar />}
+          <Outlet />
+        </Box>
+      </div>
+    </CatchBoundary>
   );
 }
