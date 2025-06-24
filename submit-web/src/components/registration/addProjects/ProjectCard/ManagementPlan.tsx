@@ -56,7 +56,7 @@ export const ManagementPlan = ({ project }: { project: Project }) => {
             <Box height={"50%"}>
               <CardInnerBox>
                 <Typography variant="h4" fontWeight={400} mb={1}>
-                  Management Plans & other post certificate documents
+                  Management Plans & Related Documents
                 </Typography>
                 <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
               </CardInnerBox>
