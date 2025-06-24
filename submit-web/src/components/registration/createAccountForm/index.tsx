@@ -47,7 +47,7 @@ const createAccountSchema = yup.object().shape({
     .required("Please enter your phone number.")
     .test(
       "phone-validation",
-      "Please enter a complete phone number in this format: (xxx) xxx-xxxx.s",
+      "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
       validatePhoneNumber
     ),
   email: yup
