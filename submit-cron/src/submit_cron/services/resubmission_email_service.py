@@ -15,59 +15,59 @@ class ResubmissionEmailService:
     """Handles sending email notifications for resubmission requests."""
 
     @classmethod
-    def get_account_primary_admin_user(cls, package: PackageModel) -> AccountUserModel:
-        """Get the ACCOUNT_PRIMARY_ADMIN user for the package's account."""
-        # Get the account_id from the package's account_project using direct query
-        account_project = (
-            db.session.query(AccountProjectModel)
-            .filter(AccountProjectModel.id == package.account_project_id)
-            .first()
-        )
-        if not account_project:
-            raise BadRequestError("Account project not found")
-
-        # Get the ACCOUNT_PRIMARY_ADMIN role using direct query
-        account_primary_admin_role = (
+    def get_project_admin_users(cls, package: PackageModel) -> list[AccountUserModel]:
+        """Get all PROJECT_ADMIN users for the package's account project."""
+        # Get the account_project_id from the package
+        account_project_id = package.account_project_id
+        
+        # Get the PROJECT_ADMIN role using direct query
+        project_admin_role = (
             db.session.query(RoleModel)
-            .filter(RoleModel.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value)
+            .filter(RoleModel.role_name == RoleEnum.PROJECT_ADMIN.value)
             .first()
         )
-        if not account_primary_admin_role:
-            raise BadRequestError("Account primary admin role not found")
+        if not project_admin_role:
+            raise BadRequestError("Project admin role not found")
 
-        # Query for the account primary admin user directly using the same db instance as other services
-        account_primary_admin_user = (
+        # Query for all project admin users for this specific account project
+        project_admin_users = (
             db.session.query(AccountUserModel)
             .join(UserRoleModel, AccountUserModel.id == UserRoleModel.account_user_id)
             .filter(
-                AccountUserModel.account_id == account_project.account_id,
-                UserRoleModel.role_id == account_primary_admin_role.id,
+                UserRoleModel.account_project_id == account_project_id,
+                UserRoleModel.role_id == project_admin_role.id,
                 UserRoleModel.active
             )
-            .first()
+            .all()
         )
 
-        if not account_primary_admin_user:
-            raise BadRequestError("No account primary admin found for this account")
+        if not project_admin_users:
+            raise BadRequestError("No project admins found for this account project")
 
-        return account_primary_admin_user
+        return project_admin_users
 
     @classmethod
-    def prepare_resubmission_request_email(cls, package: PackageModel, account_user: AccountUserModel) -> EmailDetails:
-        """Prepare email details for resubmission request for a specific user."""
+    def prepare_resubmission_request_email(cls, package: PackageModel, project_admin_users: list[AccountUserModel]) -> EmailDetails:
+        """Prepare email details for resubmission request for all project admin users."""
         web_url = current_app.config.get('WEB_URL')
         submission_link = f"{web_url}/proponent/projects/{package.account_project_id}/submission-packages/{package.id}"
+
+        # Get all email addresses from project admin users
+        recipient_emails = [user.work_email_address for user in project_admin_users]
+        
+        # Use the first user's name for the email body (or you could customize this)
+        submitter_name = project_admin_users[0].full_name if project_admin_users else "Project Admin"
 
         email_details = EmailDetails(
             template_name=MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
             body_args={
                 'submission_link': submission_link,
-                'submitter_name': account_user.full_name,
+                'submitter_name': submitter_name,
                 'package_name': package.name,
             },
             subject=f'Invitation to resubmit a new version of {package.name} in EPIC.submit',
             sender=current_app.config.get('SENDER_EMAIL'),
-            recipients=[account_user.work_email_address],
+            recipients=recipient_emails,
         )
 
         return email_details
