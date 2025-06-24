@@ -103,12 +103,12 @@ class EmailService:  # pylint: disable=too-few-public-methods
         if not package:
             raise BadRequestError(f"Package with ID {package_id} not found.")
 
-        # Get the ACCOUNT_PRIMARY_ADMIN user for this account
-        account_primary_admin_user = ResubmissionEmailService.get_account_primary_admin_user(package)
+        # Get all PROJECT_ADMIN users for this account project
+        project_admin_users = ResubmissionEmailService.get_project_admin_users(package)
         
-        # Send email to the account primary admin
+        # Send email to all project admins
         email_details = ResubmissionEmailService.prepare_resubmission_request_email(
-            package, account_primary_admin_user
+            package, project_admin_users
         )
         EmailService.send_email(email_details)
         
