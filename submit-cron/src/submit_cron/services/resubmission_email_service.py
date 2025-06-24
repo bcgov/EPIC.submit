@@ -51,18 +51,15 @@ class ResubmissionEmailService:
         """Prepare email details for resubmission request for all project admin users."""
         web_url = current_app.config.get('WEB_URL')
         submission_link = f"{web_url}/proponent/projects/{package.account_project_id}/submission-packages/{package.id}"
-
+        submitter = package.submitted_by_user.account_user
         # Get all email addresses from project admin users
         recipient_emails = [user.work_email_address for user in project_admin_users]
-        
-        # Use the first user's name for the email body (or you could customize this)
-        submitter_name = project_admin_users[0].full_name if project_admin_users else "Project Admin"
 
         email_details = EmailDetails(
             template_name=MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
             body_args={
                 'submission_link': submission_link,
-                'submitter_name': submitter_name,
+                'submitter_name': submitter.full_name,
                 'package_name': package.name,
             },
             subject=f'Invitation to resubmit a new version of {package.name} in EPIC.submit',
