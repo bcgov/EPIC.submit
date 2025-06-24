@@ -1,8 +1,10 @@
 import { RouterProvider } from "@tanstack/react-router";
 import { useAuth } from "react-oidc-context";
 import { AccountStoreState, useAccount } from "./store/accountStore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getAccount } from "./hooks/api/useAccounts";
+import { notify } from "./components/Shared/Snackbar/snackbarStore";
+import { isAxiosError } from "axios";
 
 type RouterProviderWithAuthContextProps = Readonly<{
   router: any;
@@ -18,7 +20,7 @@ export default function RouterProviderWithAuthContext({
     {},
   );
 
-  const getAccountData = async () => {
+  const getAccountData = useCallback(async () => {
     try {
       const data = await getAccount(
         authentication?.user?.profile.sub,
@@ -30,13 +32,16 @@ export default function RouterProviderWithAuthContext({
         ...data,
       });
     } catch (error) {
-      console.error("Failed to fetch account data:", error);
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? error.message)
+        : "Unknown error";
+      notify.error(`Failed to load account data: ${errorMessage}`);
     }
-  };
+  }, [authentication, router, setAccount]);
 
   useEffect(() => {
     getAccountData();
-  }, [authentication]);
+  }, [authentication, getAccountData]);
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
