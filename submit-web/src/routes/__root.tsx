@@ -6,13 +6,13 @@ import {
   CatchBoundary,
   createRootRouteWithContext,
   Outlet,
+  useNavigate,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { AuthContextProps } from "react-oidc-context";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import DrawerProvider from "@/components/Shared/Drawers/DrawerProvider";
 import { QueryClient } from "@tanstack/react-query";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { AppConfig } from "@/utils/config";
 import { When } from "react-if";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -31,11 +31,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
 function Layout() {
   const isLocal = AppConfig.environment === "local";
+  const naviate = useNavigate();
 
   return (
     <CatchBoundary
       getResetKey={() => "reset"}
-      onCatch={(error) => notify.error(error.message)}
+      onCatch={() => naviate({ to: "/error" })}
     >
       <ScrollToTop />
       <EAOAppBar />

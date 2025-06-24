@@ -6,12 +6,17 @@ import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
-import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Navigate,
+  notFound,
+  rootRouteId,
+} from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/"
+  "/proponent/_proponentLayout/user-management/",
 )({
   component: UsersPage,
   meta: () => [{ title: "User Management" }],
@@ -23,8 +28,8 @@ export const Route = createFileRoute(
         permissions: account?.roles || [],
       })
     ) {
-      throw redirect({
-        to: "/not-found",
+      throw notFound({
+        routeId: rootRouteId,
       });
     }
   },

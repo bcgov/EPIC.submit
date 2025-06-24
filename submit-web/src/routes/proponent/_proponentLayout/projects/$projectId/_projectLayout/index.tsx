@@ -8,9 +8,6 @@ export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/",
 )({
   component: ProjectPage,
-  notFoundComponent: () => {
-    return <p>Project not found!</p>;
-  },
 });
 
 function ProjectPage() {
