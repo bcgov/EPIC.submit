@@ -141,7 +141,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
         >
           <Grid container direction="row" alignItems="center" spacing={1}>
             <Grid item md={10}>
-              <Typography variant="h2" sx={{ fontWeight: 400 }}>
+              <Typography variant="h5" sx={{ fontWeight: 400 }}>
                 {userData.full_name}
               </Typography>
             </Grid>

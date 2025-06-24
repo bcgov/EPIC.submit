@@ -33,7 +33,7 @@ export const TableBox = ({
           padding: "12px 24px",
         }}
       >
-        <Typography variant="h2" sx={{ fontWeight: 400 }}>
+        <Typography variant="h3" sx={{ fontWeight: 400 }}>
           {mainLabel || ""}
         </Typography>
         {actionBox}
