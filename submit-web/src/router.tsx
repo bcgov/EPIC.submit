@@ -47,7 +47,7 @@ export default function RouterProviderWithAuthContext({
       console.log("AccessToken expired");
       window.location.href = window.location.origin + "/logout";
     }
-  }, [authentication.user?.expired]);
+  }, [authentication.user?.expired, authentication.isAuthenticated]);
 
   return (
     <RouterProvider
