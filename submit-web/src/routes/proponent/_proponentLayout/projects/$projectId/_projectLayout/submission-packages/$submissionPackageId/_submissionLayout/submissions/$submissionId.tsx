@@ -7,10 +7,7 @@ import {
 } from "@/components/SubmissionItem/ItemForm/ProponentItemForm";
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import {
-  SUBMISSION_ITEM_TYPE,
-  SubmissionItemMethod,
-} from "@/models/SubmissionItem";
+import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { getSubmissionItemLabel } from "@/utils";
 import { useSuspenseQuery } from "@tanstack/react-query";
