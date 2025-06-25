@@ -4,7 +4,7 @@ export const consultationRecordSchema = yup.object().shape({
   consultedParties: yup.array().of(
     yup.object().shape({
       consultedParty: yup.string(),
-    }),
+    })
   ),
   allPartiesConsulted: yup.string().required("Please answer this question."),
   planWasReviewed: yup.string().required("Please answer this question."),
@@ -19,7 +19,10 @@ export const consultationRecordSchema = yup.object().shape({
     .of(yup.string())
     .required("Please upload at least one document.")
     .min(1, "Please upload at least one document."),
-  notes: yup.string().nullable(),
+  notes: yup
+    .string()
+    .optional()
+    .max(2500, "Notes must be less than 2500 characters."),
 });
 
 export type ConsultationRecordForm = yup.InferType<
