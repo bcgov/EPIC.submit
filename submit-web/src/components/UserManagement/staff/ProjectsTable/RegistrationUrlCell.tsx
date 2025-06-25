@@ -2,13 +2,13 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Invitation } from "@/models/Invitation";
 import { AppConfig } from "@/utils/config";
-import { TextField, Tooltip } from "@mui/material";
+import { TextField, Tooltip, Typography } from "@mui/material";
 import { Project } from "@/models/Project";
 import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { PlainTableCell } from "@/components/Shared/Table/common";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type RegistrationUrlCellProps = {
   project: Project;
@@ -26,10 +26,6 @@ export const RegistrationUrlCell = ({
   const [tooltipText, setTooltipText] = useState("Copy");
 
   const url = `${AppConfig.appUrl}/proponent/registration?token=${pendingInvitation?.token}`;
-
-  const trimmedUrl = useMemo(() => {
-    return url.replace("https://", "").replace("http://", "");
-  }, [url]);
 
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
     useCreateInvitation({
@@ -58,14 +54,20 @@ export const RegistrationUrlCell = ({
 
   // If there is a used invitation there exists a project admin. Show nothing
   if (usedProjectInvitations.length > 0) {
-    return <PlainTableCell colSpan={2} />;
+    return (
+      <PlainTableCell colSpan={2}>
+        <Typography variant="body1">
+          This project has already been registered.
+        </Typography>
+      </PlainTableCell>
+    );
   }
 
   return (
     <>
       <PlainTableCell>
         <TextField
-          value={pendingInvitation ? trimmedUrl : ""}
+          value={pendingInvitation ? url : ""}
           sx={{ margin: 0 }}
           InputProps={{ readOnly: true }}
           fullWidth
