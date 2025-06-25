@@ -12,7 +12,10 @@ export const iemSubmissionSchema = yup.object().shape({
     .required("Please upload at least one document.")
     .min(1, "Please upload at least one document."),
   supportingDocuments: yup.array().of(yup.string()),
-  notes: yup.string(),
+  notes: yup
+    .string()
+    .optional()
+    .max(2500, "Notes must be less than 2500 characters."),
 });
 
 export type IemSubmissionForm = yup.InferType<typeof iemSubmissionSchema>;
