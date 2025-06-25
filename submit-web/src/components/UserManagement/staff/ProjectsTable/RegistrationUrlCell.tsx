@@ -27,10 +27,6 @@ export const RegistrationUrlCell = ({
 
   const url = `${AppConfig.appUrl}/proponent/registration?token=${pendingInvitation?.token}`;
 
-  const trimmedUrl = useMemo(() => {
-    return `https://${url.replace("https://", "").replace("http://", "")}`;
-  }, [url]);
-
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
     useCreateInvitation({
       onSuccess: (data) => {
@@ -71,7 +67,7 @@ export const RegistrationUrlCell = ({
     <>
       <PlainTableCell>
         <TextField
-          value={pendingInvitation ? trimmedUrl : ""}
+          value={pendingInvitation ? url : ""}
           sx={{ margin: 0 }}
           InputProps={{ readOnly: true }}
           fullWidth
