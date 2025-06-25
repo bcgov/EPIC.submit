@@ -43,6 +43,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
               fontWeight={"500"}
               sx={{ mr: 0.5 }}
             >
+              {subPackage.meta?.main_condition?.condition_number} -{" "}
               {subPackage.name}
             </Typography>
             <ArrowForwardIos fontSize="small" />
