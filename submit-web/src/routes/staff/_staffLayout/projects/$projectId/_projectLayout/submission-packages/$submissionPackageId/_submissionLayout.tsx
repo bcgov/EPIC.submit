@@ -29,14 +29,11 @@ export const Route = createFileRoute(
       );
       return data;
     } catch (error) {
-      console.log("A", error);
       if (isAxiosError(error)) {
-        console.log("B");
         if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
           throw notFound();
         }
       } else {
-        console.log("C");
         throw error;
       }
     }
