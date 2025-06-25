@@ -8,7 +8,7 @@ import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { PlainTableCell } from "@/components/Shared/Table/common";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type RegistrationUrlCellProps = {
   project: Project;
