@@ -37,6 +37,9 @@ def check_assigned_on_package(package_id):
     if not package_id:
         abort(HTTPStatus.BAD_REQUEST)
 
+    if not PackageModel.find_by_id(package_id):
+        abort(HTTPStatus.NOT_FOUND)
+
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
     if user.type == UserType.STAFF:
         return

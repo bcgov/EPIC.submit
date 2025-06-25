@@ -10,8 +10,10 @@ import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { getSubmissionItemLabel } from "@/utils";
+import { HTTP_STATUS } from "@/utils/constants";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, notFound } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 
 const LoadingSkeleton = () => (
   <PageGrid>
@@ -22,13 +24,25 @@ export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
 )({
   component: Submission,
-  loader: ({ context: { queryClient }, params: { submissionId } }) =>
-    queryClient.ensureQueryData(
-      getSubmissionItemQueryOptions({ itemId: Number(submissionId) }),
-    ),
+  loader: async ({ context: { queryClient }, params: { submissionId } }) => {
+    try {
+      const data = await queryClient.ensureQueryData(
+        getSubmissionItemQueryOptions({ itemId: Number(submissionId) }),
+      );
+      return data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
+          throw notFound();
+        }
+      } else {
+        throw error;
+      }
+    }
+  },
   pendingComponent: LoadingSkeleton,
   meta: ({ loaderData: submissionItem }) => [
-    { title: getSubmissionItemLabel(submissionItem.type.name) },
+    { title: getSubmissionItemLabel(submissionItem?.type.name) },
   ],
 });
 
