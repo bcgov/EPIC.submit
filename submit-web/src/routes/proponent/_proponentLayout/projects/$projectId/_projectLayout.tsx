@@ -29,7 +29,6 @@ export const Route = createFileRoute(
       <ProjectsSkeleton />
     </PageGrid>
   ),
-  errorComponent: () => <Navigate to="/error" />,
 });
 
 function ProjectLayout() {

@@ -27,9 +27,6 @@ export const Route = createFileRoute(
       </Grid>
     </PageGrid>
   ),
-  errorComponent: () => {
-    return <Navigate to={"/error"} />;
-  },
   meta: ({ loaderData: submissionPackage }) => [
     { title: submissionPackage.name },
   ],

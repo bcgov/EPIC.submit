@@ -81,7 +81,9 @@ export const requestAxios = async ({ ...options }) => {
       throw new Error("Network error or CORS issue");
     } else {
       notify.error(
-        (error.response?.data as ErrorResponseData)?.message ?? error.message ?? "API Error!"
+        (error.response?.data as ErrorResponseData)?.message ??
+          error.message ??
+          "API Error!",
       );
     }
     throw error;

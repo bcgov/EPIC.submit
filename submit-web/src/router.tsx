@@ -1,9 +1,10 @@
 import { RouterProvider } from "@tanstack/react-router";
 import { useAuth } from "react-oidc-context";
-import { useQuery } from "@tanstack/react-query";
-import { useAccount } from "./store/accountStore";
-import { useEffect } from "react";
-import { getAccountQueryOptions } from "./hooks/api/useAccounts";
+import { AccountStoreState, useAccount } from "./store/accountStore";
+import { useCallback, useEffect, useState } from "react";
+import { getAccount } from "./hooks/api/useAccounts";
+import { notify } from "./components/Shared/Snackbar/snackbarStore";
+import { isAxiosError } from "axios";
 
 type RouterProviderWithAuthContextProps = Readonly<{
   router: any;
@@ -12,24 +13,35 @@ export default function RouterProviderWithAuthContext({
   router,
 }: RouterProviderWithAuthContextProps) {
   const authentication = useAuth();
-  const { data, isFetched } = useQuery(
-    getAccountQueryOptions({
-      guid: authentication?.user?.profile.sub,
-      accessToken: authentication.user?.access_token,
-    }),
-  );
 
   const account = useAccount();
   const { setAccount } = account;
+  const [accountData, setAccountData] = useState<Partial<AccountStoreState>>(
+    {},
+  );
 
-  useEffect(() => {
-    if (isFetched) {
+  const getAccountData = useCallback(async () => {
+    try {
+      const data = await getAccount(
+        authentication?.user?.profile.sub,
+        authentication.user?.access_token,
+      );
       router.invalidate();
+      setAccountData(data);
       setAccount({
         ...data,
       });
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? error.message)
+        : "Unknown error";
+      notify.error(`Failed to load account data: ${errorMessage}`);
     }
-  }, [isFetched, data, setAccount, router]);
+  }, [authentication, router, setAccount]);
+
+  useEffect(() => {
+    getAccountData();
+  }, [authentication, getAccountData]);
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
@@ -55,7 +67,7 @@ export default function RouterProviderWithAuthContext({
         authentication,
         account: {
           ...account,
-          ...(data ?? {}),
+          ...(accountData ?? {}),
         },
       }}
     />
