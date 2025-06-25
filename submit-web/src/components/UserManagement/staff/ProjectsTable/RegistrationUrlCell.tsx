@@ -2,7 +2,7 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Invitation } from "@/models/Invitation";
 import { AppConfig } from "@/utils/config";
-import { TextField, Tooltip } from "@mui/material";
+import { TextField, Tooltip, Typography } from "@mui/material";
 import { Project } from "@/models/Project";
 import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -28,7 +28,7 @@ export const RegistrationUrlCell = ({
   const url = `${AppConfig.appUrl}/proponent/registration?token=${pendingInvitation?.token}`;
 
   const trimmedUrl = useMemo(() => {
-    return url.replace("https://", "").replace("http://", "");
+    return `https://${url.replace("https://", "").replace("http://", "")}`;
   }, [url]);
 
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
@@ -58,7 +58,13 @@ export const RegistrationUrlCell = ({
 
   // If there is a used invitation there exists a project admin. Show nothing
   if (usedProjectInvitations.length > 0) {
-    return <PlainTableCell colSpan={2} />;
+    return (
+      <PlainTableCell colSpan={2}>
+        <Typography variant="body1">
+          This project has already been registered.
+        </Typography>
+      </PlainTableCell>
+    );
   }
 
   return (
