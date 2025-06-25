@@ -55,6 +55,26 @@ jobs:
           docker push $IMAGE_ID:latest
           docker image tag $IMAGE_ID:latest $IMAGE_ID:$TAG_NAME
           docker push $IMAGE_ID:$TAG_NAME
+      - name: Add essential metadata to OpenShift
+        run: |
+          oc project ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
+          
+          COMMIT_SHA=${{ github.sha }}
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          
+          echo "=== BUILD INFORMATION ==="
+          echo "Commit SHA: $COMMIT_SHA"
+          echo "Short SHA: $SHORT_SHA"
+          echo "Commit Message: ${{ github.event.head_commit.message }}"
+          echo "Build Date: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "Environment: $TAG_NAME"
+          echo "========================="
+          
+          # Only store essential info in annotations
+          oc annotate istag submit-api:$TAG_NAME \
+            commit-sha=${{ github.sha }} \
+            build-info="$(echo ${{ github.sha }} | cut -c1-7) by ${{ github.event.head_commit.author.name }} on $(date -u +'%Y-%m-%d %H:%M') - ${{ github.event.head_commit.message }}" \
+            --overwrite
 
       - name: Rollout
         shell: bash

@@ -39,9 +39,16 @@ export default function ErrorPage() {
               </MuiLink>
             </Typography>
           </Box>
-          <Link to="/oidc-callback">
-            <Button sx={{ width: "fit-content" }}>Return to Home Page</Button>
-          </Link>
+          <Stack direction="row" justifyContent="center" spacing={2}>
+            <Link to="/oidc-callback">
+              <Button sx={{ width: "fit-content" }}>Return to Home Page</Button>
+            </Link>
+            <Link to="/logout">
+              <Button sx={{ width: "fit-content" }} color="secondary">
+                Logout
+              </Button>
+            </Link>
+          </Stack>
         </Stack>
       </Paper>
     </Container>

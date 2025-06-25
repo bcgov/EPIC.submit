@@ -14,7 +14,6 @@ import { BCDesignTokens } from "epic.theme";
 import { useManagementPlanForm } from "./formStore";
 import { MANAGEMENT_PLAN_FORM_STEPS } from "./constants";
 import CloseIcon from "@mui/icons-material/Close";
-import { Unless } from "react-if";
 import { useGetConditions } from "@/hooks/useConditions";
 import { Condition } from "@/models/Condition";
 import { useNavigate, useParams } from "@tanstack/react-router";
@@ -36,19 +35,17 @@ export const Conditions = () => {
     includeAttributes: true,
   });
 
-  const MAX_SUPPORTING_CONDITIONS = Math.min(4, (conditions?.length ?? 1) - 1);
-
   const { step, setStep, reset, formData, setFormData } =
     useManagementPlanForm();
 
   const [mainCondition, setMainCondition] = useState<Condition | null>(
-    formData?.main_condition || null,
+    formData?.main_condition || null
   );
 
   const [supportingConditions, setSupportingConditions] = useState<number[]>(
     Array.from(formData.supporting_conditions || []).map(
-      (condition: Condition) => condition.condition_number ?? 0,
-    ),
+      (condition: Condition) => condition.condition_number ?? 0
+    )
   );
 
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -62,7 +59,7 @@ export const Conditions = () => {
       ...formData,
       main_condition: mainCondition,
       supporting_conditions: conditions?.filter((c) =>
-        supportingConditions.includes(c.condition_number!),
+        supportingConditions.includes(c.condition_number!)
       ),
     });
 
@@ -82,11 +79,10 @@ export const Conditions = () => {
 
   const handleAnotherSupportingCondition = (
     index: number,
-    conditionName: string,
+    conditionName: string
   ) => {
-    if (supportingConditions.length > MAX_SUPPORTING_CONDITIONS) return;
     const newCondition = conditions?.find(
-      (c) => c.condition_name === conditionName,
+      (c) => c.condition_name === conditionName
     );
 
     if (newCondition?.condition_number != null) {
@@ -144,7 +140,7 @@ export const Conditions = () => {
             onChange={(e) => {
               setMainCondition(
                 conditions?.find((c) => c.condition_name === e.target.value) ||
-                  null,
+                  null
               );
               if (errorText) {
                 setErrorText(null);
@@ -156,7 +152,7 @@ export const Conditions = () => {
               ?.filter(
                 (condition) =>
                   condition.condition_number !== null && // Ensure condition_number is not null
-                  !supportingConditions.includes(condition.condition_number),
+                  !supportingConditions.includes(condition.condition_number)
               )
               .map((condition) => {
                 const conditionLabel = `Condition ${condition.condition_number} - ${condition.condition_name}`;
@@ -202,8 +198,8 @@ export const Conditions = () => {
                           mainCondition?.condition_number && // Exclude selected main condition
                         condition.condition_number !== null && // Ensure condition_number is not null
                         !supportingConditions.includes(
-                          condition.condition_number,
-                        ), // Exclude conditions already selected
+                          condition.condition_number
+                        ) // Exclude conditions already selected
                     )
                     .map((condition) => (
                       <MenuItem
@@ -217,7 +213,7 @@ export const Conditions = () => {
                     (c) =>
                       c.condition_name ===
                       (conditions?.find((c) => c.condition_number === input)
-                        ?.condition_name || ""),
+                        ?.condition_name || "")
                   ) && (
                     <MenuItem
                       key={
@@ -240,7 +236,7 @@ export const Conditions = () => {
               <IconButton
                 onClick={() => {
                   setSupportingConditions(
-                    supportingConditions.filter((c) => c !== input),
+                    supportingConditions.filter((c) => c !== input)
                   );
                 }}
               >
@@ -249,20 +245,16 @@ export const Conditions = () => {
             </Grid>
           </Grid>
         ))}
-        <Unless
-          condition={supportingConditions.length >= MAX_SUPPORTING_CONDITIONS}
-        >
-          <Grid item xs={12}>
-            <MuiLink
-              sx={{
-                cursor: "pointer",
-              }}
-              onClick={handleNewCondition}
-            >
-              + Add another condition
-            </MuiLink>
-          </Grid>
-        </Unless>
+        <Grid item xs={12}>
+          <MuiLink
+            sx={{
+              cursor: "pointer",
+            }}
+            onClick={handleNewCondition}
+          >
+            + Add another condition
+          </MuiLink>
+        </Grid>
       </Grid>
       {errorText && (
         <Grid item xs={12}>

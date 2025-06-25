@@ -3,7 +3,13 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+  CatchBoundary,
+  createFileRoute,
+  Outlet,
+  redirect,
+  useNavigate,
+} from "@tanstack/react-router";
 import { TermsOfServiceProvider } from "@/components/Shared/TermsOfService";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
@@ -37,20 +43,26 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
 function ProponentLayout() {
   const isMobile = useIsMobile();
   const account = useAccount();
+  const navigate = useNavigate();
 
   if (account.isLoading) {
     return <PageLoader />;
   }
 
   return (
-    <div>
-      <TermsOfServiceProvider>
-        <BreadcrumbNav />
-        <Box flexDirection={"row"} display={"flex"}>
-          {!isMobile && <SideNavBar />}
-          <Outlet />
-        </Box>
-      </TermsOfServiceProvider>
-    </div>
+    <CatchBoundary
+      getResetKey={() => "reset"}
+      onCatch={() => navigate({ to: "/error" })}
+    >
+      <div>
+        <TermsOfServiceProvider>
+          <BreadcrumbNav />
+          <Box flexDirection={"row"} display={"flex"}>
+            {!isMobile && <SideNavBar />}
+            <Outlet />
+          </Box>
+        </TermsOfServiceProvider>
+      </div>
+    </CatchBoundary>
   );
 }

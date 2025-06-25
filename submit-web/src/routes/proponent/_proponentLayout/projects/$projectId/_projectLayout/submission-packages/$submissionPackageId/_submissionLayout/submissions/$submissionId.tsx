@@ -26,7 +26,6 @@ export const Route = createFileRoute(
     queryClient.ensureQueryData(
       getSubmissionItemQueryOptions({ itemId: Number(submissionId) }),
     ),
-  errorComponent: () => <Navigate to="/error" />,
   pendingComponent: LoadingSkeleton,
   meta: ({ loaderData: submissionItem }) => [
     { title: getSubmissionItemLabel(submissionItem.type.name) },

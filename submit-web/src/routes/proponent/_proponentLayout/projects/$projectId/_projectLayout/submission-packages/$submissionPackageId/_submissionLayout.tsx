@@ -57,7 +57,6 @@ export const Route = createFileRoute(
       to: "/proponent/projects",
     });
   },
-  errorComponent: () => <Navigate to="/error" />,
   meta: ({ loaderData: submissionPackage }) => [
     { title: submissionPackage.name },
   ],
