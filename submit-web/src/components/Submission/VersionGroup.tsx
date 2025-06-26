@@ -85,7 +85,7 @@ export default function VersionGroup({
       <ConfirmationModal
         title="New Submission Package"
         description={
-          "This option will create another package so the holder can resubmit documents. If a review is in progress, it will be cancelled, and the review will have to start over again when the holder submits a new package.\nDo you want to cancel the current review and create a new package?"
+          "This option will create another package so the Holder can resubmit documents. If a review is in progress, it will be cancelled, and the review will have to start over again when the Holder submits a new package.\nDo you want to cancel the current review and create a new package?"
         }
         confirmText="Create New Package"
         onConfirm={() => {
