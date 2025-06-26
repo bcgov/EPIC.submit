@@ -55,7 +55,7 @@ export default function InternalDocumentSection() {
           }}
         >
           These documents will be accessible during your review and will be
-          saved with the submission Package.
+          saved with the submission package.
         </Typography>
       </Grid>
       <Grid item xs={12} mt={BCDesignTokens.layoutMarginXlarge}>
