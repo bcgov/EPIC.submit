@@ -135,6 +135,8 @@ class Projects(Resource):
     def get(account_project_id):
         """Get projects by proponent id."""
         account_project = ProjectService.get_account_project_by_id(account_project_id)
+        if not account_project:
+            return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND
         return AccountProjectSchema().dump(account_project), HTTPStatus.OK
 
 

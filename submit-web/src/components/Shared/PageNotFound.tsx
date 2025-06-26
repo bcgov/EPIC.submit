@@ -47,7 +47,7 @@ export default function PageNotFound() {
               <li>
                 {`Go to our `}
                 <Link href="/">homepage</Link>
-                {` and browse through our past and current engagements.`}
+                {` and browse through our past and current submissions.`}
               </li>
               <li>{`Telephone Device for the Deaf (TDD) across B.C.: 711`}</li>
               <li>

@@ -4,26 +4,40 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { ProjectsTable } from "@/components/UserManagement/staff/ProjectsTable";
 import { getProponentOptions } from "@/hooks/api/useProponents";
+import { HTTP_STATUS } from "@/utils/constants";
 import { Grid, Typography } from "@mui/material";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { createFileRoute, useParams, notFound } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/invitations/entities/$proponentId"
+  "/staff/_staffLayout/invitations/entities/$proponentId",
 )({
   component: ProponentPage,
-  loader: ({ context: { queryClient }, params: { proponentId } }) =>
-    queryClient.ensureQueryData(
-      getProponentOptions(Number(proponentId), {
-        includeProjects: true,
-        includeInvitations: true,
-      })
-    ),
+  loader: async ({ context: { queryClient }, params: { proponentId } }) => {
+    try {
+      const data = await queryClient.ensureQueryData(
+        getProponentOptions(Number(proponentId), {
+          includeProjects: true,
+          includeInvitations: true,
+        }),
+      );
+      return data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
+          throw notFound();
+        }
+      } else {
+        throw error;
+      }
+    }
+  },
   meta: ({ loaderData, params }) => [
     { title: "Invitations", path: "/staff/invitations" },
     {
-      title: loaderData.name,
+      title: loaderData?.name,
       path: `/staff/invitations/entities/${params.proponentId}`,
     },
   ],
@@ -44,7 +58,7 @@ function ProponentPage() {
     getProponentOptions(proponentId, {
       includeProjects: true,
       includeInvitations: true,
-    })
+    }),
   );
 
   useEffect(() => {

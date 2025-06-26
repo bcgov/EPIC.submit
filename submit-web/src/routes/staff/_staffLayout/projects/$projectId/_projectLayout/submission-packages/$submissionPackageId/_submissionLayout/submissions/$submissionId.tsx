@@ -4,24 +4,38 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { StaffItemForm } from "@/components/SubmissionItem/ItemForm/StaffItemForm";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { getSubmissionItemLabel } from "@/utils";
+import { HTTP_STATUS } from "@/utils/constants";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, notFound } from "@tanstack/react-router";
+import { isAxiosError } from "axios";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
 )({
   component: Submission,
-  loader: ({ context: { queryClient }, params: { submissionId } }) =>
-    queryClient.ensureQueryData(
-      getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionId) }),
-    ),
+  loader: async ({ context: { queryClient }, params: { submissionId } }) => {
+    try {
+      const data = await queryClient.ensureQueryData(
+        getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionId) }),
+      );
+      return data;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
+          throw notFound();
+        }
+      } else {
+        throw error;
+      }
+    }
+  },
   pendingComponent: () => (
     <PageGrid>
       <ContentBoxSkeleton />
     </PageGrid>
   ),
   meta: ({ loaderData: submissionItem }) => [
-    { title: getSubmissionItemLabel(submissionItem.type.name) },
+    { title: getSubmissionItemLabel(submissionItem?.type.name) },
   ],
 });
 

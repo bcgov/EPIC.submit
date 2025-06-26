@@ -62,6 +62,8 @@ class Package(Resource):
         """Get package by id."""
         authorization.check_assigned_on_package(package_id)
         package = PackageService.get_package_by_id(package_id)
+        if not package:
+            return {"message": "Package not found"}, HTTPStatus.NOT_FOUND
         return PackageSchema().dump(package), HTTPStatus.OK
 
 

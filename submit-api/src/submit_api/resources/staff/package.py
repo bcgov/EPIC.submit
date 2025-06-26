@@ -62,6 +62,8 @@ class Package(Resource):
     def get(package_id):
         """Get a package."""
         package = PackageService.get_package_by_id(package_id)
+        if not package:
+            return {"message": "Package not found"}, HTTPStatus.NOT_FOUND
         return StaffPackageSchema().dump(package), HTTPStatus.OK
 
 
