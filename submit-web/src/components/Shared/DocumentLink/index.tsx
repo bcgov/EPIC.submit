@@ -2,14 +2,14 @@ import { LinearProgress, Typography, Link as MuiLink } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
 type DocumentLinkProps = {
-  name: string;
+  name: string | React.ReactNode;
   loading: boolean;
-  openDocument: () => void;
+  onClick?: () => void;
 };
 export const DocumentLink = ({
   name,
   loading,
-  openDocument,
+  onClick = () => {},
 }: DocumentLinkProps) => {
   if (loading) {
     return (
@@ -19,11 +19,9 @@ export const DocumentLink = ({
         sx={{ mx: 0.5, color: BCDesignTokens.iconsColorLink }}
       >
         Preparing your file..
-        <LinearProgress />
-        <span style={{ visibility: "hidden" }}>{name}</span>
-        {/* This span is to ensure the loading text doesn't collapse */}
+        <LinearProgress sx={{ width: "250px" }} />
       </Typography>
     );
   }
-  return <MuiLink onClick={openDocument}>{name}</MuiLink>;
+  return <MuiLink onClick={onClick}>{name}</MuiLink>;
 };

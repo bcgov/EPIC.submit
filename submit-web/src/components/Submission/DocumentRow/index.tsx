@@ -1,12 +1,5 @@
 import { useState } from "react";
-import {
-  Box,
-  IconButton,
-  LinearProgress,
-  Link as MuiLink,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -50,7 +43,7 @@ export default function DocumentRow({
     submitted_by,
   } = documentSubmission;
 
-  const downloadDocument = async () => {
+  const openDocument = async () => {
     try {
       if (pendingGetObject) return;
       setPendingGetObject(true);
@@ -63,10 +56,6 @@ export default function DocumentRow({
     } finally {
       setPendingGetObject(false);
     }
-  };
-
-  const openDocument = () => {
-    downloadDocument();
   };
 
   return (
@@ -88,17 +77,13 @@ export default function DocumentRow({
                 submissionItem={submissionItem}
                 onClick={openDocument}
               >
-                <DocumentLink
-                  name={name}
-                  loading={pendingGetObject}
-                  openDocument={openDocument}
-                />
+                <DocumentLink name={name} loading={pendingGetObject} />
               </SubmissionItemReviewConfirmation>
             ) : (
               <DocumentLink
                 name={name}
                 loading={pendingGetObject}
-                openDocument={openDocument}
+                onClick={openDocument}
               />
             )}
           </Typography>

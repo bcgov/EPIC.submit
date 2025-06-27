@@ -1,4 +1,4 @@
-import { Box, Link as MuiLink, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { TableRow } from "@mui/material";
 import { InternalStaffDocument } from "@/models/SubmissionItem";
@@ -8,6 +8,8 @@ import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { useState } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { isAxiosError } from "axios";
+import { DocumentLink } from "@/components/Shared/DocumentLink";
 
 type InternalDocumentItemRowProps = Readonly<{
   internalStaffDocument: InternalStaffDocument;
@@ -35,8 +37,11 @@ export default function InternalDocumentItemRow({
       if (pendingGetObject) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
-    } catch (e) {
-      notify.error("Failed to download document");
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? "Failed to download document")
+        : "Failed to download document";
+      notify.error(errorMessage);
     } finally {
       setPendingGetObject(false);
     }
@@ -56,7 +61,11 @@ export default function InternalDocumentItemRow({
               mx: 0.5,
             }}
           >
-            <MuiLink onClick={handleDocumentClick}>{name}</MuiLink>
+            <DocumentLink
+              name={name}
+              loading={pendingGetObject}
+              onClick={handleDocumentClick}
+            />
           </Typography>
           {type === INTERNAL_STAFF_DOCUMENT_TYPE.LINK && (
             <LinkIcon htmlColor={BCDesignTokens.typographyColorLink} />

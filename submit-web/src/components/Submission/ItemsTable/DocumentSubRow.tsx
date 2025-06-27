@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Box, Link as MuiLink, TableRow, Typography } from "@mui/material";
+import { Box, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { StatusCell } from "../DocumentRow/StatusCell";
+import { isAxiosError } from "axios";
+import { DocumentLink } from "@/components/Shared/DocumentLink";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -26,8 +28,11 @@ export default function DocumentSubRow({
       if (pendingGetObject) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
-    } catch (e) {
-      notify.error("Failed to download document");
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? "Failed to download document")
+        : "Failed to download document";
+      notify.error(errorMessage);
     } finally {
       setPendingGetObject(false);
     }
@@ -50,7 +55,11 @@ export default function DocumentSubRow({
             mx: 0.5,
           }}
         >
-          <MuiLink onClick={openDocument}>{name}</MuiLink>
+          <DocumentLink
+            name={name}
+            onClick={openDocument}
+            loading={pendingGetObject}
+          />
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="left" width={"10%"}>
