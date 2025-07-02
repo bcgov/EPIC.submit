@@ -13,38 +13,38 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
-export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
-)({
-  component: SubmissionLayout,
-  loader: async ({
-    context: { queryClient },
-    params: { submissionPackageId },
-  }) => {
-    try {
-      const data = await queryClient.ensureQueryData(
-        getStaffSubmissionPackageQueryOptions({
-          packageId: Number(submissionPackageId),
-        }),
-      );
-      return data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
-          throw notFound();
-        }
-      } else {
-        throw error;
-      }
-    }
-  },
-  pendingComponent: () => (
+
+const PendingComponent = () => {
+  return (
     <PageGrid>
       <Grid item xs={12}>
         <ContentBoxSkeleton />
       </Grid>
     </PageGrid>
-  ),
+  );
+};
+
+export const Route = createFileRoute(
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
+)({
+  component: SubmissionLayout,
+  loader: ({ context: { queryClient }, params: { submissionPackageId } }) =>
+    queryClient.ensureQueryData(
+      getStaffSubmissionPackageQueryOptions({
+        packageId: Number(submissionPackageId),
+      }),
+    ),
+  onError: (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response?.status === HTTP_STATUS.NOT_FOUND
+    ) {
+      throw notFound();
+    }
+    throw error;
+  },
+  pendingComponent: PendingComponent,
+  pendingMs: 0,
   meta: ({ loaderData: submissionPackage }) => [
     { title: submissionPackage?.name },
   ],
@@ -64,6 +64,7 @@ export default function SubmissionLayout() {
   );
 
   const submissionPackageId = Number(submissionPackageIdParam);
+  console.log("SubmissionPackageId: ", submissionPackageId);
   const { data: submissionPackage } = useSuspenseQuery(
     getStaffSubmissionPackageQueryOptions({
       packageId: submissionPackageId,

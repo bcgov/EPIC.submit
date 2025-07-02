@@ -24,22 +24,21 @@ export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
 )({
   component: Submission,
-  loader: async ({ context: { queryClient }, params: { submissionId } }) => {
-    try {
-      const data = await queryClient.ensureQueryData(
-        getSubmissionItemQueryOptions({ itemId: Number(submissionId) }),
-      );
-      return data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
-          throw notFound();
-        }
-      } else {
-        throw error;
-      }
+  loader: async ({ context: { queryClient }, params: { submissionId } }) =>
+    queryClient.ensureQueryData(
+      getSubmissionItemQueryOptions({ itemId: Number(submissionId) }),
+    ),
+  onError: (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response?.status === HTTP_STATUS.NOT_FOUND
+    ) {
+      throw notFound();
     }
+    notify.error("Failed to load submission item");
+    throw error;
   },
+  pendingMs: 0,
   pendingComponent: LoadingSkeleton,
   meta: ({ loaderData: submissionItem }) => [
     { title: getSubmissionItemLabel(submissionItem?.type.name) },

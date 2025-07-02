@@ -15,24 +15,22 @@ export const Route = createFileRoute(
   "/staff/_staffLayout/invitations/entities/$proponentId",
 )({
   component: ProponentPage,
-  loader: async ({ context: { queryClient }, params: { proponentId } }) => {
-    try {
-      const data = await queryClient.ensureQueryData(
-        getProponentOptions(Number(proponentId), {
-          includeProjects: true,
-          includeInvitations: true,
-        }),
-      );
-      return data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
-          throw notFound();
-        }
-      } else {
-        throw error;
-      }
+  loader: ({ context: { queryClient }, params: { proponentId } }) =>
+    queryClient.ensureQueryData(
+      getProponentOptions(Number(proponentId), {
+        includeProjects: true,
+        includeInvitations: true,
+      }),
+    ),
+  onError: (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response?.status === HTTP_STATUS.NOT_FOUND
+    ) {
+      throw notFound();
     }
+    notify.error("Failed to load proponent data");
+    throw error;
   },
   meta: ({ loaderData, params }) => [
     { title: "Invitations", path: "/staff/invitations" },
@@ -41,6 +39,7 @@ export const Route = createFileRoute(
       path: `/staff/invitations/entities/${params.proponentId}`,
     },
   ],
+  pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>
       <Grid item xs={12}>
