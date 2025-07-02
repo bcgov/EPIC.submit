@@ -36,7 +36,6 @@ export const Route = createFileRoute(
 });
 
 export default function SubmissionPage() {
-  console.log("SubmissionPage component rendered");
   const { reset } = usePackageTableStore();
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const queryClient = useQueryClient();

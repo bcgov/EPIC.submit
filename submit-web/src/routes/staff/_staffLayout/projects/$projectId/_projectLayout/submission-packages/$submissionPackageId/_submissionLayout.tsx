@@ -64,7 +64,6 @@ export default function SubmissionLayout() {
   );
 
   const submissionPackageId = Number(submissionPackageIdParam);
-  console.log("SubmissionPackageId: ", submissionPackageId);
   const { data: submissionPackage } = useSuspenseQuery(
     getStaffSubmissionPackageQueryOptions({
       packageId: submissionPackageId,
