@@ -1,6 +1,6 @@
 import { useState } from "react";
 import dateUtils from "@/utils/dateUtils";
-import { Link as MuiLink, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmittedDocument } from "@/models/Submission";
 import { SubmissionStatusChip } from "../SubmissionStatusChip";
@@ -8,6 +8,8 @@ import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { TableRow } from "@mui/material";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { isAxiosError } from "axios";
+import { DocumentLink } from "../Shared/DocumentLink";
 
 type DocumentRowProps = Readonly<{
   submittedDocument: SubmittedDocument;
@@ -25,8 +27,11 @@ export default function DocumentTableRow({
       if (pendingGetObject) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
-    } catch (e) {
-      notify.error("Failed to download document");
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? error.message)
+        : "An unexpected error occurred";
+      notify.error(errorMessage);
     } finally {
       setPendingGetObject(false);
     }
@@ -52,7 +57,11 @@ export default function DocumentTableRow({
             mx: 0.5,
           }}
         >
-          <MuiLink onClick={openDocument}>{submittedDocument.name}</MuiLink>
+          <DocumentLink
+            onClick={openDocument}
+            name={submittedDocument.name}
+            loading={pendingGetObject}
+          />
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="right">

@@ -1,4 +1,4 @@
-import { Link as MuiLink, TableRow, Typography } from "@mui/material";
+import { TableRow } from "@mui/material";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { useState } from "react";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
@@ -9,6 +9,7 @@ import { useParams } from "@tanstack/react-router";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
 import { isAxiosError } from "axios";
+import { DocumentLink } from "@/components/Shared/DocumentLink";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -107,7 +108,7 @@ export default function Row({
   return (
     <TableRow>
       <SubmitTableCell>
-        <Typography
+        {/* <Typography
           variant="body1"
           color="inherit"
           sx={{
@@ -116,16 +117,13 @@ export default function Row({
             cursor: "pointer",
             mx: 0.5,
           }}
-        >
-          <MuiLink
-            onClick={openDocument}
-            sx={{
-              textDecoration: "none",
-            }}
-          >
-            {name}
-          </MuiLink>
-        </Typography>
+        > */}
+        <DocumentLink
+          name={name}
+          loading={pendingGetObject}
+          onClick={openDocument}
+        />
+        {/* </Typography> */}
       </SubmitTableCell>
       <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
       <SubmitTableCell align="right">{version}</SubmitTableCell>
