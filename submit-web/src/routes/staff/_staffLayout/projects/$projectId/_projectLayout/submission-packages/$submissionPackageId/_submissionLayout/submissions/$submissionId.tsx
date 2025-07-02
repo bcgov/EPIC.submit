@@ -13,22 +13,20 @@ export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
 )({
   component: Submission,
-  loader: async ({ context: { queryClient }, params: { submissionId } }) => {
-    try {
-      const data = await queryClient.ensureQueryData(
-        getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionId) }),
-      );
-      return data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
-          throw notFound();
-        }
-      } else {
-        throw error;
-      }
+  loader: ({ context: { queryClient }, params: { submissionId } }) =>
+    queryClient.ensureQueryData(
+      getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionId) }),
+    ),
+  onError: (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response?.status === HTTP_STATUS.NOT_FOUND
+    ) {
+      throw notFound();
     }
+    throw error;
   },
+  pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>
       <ContentBoxSkeleton />

@@ -19,27 +19,22 @@ export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
 )({
   component: SubmissionLayout,
-  loader: async ({
-    context: { queryClient },
-    params: { submissionPackageId },
-  }) => {
-    try {
-      const data = await queryClient.ensureQueryData(
-        getSubmissionPackageQueryOptions({
-          packageId: Number(submissionPackageId),
-        }),
-      );
-      return data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
-          throw notFound();
-        }
-      } else {
-        throw error;
-      }
+  loader: ({ context: { queryClient }, params: { submissionPackageId } }) =>
+    queryClient.ensureQueryData(
+      getSubmissionPackageQueryOptions({
+        packageId: Number(submissionPackageId),
+      }),
+    ),
+  onError: (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response?.status === HTTP_STATUS.NOT_FOUND
+    ) {
+      throw notFound();
     }
+    throw error;
   },
+  pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>
       <Grid item xs={12}>

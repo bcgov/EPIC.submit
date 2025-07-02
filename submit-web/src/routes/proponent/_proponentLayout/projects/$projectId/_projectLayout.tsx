@@ -15,21 +15,18 @@ import { isAxiosError } from "axios";
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout",
 )({
-  loader: async ({ context: { queryClient }, params: { projectId } }) => {
-    try {
-      const data = await queryClient.ensureQueryData(
-        getAccountProjectQueryOptions(Number(projectId)),
-      );
-      return data;
-    } catch (error) {
-      if (isAxiosError(error)) {
-        if (error.response?.status === HTTP_STATUS.NOT_FOUND) {
-          throw notFound();
-        }
-      } else {
-        throw error;
-      }
+  loader: ({ context: { queryClient }, params: { projectId } }) =>
+    queryClient.ensureQueryData(
+      getAccountProjectQueryOptions(Number(projectId)),
+    ),
+  onError: (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response?.status === HTTP_STATUS.NOT_FOUND
+    ) {
+      throw notFound();
     }
+    throw error;
   },
   component: ProjectLayout,
   meta: ({ loaderData, params }) => [
@@ -39,6 +36,7 @@ export const Route = createFileRoute(
       path: `/proponent/projects/${params.projectId}`,
     },
   ],
+  pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>
       <ProjectsSkeleton />
