@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Link as MuiLink,
   styled,
   TableCell,
   TableRow,
@@ -16,6 +15,7 @@ import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
 import { useFileStore } from "@/store/fileStore";
 import { useFormContext } from "react-hook-form";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
+import { DocumentLink } from "../Shared/DocumentLink";
 
 export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   ({ error }) => ({
@@ -170,9 +170,11 @@ export default function DocumentTableRow({
             textDecoration: "none",
           }}
         >
-          <MuiLink onClick={downloadDocument} sx={{ textDecoration: "none" }}>
-            {submitted_document.name}
-          </MuiLink>
+          <DocumentLink
+            name={submitted_document.name}
+            onClick={downloadDocument}
+            loading={pendingGetObject}
+          />
         </Typography>
       </DocumentTableCell>
       <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>

@@ -1,11 +1,5 @@
 import { useState } from "react";
-import {
-  Box,
-  IconButton,
-  Link as MuiLink,
-  TableRow,
-  Typography,
-} from "@mui/material";
+import { Box, IconButton, TableRow, Typography } from "@mui/material";
 import { Submission } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -23,6 +17,8 @@ import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { Unless } from "react-if";
 import { SubmissionPackage } from "@/models/Package";
+import { isAxiosError } from "axios";
+import { DocumentLink } from "@/components/Shared/DocumentLink";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -47,20 +43,19 @@ export default function DocumentRow({
     submitted_by,
   } = documentSubmission;
 
-  const downloadDocument = async () => {
+  const openDocument = async () => {
     try {
       if (pendingGetObject) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
-    } catch (e) {
-      notify.error("Failed to download document");
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? "Failed to download document")
+        : "Failed to download document";
+      notify.error(errorMessage);
     } finally {
       setPendingGetObject(false);
     }
-  };
-
-  const openDocument = () => {
-    downloadDocument();
   };
 
   return (
@@ -82,10 +77,14 @@ export default function DocumentRow({
                 submissionItem={submissionItem}
                 onClick={openDocument}
               >
-                <MuiLink>{name}</MuiLink>
+                <DocumentLink name={name} loading={pendingGetObject} />
               </SubmissionItemReviewConfirmation>
             ) : (
-              <MuiLink onClick={openDocument}>{name}</MuiLink>
+              <DocumentLink
+                name={name}
+                loading={pendingGetObject}
+                onClick={openDocument}
+              />
             )}
           </Typography>
         </SubmitTableCell>

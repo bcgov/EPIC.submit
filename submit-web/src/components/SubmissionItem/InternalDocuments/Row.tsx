@@ -1,4 +1,4 @@
-import { Box, Link as MuiLink, TableRow, Typography } from "@mui/material";
+import { Box, TableRow, Typography } from "@mui/material";
 import { useState } from "react";
 import {
   INTERNAL_STAFF_DOCUMENT_TYPE,
@@ -14,6 +14,8 @@ import { useParams } from "@tanstack/react-router";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import { useFileStore } from "@/store/fileStore";
 import LinkIcon from "@mui/icons-material/Link";
+import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { isAxiosError } from "axios";
 
 type RowProps = Readonly<{
   internalStaffDocument: InternalStaffDocument;
@@ -53,8 +55,11 @@ export default function Row({ internalStaffDocument }: RowProps) {
       if (pendingGetObject) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
-    } catch (e) {
-      notify.error("Failed to download document");
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? "Failed to download document")
+        : "Failed to download document";
+      notify.error(errorMessage);
     } finally {
       setPendingGetObject(false);
     }
@@ -70,8 +75,11 @@ export default function Row({ internalStaffDocument }: RowProps) {
         documentId: internalStaffDocument.id,
       });
       removeFile(internalStaffDocument.id);
-    } catch (e) {
-      notify.error("Failed to remove document");
+    } catch (error) {
+      const errorMessage = isAxiosError(error)
+        ? (error.response?.data?.message ?? "Failed to remove document")
+        : "Failed to remove document";
+      notify.error(errorMessage);
     } finally {
       setIsRemovingDocument(false);
     }
@@ -88,9 +96,14 @@ export default function Row({ internalStaffDocument }: RowProps) {
               textOverflow: "ellipsis",
               cursor: "pointer",
               mx: 0.5,
+              height: "28px",
             }}
           >
-            <MuiLink onClick={handleDocumentClick}>{name}</MuiLink>
+            <DocumentLink
+              name={name}
+              loading={pendingGetObject}
+              onClick={handleDocumentClick}
+            />
           </Typography>
           {type === INTERNAL_STAFF_DOCUMENT_TYPE.LINK && (
             <LinkIcon htmlColor={BCDesignTokens.typographyColorLink} />

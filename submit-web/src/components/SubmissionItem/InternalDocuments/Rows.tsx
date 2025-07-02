@@ -54,22 +54,20 @@ export default function Rows({
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="right" colSpan={4}>
           {!hideManageDocuments && (
-            <>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: BCDesignTokens.typographyColorLink,
-                  "&:hover": {
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                  },
-                  mx: 2,
-                }}
-                onClick={handleClick}
-              >
-                Add/Manage Documents
-              </Typography>
-            </>
+            <Typography
+              variant="body2"
+              sx={{
+                color: BCDesignTokens.typographyColorLink,
+                "&:hover": {
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                },
+                mx: 2,
+              }}
+              onClick={handleClick}
+            >
+              Add/Manage Documents
+            </Typography>
           )}
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
@@ -84,13 +82,12 @@ export default function Rows({
             key={`doc-row-${document.id}`}
             internalStaffDocument={document}
           />
-        )
+        ),
       )}
       {pendingFiles.map((pendingDocument) => (
         <PendingRow
           key={`pending-doc-row-${pendingDocument.id}`}
           pendingDocument={pendingDocument}
-          numColumns={5}
         />
       ))}
       <EmptyRow colSpan={4} />

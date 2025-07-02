@@ -30,7 +30,7 @@ export default function InternalDocumentSection() {
 
   const internalStaffDocuments = useMemo(
     () => submissionPackage?.internal_staff_documents || [],
-    [submissionPackage]
+    [submissionPackage],
   );
 
   useEffect(() => {

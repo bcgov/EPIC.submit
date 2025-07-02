@@ -47,7 +47,7 @@ export default function PendingRow({ pendingDocument }: RowProps) {
   const firstPendingFile = useMemo(() => {
     return pendingFiles.reduce(
       (prev, current) => (prev.id < current.id ? prev : current),
-      pendingFiles[0] ?? { id: Infinity }
+      pendingFiles[0] ?? { id: Infinity },
     );
   }, [pendingFiles]);
 
@@ -62,7 +62,7 @@ export default function PendingRow({ pendingDocument }: RowProps) {
 
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData<AccountProject>(
-    getAccountProjectQueryOptions(Number(projectId)).queryKey
+    getAccountProjectQueryOptions(Number(projectId)).queryKey,
   );
   const projectName = camelCase(accountProject?.project.name ?? "");
 
@@ -89,7 +89,7 @@ export default function PendingRow({ pendingDocument }: RowProps) {
       completeFileUpload(pendingDocument.id, createdInternalStaff);
     } catch (error) {
       const errorMessage = isAxiosError(error)
-        ? error.response?.data?.message || "Failed to upload document"
+        ? (error.response?.data?.message ?? "Failed to upload document")
         : "Failed to upload document";
       notify.error(errorMessage);
       removePendingFile(pendingDocument.id);
