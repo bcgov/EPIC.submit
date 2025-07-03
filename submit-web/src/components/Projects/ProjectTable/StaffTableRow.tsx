@@ -79,7 +79,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
                 sx={{ mr: 0.5 }}
                 color="inherit"
               >
-                {main_condition?.condition_number} - {name}
+                {name}
               </Typography>
 
               <ArrowForwardIos fontSize="small" htmlColor="inherit" />
