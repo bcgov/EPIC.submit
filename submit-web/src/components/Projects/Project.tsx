@@ -31,13 +31,13 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const { userType } = useAccount();
 
   const activeSubmissionPackages = accountProject.packages.filter(
-    (subPackage) => !subPackage.completed_on,
+    (subPackage) => !subPackage.completed_on
   );
   const pastSubmissionPackages = accountProject.packages.filter((subPackage) =>
-    Boolean(subPackage.completed_on),
+    Boolean(subPackage.completed_on)
   );
 
-  const { name, ea_certificate } = accountProject.project;
+  const { name, ea_certificate, main_condition } = accountProject.project;
 
   const handleNewSubmission = () => {
     navigate({
@@ -47,7 +47,11 @@ export const Project = ({ accountProject }: ProjectParam) => {
 
   return (
     <ContentBox
-      mainLabel={name}
+      mainLabel={
+        main_condition?.condition_number
+          ? `${main_condition?.condition_number} - ${name}`
+          : name
+      }
       topLabel={accountProject.project.proponent_name}
       bottomLabel={ea_certificate ? `EAC # ${ea_certificate}` : ""}
     >

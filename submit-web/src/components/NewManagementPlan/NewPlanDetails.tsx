@@ -57,11 +57,9 @@ export const NewPlanDetails = ({
   const handleBack = () => {
     setStep(Math.min(step - 1, 0));
   };
-  const mainCondition = formData?.main_condition;
-
-  const managementPlanName = useMemo(() => {
-    return `${mainCondition?.condition_number} - ${mainCondition?.condition_name}`;
-  }, [mainCondition]);
+  const managementPlanName =
+    formData?.main_condition?.condition_attributes?.deliverable_name?.[0] ??
+    get(formData, "main_condition.condition_name");
 
   const submissionPackageType = useMemo(() => {
     const type = get(formData, "main_condition.condition_attributes");
@@ -86,6 +84,7 @@ export const NewPlanDetails = ({
     });
   };
 
+  const mainCondition = formData?.main_condition;
   const consultedParties = Array.isArray(
     mainCondition?.condition_attributes?.parties_required_to_be_consulted
   )
