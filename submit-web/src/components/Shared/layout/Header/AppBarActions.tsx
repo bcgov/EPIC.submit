@@ -30,7 +30,7 @@ type IdentityProvider =
 export default function AppBarActions() {
   const auth = useAuth();
   const { data: user_data, isPending: isUserDataLoading } = useGetUserByGuid({
-    guid: auth.user?.profile.sub,
+    guid: auth.user?.profile?.sub,
   });
 
   const navigate = useNavigate();
@@ -74,14 +74,14 @@ export default function AppBarActions() {
     if (isProponent && user_data?.account_user) {
       return getUserGreeting(
         user_data.account_user.first_name,
-        user_data.account_user.last_name
+        user_data.account_user.last_name,
       );
     }
 
     if (user_data?.staff_user) {
       return getUserGreeting(
         user_data.staff_user.first_name,
-        user_data.staff_user.last_name
+        user_data.staff_user.last_name,
       );
     }
 

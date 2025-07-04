@@ -43,6 +43,8 @@ export default function SubmissionPage() {
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
       .queryKey,
   );
+
+  console.log(accountProject);
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
   });
@@ -52,12 +54,14 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
+  console.log(submissionPackage);
 
   const { data: packageVersions } = useGetPackageVersionsByOriginalPackageId({
     originalPackageId: submissionPackage?.version?.original_package_id,
     enabled: Boolean(submissionPackage?.version?.original_package_id),
   });
 
+  console.log(packageVersions);
   const isLatestApprovedPackageVersion = packageVersions?.find(
     (packageVersion) =>
       packageVersion.is_approved &&

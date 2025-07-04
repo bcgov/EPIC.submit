@@ -39,7 +39,11 @@ export default function StaffSubmissionItemTableRow({
       }),
     );
 
+  console.log("Submission Package: ", submissionPackage, isPackagePending);
+
   const { submissions, id } = item;
+
+  console.log("Submissions: ", submissions);
 
   const { submitted_on } = submissionPackage;
 
