@@ -13,6 +13,7 @@ import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { SubmitLink } from "@/components/Shared/SubmitLink";
 import { useMemo } from "react";
+import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 
 type ProjectRowProps = Readonly<{
   submissionPackage: SubmissionPackage;
@@ -29,7 +30,6 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
   };
 
   const {
-    name,
     meta,
     days_since_submission = 0,
     submitted_on,
@@ -47,6 +47,8 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
     const days = dayjs().endOf("day").diff(end_of_day_review_start_date, "day");
     return Math.max(0, days);
   }, [review_start_date]);
+
+  const managementPlanName = useManagementPlanName(submissionPackage);
 
   return (
     <>
@@ -79,7 +81,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
                 sx={{ mr: 0.5 }}
                 color="inherit"
               >
-                {name}
+                {managementPlanName}
               </Typography>
 
               <ArrowForwardIos fontSize="small" htmlColor="inherit" />

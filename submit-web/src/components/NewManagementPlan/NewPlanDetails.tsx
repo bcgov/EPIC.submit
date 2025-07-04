@@ -60,8 +60,11 @@ export const NewPlanDetails = ({
   const mainCondition = formData?.main_condition;
 
   const managementPlanName = useMemo(() => {
-    return `${mainCondition?.condition_number} - ${mainCondition?.condition_name}`;
-  }, [mainCondition]);
+    return (
+      mainCondition?.condition_attributes?.deliverable_name?.[0] ??
+      get(formData, "main_condition.condition_name")
+    );
+  }, [mainCondition, formData]);
 
   const submissionPackageType = useMemo(() => {
     const type = get(formData, "main_condition.condition_attributes");
