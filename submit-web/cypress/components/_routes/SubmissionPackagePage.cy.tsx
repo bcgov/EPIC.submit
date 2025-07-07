@@ -13,10 +13,13 @@ import {
   mockAccount,
   mockAccountProject,
   mockAuthentication,
-  mockConsultationrecord,
+  mockConsultationRecord,
+  mockConsultationRecordDocument,
   mockContactInformation,
   mockManagementPlan,
+  mockManagementPlanDocument,
   mockSubmissionPackage,
+  mockSupportingDocument,
 } from "../utils/mockConstants";
 
 describe("package table page", () => {
@@ -102,8 +105,31 @@ describe("package table page", () => {
     );
 
     cy.contains(mockSubmissionPackage.name).should("exist");
-    cy.contains(mockConsultationrecord.type.name).should("exist");
+    cy.contains(mockConsultationRecord.type.name).should("exist");
     cy.contains(mockManagementPlan.type.name).should("exist");
+
+    // Find the row for the consultation record
+    cy.contains("tr", mockConsultationRecord.type.name)
+      .parent()
+      .within(() => {
+        // There should be one document under the consultation record
+        cy.contains(
+          String(mockConsultationRecordDocument.submitted_document?.name),
+        ).should("exist");
+      });
+
+    // Find the row for the management plan
+    cy.contains("tr", mockManagementPlan.type.name)
+      .parent() // get the tbody or table section
+      .within(() => {
+        // The next two rows should be the management plan document and the supporting document
+        cy.contains(
+          String(mockManagementPlanDocument.submitted_document?.name),
+        ).should("exist");
+        cy.contains(
+          String(mockSupportingDocument.submitted_document?.name),
+        ).should("exist");
+      });
     cy.contains(mockContactInformation.type.name).should("exist");
     cy.contains("EAO Internal Documents").should("exist");
   });

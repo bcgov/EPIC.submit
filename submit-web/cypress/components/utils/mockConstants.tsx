@@ -1,12 +1,69 @@
 import { SubmissionPackage } from "../../../src/models/Package";
 import { AccountProject } from "../../../src/models/Project";
 import { EPIC_SUBMIT_ROLE } from "../../../src/models/Role";
-import { SUBMISSION_ITEM_STATUS } from "../../../src/models/Submission";
+import {
+  Submission,
+  SUBMISSION_ITEM_STATUS,
+} from "../../../src/models/Submission";
 import {
   SUBMISSION_ITEM_TYPE,
   SubmissionItemMethod,
 } from "../../../src/models/SubmissionItem";
 import { USER_TYPE } from "../../../src/models/User";
+
+export const mockConsultationRecordDocument: Submission = {
+  created_date: "2025-04-29T14:24:36.093429",
+  id: 726,
+  item_id: 555,
+  major_version: 1,
+  minor_version: 1,
+  status: "SUBMITTED",
+  submitted_by: "David d",
+  submitted_document: {
+    folder: "consultation_records",
+    id: 417,
+    name: "consultation_record.pdf",
+    url: "folder/consultation_record.pdf",
+  },
+  type: "DOCUMENT",
+  version: "1.1",
+};
+
+export const mockManagementPlanDocument: Submission = {
+  created_date: "2025-05-01T10:15:20.123456",
+  id: 727,
+  item_id: 655,
+  major_version: 1,
+  minor_version: 0,
+  status: "SUBMITTED",
+  submitted_by: "Alice A",
+  submitted_document: {
+    folder: "management_plans",
+    id: 418,
+    name: "management_plan.pdf",
+    url: "management_plans/management_plan.pdf",
+  },
+  type: "DOCUMENT",
+  version: "1.0",
+};
+
+export const mockSupportingDocument: Submission = {
+  created_date: "2025-05-02T09:30:00.000000",
+  id: 728,
+  item_id: 656,
+  major_version: 1,
+  minor_version: 0,
+  status: "SUBMITTED",
+  submitted_by: "Bob B",
+  submitted_document: {
+    folder: "supporting_documents",
+    id: 419,
+    name: "supporting_document.pdf",
+    url: "supporting_documents/supporting_document.pdf",
+  },
+  type: "DOCUMENT",
+  version: "1.0",
+};
 
 export const mockContactInformation = {
   id: 653,
@@ -28,7 +85,7 @@ export const mockContactInformation = {
   version: 1,
 };
 
-export const mockConsultationrecord = {
+export const mockConsultationRecord = {
   id: 654,
   notes: [],
   package_id: 244,
@@ -36,7 +93,7 @@ export const mockConsultationrecord = {
   review_start_date: undefined,
   sort_order: 1,
   status: SUBMISSION_ITEM_STATUS.PASSED_CONSULTATION_CHECK.value,
-  submissions: [],
+  submissions: [mockConsultationRecordDocument],
   submitted_by: "",
   submitted_on: "",
   type: {
@@ -56,7 +113,7 @@ export const mockManagementPlan = {
   review_start_date: undefined,
   sort_order: 2,
   status: SUBMISSION_ITEM_STATUS.UNDER_REVIEW.value,
-  submissions: [],
+  submissions: [mockManagementPlanDocument, mockSupportingDocument],
   submitted_by: "",
   submitted_on: "",
   type: {
@@ -73,7 +130,7 @@ export const mockSubmissionPackage: SubmissionPackage = {
   completed_on: undefined,
   id: 244,
   internal_staff_documents: [],
-  items: [mockContactInformation, mockConsultationrecord, mockManagementPlan],
+  items: [mockContactInformation, mockConsultationRecord, mockManagementPlan],
   meta: {
     main_condition: undefined,
     supporting_conditions: [],
@@ -82,7 +139,7 @@ export const mockSubmissionPackage: SubmissionPackage = {
   review_status: undefined,
   status: [],
   submitted_by: "Eric Levasseur",
-  submitted_on: undefined,
+  submitted_on: "2025-05-01T10:15:20.123456",
   type: {
     id: 1,
     name: "Management Plan",
