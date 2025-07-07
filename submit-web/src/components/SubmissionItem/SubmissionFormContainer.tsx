@@ -10,6 +10,7 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { SubmissionPackage } from "@/models/Package";
+import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 
 type SubmissionFormContainerProps = {
   children: React.ReactNode;
@@ -31,6 +32,8 @@ export const SubmissionFormContainer = ({
     QUERY_KEY.SUBMISSION_PACKAGE,
     Number(submissionPackageId),
   ]);
+
+  const managementPlanName = useManagementPlanName(submissionPackage);
 
   if (isPending || !submissionPackage)
     return <Skeleton variant="rectangular" height={400} />;
@@ -71,7 +74,7 @@ export const SubmissionFormContainer = ({
               gap: BCDesignTokens.layoutPaddingLarge,
             }}
           >
-            <BarTitle title={submissionPackage?.name || ""} />
+            <BarTitle title={managementPlanName || ""} />
             <Grid
               container
               spacing={BCDesignTokens.layoutMarginMedium}
