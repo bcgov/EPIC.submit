@@ -231,7 +231,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
             >
               <Grid container direction="row" alignItems="center" spacing={1}>
                 <Grid item xs={10}>
-                  <Typography variant="h2" sx={{ fontWeight: 400 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 400 }}>
                     {user.full_name}
                   </Typography>
                 </Grid>
