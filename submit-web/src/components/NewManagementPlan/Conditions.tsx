@@ -82,14 +82,14 @@ export const Conditions = () => {
     conditionName: string
   ) => {
     const newCondition = conditions?.find(
-      (c) => c.condition_name === conditionName
+      (c) => c.plan_name === conditionName
     );
 
     if (newCondition?.condition_number != null) {
       setSupportingConditions((prevConditions) => {
         const updatedConditions = [...prevConditions];
         updatedConditions[index] =
-          conditions?.find((c) => c.condition_name === conditionName)
+          conditions?.find((c) => c.plan_name === conditionName)
             ?.condition_number ?? 0;
         return updatedConditions;
       });
@@ -139,14 +139,14 @@ export const Conditions = () => {
             sx={{ marginBottom: "10px" }}
             onChange={(e) => {
               setMainCondition(
-                conditions?.find((c) => c.condition_name === e.target.value) ||
+                conditions?.find((c) => c.plan_name === e.target.value) ||
                   null
               );
               if (errorText) {
                 setErrorText(null);
               }
             }}
-            value={mainCondition?.condition_name || ""}
+            value={mainCondition?.plan_name || ""}
           >
             {conditions
               ?.filter(
@@ -155,12 +155,12 @@ export const Conditions = () => {
                   !supportingConditions.includes(condition.condition_number)
               )
               .map((condition) => {
-                const conditionLabel = `Condition ${condition.condition_number} - ${condition.condition_name}`;
+                const conditionLabel = `Condition ${condition.condition_number} - ${condition.plan_name}`;
 
                 return (
                   <MenuItem
-                    key={condition.condition_name || ""}
-                    value={condition.condition_name || ""}
+                    key={condition.plan_name || ""}
+                    value={condition.plan_name || ""}
                   >
                     {conditionLabel}
                   </MenuItem>
@@ -188,7 +188,7 @@ export const Conditions = () => {
                   }}
                   value={
                     conditions?.find((c) => c.condition_number === input)
-                      ?.condition_name || ""
+                      ?.plan_name || ""
                   }
                 >
                   {conditions
@@ -203,29 +203,29 @@ export const Conditions = () => {
                     )
                     .map((condition) => (
                       <MenuItem
-                        key={condition.condition_name || ""}
-                        value={condition.condition_name || ""}
+                        key={condition.plan_name || ""}
+                        value={condition.plan_name || ""}
                       >
-                        {`Condition ${condition.condition_number} - ${condition.condition_name}`}
+                        {`Condition ${condition.condition_number} - ${condition.plan_name}`}
                       </MenuItem>
                     ))}
                   {conditions?.find(
                     (c) =>
-                      c.condition_name ===
+                      c.plan_name ===
                       (conditions?.find((c) => c.condition_number === input)
-                        ?.condition_name || "")
+                        ?.plan_name || "")
                   ) && (
                     <MenuItem
                       key={
                         conditions?.find((c) => c.condition_number === input)
-                          ?.condition_name || ""
+                          ?.plan_name || ""
                       }
                       value={
                         conditions?.find((c) => c.condition_number === input)
-                          ?.condition_name || ""
+                          ?.plan_name || ""
                       }
                     >
-                      {`Condition ${conditions?.find((c) => c.condition_number === input)?.condition_number} - ${conditions?.find((c) => c.condition_number === input)?.condition_name}`}
+                      {`Condition ${conditions?.find((c) => c.condition_number === input)?.condition_number} - ${conditions?.find((c) => c.condition_number === input)?.plan_name}`}
                     </MenuItem>
                   )}
                 </TextField>
