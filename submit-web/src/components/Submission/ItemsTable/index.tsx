@@ -18,8 +18,6 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   const { initializeFiles } = useFileStore();
   const { items: submissionItems } = submissionPackage;
 
-  console.log("Submission Items: ", submissionItems);
-
   const { userType } = useAccount();
 
   const { isValidating } = usePackageTableStore();

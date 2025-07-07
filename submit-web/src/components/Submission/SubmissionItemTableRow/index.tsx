@@ -16,8 +16,6 @@ export default function SubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const { userType } = useAccount();
 
-  console.log("userType: ", userType);
-
   return (
     <Switch>
       <Case condition={userType === USER_TYPE.PROPONENT}>

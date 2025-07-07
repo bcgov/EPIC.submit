@@ -31,7 +31,7 @@ import WarningBox from "@/components/Shared/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/"
+  "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
   component: SubmissionPage,
 });
@@ -42,10 +42,9 @@ export default function SubmissionPage() {
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
-      .queryKey
+      .queryKey,
   );
 
-  console.log(accountProject);
   const { submissionPackageId: submissionPackageIdParam } = useParams({
     strict: false,
   });
@@ -55,31 +54,29 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
-  console.log(submissionPackage);
 
   const { data: packageVersions } = useGetPackageVersionsByOriginalPackageId({
     originalPackageId: submissionPackage?.version?.original_package_id,
     enabled: Boolean(submissionPackage?.version?.original_package_id),
   });
 
-  console.log(packageVersions);
   const isLatestApprovedPackageVersion = packageVersions?.find(
     (packageVersion) =>
       packageVersion.is_approved &&
-      packageVersion.package_id === submissionPackageId
+      packageVersion.package_id === submissionPackageId,
   );
 
   const latestApprovedVersion = Math.max(
     ...(packageVersions
       ?.filter((pv) => pv.is_approved)
-      .map((pv) => pv.version) || [0])
+      .map((pv) => pv.version) || [0]),
   );
 
   const isNewerThanLastApprovedButNotApproved = Boolean(
     (latestApprovedVersion > 0 &&
       !submissionPackage?.version?.is_approved &&
       submissionPackage?.version?.version) ??
-      0 > latestApprovedVersion
+      0 > latestApprovedVersion,
   );
 
   const navigate = useNavigate();
