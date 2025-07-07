@@ -11,6 +11,7 @@ import {
 import EmptyRow from "./EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
 import { SubmitLink } from "@/components/Shared/SubmitLink";
+import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 
 interface ProjectRowProps {
   subPackage: SubmissionPackage;
@@ -23,6 +24,9 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
       to: `/proponent/projects/${subPackage.account_project_id}/submission-packages/${subPackage.id}`,
     });
   };
+
+  const managementPlanName = useManagementPlanName(subPackage);
+
   return (
     <>
       <StyledProjectTableRow>
@@ -43,7 +47,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
               fontWeight={"500"}
               sx={{ mr: 0.5 }}
             >
-              {subPackage.name}
+              {managementPlanName}
             </Typography>
             <ArrowForwardIos fontSize="small" />
           </SubmitLink>
