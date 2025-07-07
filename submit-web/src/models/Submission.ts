@@ -284,7 +284,7 @@ export type Submission = {
   minor_version: number;
   major_version: number;
   type: SubmissionType;
-  submitted_document: DocumentSubmission;
+  submitted_document?: DocumentSubmission;
   submitted_form?: SubmittedForm;
   created_date: string;
   submitted_by: string;
