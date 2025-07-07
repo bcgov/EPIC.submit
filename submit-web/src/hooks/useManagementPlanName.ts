@@ -16,15 +16,15 @@ export const useManagementPlanName = (
       return "";
     }
 
-    if (
+    const conditionNumber =
+      submissionPackage?.meta?.main_condition?.condition_number;
+
+    const needsConditionNumber =
       submissionPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN ||
-      submissionPackage.type.name === SubmissionPackageType.IEM
-    ) {
-      return (
-        submissionPackage.meta?.main_condition?.condition_number +
-        " - " +
-        submissionPackage.name
-      );
+      submissionPackage.type.name === SubmissionPackageType.IEM;
+
+    if (needsConditionNumber && conditionNumber) {
+      return conditionNumber + " - " + submissionPackage.name;
     }
     return submissionPackage.name;
   }, [submissionPackage]);
