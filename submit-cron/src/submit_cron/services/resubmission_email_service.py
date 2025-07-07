@@ -62,7 +62,6 @@ class ResubmissionEmailService:
         """Prepare email details for resubmission request for all project admin users."""
         if not package.submitted_by_user or not package.submitted_by_user.account_user:
             raise BadRequestError(f"Submitter with auth_guid {package.submitted_by} not found")
-        submitter = package.submitted_by_user.account_user
         web_url = current_app.config.get('WEB_URL')
         submission_link = f"{web_url}/proponent/projects/{package.account_project_id}/submission-packages/{package.id}"
         # Get all email addresses from project admin users
@@ -72,7 +71,6 @@ class ResubmissionEmailService:
             template_name=MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
             body_args={
                 'submission_link': submission_link,
-                'submitter_name': submitter.full_name,
                 'package_name': package.name,
             },
             subject=f'Invitation to resubmit a new version of {package.name} in EPIC.submit',
