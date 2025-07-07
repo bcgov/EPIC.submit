@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { TableBox } from "../../../Shared/TableBox";
-import { Box, Container, Divider, Grid, IconButton, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  Paper,
+  Typography,
+} from "@mui/material";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
@@ -21,13 +29,13 @@ function UserDetails({ user }: UserDetailsProps) {
   const showEdit = account.userId !== user.user_id;
   const INACTIVE_STATUS: UserPackageStatus = "INACTIVE";
   const isContributor =
-    userData.role?.role_name === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
+    userData.role?.role_name ===
+    USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
   const isInactive = userData.status === INACTIVE_STATUS;
   const navigate = useNavigate();
   const handleEditClick = () => {
     navigate({ to: "/proponent/user-management/edit-role" });
   };
-
 
   useEffect(() => {
     setUserData(user);
@@ -53,7 +61,7 @@ function UserDetails({ user }: UserDetailsProps) {
         >
           <Grid container direction="row" alignItems="center" spacing={1}>
             <Grid item xs={10}>
-              <Typography variant="h2" sx={{ fontWeight: 400 }}>
+              <Typography variant="h5" sx={{ fontWeight: 400 }}>
                 {userData.full_name}
               </Typography>
             </Grid>
@@ -76,30 +84,32 @@ function UserDetails({ user }: UserDetailsProps) {
         </Box>
         <UserInfoBox userData={userData} showEdit={showEdit} />
         {isInactive ? (
+          <Box
+            sx={{
+              background: BCDesignTokens.supportSurfaceColorSuccess,
+              border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+              borderRadius: 1,
+              mt: 3,
+              mx: 2,
+            }}
+          >
             <Box
               sx={{
-                background: BCDesignTokens.supportSurfaceColorSuccess,
-                border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-                borderRadius: 1,
-                mt: 3,
-                mx: 2,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                alignItems: "flex-start",
+                padding: "8px",
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-start",
-                  alignItems: "flex-start",
-                  padding: "8px",
-                }}
-              >
-                <Typography variant="body1" color="black">
-                  This user has been successfully deactivated.
-                </Typography>
-              </Box>
+              <Typography variant="body1" color="black">
+                This user has been successfully deactivated.
+              </Typography>
             </Box>
-          ) : isContributor && showEdit && (
+          </Box>
+        ) : (
+          isContributor &&
+          showEdit && (
             <Container
               maxWidth="sm"
               sx={{
@@ -143,28 +153,37 @@ function UserDetails({ user }: UserDetailsProps) {
                   />
                   <Typography
                     variant="body2"
-                    sx={{ fontWeight: 400, color: BCDesignTokens.iconsColorLink }}
+                    sx={{
+                      fontWeight: 400,
+                      color: BCDesignTokens.iconsColorLink,
+                    }}
                   >
                     Edit Access
                   </Typography>
                 </IconButton>
               </Box>
               <Divider
-                sx={{ backgroundColor: BCDesignTokens.themeGold100, height: 1, mb: 2 }}
+                sx={{
+                  backgroundColor: BCDesignTokens.themeGold100,
+                  height: 1,
+                  mb: 2,
+                }}
               />
-              {Array.isArray(userData.role?.package_names) && userData.role.package_names.length > 0 && (
-                <ul style={{ paddingLeft: '1.25rem', marginTop: 4 }}>
-                  {userData.role.package_names.map((name, index) => (
-                    <li key={index}>
-                      <Typography variant="body2" color="inherit">
-                        {name}
-                      </Typography>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {Array.isArray(userData.role?.package_names) &&
+                userData.role.package_names.length > 0 && (
+                  <ul style={{ paddingLeft: "1.25rem", marginTop: 4 }}>
+                    {userData.role.package_names.map((name, index) => (
+                      <li key={index}>
+                        <Typography variant="body2" color="inherit">
+                          {name}
+                        </Typography>
+                      </li>
+                    ))}
+                  </ul>
+                )}
             </Container>
-          )}
+          )
+        )}
       </Paper>
     </TableBox>
   );
