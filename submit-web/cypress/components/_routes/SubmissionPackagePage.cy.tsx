@@ -22,7 +22,7 @@ import {
   mockSupportingDocument,
 } from "../utils/mockConstants";
 
-describe("package table page", () => {
+const mountDefaultPage = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -30,6 +30,15 @@ describe("package table page", () => {
       },
     },
   });
+
+  queryClient.setQueryData(
+    [QUERY_KEY.SUBMISSION_PACKAGE, 244],
+    mockSubmissionPackage,
+  );
+  queryClient.setQueryData(
+    [QUERY_KEY.ACCOUNT_PROJECT, 115],
+    mockAccountProject,
+  );
 
   const router = createRouter({
     routeTree: routeTree,
@@ -40,13 +49,36 @@ describe("package table page", () => {
     },
   });
 
+  router.navigate({
+    to: `/staff/projects/115/submission-packages/244`,
+  });
+
+  mount(
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider {...OidcConfig}>
+        <RouterProvider
+          router={router}
+          context={{
+            authentication: mockAuthentication,
+            account: mockAccount,
+          }}
+        />
+        ;
+      </AuthProvider>
+    </QueryClientProvider>,
+  );
+};
+
+describe("package table page", () => {
   beforeEach(() => {
-    cy.viewport(1200, 800);
+    cy.viewport(1280, 800);
     mockZustandStore(useAccount, {
       userType: USER_TYPE.STAFF,
+      reset: () => {},
     });
     mockZustandStore(usePackageTableStore, {
       isValidating: false,
+      reset: () => {},
     });
 
     setupTokenStorage();
@@ -75,39 +107,21 @@ describe("package table page", () => {
     ).as("getActivityLogs");
   });
 
-  queryClient.setQueryData(
-    [QUERY_KEY.SUBMISSION_PACKAGE, 244],
-    mockSubmissionPackage,
-  );
-  queryClient.setQueryData(
-    [QUERY_KEY.ACCOUNT_PROJECT, 115],
-    mockAccountProject,
-  );
-
-  it("renders", () => {
-    router.navigate({
-      to: `/staff/projects/115/submission-packages/244`,
-    });
-
-    mount(
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider {...OidcConfig}>
-          <RouterProvider
-            router={router}
-            context={{
-              authentication: mockAuthentication,
-              account: mockAccount,
-            }}
-          />
-          ;
-        </AuthProvider>
-      </QueryClientProvider>,
-    );
+  it("test page renders", () => {
+    mountDefaultPage();
 
     cy.contains(mockSubmissionPackage.name).should("exist");
     cy.contains(mockConsultationRecord.type.name).should("exist");
     cy.contains(mockManagementPlan.type.name).should("exist");
+    cy.contains("tr", mockConsultationRecord.type.name);
+    cy.contains("tr", mockManagementPlan.type.name);
 
+    cy.contains(mockContactInformation.type.name).should("exist");
+    cy.contains("EAO Internal Documents").should("exist");
+  });
+
+  it("test document rendering", () => {
+    mountDefaultPage();
     // Find the row for the consultation record
     cy.contains("tr", mockConsultationRecord.type.name)
       .parent()
@@ -130,7 +144,5 @@ describe("package table page", () => {
           String(mockSupportingDocument.submitted_document?.name),
         ).should("exist");
       });
-    cy.contains(mockContactInformation.type.name).should("exist");
-    cy.contains("EAO Internal Documents").should("exist");
   });
 });
