@@ -79,17 +79,17 @@ export const Conditions = () => {
 
   const handleAnotherSupportingCondition = (
     index: number,
-    conditionName: string
+    planName: string
   ) => {
     const newCondition = conditions?.find(
-      (c) => c.plan_name === conditionName
+      (c) => c.plan_name === planName
     );
 
     if (newCondition?.condition_number != null) {
       setSupportingConditions((prevConditions) => {
         const updatedConditions = [...prevConditions];
         updatedConditions[index] =
-          conditions?.find((c) => c.plan_name === conditionName)
+          conditions?.find((c) => c.plan_name === planName)
             ?.condition_number ?? 0;
         return updatedConditions;
       });
