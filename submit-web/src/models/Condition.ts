@@ -1,6 +1,7 @@
 export type Condition = {
   condition_attributes?: ConditionAttribute;
   condition_name: string | null;
+  plan_name: string | null;
   condition_number: number | null;
   condition_text: string | null;
 };
