@@ -91,7 +91,7 @@ class SubmissionService:
                                       ItemStatus.APPROVED, ItemStatus.PASSED_CONSULTATION_CHECK]:
             raise ValueError("Section is already completed.")
         submission_package = PackageModel.find_by_id(submission_item.package_id)
-        is_business_data = submission_item.type.submission_method = SubmissionMethod.FORM_SUBMISSION
+        is_business_data = submission_item.type.submission_method == SubmissionMethod.FORM_SUBMISSION
         if not is_business_data and submission_package.completed_on:
             raise ValueError("Package is already completed.")
         return submission
