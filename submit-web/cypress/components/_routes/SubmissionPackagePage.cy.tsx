@@ -12,6 +12,7 @@ import { routeTree } from "../../../src/routeTree.gen";
 import {
   mockAccount,
   mockAccountProject,
+  mockActivityLogs,
   mockAuthentication,
   mockConsultationrecord,
   mockContactInformation,
@@ -47,28 +48,26 @@ describe("package table page", () => {
     });
 
     setupTokenStorage();
-    cy.intercept("GET", `${AppConfig.apiUrl}/staff/packages/244`, [
-      mockSubmissionPackage,
-    ]).as("getPackage");
-    cy.intercept("GET", `${AppConfig.apiUrl}/staff/projects/115`, [
-      mockAccountProject,
-    ]).as("getAccountProject");
-    cy.intercept(
-      "GET",
-      `${AppConfig.apiUrl}/staff/documents/failed/items/*`,
-      [],
-    ).as("getFailedDocuments");
+    cy.intercept("GET", `${AppConfig.apiUrl}/staff/packages/244`, {
+      body: mockSubmissionPackage,
+    }).as("getPackage");
+    cy.intercept("GET", `${AppConfig.apiUrl}/staff/projects/115`, {
+      body: mockAccountProject,
+    }).as("getAccountProject");
+    cy.intercept("GET", `${AppConfig.apiUrl}/staff/documents/failed/items/*`, {
+      body: [],
+    }).as("getFailedDocuments");
+
+    cy.intercept("GET", `${AppConfig.apiUrl}/staff/packages/244/versions`, {
+      body: [],
+    }).as("getPackageVersions");
 
     cy.intercept(
       "GET",
-      `${AppConfig.apiUrl}/staff/packages/244/versions`,
-      [],
-    ).as("getPackageVersions");
-
-    cy.intercept(
-      "GET",
-      `${AppConfig.apiUrl}/staff/activity-logs/PACKAGE/244`,
-      [],
+      `${AppConfig.apiUrl}/staff/activity-logs/PACKAGE/${mockSubmissionPackage.version.original_package_id}`,
+      {
+        body: mockActivityLogs,
+      },
     ).as("getActivityLogs");
   });
 
@@ -106,5 +105,41 @@ describe("package table page", () => {
     cy.contains(mockManagementPlan.type.name).should("exist");
     cy.contains(mockContactInformation.type.name).should("exist");
     cy.contains("EAO Internal Documents").should("exist");
+  });
+
+  it("test document rendering", () => {
+    mountDefaultPage();
+    // Find the row for the consultation record
+    cy.contains("tr", mockConsultationRecord.type.name)
+      .parent()
+      .within(() => {
+        // There should be one document under the consultation record
+        cy.contains(
+          String(mockConsultationRecordDocument.submitted_document?.name),
+        ).should("exist");
+      });
+
+    // Find the row for the management plan
+    cy.contains("tr", mockManagementPlan.type.name)
+      .parent() // get the tbody or table section
+      .within(() => {
+        // The next two rows should be the management plan document and the supporting document
+        cy.contains(
+          String(mockManagementPlanDocument.submitted_document?.name),
+        ).should("exist");
+        cy.contains(
+          String(mockSupportingDocument.submitted_document?.name),
+        ).should("exist");
+      });
+  });
+
+  it("test activity logs rendering", () => {
+    mountDefaultPage();
+    cy.wait("@getActivityLogs");
+
+    cy.contains("Submission History").should("exist").click();
+    cy.get("[data-testid='history-table']").within(() => {
+      cy.get("tbody tr").should("have.length", mockActivityLogs.length);
+    });
   });
 });
