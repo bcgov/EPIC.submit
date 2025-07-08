@@ -147,7 +147,6 @@ describe("package table page", () => {
 
   it("test activity logs rendering", () => {
     mountDefaultPage();
-    cy.wait("@getActivityLogs");
 
     cy.contains("Submission History").should("exist").click();
     cy.get("[data-testid='history-table']").within(() => {
