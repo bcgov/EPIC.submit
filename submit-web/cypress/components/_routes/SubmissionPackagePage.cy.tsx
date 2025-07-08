@@ -120,7 +120,7 @@ describe("package table page", () => {
 
     cy.intercept(
       "GET",
-      `${AppConfig.apiUrl}/staff/activity-logs/PACKAGE/${mockSubmissionPackage.version.original_package_id}`,
+      `${AppConfig.apiUrl}/activity-logs/PACKAGE/${mockSubmissionPackage.version.original_package_id}`,
       {
         body: mockActivityLogs,
       },
