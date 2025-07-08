@@ -2,7 +2,7 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Invitation } from "@/models/Invitation";
 import { AppConfig } from "@/utils/config";
-import { TextField, Tooltip, Typography } from "@mui/material";
+import { TextField, Tooltip } from "@mui/material";
 import { Project } from "@/models/Project";
 import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -25,7 +25,17 @@ export const RegistrationUrlCell = ({
 }: RegistrationUrlCellProps) => {
   const [tooltipText, setTooltipText] = useState("Copy");
 
-  const url = `${AppConfig.appUrl}/proponent/registration?token=${pendingInvitation?.token}`;
+  // Get the latest used invitation if any exist
+  const latestUsedInvitation =
+    usedProjectInvitations.length > 0
+      ? usedProjectInvitations.sort(
+          (a, b) =>
+            new Date(b.created_date).getTime() -
+            new Date(a.created_date).getTime()
+        )[0]
+      : null;
+
+  const url = `${AppConfig.appUrl}/proponent/registration?token=${pendingInvitation?.token || latestUsedInvitation?.token}`;
 
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
     useCreateInvitation({
@@ -52,14 +62,34 @@ export const RegistrationUrlCell = ({
     setTimeout(() => setTooltipText("Copy"), 2000);
   };
 
-  // If there is a used invitation there exists a project admin. Show nothing
+  // If there are used invitations, show the latest one with disabled state
   if (usedProjectInvitations.length > 0) {
     return (
-      <PlainTableCell colSpan={2}>
-        <Typography variant="body1">
-          This project has already been registered.
-        </Typography>
-      </PlainTableCell>
+      <>
+        <PlainTableCell>
+          <TextField
+            value={url}
+            sx={{ margin: 0 }}
+            InputProps={{ readOnly: true }}
+            fullWidth
+            disabled
+          />
+        </PlainTableCell>
+        <PlainTableCell width="64px" align="right">
+          <Tooltip title="Registration already completed" arrow>
+            <span>
+              <LoadingButton
+                variant="contained"
+                color="primary"
+                onClick={handleCopyClick}
+                disabled
+              >
+                <ContentCopyIcon />
+              </LoadingButton>
+            </span>
+          </Tooltip>
+        </PlainTableCell>
+      </>
     );
   }
 

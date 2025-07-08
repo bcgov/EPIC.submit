@@ -29,21 +29,21 @@ export const ProjectTableBody = ({
     const now = new Date();
 
     proponent.invitations?.forEach((invitation) => {
-      // Parse expiry date
-      const expiry = new Date(invitation.expiry_date);
-      if (expiry < now) return; // Skip expired invitations
-
       invitation.project_ids.forEach((project_id) => {
-        // Track only USED invitations
+        // Track only USED invitations (don't check expiration for used ones)
         if (invitation.status === InvitationStatus.USED) {
           if (!usedMap.has(project_id)) {
             usedMap.set(project_id, []);
           }
           usedMap.get(project_id)?.push(invitation);
         }
-        // Track pending ones separately
+        // Track pending ones separately (check expiration only for pending)
         else if (invitation.status === InvitationStatus.PENDING) {
-          pendingMap.set(project_id, invitation);
+          // Parse expiry date and check if not expired
+          const expiry = new Date(invitation.expiry_date);
+          if (expiry >= now) {
+            pendingMap.set(project_id, invitation);
+          }
         }
       });
     });
