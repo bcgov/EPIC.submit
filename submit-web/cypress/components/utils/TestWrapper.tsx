@@ -24,8 +24,6 @@ export const TestWrapper = ({
     // mock the necessary properties and methods for useAuth context
     isAuthenticated: true,
     user: { profile: { name: "Test User" } },
-    signoutRedirect: cy.stub(),
-    signinRedirect: cy.stub(),
     // add other necessary mocks here
   };
   const router = createRouter({
