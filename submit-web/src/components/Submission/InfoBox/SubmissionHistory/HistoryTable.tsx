@@ -39,7 +39,6 @@ const HistoryTableBody = ({
   activityLogs?: ActivityLog[];
   loading: boolean;
 }) => {
-  console.log(activityLogs);
   if (loading) {
     return (
       <>
@@ -101,8 +100,6 @@ export const HistoryTable = ({ packageId }: HistoryTableProps) => {
     entityType: ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
     isAdmin,
   });
-
-  console.log("Activity Logs: ", activityLogs, isLoading);
 
   return (
     <TableContainer
