@@ -36,9 +36,9 @@ const BreadcrumbNav: React.FC = () => {
         {breadcrumbs.map(
           (segment: { title: string; path?: string }, index: number) => {
             const { title, path } = segment;
-            const isLast = index === breadcrumbs.length - 1;
+            const isCurrentPage = index === breadcrumbs.length - 1;
 
-            if (isLast) {
+            if (isCurrentPage) {
               return (
                 <Typography key={path} color="text.primary">
                   {title}
