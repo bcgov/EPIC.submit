@@ -224,12 +224,17 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#ccc !important",
                     },
-                    margin: "0px",
+                    "& .MuiFormControl-root": {
+                      margin: 0,
+                    },
+                    "& .MuiFormHelperText-root": {
+                      display: "none",
+                    },
+                    margin: 0,
                   }}
                 />
                 <Typography
                   sx={{
-                    marginTop: "-10px",
                     fontSize: "12px",
                     color: "gray",
                     marginBottom: "40px",
