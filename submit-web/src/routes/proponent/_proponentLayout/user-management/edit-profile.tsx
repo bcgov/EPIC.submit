@@ -7,15 +7,33 @@ import { useAuth } from "react-oidc-context";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Grid } from "@mui/material";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/user-management/edit-profile"
 )({
   component: ProfileEditPage,
-  meta: () => [
-    { title: "User Management", path: "/proponent/user-management" },
-    { title: "Edit Profile", path: "/proponent/user-management/edit-profile" },
-  ],
+  loader: ({ context }) => {
+    const account = context.account;
+    const isAdmin =
+      account?.userManagementRole?.role_name ===
+      USER_MANAGEMENT_ROLE.PROJECT_ADMIN;
+
+    return {
+      isAdmin,
+    };
+  },
+  meta: ({ loaderData }) =>
+    [
+      loaderData.isAdmin && {
+        title: "User Management",
+        path: "/proponent/user-management",
+      },
+      {
+        title: "Edit Profile",
+        path: "/proponent/user-management/edit-profile",
+      },
+    ].filter(Boolean),
 });
 
 function ProfileEditPage() {
