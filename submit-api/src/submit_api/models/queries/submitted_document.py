@@ -104,6 +104,6 @@ class DocumentQueries:
                          Submission.type == SubmissionType.DOCUMENT,
                          Submission.active.is_(True),
                          Submission.deleted.is_(False),
-                         Submission.status == SubmissionStatus.SUBMITTED))
+                         Submission.status != SubmissionStatus.PENDING))
 
         return query.all()
