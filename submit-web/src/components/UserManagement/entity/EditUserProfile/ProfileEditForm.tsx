@@ -9,7 +9,6 @@ import {
   Button,
   Grid,
   CircularProgress,
-  FormHelperText,
   Paper,
   Typography,
   Link,
@@ -225,12 +224,17 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#ccc !important",
                     },
-                    marginBottom: "4px",
+                    "& .MuiFormControl-root": {
+                      margin: 0,
+                    },
+                    "& .MuiFormHelperText-root": {
+                      display: "none",
+                    },
+                    margin: 0,
                   }}
                 />
-                <FormHelperText
+                <Typography
                   sx={{
-                    marginTop: "-20px",
                     fontSize: "12px",
                     color: "gray",
                     marginBottom: "40px",
@@ -241,7 +245,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                   <Link href="mailto:EAO.EPICsystem@gov.bc.ca">
                     EAO.EPICsystem@gov.bc.ca
                   </Link>
-                </FormHelperText>
+                </Typography>
                 <Button
                   type="submit"
                   variant="contained"
