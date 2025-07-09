@@ -38,16 +38,18 @@ export const Route = createFileRoute(
 
 export default function SubmissionPage() {
   const { reset } = usePackageTableStore();
-  const { projectId: accountProjectIdParam } = useParams({ strict: false });
+  const {
+    projectId: accountProjectIdParam,
+    submissionPackageId: submissionPackageIdParam,
+  } = useParams({
+    from: Route.id,
+  });
   const queryClient = useQueryClient();
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(Number(accountProjectIdParam))
       .queryKey,
   );
 
-  const { submissionPackageId: submissionPackageIdParam } = useParams({
-    strict: false,
-  });
   const submissionPackageId = Number(submissionPackageIdParam);
 
   const { data: submissionPackage } = useGetStaffSubmissionPackage({

@@ -5,6 +5,7 @@ import { AppConfig, OidcConfig } from "../../../src/utils/config";
 import { mockZustandStore, setupTokenStorage } from "../utils";
 import { useAccount } from "../../../src/store/accountStore";
 import { USER_TYPE } from "../../../src/models/User";
+import { ACTIVITY_LOG_ENTITY_TYPE } from "../../../src/models/ActivityLog";
 import { QUERY_KEY } from "../../../src/hooks/api/constants";
 import { usePackageTableStore } from "../../../src/components/Submission/packageTableStore";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
@@ -12,6 +13,7 @@ import { routeTree } from "../../../src/routeTree.gen";
 import {
   mockAccount,
   mockAccountProject,
+  mockActivityLogs,
   mockAuthentication,
   mockConsultationRecord,
   mockConsultationRecordDocument,
@@ -32,12 +34,20 @@ const mountDefaultPage = () => {
   });
 
   queryClient.setQueryData(
-    [QUERY_KEY.SUBMISSION_PACKAGE, 244],
+    [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
     mockSubmissionPackage,
   );
   queryClient.setQueryData(
-    [QUERY_KEY.ACCOUNT_PROJECT, 115],
+    [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
     mockAccountProject,
+  );
+  queryClient.setQueryData(
+    [
+      QUERY_KEY.ACTIVITY_LOGS,
+      mockSubmissionPackage.version.original_package_id,
+      ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+    ],
+    mockActivityLogs,
   );
 
   const router = createRouter({
@@ -50,7 +60,7 @@ const mountDefaultPage = () => {
   });
 
   router.navigate({
-    to: `/staff/projects/115/submission-packages/244`,
+    to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}`,
   });
 
   mount(
@@ -82,28 +92,38 @@ describe("package table page", () => {
     });
 
     setupTokenStorage();
-    cy.intercept("GET", `${AppConfig.apiUrl}/staff/packages/244`, [
-      mockSubmissionPackage,
-    ]).as("getPackage");
-    cy.intercept("GET", `${AppConfig.apiUrl}/staff/projects/115`, [
-      mockAccountProject,
-    ]).as("getAccountProject");
     cy.intercept(
       "GET",
-      `${AppConfig.apiUrl}/staff/documents/failed/items/*`,
-      [],
-    ).as("getFailedDocuments");
+      `${AppConfig.apiUrl}/staff/packages/${mockSubmissionPackage.id}`,
+      {
+        body: mockSubmissionPackage,
+      },
+    ).as("getPackage");
+    cy.intercept(
+      "GET",
+      `${AppConfig.apiUrl}/staff/projects/${mockAccountProject.id}`,
+      {
+        body: mockAccountProject,
+      },
+    ).as("getAccountProject");
+    cy.intercept("GET", `${AppConfig.apiUrl}/staff/documents/failed/items/*`, {
+      body: [],
+    }).as("getFailedDocuments");
 
     cy.intercept(
       "GET",
-      `${AppConfig.apiUrl}/staff/packages/244/versions`,
-      [],
+      `${AppConfig.apiUrl}/staff/packages/${mockSubmissionPackage.version.original_package_id}/versions`,
+      {
+        body: [],
+      },
     ).as("getPackageVersions");
 
     cy.intercept(
       "GET",
-      `${AppConfig.apiUrl}/staff/activity-logs/PACKAGE/244`,
-      [],
+      `${AppConfig.apiUrl}/staff/activity-logs/PACKAGE/${mockSubmissionPackage.version.original_package_id}`,
+      {
+        body: mockActivityLogs,
+      },
     ).as("getActivityLogs");
   });
 
@@ -144,5 +164,14 @@ describe("package table page", () => {
           String(mockSupportingDocument.submitted_document?.name),
         ).should("exist");
       });
+  });
+
+  it("test activity logs rendering", () => {
+    mountDefaultPage();
+
+    cy.contains("Submission History").should("exist").click();
+    cy.get("[data-testid='history-table']").within(() => {
+      cy.get("tbody tr").should("have.length", mockActivityLogs.length);
+    });
   });
 });

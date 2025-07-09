@@ -105,6 +105,7 @@ export const HistoryTable = ({ packageId }: HistoryTableProps) => {
     <TableContainer
       component={Box}
       sx={{ height: "100%", marginBottom: "1em" }}
+      data-testid="history-table"
     >
       <Table sx={{ tableLayout: "fixed" }}>
         <TableHead
