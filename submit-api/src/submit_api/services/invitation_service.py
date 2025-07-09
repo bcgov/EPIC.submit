@@ -134,7 +134,8 @@ class InvitationService:
             return {
                 "message": "User access granted successfully",
                 "user_id": account_user.user_id,
-                "role": role
+                "role": role,
+                "account_id": invitation.account_id,
             }
 
     @staticmethod

@@ -79,11 +79,12 @@ export type AcceptInvitationResponse = {
   message: string;
   user_id: number;
   role: Role;
+  account_id: number;
 };
 
 const acceptInvitation = (
   token: string | undefined,
-  data: CreateAccountRequest
+  data: CreateAccountRequest,
 ) => {
   if (!token) {
     return Promise.reject(new Error("Token is required"));
