@@ -87,7 +87,9 @@ class DocumentQueries:
         query = session.query(Submission).filter_by(
             item_id=item_id,
             type=SubmissionType.DOCUMENT,
-            status=SubmissionStatus.REJECTED
+            status=SubmissionStatus.REJECTED,
+            active=True,
+            deleted=False
         )
 
         return query.all()
