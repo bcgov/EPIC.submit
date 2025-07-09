@@ -228,11 +228,12 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                     marginBottom: "4px",
                   }}
                 />
-                <FormHelperText
+                <Typography
                   sx={{
-                    marginTop: "-20px",
+                    marginTop: "-30px",
                     fontSize: "12px",
                     color: "gray",
+                    padding: "10px",
                     marginBottom: "40px",
                     whiteSpace: "nowrap",
                   }}
@@ -241,7 +242,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                   <Link href="mailto:EAO.EPICsystem@gov.bc.ca">
                     EAO.EPICsystem@gov.bc.ca
                   </Link>
-                </FormHelperText>
+                </Typography>
                 <Button
                   type="submit"
                   variant="contained"
