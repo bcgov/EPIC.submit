@@ -329,6 +329,13 @@ describe("package table page", () => {
       ],
       mockActivityLogs,
     );
+    queryClient.setQueryData(
+      [
+        QUERY_KEY.PACKAGE_VERSIONS,
+        newerUnapprovedPackage.version.original_package_id,
+      ],
+      packageVersions,
+    );
 
     const router = createRouter({
       routeTree: routeTree,
@@ -357,7 +364,6 @@ describe("package table page", () => {
         </AuthProvider>
       </QueryClientProvider>,
     );
-    // cy.wait(["@getNewerUnapprovedPackage", "@getMixedPackageVersions"]);
 
     cy.contains(
       "Please Note: This submission is still pending EAO review.",
@@ -423,6 +429,13 @@ describe("package table page", () => {
       ],
       mockActivityLogs,
     );
+    queryClient.setQueryData(
+      [
+        QUERY_KEY.PACKAGE_VERSIONS,
+        oldUnapprovedPackage.version.original_package_id,
+      ],
+      packageVersions,
+    );
 
     const router = createRouter({
       routeTree: routeTree,
@@ -450,8 +463,6 @@ describe("package table page", () => {
         </AuthProvider>
       </QueryClientProvider>,
     );
-
-    // cy.wait(["@getOldPackage", "@getOldPackageVersions"]);
 
     cy.contains(
       "This submission is the version the EAO has finalized for implementation.",
@@ -485,7 +496,7 @@ describe("package table page", () => {
     });
 
     // Spy on navigate AFTER router creation but BEFORE initial navigation for the test
-    const navigateSpy = cy.spy(router, "navigate").as("navigateSpy");
+    cy.spy(router, "navigate").as("navigateSpy");
 
     router.navigate({
       // This is the initial navigation to the page under test
