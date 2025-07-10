@@ -25,6 +25,7 @@
     "@types/react-input-mask": "^3.0.2",
     "axios": "^1.7.2",
     "dayjs": "^1.11.13",
+    "dompurify": "^3.2.6",
     "epic.theme": "latest",
     "jwt-decode": "^4.0.0",
     "keycloak-js": "^25.0.1",
