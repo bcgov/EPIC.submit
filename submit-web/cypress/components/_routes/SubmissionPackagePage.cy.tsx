@@ -232,6 +232,10 @@ describe("package table page", () => {
       ],
       mockActivityLogs,
     );
+    queryClient.setQueryData(
+      [QUERY_KEY.PACKAGE_VERSIONS, approvedPackage.version.original_package_id],
+      packageVersions,
+    );
 
     const router = createRouter({
       routeTree: routeTree,
@@ -260,8 +264,6 @@ describe("package table page", () => {
       </QueryClientProvider>,
     );
 
-    // cy.wait(["@getApprovedPackage", "@getApprovedPackageVersions"]);
-
     cy.contains(
       "This submission is the version the EAO has finalized for implementation.",
     ).should("be.visible");
@@ -276,11 +278,11 @@ describe("package table page", () => {
       id: 27, // different id for this specific test case if needed
       version: {
         ...mockSubmissionPackage.version,
-        original_package_id: mockSubmissionPackage.version.original_package_id,
         is_approved: false,
         version: 3, // Newer version
       },
     };
+
     const packageVersions = [
       { package_id: 1, version: 1, is_approved: true, name: "v1" },
       { package_id: 2, version: 2, is_approved: true, name: "v2" }, // Last approved is v2
