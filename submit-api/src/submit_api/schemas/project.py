@@ -68,15 +68,12 @@ class AccountProjectSchema(Schema):
         """Get packages - use filtered ones if flag is set."""
 
         if self.use_filtered_packages and hasattr(obj, '_packages_filtered'):
-            # Serialize the filtered packages using the nested schema
             package_schema = AccountProjectPackageSchema(many=True)
             return package_schema.dump(obj._packages_filtered)
 
-        # Serialize the regular packages using the nested schema
         package_schema = AccountProjectPackageSchema(many=True)
         return package_schema.dump(obj.latest_packages)
 
-    # Use method field to handle the serialization
     latest_packages = fields.Method('get_packages', data_key="packages")
 
 

@@ -141,18 +141,15 @@ class Projects(Resource):
         if not account_project:
             return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND
 
-        # Check if user is a collaborator (has limited package access)
         auth_guid = TokenInfo.get_id()
         user = User.get_by_guid(auth_guid)
 
         is_collaborator = False
         if user and user.account_user and user.account_user.role:
             user_role = user.account_user.role
-            # Check if user has SPECIFIC_SUBMISSION_CONTRIBUTOR role (collaborator)
             if user_role.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
                 is_collaborator = True
 
-        # Use filtered packages only for collaborators
         return AccountProjectSchema(use_filtered_packages=is_collaborator).dump(account_project), HTTPStatus.OK
 
 
