@@ -25,6 +25,9 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import AccountProjectSchema, AddProjectSchema, ProjectSchema
 from submit_api.services.project_service import ProjectService
 from submit_api.utils.util import cors_preflight
+from submit_api.utils.token_info import TokenInfo
+from submit_api.models.user import User
+from submit_api.enums.role import RoleEnum
 
 
 API = Namespace("projects", description="Endpoints for Project Management")
@@ -137,7 +140,20 @@ class Projects(Resource):
         account_project = ProjectService.get_account_project_by_id(account_project_id)
         if not account_project:
             return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND
-        return AccountProjectSchema().dump(account_project), HTTPStatus.OK
+
+        # Check if user is a collaborator (has limited package access)
+        auth_guid = TokenInfo.get_id()
+        user = User.get_by_guid(auth_guid)
+
+        is_collaborator = False
+        if user and user.account_user and user.account_user.role:
+            user_role = user.account_user.role
+            # Check if user has SPECIFIC_SUBMISSION_CONTRIBUTOR role (collaborator)
+            if user_role.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
+                is_collaborator = True
+
+        # Use filtered packages only for collaborators
+        return AccountProjectSchema(use_filtered_packages=is_collaborator).dump(account_project), HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS, POST")

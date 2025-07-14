@@ -59,7 +59,25 @@ class AccountProjectSchema(Schema):
     account_id = fields.Int(data_key="account_id")
     project_id = fields.Int(data_key="project_id")
     project = fields.Nested(ProjectSchema, data_key="project")
-    latest_packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
+
+    def __init__(self, use_filtered_packages=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.use_filtered_packages = use_filtered_packages
+
+    def get_packages(self, obj):
+        """Get packages - use filtered ones if flag is set."""
+
+        if self.use_filtered_packages and hasattr(obj, '_packages_filtered'):
+            # Serialize the filtered packages using the nested schema
+            package_schema = AccountProjectPackageSchema(many=True)
+            return package_schema.dump(obj._packages_filtered)
+
+        # Serialize the regular packages using the nested schema
+        package_schema = AccountProjectPackageSchema(many=True)
+        return package_schema.dump(obj.latest_packages)
+
+    # Use method field to handle the serialization
+    latest_packages = fields.Method('get_packages', data_key="packages")
 
 
 class StaffAccountProjectPackageSchema(StaffPackageSchema):

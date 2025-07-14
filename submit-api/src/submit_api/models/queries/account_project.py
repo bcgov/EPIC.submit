@@ -14,7 +14,7 @@
 """Model to handle all complex queries related to Account Project."""
 
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload, contains_eager, aliased
+from sqlalchemy.orm import joinedload, contains_eager, aliased, selectinload
 from submit_api.enums.role import RoleEnum
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User
@@ -37,17 +37,34 @@ class ProjectQueries:
     @classmethod
     def get_account_project_by_id(cls, account_project_id: int):
         """Find account project by id."""
-        query = db.session.query(AccountProject).filter(
-            AccountProject.id == account_project_id)
+        # Use session.no_autoflush to prevent any database modifications
+        with db.session.no_autoflush:
+            query = db.session.query(AccountProject).filter(
+                AccountProject.id == account_project_id)
 
-        package_query = cls._filter_packages_by_user_access()
-        if package_query:
-            filtered_package_ids = [
-                row[0] for row in package_query.with_entities(Package.id).all()]
-            query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
-                     .options(contains_eager(AccountProject.packages)))
-
-        return query.first()
+            package_query = cls._filter_packages_by_user_access()
+            
+            if package_query:
+                filtered_package_ids = [
+                    row[0] for row in package_query.with_entities(Package.id).all()]
+                
+                # Load all packages, then filter in memory
+                result = query.options(selectinload(AccountProject.packages)).first()
+                
+                if result:
+                    # Filter packages to only show accessible ones
+                    accessible_packages = [pkg for pkg in result.packages if pkg.id in filtered_package_ids]
+                    
+                    # Create a new list instead of modifying the relationship
+                    result._packages_filtered = accessible_packages.copy()
+            
+                return result
+            else:
+                # User has no package access - return empty list
+                result = query.options(selectinload(AccountProject.packages)).first()
+                if result:
+                    result._packages_filtered = []s
+                return result
 
     @classmethod
     def get_filtered_package_ids(cls, search_options: AccountProjectSearchOptions) -> list:
