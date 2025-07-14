@@ -15,14 +15,15 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.schemas.account_terms_of_service import TermsOfServiceSchema
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("terms-of-service", description="Endpoints for Terms of service")
@@ -44,7 +45,7 @@ class TermsOfService(Resource):
     @API.response(code=200, model=terms_of_service_model, description="Success")
     @API.response(404, "Not Found")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get():
         """Fetch active terms of service."""
         terms_of_service = TermsOfServiceModel.get_active_terms_of_service()
@@ -58,7 +59,7 @@ class TermsOfService(Resource):
     @API.response(code=HTTPStatus.CREATED, model=terms_of_service_model, description="Term of service created")
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post():
         """Create a term of service."""
         term_of_service = TermsOfServiceSchema().load(API.payload)

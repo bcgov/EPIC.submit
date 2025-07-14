@@ -16,7 +16,8 @@
 from http import HTTPStatus
 from flask import request
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.models.account_project_search_options import DocumentSearchOptions
@@ -24,7 +25,7 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import SubmittedDocumentByProjectSchema, SubmissionSchema
 from submit_api.services.submitted_document_service import DocumentService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("documents", description="Endpoints for Submitted Document Management")
@@ -51,7 +52,7 @@ class AccountDocuments(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get():
         """Get all submitted documents."""
         args = request.args
@@ -79,7 +80,7 @@ class ItemFailedDocuments(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(item_id):
         """Get all failed documents by item id."""
         documents = DocumentService.get_failed_documents_by_item_id(item_id)
@@ -101,7 +102,7 @@ class SubmittedDocuments(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(package_id):
         """Get all submitted documents by package id."""
         documents = DocumentService.get_submissions_by_package_id(package_id)

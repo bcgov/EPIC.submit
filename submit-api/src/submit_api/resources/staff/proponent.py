@@ -16,12 +16,13 @@
 from http import HTTPStatus
 
 from flask import request
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.proponent import ProponentSchema
 from submit_api.services.proponent_service import ProponentService
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("proponents", description="Endpoints for Proponent fetching")
@@ -47,7 +48,7 @@ class Proponents(Resource):
         code=HTTPStatus.OK, model=proponent_model, description="Get proponents"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get():
         """Get all proponents."""
         proponents = ProponentService.get_proponents()
@@ -68,7 +69,7 @@ class Proponent(Resource):
         code=HTTPStatus.OK, model=proponent_model, description="Get proponents"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(proponent_id):
         """Get a proponent by id."""
         include_invitations = request.args.get("include-invitations", "false").lower() == "true"

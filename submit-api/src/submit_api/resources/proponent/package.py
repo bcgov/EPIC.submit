@@ -15,7 +15,8 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.enums.role import ProponentPermissionsEnum
@@ -24,7 +25,7 @@ from submit_api.schemas.package import PackageSchema, PostPackageRequestSchema, 
     CreateUpdateRequestNoteSchema
 from submit_api.services.package import PackageService
 from submit_api.services import authorization
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("packages", description="Endpoints for Package Management")
@@ -56,7 +57,7 @@ class Package(Resource):
         code=HTTPStatus.OK, model=package_model, description="Submission Package"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def get(package_id):
         """Get package by id."""
@@ -81,7 +82,7 @@ class PackageByAccountProject(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
     @auth.has_one_of_roles([ProponentPermissionsEnum.CREATE_PACKAGE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post(account_project_id):
         """Create a submission package."""
         create_package_data = PostPackageRequestSchema().load(API.payload)
@@ -102,7 +103,7 @@ class PackageState(Resource):
         code=HTTPStatus.OK, model=package_model, description="Updated Package"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def post(package_id):
         """Update package state."""
@@ -128,7 +129,7 @@ class PackageUpdateRequestNote(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post(package_id, update_request_id):
         """Create an update request note."""
         create_update_request_data = CreateUpdateRequestNoteSchema().load(API.payload)

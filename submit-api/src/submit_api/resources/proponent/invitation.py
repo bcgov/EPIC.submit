@@ -16,7 +16,8 @@
 from http import HTTPStatus
 
 from flask import request
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.enums.role import ProponentPermissionsEnum
@@ -25,7 +26,7 @@ from submit_api.schemas.account import AccountCreateSchema
 from submit_api.schemas.invitation import InvitationSchema, CreateInvitationSchema
 from submit_api.services.invitation_service import InvitationService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("invitations", description="Endpoints for Invitation Management")
 
@@ -57,7 +58,7 @@ class InvitationsResource(Resource):
     @API.response(HTTPStatus.CONFLICT, "User already exists")
     @auth.require
     @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post():
         """Generate and persist an invitation token."""
         payload = CreateInvitationSchema().load(request.json)

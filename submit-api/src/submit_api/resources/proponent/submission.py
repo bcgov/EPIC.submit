@@ -15,13 +15,14 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema
 from submit_api.services.submission import SubmissionService
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("submissions", description="Endpoints for Submission Management")
 """Custom exception messages
@@ -47,7 +48,7 @@ class SubmissionByItem(Resource):
         code=HTTPStatus.CREATED, model=submission_model, description="Submission"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def post(submission_item_id):
         """Create a submission."""
@@ -68,7 +69,7 @@ class Submissions(Resource):
         code=HTTPStatus.OK, model=submission_model, description="Submission"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def patch(submission_id):
         """Edit a submission."""
@@ -90,7 +91,7 @@ class SubmissionVersions(Resource):
         description="List of submission versions"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Submission not found")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def get(submission_id):
         """Fetch all versions of a submission based on its root submission ID."""
@@ -110,7 +111,7 @@ class DocumentSubmission(Resource):
         code=HTTPStatus.OK, model=submission_model, description="Submission"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def post(submission_id):
         """Replace a submission document."""
@@ -125,7 +126,7 @@ class DocumentSubmission(Resource):
         code=HTTPStatus.OK, model=submission_model, description="Submission"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def delete(submission_id):
         """Delete a submission document."""
@@ -145,7 +146,7 @@ class DocumentSubmissionMove(Resource):
         code=HTTPStatus.OK, model=submission_model, description="Submission moved"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def post(submission_id):
         """Move a submission document."""

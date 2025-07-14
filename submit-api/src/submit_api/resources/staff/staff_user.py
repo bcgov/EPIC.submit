@@ -16,7 +16,8 @@
 from http import HTTPStatus
 
 from flask import request
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
@@ -24,7 +25,7 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.staff_user import StaffUserSchema, CreateStaffUserRequest
 from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("staff-user", description="Endpoints for Staff Management")
 """Custom exception messages
@@ -50,7 +51,7 @@ class StaffUser(Resource):
     @API.response(code=200, model=user_model, description="Success")
     @API.response(404, "Not Found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(guid):
         """Fetch a staff by id."""
         staff = StaffUserService.get_staff_by_id(guid)
@@ -71,7 +72,7 @@ class StaffUserCreate(Resource):
     @API.response(code=400, description="Invalid input")
     @API.response(code=500, description="Internal server error")
     @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post():
         """Create a staff user and assign a Keycloak role."""
         request_data = request.get_json()

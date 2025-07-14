@@ -15,14 +15,15 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("submissions", description="Endpoints for Submission Management")
 """Custom exception messages
@@ -48,7 +49,7 @@ class DocumentSubmission(Resource):
         code=HTTPStatus.OK, model=submission_model, description="Submission"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_EDIT.value])
     def delete(submission_id):
         """Delete a submission document."""

@@ -15,7 +15,8 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
@@ -23,7 +24,7 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema, AccountSchema
 from submit_api.schemas.package import AccountPackageSchema
 from submit_api.services.account_service import AccountService
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("accounts", description="Endpoints for Account Management")
@@ -50,7 +51,7 @@ class Accounts(Resource):
     @API.response(code=HTTPStatus.OK, description="Success", model=[account_list_model])
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all accounts")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get():
         """Fetch all accounts."""
         accounts = AccountService.get_all_accounts()
@@ -63,7 +64,7 @@ class Accounts(Resource):
     @API.response(code=HTTPStatus.CREATED, model=account_list_model, description="Account Created")
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post():
         """Create an account."""
         account_data = AccountCreateSchema().load(API.payload)
@@ -82,7 +83,7 @@ class User(Resource):
     @API.response(code=200, model=account_list_model, description="Success")
     @API.response(404, "Not Found")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(proponent_id):
         """Fetch an account by proponent id."""
         account = AccountService.get_account_by_proponent_id(proponent_id)
@@ -106,7 +107,7 @@ class AccountPackages(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(account_id):
         """Get all account packages."""
         account_packages = AccountService.get_all_account_packages(account_id)

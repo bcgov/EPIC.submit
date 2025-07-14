@@ -15,7 +15,8 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
@@ -24,7 +25,7 @@ from submit_api.schemas.submission_review import SaveSubmissionReviewRequestSche
 from submit_api.services.item import ItemService
 from submit_api.services.submission_review import SubmissionReviewService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("items", description="Endpoints for item Management")
@@ -49,7 +50,7 @@ class Item(Resource):
         code=HTTPStatus.OK, model=item_model, description="Submission item"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     def get(item_id):
         """Get item by id."""
@@ -70,7 +71,7 @@ class ItemReview(Resource):
         code=HTTPStatus.OK, model=item_model, description="Submission item review"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     def post(item_id):
         """Save submission review."""
