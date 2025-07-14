@@ -20,12 +20,20 @@ import ControlledTextField from "@/components/Shared/controlled/ControlledTextFi
 import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "../../../../components/UserStatusChip";
+import { validatePhoneNumber } from "@/components/SubmissionItem/ContactInformation/utils";
 
 const updateUserProfileSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
   surname: yup.string().required("Please enter your surname."),
   position: yup.string().required("Please enter your position."),
-  phone: yup.string().required("Please enter your phone number."),
+  phone: yup
+    .string()
+    .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+    .test(
+      "phone-complete",
+      "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
+      validatePhoneNumber
+    ),
   email: yup
     .string()
     .email("Invalid email")
