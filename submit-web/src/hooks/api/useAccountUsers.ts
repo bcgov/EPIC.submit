@@ -86,10 +86,11 @@ export const useSaveUserProfile = ({
 type EditUserRequest = {
   role_name: string;
   package_ids?: number[];
+  original_package_ids?: number[];
 };
 export const editUserRole = (
   account_user_id: number,
-  data: EditUserRequest
+  data: EditUserRequest,
 ) => {
   return submitRequest<AccountUserWithRole>({
     url: `/accounts/user/${account_user_id}/role`,
@@ -138,7 +139,7 @@ type EditUserStatusRequest = {
 };
 export const editUserStatus = (
   account_user_id: number,
-  data: EditUserStatusRequest
+  data: EditUserStatusRequest,
 ) => {
   return submitRequest<AccountUserWithRole>({
     url: `/accounts/user/${account_user_id}/status`,
@@ -196,7 +197,7 @@ const recordUserTermsOfService = ({
 };
 
 export const useRecordUserTermsOfService = (
-  options?: UseMutationOptions<any, AxiosError, TermsUpdateRequest>
+  options?: UseMutationOptions<any, AxiosError, TermsUpdateRequest>,
 ) => {
   return useMutation<any, AxiosError, TermsUpdateRequest>({
     mutationFn: recordUserTermsOfService,

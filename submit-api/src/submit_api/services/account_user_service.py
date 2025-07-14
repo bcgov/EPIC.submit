@@ -162,7 +162,8 @@ class AccountUserService:
             account_project_id = cls._fetch_account_project_id(account_user_id)
 
         # only for SPECIFIC_SUBMISSION_CONTRIBUTOR , save package id
-        original_package_ids = original_package_ids if role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value else None
+        original_package_ids = original_package_ids \
+            if role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value else None
         role_data = {
             "account_user_id": account_user_id,
             "role_id": role_id,

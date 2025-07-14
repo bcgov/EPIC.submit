@@ -9,7 +9,7 @@ import enum
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.orm import joinedload
 
-from . import PackageVersion
+from .package_version import PackageVersion
 from .base_model import BaseModel
 from .db import db
 
@@ -77,7 +77,7 @@ class Package(BaseModel):
         'account_projects.id'), nullable=False)
     name = Column(db.String(255), nullable=False)
     type_id = Column(db.Integer, ForeignKey(
-        'package_types.id'), nullablQe=False)
+        'package_types.id'), nullable=False)
     type = db.relationship('PackageType', foreign_keys=[
                            type_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)

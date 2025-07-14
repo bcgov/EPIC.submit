@@ -208,7 +208,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
 
       methods.setValue("original_package_ids", matchingPackageIds);
     }
-  }, [user.role?.package_ids, accountPackages, selectedRole, methods]);
+  }, [user.role?.original_package_ids, accountPackages, selectedRole, methods]);
 
   return (
     <TableBox mainLabel={"User Management"}>
@@ -337,7 +337,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
                 </Typography>
                 <ControlledMultiSelect
                   multiple
-                  name="package_ids"
+                  name="original_package_ids"
                   options={options}
                 />
               </When>

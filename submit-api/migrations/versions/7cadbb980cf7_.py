@@ -66,3 +66,4 @@ def upgrade():
 def downgrade():
     # Remove the new column — original package IDs
     op.drop_column('user_roles', 'original_package_ids')
+    op.drop_column('invitations', 'original_package_ids')
