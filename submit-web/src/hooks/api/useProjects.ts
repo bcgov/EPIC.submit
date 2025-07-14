@@ -10,6 +10,7 @@ interface GetPackagesByAccountIdResponse {
     {
       id: number;
       name: string;
+      original_package_id: number;
     },
   ];
 }

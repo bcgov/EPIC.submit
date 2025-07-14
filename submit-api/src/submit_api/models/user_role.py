@@ -18,6 +18,7 @@ class UserRole(BaseModel):
     account_project_id = Column(Integer, ForeignKey("account_projects.id"),
                                 nullable=True)  # NULL for account-wide roles
     package_ids = Column(ARRAY(Integer), nullable=True)  # NULL for project-wide roles
+    original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs
     active = Column(db.Boolean, nullable=False, default=True)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
     role = db.relationship("Role", lazy="joined")
@@ -51,6 +52,7 @@ class UserRole(BaseModel):
             "account_user_id": self.account_user_id,
             "account_project_id": self.account_project_id,
             "package_ids": self.package_ids,
+            "original_package_ids": self.original_package_ids,
             "role_id": self.role_id,
             "role": self.role.to_dict(),
             "permissions": self.permissions,
@@ -64,6 +66,7 @@ class UserRole(BaseModel):
             account_user_id=data.get("account_user_id"),
             account_project_id=data.get("account_project_id"),
             package_ids=data.get("package_ids") or None,
+            original_package_ids=data.get("original_package_ids") or None,
             role_id=data.get("role_id"),
         )
         if session:

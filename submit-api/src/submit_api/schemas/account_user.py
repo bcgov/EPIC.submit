@@ -34,6 +34,7 @@ class EditRoleSchema(Schema):
 
     role_name = fields.Str()
     package_ids = fields.List(fields.Int(), allow_none=True)
+    original_package_ids = fields.List(fields.Int(), allow_none=True)
 
 
 class EditTermsOfServiceSchema(Schema):

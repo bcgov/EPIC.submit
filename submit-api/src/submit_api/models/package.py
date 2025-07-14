@@ -9,6 +9,7 @@ import enum
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.orm import joinedload
 
+from . import PackageVersion
 from .base_model import BaseModel
 from .db import db
 
@@ -76,7 +77,7 @@ class Package(BaseModel):
         'account_projects.id'), nullable=False)
     name = Column(db.String(255), nullable=False)
     type_id = Column(db.Integer, ForeignKey(
-        'package_types.id'), nullable=False)
+        'package_types.id'), nullablQe=False)
     type = db.relationship('PackageType', foreign_keys=[
                            type_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)
@@ -125,6 +126,12 @@ class Package(BaseModel):
     def get_all_package_by_ids(cls, package_ids: list[int]):
         """Return model by package ids."""
         return cls.query.filter(Package.id.in_(package_ids)).all()
+
+    @classmethod
+    def get_all_active_packages_by_original_package_ids(cls, original_package_ids: list[int]):
+        """Return all active packages by original package ids."""
+        return cls.query.join(PackageVersion).filter(PackageVersion.original_package_id.in_(original_package_ids),
+                                                     Package.active.is_(True)).all()
 
     @classmethod
     def get_account_project_id_by_package_id(cls, package_id: int) -> int | None:

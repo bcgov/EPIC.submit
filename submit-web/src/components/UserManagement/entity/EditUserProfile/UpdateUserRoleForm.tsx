@@ -44,7 +44,7 @@ import { useUserStore } from "./../../entity/userStore";
 
 const userSchema = yup.object().shape({
   role_name: yup.string().required("Please select a role."),
-  package_ids: yup
+  original_package_ids: yup
     .array()
     .of(yup.string())
     .when("role_name", {
@@ -126,8 +126,9 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
 
   const handleConfirm = () => {
     const request = {
-      active: user.status === ACTIVE_STATUS ? false : true,
+      active: user.status !== ACTIVE_STATUS,
     };
+    setIsLoading(true);
     updateUserStatus(request);
   };
 
@@ -147,7 +148,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
         }
         confirmText="Confirm"
         cancelText="Cancel"
-      />
+      />,
     );
   };
 
@@ -156,7 +157,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
     mode: "onSubmit",
     defaultValues: {
       role_name: user.role?.role_name || "",
-      package_ids: [],
+      original_package_ids: [],
     },
   });
 
@@ -175,8 +176,8 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
   const handleUpdateForm = (formData: UserSchema) => {
     const request = {
       role_name: formData.role_name,
-      package_ids: formData.package_ids
-        ? formData.package_ids.map(Number)
+      original_package_ids: formData.original_package_ids
+        ? formData.original_package_ids.map(Number)
         : undefined,
     };
     updateUser(request);
@@ -186,26 +187,26 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
     () =>
       accountPackages?.flatMap((accountProject) =>
         Object.values(accountProject.packages).map((pkg) => ({
-          value: String(pkg.id),
+          value: String(pkg.original_package_id),
           label: pkg.name,
-        }))
+        })),
       ) || [],
-    [accountPackages]
+    [accountPackages],
   );
 
   useEffect(() => {
     if (
-      user.role?.package_ids &&
+      user.role?.original_package_ids &&
       accountPackages &&
       selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
     ) {
       const matchingPackageIds = accountPackages.flatMap((accountProject) =>
         Object.values(accountProject.packages)
-          .filter((pkg) => user.role.package_ids.includes(pkg.id))
-          .map((pkg) => String(pkg.id))
+          .filter((pkg) => user.role.original_package_ids.includes(pkg.id))
+          .map((pkg) => String(pkg.id)),
       );
 
-      methods.setValue("package_ids", matchingPackageIds);
+      methods.setValue("original_package_ids", matchingPackageIds);
     }
   }, [user.role?.package_ids, accountPackages, selectedRole, methods]);
 

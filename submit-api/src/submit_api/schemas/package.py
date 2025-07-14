@@ -278,6 +278,7 @@ class AccountPackageSchema(Schema):
 
         id = fields.Int(data_key="id")
         name = fields.Str(data_key="name")
+        original_package_id = fields.Int(data_key="original_package_id")
 
     project_id = fields.Int(data_key="project_id")
     account_packages = fields.List(fields.Nested(
