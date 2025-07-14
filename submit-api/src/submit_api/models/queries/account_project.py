@@ -14,7 +14,7 @@
 """Model to handle all complex queries related to Account Project."""
 
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload, contains_eager, aliased, selectinload
+from sqlalchemy.orm import joinedload, aliased, selectinload
 from submit_api.enums.role import RoleEnum
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User

@@ -61,12 +61,12 @@ class AccountProjectSchema(Schema):
     project = fields.Nested(ProjectSchema, data_key="project")
 
     def __init__(self, use_filtered_packages=False, *args, **kwargs):
+        """Initialize the schema."""
         super().__init__(*args, **kwargs)
         self.use_filtered_packages = use_filtered_packages
 
     def get_packages(self, obj):
         """Get packages - use filtered ones if flag is set."""
-
         if self.use_filtered_packages and hasattr(obj, '_packages_filtered'):
             package_schema = AccountProjectPackageSchema(many=True)
             return package_schema.dump(obj._packages_filtered)
