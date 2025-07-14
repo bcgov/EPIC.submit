@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 
-from submit_api.models import Package, PackageVersion, UserRole
+from submit_api.models import Package, PackageVersion, UserRole, Invitations
 
 # revision identifiers, used by Alembic.
 revision = '7cadbb980cf7'
@@ -24,7 +24,7 @@ Base = declarative_base()
 def upgrade():
     # Add new column — keeping old one intact
     op.add_column('user_roles', sa.Column('original_package_ids', sa.ARRAY(sa.Integer), nullable=True))
-
+    op.add_column('invitations', sa.Column('original_package_ids', sa.ARRAY(sa.Integer), nullable=True))
     bind = op.get_bind()
     session = Session(bind=bind)
 
@@ -50,6 +50,15 @@ def upgrade():
             if package_to_original.get(pid) is not None
         ]
         role.original_package_ids = mapped_ids
+
+    invitations = session.query(Invitations).filter(Invitations.package_ids.isnot(None)).all()
+    for invitation in invitations:
+        mapped_ids = [
+            package_to_original.get(pid)
+            for pid in invitation.package_ids or []
+            if package_to_original.get(pid) is not None
+        ]
+        invitation.original_package_ids = mapped_ids
 
     session.commit()
 
