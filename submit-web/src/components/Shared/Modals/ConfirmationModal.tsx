@@ -44,6 +44,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   const handleConfirm = () => {
     onConfirm();
+    setClose();
   };
 
   const handleSecondaryAction = () => {

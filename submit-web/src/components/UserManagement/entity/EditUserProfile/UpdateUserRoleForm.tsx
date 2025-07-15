@@ -202,10 +202,11 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
     ) {
       const matchingPackageIds = accountPackages.flatMap((accountProject) =>
         Object.values(accountProject.packages)
-          .filter((pkg) => user.role.original_package_ids.includes(pkg.id))
-          .map((pkg) => String(pkg.id)),
+          .filter((pkg) =>
+            user.role.original_package_ids.includes(pkg.original_package_id),
+          )
+          .map((pkg) => String(pkg.original_package_id)),
       );
-
       methods.setValue("original_package_ids", matchingPackageIds);
     }
   }, [user.role?.original_package_ids, accountPackages, selectedRole, methods]);

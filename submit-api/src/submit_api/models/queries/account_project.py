@@ -168,15 +168,15 @@ class ProjectQueries:
         user_role = user.account_user.role
         if not user_role:
             raise ValueError("User role not found.")
-
         if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
             return package_query
 
+        if package_query is None:
+            package_query = db.session.query(Package)
+
         if user_role.original_package_ids:
-            package_query = package_query.join(PackageVersion)
-            package_query = package_query.filter(
-                PackageVersion.original_package_id.in_(user_role.original_package_ids))\
-                if package_query else db.session.query(Package).filter(Package.id.in_(user_role.original_package_ids))
+            package_query = package_query.join(PackageVersion).filter(
+                PackageVersion.original_package_id.in_(user_role.original_package_ids))
         else:
             package_query = package_query.filter(False)
 

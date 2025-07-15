@@ -61,8 +61,8 @@ class AccountUserService:
     @staticmethod
     def _fetch_package_names(original_package_ids: list[int]) -> dict[int, str]:
         """Fetch package names for given IDs and return as {id: name}."""
-        packages = PackageModel.get_all_active_packages_by_original_package_ids(original_package_ids)
-        return {pkg.id: pkg.name for pkg in packages}
+        packages = PackageModel.get_all_latest_packages_by_original_package_ids(original_package_ids)
+        return {pkg.version.original_package_id: pkg.name for pkg in packages}
 
     @staticmethod
     def _fetch_users(account_id):
@@ -115,8 +115,7 @@ class AccountUserService:
         for invite in invitees:
             packages = []
             if invite.original_package_ids:
-                packages = PackageModel.get_all_active_packages_by_original_package_ids(invite.original_package_ids)
-
+                packages = PackageModel.get_all_latest_packages_by_original_package_ids(invite.original_package_ids)
             invited_user = {
                 "id": None,
                 "invitation_id": invite.id,

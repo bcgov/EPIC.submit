@@ -266,7 +266,7 @@ class InvitationService:
             "role_id": invitation.role_id,
             "account_project_id": account_project_id,
             "package_ids": invitation.package_ids,
-            "original_package_ids": invitation.package_ids
+            "original_package_ids": invitation.original_package_ids
         }, session)
 
     @staticmethod

@@ -128,10 +128,18 @@ class Package(BaseModel):
         return cls.query.filter(Package.id.in_(package_ids)).all()
 
     @classmethod
-    def get_all_active_packages_by_original_package_ids(cls, original_package_ids: list[int]):
-        """Return all active packages by original package ids."""
-        return cls.query.join(PackageVersion).filter(PackageVersion.original_package_id.in_(original_package_ids),
-                                                     Package.active.is_(True)).all()
+    def get_all_latest_packages_by_original_package_ids(cls, original_package_ids: list[int]):
+        """Return all packages with the greatest PackageVersion.version by original package ids."""
+        subquery = db.session.query(
+            PackageVersion.original_package_id,
+            db.func.max(PackageVersion.version).label('max_version')
+        ).filter(PackageVersion.original_package_id.in_(original_package_ids)).group_by(PackageVersion.original_package_id).subquery()
+
+        return cls.query.join(PackageVersion).join(
+            subquery,
+            (PackageVersion.original_package_id == subquery.c.original_package_id) &
+            (PackageVersion.version == subquery.c.max_version)
+        ).all()
 
     @classmethod
     def get_account_project_id_by_package_id(cls, package_id: int) -> int | None:
