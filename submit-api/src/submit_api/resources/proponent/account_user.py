@@ -16,14 +16,15 @@
 from http import HTTPStatus
 
 from flask import jsonify, request
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account_user import AccountUserSchema, EditRoleSchema, EditTermsOfServiceSchema
 from submit_api.services.account_user_service import AccountUserService
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("accounts", description="Endpoints for Account User Management")
 """Custom exception messages
@@ -49,7 +50,7 @@ class AccountUsers(Resource):
     @API.response(code=HTTPStatus.OK, description="Success", model=[account_user_list_model])
     @API.response(HTTPStatus.NOT_FOUND, "Account not found")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(account_id):
         """Fetch all users of a specific account."""
         include_roles = request.args.get("include_roles", "false").lower() == "true"
@@ -72,7 +73,7 @@ class AccountUser(Resource):
     @API.response(code=HTTPStatus.OK, description="Success", model=[account_user_list_model])
     @API.response(HTTPStatus.NOT_FOUND, "User not found")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(guid):
         """Fetch an user for a user id."""
         user = AccountUserService.get_account_user(guid)
@@ -88,7 +89,7 @@ class AccountUser(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def patch(guid):
         """Edit a account user."""
         edit_account_user_data = AccountUserSchema().load(API.payload)
@@ -109,7 +110,7 @@ class EditUserRole(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def patch(account_user_id):
         """Edit a user's role."""
         user_guid = auth.sub
@@ -137,7 +138,7 @@ class EditUserStatus(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def patch(account_user_id):
         """Edit a user's status."""
         user_guid = auth.sub
@@ -168,7 +169,7 @@ class EditUserTermsOfService(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def patch(account_user_id):
         """Edit a user's terms of service."""
         update_data = EditTermsOfServiceSchema().load(API.payload)

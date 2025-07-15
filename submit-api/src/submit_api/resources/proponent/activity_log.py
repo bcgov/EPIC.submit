@@ -15,12 +15,13 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("activity-logs", description="Endpoints for Activity Log Management")
@@ -45,7 +46,7 @@ class ActivityLog(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
         # Retrieve logs

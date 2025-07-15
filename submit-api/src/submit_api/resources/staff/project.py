@@ -16,7 +16,8 @@
 from http import HTTPStatus
 from flask import request, abort
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
@@ -25,7 +26,7 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 DEFAULT_PAGE_SIZE = 3
 DEFAULT_PAGE = 1
@@ -51,7 +52,7 @@ class AccountProjects(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get():
         """Get paginated account projects."""
         args = request.args
@@ -105,7 +106,7 @@ class AccountProject(Resource):
         code=HTTPStatus.CREATED, model=project_list_model, description="Get project"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     def get(account_project_id):
         """Get project by id."""
