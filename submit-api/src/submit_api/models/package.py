@@ -130,10 +130,11 @@ class Package(BaseModel):
     @classmethod
     def get_all_latest_packages_by_original_package_ids(cls, original_package_ids: list[int]):
         """Return all packages with the greatest PackageVersion.version by original package ids."""
-        subquery = db.session.query(
+        subquery = (db.session.query(
             PackageVersion.original_package_id,
             db.func.max(PackageVersion.version).label('max_version')
-        ).filter(PackageVersion.original_package_id.in_(original_package_ids)).group_by(PackageVersion.original_package_id).subquery()
+        ).filter(PackageVersion.original_package_id.in_(original_package_ids))
+                    .group_by(PackageVersion.original_package_id).subquery())
 
         return cls.query.join(PackageVersion).join(
             subquery,
