@@ -14,7 +14,7 @@
 """Model to handle all complex queries related to Account Project."""
 
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload, contains_eager, aliased
+from sqlalchemy.orm import joinedload, aliased
 from submit_api.enums.role import RoleEnum
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User, PackageVersion
@@ -35,19 +35,24 @@ class ProjectQueries:
         return db.session.query(Project).filter(Project.proponent_id == proponent_id).all()
 
     @classmethod
-    def get_account_project_by_id(cls, account_project_id: int):
+    def get_account_project_by_id(cls, account_project_id: int, is_staff: bool):
         """Find account project by id."""
-        query = db.session.query(AccountProject).filter(
-            AccountProject.id == account_project_id)
+        account_project = db.session.query(AccountProject).filter(
+            AccountProject.id == account_project_id).first()
 
-        package_query = cls._filter_packages_by_user_access()
-        if package_query:
-            filtered_package_ids = [
-                row[0] for row in package_query.with_entities(Package.id).all()]
-            query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
-                     .options(contains_eager(AccountProject.packages)))
+        schema_class = StaffAccountProjectSchema if is_staff else AccountProjectSchema
+        account_project_dict = schema_class().dump(account_project)
 
-        return query.first()
+        package_query = db.session.query(Package).join(AccountProject).filter(AccountProject.id == account_project_id)
+        package_query = cls._filter_packages_by_user_access(package_query)
+        filtered_package_ids = [package.id for package in package_query.all()]
+
+        if filtered_package_ids:
+            account_project_dict['packages'] = [
+                package for package in account_project_dict['packages']
+                if package['id'] in filtered_package_ids
+            ]
+        return account_project_dict
 
     @classmethod
     def get_filtered_package_ids(cls, search_options: AccountProjectSearchOptions) -> list:
