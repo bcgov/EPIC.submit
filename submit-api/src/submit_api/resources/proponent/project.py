@@ -23,7 +23,7 @@ from submit_api.auth import auth
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.project import AccountProjectSchema, AddProjectSchema, ProjectSchema
+from submit_api.schemas.project import AddProjectSchema, ProjectSchema
 from submit_api.services.project_service import ProjectService
 from submit_api.utils.util import allowedorigins, cors_preflight
 
