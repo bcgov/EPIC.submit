@@ -27,7 +27,7 @@ const Uploader = ({
   maxSize = MAX_FILE_SIZE,
   maxFiles,
   maxFilesErrorMessage,
-  currentFileCount = 0
+  currentFileCount = 0,
 }: UploaderProps) => {
   const [sizeError, setSizeError] = useState<string | null>(null);
   const [fileCountError, setFileCountError] = useState<string | null>(null);
@@ -59,12 +59,12 @@ const Uploader = ({
         if (maxFiles && currentFileCount + acceptedFiles.length > maxFiles) {
           setFileCountError(
             maxFilesErrorMessage ||
-              `You can only upload up to ${maxFiles} file${maxFiles > 1 ? "s" : ""}.`
+              `You can only upload up to ${maxFiles} file${maxFiles > 1 ? "s" : ""}.`,
           );
           setSizeError(null);
           return;
         }
-  
+
         // Clear errors and proceed
         clearErrors();
         onDrop(acceptedFiles);
