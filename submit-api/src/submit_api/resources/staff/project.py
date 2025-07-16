@@ -110,7 +110,7 @@ class AccountProject(Resource):
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     def get(account_project_id):
         """Get project by id."""
-        account_project = ProjectService.get_account_project_by_id(account_project_id)
+        account_project = ProjectService.get_account_project_by_id(account_project_id, is_staff=True)
         if not account_project:
             return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND
-        return StaffAccountProjectSchema().dump(account_project), HTTPStatus.OK
+        return account_project, HTTPStatus.OK
