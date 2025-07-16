@@ -17,7 +17,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import joinedload, contains_eager, aliased
 from submit_api.enums.role import RoleEnum
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
-from submit_api.models import AccountProject, Project, db, User
+from submit_api.models import AccountProject, Project, db, User, PackageVersion
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
 from submit_api.models.user import UserType
@@ -168,13 +168,15 @@ class ProjectQueries:
         user_role = user.account_user.role
         if not user_role:
             raise ValueError("User role not found.")
-
         if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
             return package_query
 
-        if user_role.package_ids:
-            package_query = package_query.filter(Package.id.in_(user_role.package_ids)) if package_query\
-                else db.session.query(Package).filter(Package.id.in_(user_role.package_ids))
+        if package_query is None:
+            package_query = db.session.query(Package)
+
+        if user_role.original_package_ids:
+            package_query = package_query.join(PackageVersion).filter(
+                PackageVersion.original_package_id.in_(user_role.original_package_ids))
         else:
             package_query = package_query.filter(False)
 

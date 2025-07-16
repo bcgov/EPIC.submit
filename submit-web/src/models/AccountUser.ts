@@ -6,6 +6,7 @@ export type Role = {
   account_project_id: number | null;
   account_user_id: number;
   package_ids: number[];
+  original_package_ids: number[];
   package_names: string[];
   role_id: number;
   role_name: USER_MANAGEMENT_ROLE;
