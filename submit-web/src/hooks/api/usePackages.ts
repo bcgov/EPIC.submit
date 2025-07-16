@@ -78,6 +78,14 @@ export const useCreateNewPackageVersion = (options?: Options) => {
         [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
         submissionPackage
       );
+
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.SUBMISSION_VERSIONS,
+          submissionPackage.account_project_id,
+        ],
+      });
+
       queryClient.invalidateQueries({
         queryKey: [
           QUERY_KEY.ACCOUNT_PROJECT,
