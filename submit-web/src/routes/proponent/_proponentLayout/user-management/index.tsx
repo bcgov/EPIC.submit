@@ -22,16 +22,12 @@ export const Route = createFileRoute(
   meta: () => [{ title: "User Management" }],
   beforeLoad: async ({ context: { account } }) => {
     console.log("account", account);
-    const isProjectAdmin =
-      account.userManagementRole?.role_name ===
-      USER_MANAGEMENT_ROLE.PROJECT_ADMIN;
     if (
       !account.isLoading &&
       !hasPermission({
         scopes: [ACCOUNT_USER_PERMISSIONS.INVITE_USERS],
         permissions: account?.roles || [],
-      }) &&
-      !isProjectAdmin
+      })
     ) {
       throw notFound({
         routeId: rootRouteId,
