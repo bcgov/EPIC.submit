@@ -94,7 +94,6 @@ function CreateAccountForm() {
   );
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
-    console.log("data", data);
     setAccount({
       userId: data.user_id,
       userManagementRole: data.role,

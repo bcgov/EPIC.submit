@@ -10,7 +10,7 @@ export type Role = {
   package_names: string[];
   role_id: number;
   role_name: USER_MANAGEMENT_ROLE;
-  permissions?: string[];
+  permissions: string[];
 };
 
 export type AccountUser = {

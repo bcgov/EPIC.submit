@@ -21,7 +21,6 @@ export const Route = createFileRoute(
   component: UsersPage,
   meta: () => [{ title: "User Management" }],
   beforeLoad: async ({ context: { account } }) => {
-    console.log("account", account);
     if (
       !account.isLoading &&
       !hasPermission({
