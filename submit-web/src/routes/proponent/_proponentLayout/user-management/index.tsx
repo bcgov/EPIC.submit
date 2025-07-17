@@ -16,7 +16,7 @@ import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/",
+  "/proponent/_proponentLayout/user-management/"
 )({
   component: UsersPage,
   meta: () => [{ title: "User Management" }],
