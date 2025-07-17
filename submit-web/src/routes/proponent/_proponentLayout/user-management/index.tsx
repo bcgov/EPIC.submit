@@ -3,7 +3,7 @@ import { hasPermission } from "@/components/Shared/PermissionGate/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { DataSkeleton, UserTable } from "@/components/UserManagement/entity";
 import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
-import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
+import { ACCOUNT_USER_PERMISSIONS, USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
 import {
@@ -16,17 +16,22 @@ import { useEffect } from "react";
 import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/",
+  "/proponent/_proponentLayout/user-management/"
 )({
   component: UsersPage,
   meta: () => [{ title: "User Management" }],
   beforeLoad: async ({ context: { account } }) => {
+    console.log("account", account);
+    const isProjectAdmin =
+      account.userManagementRole?.role_name ===
+      USER_MANAGEMENT_ROLE.PROJECT_ADMIN;
     if (
       !account.isLoading &&
       !hasPermission({
         scopes: [ACCOUNT_USER_PERMISSIONS.INVITE_USERS],
         permissions: account?.roles || [],
-      })
+      }) &&
+      !isProjectAdmin
     ) {
       throw notFound({
         routeId: rootRouteId,
