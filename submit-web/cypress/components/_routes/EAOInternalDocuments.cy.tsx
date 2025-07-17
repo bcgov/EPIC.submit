@@ -15,14 +15,11 @@ import {
   mockAccountProject,
   mockActivityLogs,
   mockAuthentication,
-  mockConsultationRecord,
-  mockConsultationRecordDocument,
   mockInternalStaffDocuments,
   mockManagementPlan,
-  mockManagementPlanDocument,
   mockSubmissionPackage,
-  mockSupportingDocument,
 } from "../utils/mockConstants";
+import { USER_MANAGEMENT_ROLE } from "../../../src/models/Role";
 
 const mountDefaultPage = () => {
   const queryClient = new QueryClient({
@@ -111,6 +108,67 @@ describe("package table page", () => {
     }).as("getFailedDocuments");
 
     cy.intercept(
+      "POST",
+      `${AppConfig.apiUrl}/staff/internal-staff-documents/packages/${mockSubmissionPackage.id}`,
+      (req) => {
+        const newDoc = {
+          id: 999,
+          name: "Mock Added Doc",
+          url: "https://mock.link",
+          type: "LINK",
+          item_id: 101,
+          created_by: "Jane Doe",
+          created_date: "2025-05-02T09:30:00.000Z",
+          created_by_user: {
+            id: 1,
+            auth_guid: "staff-user-guid-1",
+            type: "STAFF",
+            account_user: {
+              id: 11,
+              account_id: 201,
+              first_name: "Jane",
+              last_name: "Doe",
+              full_name: "Jane Doe",
+              position: "Environmental Analyst",
+              work_email_address: "jane.doe@example.com",
+              work_contact_number: "123-456-7890",
+              account: {
+                id: 201,
+                proponent_id: 88,
+              },
+              role: {
+                account_project_id: null,
+                account_user_id: 11,
+                package_ids: [],
+                original_package_ids: [],
+                package_names: [],
+                role_id: 1,
+                role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+                permissions: ["read", "write"],
+              },
+              has_agreed_to_terms: true,
+            },
+            staff_user: {
+              id: 31,
+              first_name: "Jane",
+              last_name: "Doe",
+              work_email_address: "jane.doe@example.com",
+              user_id: 1,
+            },
+          },
+        };
+
+        // Simulate optimistic update in mock data
+        mockSubmissionPackage.internal_staff_documents.push(newDoc);
+
+        req.reply({
+          statusCode: 200,
+          body: newDoc,
+        });
+      }
+    ).as("createInternalDoc");
+
+    cy.intercept(
       "GET",
       `${AppConfig.apiUrl}/staff/packages/${mockSubmissionPackage.version.original_package_id}/versions`,
       {
@@ -155,6 +213,84 @@ describe("package table page", () => {
     });
   });
 
+  it("should allow user to add a document link and refresh the view", () => {
+    const testName = "Mock Added Doc";
+    const testLink = "https://mock.link";
+
+    // Mount the page as normal
+    mountDefaultPage();
+
+    // Fill out the form and submit
+    cy.get('[data-cy="add-link-section"]').within(() => {
+      cy.get('input[name="link"]').type(testLink);
+      cy.get('input[name="documentName"]').type(testName);
+      cy.contains("button", "Save Link").click();
+    });
+
+    // Wait for the mutation to complete
+    cy.wait("@createInternalDoc").then(() => {
+      // Refresh QueryClient with updated mock
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
+        { ...mockSubmissionPackage }
+      );
+
+      queryClient.setQueryData(
+        [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
+        mockAccountProject
+      );
+
+      queryClient.setQueryData(
+        [
+          QUERY_KEY.ACTIVITY_LOGS,
+          mockSubmissionPackage.version.original_package_id,
+          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+        ],
+        mockActivityLogs
+      );
+
+      const router = createRouter({
+        routeTree,
+        context: {
+          authentication: mockAuthentication,
+          queryClient,
+          account: mockAccount,
+        },
+      });
+
+      router.navigate({
+        to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}/internal-documents/`,
+      });
+
+      mount(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider {...OidcConfig}>
+            <RouterProvider
+              router={router}
+              context={{
+                authentication: mockAuthentication,
+                account: mockAccount,
+              }}
+            />
+          </AuthProvider>
+        </QueryClientProvider>
+      );
+
+      // Assert new document is now visible
+      cy.contains(testName).should("exist");
+
+      // Optional: check Remove button
+      cy.contains(testName)
+        .parents("tr")
+        .within(() => {
+          cy.get('[data-cy="remove-button"]').should("exist");
+        });
+    });
+  });
   it("test Close button functionality", () => {
     const queryClient = new QueryClient({
       defaultOptions: { queries: { retry: false } },
