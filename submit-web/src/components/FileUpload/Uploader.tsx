@@ -27,7 +27,7 @@ const Uploader = ({
   maxSize = MAX_FILE_SIZE,
   maxFiles,
   maxFilesErrorMessage,
-  currentFileCount = 0
+  currentFileCount = 0,
 }: UploaderProps) => {
   const [sizeError, setSizeError] = useState<string | null>(null);
   const [fileCountError, setFileCountError] = useState<string | null>(null);
@@ -45,12 +45,12 @@ const Uploader = ({
       onDrop={(acceptedFiles, rejectedFiles) => {
         // Check if any files exceed the maximum size
         const oversizedFiles = rejectedFiles.filter(
-          (file) => file.file.size > maxSize,
+          (file) => file.file.size > maxSize
         );
 
         if (oversizedFiles.length > 0) {
           setSizeError(
-            `This file exceeds the ${maxSize / (1024 * 1024)} MB limit.`,
+            `This file exceeds the ${maxSize / (1024 * 1024)} MB limit.`
           );
           setFileCountError(null);
           return;
@@ -64,7 +64,7 @@ const Uploader = ({
           setSizeError(null);
           return;
         }
-  
+
         // Clear errors and proceed
         clearErrors();
         onDrop(acceptedFiles);
@@ -72,7 +72,7 @@ const Uploader = ({
       accept={accept}
     >
       {({ getRootProps, getInputProps }) => (
-        <section>
+        <section data-cy="uploader">
           <Grid
             {...getRootProps()}
             container
