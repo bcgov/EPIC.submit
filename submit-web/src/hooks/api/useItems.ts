@@ -81,7 +81,7 @@ type SaveReviewRequestBody = {
 };
 export const saveSubmissionReview = (
   itemId: number,
-  data: SaveReviewRequestBody,
+  data: SaveReviewRequestBody
 ) => {
   return submitRequest<SubmissionReview>({
     url: `/staff/items/${itemId}/review`,
@@ -115,8 +115,12 @@ export const useSaveSubmissionReview = ({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });
       queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_VERSIONS, accountProjectId],
+      });
+      queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.PACKAGE_VERSIONS],
       });
+
       queryClient.removeQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
