@@ -3,7 +3,7 @@ import { hasPermission } from "@/components/Shared/PermissionGate/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { DataSkeleton, UserTable } from "@/components/UserManagement/entity";
 import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
-import { ACCOUNT_USER_PERMISSIONS, USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
 import {
