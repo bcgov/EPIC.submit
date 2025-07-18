@@ -16,11 +16,11 @@
 Test Utility for creating test scenarios.
 """
 
-from faker import Faker
 from enum import Enum
 
-from src.submit_api.config import get_named_config
+from faker import Faker
 
+from src.submit_api.config import get_named_config
 
 fake = Faker()
 
@@ -64,3 +64,63 @@ class TestJwtClaims(dict, Enum):
             }
         }
     }
+
+    proponent_role = {
+        'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
+        'sub': '12345678-aaaa-bbbb-cccc-1234567890ab',  # Unique for this proponent
+        'idp_userid': '12345678-aaaa-bbbb-cccc-1234567890ab',
+        'preferred_username': f'{fake.user_name()}@example.com',
+        'given_name': fake.first_name(),
+        'family_name': fake.last_name(),
+        'tenant_id': 1,
+        'email': fake.email(),
+        'identity_provider': 'bceidbusiness',  # simulate proponent (BCEID or similar)
+        'aud': CONFIG.JWT_OIDC_TEST_AUDIENCE,
+        'realm_access': {
+            'roles': []  # not used for proponent permission check
+        },
+        'resource_access': {
+            CONFIG.JWT_OIDC_TEST_AUDIENCE: {
+                'roles': []  # not used for proponent
+            }
+        }
+    }
+
+
+class TestPackageScenarios:
+    """Common test scenarios and payloads related to package creation."""
+
+    PLAN_NAME = "Health and Medical Services Plan"
+    EXPECTED_PARTIES = ["NHA", "Xatsull First Nation"]
+    CONDITION_NUMBER = 17
+    TYPE_NAME = "Management Plan"
+
+    @staticmethod
+    def get_payload(
+            plan_name=PLAN_NAME,
+            parties=EXPECTED_PARTIES,
+            condition_number=CONDITION_NUMBER,
+            type_name=TYPE_NAME
+    ):
+        """Return a standard package creation payload."""
+        return {
+            "name": plan_name,
+            "metadata": {
+                "main_condition": {
+                    "condition_attributes": {
+                        "deliverable_name": [plan_name],
+                        "parties_required_to_be_consulted": parties,
+                        "requires_consultation": "true",
+                        "requires_management_plan": "true",
+                        "submitted_to_eao_for": "Satisfaction",
+                        "time_associated_with_submission_milestone": "90"
+                    },
+                    "condition_name": plan_name,
+                    "condition_number": condition_number,
+                    "condition_text": f"{condition_number}.1 The Holder must ...",
+                    "plan_name": plan_name
+                },
+                "supporting_conditions": []
+            },
+            "type": type_name
+        }

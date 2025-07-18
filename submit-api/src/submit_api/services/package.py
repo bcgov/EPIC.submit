@@ -3,6 +3,7 @@ from collections import defaultdict
 from datetime import datetime
 
 from flask import current_app
+from werkzeug.exceptions import BadRequest
 
 from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
@@ -56,6 +57,10 @@ class PackageService:
         with session_scope() as session:
             package_type = PackageTypeModel.find_by_name(
                 request_data.get("type"))
+
+            if not package_type:
+                raise BadRequest(f"Invalid package type: {package_type}")
+
             package = cls._create_package(
                 session, account_project_id, request_data, package_type)
             package_version = cls._create_package_version(
