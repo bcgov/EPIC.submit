@@ -124,3 +124,74 @@ class TestPackageScenarios:
             },
             "type": type_name
         }
+
+    @staticmethod
+    def get_contact_info_submission_payload(item_id: int):
+        """Return a sample contact information form submission payload."""
+        return {
+            "type": "FORM",
+            "status": "COMPLETED",
+            "item_id": item_id,
+            "data": {
+                "primaryContact": {
+                    "givenName": fake.first_name(),
+                    "surname": fake.last_name(),
+                    "company": fake.company(),
+                    "position": fake.job(),
+                    "workPhoneNumber": fake.phone_number(),
+                    "workEmailAddress": fake.email()
+                },
+                "secondaryContact": {
+                    "givenName": fake.first_name(),
+                    "surname": fake.last_name(),
+                    "company": fake.company(),
+                    "position": fake.job(),
+                    "workPhoneNumber": fake.phone_number(),
+                    "workEmailAddress": fake.email()
+                }
+            }
+        }
+
+    @staticmethod
+    def get_fake_document_payload():
+        """Get doc payload."""
+        return {
+            "type": "DOCUMENT",
+            "data": {
+                "name": fake.file_name(extension="pdf"),
+                "url": fake.file_path(depth=3, extension="pdf").replace("\\", "/"),
+                "folder": fake.word()
+            }
+        }
+
+    @staticmethod
+    def get_consultation_record_form_payload(item_id: int) -> dict:
+        """Returns a fake form payload for Consultation Record(s)."""
+        return {
+            "item_id": item_id,
+            "type": "FORM",
+            "version": "1.1",
+            "submission_json": {
+                "allPartiesConsulted": True,
+                "consultedParties": [fake.company() for _ in range(2)],
+                "notes": fake.paragraph(nb_sentences=2),
+                "planWasReviewed": True,
+                "writtenExplanationsProvidedToCommenters": True,
+                "writtenExplanationsProvidedToParties": True,
+            },
+        }
+
+    @staticmethod
+    def get_management_plan_form_payload(item_id: int) -> dict:
+        """Returns a fake form payload for Management Plan."""
+        return {
+            "item_id": item_id,
+            "type": "FORM",
+            "version": "1.1",
+            "submission_json": {
+                "allRequirementsAddressed": True,
+                "conditionSatisfied": True,
+                "informationAccurate": True,
+                "notes": fake.sentence(nb_words=10),
+            },
+        }
