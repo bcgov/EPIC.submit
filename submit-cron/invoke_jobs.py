@@ -67,6 +67,7 @@ def register_shellcontext(app):
 
 def run(job_name):
     from tasks.submit_mail import SubmitMailer
+    from tasks.sync_approved_condition import SyncApprovedCondition
     application = create_app()
     from submit_cron.models import db
     from submit_cron.models import ma
@@ -79,6 +80,9 @@ def run(job_name):
 
             SubmitMailer.send_mail()
             application.logger.info(f'<<<< Completed Submit Email Task >>>>')
+        elif job_name == 'SYNC_CONDITION':
+            SyncApprovedCondition.sync_approved_condition()
+            application.logger.info(f'<<<< Completed Sync Approved Condition >>>>')
 
 
 
