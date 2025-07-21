@@ -1,6 +1,9 @@
 import { SubmissionPackage } from "../../../src/models/Package";
 import { AccountProject } from "../../../src/models/Project";
-import { EPIC_SUBMIT_ROLE } from "../../../src/models/Role";
+import {
+  EPIC_SUBMIT_ROLE,
+  USER_MANAGEMENT_ROLE,
+} from "../../../src/models/Role";
 import {
   Submission,
   SUBMISSION_ITEM_STATUS,
@@ -329,10 +332,18 @@ export const mockAuthentication = {
   revokeTokens: () => Promise.resolve(),
 };
 
-export const mockAccount = {
+export const mockStaffAccount = {
   isLoading: false,
   userType: USER_TYPE.STAFF,
   roles: [EPIC_SUBMIT_ROLE.eao_view],
+};
+
+export const mockProponentAccount = {
+  isLoading: false,
+  userType: USER_TYPE.PROPONENT,
+  userManagementRole: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+  accountId: 20,
+  userId: 1,
 };
 
 export const mockActivityLogs = [
