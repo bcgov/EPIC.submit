@@ -1,25 +1,26 @@
 import { mount } from "cypress/react18";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "react-oidc-context";
-import { AppConfig, OidcConfig } from "../../../src/utils/config";
-import { mockZustandStore, setupTokenStorage } from "../utils";
-import { useAccount } from "../../../src/store/accountStore";
-import { USER_TYPE } from "../../../src/models/User";
-import { ACTIVITY_LOG_ENTITY_TYPE } from "../../../src/models/ActivityLog";
-import { QUERY_KEY } from "../../../src/hooks/api/constants";
-import { usePackageTableStore } from "../../../src/components/Submission/packageTableStore";
+import { AppConfig, OidcConfig } from "../../../../src/utils/config";
+import { mockZustandStore, setupTokenStorage } from "../../utils";
+import { useAccount } from "../../../../src/store/accountStore";
+import { USER_TYPE } from "../../../../src/models/User";
+import { ACTIVITY_LOG_ENTITY_TYPE } from "../../../../src/models/ActivityLog";
+import { QUERY_KEY } from "../../../../src/hooks/api/constants";
+import { usePackageTableStore } from "../../../../src/components/Submission/packageTableStore";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { routeTree } from "../../../src/routeTree.gen";
+import { routeTree } from "../../../../src/routeTree.gen";
 import {
-  mockAccount,
+  mockStaffAccount,
   mockAccountProject,
   mockActivityLogs,
   mockAuthentication,
   mockInternalStaffDocuments,
   mockManagementPlan,
   mockSubmissionPackage,
-} from "../utils/mockConstants";
-import { USER_MANAGEMENT_ROLE } from "../../../src/models/Role";
+} from "../../utils/mockConstants";
+import { InternalStaffDocument } from "../../../../src/models/SubmissionItem";
+import { USER_MANAGEMENT_ROLE } from "../../../../src/models/Role";
 
 const mountDefaultPage = () => {
   const queryClient = new QueryClient({
@@ -32,11 +33,11 @@ const mountDefaultPage = () => {
 
   queryClient.setQueryData(
     [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
-    mockSubmissionPackage
+    mockSubmissionPackage,
   );
   queryClient.setQueryData(
     [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
-    mockAccountProject
+    mockAccountProject,
   );
   queryClient.setQueryData(
     [
@@ -44,7 +45,7 @@ const mountDefaultPage = () => {
       mockSubmissionPackage.version.original_package_id,
       ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
     ],
-    mockActivityLogs
+    mockActivityLogs,
   );
 
   const router = createRouter({
@@ -52,7 +53,7 @@ const mountDefaultPage = () => {
     context: {
       authentication: mockAuthentication,
       queryClient: queryClient,
-      account: mockAccount,
+      account: mockStaffAccount,
     },
   });
 
@@ -67,12 +68,12 @@ const mountDefaultPage = () => {
           router={router}
           context={{
             authentication: mockAuthentication,
-            account: mockAccount,
+            account: mockStaffAccount,
           }}
         />
         ;
       </AuthProvider>
-    </QueryClientProvider>
+    </QueryClientProvider>,
   );
 };
 
@@ -94,14 +95,14 @@ describe("package table page", () => {
       `${AppConfig.apiUrl}/staff/packages/${mockSubmissionPackage.id}`,
       {
         body: mockSubmissionPackage,
-      }
+      },
     ).as("getPackage");
     cy.intercept(
       "GET",
       `${AppConfig.apiUrl}/staff/projects/${mockAccountProject.id}`,
       {
         body: mockAccountProject,
-      }
+      },
     ).as("getAccountProject");
     cy.intercept("GET", `${AppConfig.apiUrl}/staff/documents/failed/items/*`, {
       body: [],
@@ -111,7 +112,7 @@ describe("package table page", () => {
       "POST",
       `${AppConfig.apiUrl}/staff/internal-staff-documents/packages/${mockSubmissionPackage.id}`,
       (req) => {
-        const newDoc = {
+        const newDoc: InternalStaffDocument = {
           id: 999,
           name: "Mock Added Doc",
           url: "https://mock.link",
@@ -159,13 +160,13 @@ describe("package table page", () => {
         };
 
         // Simulate optimistic update in mock data
-        mockSubmissionPackage.internal_staff_documents.push(newDoc);
+        mockSubmissionPackage.internal_staff_documents?.push(newDoc);
 
         req.reply({
           statusCode: 200,
           body: newDoc,
         });
-      }
+      },
     ).as("createInternalDoc");
 
     cy.intercept(
@@ -173,7 +174,7 @@ describe("package table page", () => {
       `${AppConfig.apiUrl}/staff/packages/${mockSubmissionPackage.version.original_package_id}/versions`,
       {
         body: [],
-      }
+      },
     ).as("getPackageVersions");
 
     cy.intercept(
@@ -181,7 +182,7 @@ describe("package table page", () => {
       `${AppConfig.apiUrl}/staff/activity-logs/PACKAGE/${mockSubmissionPackage.version.original_package_id}`,
       {
         body: mockActivityLogs,
-      }
+      },
     ).as("getActivityLogs");
   });
 
@@ -208,7 +209,7 @@ describe("package table page", () => {
       cy.contains(
         doc.created_by_user.staff_user.first_name +
           " " +
-          doc.created_by_user.staff_user.last_name
+          doc.created_by_user.staff_user.last_name,
       ).should("exist");
     });
   });
@@ -236,12 +237,12 @@ describe("package table page", () => {
 
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
-        { ...mockSubmissionPackage }
+        { ...mockSubmissionPackage },
       );
 
       queryClient.setQueryData(
         [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
-        mockAccountProject
+        mockAccountProject,
       );
 
       queryClient.setQueryData(
@@ -250,7 +251,7 @@ describe("package table page", () => {
           mockSubmissionPackage.version.original_package_id,
           ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
         ],
-        mockActivityLogs
+        mockActivityLogs,
       );
 
       const router = createRouter({
@@ -258,7 +259,7 @@ describe("package table page", () => {
         context: {
           authentication: mockAuthentication,
           queryClient,
-          account: mockAccount,
+          account: mockStaffAccount,
         },
       });
 
@@ -273,11 +274,11 @@ describe("package table page", () => {
               router={router}
               context={{
                 authentication: mockAuthentication,
-                account: mockAccount,
+                account: mockStaffAccount,
               }}
             />
           </AuthProvider>
-        </QueryClientProvider>
+        </QueryClientProvider>,
       );
 
       // Assert new document is now visible
@@ -297,11 +298,11 @@ describe("package table page", () => {
     });
     queryClient.setQueryData(
       [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
-      mockSubmissionPackage
+      mockSubmissionPackage,
     );
     queryClient.setQueryData(
       [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
-      mockAccountProject
+      mockAccountProject,
     );
 
     const router = createRouter({
@@ -309,7 +310,7 @@ describe("package table page", () => {
       context: {
         authentication: mockAuthentication,
         queryClient: queryClient,
-        account: mockAccount,
+        account: mockStaffAccount,
       },
     });
 
@@ -328,11 +329,11 @@ describe("package table page", () => {
             router={router}
             context={{
               authentication: mockAuthentication,
-              account: mockAccount,
+              account: mockStaffAccount,
             }}
           />
         </AuthProvider>
-      </QueryClientProvider>
+      </QueryClientProvider>,
     );
 
     cy.contains("button", "Close").should("be.visible").click();

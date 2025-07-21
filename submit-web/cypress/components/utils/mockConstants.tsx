@@ -7,10 +7,12 @@ import {
 import {
   Submission,
   SUBMISSION_ITEM_STATUS,
+  SUBMISSION_TYPE,
 } from "../../../src/models/Submission";
 import {
   InternalStaffDocument,
   SUBMISSION_ITEM_TYPE,
+  SubmissionItem,
   SubmissionItemMethod,
 } from "../../../src/models/SubmissionItem";
 import { USER_TYPE } from "../../../src/models/User";
@@ -128,8 +130,6 @@ export const mockManagementPlan = {
   type_id: 3,
   version: 1,
 };
-
-import { USER_MANAGEMENT_ROLE } from "../../../src/models/Role";
 
 export const mockInternalStaffDocuments: InternalStaffDocument[] = [
   {
@@ -498,3 +498,138 @@ export const mockActivityLogs = [
     visibility: "STAFF",
   },
 ];
+
+export const consultationRecordForm: Submission = {
+  created_date: "2025-04-21T21:28:44.133441",
+  id: 703,
+  item_id: 537,
+  major_version: 1,
+  minor_version: 1,
+  status: "SUBMITTED",
+  submitted_by: "Taya Lee",
+  submitted_document: undefined,
+  submitted_form: {
+    id: 363,
+    submission_json: {
+      allPartiesConsulted: true,
+      consultedParties: [],
+      notes: "",
+      planWasReviewed: true,
+      writtenExplanationsProvidedToCommenters: true,
+      writtenExplanationsProvidedToParties: true,
+    },
+  },
+  type: SUBMISSION_TYPE.FORM,
+  version: "1.1",
+};
+
+export const mockConsultationRecordItemPassed: SubmissionItem = {
+  id: 507,
+  notes: [],
+  package_id: 195,
+  review: {
+    active: true,
+    entries: [
+      {
+        entry: {
+          passedConsultationCheck: "YES",
+        },
+        id: 224,
+        review_id: 161,
+        type: "STAFF_RECOMMENDATION",
+        updated_by: "EAO TEST1",
+        updated_date: "2025-05-09T20:00:17.094992",
+      },
+      {
+        entry: {
+          passedConsultationCheck: "YES",
+        },
+        id: 226,
+        review_id: 161,
+        type: "MANAGER_CONFIRMATION",
+        updated_by: "EAO TEST2",
+        updated_date: "2025-05-09T20:04:06.484840",
+      },
+    ],
+    id: 161,
+    item_id: 507,
+    status: "APPROVED",
+  },
+  review_start_date: "2025-04-29T14:20:55.146669",
+  sort_order: 1,
+  status: "PASSED_CONSULTATION_CHECK",
+  submissions: [
+    {
+      created_date: "2025-04-29T14:19:53.939639",
+      id: 722,
+      item_id: 507,
+      major_version: 1,
+      minor_version: 1,
+      status: "APPROVED",
+      submitted_by: "David d",
+      submitted_document: undefined,
+      submitted_form: {
+        id: 373,
+        submission_json: {
+          allPartiesConsulted: true,
+          consultedParties: [
+            {
+              consultedParty: "DASD",
+            },
+          ],
+          notes: "testes",
+          planWasReviewed: true,
+          writtenExplanationsProvidedToCommenters: true,
+          writtenExplanationsProvidedToParties: true,
+        },
+      },
+      type: "FORM",
+      version: "1.1",
+    },
+    {
+      created_date: "2025-05-06T20:44:36.533981",
+      id: 735,
+      item_id: 507,
+      major_version: 1,
+      minor_version: 2,
+      status: "APPROVED",
+      submitted_by: "Vineet Balachandran",
+      submitted_document: {
+        folder: "consultation_records",
+        id: 424,
+        name: "Schedule B_ Table of Conditions-7-1-1.pdf",
+        url: "submissions/caribooGoldProject/consultation_records/2dc5bbde-252c-43b6-a808-774bbecd11bd.pdf",
+      },
+      submitted_form: undefined,
+      type: "DOCUMENT",
+      version: "1.2",
+    },
+    {
+      created_date: "2025-05-09T19:59:54.150646",
+      id: 747,
+      item_id: 507,
+      major_version: 1,
+      minor_version: 1,
+      status: "APPROVED",
+      submitted_by: "Eric Levasseur",
+      submitted_document: {
+        folder: "consultation_records",
+        id: 433,
+        name: "Supporting_Document-1.pdf",
+        url: "submissions/caribooGoldProject/consultation_records/419c0b94-ff59-4505-b3c5-1306bf618fe4.pdf",
+      },
+      submitted_form: undefined,
+      type: "DOCUMENT",
+      version: "1.1",
+    },
+  ],
+  submitted_by: "",
+  submitted_on: "",
+  type: {
+    id: 2,
+    name: SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD,
+    submission_method: SubmissionItemMethod.DOCUMENT_UPLOAD,
+  },
+  type_id: 2,
+  version: 1,
+};

@@ -33,7 +33,7 @@ export const ReviewCompletedNotification = ({
       : undefined;
 
   return (
-    <SuccessBox m="2em 0">
+    <SuccessBox m="2em 0" data-testid="review-completed-notification">
       <Stack direction="row" alignItems={"center"} spacing={2}>
         <Typography variant="body1" color="inherit">
           The Consultation Check was completed as:
