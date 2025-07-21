@@ -17,6 +17,7 @@ import {
   mockSubmissionPackage,
   mockConsultationRecordItemPassed,
 } from "../../utils/mockConstants";
+import { EPIC_SUBMIT_ROLE } from "../../../../src/models/Role";
 
 const mountDefaultPage = () => {
   const queryClient = new QueryClient({
@@ -122,6 +123,17 @@ describe("package table page", () => {
       },
     });
 
+    mockZustandStore(useAccount, {
+      userType: USER_TYPE.STAFF,
+      roles: [
+        EPIC_SUBMIT_ROLE.extended_eao_edit,
+        EPIC_SUBMIT_ROLE.eao_create,
+        EPIC_SUBMIT_ROLE.eao_edit,
+        EPIC_SUBMIT_ROLE.eao_view,
+      ],
+      reset: () => {},
+    });
+
     router.navigate({
       to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}/submissions/${mockConsultationRecordItemPassed.id}`,
     });
@@ -143,6 +155,13 @@ describe("package table page", () => {
 
     cy.contains("Consultation Records Information").should("exist");
     cy.get("[data-testid='review-section']").should("be.visible");
+    cy.get("[data-testid='review-section']")
+      .find("input[type='radio'][value='YES']")
+      .should("have.length", 2)
+      .each(($radio) => {
+        cy.wrap($radio).should("be.checked");
+      });
+
     cy.get("[data-testid='review-completed-notification']").should("exist");
   });
 });
