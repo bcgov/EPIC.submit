@@ -1,15 +1,15 @@
 import { mount } from "cypress/react18";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "react-oidc-context";
-import { AppConfig, OidcConfig } from "../../../src/utils/config";
-import { mockZustandStore, setupTokenStorage } from "../utils";
-import { useAccount } from "../../../src/store/accountStore";
-import { USER_TYPE } from "../../../src/models/User";
-import { ACTIVITY_LOG_ENTITY_TYPE } from "../../../src/models/ActivityLog";
-import { QUERY_KEY } from "../../../src/hooks/api/constants";
-import { usePackageTableStore } from "../../../src/components/Submission/packageTableStore";
+import { AppConfig, OidcConfig } from "../../../../src/utils/config";
+import { mockZustandStore, setupTokenStorage } from "../../utils";
+import { useAccount } from "../../../../src/store/accountStore";
+import { USER_TYPE } from "../../../../src/models/User";
+import { ACTIVITY_LOG_ENTITY_TYPE } from "../../../../src/models/ActivityLog";
+import { QUERY_KEY } from "../../../../src/hooks/api/constants";
+import { usePackageTableStore } from "../../../../src/components/Submission/packageTableStore";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
-import { routeTree } from "../../../src/routeTree.gen";
+import { routeTree } from "../../../../src/routeTree.gen";
 import {
   mockStaffAccount,
   mockAccountProject,
@@ -18,9 +18,9 @@ import {
   mockInternalStaffDocuments,
   mockManagementPlan,
   mockSubmissionPackage,
-} from "../utils/mockConstants";
-import { InternalStaffDocument } from "../../../src/models/SubmissionItem";
-import { USER_MANAGEMENT_ROLE } from "../../../src/models/Role";
+} from "../../utils/mockConstants";
+import { InternalStaffDocument } from "../../../../src/models/SubmissionItem";
+import { USER_MANAGEMENT_ROLE } from "../../../../src/models/Role";
 
 const mountDefaultPage = () => {
   const queryClient = new QueryClient({
