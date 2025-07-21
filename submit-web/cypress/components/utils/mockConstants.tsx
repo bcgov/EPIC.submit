@@ -131,8 +131,6 @@ export const mockManagementPlan = {
   version: 1,
 };
 
-import { USER_MANAGEMENT_ROLE } from "../../../src/models/Role";
-
 export const mockInternalStaffDocuments: InternalStaffDocument[] = [
   {
     id: 1,
