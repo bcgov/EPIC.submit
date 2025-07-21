@@ -11,7 +11,7 @@ import { usePackageTableStore } from "../../../../src/components/Submission/pack
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "../../../../src/routeTree.gen";
 import {
-  mockAccount,
+  mockStaffAccount,
   mockAccountProject,
   mockActivityLogs,
   mockAuthentication,
@@ -55,7 +55,7 @@ const mountDefaultPage = () => {
     context: {
       authentication: mockAuthentication,
       queryClient: queryClient,
-      account: mockAccount,
+      account: mockStaffAccount,
     },
   });
 
@@ -70,7 +70,7 @@ const mountDefaultPage = () => {
           router={router}
           context={{
             authentication: mockAuthentication,
-            account: mockAccount,
+            account: mockStaffAccount,
           }}
         />
         ;
@@ -242,7 +242,7 @@ describe("package table page", () => {
       context: {
         authentication: mockAuthentication,
         queryClient: queryClient,
-        account: mockAccount,
+        account: mockStaffAccount,
       },
     });
     router.navigate({
@@ -257,7 +257,7 @@ describe("package table page", () => {
             router={router}
             context={{
               authentication: mockAuthentication,
-              account: mockAccount,
+              account: mockStaffAccount,
             }}
           />
         </AuthProvider>
@@ -344,7 +344,7 @@ describe("package table page", () => {
       context: {
         authentication: mockAuthentication,
         queryClient: queryClient,
-        account: mockAccount,
+        account: mockStaffAccount,
       },
     });
 
@@ -360,7 +360,7 @@ describe("package table page", () => {
             router={router}
             context={{
               authentication: mockAuthentication,
-              account: mockAccount,
+              account: mockStaffAccount,
             }}
           />
         </AuthProvider>
@@ -444,7 +444,7 @@ describe("package table page", () => {
       context: {
         authentication: mockAuthentication,
         queryClient: queryClient,
-        account: mockAccount,
+        account: mockStaffAccount,
       },
     });
     router.navigate({
@@ -459,7 +459,7 @@ describe("package table page", () => {
             router={router}
             context={{
               authentication: mockAuthentication,
-              account: mockAccount,
+              account: mockStaffAccount,
             }}
           />
         </AuthProvider>
@@ -492,7 +492,7 @@ describe("package table page", () => {
       context: {
         authentication: mockAuthentication,
         queryClient: queryClient,
-        account: mockAccount,
+        account: mockStaffAccount,
       },
       // history: Cypress.routerHistory, // Removed: Not needed, router will use memory history
     });
@@ -512,7 +512,7 @@ describe("package table page", () => {
             router={router}
             context={{
               authentication: mockAuthentication,
-              account: mockAccount,
+              account: mockStaffAccount,
             }}
           />
         </AuthProvider>

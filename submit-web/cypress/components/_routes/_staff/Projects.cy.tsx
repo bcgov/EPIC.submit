@@ -10,7 +10,7 @@ import { usePackageTableStore } from "../../../../src/components/Submission/pack
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "../../../../src/routeTree.gen";
 import {
-  mockAccount,
+  mockStaffAccount,
   mockAccountProject,
   mockAuthentication,
 } from "../../utils/mockConstants";
@@ -29,7 +29,7 @@ describe("projects page", () => {
       context: {
         authentication: mockAuthentication,
         queryClient: queryClient,
-        account: mockAccount,
+        account: mockStaffAccount,
       },
     });
 
@@ -44,7 +44,7 @@ describe("projects page", () => {
             router={router}
             context={{
               authentication: mockAuthentication,
-              account: mockAccount,
+              account: mockStaffAccount,
             }}
           />
           ;
