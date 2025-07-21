@@ -6,6 +6,7 @@ import {
   SUBMISSION_ITEM_STATUS,
 } from "../../../src/models/Submission";
 import {
+  InternalStaffDocument,
   SUBMISSION_ITEM_TYPE,
   SubmissionItemMethod,
 } from "../../../src/models/SubmissionItem";
@@ -125,11 +126,108 @@ export const mockManagementPlan = {
   version: 1,
 };
 
+import { USER_MANAGEMENT_ROLE } from "../../../src/models/Role";
+
+export const mockInternalStaffDocuments: InternalStaffDocument[] = [
+  {
+    id: 1,
+    name: "Internal Memo - CEMP Review",
+    url: "https://example.com/documents/internal-memo.pdf",
+    type: "S3",
+    item_id: 101,
+    created_by: "Jane Doe",
+    created_date: "2025-05-02T09:30:00.000Z",
+    created_by_user: {
+      id: 1,
+      auth_guid: "staff-user-guid-1",
+      type: "STAFF",
+      account_user: {
+        id: 11,
+        account_id: 201,
+        first_name: "Jane",
+        last_name: "Doe",
+        full_name: "Jane Doe",
+        position: "Environmental Analyst",
+        work_email_address: "jane.doe@example.com",
+        work_contact_number: "123-456-7890",
+        account: {
+          id: 201,
+          proponent_id: 88,
+        },
+        role: {
+          account_project_id: null,
+          account_user_id: 11,
+          package_ids: [],
+          original_package_ids: [],
+          package_names: [],
+          role_id: 1,
+          role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+          permissions: ["read", "write"],
+        },
+        has_agreed_to_terms: true,
+      },
+      staff_user: {
+        id: 31,
+        first_name: "Jane",
+        last_name: "Doe",
+        work_email_address: "jane.doe@example.com",
+        user_id: 1,
+      },
+    },
+  },
+  {
+    id: 2,
+    name: "Internal Checklist - MP Submission",
+    url: "https://example.com/documents/internal-checklist.pdf",
+    type: "S3",
+    item_id: 102,
+    created_by: "John Smith",
+    created_date: "2025-05-03T11:45:00.000Z",
+    created_by_user: {
+      id: 2,
+      auth_guid: "staff-user-guid-2",
+      type: "STAFF",
+      account_user: {
+        id: 12,
+        account_id: 202,
+        first_name: "John",
+        last_name: "Smith",
+        full_name: "John Smith",
+        position: "Compliance Officer",
+        work_email_address: "john.smith@example.com",
+        work_contact_number: "987-654-3210",
+        account: {
+          id: 202,
+          proponent_id: 89,
+        },
+        role: {
+          account_project_id: null,
+          account_user_id: 12,
+          package_ids: [],
+          original_package_ids: [],
+          package_names: [],
+          role_id: 2,
+          role_name: USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
+          permissions: ["read", "write", "approve"],
+        },
+        has_agreed_to_terms: true,
+      },
+      staff_user: {
+        id: 32,
+        first_name: "John",
+        last_name: "Smith",
+        work_email_address: "john.smith@example.com",
+        user_id: 2,
+      },
+    },
+  },
+];
+
 export const mockSubmissionPackage: SubmissionPackage = {
   account_project_id: 115,
   completed_on: undefined,
   id: 244,
-  internal_staff_documents: [],
+  internal_staff_documents: mockInternalStaffDocuments,
   items: [mockContactInformation, mockConsultationRecord, mockManagementPlan],
   meta: {
     main_condition: undefined,
