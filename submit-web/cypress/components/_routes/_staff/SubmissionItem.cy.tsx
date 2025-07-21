@@ -164,4 +164,76 @@ describe("package table page", () => {
 
     cy.get("[data-testid='review-completed-notification']").should("exist");
   });
+
+  it("test review section", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    queryClient.setQueryData(
+      [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
+      mockSubmissionPackage,
+    );
+    queryClient.setQueryData(
+      [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
+      mockAccountProject,
+    );
+    queryClient.setQueryData(
+      [QUERY_KEY.SUBMISSION_ITEM, mockConsultationRecordItemPassed.id],
+      mockConsultationRecordItemPassed,
+    );
+
+    const router = createRouter({
+      routeTree: routeTree,
+      context: {
+        authentication: mockAuthentication,
+        queryClient: queryClient,
+        account: mockStaffAccount,
+      },
+    });
+
+    mockZustandStore(useAccount, {
+      userType: USER_TYPE.STAFF,
+      roles: [
+        EPIC_SUBMIT_ROLE.eao_create,
+        EPIC_SUBMIT_ROLE.eao_edit,
+        EPIC_SUBMIT_ROLE.eao_view,
+      ],
+      reset: () => {},
+    });
+
+    router.navigate({
+      to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}/submissions/${mockConsultationRecordItemPassed.id}`,
+    });
+
+    mount(
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider {...OidcConfig}>
+          <RouterProvider
+            router={router}
+            context={{
+              authentication: mockAuthentication,
+              account: mockStaffAccount,
+            }}
+          />
+          ;
+        </AuthProvider>
+      </QueryClientProvider>,
+    );
+
+    cy.contains("Consultation Records Information").should("exist");
+    cy.get("[data-testid='review-section']").should("be.visible");
+    cy.get("[data-testid='review-section']")
+      .find("input[type='radio'][value='YES']")
+      .should("have.length", 1)
+      .each(($radio) => {
+        cy.wrap($radio).should("be.checked");
+      });
+
+    cy.get("[data-testid='review-completed-notification']").should("exist");
+  });
 });
