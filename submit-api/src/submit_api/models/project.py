@@ -57,7 +57,7 @@ class Project(db.Model):
         proponents = (
             cls.query
             .with_entities(cls.proponent_id, cls.proponent_name)
-            .filter(cls.has_approved_condition == True)
+            .filter(cls.has_approved_condition is True)
             .distinct()
             .order_by(cls.proponent_name)
             .all()
