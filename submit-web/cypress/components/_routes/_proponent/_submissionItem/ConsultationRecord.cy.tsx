@@ -62,7 +62,6 @@ describe("Submission Item Consultation Record Page", () => {
     const documents = mockConsultationRecord.submissions.filter(
       (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
     );
-    console.log(documents);
     cy.get("[data-testid='document-table']")
       .find("tbody tr")
       .should("have.length", documents.length + 1)

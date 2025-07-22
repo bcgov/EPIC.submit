@@ -5,7 +5,7 @@ import { routeTree } from "../../src/routeTree.gen";
 import { useAccount } from "../../src/store/accountStore";
 import { USER_TYPE } from "../../src/models/User";
 import { OidcConfig } from "../../src/utils/config";
-import { mockAuthentication, mockStaffAccount } from "./mockConstants";
+import { mockAuthentication } from "./mockConstants";
 
 export const mockZustandStore = (storeModule, initialState) => {
   const storeResetFn = storeModule.getState().reset;
