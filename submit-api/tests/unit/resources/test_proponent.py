@@ -14,11 +14,7 @@ from tests.utilities.factory_utils import (
 
 def test_get_all_proponents(client, session):
     """Test all get proponents."""
-    factory_project_with_proponent(
-        proponent_id=1234,
-        proponent_name="TestProponent",
-        has_approved_condition=True,
-    )
+    factory_project_with_proponent(proponent_id=1234, proponent_name="TestProponent")
 
     response = client.get("/api/staff/proponents")
 
