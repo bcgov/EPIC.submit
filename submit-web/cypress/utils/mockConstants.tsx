@@ -1,21 +1,18 @@
-import { SubmissionPackage } from "../../../src/models/Package";
-import { AccountProject } from "../../../src/models/Project";
-import {
-  EPIC_SUBMIT_ROLE,
-  USER_MANAGEMENT_ROLE,
-} from "../../../src/models/Role";
+import { SubmissionPackage } from "../../src/models/Package";
+import { AccountProject } from "../../src/models/Project";
+import { EPIC_SUBMIT_ROLE, USER_MANAGEMENT_ROLE } from "../../src/models/Role";
 import {
   Submission,
   SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
-} from "../../../src/models/Submission";
+} from "../../src/models/Submission";
 import {
   InternalStaffDocument,
   SUBMISSION_ITEM_TYPE,
   SubmissionItem,
   SubmissionItemMethod,
-} from "../../../src/models/SubmissionItem";
-import { USER_TYPE } from "../../../src/models/User";
+} from "../../src/models/SubmissionItem";
+import { USER_TYPE } from "../../src/models/User";
 
 export const mockConsultationRecordDocument: Submission = {
   created_date: "2025-04-29T14:24:36.093429",

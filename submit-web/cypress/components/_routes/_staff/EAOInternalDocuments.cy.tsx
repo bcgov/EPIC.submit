@@ -18,7 +18,7 @@ import {
   mockInternalStaffDocuments,
   mockManagementPlan,
   mockSubmissionPackage,
-} from "../../utils/mockConstants";
+} from "../../../utils/mockConstants";
 import { InternalStaffDocument } from "../../../../src/models/SubmissionItem";
 import { USER_MANAGEMENT_ROLE } from "../../../../src/models/Role";
 

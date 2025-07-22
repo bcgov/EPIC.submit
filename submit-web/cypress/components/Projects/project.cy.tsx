@@ -1,7 +1,7 @@
 import React from "react";
 import { mount } from "cypress/react18";
 import { Project } from "../../../src/components/Projects/Project";
-import { TestWrapper } from "../utils/TestWrapper";
+import { TestWrapper } from "../../utils/TestWrapper";
 
 const MockProjectComponent = () => {
   return (

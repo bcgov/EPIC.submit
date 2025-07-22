@@ -4,7 +4,7 @@ import { ProjectsPage } from "../../../src/routes/proponent/_proponentLayout/pro
 import { useAccount } from "../../../src/store/accountStore";
 import { mockZustandStore, setupTokenStorage } from "../utils";
 import { AppConfig } from "../../../src/utils/config";
-import { TestWrapper } from "../utils/TestWrapper";
+import { TestWrapper } from "../../utils/TestWrapper";
 
 describe("<ProjectsPage />", () => {
   beforeEach(() => {

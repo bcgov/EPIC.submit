@@ -12,7 +12,7 @@ import {
   mockAccountProject,
   mockAuthentication,
   mockProponentAccount,
-} from "../../utils/mockConstants";
+} from "../../../utils/mockConstants";
 
 describe("projects page", () => {
   const queryClient = new QueryClient({

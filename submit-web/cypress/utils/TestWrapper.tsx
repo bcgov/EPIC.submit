@@ -6,11 +6,10 @@ import {
   RouteComponent,
   RouterProvider,
 } from "@tanstack/react-router";
-import React from "react";
 import { ReactNode } from "react";
 import { AuthProvider } from "react-oidc-context";
-import { OidcConfig } from "../../../src/utils/config";
-import { theme } from "../../../src/styles/theme";
+import { OidcConfig } from "../../src/utils/config";
+import { theme } from "../../src/styles/theme";
 
 export const TestWrapper = ({
   component,
