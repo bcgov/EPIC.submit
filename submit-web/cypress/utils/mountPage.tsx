@@ -11,6 +11,7 @@ type MountPageProps = {
   router: any;
   roles?: EpicSubmitRole[];
   prepareAccount?: (roles: any) => void;
+  mockAccount?: any;
 };
 
 export const mountPage = ({
@@ -18,6 +19,7 @@ export const mountPage = ({
   router,
   roles = [],
   prepareAccount,
+  mockAccount = mockStaffAccount,
 }: MountPageProps) => {
   if (prepareAccount) {
     prepareAccount(roles);
@@ -30,7 +32,7 @@ export const mountPage = ({
           router={router}
           context={{
             authentication: mockAuthentication,
-            account: mockStaffAccount,
+            account: mockAccount,
           }}
         />
       </AuthProvider>

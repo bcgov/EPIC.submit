@@ -2,6 +2,7 @@ import {
   mockAccountProject,
   mockConsultationRecord,
   mockConsultationRecordItemPassed,
+  mockStaffAccount,
   mockSubmissionPackage,
 } from "../../../../utils/mockConstants";
 import { mountPage } from "../../../../utils/mountPage";
@@ -33,7 +34,7 @@ describe("Submission Item Consultation Record Page", () => {
       submissionItem: mockConsultationRecord,
     });
 
-    const router = createTestRouter(queryClient);
+    const router = createTestRouter(queryClient, mockStaffAccount);
 
     router.navigate({
       to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}/submissions/${mockConsultationRecord.id}`,
@@ -61,7 +62,7 @@ describe("Submission Item Consultation Record Page", () => {
       submissionItem: mockConsultationRecordItemPassed,
     });
 
-    const router = createTestRouter(queryClient);
+    const router = createTestRouter(queryClient, mockStaffAccount);
 
     router.navigate({
       to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}/submissions/${mockConsultationRecordItemPassed.id}`,
@@ -104,7 +105,7 @@ describe("Submission Item Consultation Record Page", () => {
       submissionItem: mockConsultationRecordItemPassed,
     });
 
-    const router = createTestRouter(queryClient);
+    const router = createTestRouter(queryClient, mockStaffAccount);
 
     router.navigate({
       to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}/submissions/${mockConsultationRecordItemPassed.id}`,

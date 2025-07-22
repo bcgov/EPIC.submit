@@ -54,13 +54,13 @@ export const createTestQueryClient = (mockData) => {
   return queryClient;
 };
 
-export const createTestRouter = (queryClient) =>
+export const createTestRouter = (queryClient, mockAccount?: any) =>
   createRouter({
     routeTree,
     context: {
       authentication: mockAuthentication,
       queryClient,
-      account: mockStaffAccount,
+      account: mockAccount,
     },
   });
 

@@ -338,7 +338,9 @@ export const mockStaffAccount = {
 export const mockProponentAccount = {
   isLoading: false,
   userType: USER_TYPE.PROPONENT,
-  userManagementRole: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+  userManagementRole: {
+    role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+  },
   accountId: 20,
   userId: 1,
 };
