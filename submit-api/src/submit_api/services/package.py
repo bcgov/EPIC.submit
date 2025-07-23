@@ -56,6 +56,10 @@ class PackageService:
         with session_scope() as session:
             package_type = PackageTypeModel.find_by_name(
                 request_data.get("type"))
+
+            if not package_type:
+                raise BadRequestError(f"Invalid package type: {package_type}")
+
             package = cls._create_package(
                 session, account_project_id, request_data, package_type)
             package_version = cls._create_package_version(
