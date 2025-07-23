@@ -28,7 +28,14 @@ export const setupTokenStorage = () => {
   );
 };
 
-export const createTestQueryClient = (mockData) => {
+type CreateTestQueryClientParams = {
+  submissionPackage?: any;
+  accountProject?: any;
+  submissionItem?: any;
+};
+export const createTestQueryClient = (
+  mockData: CreateTestQueryClientParams = {},
+) => {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
