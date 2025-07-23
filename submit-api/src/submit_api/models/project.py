@@ -24,6 +24,7 @@ class Project(db.Model):
     proponent_name = Column(db.String(), nullable=False)
     ea_certificate = Column(db.String(255), nullable=True, default=None)
     epic_guid = Column(db.String(255), nullable=True, default=None)
+    has_approved_condition = Column(db.Boolean, nullable=True, default=False)
 
     __table_args__ = (
         db.Index('ix_projects_proponent_id', 'proponent_id'),
@@ -53,8 +54,14 @@ class Project(db.Model):
     @classmethod
     def get_all_proponents(cls):
         """Get all proponents."""
-        proponents = (cls.query.with_entities(cls.proponent_id, cls.proponent_name)
-                      .distinct().order_by(cls.proponent_name).all())
+        proponents = (
+            cls.query
+            .with_entities(cls.proponent_id, cls.proponent_name)
+            .filter(cls.has_approved_condition.is_(True))
+            .distinct()
+            .order_by(cls.proponent_name)
+            .all()
+        )
         return proponents
 
     @classmethod

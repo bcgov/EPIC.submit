@@ -114,6 +114,7 @@ def factory_project_with_proponent(**kwargs):
         proponent_name=kwargs.get("proponent_name", fake.company()),
         ea_certificate=kwargs.get("ea_certificate", fake.uuid4()),
         epic_guid=kwargs.get("epic_guid", fake.uuid4()),
+        has_approved_condition=kwargs.get("has_approved_condition", True),
     )
     db.session.add(project)
     db.session.commit()
