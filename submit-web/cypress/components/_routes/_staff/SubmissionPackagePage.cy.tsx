@@ -11,7 +11,6 @@ import { usePackageTableStore } from "../../../../src/components/Submission/pack
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "../../../../src/routeTree.gen";
 import {
-  mockStaffAccount,
   mockAccountProject,
   mockActivityLogs,
   mockAuthentication,
@@ -20,9 +19,10 @@ import {
   mockContactInformation,
   mockManagementPlan,
   mockManagementPlanDocument,
+  mockStaffAccount,
   mockSubmissionPackage,
   mockSupportingDocument,
-} from "../../utils/mockConstants";
+} from "../../../utils/mockConstants";
 
 const mountDefaultPage = () => {
   const queryClient = new QueryClient({

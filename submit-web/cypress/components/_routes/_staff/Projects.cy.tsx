@@ -10,10 +10,10 @@ import { usePackageTableStore } from "../../../../src/components/Submission/pack
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "../../../../src/routeTree.gen";
 import {
-  mockStaffAccount,
   mockAccountProject,
   mockAuthentication,
-} from "../../utils/mockConstants";
+  mockStaffAccount,
+} from "../../../utils/mockConstants";
 
 describe("projects page", () => {
   const queryClient = new QueryClient({

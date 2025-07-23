@@ -117,7 +117,7 @@ export const DocumentUploadSection = () => {
         >
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 500 MB.
         </Typography>
-        <Box my={BCDesignTokens.layoutMarginLarge}>
+        <Box my={BCDesignTokens.layoutMarginLarge} data-testid="document-table">
           <DocumentTable
             documents={files}
             pendingDocuments={pendingFiles}
