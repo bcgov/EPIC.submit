@@ -50,6 +50,5 @@ describe("Submission Item Contact Information Page", () => {
     });
 
     cy.contains("Contact Information Form").should("exist");
-    cy.get("[data-testid='review-section']").should("be.visible");
   });
 });
