@@ -195,6 +195,7 @@ export default function UpdateRequestWidget({
                   cursor: "pointer",
                   width: "100%",
                 }}
+                data-testid="request-update-button"
               >
                 + Request an Update
               </Typography>

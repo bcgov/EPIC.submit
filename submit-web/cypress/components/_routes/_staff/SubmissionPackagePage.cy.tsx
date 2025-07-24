@@ -4,12 +4,12 @@ import { AuthProvider } from "react-oidc-context";
 import { AppConfig, OidcConfig } from "../../../../src/utils/config";
 import { mockZustandStore, setupTokenStorage } from "../../utils";
 import { useAccount } from "../../../../src/store/accountStore";
-import { USER_TYPE } from "../../../../src/models/User";
 import { ACTIVITY_LOG_ENTITY_TYPE } from "../../../../src/models/ActivityLog";
 import { QUERY_KEY } from "../../../../src/hooks/api/constants";
 import { usePackageTableStore } from "../../../../src/components/Submission/packageTableStore";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "../../../../src/routeTree.gen";
+import { PACKAGE_STATUS } from "../../../../src/models/Package";
 import {
   mockAccountProject,
   mockActivityLogs,
@@ -35,7 +35,7 @@ const mountDefaultPage = () => {
 
   queryClient.setQueryData(
     [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
-    mockSubmissionPackage,
+    { ...mockSubmissionPackage, status: [PACKAGE_STATUS.SUBMITTED] },
   );
   queryClient.setQueryData(
     [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
@@ -83,8 +83,7 @@ describe("package table page", () => {
   beforeEach(() => {
     cy.viewport(1280, 800);
     mockZustandStore(useAccount, {
-      userType: USER_TYPE.STAFF,
-      reset: () => {},
+      ...mockStaffAccount,
     });
     mockZustandStore(usePackageTableStore, {
       isValidating: false,
@@ -531,5 +530,62 @@ describe("package table page", () => {
     // For now, let's check for a known text/element if possible, or its container
     // This might need adjustment based on UpdateRequestWidget's actual content
     cy.get("[data-testid='update-request-accordion']").should("be.visible");
+  });
+
+  it("test request update button opens modal", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: {
+          retry: false,
+        },
+      },
+    });
+
+    queryClient.setQueryData(
+      [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
+      { ...mockSubmissionPackage, status: [PACKAGE_STATUS.SUBMITTED] },
+    );
+    queryClient.setQueryData(
+      [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
+      mockAccountProject,
+    );
+    queryClient.setQueryData(
+      [
+        QUERY_KEY.ACTIVITY_LOGS,
+        mockSubmissionPackage.version.original_package_id,
+        ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+      ],
+      mockActivityLogs,
+    );
+
+    const router = createRouter({
+      routeTree: routeTree,
+      context: {
+        authentication: mockAuthentication,
+        queryClient: queryClient,
+        account: mockStaffAccount,
+      },
+    });
+
+    router.navigate({
+      to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}`,
+    });
+
+    mount(
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider {...OidcConfig}>
+          <RouterProvider
+            router={router}
+            context={{
+              authentication: mockAuthentication,
+              account: mockStaffAccount,
+            }}
+          />
+          ;
+        </AuthProvider>
+      </QueryClientProvider>,
+    );
+    cy.get("[data-testid='request-update-button']").click();
+    cy.contains("Update requested for").should("be.visible");
   });
 });

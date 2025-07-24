@@ -133,6 +133,26 @@ export const mockManagementPlan = {
   version: 1,
 };
 
+export const mockIEM = {
+  id: 656,
+  notes: [],
+  package_id: 244,
+  review: undefined,
+  review_start_date: undefined,
+  sort_order: 3,
+  status: SUBMISSION_ITEM_STATUS.SUBMITTED.value,
+  submissions: [],
+  submitted_by: "",
+  submitted_on: "",
+  type: {
+    id: 4,
+    name: SUBMISSION_ITEM_TYPE.IEM,
+    submission_method: SubmissionItemMethod.DOCUMENT_UPLOAD,
+  },
+  type_id: 4,
+  version: 1,
+};
+
 export const mockInternalStaffDocuments: InternalStaffDocument[] = [
   {
     id: 1,
@@ -233,7 +253,12 @@ export const mockSubmissionPackage: SubmissionPackage = {
   completed_on: undefined,
   id: 244,
   internal_staff_documents: mockInternalStaffDocuments,
-  items: [mockContactInformation, mockConsultationRecord, mockManagementPlan],
+  items: [
+    mockContactInformation,
+    mockConsultationRecord,
+    mockManagementPlan,
+    mockIEM,
+  ],
   meta: {
     main_condition: undefined,
     supporting_conditions: [],
@@ -337,7 +362,12 @@ export const mockAuthentication = {
 export const mockStaffAccount = {
   isLoading: false,
   userType: USER_TYPE.STAFF,
-  roles: [EPIC_SUBMIT_ROLE.eao_view],
+  roles: [
+    EPIC_SUBMIT_ROLE.eao_view,
+    EPIC_SUBMIT_ROLE.eao_create,
+    EPIC_SUBMIT_ROLE.eao_edit,
+    EPIC_SUBMIT_ROLE.extended_eao_edit,
+  ],
 };
 
 export const mockProponentAccount = {
