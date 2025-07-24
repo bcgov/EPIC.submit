@@ -362,7 +362,12 @@ export const mockAuthentication = {
 export const mockStaffAccount = {
   isLoading: false,
   userType: USER_TYPE.STAFF,
-  roles: [EPIC_SUBMIT_ROLE.eao_view],
+  roles: [
+    EPIC_SUBMIT_ROLE.eao_view,
+    EPIC_SUBMIT_ROLE.eao_create,
+    EPIC_SUBMIT_ROLE.eao_edit,
+    EPIC_SUBMIT_ROLE.extended_eao_edit,
+  ],
 };
 
 export const mockProponentAccount = {

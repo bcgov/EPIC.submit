@@ -84,8 +84,7 @@ describe("package table page", () => {
   beforeEach(() => {
     cy.viewport(1280, 800);
     mockZustandStore(useAccount, {
-      userType: USER_TYPE.STAFF,
-      reset: () => {},
+      ...mockStaffAccount,
     });
     mockZustandStore(usePackageTableStore, {
       isValidating: false,
@@ -588,6 +587,6 @@ describe("package table page", () => {
       </QueryClientProvider>,
     );
     cy.get("[data-testid='request-update-button']").click();
-    cy.contains("Request for Update").should("be.visible");
+    cy.contains("Update requested for").should("be.visible");
   });
 });
