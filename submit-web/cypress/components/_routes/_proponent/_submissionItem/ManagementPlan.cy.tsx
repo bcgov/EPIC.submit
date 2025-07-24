@@ -28,6 +28,7 @@ describe("Submission Item Management Plan Page", () => {
     const queryClient = createTestQueryClient({
       submissionPackage: mockSubmissionPackage,
       submissionItem: mockManagementPlan,
+      accountProject: mockAccountProject,
     });
 
     mockZustandStore(useAccount, {

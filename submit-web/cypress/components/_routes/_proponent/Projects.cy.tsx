@@ -13,6 +13,7 @@ import {
   mockAuthentication,
   mockProponentAccount,
 } from "../../../utils/mockConstants";
+import { QUERY_KEY } from "../../../../src/hooks/api/constants";
 
 describe("projects page", () => {
   const queryClient = new QueryClient({
@@ -85,7 +86,10 @@ describe("projects page", () => {
   });
 
   it("test clicking on a project navigates to the correct project page", () => {
-    queryClient.clear();
+    queryClient.setQueryData(
+      [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
+      mockAccountProject,
+    );
     cy.intercept(
       "GET",
       `${AppConfig.apiUrl}/projects/accounts/${mockProponentAccount.accountId}?search_text=&submitted_on_start=&submitted_on_end= `,
@@ -102,8 +106,6 @@ describe("projects page", () => {
         account: mockProponentAccount,
       },
     });
-
-    cy.spy(router, "navigate").as("navigateSpy");
 
     router.navigate({
       to: `/proponent/projects`,
@@ -125,11 +127,7 @@ describe("projects page", () => {
     );
 
     cy.get("body").debug();
-    cy.get("tr")
-      .contains(mockAccountProject.project.name)
-      .click();
-    cy.get("@navigateSpy").should("have.been.calledWith", {
-      to: `/proponent/projects/${mockAccountProject.id}`,
-    });
+    cy.get("li").contains(mockAccountProject.project.name).click();
+    cy.url().should("include", `/proponent/projects/${mockAccountProject.id}`);
   });
 });
