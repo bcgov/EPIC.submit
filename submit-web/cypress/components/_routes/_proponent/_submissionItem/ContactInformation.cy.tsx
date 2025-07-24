@@ -28,6 +28,7 @@ describe("Submission Item Contact Information Page", () => {
     const queryClient = createTestQueryClient({
       submissionPackage: mockSubmissionPackage,
       submissionItem: mockContactInformation,
+      accountProject: mockAccountProject,
     });
 
     mockZustandStore(useAccount, {

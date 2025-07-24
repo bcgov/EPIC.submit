@@ -28,6 +28,7 @@ describe("Submission Item IEM Page", () => {
     const queryClient = createTestQueryClient({
       submissionPackage: mockSubmissionPackage,
       submissionItem: mockIEM,
+      accountProject: mockAccountProject,
     });
 
     mockZustandStore(useAccount, {
@@ -47,6 +48,8 @@ describe("Submission Item IEM Page", () => {
       mockAccount: mockProponentAccount,
     });
 
-    cy.contains("Independent Environmental Monitor Terms of Engagement").should("exist");
+    cy.contains("Independent Environmental Monitor Terms of Engagement").should(
+      "exist",
+    );
   });
 });
