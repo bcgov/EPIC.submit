@@ -4,7 +4,7 @@ import { AppConfig } from "@/utils/config";
 
 export default function PageNotFound() {
   return (
-    <>
+    <Box data-testid="page-not-found">
       <Toolbar />
       <Grid
         container
@@ -60,6 +60,6 @@ export default function PageNotFound() {
           </Box>
         </Grid>
       </Grid>
-    </>
+    </Box>
   );
 }
