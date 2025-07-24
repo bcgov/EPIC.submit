@@ -2,6 +2,7 @@ import { usePackageTableStore } from "../../../../src/components/Submission/pack
 import { QUERY_KEY } from "../../../../src/hooks/api/constants";
 import { PACKAGE_STATUS } from "../../../../src/models/Package";
 import { useAccount } from "../../../../src/store/accountStore";
+import { AppConfig } from "../../../../src/utils/config";
 import {
   mockAccountProject,
   mockProponentAccount,
@@ -23,6 +24,20 @@ describe("Submission Item Consultation Record Page", () => {
       reset: () => {},
     });
     setupTokenStorage();
+    cy.intercept(
+      "GET",
+      `${AppConfig.apiUrl}/projects/accounts/${mockProponentAccount.accountId}?search_text=&submitted_on_start=&submitted_on_end=`,
+      {
+        body: [mockAccountProject],
+      },
+    ).as("getAccountProjects");
+    cy.intercept(
+      "GET",
+      `${AppConfig.apiUrl}/packages/${mockSubmissionPackage.id}`,
+      {
+        body: mockSubmissionPackage,
+      },
+    ).as("getSubmissionPackages");
   });
 
   it("test page renders", () => {
