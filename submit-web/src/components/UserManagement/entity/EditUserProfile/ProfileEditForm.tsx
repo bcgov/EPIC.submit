@@ -9,7 +9,6 @@ import {
   Button,
   Grid,
   CircularProgress,
-  FormHelperText,
   Paper,
   Typography,
   Link,
@@ -21,12 +20,20 @@ import ControlledTextField from "@/components/Shared/controlled/ControlledTextFi
 import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "../../../../components/UserStatusChip";
+import { validatePhoneNumber } from "@/components/SubmissionItem/ContactInformation/utils";
 
 const updateUserProfileSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
   surname: yup.string().required("Please enter your surname."),
   position: yup.string().required("Please enter your position."),
-  phone: yup.string().required("Please enter your phone number."),
+  phone: yup
+    .string()
+    .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+    .test(
+      "phone-complete",
+      "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
+      validatePhoneNumber
+    ),
   email: yup
     .string()
     .email("Invalid email")
@@ -225,12 +232,17 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                     "& .MuiOutlinedInput-notchedOutline": {
                       borderColor: "#ccc !important",
                     },
-                    marginBottom: "4px",
+                    "& .MuiFormControl-root": {
+                      margin: 0,
+                    },
+                    "& .MuiFormHelperText-root": {
+                      display: "none",
+                    },
+                    margin: 0,
                   }}
                 />
-                <FormHelperText
+                <Typography
                   sx={{
-                    marginTop: "-20px",
                     fontSize: "12px",
                     color: "gray",
                     marginBottom: "40px",
@@ -241,7 +253,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                   <Link href="mailto:EAO.EPICsystem@gov.bc.ca">
                     EAO.EPICsystem@gov.bc.ca
                   </Link>
-                </FormHelperText>
+                </Typography>
                 <Button
                   type="submit"
                   variant="contained"

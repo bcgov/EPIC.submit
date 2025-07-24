@@ -31,8 +31,8 @@ class AccountUserService:
         all_package_ids = set()
         for user in users:
             role = getattr(user, "role", None)
-            if role and role.package_ids:
-                all_package_ids.update(role.package_ids)
+            if role and role.original_package_ids:
+                all_package_ids.update(role.original_package_ids)
 
         # Fetch names for all package_ids at once
         package_name_map = cls._fetch_package_names(list(all_package_ids))
@@ -44,7 +44,7 @@ class AccountUserService:
             # Add package_name to active role if applicable
             role = user_data.get("role")
             user_data["role"] = role if role.get("active") else []
-            if role and role.get("active") and (pkg_ids := role.get("package_ids")):
+            if role and role.get("active") and (pkg_ids := role.get("original_package_ids")):
                 role["package_names"] = [
                     package_name_map[pkg_id] for pkg_id in pkg_ids if pkg_id in package_name_map]
 
@@ -59,10 +59,10 @@ class AccountUserService:
         return user_list
 
     @staticmethod
-    def _fetch_package_names(package_ids: list[int]) -> dict[int, str]:
+    def _fetch_package_names(original_package_ids: list[int]) -> dict[int, str]:
         """Fetch package names for given IDs and return as {id: name}."""
-        packages = PackageModel.get_all_package_by_ids(package_ids)
-        return {pkg.id: pkg.name for pkg in packages}
+        packages = PackageModel.get_all_latest_packages_by_original_package_ids(original_package_ids)
+        return {pkg.version.original_package_id: pkg.name for pkg in packages}
 
     @staticmethod
     def _fetch_users(account_id):
@@ -98,7 +98,8 @@ class AccountUserService:
                 "role_id": role.role_id,
                 "role_name": RoleModel.find_by_id(role.role_id).role_name,
                 "account_project_id": role.account_project_id,
-                "package_ids": role.package_ids
+                "package_ids": role.package_ids,
+                "original_package_ids": role.original_package_ids,
             })
         return roles_map
 
@@ -113,9 +114,8 @@ class AccountUserService:
         invited_users = []
         for invite in invitees:
             packages = []
-            if invite.package_ids:
-                packages = PackageModel.get_all_package_by_ids(invite.package_ids)
-
+            if invite.original_package_ids:
+                packages = PackageModel.get_all_latest_packages_by_original_package_ids(invite.original_package_ids)
             invited_user = {
                 "id": None,
                 "invitation_id": invite.id,
@@ -128,6 +128,7 @@ class AccountUserService:
                     "role": invite.role.to_dict(),
                     "account_project_id": None,
                     "package_ids": invite.package_ids,
+                    "original_package_ids": invite.original_package_ids,
                     "package_names": [pkg.name for pkg in packages],
                     "project_ids": invite.project_ids
                 } if include_roles else None,
@@ -149,22 +150,25 @@ class AccountUserService:
         role_id = role_data.get("role_id")
         account_project_id = role_data.get("account_project_id")
         package_ids = role_data.get("package_ids")
+        original_package_ids = role_data.get("original_package_ids")
 
         role = RoleModel.find_by_id(role_id)
         if not role:
             raise ValueError(f"Invalid role ID: {role_id}")
 
-        # ideally UI should be passing this.. fetch it if UI doesnt send it..
+        # ideally UI should be passing this. fetch it if UI doesnt send it..
         if not account_project_id:
             account_project_id = cls._fetch_account_project_id(account_user_id)
 
         # only for SPECIFIC_SUBMISSION_CONTRIBUTOR , save package id
-        package_ids = package_ids if role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value else None
+        original_package_ids = original_package_ids \
+            if role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value else None
         role_data = {
             "account_user_id": account_user_id,
             "role_id": role_id,
             "account_project_id": account_project_id,
             "package_ids": package_ids,
+            "original_package_ids": original_package_ids,
             "role_name": role.role_name
         }
 
@@ -173,7 +177,8 @@ class AccountUserService:
             "role_id": role.id,
             "role_name": role.role_name,
             "account_project_id": role_data.get("account_project_id"),
-            "package_ids": role_data.get("package_ids")
+            "package_ids": role_data.get("package_ids"),
+            "original_package_ids": role_data.get("original_package_ids")
         }
 
     @classmethod
@@ -227,11 +232,13 @@ class AccountUserService:
             raise ResourceNotFoundError(f"Item with id {account_user_id} not found.")
 
         new_role_name = updated_role_data.get("role_name")
-        package_ids = updated_role_data.get("package_ids")
+        package_ids = updated_role_data.get("package_ids", None)
+        original_package_ids = updated_role_data.get("original_package_ids", None)
         role = AccountUserService._validate_fetch_role(new_role_name)
 
         user_role.role_id = role.id
         user_role.package_ids = package_ids
+        user_role.original_package_ids = original_package_ids
         db.session.commit()
 
         current_app.logger.info(f"User role {user_role.id} updated successfully.")
@@ -296,9 +303,9 @@ class AccountUserService:
         if not role.get("active"):
             user_dict["role"] = []
         else:
-            package_ids = role.get("package_ids", [])
-            package_name_map = cls._fetch_package_names(package_ids)
-            role["package_names"] = [package_name_map[pid] for pid in package_ids if pid in package_name_map]
+            original_package_ids = role.get("original_package_ids", [])
+            package_name_map = cls._fetch_package_names(original_package_ids)
+            role["package_names"] = [package_name_map[pid] for pid in original_package_ids if pid in package_name_map]
 
         return user_dict
 

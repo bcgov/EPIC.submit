@@ -42,26 +42,19 @@ export const Route = createFileRoute(
       </Grid>
     </PageGrid>
   ),
-  beforeLoad: ({ context: { account }, params: { submissionPackageId } }) => {
+  beforeLoad: ({ context: { account } }) => {
     if (!account || account.isLoading) return;
     if (!account.userManagementRole) {
       return redirect({
         to: "/error",
       });
     }
-    if (
-      account.userManagementRole.role_name ===
-        USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR &&
-      account.userManagementRole.package_ids?.includes(
-        Number(submissionPackageId),
-      )
-    ) {
-      return;
-    }
+
     if (
       [
         USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
         USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
+        USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
       ].includes(account.userManagementRole?.role_name)
     ) {
       return;

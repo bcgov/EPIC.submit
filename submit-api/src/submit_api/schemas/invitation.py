@@ -15,6 +15,8 @@ class CreateInvitationSchema(Schema):
     project_ids = fields.List(fields.Int(), required=True, description="List of Project IDs")
     role_name = fields.Str(required=True, description="Role Name")
     package_ids = fields.List(fields.Int(), required=False, allow_none=True)
+    original_package_ids = fields.List(fields.Int(),
+                                       required=False, allow_none=True, description="Original Package IDs")
     email = fields.Email(required=False, description="Optional email for client")
 
 
@@ -25,6 +27,7 @@ class InvitationSchema(Schema):
     account_id = fields.Int()
     project_ids = fields.List(fields.Int())
     package_ids = fields.List(fields.Int(), allow_none=True)
+    original_package_ids = fields.List(fields.Int(), allow_none=True)
     role_id = fields.Int()
     role_name = fields.Str()
     token = fields.Str()

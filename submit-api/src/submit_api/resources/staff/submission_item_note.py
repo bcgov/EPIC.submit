@@ -15,14 +15,15 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission_item_note import PostSubmissionItemNote, SubmissionItemNote
 from submit_api.services.submission_item_note import SubmissionItemNoteService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("notes", description="Endpoints for staff notes")
@@ -50,7 +51,7 @@ class SubmissionItemNoteResource(Resource):
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post(submission_item_id):
         """Create a staff note."""
         create_note_data = PostSubmissionItemNote().load(API.payload)

@@ -15,7 +15,8 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
@@ -23,7 +24,7 @@ from submit_api.schemas.package import CreateUpdateRequestSchema, PackageUpdateR
     PackageVersionSchema, CreatePackageVersionSchema, PackageSchema
 from submit_api.services.package import PackageService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("packages", description="Endpoints for Package Management")
@@ -58,7 +59,7 @@ class Package(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(package_id):
         """Get a package."""
         package = PackageService.get_package_by_id(package_id)
@@ -81,7 +82,7 @@ class PackageVersions(Resource):
         code=HTTPStatus.OK, model=package_model, description="Get package versions"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(original_package_id):
         """Get a package."""
         package_versions = PackageService.get_all_package_versions_by_original_package_id(original_package_id)
@@ -94,7 +95,7 @@ class PackageVersions(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     def post(original_package_id):
         """Create a new package version."""
@@ -122,7 +123,7 @@ class PackageUpdateRequests(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post(package_id):
         """Create an update request."""
         create_update_request_data = CreateUpdateRequestSchema().load(API.payload)
@@ -148,7 +149,7 @@ class PackageUpdateRequest(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def patch(package_id, update_request_id):
         """Accept an update request."""
         accept_update_request = PackageService.accept_update_request(package_id, update_request_id)

@@ -25,6 +25,7 @@ type CreateInvitation = {
   email?: string;
   project_ids: number[];
   package_ids?: number[];
+  original_package_ids?: number[];
 };
 
 const createInvitation = ({
@@ -32,6 +33,7 @@ const createInvitation = ({
   proponent_id,
   project_ids,
   package_ids,
+  original_package_ids,
   email,
   role_name,
 }: CreateInvitation) => {
@@ -45,6 +47,7 @@ const createInvitation = ({
       email,
       project_ids,
       package_ids,
+      original_package_ids,
     },
   });
 };
@@ -79,11 +82,12 @@ export type AcceptInvitationResponse = {
   message: string;
   user_id: number;
   role: Role;
+  account_id: number;
 };
 
 const acceptInvitation = (
   token: string | undefined,
-  data: CreateAccountRequest
+  data: CreateAccountRequest,
 ) => {
   if (!token) {
     return Promise.reject(new Error("Token is required"));

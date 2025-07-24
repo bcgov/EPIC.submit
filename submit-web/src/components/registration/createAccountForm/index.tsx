@@ -99,6 +99,7 @@ function CreateAccountForm() {
       userManagementRole: data.role,
       roles: data.role.permissions,
       userType: USER_TYPE.PROPONENT,
+      accountId: data.account_id,
     });
 
     queryClient.refetchQueries({

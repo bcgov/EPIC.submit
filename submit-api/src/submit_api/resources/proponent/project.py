@@ -16,15 +16,16 @@
 from http import HTTPStatus
 
 from flask import request, abort
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.project import AccountProjectSchema, AddProjectSchema, ProjectSchema
+from submit_api.schemas.project import AddProjectSchema, ProjectSchema
 from submit_api.services.project_service import ProjectService
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("projects", description="Endpoints for Project Management")
@@ -53,7 +54,7 @@ class ProjectsByAccount(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(account_id):
         """Get projects by account id."""
         args = request.args
@@ -85,7 +86,7 @@ class ProjectsByAccount(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post(account_id):
         """Add projects in bulk."""
         projects_data = AddProjectSchema().load(API.payload)
@@ -108,7 +109,7 @@ class Project(Resource):
         code=HTTPStatus.OK, model=project_list_model, description="Get project"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(proponent_id):
         """Get projects by proponent id."""
         projects = ProjectService.get_projects_by_proponent_id(proponent_id)
@@ -130,14 +131,14 @@ class Projects(Resource):
         code=HTTPStatus.CREATED, model=project_list_model, description="Get project"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     @auth.require
     def get(account_project_id):
         """Get projects by proponent id."""
-        account_project = ProjectService.get_account_project_by_id(account_project_id)
+        account_project = ProjectService.get_account_project_by_id(account_project_id, is_staff=False)
         if not account_project:
             return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND
-        return AccountProjectSchema().dump(account_project), HTTPStatus.OK
+        return account_project, HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS, POST")
@@ -154,7 +155,7 @@ class ProjectsByAccountUser(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def get(user_id):
         """Get projects by user id."""
         projects = ProjectService.get_account_projects_by_user_id(user_id)

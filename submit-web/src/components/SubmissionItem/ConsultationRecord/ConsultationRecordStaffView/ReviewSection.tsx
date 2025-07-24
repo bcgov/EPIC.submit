@@ -110,7 +110,7 @@ export default function ReviewSection() {
     submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.REJECTED;
 
   return (
-    <Grid item container>
+    <Grid item container data-testid="review-section" xs={12}>
       <Grid
         item
         xs={12}

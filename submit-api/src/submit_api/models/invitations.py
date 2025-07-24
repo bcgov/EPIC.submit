@@ -23,6 +23,7 @@ class Invitations(BaseModel):
     account_id = Column(Integer, ForeignKey('accounts.id'), nullable=False)
     project_ids = Column(ARRAY(Integer), nullable=False)
     package_ids = Column(ARRAY(Integer), nullable=True)
+    original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs
     token = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), nullable=True)  # Optional email for client
     status = Column(String(50), default=InvitationStatus.PENDING.value, nullable=False)
@@ -40,6 +41,7 @@ class Invitations(BaseModel):
             "account_id": self.account_id,
             "project_ids": self.project_ids,
             "package_ids": self.package_ids,
+            "original_package_ids": self.original_package_ids,
             "token": self.token,
             "email": self.email,
             "status": self.status,

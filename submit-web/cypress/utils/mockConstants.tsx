@@ -1,15 +1,23 @@
-import { SubmissionPackage } from "../../../src/models/Package";
-import { AccountProject } from "../../../src/models/Project";
-import { EPIC_SUBMIT_ROLE } from "../../../src/models/Role";
+import { SubmissionPackage } from "../../src/models/Package";
+import { AccountProject } from "../../src/models/Project";
+import {
+  ACCOUNT_USER_PERMISSIONS,
+  EPIC_SUBMIT_ROLE,
+  USER_MANAGEMENT_ROLE,
+} from "../../src/models/Role";
 import {
   Submission,
   SUBMISSION_ITEM_STATUS,
-} from "../../../src/models/Submission";
+  SUBMISSION_TYPE,
+} from "../../src/models/Submission";
 import {
+  InternalStaffDocument,
   SUBMISSION_ITEM_TYPE,
+  SubmissionItem,
   SubmissionItemMethod,
-} from "../../../src/models/SubmissionItem";
-import { USER_TYPE } from "../../../src/models/User";
+} from "../../src/models/SubmissionItem";
+import { USER_TYPE } from "../../src/models/User";
+import { faker } from "@faker-js/faker";
 
 export const mockConsultationRecordDocument: Submission = {
   created_date: "2025-04-29T14:24:36.093429",
@@ -125,11 +133,106 @@ export const mockManagementPlan = {
   version: 1,
 };
 
+export const mockInternalStaffDocuments: InternalStaffDocument[] = [
+  {
+    id: 1,
+    name: "Internal Memo - CEMP Review",
+    url: "https://example.com/documents/internal-memo.pdf",
+    type: "S3",
+    item_id: 101,
+    created_by: "Jane Doe",
+    created_date: "2025-05-02T09:30:00.000Z",
+    created_by_user: {
+      id: 1,
+      auth_guid: "staff-user-guid-1",
+      type: "STAFF",
+      account_user: {
+        id: 11,
+        account_id: 201,
+        first_name: "Jane",
+        last_name: "Doe",
+        full_name: "Jane Doe",
+        position: "Environmental Analyst",
+        work_email_address: "jane.doe@example.com",
+        work_contact_number: "123-456-7890",
+        account: {
+          id: 201,
+          proponent_id: 88,
+        },
+        role: {
+          account_project_id: null,
+          account_user_id: 11,
+          package_ids: [],
+          original_package_ids: [],
+          package_names: [],
+          role_id: 1,
+          role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+          permissions: ["read", "write"],
+        },
+        has_agreed_to_terms: true,
+      },
+      staff_user: {
+        id: 31,
+        first_name: "Jane",
+        last_name: "Doe",
+        work_email_address: "jane.doe@example.com",
+        user_id: 1,
+      },
+    },
+  },
+  {
+    id: 2,
+    name: "Internal Checklist - MP Submission",
+    url: "https://example.com/documents/internal-checklist.pdf",
+    type: "S3",
+    item_id: 102,
+    created_by: "John Smith",
+    created_date: "2025-05-03T11:45:00.000Z",
+    created_by_user: {
+      id: 2,
+      auth_guid: "staff-user-guid-2",
+      type: "STAFF",
+      account_user: {
+        id: 12,
+        account_id: 202,
+        first_name: "John",
+        last_name: "Smith",
+        full_name: "John Smith",
+        position: "Compliance Officer",
+        work_email_address: "john.smith@example.com",
+        work_contact_number: "987-654-3210",
+        account: {
+          id: 202,
+          proponent_id: 89,
+        },
+        role: {
+          account_project_id: null,
+          account_user_id: 12,
+          package_ids: [],
+          original_package_ids: [],
+          package_names: [],
+          role_id: 2,
+          role_name: USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
+          permissions: ["read", "write", "approve"],
+        },
+        has_agreed_to_terms: true,
+      },
+      staff_user: {
+        id: 32,
+        first_name: "John",
+        last_name: "Smith",
+        work_email_address: "john.smith@example.com",
+        user_id: 2,
+      },
+    },
+  },
+];
+
 export const mockSubmissionPackage: SubmissionPackage = {
   account_project_id: 115,
   completed_on: undefined,
   id: 244,
-  internal_staff_documents: [],
+  internal_staff_documents: mockInternalStaffDocuments,
   items: [mockContactInformation, mockConsultationRecord, mockManagementPlan],
   meta: {
     main_condition: undefined,
@@ -231,10 +334,25 @@ export const mockAuthentication = {
   revokeTokens: () => Promise.resolve(),
 };
 
-export const mockAccount = {
+export const mockStaffAccount = {
   isLoading: false,
   userType: USER_TYPE.STAFF,
   roles: [EPIC_SUBMIT_ROLE.eao_view],
+};
+
+export const mockProponentAccount = {
+  isLoading: false,
+  userType: USER_TYPE.PROPONENT,
+  userManagementRole: {
+    role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+  },
+  accountId: 20,
+  userId: 1,
+  roles: [
+    ACCOUNT_USER_PERMISSIONS.CREATE_PACKAGE,
+    ACCOUNT_USER_PERMISSIONS.SUBMIT_PACKAGE,
+    ACCOUNT_USER_PERMISSIONS.INVITE_USERS,
+  ],
 };
 
 export const mockActivityLogs = [
@@ -388,4 +506,173 @@ export const mockActivityLogs = [
     entity_version: 2,
     visibility: "STAFF",
   },
+];
+
+export const consultationRecordForm: Submission = {
+  created_date: "2025-04-21T21:28:44.133441",
+  id: 703,
+  item_id: 537,
+  major_version: 1,
+  minor_version: 1,
+  status: "SUBMITTED",
+  submitted_by: "Taya Lee",
+  submitted_document: undefined,
+  submitted_form: {
+    id: 363,
+    submission_json: {
+      allPartiesConsulted: true,
+      consultedParties: [],
+      notes: "",
+      planWasReviewed: true,
+      writtenExplanationsProvidedToCommenters: true,
+      writtenExplanationsProvidedToParties: true,
+    },
+  },
+  type: SUBMISSION_TYPE.FORM,
+  version: "1.1",
+};
+
+export const mockConsultationRecordItemPassed: SubmissionItem = {
+  id: 507,
+  notes: [],
+  package_id: 195,
+  review: {
+    active: true,
+    entries: [
+      {
+        entry: {
+          passedConsultationCheck: "YES",
+        },
+        id: 224,
+        review_id: 161,
+        type: "STAFF_RECOMMENDATION",
+        updated_by: "EAO TEST1",
+        updated_date: "2025-05-09T20:00:17.094992",
+      },
+      {
+        entry: {
+          passedConsultationCheck: "YES",
+        },
+        id: 226,
+        review_id: 161,
+        type: "MANAGER_CONFIRMATION",
+        updated_by: "EAO TEST2",
+        updated_date: "2025-05-09T20:04:06.484840",
+      },
+    ],
+    id: 161,
+    item_id: 507,
+    status: "APPROVED",
+  },
+  review_start_date: "2025-04-29T14:20:55.146669",
+  sort_order: 1,
+  status: "PASSED_CONSULTATION_CHECK",
+  submissions: [
+    {
+      created_date: "2025-04-29T14:19:53.939639",
+      id: 722,
+      item_id: 507,
+      major_version: 1,
+      minor_version: 1,
+      status: "APPROVED",
+      submitted_by: "David d",
+      submitted_document: undefined,
+      submitted_form: {
+        id: 373,
+        submission_json: {
+          allPartiesConsulted: true,
+          consultedParties: [
+            {
+              consultedParty: "DASD",
+            },
+          ],
+          notes: "testes",
+          planWasReviewed: true,
+          writtenExplanationsProvidedToCommenters: true,
+          writtenExplanationsProvidedToParties: true,
+        },
+      },
+      type: "FORM",
+      version: "1.1",
+    },
+    {
+      created_date: "2025-05-06T20:44:36.533981",
+      id: 735,
+      item_id: 507,
+      major_version: 1,
+      minor_version: 2,
+      status: "APPROVED",
+      submitted_by: "Vineet Balachandran",
+      submitted_document: {
+        folder: "consultation_records",
+        id: 424,
+        name: "Schedule B_ Table of Conditions-7-1-1.pdf",
+        url: "submissions/caribooGoldProject/consultation_records/2dc5bbde-252c-43b6-a808-774bbecd11bd.pdf",
+      },
+      submitted_form: undefined,
+      type: "DOCUMENT",
+      version: "1.2",
+    },
+    {
+      created_date: "2025-05-09T19:59:54.150646",
+      id: 747,
+      item_id: 507,
+      major_version: 1,
+      minor_version: 1,
+      status: "APPROVED",
+      submitted_by: "Eric Levasseur",
+      submitted_document: {
+        folder: "consultation_records",
+        id: 433,
+        name: "Supporting_Document-1.pdf",
+        url: "submissions/caribooGoldProject/consultation_records/419c0b94-ff59-4505-b3c5-1306bf618fe4.pdf",
+      },
+      submitted_form: undefined,
+      type: "DOCUMENT",
+      version: "1.1",
+    },
+  ],
+  submitted_by: "",
+  submitted_on: "",
+  type: {
+    id: 2,
+    name: SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD,
+    submission_method: SubmissionItemMethod.DOCUMENT_UPLOAD,
+  },
+  type_id: 2,
+  version: 1,
+};
+
+export const getMockAccountUser = (overrides = {}) => {
+  return {
+    account_id: mockProponentAccount.accountId,
+    first_name: faker.person.firstName(),
+    full_name: faker.person.fullName(),
+    id: faker.number.int({ min: 100, max: 999 }),
+    last_name: faker.person.lastName(),
+    position: "Contract",
+    role: {
+      account_project_id: mockAccountProject.id,
+      account_user_id: faker.number.int({ min: 100, max: 999 }),
+      active: true,
+      original_package_ids: null,
+      package_ids: null,
+      permissions: ["CREATE_PACKAGE", "SUBMIT_PACKAGE", "INVITE_USERS"],
+      role_id: 2,
+      role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+    },
+    status: "ACTIVE",
+    user_id: faker.number.int({ min: 1000, max: 9999 }),
+    work_contact_number: "(111) 111-1111",
+    work_email_address: faker.internet.email(),
+    ...overrides,
+  };
+};
+
+export const mockAccountUsers = [
+  getMockAccountUser(),
+  getMockAccountUser(),
+  getMockAccountUser(),
+  getMockAccountUser(),
+  getMockAccountUser(),
 ];

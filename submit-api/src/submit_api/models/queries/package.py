@@ -170,11 +170,16 @@ class PackageQueries:
                 func.array_agg(
                     func.json_build_object(
                         "id", PackageModel.id,
-                        "name", PackageModel.name
+                        "name", PackageModel.name,
+                        "original_package_id", PackageVersion.original_package_id,
                     )
                 ).label('packages')  # Aggregate packages as a JSON array
             )
             .join(PackageModel, PackageModel.account_project_id == AccountProject.id)
+            .join(
+                PackageVersion,
+                PackageModel.version_id == PackageVersion.id
+            )  # Join with PackageVersion to filter by version_id
             .join(
                 latest_versions_subquery,
                 PackageModel.version_id == latest_versions_subquery.c.latest_version_id

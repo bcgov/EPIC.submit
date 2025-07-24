@@ -24,6 +24,8 @@ from flask import g
 
 from src.submit_api.config import get_named_config
 from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.role import RoleEnum
+from submit_api.models import User, AccountUser, UserRole, Role
 from submit_api.models import db, Item, ItemType
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
@@ -31,6 +33,7 @@ from submit_api.models.invitations import InvitationStatus
 from submit_api.models.invitations import Invitations
 from submit_api.models.project import Project
 from submit_api.models.user import UserType
+from tests.utilities.factory_scenarios import TestJwtClaims
 
 CONFIG = get_named_config("testing")
 fake = Faker()
@@ -114,6 +117,7 @@ def factory_project_with_proponent(**kwargs):
         proponent_name=kwargs.get("proponent_name", fake.company()),
         ea_certificate=kwargs.get("ea_certificate", fake.uuid4()),
         epic_guid=kwargs.get("epic_guid", fake.uuid4()),
+        has_approved_condition=kwargs.get("has_approved_condition", True),
     )
     db.session.add(project)
     db.session.commit()
@@ -122,6 +126,7 @@ def factory_project_with_proponent(**kwargs):
 
 def factory_invitation_model(account_id, status=InvitationStatus.PENDING.value, project_ids=None, package_ids=None,
                              email=None, role_id=None):
+    """Create and return a mock invitation entry."""
     """Create and return a mock invitation entry."""
     invitation = Invitations(
         account_id=account_id,
@@ -181,3 +186,57 @@ def factory_package_model(account_project=None, name=None, status=None, package_
     db.session.add(package)
     db.session.commit()
     return package
+
+
+def create_proponent_with_role(session, *, auth_guid: str, account_id: int,
+                               role_name: str = RoleEnum.PROJECT_ADMIN.value, account_project_id: int = None):
+    """Create a test proponent user with account and role."""
+    user = User.create_user({
+        "auth_guid": auth_guid,
+        "type": UserType.PROPONENT
+    }, session=session)
+
+    account_user = AccountUser.create_account_user({
+        "account_id": account_id,
+        "first_name": fake.first_name(),
+        "last_name": fake.last_name(),
+        "position": fake.job(),
+        "work_email_address": fake.email(),
+        "work_contact_number": fake.phone_number(),
+        "user_id": user.id,
+    }, session=session)
+
+    role = Role.get_by_name(role_name)
+
+    user_role = UserRole.create_user_role({
+        "account_user_id": account_user.id,
+        "role_id": role.id,
+        "package_ids": None,
+        "account_project_id": account_project_id,
+    }, session=session)
+
+    return user, account_user, user_role
+
+
+def setup_authenticated_proponent(session, jwt, role=RoleEnum.PROJECT_ADMIN.value):
+    """Helper to set up authenticated proponent with headers and account_project."""
+    account = factory_account_model()
+    project = factory_project_model()
+    account_project = factory_account_project_model(account.id, project.id)
+
+    auth_guid = fake.uuid4()
+    user, account_user, _ = create_proponent_with_role(
+        session,
+        auth_guid=auth_guid,
+        account_id=account.id,
+        role_name=role,
+        account_project_id=account_project.id
+    )
+
+    claims = TestJwtClaims.proponent_role.copy()
+    claims["sub"] = auth_guid
+    claims["preferred_username"] = account_user.work_email_address
+    claims["email"] = account_user.work_email_address
+    headers = factory_auth_header(jwt, claims)
+
+    return headers, account_project

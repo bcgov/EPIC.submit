@@ -15,14 +15,15 @@
 
 from http import HTTPStatus
 
-from flask_restx import Namespace, Resource, cors
+from flask_cors import cross_origin
+from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema, PostInternalStaffDocument
 from submit_api.services.internal_staff_document_service import InternalStaffDocumentService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.util import cors_preflight
+from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("internal-staff-documents", description="Endpoints for Internal Staff Document Management")
@@ -50,7 +51,7 @@ class InternalStaffDocuments(Resource):
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def post(package_id):
         """Create an internal staff document."""
         create_document_data = PostInternalStaffDocument().load(API.payload)
@@ -65,7 +66,7 @@ class InternalStaffDocuments(Resource):
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def delete(internal_staff_document_id):
         """Delete an internal staff document."""
         deleted_document = (InternalStaffDocumentService
@@ -85,7 +86,7 @@ class InternalStaffDocument(Resource):
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
     @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
-    @cors.crossdomain(origin="*")
+    @cross_origin(origins=allowedorigins())
     def delete(internal_staff_document_id):
         """Delete an internal staff document."""
         deleted_document = (InternalStaffDocumentService

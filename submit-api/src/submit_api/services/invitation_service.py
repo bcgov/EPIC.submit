@@ -19,6 +19,7 @@ from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
+from submit_api.models.user_role import UserRole as UserRoleModel
 
 
 class InvitationService:
@@ -134,7 +135,8 @@ class InvitationService:
             return {
                 "message": "User access granted successfully",
                 "user_id": account_user.user_id,
-                "role": role
+                "role": role,
+                "account_id": invitation.account_id,
             }
 
     @staticmethod
@@ -226,6 +228,7 @@ class InvitationService:
             created_by=invite_data.get('created_by'),
             role_id=role.id,
             package_ids=invite_data.get('package_ids'),
+            original_package_ids=invite_data.get('original_package_ids'),
             expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
             is_first_time=is_first_time
         )
@@ -258,13 +261,25 @@ class InvitationService:
 
     @staticmethod
     def _assign_user_role(account_user_id, account_project_id, invitation, session):
-        """Assign the role to the user."""
-        return AccountUserService.assign_role({
+        """Assign the role to the user and return the role with permissions."""
+        role_data = AccountUserService.assign_role({
             "account_user_id": account_user_id,
             "role_id": invitation.role_id,
             "account_project_id": account_project_id,
             "package_ids": invitation.package_ids,
+            "original_package_ids": invitation.original_package_ids
         }, session)
+
+        user_role = UserRoleModel.get_role_by_account_user_id(account_user_id)
+
+        return {
+            "role_id": role_data["role_id"],
+            "role_name": role_data["role_name"],
+            "permissions": user_role.permissions,
+            "account_project_id": role_data["account_project_id"],
+            "package_ids": role_data["package_ids"],
+            "original_package_ids": role_data["original_package_ids"]
+        }
 
     @staticmethod
     def _generate_signup_url(token):

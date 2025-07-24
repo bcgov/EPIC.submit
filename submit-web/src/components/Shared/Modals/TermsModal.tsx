@@ -1,8 +1,16 @@
-import { Dialog, DialogActions, DialogContent, Button, Box } from "@mui/material";
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  Button,
+  Box,
+} from "@mui/material";
 import { useRef, useState, useEffect } from "react";
 import { useTermsOfServiceData } from "@/hooks/api/useTermsOfService";
 import { useModal } from "./modalStore";
 import { BCDesignTokens } from "epic.theme";
+import DOMPurify from "dompurify";
+import "@/styles/termsStyles.scss";
 
 type TermsModalProps = {
   onAgreeConfirmed: (agreedTermsVersionId: number | null) => void;
@@ -11,7 +19,7 @@ type TermsModalProps = {
 
 const TermsModal: React.FC<TermsModalProps> = ({
   onAgreeConfirmed,
-  setVersionId
+  setVersionId,
 }) => {
   const { setClose } = useModal();
   const scrollBoxRef = useRef<HTMLDivElement>(null);
@@ -48,6 +56,8 @@ const TermsModal: React.FC<TermsModalProps> = ({
     }
   };
 
+  const sanitizedTermsContent = DOMPurify.sanitize(termsData?.content ?? "");
+
   return (
     <Dialog
       open
@@ -59,25 +69,32 @@ const TermsModal: React.FC<TermsModalProps> = ({
       <DialogContent
         onScroll={handleScroll}
         ref={scrollBoxRef}
-        sx={{ maxHeight: '400px', overflowY: 'auto' }}
+        sx={{ maxHeight: "400px", overflowY: "auto" }}
       >
         <Box
-          sx={{ typography: "body2" }}
-          dangerouslySetInnerHTML={{ __html: termsData?.content || "<p>Loading...</p>" }}
-        />
+          className="terms-wrapper"
+          style={{ fontFamily: BCDesignTokens.typographyFontFamiliesBcSans }}
+        >
+          <div
+            className="content"
+            dangerouslySetInnerHTML={{
+              __html: sanitizedTermsContent || "<p>Loading...</p>",
+            }}
+          />
+        </Box>
       </DialogContent>
       <DialogActions
         sx={{
-          borderTop: '1px solid',
-          borderColor: 'divider',
-          flexDirection: 'column',
-          alignItems: 'stretch',
+          borderTop: "1px solid",
+          borderColor: "divider",
+          flexDirection: "column",
+          alignItems: "stretch",
           px: 3,
           py: 2,
           gap: 1.5,
         }}
       >
-        <Box sx={{ position: 'relative', alignSelf: 'flex-end' }}>
+        <Box sx={{ position: "relative", alignSelf: "flex-end" }}>
           <Button
             variant="contained"
             onClick={handleAgree}
@@ -90,12 +107,12 @@ const TermsModal: React.FC<TermsModalProps> = ({
             <Box
               onClick={handleFakeClick}
               sx={{
-                position: 'absolute',
+                position: "absolute",
                 top: 0,
                 left: 0,
-                width: '100%',
-                height: '100%',
-                cursor: 'not-allowed',
+                width: "100%",
+                height: "100%",
+                cursor: "not-allowed",
                 zIndex: 1,
               }}
             />
@@ -106,16 +123,17 @@ const TermsModal: React.FC<TermsModalProps> = ({
           <Box
             sx={{
               backgroundColor: BCDesignTokens.themeGold10,
-              padding: '12px 16px',
-              borderRadius: '4px',
+              padding: "12px 16px",
+              borderRadius: "4px",
               mt: 1,
               border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+              fontFamily: BCDesignTokens.typographyFontFamiliesBcSans,
             }}
           >
-            To continue, please read the Terms and Conditions. The agreement button will unlock once you scroll to the end.
+            To continue, please read the Terms and Conditions. The agreement
+            button will unlock once you scroll to the end.
           </Box>
         )}
-
       </DialogActions>
     </Dialog>
   );

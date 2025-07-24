@@ -62,7 +62,7 @@ export default function UpdateRequestWidget({
           notify.error(
             isAxiosError(error)
               ? (error.response?.data.message ?? defaultMessage)
-              : defaultMessage
+              : defaultMessage,
           );
         },
       },
@@ -107,6 +107,7 @@ export default function UpdateRequestWidget({
         },
       }}
       expanded={expanded}
+      data-testid="update-request-accordion"
     >
       <AccordionSummary
         expandIcon={null}

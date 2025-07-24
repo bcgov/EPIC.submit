@@ -37,7 +37,8 @@ def check_assigned_on_package(package_id):
     if not package_id:
         abort(HTTPStatus.BAD_REQUEST)
 
-    if not PackageModel.find_by_id(package_id):
+    package = PackageModel.find_by_id(package_id)
+    if not package:
         abort(HTTPStatus.NOT_FOUND)
 
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
@@ -60,7 +61,7 @@ def check_assigned_on_package(package_id):
         return
 
     if user_role.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
-        if package_id in user_role.package_ids:
+        if package.version.original_package_id in user_role.original_package_ids:
             return
 
     abort(HTTPStatus.FORBIDDEN)

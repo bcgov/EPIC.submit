@@ -58,7 +58,10 @@ export default function AddFileLinkSection({
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(handleSaveLinkText)}>
+      <form
+        data-cy="add-link-section"
+        onSubmit={handleSubmit(handleSaveLinkText)}
+      >
         <Stack direction="row" spacing={2} alignItems="baseline">
           <ControlledTextField
             name="link"

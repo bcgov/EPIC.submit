@@ -13,13 +13,15 @@ type FilterState = {
   resetFilters: () => void;
 };
 
+export const initialFilters: Filters = {
+  status: [],
+  search_text: "",
+  submitted_on_start: "",
+  submitted_on_end: "",
+};
+
 export const useProjectFilters = create<FilterState>((set) => ({
-  filters: {
-    status: [],
-    search_text: "",
-    submitted_on_start: "",
-    submitted_on_end: "",
-  },
+  filters: { ...initialFilters },
   setFilters: (newFilters) =>
     set((state) => ({
       filters: { ...state.filters, ...newFilters },

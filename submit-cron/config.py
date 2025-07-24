@@ -78,12 +78,12 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     # Service account details
     KEYCLOAK_BASE_URL = os.getenv('KEYCLOAK_BASE_URL')
-    KEYCLOAK_REALMNAME = os.getenv('KEYCLOAK_REALMNAME', 'submit')
-    KEYCLOAK_SERVICE_ACCOUNT_ID = os.getenv('MET_ADMIN_CLIENT_ID')
-    KEYCLOAK_SERVICE_ACCOUNT_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
+    KEYCLOAK_REALM_NAME = os.getenv('KEYCLOAK_REALM_NAME', 'submit')
+    KEYCLOAK_SERVICE_ACCOUNT_ID = os.getenv('KEYCLOAK_SERVICE_ACCOUNT_ID')
+    KEYCLOAK_SERVICE_ACCOUNT_SECRET = os.getenv('KEYCLOAK_SERVICE_ACCOUNT_SECRET')
     # TODO separate out clients for APIs and user management.
     # TODO API client wont need user management roles in keycloak.
-    KEYCLOAK_ADMIN_USERNAME = os.getenv('MET_ADMIN_CLIENT_ID')
+    KEYCLOAK_ADMIN_USERNAME = os.getenv('KEYCLOAK_ADMIN_USERNAME')
     KEYCLOAK_ADMIN_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
 
     CHES_TOKEN_ENDPOINT = os.getenv('CHES_TOKEN_ENDPOINT')
@@ -95,6 +95,8 @@ class _Config():  # pylint: disable=too-few-public-methods
     SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH', '/proponent/registration')
 
     STAFF_SUPPORT_MAIL_ID = os.getenv('STAFF_SUPPORT_MAIL_ID', '')
+
+    CONDITION_API_BASE_URL = os.getenv('CONDITION_API_BASE_URL')
 
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods

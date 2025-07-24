@@ -11,9 +11,9 @@ class ProjectService:
     """Project management service."""
 
     @classmethod
-    def get_account_project_by_id(cls, account_project_id):
+    def get_account_project_by_id(cls, account_project_id, is_staff: bool):
         """Get account project by id."""
-        return ProjectQueries.get_account_project_by_id(account_project_id)
+        return ProjectQueries.get_account_project_by_id(account_project_id, is_staff)
 
     @classmethod
     def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None,

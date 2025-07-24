@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { Box, Breadcrumbs } from "@mui/material";
+import { Box, Breadcrumbs, Typography } from "@mui/material";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { theme } from "@/styles/theme";
 
@@ -33,21 +33,33 @@ const BreadcrumbNav: React.FC = () => {
       }}
     >
       <Breadcrumbs aria-label="breadcrumb">
-        {breadcrumbs.map((segment: { title: string; path?: string }) => {
-          const { title, path } = segment;
-          return (
-            <Link
-              key={path}
-              style={{
-                color: theme.palette.primary.dark,
-                textDecoration: "underline",
-              }}
-              to={path}
-            >
-              {title}
-            </Link>
-          );
-        })}
+        {breadcrumbs.map(
+          (segment: { title: string; path?: string }, index: number) => {
+            const { title, path } = segment;
+            const isCurrentPage = index === breadcrumbs.length - 1;
+
+            if (isCurrentPage) {
+              return (
+                <Typography key={path} color="text.primary">
+                  {title}
+                </Typography>
+              );
+            }
+
+            return (
+              <Link
+                key={path}
+                style={{
+                  color: theme.palette.primary.dark,
+                  textDecoration: "underline",
+                }}
+                to={path}
+              >
+                {title}
+              </Link>
+            );
+          }
+        )}
       </Breadcrumbs>
     </Box>
   );

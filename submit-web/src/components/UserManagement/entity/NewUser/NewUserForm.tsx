@@ -33,7 +33,7 @@ import UserManagementModal from "./UserManagementModal";
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
   role_name: yup.string().required("Please select an option."),
-  package_ids: yup
+  original_package_ids: yup
     .array()
     .of(yup.string()) // Ensures project IDs are strings
     .when("role_name", {
@@ -77,7 +77,7 @@ export default function NewUserForm() {
                   ],
                 }}
                 onClose={() => closeModal()}
-              />
+              />,
             );
           } else if (existing_user.status === "PENDING") {
             setOpenModal(
@@ -94,7 +94,7 @@ export default function NewUserForm() {
                   ],
                 }}
                 onClose={() => closeModal()}
-              />
+              />,
             );
           }
         } else {
@@ -112,7 +112,7 @@ export default function NewUserForm() {
     defaultValues: {
       email: "",
       role_name: "",
-      package_ids: [],
+      original_package_ids: [],
     },
   });
 
@@ -125,7 +125,7 @@ export default function NewUserForm() {
   const selectedRole = watch("role_name");
 
   const getProjectIds = () => {
-    const packageIds = watch("package_ids") || [];
+    const packageIds = watch("original_package_ids") || [];
     const isSpecificSubmission =
       selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
     return (
@@ -133,21 +133,23 @@ export default function NewUserForm() {
         ?.filter(
           ({ packages }) =>
             !isSpecificSubmission ||
-            packages.some(({ id }) => packageIds.includes(id.toString()))
+            packages.some(({ id }) => packageIds.includes(id.toString())),
         )
         .map(({ project_id }) => Number(project_id)) || []
     );
   };
 
   const handleCompleteForm = (formData: NewUserSchema) => {
-    const { email, role_name, package_ids } = formData;
+    const { email, role_name, original_package_ids } = formData;
     const request = {
       proponent_id: proponentId,
       account_id: accountId,
       role_name,
       email,
       project_ids: getProjectIds(),
-      package_ids: package_ids ? package_ids.map(Number) : undefined,
+      original_package_ids: original_package_ids
+        ? original_package_ids.map(Number)
+        : undefined,
     };
     createInvite(request);
   };
@@ -156,11 +158,11 @@ export default function NewUserForm() {
     () =>
       accountPackages?.flatMap((accountProject) =>
         Object.values(accountProject.packages).map((pkg) => ({
-          value: String(pkg.id),
+          value: String(pkg.original_package_id),
           label: pkg.name,
-        }))
+        })),
       ) || [],
-    [accountPackages]
+    [accountPackages],
   );
 
   return (
@@ -264,7 +266,7 @@ export default function NewUserForm() {
                 </Typography>
                 <ControlledMultiSelect
                   multiple
-                  name="package_ids"
+                  name="original_package_ids"
                   options={options}
                 />
               </When>

@@ -118,6 +118,7 @@ export default function Row({ internalStaffDocument }: RowProps) {
       </SubmitTableCell>
       <SubmitTableCell align="right" width="20%">
         <LoadingButton
+          data-cy="remove-button"
           onClick={onRemoveClick}
           loading={isRemovingDocument}
           variant="text"

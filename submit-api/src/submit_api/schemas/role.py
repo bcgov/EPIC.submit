@@ -19,6 +19,7 @@ class UserRoleSchema(Schema):
     account_user_id = fields.Int()
     account_project_id = fields.Int(allow_none=True)
     package_ids = fields.List(fields.Int(), allow_none=True)
+    original_package_ids = fields.List(fields.Int(), allow_none=True)
     package_names = fields.List(fields.String(), allow_none=True)
     role_name = fields.Pluck(RoleSchema, "role_name", data_key="role_name", attribute="role")
     permissions = fields.List(fields.Str())

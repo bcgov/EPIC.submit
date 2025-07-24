@@ -25,6 +25,7 @@
     "@types/react-input-mask": "^3.0.2",
     "axios": "^1.7.2",
     "dayjs": "^1.11.13",
+    "dompurify": "^3.2.6",
     "epic.theme": "latest",
     "jwt-decode": "^4.0.0",
     "keycloak-js": "^25.0.1",
@@ -41,6 +42,7 @@
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.12.44",
+    "@faker-js/faker": "^9.9.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@tanstack/eslint-plugin-query": "^5.43.1",
     "@tanstack/react-query-devtools": "^5.59.16",
@@ -55,6 +57,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "nyc": "^17.1.0",
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "sass": "^1.77.6",
