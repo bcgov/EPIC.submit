@@ -99,4 +99,81 @@ describe("Submission Item Consultation Record Page", () => {
         cy.contains(mockPackageFour.name).should("exist");
       });
   });
+
+  it("test clicking on a submission package navigates to the correct submission package page", () => {
+    const queryClient = createTestQueryClient();
+
+    const mockPackageOne = {
+      ...mockSubmissionPackage,
+      name: "Test Package One",
+    };
+
+    const mockAccountProjectOne = {
+      ...mockAccountProject,
+      packages: [mockPackageOne],
+    };
+    queryClient.setQueryData(
+      [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProjectOne.id],
+      mockAccountProjectOne,
+    );
+
+    mockZustandStore(useAccount, {
+      reset: () => {},
+      ...mockProponentAccount,
+    });
+
+    const router = createTestRouter(queryClient, mockProponentAccount);
+    cy.spy(router, "navigate").as("navigateSpy");
+
+    router.navigate({
+      to: `/proponent/projects/${mockAccountProjectOne.id}`,
+    });
+
+    mountPage({
+      queryClient,
+      router,
+      mockAccount: mockProponentAccount,
+    });
+
+    cy.contains(mockPackageOne.name).click();
+    cy.get("@navigateSpy").should("have.been.calledWith", {
+      to: `/proponent/projects/${mockAccountProjectOne.id}/submission-packages/${mockPackageOne.id}`,
+    });
+  });
+
+  it("test new submission button navigates to the correct page", () => {
+    const queryClient = createTestQueryClient();
+
+    const mockAccountProjectOne = {
+      ...mockAccountProject,
+      packages: [],
+    };
+    queryClient.setQueryData(
+      [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProjectOne.id],
+      mockAccountProjectOne,
+    );
+
+    mockZustandStore(useAccount, {
+      reset: () => {},
+      ...mockProponentAccount,
+    });
+
+    const router = createTestRouter(queryClient, mockProponentAccount);
+    cy.spy(router, "navigate").as("navigateSpy");
+
+    router.navigate({
+      to: `/proponent/projects/${mockAccountProjectOne.id}`,
+    });
+
+    mountPage({
+      queryClient,
+      router,
+      mockAccount: mockProponentAccount,
+    });
+
+    cy.contains("New Submission").click();
+    cy.get("@navigateSpy").should("have.been.calledWith", {
+      to: `/proponent/projects/${mockAccountProjectOne.id}/new-submission`,
+    });
+  });
 });

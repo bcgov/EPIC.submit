@@ -83,4 +83,53 @@ describe("projects page", () => {
     cy.contains(mockAccountProject.project.name).should("exist");
     cy.contains(mockAccountProject.packages[0].name).should("exist");
   });
+
+  it("test clicking on a project navigates to the correct project page", () => {
+    queryClient.clear();
+    cy.intercept(
+      "GET",
+      `${AppConfig.apiUrl}/projects/accounts/${mockProponentAccount.accountId}?search_text=&submitted_on_start=&submitted_on_end= `,
+      {
+        body: [mockAccountProject],
+      },
+    ).as("getAccountProjects");
+
+    const router = createRouter({
+      routeTree: routeTree,
+      context: {
+        authentication: mockAuthentication,
+        queryClient: queryClient,
+        account: mockProponentAccount,
+      },
+    });
+
+    cy.spy(router, "navigate").as("navigateSpy");
+
+    router.navigate({
+      to: `/proponent/projects`,
+    });
+
+    mount(
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider {...OidcConfig}>
+          <RouterProvider
+            router={router}
+            context={{
+              authentication: mockAuthentication,
+              account: mockProponentAccount,
+            }}
+          />
+          ;
+        </AuthProvider>
+      </QueryClientProvider>,
+    );
+
+    cy.get("body").debug();
+    cy.get("tr")
+      .contains(mockAccountProject.project.name)
+      .click();
+    cy.get("@navigateSpy").should("have.been.calledWith", {
+      to: `/proponent/projects/${mockAccountProject.id}`,
+    });
+  });
 });

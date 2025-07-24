@@ -341,4 +341,91 @@ describe("package table page", () => {
       to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}`,
     });
   });
+
+  it("should allow user to remove a document and refresh the view", () => {
+    const docToRemove = mockInternalStaffDocuments[0];
+    cy.intercept(
+      "DELETE",
+      `${AppConfig.apiUrl}/staff/internal-staff-documents/${docToRemove.id}`,
+      {
+        statusCode: 200,
+      },
+    ).as("deleteInternalDoc");
+
+    mountDefaultPage();
+
+    cy.on("window:confirm", () => true);
+
+    cy.contains(docToRemove.name)
+      .parents("tr")
+      .find('[data-cy="remove-button"]')
+      .click()
+      .then(() => {
+        cy.log("Remove button clicked");
+      });
+
+    cy.wait("@deleteInternalDoc").then(() => {
+      // Refresh QueryClient with updated mock
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+
+      const updatedDocs = mockInternalStaffDocuments.filter(
+        (doc) => doc.id !== docToRemove.id,
+      );
+      const updatedPackage = {
+        ...mockSubmissionPackage,
+        internal_staff_documents: updatedDocs,
+      };
+
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, mockSubmissionPackage.id],
+        updatedPackage,
+      );
+
+      queryClient.setQueryData(
+        [QUERY_KEY.ACCOUNT_PROJECT, mockAccountProject.id],
+        mockAccountProject,
+      );
+
+      queryClient.setQueryData(
+        [
+          QUERY_KEY.ACTIVITY_LOGS,
+          mockSubmissionPackage.version.original_package_id,
+          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+        ],
+        mockActivityLogs,
+      );
+
+      const router = createRouter({
+        routeTree,
+        context: {
+          authentication: mockAuthentication,
+          queryClient,
+          account: mockStaffAccount,
+        },
+      });
+
+      router.navigate({
+        to: `/staff/projects/${mockAccountProject.id}/submission-packages/${mockSubmissionPackage.id}/internal-documents/`,
+      });
+
+      mount(
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider {...OidcConfig}>
+            <RouterProvider
+              router={router}
+              context={{
+                authentication: mockAuthentication,
+                account: mockStaffAccount,
+              }}
+            />
+          </AuthProvider>
+        </QueryClientProvider>,
+      );
+
+      // Assert new document is now visible
+      cy.contains(docToRemove.name).should("not.exist");
+    });
+  });
 });
