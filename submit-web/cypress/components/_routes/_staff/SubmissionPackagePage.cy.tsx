@@ -4,7 +4,6 @@ import { AuthProvider } from "react-oidc-context";
 import { AppConfig, OidcConfig } from "../../../../src/utils/config";
 import { mockZustandStore, setupTokenStorage } from "../../utils";
 import { useAccount } from "../../../../src/store/accountStore";
-import { USER_TYPE } from "../../../../src/models/User";
 import { ACTIVITY_LOG_ENTITY_TYPE } from "../../../../src/models/ActivityLog";
 import { QUERY_KEY } from "../../../../src/hooks/api/constants";
 import { usePackageTableStore } from "../../../../src/components/Submission/packageTableStore";
