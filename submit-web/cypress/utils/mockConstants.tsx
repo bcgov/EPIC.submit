@@ -1,6 +1,10 @@
 import { SubmissionPackage } from "../../src/models/Package";
 import { AccountProject } from "../../src/models/Project";
-import { EPIC_SUBMIT_ROLE, USER_MANAGEMENT_ROLE } from "../../src/models/Role";
+import {
+  ACCOUNT_USER_PERMISSIONS,
+  EPIC_SUBMIT_ROLE,
+  USER_MANAGEMENT_ROLE,
+} from "../../src/models/Role";
 import {
   Submission,
   SUBMISSION_ITEM_STATUS,
@@ -13,6 +17,7 @@ import {
   SubmissionItemMethod,
 } from "../../src/models/SubmissionItem";
 import { USER_TYPE } from "../../src/models/User";
+import { faker } from "@faker-js/faker";
 
 export const mockConsultationRecordDocument: Submission = {
   created_date: "2025-04-29T14:24:36.093429",
@@ -343,6 +348,11 @@ export const mockProponentAccount = {
   },
   accountId: 20,
   userId: 1,
+  roles: [
+    ACCOUNT_USER_PERMISSIONS.CREATE_PACKAGE,
+    ACCOUNT_USER_PERMISSIONS.SUBMIT_PACKAGE,
+    ACCOUNT_USER_PERMISSIONS.INVITE_USERS,
+  ],
 };
 
 export const mockActivityLogs = [
@@ -632,3 +642,37 @@ export const mockConsultationRecordItemPassed: SubmissionItem = {
   type_id: 2,
   version: 1,
 };
+
+export const getMockAccountUser = (overrides = {}) => {
+  return {
+    account_id: mockProponentAccount.accountId,
+    first_name: faker.person.firstName(),
+    full_name: faker.person.fullName(),
+    id: faker.number.int({ min: 100, max: 999 }),
+    last_name: faker.person.lastName(),
+    position: "Contract",
+    role: {
+      account_project_id: mockAccountProject.id,
+      account_user_id: faker.number.int({ min: 100, max: 999 }),
+      active: true,
+      original_package_ids: null,
+      package_ids: null,
+      permissions: ["CREATE_PACKAGE", "SUBMIT_PACKAGE", "INVITE_USERS"],
+      role_id: 2,
+      role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+    },
+    status: "ACTIVE",
+    user_id: faker.number.int({ min: 1000, max: 9999 }),
+    work_contact_number: "(111) 111-1111",
+    work_email_address: faker.internet.email(),
+    ...overrides,
+  };
+};
+
+export const mockAccountUsers = [
+  getMockAccountUser(),
+  getMockAccountUser(),
+  getMockAccountUser(),
+  getMockAccountUser(),
+  getMockAccountUser(),
+];

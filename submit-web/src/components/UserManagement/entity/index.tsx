@@ -30,6 +30,7 @@ export const UserTable = ({ users }: { users: AccountUserWithRole[] }) => {
               to: "/proponent/user-management/new-user",
             })
           }
+          data-testid="add-user-button"
         >
           Add New User
         </Button>
