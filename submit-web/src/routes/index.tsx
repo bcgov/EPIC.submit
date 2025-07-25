@@ -15,7 +15,7 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import { OidcConfig, AppConfig } from "@/utils/config";
 import { BCDesignTokens } from "epic.theme";
 import { IDENTITY_PROVIDERS } from "@/models/User";
-import DescriptionIcon from "@mui/icons-material/Description";
+import { UserGuideButton } from "@/components/UserGuideButton";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -23,11 +23,6 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { isAuthenticated, isLoading, signinRedirect } = useAuth();
-
-  const handleUserGuideClick = () => {
-    // open new tab with user guide
-    window.open(AppConfig.userGuide, "_blank", "noopener,noreferrer");
-  };
 
   if (isLoading) {
     return <PageLoader />;
@@ -116,6 +111,23 @@ function Index() {
               </Typography>
             </ul>
           </Paper>
+
+          <Box sx={{ px: 3, py: 0 }} mb={BCDesignTokens.layoutMarginLarge}>
+            <Typography variant="h6" fontWeight="bold">
+              Who can use EPIC.submit?
+            </Typography>
+            <Typography variant="body1" mt={1}>
+              Currently, EPIC.submit is available to certificate holders
+              managing their post-decision documentation requirements. In the
+              future, the system will be expanded to include proponents earlier
+              in the environmental assessment process.
+            </Typography>
+            <Typography variant="body1" mt={1}>
+              The portal is accessible to both certificate holders and EAO
+              staff, creating a shared platform for document submission, review,
+              and communication.
+            </Typography>
+          </Box>
         </Grid>
 
         {/* Right Section */}
@@ -197,23 +209,6 @@ function Index() {
             </Stack>
           </Box>
 
-          <Box sx={{ px: 3, py: 0 }} mb={BCDesignTokens.layoutMarginLarge}>
-            <Typography variant="h6" fontWeight="bold">
-              Who can use EPIC.submit?
-            </Typography>
-            <Typography variant="body1" mt={1}>
-              Currently, EPIC.submit is available to certificate holders
-              managing their post-decision documentation requirements. In the
-              future, the system will be expanded to include proponents earlier
-              in the environmental assessment process.
-            </Typography>
-            <Typography variant="body1" mt={1}>
-              The portal is accessible to both certificate holders and EAO
-              staff, creating a shared platform for document submission, review,
-              and communication.
-            </Typography>
-          </Box>
-
           <Paper elevation={0} sx={{ p: 3, pt: 0 }}>
             <Typography variant="h6" fontWeight="bold">
               Getting Started with EPIC.submit
@@ -232,24 +227,9 @@ function Index() {
                 {AppConfig.supportEmail}
               </Link>
             </Typography>
-            <Typography
-              variant="body1"
-              mt={1}
-              sx={{
-                cursor: "pointer",
-                color: BCDesignTokens.iconsColorLink,
-                textDecoration: "underline",
-              }}
-              onClick={handleUserGuideClick}
-            >
-              <Stack direction="row" spacing={1} alignItems={"center"}>
-                <DescriptionIcon
-                  htmlColor={BCDesignTokens.iconsColorLink}
-                  fontSize="large"
-                />
-                Download the EPIC.submit User Guide
-              </Stack>
-            </Typography>
+            <Box mt="24px">
+              <UserGuideButton />
+            </Box>
           </Paper>
         </Grid>
       </Grid>
