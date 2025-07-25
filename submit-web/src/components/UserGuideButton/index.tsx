@@ -7,6 +7,7 @@ import { useMemo } from "react";
 export const UserGuideButton = () => {
   const version = useMemo(() => {
     const extractVersionFromUrl = (url: string): string | null => {
+      // document name must end with vX.X.pdf
       const regex = /v(\d+\.\d+(?:\.\d+)?)(?=\.pdf)/;
       const match = regex.exec(url.toLowerCase());
       return match ? match[1] : null;
