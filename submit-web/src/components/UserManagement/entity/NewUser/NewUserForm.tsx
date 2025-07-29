@@ -111,7 +111,6 @@ export default function NewUserForm() {
       accountId: accountId,
     }),
   );
-
   const methods = useForm<NewUserSchema>({
     resolver: yupResolver(newUser),
     mode: "onSubmit",
