@@ -7,17 +7,16 @@ Office (EAO). The system streamlines the submission process, tracks document ver
 facilitates communication between users and the EAO.
 
 ### Who Should Use This Guide
-• Certificate/Exemption Holders: Organizations that need to submit management
-plans and other documents to the EAO
+- **Certificate/Exemption Holders**: Organizations that need to submit management plans and other documents to the EAO
 
 ### Key Benefits
-• Streamlined Submission Process: Submit documents directly to the EAO online
-• Status Tracking: Monitor the progress of your submissions
-• Version Control: Keep track of document versions
-• Team Collaboration: Work with team members on submissions
-• Direct Communication: Receive feedback and requests from the EAO
+- **Streamlined Submission Process**: Submit documents directly to the EAO online
+- **Status Tracking**: Monitor the progress of your submissions
+- **Version Control**: Keep track of document versions
+- **Team Collaboration**: Work with team members on submissions
+- **Direct Communication**: Receive feedback and requests from the EAO
 
-# Submit Setup Instructions
+## Submit Setup Instructions
 
 This document outlines the setup instructions for both the backend and front-end components of the project. Ensure you follow the steps in sequence for a smooth setup.
 
