@@ -248,6 +248,7 @@ export const getAccountPackagesByAccountIdQueryOptions = ({
         searchOptions,
       }),
     enabled: Boolean(accountId),
+    staleTime: 0,
     ...customQueryOptions,
   });
 
