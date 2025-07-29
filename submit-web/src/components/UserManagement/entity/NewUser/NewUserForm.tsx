@@ -30,6 +30,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import UserManagementModal from "./UserManagementModal";
 import { useQuery } from "@tanstack/react-query";
+import NewUserFormSkeleton from "./NewUserFormSkeleton";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
@@ -104,12 +105,11 @@ export default function NewUserForm() {
       },
     });
 
-  const { data: accountPackages } = useQuery(
+  const { data: accountPackages, isPending: isPendingPackages } = useQuery(
     getAccountPackagesByAccountIdQueryOptions({
       accountId: accountId,
     }),
   );
-
   const methods = useForm<NewUserSchema>({
     resolver: yupResolver(newUser),
     mode: "onSubmit",
@@ -168,6 +168,10 @@ export default function NewUserForm() {
       ) || [],
     [accountPackages],
   );
+
+  if (isPendingPackages) {
+    return <NewUserFormSkeleton />;
+  }
 
   return (
     <TableBox mainLabel={"User Management"}>
