@@ -25,8 +25,10 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
     ?.flatMap((project) => project.packages)
     .find(
       (pkg) =>
-        pkg?.meta?.main_condition?.condition_number === formData?.main_condition?.condition_number &&
-        pkg?.meta?.main_condition?.plan_name === formData?.main_condition?.plan_name
+        pkg?.meta?.main_condition?.condition_number ===
+          formData?.main_condition?.condition_number &&
+        pkg?.meta?.main_condition?.plan_name ===
+          formData?.main_condition?.plan_name,
     );
 
   if (isLoading) {

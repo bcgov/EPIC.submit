@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { TableBox } from "../../../Shared/TableBox";
 import {
   Box,
@@ -34,13 +34,13 @@ import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import ControlledMultiSelect, {
   OptionType,
 } from "@/components/Shared/controlled/ControlledMultiSelect";
-import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
+import { getAccountPackagesByAccountIdQueryOptions } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
-import { useMemo } from "react";
 import { UserPackageStatus } from "@/components/UserStatusChip";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { useUserStore } from "./../../entity/userStore";
+import { useQuery } from "@tanstack/react-query";
 
 const userSchema = yup.object().shape({
   role_name: yup.string().required("Please select a role."),
@@ -169,9 +169,11 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
 
   const selectedRole = watch("role_name");
 
-  const { data: accountPackages } = useGetAccountPackagesByAccountId({
-    accountId: accountId,
-  });
+  const { data: accountPackages } = useQuery(
+    getAccountPackagesByAccountIdQueryOptions({
+      accountId: accountId,
+    }),
+  );
 
   const handleUpdateForm = (formData: UserSchema) => {
     const request = {
