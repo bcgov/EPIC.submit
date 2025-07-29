@@ -11,7 +11,6 @@ import {
   Stack,
   Switch,
   Typography,
-  Skeleton,
 } from "@mui/material";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { BCDesignTokens } from "epic.theme";
