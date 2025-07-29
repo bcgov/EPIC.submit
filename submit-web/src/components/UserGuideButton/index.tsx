@@ -1,8 +1,8 @@
 import { Typography, Stack } from "@mui/material";
 import { AppConfig } from "@/utils/config";
 import { BCDesignTokens } from "epic.theme";
-import DescriptionIcon from "@mui/icons-material/Description";
 import { useMemo } from "react";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 export const UserGuideButton = () => {
   const version = useMemo(() => {
@@ -31,11 +31,11 @@ export const UserGuideButton = () => {
       onClick={handleUserGuideClick}
     >
       <Stack direction="row" spacing={1} alignItems={"center"}>
-        <DescriptionIcon
+        EPIC.submit User Guide {version ? ` v${version}` : ""}
+        <OpenInNewIcon
           htmlColor={BCDesignTokens.iconsColorLink}
-          fontSize="large"
+          fontSize="small"
         />
-        Download the EPIC.submit User Guide {version ? ` v${version}` : ""}
       </Stack>
     </Typography>
   );

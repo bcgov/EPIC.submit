@@ -22,13 +22,14 @@ import ControlledMultiSelect, {
 } from "@/components/Shared/controlled/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
-import { useGetAccountPackagesByAccountId } from "@/hooks/api/useProjects";
+import { getAccountPackagesByAccountIdQueryOptions } from "@/hooks/api/useProjects";
 import { useCreateInvitation } from "@/hooks/api/useInvitations";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import UserManagementModal from "./UserManagementModal";
+import { useQuery } from "@tanstack/react-query";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
@@ -102,9 +103,12 @@ export default function NewUserForm() {
         }
       },
     });
-  const { data: accountPackages } = useGetAccountPackagesByAccountId({
-    accountId: accountId,
-  });
+
+  const { data: accountPackages } = useQuery(
+    getAccountPackagesByAccountIdQueryOptions({
+      accountId: accountId,
+    }),
+  );
 
   const methods = useForm<NewUserSchema>({
     resolver: yupResolver(newUser),
