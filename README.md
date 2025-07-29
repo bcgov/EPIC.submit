@@ -255,3 +255,82 @@ you have to add a some dev dependencies and set them up in the app and then you 
               override_branch: ${{ env.CODECOV_BRANCH }}
               token: ${{ secrets.CODECOV_TOKEN }}
               directory: ./app-web/coverage
+---
+
+### 👤 Submit Users
+- **Role**: Admin users within the platform  
+- **Responsibilities**:
+  - Authenticate via IDIR credentials  
+  - Invite and onboard Certificate/Exemption Holders  
+  - Review, approve, or reject submissions  
+
+---
+
+### 🔐 Authentication: IDIR + Keycloak
+- **Provider**: Keycloak (identity server)  
+- **Method**:
+  - Users authenticate through IDIR  
+  - Upon successful login, Keycloak issues a **JSON Web Token (JWT)** for secure and authenticated access across the system  
+
+---
+
+### 🖥️ EPIC.submit Web (Frontend)
+- **Type**: Web-based user interface  
+- **Tech Stack**:
+  - **React** – UI rendering  
+  - **TypeScript** – Type-safe development  
+  - **Material UI** – Accessible and responsive design components  
+- **Responsibilities**:
+  - Capture and manage submission data  
+  - Display submission status  
+  - Enable user interactions for approval workflows  
+  - Facilitate communication between users and the EAO  
+
+---
+
+### ⚙️ Submit API (Backend)
+- **Framework**: Flask (Python)  
+- **Responsibilities**:
+  - Handle requests and data flow from the frontend  
+  - Validate input and enforce business rules  
+  - Authenticate and authorize via JWT  
+  - Interface with the database and external services  
+
+---
+
+### 🗄️ Database
+- **Engine**: PostgreSQL (Relational DB)  
+- **Purpose**: Persistent storage of structured compliance and submission data  
+- **Data Managed**:
+  - Users
+  - Submission packages  
+  - Accounts
+  - Account projects
+  
+- **Accessed By**:
+  - Submit API  
+  - Epic.Cron (scheduled synchronization)  
+
+---
+
+### ⏱️ Epic.Cron
+- **Type**: Background scheduler (cron job)  
+- **Function**:
+  - Periodically synchronizes project metadata from Epic.Track to the EPIC.submit database  
+  - Ensures consistent and up-to-date project references in submissions  
+
+---
+
+### 📦 External Services Integration
+
+#### 📁 Epic.Track — Project Metadata Source
+- **Function**: Central repository for project-related metadata  
+- **Integration**: Queried by Submit API to retrieve project name, type, status, etc.  
+
+#### 📂 Epic.Document — Document Storage
+- **Function**: Handles uploading/downloading submission files  
+- **Storage Location**: S3-compatible bucket for scalable, secure document storage  
+
+#### 🧾 Epic.Conditions — Compliance Repository
+- **Function**: Centralized store for environmental compliance conditions  
+- **Use Case**: Referenced during submission validation and compliance checks  
