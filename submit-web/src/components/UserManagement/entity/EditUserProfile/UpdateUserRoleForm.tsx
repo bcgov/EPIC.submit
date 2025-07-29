@@ -11,6 +11,7 @@ import {
   Stack,
   Switch,
   Typography,
+  Skeleton,
 } from "@mui/material";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { BCDesignTokens } from "epic.theme";
@@ -41,6 +42,7 @@ import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { useUserStore } from "./../../entity/userStore";
 import { useQuery } from "@tanstack/react-query";
+import UpdateUserRoleSkeleton from "./UpdateUserRoleSkeleton";
 
 const userSchema = yup.object().shape({
   role_name: yup.string().required("Please select a role."),
@@ -58,7 +60,7 @@ const userSchema = yup.object().shape({
 type UserSchema = yup.InferType<typeof userSchema>;
 
 interface UpdateUserRoleProps {
-  userData: AccountUserWithRole;
+  readonly userData: AccountUserWithRole;
 }
 
 function UpdateUserRole({ userData }: UpdateUserRoleProps) {
@@ -169,7 +171,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
 
   const selectedRole = watch("role_name");
 
-  const { data: accountPackages } = useQuery(
+  const { data: accountPackages, isPending: isPendingPackages } = useQuery(
     getAccountPackagesByAccountIdQueryOptions({
       accountId: accountId,
     }),
@@ -212,6 +214,10 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
       methods.setValue("original_package_ids", matchingPackageIds);
     }
   }, [user.role?.original_package_ids, accountPackages, selectedRole, methods]);
+
+  if (isPendingPackages) {
+    return <UpdateUserRoleSkeleton />;
+  }
 
   return (
     <TableBox mainLabel={"User Management"}>
