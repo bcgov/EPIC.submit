@@ -39,19 +39,19 @@ export const Conditions = () => {
     useManagementPlanForm();
 
   const [mainCondition, setMainCondition] = useState<Condition | null>(
-    formData?.main_condition || null
+    formData?.main_condition || null,
   );
 
   const [supportingConditions, setSupportingConditions] = useState<number[]>(
     Array.from(formData.supporting_conditions || []).map(
-      (condition: Condition) => condition.condition_number ?? 0
-    )
+      (condition: Condition) => condition.condition_number ?? 0,
+    ),
   );
 
   const [errorText, setErrorText] = useState<string | null>(null);
 
   const handleNext = () => {
-    if (!mainCondition || supportingConditions.includes(0)) {
+    if (!mainCondition) {
       setErrorText("Please select a condition for each input");
       return;
     }
@@ -59,7 +59,7 @@ export const Conditions = () => {
       ...formData,
       main_condition: mainCondition,
       supporting_conditions: conditions?.filter((c) =>
-        supportingConditions.includes(c.condition_number!)
+        supportingConditions.includes(c.condition_number!),
       ),
     });
 
@@ -79,18 +79,16 @@ export const Conditions = () => {
 
   const handleAnotherSupportingCondition = (
     index: number,
-    planName: string
+    planName: string,
   ) => {
-    const newCondition = conditions?.find(
-      (c) => c.plan_name === planName
-    );
+    const newCondition = conditions?.find((c) => c.plan_name === planName);
 
     if (newCondition?.condition_number != null) {
       setSupportingConditions((prevConditions) => {
         const updatedConditions = [...prevConditions];
         updatedConditions[index] =
-          conditions?.find((c) => c.plan_name === planName)
-            ?.condition_number ?? 0;
+          conditions?.find((c) => c.plan_name === planName)?.condition_number ??
+          0;
         return updatedConditions;
       });
     }
@@ -115,7 +113,7 @@ export const Conditions = () => {
       <Grid
         container
         sx={{
-          padding: "16px 0px",
+          marginTop: "32px",
         }}
       >
         <Grid item xs={12}>
@@ -139,20 +137,20 @@ export const Conditions = () => {
             sx={{ marginBottom: "10px" }}
             onChange={(e) => {
               setMainCondition(
-                conditions?.find((c) => c.plan_name === e.target.value) ||
-                  null
+                conditions?.find((c) => c.plan_name === e.target.value) || null,
               );
               if (errorText) {
                 setErrorText(null);
               }
             }}
             value={mainCondition?.plan_name || ""}
+            error={!mainCondition && Boolean(errorText)}
           >
             {conditions
               ?.filter(
                 (condition) =>
                   condition.condition_number !== null && // Ensure condition_number is not null
-                  !supportingConditions.includes(condition.condition_number)
+                  !supportingConditions.includes(condition.condition_number),
               )
               .map((condition) => {
                 const conditionLabel = `Condition ${condition.condition_number} - ${condition.plan_name}`;
@@ -198,8 +196,8 @@ export const Conditions = () => {
                           mainCondition?.condition_number && // Exclude selected main condition
                         condition.condition_number !== null && // Ensure condition_number is not null
                         !supportingConditions.includes(
-                          condition.condition_number
-                        ) // Exclude conditions already selected
+                          condition.condition_number,
+                        ), // Exclude conditions already selected
                     )
                     .map((condition) => (
                       <MenuItem
@@ -213,7 +211,7 @@ export const Conditions = () => {
                     (c) =>
                       c.plan_name ===
                       (conditions?.find((c) => c.condition_number === input)
-                        ?.plan_name || "")
+                        ?.plan_name || ""),
                   ) && (
                     <MenuItem
                       key={
@@ -236,7 +234,7 @@ export const Conditions = () => {
               <IconButton
                 onClick={() => {
                   setSupportingConditions(
-                    supportingConditions.filter((c) => c !== input)
+                    supportingConditions.filter((c) => c !== input),
                   );
                 }}
               >
