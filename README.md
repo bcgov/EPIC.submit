@@ -335,5 +335,7 @@ you have to add a some dev dependencies and set them up in the app and then you 
 - **Function**: Centralized store for environmental compliance conditions  
 - **Use Case**: Referenced during submission validation and compliance checks
 
+---
+
 ### 🧮 Database Schema Diagram
 <img width="2073" height="1047" alt="submit-db-diagram" src="https://github.com/user-attachments/assets/c610ebb0-d158-4aa5-879d-594d5fb4552f" />
