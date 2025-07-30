@@ -60,7 +60,7 @@ class InvitationService:
         if existing_user:
             return {
                 'success': False,
-                'error': 'User already exists',
+                'message': 'User already exists',
                 'existing_user': existing_user
             }
 
