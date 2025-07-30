@@ -107,7 +107,7 @@ describe("Submission Item Consultation Record Page", () => {
         cy.contains(mockPackageThree.name).should("exist");
         cy.contains(mockPackageFour.name).should("exist");
       });
-    cy.contains("p", "Past Submissions")
+    cy.contains("p", "Review Completed by the EAO")
       .parents("div")
       .first()
       .within(() => {

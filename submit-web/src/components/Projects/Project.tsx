@@ -122,7 +122,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
               ml: BCDesignTokens.layoutPaddingSmall,
             }}
           >
-            Past Submissions
+            Review Completed by the EAO
           </Typography>
           <CardInnerBox
             sx={{ height: "100%", py: BCDesignTokens.layoutPaddingMedium }}
