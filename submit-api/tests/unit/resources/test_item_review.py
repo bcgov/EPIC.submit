@@ -1,0 +1,80 @@
+"""Test submission item review creation."""
+
+from http import HTTPStatus
+
+from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.package_type import PackageTypeId
+from submit_api.models.item_type import SubmissionItemTypeId
+from submit_api.models.submission_review import SubmissionReviewStatus
+from submit_api.models.submission_review_entry import SubmissionReviewEntryType
+from submit_api.schemas.submission_review import SubmissionReviewSchema
+from tests.utilities.factory_utils import (
+    factory_item_model,
+    factory_user_model,
+    factory_auth_header, factory_package_model, set_global_token_info,
+)
+from tests.utilities.factory_scenarios import TestJwtClaims
+
+from faker import Faker
+
+fake = Faker()
+
+
+def test_create_review_consultation_record_success(client, session, jwt):
+    """Test creating a review for a submission item."""
+    claims = TestJwtClaims.staff_admin_role
+    auth_guid = claims["sub"]
+    set_global_token_info(claims)
+    factory_user_model(auth_guid=auth_guid)
+    package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value)
+    package.submitted_on = fake.date_time_this_year()
+    session.add(package)
+    session.flush()
+    cr_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONSULTATION_RECORD.value,
+                                 status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
+    factory_item_model(package=package, item_type_id=SubmissionItemTypeId.MANAGEMENT_PLAN_FORM.value,
+                       status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
+
+    session.flush()
+
+    # Generate authentication headers
+    headers = factory_auth_header(jwt=jwt, claims=claims)
+
+    # Payload for the review
+    payload = {
+        "form_answers": {
+            "question_1": "Answer 1",
+            "question_2": "Answer 2"
+        },
+        "status": SubmissionReviewStatus.APPROVED.value,
+        "type": SubmissionReviewEntryType.MANAGER_CONFIRMATION.value
+    }
+
+    # Make the POST request to create a review
+    response = client.post(
+        f"/api/staff/items/{cr_item.id}/review",
+        json=payload,
+        headers=headers,
+    )
+
+    # Assertions
+    assert response.status_code == HTTPStatus.OK
+    data = response.get_json()
+
+    # Validate response against SubmissionReviewSchema
+    schema = SubmissionReviewSchema()
+    deserialized_data = schema.load(data)
+
+    review_form = next(
+        (entry['entry'] for entry in deserialized_data['entries'] if entry['type'].value == payload['type']),
+        None
+    )
+    assert review_form == payload["form_answers"]
+    assert deserialized_data["status"].value == payload["status"]
+    assert deserialized_data["item_id"] == cr_item.id
+
+    mp_item = next(
+        item for item in package.items if item.type_id == SubmissionItemTypeId.MANAGEMENT_PLAN_FORM.value
+    )
+    # Validate that the management plan item status is updated to UNDER_REVIEW
+    assert mp_item.status == ItemStatus.UNDER_REVIEW
