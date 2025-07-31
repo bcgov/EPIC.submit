@@ -1,11 +1,12 @@
 name: Manual SUBMIT API CI
 
 on:
-  pull_request:
-    branches:
-      - develop
-    paths:
-      - "submit-api/**"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment (dev/test/prod)"
+        required: true
+        default: "dev"
 
 defaults:
   run:
