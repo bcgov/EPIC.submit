@@ -25,7 +25,7 @@ from flask import g
 from src.submit_api.config import get_named_config
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.role import RoleEnum
-from submit_api.models import User, AccountUser, UserRole, Role
+from submit_api.models import User, AccountUser, UserRole, Role, PackageVersion
 from submit_api.models import db, Item, ItemType
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
@@ -45,9 +45,11 @@ JWT_HEADER = {
 }
 
 
-def set_global_tenant(tenant_id=1):
-    """Set the global tenant id."""
-    g.tenant_id = tenant_id
+def set_global_token_info(token_info=None):
+    """Set the global token info."""
+    if token_info is None:
+        token_info = TestJwtClaims.staff_admin_role
+    g.jwt_oidc_token_info = token_info
 
 
 def factory_auth_header(jwt, claims):
@@ -168,7 +170,8 @@ def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=
     return item
 
 
-def factory_package_model(account_project=None, name=None, status=None, package_type_id=1):
+def factory_package_model(account_project=None, name=None, status=None, package_type_id=1,
+                          original_package_id=None, version=1):
     """Factory package model using hardcoded package_type_id."""
     from submit_api.models.package import Package, PackageStatus
 
@@ -184,8 +187,26 @@ def factory_package_model(account_project=None, name=None, status=None, package_
         status=status or [PackageStatus.NEW.value]
     )
     db.session.add(package)
+    db.session.flush()
+
+    package_version = create_package_version(package, original_package_id, version)
+    package.version_id = package_version.id
+
+    db.session.add(package)
+    db.session.flush()
     db.session.commit()
     return package
+
+
+def create_package_version(package, original_package_id=None, version=1):
+    """Create and return a package version."""
+    package_version = PackageVersion(
+        version=version,
+        original_package_id=original_package_id or package.id
+    )
+    db.session.add(package_version)
+    db.session.flush()
+    return package_version
 
 
 def create_proponent_with_role(session, *, auth_guid: str, account_id: int,

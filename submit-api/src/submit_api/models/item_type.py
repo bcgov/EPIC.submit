@@ -30,6 +30,15 @@ class SubmissionItemType(enum.Enum):
     IEM = 'IEM Terms of Engagement'
 
 
+class SubmissionItemTypeId(enum.Enum):
+    """Enum for item type input format."""
+
+    CONSULTATION_RECORD = 2
+    MANAGEMENT_PLAN_FORM = 3
+    CONTACT_INFORMATION = 1
+    IEM = 4
+
+
 class ItemType(BaseModel):
     """Definition of the item type entity."""
 

@@ -21,6 +21,7 @@ from enum import Enum
 from faker import Faker
 
 from src.submit_api.config import get_named_config
+from submit_api.utils.roles import EpicSubmitRole
 
 fake = Faker()
 
@@ -43,17 +44,11 @@ class TestJwtClaims(dict, Enum):
         "aud": CONFIG.JWT_OIDC_TEST_AUDIENCE,  # usually "epic-submit"
         'realm_access': {
             'roles': [
-                'staff',
-                'view_engagement',
-                'create_engagement',
-                'edit_engagement',
-                'create_survey',
-                'view_users',
-                'view_private_engagements',
-                'create_admin_user',
-                'view_all_surveys',
-                'eao_view',
-                'eao_create'
+                EpicSubmitRole.EAO_CREATE.value,
+                EpicSubmitRole.EAO_EDIT.value,
+                EpicSubmitRole.EAO_VIEW.value,
+                EpicSubmitRole.MANAGE_USERS.value,
+                EpicSubmitRole.EXTENDED_EAO_EDIT.value,
             ]
         },
         'resource_access': {
