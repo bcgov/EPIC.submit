@@ -108,7 +108,7 @@ jobs:
          if: github.event_name == 'pull_request'
 
        - name: Upload coverage to Codecov
-         uses: codecov/codecov-action@v4.6
+         uses: codecov/codecov-action@v4
          with:
           flags: submit-api
           name: codecov-submit-api
