@@ -171,7 +171,7 @@ def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=
 
 
 def factory_package_model(account_project=None, name=None, status=None, package_type_id=1,
-                          original_package_id=None, version=1):
+                          original_package_id=None, version=1, submitted_to_eao_for=None):
     """Factory package model using hardcoded package_type_id."""
     from submit_api.models.package import Package, PackageStatus
 
@@ -191,11 +191,54 @@ def factory_package_model(account_project=None, name=None, status=None, package_
 
     package_version = create_package_version(package, original_package_id, version)
     package.version_id = package_version.id
-
     db.session.add(package)
+
+    factory_package_metadata_model(package.id, submitted_to_eao_for=submitted_to_eao_for)
+
     db.session.flush()
     db.session.commit()
     return package
+
+
+def factory_package_metadata_model(package_id, metadata: dict = None, submitted_to_eao_for=None):
+    """Factory package metadata model."""
+    from submit_api.models.package_metadata import PackageMetadata
+
+    if not metadata:
+        metadata = {
+            "cc_completed_on": fake.iso8601(),
+            "cc_start_date": fake.iso8601(),
+            "main_condition": {
+                "condition_name": "Construction Environmental Management Plan",
+                "condition_number": fake.random_int(1),
+                "condition_text": fake.text(max_nb_chars=500),
+                "condition_attributes": {
+                    "deliverable_name": ["Construction Environmental Management Plan"],
+                    "milestone_related_to_plan_submission": "Construction",
+                    "milestones_related_to_plan_implementation": ["Operations"],
+                    "parties_required_to_be_consulted": [
+                        "Participating Indigenous Nations", "EMLI", "ENV", "NHA", "MOF"
+                    ],
+                    "requires_consultation": "true",
+                    "requires_iem_terms_of_engagement": "true",
+                    "requires_management_plan": "true",
+                    "submitted_to_eao_for": submitted_to_eao_for or "Satisfaction",
+                    "time_associated_with_submission_milestone": "60",
+                },
+            },
+            "supporting_conditions": [],
+            "review_completed_on": fake.iso8601(),
+            "review_start_date": fake.iso8601(),
+        }
+    package_metadata = PackageMetadata(
+        package_id=package_id,
+        json={
+            **metadata,
+        }
+    )
+    db.session.add(package_metadata)
+    db.session.flush()
+    return package_metadata
 
 
 def create_package_version(package, original_package_id=None, version=1):
