@@ -263,7 +263,7 @@ def test_review_iem_package(client, session, jwt):
     auth_guid = claims["sub"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
-    package = factory_package_model(package_type_id=PackageTypeId.IEM.value)
+    package = factory_package_model(package_type_id=PackageTypeId.IEM.value, submitted_to_eao_for='Approval')
     package.submitted_on = fake.date_time_this_year()
     session.add(package)
     session.flush()
