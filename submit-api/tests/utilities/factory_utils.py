@@ -25,13 +25,14 @@ from flask import g
 from src.submit_api.config import get_named_config
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.role import RoleEnum
-from submit_api.models import User, AccountUser, UserRole, Role, PackageVersion
+from submit_api.models import User, AccountUser, UserRole, Role, PackageVersion, Submission, SubmittedForm
 from submit_api.models import db, Item, ItemType
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
 from submit_api.models.invitations import InvitationStatus
 from submit_api.models.invitations import Invitations
 from submit_api.models.project import Project
+from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.user import UserType
 from tests.utilities.factory_scenarios import TestJwtClaims
 
@@ -304,3 +305,35 @@ def setup_authenticated_proponent(session, jwt, role=RoleEnum.PROJECT_ADMIN.valu
     headers = factory_auth_header(jwt, claims)
 
     return headers, account_project
+
+
+def create_contact_info_submission(
+    item_id
+):
+    """Create a contact information submission."""
+    submitted_form = SubmittedForm(
+        submission_json={
+            'q_1': 'John Doe',  # Replace with actual JSON data
+            'q_2': 'Fake'
+        },  # Replace with actual JSON data
+    )
+    db.session.add(submitted_form)
+    db.session.flush()
+
+    submission = Submission(
+        submitted_form_id=submitted_form.id,  # Replace with the appropriate submitted form ID or None
+        item_id=item_id,  # Assuming package_id corresponds to the item_id
+        type=SubmissionType.FORM,  # Replace with the appropriate SubmissionType
+        submitted_document_id=None,  # Replace with the appropriate document ID or None
+        created_by=fake.uuid4(),  # Replace with the appropriate user ID
+        major_version=1,
+        minor_version=1,
+        active=True,
+        deleted=False,
+        status=SubmissionStatus.SUBMITTED,  # Replace with the appropriate status
+        root_submission_id=None  # Replace with the root submission ID or None
+    )
+    db.session.add(submission)
+    db.session.flush()
+    db.session.commit()
+    return submission
