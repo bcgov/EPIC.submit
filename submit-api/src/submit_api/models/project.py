@@ -20,7 +20,7 @@ class Project(db.Model):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     name = Column(db.String(), nullable=False)
-    proponent_id = Column(db.Integer(), nullable=False, unique=True)
+    proponent_id = Column(db.Integer(), nullable=False)
     proponent_name = Column(db.String(), nullable=False)
     ea_certificate = Column(db.String(255), nullable=True, default=None)
     epic_guid = Column(db.String(255), nullable=True, default=None)
