@@ -81,7 +81,7 @@ type CreateAccountRequest = {
 export type AcceptInvitationResponse = {
   message: string;
   user_id: number;
-  role: Role;
+  roles: Role[];
   account_id: number;
 };
 

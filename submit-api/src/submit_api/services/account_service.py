@@ -8,6 +8,7 @@ from submit_api.models.db import session_scope
 from submit_api.models.queries.package import PackageQueries
 from submit_api.models.user import User as UserModel
 from submit_api.models.user import UserType
+from submit_api.utils.token_info import TokenInfo
 
 
 class AccountService:
@@ -100,4 +101,8 @@ class AccountService:
     @classmethod
     def get_all_account_packages(cls, account_id):
         """Get packages by account id."""
-        return PackageQueries.get_latest_account_project_packages(account_id)
+        user = UserModel.get_by_guid(TokenInfo.get_id())
+        if not user:
+            raise ResourceNotFoundError("User not found")
+        account_project_ids = [user.account_user.role.account_project_id] if user.account_user else None
+        return PackageQueries.get_latest_account_project_packages(account_id, account_project_ids)

@@ -26,15 +26,13 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
             invitation_action_text = "collaborate on"
 
         bc_service_card_url = current_app.config.get('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca')
-        project = None
-        project_name = None
 
         if invitation.project_ids:
             project = cls.get_project_from_project_ids(invitation.project_ids)
         elif invitation.package_ids:
             project = cls.get_project_from_package_id(invitation.package_ids)
-        elif invitation.account_id:
-            project = cls.get_project_for_account_id(invitation.account_id)
+        else:
+            raise BadRequestError("No project or package IDs provided in the invitation.")
 
         if not project:
             raise BadRequestError(f"Project was not found for invitation id: {invitation.id}")
@@ -62,6 +60,8 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
     def get_project_from_project_ids(project_ids: str) -> ProjectModel:
         """Return the first matching project from a list of project IDs."""
         project_id_list = [int(pid) for pid in project_ids if isinstance(pid, (int, str)) and str(pid).isdigit()]
+
+        # assuming one project ID is provided in one invitation
         return (
             db.session.query(ProjectModel)
             .filter(ProjectModel.id.in_(project_id_list))
@@ -76,6 +76,7 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
 
         package_id = package_ids[0]
 
+        # assuming only package ids of one project are provided in one invitation
         return (
             db.session.query(ProjectModel)
             .join(AccountProjectModel, ProjectModel.id == AccountProjectModel.project_id)

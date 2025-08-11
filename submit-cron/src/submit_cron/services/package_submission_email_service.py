@@ -1,8 +1,8 @@
-from datetime import datetime
 
 from flask import current_app
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
+from submit_api.models import AccountProject
 from submit_api.models.project import Project as ProjectModel
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.user import User as UserModel
@@ -30,9 +30,9 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
         if not sender_email:
             raise BadRequestError(f"Sender email not found for package type: {package.type.name}")
 
-        project = cls._get_project(submitter.account.proponent_id)
+        project = cls._get_project(submitter.account.account_project_id)
         if not project:
-            raise BadRequestError(f"Proponent with ID {submitter.account.proponent_id} not found")
+            raise BadRequestError(f"Project not found for account project ID: {submitter.account.account_project_id}")
 
         document_submissions = cls._get_document_submissions_from_package(package)
         email_template_name = template_name or MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
@@ -92,6 +92,7 @@ class PackageSubmissionEmailService:  # pylint: disable=too-few-public-methods
         )
 
     @staticmethod
-    def _get_project(proponent_id: int) -> ProjectModel:
-        """Retrieve the Project by proponent ID."""
-        return db.session.query(ProjectModel).filter(ProjectModel.proponent_id == proponent_id).first()
+    def _get_project(account_project_id: int) -> ProjectModel:
+        """Retrieve the project associated with the account project ID."""
+        account_project = db.session.query(AccountProject).filter(AccountProject.id == account_project_id).first()
+        return db.session.query(ProjectModel).filter(ProjectModel.id == account_project.project_id).first()

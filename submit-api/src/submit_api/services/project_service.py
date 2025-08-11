@@ -1,10 +1,13 @@
 """Service for project management."""
 
+from submit_api.exceptions import PermissionDeniedError, BadRequestError
 from submit_api.models import User as UserModel
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.project import Project as ProjectModel
 from submit_api.models.queries.account_project import ProjectQueries
+from submit_api.models.user import UserType
+from submit_api.utils.token_info import TokenInfo
 
 
 class ProjectService:
@@ -19,8 +22,21 @@ class ProjectService:
     def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None,
                                    is_proponent=True):
         """Get projects by account id."""
+        guid = TokenInfo.get_id()
+        user = UserModel.get_by_guid(guid)
+
+        if not user:
+            raise PermissionDeniedError("User not found")
+
+        if user.type != UserType.PROPONENT:
+            raise BadRequestError("User is not a certificate holder")
+
+        if user.account_user.account_id != account_id:
+            raise PermissionDeniedError("User does not belong to this account")
+
         projects, _ = ProjectQueries.get_filtered_account_projects_paginated(
-            account_id, search_options, is_proponent)
+            account_id, search_options, None, None, is_proponent, user
+        )
         return projects
 
     @classmethod
@@ -46,17 +62,23 @@ class ProjectService:
         projects_to_add = [
             {"account_id": account_id, "project_id": project.id} for project in projects
         ]
+        # Note: bulk add bypasses access control, assumed to be staff-only operation
         AccountProjectModel.add_projects_bulk(projects_to_add)
         return projects
 
     @classmethod
     def get_all_account_projects_paginated(cls, search_options: AccountProjectSearchOptions,
                                            page: int = 1, page_size: int = 10, is_proponent: bool = True):
-        """Get projects by proponent id."""
-        return ProjectQueries.get_filtered_account_projects_paginated(None, search_options, page,
-                                                                      page_size, is_proponent)
+        """Get projects with pagination."""
+        return ProjectQueries.get_filtered_account_projects_paginated(
+            None, search_options, page, page_size, is_proponent)
 
     @classmethod
     def get_all_account_projects_with_latest_packages(cls):
         """Get all account projects with latest packages."""
         return AccountProjectModel.get_all_with_latest_packages()
+
+    @classmethod
+    def get_user_accessible_account_project_ids(cls, user):
+        """Get all account project IDs accessible by the user."""
+        return ProjectQueries.get_accessible_account_project_ids_for_user(user)
