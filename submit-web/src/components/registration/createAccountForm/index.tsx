@@ -48,7 +48,7 @@ const createAccountSchema = yup.object().shape({
     .test(
       "phone-validation",
       "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-      validatePhoneNumber
+      validatePhoneNumber,
     ),
   email: yup
     .string()
@@ -90,14 +90,14 @@ function CreateAccountForm() {
   }, [userId, navigateToNextStep]);
 
   const { data: projects } = useLoadProjectsByProponentId(
-    invitation?.proponent_id
+    invitation?.proponent_id,
   );
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setAccount({
       userId: data.user_id,
-      userManagementRole: data.role,
-      roles: data.role.permissions,
+      userManagementRole: data.roles[0],
+      roles: data.roles[0].permissions,
       userType: USER_TYPE.PROPONENT,
       accountId: data.account_id,
     });

@@ -17,6 +17,7 @@ export type AccountStoreState = {
   hasAgreedToTerms: boolean;
   roles?: string[];
   userManagementRole?: Role;
+  userManagementRoles?: Role[];
   error?: AxiosError;
 };
 
