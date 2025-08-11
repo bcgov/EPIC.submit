@@ -1,18 +1,3 @@
-# Copyright © 2024 Province of British Columbia
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""Model to handle all complex queries related to Account Project."""
-
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload, aliased
 from submit_api.enums.role import RoleEnum
@@ -189,7 +174,7 @@ class ProjectQueries:
 
     @classmethod
     def _filter_by_search_text(cls, query, search_text):
-        """Filter by search text across package name."""
+        """Filter by search text across package and project name."""
         return query.filter(
             or_(
                 Package.name.ilike(f"%{search_text}%"),
@@ -199,7 +184,7 @@ class ProjectQueries:
 
     @classmethod
     def _filter_by_submission_status(cls, query, statuses):
-        """Filter by submission status, with special handling for revision required and update flags."""
+        """Filter by submission status with revision and update handling."""
         revision_required_value = PackageStatus.REVISION_REQUIRED.value
         revision_requested_value = NonCanonicalPackageStatus.REVISION_REQUESTED.value
         update_requested_value = NonCanonicalPackageStatus.UPDATE_REQUESTED.value
@@ -236,7 +221,7 @@ class ProjectQueries:
 
     @classmethod
     def _revision_required_filter(cls, query):
-        """Joins updateRequest with alias and filters for packages requiring revision."""
+        """Filter packages requiring revision."""
         review_request = aliased(UpdateRequest)
         return query.join(
             review_request, review_request.submission_package_id == Package.id
@@ -251,7 +236,7 @@ class ProjectQueries:
 
     @classmethod
     def _update_status_filter(cls, query, include_update_requested, include_updated):
-        """Join updateRequest with alias and apply appropriate update filters."""
+        """Filter packages with update requests."""
         update_request = aliased(UpdateRequest)
         conditions = [
             update_request.type == UpdateRequestType.UPDATE.value,
@@ -270,7 +255,7 @@ class ProjectQueries:
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
-        """Filter by the submitted_on date range."""
+        """Filter by submission date range."""
         if submitted_on_start:
             query = query.filter(Package.submitted_on >= submitted_on_start)
         if submitted_on_end:
