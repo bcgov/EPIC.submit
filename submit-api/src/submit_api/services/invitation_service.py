@@ -53,7 +53,7 @@ class InvitationService:
     @staticmethod
     def _check_action_authorized(project_ids, permissions=None):
         """Check if the user has permissions on the provided project IDs."""
-        account_projects = AccountProjectModel.get_by_project_ids(project_ids)
+        account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
         if not account_projects:
             raise ResourceNotFoundError("No projects found for the provided IDs.")
 
