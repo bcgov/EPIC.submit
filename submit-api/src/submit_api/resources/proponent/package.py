@@ -19,7 +19,6 @@ from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
-from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import PackageSchema, PostPackageRequestSchema, PostPackageState, \
     CreateUpdateRequestNoteSchema
