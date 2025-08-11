@@ -53,6 +53,10 @@ class PackageService:
     @classmethod
     def create_first_package(cls, account_project_id, request_data):
         """Create a new package."""
+        authorization.check_has_permissions_on_project(
+            [ProponentPermissionsEnum.CREATE_PACKAGE.value],
+            account_project_id
+        )
         with session_scope() as session:
             package_type = PackageTypeModel.find_by_name(
                 request_data.get("type"))
@@ -343,9 +347,12 @@ class PackageService:
     def submit_package(cls, package_id):
         """Submit the package by updating its status and items."""
         cls._validate_account_user()
-        authorization.check_has_permission([ProponentPermissionsEnum.SUBMIT_PACKAGE.value])
         with session_scope() as session:
             package = cls._get_and_validate_complete_package(package_id)
+            authorization.check_has_permissions_on_project(
+                permissions=[ProponentPermissionsEnum.SUBMIT_PACKAGE.value],
+                account_project_id=package.account_project_id
+            )
             if package.submitted_on:
                 submitted_package: PackageModel = cls._resubmit_package(package, session)
             else:

@@ -31,7 +31,7 @@ export const RegistrationUrlCell = ({
       ? usedProjectInvitations.sort(
           (a, b) =>
             new Date(b.created_date).getTime() -
-            new Date(a.created_date).getTime()
+            new Date(a.created_date).getTime(),
         )[0]
       : null;
 

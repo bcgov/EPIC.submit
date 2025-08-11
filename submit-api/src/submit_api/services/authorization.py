@@ -17,19 +17,29 @@ from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
 
 
-# pylint: disable=unused-argument
-def check_has_permission(required_permissions):
-    """Check if user is authorized to perform action on the service."""
-    user = UserModel.get_by_guid(TokenInfo.get_id())
+def check_has_permissions_on_project(permissions, account_project_id):
+    """Check if user is assigned to the project."""
+    if not account_project_id:
+        abort(HTTPStatus.BAD_REQUEST)
+
+    user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
+    if user.type == UserType.STAFF:
+        return
     if not user or not user.account_user or not user.account_user.role:
         abort(HTTPStatus.UNAUTHORIZED)
 
-    user_permissions = set(user.account_user.role.permissions)
-    has_valid_permissions = user_permissions & set(required_permissions)
+    account_user: AccountUserModel = user.account_user
+    user_role: UserRoleModel = account_user.role
+
+    if user_role.account_project_id != account_project_id:
+        abort(HTTPStatus.FORBIDDEN)
+
+    user_permissions = set(user_role.permissions)
+    has_valid_permissions = user_permissions & set(permissions)
     if not has_valid_permissions:
         abort(HTTPStatus.FORBIDDEN)
 
-    return True
+    return
 
 
 def check_assigned_on_package(package_id):

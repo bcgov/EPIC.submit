@@ -4,7 +4,7 @@ import uuid
 from urllib.parse import urljoin
 from flask import current_app
 
-from submit_api.enums.role import RoleEnum
+from submit_api.enums.role import RoleEnum, ProponentPermissionsEnum
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel, User
 from submit_api.models.account import Account as AccountModel
@@ -15,6 +15,7 @@ from submit_api.models.invitations import Invitations as InvitationsModel, Invit
 from submit_api.models.role import Role as RoleModel
 from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.user import UserType
+from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
@@ -50,6 +51,19 @@ class InvitationService:
         return None
 
     @staticmethod
+    def _check_action_authorized(project_ids, permissions=None):
+        """Check if the user has permissions on the provided project IDs."""
+        account_projects = AccountProjectModel.get_by_project_ids(project_ids)
+        if not account_projects:
+            raise ResourceNotFoundError("No projects found for the provided IDs.")
+
+        # assume one project for now, can be extended for multiple projects
+        authorization.check_has_permissions_on_project(
+            permissions=permissions or [ProponentPermissionsEnum.INVITE_USERS.value],
+            account_project_id=account_projects[0].id if account_projects else None
+        )
+
+    @staticmethod
     def create_invitation(invite_data):
         """Create and persist a new invitation token."""
         email = invite_data.get('email')
@@ -69,6 +83,8 @@ class InvitationService:
         role_name = invite_data.get('role_name')
         proponent_id = invite_data.get('proponent_id')
         project_ids = invite_data.get('project_ids')
+
+        InvitationService._check_action_authorized(project_ids)
 
         role = InvitationService._validate_fetch_role(role_name)
 
@@ -152,6 +168,7 @@ class InvitationService:
     def get_invitation_by_id(invitation_id):
         """Retrieve an invitation by invitation_id."""
         invitation = InvitationsModel.find_by_id(invitation_id)
+        InvitationService._check_action_authorized(invitation.project_ids)
         InvitationService._validate_invitation_access(invitation)
         return invitation
 
@@ -314,6 +331,7 @@ class InvitationService:
         """Revoke an invitation by updating its status."""
         invitation = InvitationsModel.query.filter_by(
             token=token, status=InvitationStatus.PENDING.value).first()
+        InvitationService._check_action_authorized(invitation.project_ids)
         if invitation:
             invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
@@ -326,6 +344,7 @@ class InvitationService:
         with session_scope() as session:
             invitation = InvitationsModel.query.filter_by(token=token).first()
 
+            InvitationService._check_action_authorized(invitation.project_ids)
             if not invitation or invitation.status != InvitationStatus.PENDING.value:
                 return False
 
