@@ -146,7 +146,7 @@ class PackageQueries:
             session.add(package)
 
     @classmethod
-    def get_latest_account_project_packages(cls, account_id: int):
+    def get_latest_account_project_packages(cls, account_id: int, account_project_ids: int = None):
         """Fetch project_id and related packages (id, name) for a given account_id.
 
         Only includes packages with the latest version_id matching the highest version
@@ -173,23 +173,24 @@ class PackageQueries:
                         "name", PackageModel.name,
                         "original_package_id", PackageVersion.original_package_id,
                     )
-                ).label('packages')  # Aggregate packages as a JSON array
+                ).label("packages")  # Aggregate packages as a JSON array
             )
             .join(PackageModel, PackageModel.account_project_id == AccountProject.id)
-            .join(
-                PackageVersion,
-                PackageModel.version_id == PackageVersion.id
-            )  # Join with PackageVersion to filter by version_id
-            .join(
-                latest_versions_subquery,
-                PackageModel.version_id == latest_versions_subquery.c.latest_version_id
-            )  # Only fetch packages with the latest version_id
+            .join(PackageVersion,
+                  PackageModel.version_id == PackageVersion.id)  # Join with PackageVersion to filter by version_id
+            .join(latest_versions_subquery,
+                  PackageModel.version_id == latest_versions_subquery.c.latest_version_id)  # Only fetch packages with the latest version_id
             .filter(AccountProject.account_id == account_id)
-            .group_by(AccountProject.project_id)  # Group by project_id
-            .all()
         )
+
+        if account_project_ids:
+            query = query.filter(AccountProject.id.in_(account_project_ids))
+
+        query = query.group_by(AccountProject.project_id)  # Group by project_id
+
+        account_projects = query.all()
 
         return [
             {"project_id": project_id, "account_packages": packages}
-            for project_id, packages in query
+            for project_id, packages in account_projects
         ]
