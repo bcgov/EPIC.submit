@@ -436,3 +436,71 @@ def test_fail_management_plan_item(client, session, jwt):
 
     assert versions_response.status_code == HTTPStatus.OK
     assert len(versions) == 2
+
+
+def test_fail_iem_item(client, session, jwt):
+    """Test approving a management plan item."""
+    claims = TestJwtClaims.staff_admin_role
+    auth_guid = claims["sub"]
+    set_global_token_info(claims)
+    factory_user_model(auth_guid=auth_guid)
+    package = factory_package_model(package_type_id=PackageTypeId.IEM.value,
+                                    submitted_to_eao_for='Satisfaction')
+    package.submitted_on = fake.date_time_this_year()
+    session.add(package)
+    session.flush()
+    contact_info_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONTACT_INFORMATION.value,
+                                           status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
+    factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONSULTATION_RECORD.value,
+                       status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
+    iem_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.IEM.value,
+                                  status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
+    create_contact_info_submission(item_id=contact_info_item.id)
+    session.flush()
+
+    # Generate authentication headers
+    headers = factory_auth_header(jwt=jwt, claims=claims)
+
+    # Payload for the review
+    payload = {
+        "form_answers": {
+            "passed": "NO",
+            "reason": fake.paragraph(),
+            "submission_item_types": [SubmissionItemTypeId.IEM.value]
+        },
+        "status": SubmissionReviewStatus.REJECTED.value,
+        "type": SubmissionReviewEntryType.MANAGER_CONFIRMATION.value
+    }
+
+    # Make the POST request to reject the management plan item
+    response = client.post(
+        f"/api/staff/items/{iem_item.id}/review",
+        json=payload,
+        headers=headers,
+    )
+
+    # Assertions
+    assert response.status_code == HTTPStatus.OK
+    data = response.get_json()
+
+    # Validate response against SubmissionReviewSchema
+    schema = SubmissionReviewSchema()
+    deserialized_data = schema.load(data)
+
+    review_form = next(
+        (entry['entry'] for entry in deserialized_data['entries'] if entry['type'].value == payload['type']),
+        None
+    )
+    assert review_form == payload["form_answers"]
+    assert deserialized_data["status"].value == payload["status"]
+    assert deserialized_data["item_id"] == iem_item.id
+    versions_response = client.get(
+        f"/api/staff/packages/{package.version.original_package_id}/versions",
+        json=payload,
+        headers=headers,
+    )
+
+    versions = versions_response.get_json()
+
+    assert versions_response.status_code == HTTPStatus.OK
+    assert len(versions) == 2
