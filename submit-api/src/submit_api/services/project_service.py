@@ -2,6 +2,7 @@
 
 from submit_api.exceptions import PermissionDeniedError, BadRequestError
 from submit_api.models import User as UserModel
+from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.project import Project as ProjectModel
 from submit_api.models.queries.account_project import ProjectQueries
@@ -62,7 +63,6 @@ class ProjectService:
             {"account_id": account_id, "project_id": project.id} for project in projects
         ]
         # Note: bulk add bypasses access control, assumed to be staff-only operation
-        from submit_api.models.account_project import AccountProject as AccountProjectModel
         AccountProjectModel.add_projects_bulk(projects_to_add)
         return projects
 
@@ -76,7 +76,6 @@ class ProjectService:
     @classmethod
     def get_all_account_projects_with_latest_packages(cls):
         """Get all account projects with latest packages."""
-        from submit_api.models.account_project import AccountProject as AccountProjectModel
         return AccountProjectModel.get_all_with_latest_packages()
 
     @classmethod
