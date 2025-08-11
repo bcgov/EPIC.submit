@@ -125,17 +125,19 @@ class InvitationService:
             account_user = InvitationService._create_account_user(
                 user.id, invitation.account_id, payload, session)
 
-            account_project: AccountProjectModel = AccountProjectModel.get_by_account_id(invitation.account_id)
-
-            role = InvitationService._assign_user_role(
-                account_user.id, account_project.id, invitation, session)
-
+            account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
+            print(f"Account Projects: {account_projects}")
+            roles = []
+            for account_project in account_projects:
+                role = InvitationService._assign_user_role(
+                    account_user.id, account_project.id, invitation, session)
+                roles.append(role)
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
             return {
                 "message": "User access granted successfully",
                 "user_id": account_user.user_id,
-                "role": role,
+                "roles": roles,
                 "account_id": invitation.account_id,
             }
 
@@ -203,8 +205,8 @@ class InvitationService:
         if not account:
             account_data = {'proponent_id': proponent_id}
             account = AccountModel.create_account(account_data, session)
-            InvitationService._create_account_projects(
-                account.id, project_ids, session)
+        InvitationService._create_account_projects(
+            account.id, project_ids, session)
         return account
 
     @staticmethod
