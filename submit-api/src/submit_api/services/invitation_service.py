@@ -126,7 +126,6 @@ class InvitationService:
                 user.id, invitation.account_id, payload, session)
 
             account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
-            print(f"Account Projects: {account_projects}")
             roles = []
             for account_project in account_projects:
                 role = InvitationService._assign_user_role(
