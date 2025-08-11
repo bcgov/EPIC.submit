@@ -179,7 +179,8 @@ class PackageQueries:
             .join(PackageVersion,
                   PackageModel.version_id == PackageVersion.id)  # Join with PackageVersion to filter by version_id
             .join(latest_versions_subquery,
-                  PackageModel.version_id == latest_versions_subquery.c.latest_version_id)  # Only fetch packages with the latest version_id
+                  # Only fetch packages with the latest version_id
+                  PackageModel.version_id == latest_versions_subquery.c.latest_version_id)
             .filter(AccountProject.account_id == account_id)
         )
 
