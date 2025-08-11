@@ -17,10 +17,8 @@ from submit_api.models.account_terms_of_service import TermsOfService as TermsOf
 from submit_api.models.user import UserType
 from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
-from submit_api.services.authorization import check_has_permissions_on_project
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
-from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.token_info import TokenInfo
 from submit_api.models.user_role import UserRole as UserRoleModel
 
@@ -53,7 +51,7 @@ class InvitationService:
         return None
 
     @staticmethod
-    def _check_action_authorized(project_ids, permissions):
+    def _check_action_authorized(project_ids, permissions=None):
         """Check if the user has permissions on the provided project IDs."""
         account_projects = AccountProjectModel.get_by_project_ids(project_ids)
         if not account_projects:
