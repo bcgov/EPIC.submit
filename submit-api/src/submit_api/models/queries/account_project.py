@@ -15,6 +15,30 @@ class ProjectQueries:
     """Query module for complex projects queries"""
 
     @classmethod
+    def get_accessible_account_project_ids_for_user(cls, user):
+        """Return all account_project_ids accessible by the user based on their roles."""
+        if user.type == UserType.STAFF:
+            # Staff can access all projects
+            account_project_ids = db.session.query(AccountProject.id).all()
+            return [ap_id for (ap_id,) in account_project_ids]
+
+        if not user.account_user or not user.account_user.role:
+            return []
+
+        # User roles may be single or multiple, but here we assume one role per user (adjust if needed)
+        user_role = user.account_user.role
+
+        if not user_role.active:
+            return []
+
+        # If user has no assigned account_project_id, allow no projects
+        if not user_role.account_project_id:
+            return []
+
+        # Assuming a single account project for each account now
+        return [user_role.account_project_id]
+
+    @classmethod
     def get_projects_by_proponent_id(cls, proponent_id: int):
         """Find projects by proponent_id"""
         return db.session.query(Project).filter(Project.proponent_id == proponent_id).all()
@@ -40,32 +64,56 @@ class ProjectQueries:
         return account_project_dict
 
     @classmethod
-    def get_filtered_package_ids(cls, search_options: AccountProjectSearchOptions) -> list:
+    def get_filtered_package_ids(cls, search_options: AccountProjectSearchOptions, user: User = None) -> list:
         """Retrieve package IDs based on search filters."""
         package_query = cls._filter_by_search_criteria(search_options)
-        package_query = cls._filter_packages_by_user_access(package_query)
+        package_query = cls._filter_packages_by_user_access(package_query, user)
 
         result = [row[0] for row in package_query.with_entities(
             Package.id).all()] if package_query else None
         return result
 
     @classmethod
+    def _filter_account_projects_by_user_access(cls, query=None, user: User = None):
+        """Filter AccountProjects by all accessible projects of the user."""
+        if user is None:
+            user = User.get_by_guid(TokenInfo.get_id())
+
+        if not user:
+            raise ValueError("User not found.")
+
+        if user.type == UserType.STAFF:
+            return query
+
+        if not user.account_user or not user.account_user.role:
+            # No access if no role
+            return query.filter(False)
+
+        accessible_project_ids = cls.get_accessible_account_project_ids_for_user(user)
+
+        if query is None:
+            query = db.session.query(AccountProject)
+
+        # Filter projects by accessible project ids
+        query = query.filter(AccountProject.id.in_(accessible_project_ids))
+
+        return query
+
+    @classmethod
     def get_paginated_account_project_ids(cls, account_id: int, filtered_package_ids: list,
-                                          page: int, page_size: int) -> tuple:
+                                          page: int, page_size: int, user: User = None) -> tuple:
         """Retrieve paginated AccountProject IDs based on filtering."""
         query = db.session.query(AccountProject)
 
         if account_id is not None:
-            query = query.filter(AccountProject.account_id == account_id)
+            query = cls._filter_account_projects_by_user_access(query, user)
 
-        # If no filtering applied, return all projects
         if filtered_package_ids is None:
             account_project_ids_query = query.distinct(AccountProject.id)
         else:
             account_project_ids_query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
                                          .distinct(AccountProject.id))
 
-        # Apply pagination
         if page and page_size:
             paginated_result = (account_project_ids_query.with_entities(AccountProject.id)
                                 .paginate(page=page, per_page=page_size))
@@ -81,14 +129,12 @@ class ProjectQueries:
         account_projects = (
             db.session.query(AccountProject)
             .filter(AccountProject.id.in_(account_project_ids))
-            # Ensure packages are loaded
             .options(joinedload(AccountProject.packages))
         ).all()
 
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
         account_projects_list = schema_class(many=True).dump(account_projects)
 
-        # Filter packages only if filtering was applied
         if filtered_package_ids:
             for account_project in account_projects_list:
                 account_project['packages'] = [package for package in account_project['packages']
@@ -104,15 +150,19 @@ class ProjectQueries:
             page: int = None,
             page_size: int = None,
             is_proponent: bool = True,
+            user: User = None
     ) -> tuple:
         """Main method to orchestrate filtered and paginated retrieval of AccountProjects."""
-        filtered_package_ids = cls.get_filtered_package_ids(search_options)
+        if user is None:
+            user = User.get_by_guid(TokenInfo.get_id())
+
+        filtered_package_ids = cls.get_filtered_package_ids(search_options, user)
 
         account_project_ids, total = cls.get_paginated_account_project_ids(account_id, filtered_package_ids,
-                                                                           page, page_size)
+                                                                           page, page_size, user)
 
         if not account_project_ids:
-            return [], 0  # Return empty list if no matching projects
+            return [], 0
 
         account_projects_list = cls.get_full_account_projects(
             account_project_ids, is_proponent, filtered_package_ids)
@@ -141,10 +191,10 @@ class ProjectQueries:
         return query
 
     @classmethod
-    def _filter_packages_by_user_access(cls, package_query=None):
-        """Filter packages by user access."""
-        auth_guid = TokenInfo.get_id()
-        user = User.get_by_guid(auth_guid)
+    def _filter_packages_by_user_access(cls, package_query=None, user: User = None):
+        """Filter packages by all accessible packages of the user."""
+        if user is None:
+            user = User.get_by_guid(TokenInfo.get_id())
 
         if not user:
             raise ValueError("User not found.")
@@ -152,16 +202,18 @@ class ProjectQueries:
         if user.type == UserType.STAFF:
             return package_query
 
-        if not user.account_user:
-            raise ValueError("User account not found.")
+        if not user.account_user or not user.account_user.role:
+            return package_query.filter(False)
 
         user_role = user.account_user.role
-        if not user_role:
-            raise ValueError("User role not found.")
+
+        if not user_role.active:
+            return package_query.filter(False)
+
         if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
             return package_query
 
-        if package_query is None:
+        if not package_query:
             package_query = db.session.query(Package)
 
         if user_role.original_package_ids:
