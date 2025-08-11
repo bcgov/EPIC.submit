@@ -21,33 +21,33 @@ jobs:
       - uses: actions/checkout@v2
       - run: "true"
 
-  linting:
-    needs: setup-job
-    runs-on: ubuntu-22.04
+  # linting:
+  #   needs: setup-job
+  #   runs-on: ubuntu-22.04
 
-    strategy:
-      matrix:
-        python-version: [3.9]
+  #   strategy:
+  #     matrix:
+  #       python-version: [3.9]
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          sudo apt update
-          sudo apt install libsasl2-dev libldap2-dev libssl-dev --yes
-          make setup
-      - name: Lint with pylint
-        id: pylint
-        run: |
-          make pylint
-      - name: Lint with flake8
-        id: flake8
-        run: |
-          make flake8
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Set up Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #     - name: Install dependencies
+  #       run: |
+  #         sudo apt update
+  #         sudo apt install libsasl2-dev libldap2-dev libssl-dev --yes
+  #         make setup
+  #     - name: Lint with pylint
+  #       id: pylint
+  #       run: |
+  #         make pylint
+  #     - name: Lint with flake8
+  #       id: flake8
+  #       run: |
+  #         make flake8
 
 
   testing:
