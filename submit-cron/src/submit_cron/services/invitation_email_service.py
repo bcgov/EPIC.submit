@@ -26,12 +26,13 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
             invitation_action_text = "collaborate on"
 
         bc_service_card_url = current_app.config.get('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca')
-        project = None
 
         if invitation.project_ids:
             project = cls.get_project_from_project_ids(invitation.project_ids)
         elif invitation.package_ids:
             project = cls.get_project_from_package_id(invitation.package_ids)
+        else:
+            raise BadRequestError("No project or package IDs provided in the invitation.")
 
         if not project:
             raise BadRequestError(f"Project was not found for invitation id: {invitation.id}")
