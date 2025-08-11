@@ -76,6 +76,7 @@ class InvitationEmailService:  # pylint: disable=too-few-public-methods
 
         package_id = package_ids[0]
 
+        # assuming only package ids of one project are provided in one invitation
         return (
             db.session.query(ProjectModel)
             .join(AccountProjectModel, ProjectModel.id == AccountProjectModel.project_id)
