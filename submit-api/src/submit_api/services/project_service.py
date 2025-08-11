@@ -1,3 +1,5 @@
+"""Service for project management."""
+
 from submit_api.exceptions import PermissionDeniedError, BadRequestError
 from submit_api.models import User as UserModel
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
