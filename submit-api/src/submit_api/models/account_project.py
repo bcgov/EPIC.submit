@@ -59,6 +59,12 @@ class AccountProject(BaseModel):
     @classmethod
     def create_account_project(cls, account_id, project_id, session=None) -> AccountProject:
         """Create account project."""
+        existing_account_project = cls.query.filter_by(
+            account_id=account_id,
+            project_id=project_id
+        ).first()
+        if existing_account_project:
+            return existing_account_project
         account_project = AccountProject(
             account_id=account_id,
             project_id=project_id
