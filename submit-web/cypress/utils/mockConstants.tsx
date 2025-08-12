@@ -375,6 +375,7 @@ export const mockProponentAccount = {
   userType: USER_TYPE.PROPONENT,
   userManagementRole: {
     role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+    account_project_id: mockAccountProject.id,
   },
   accountId: 20,
   userId: 1,

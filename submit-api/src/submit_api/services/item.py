@@ -3,8 +3,8 @@ from flask import current_app
 
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Item as ItemModel
-from submit_api.models.db import session_scope
 from submit_api.models.queries.package import PackageQueries
+from submit_api.services import authorization
 
 
 class ItemService:
@@ -21,31 +21,11 @@ class ItemService:
     def get_item_by_id(cls, item_id) -> ItemModel:
         """Get item by id."""
         item = ItemModel.find_by_id(item_id)
+        authorization.has_access_to_package(item.package_id)
         if not item:
             current_app.logger.warning(f"Item with id {item_id} not found.")
             raise ResourceNotFoundError(f"Item with id {item_id} not found.")
         return item
-
-    @classmethod
-    def update_submission_item(cls, item_id, update_data):
-        """Update submission item by id."""
-        submission_item = cls.get_item_by_id(item_id)
-        if not submission_item:
-            current_app.logger.warning(f"Item with id {item_id} not found.")
-            raise ResourceNotFoundError(f"Item with id {item_id} not found.")
-
-        existing_status = submission_item.status
-        with session_scope() as session:
-            cls._apply_update_data(submission_item, update_data)
-            session.add(submission_item)
-            session.flush()
-
-            if 'status' in update_data and existing_status != update_data['status']:
-                cls._update_package_status(submission_item.package_id, session)
-
-            session.commit()
-        current_app.logger.info(f"Submission item {submission_item.id} updated successfully.")
-        return submission_item
 
     @classmethod
     def update_submission_item_status(cls, item_id, status, session):

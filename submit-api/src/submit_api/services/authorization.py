@@ -17,7 +17,7 @@ from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
 
 
-def check_has_permissions_on_project(permissions, account_project_id):
+def check_has_permissions_on_project(permissions=None, account_project_id=None):
     """Check if user is assigned to the project."""
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
     if user.type == UserType.STAFF:
@@ -32,6 +32,10 @@ def check_has_permissions_on_project(permissions, account_project_id):
     if user_role.account_project_id != account_project_id:
         abort(HTTPStatus.FORBIDDEN)
 
+    if not permissions:
+        # If no permissions are required, return success
+        return
+
     user_permissions = set(user_role.permissions)
     has_valid_permissions = user_permissions & set(permissions)
     if not has_valid_permissions:
@@ -40,7 +44,7 @@ def check_has_permissions_on_project(permissions, account_project_id):
     return
 
 
-def check_assigned_on_package(package_id):
+def has_access_to_package(package_id):
     """Check if user is assigned to the package."""
     if not package_id:
         abort(HTTPStatus.BAD_REQUEST)
@@ -52,6 +56,7 @@ def check_assigned_on_package(package_id):
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
     if user.type == UserType.STAFF:
         return
+
     if not user or not user.account_user or not user.account_user.role:
         abort(HTTPStatus.UNAUTHORIZED)
 

@@ -156,7 +156,7 @@ class SubmissionService:
         item = ItemModel.find_by_id(item_id)
         if not item:
             raise ValueError("Item not found.")
-        authorization.check_assigned_on_package(item.package_id)
+        authorization.has_access_to_package(item.package_id)
 
     @classmethod
     def get_package_by_submission_id(cls, submission_id):

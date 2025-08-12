@@ -60,7 +60,7 @@ class Package(Resource):
     @auth.require
     def get(package_id):
         """Get package by id."""
-        authorization.check_assigned_on_package(package_id)
+        authorization.has_access_to_package(package_id)
         package = PackageService.get_package_by_id(package_id)
         if not package:
             return {"message": "Package not found"}, HTTPStatus.NOT_FOUND
