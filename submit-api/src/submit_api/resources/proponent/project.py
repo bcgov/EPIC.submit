@@ -134,7 +134,7 @@ class Projects(Resource):
     @cross_origin(origins=allowedorigins())
     @auth.require
     def get(account_project_id):
-        """Get projects by proponent id."""
+        """Get account project by account_project_id."""
         account_project = ProjectService.get_account_project_by_id(account_project_id, is_staff=False)
         if not account_project:
             return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND

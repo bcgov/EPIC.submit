@@ -9,12 +9,30 @@ import {
   Outlet,
   useParams,
   notFound,
+  redirect,
 } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout",
 )({
+  beforeLoad: ({
+    context: { account },
+    params: { projectId: accountProjectId },
+  }) => {
+    if (!account || account.isLoading) {
+      return;
+    }
+
+    if (
+      String(account.userManagementRole?.account_project_id) !==
+      accountProjectId
+    ) {
+      return redirect({
+        to: "/unauthorized",
+      });
+    }
+  },
   loader: ({ context: { queryClient }, params: { projectId } }) =>
     queryClient.ensureQueryData(
       getAccountProjectQueryOptions(Number(projectId)),

@@ -17,7 +17,7 @@ from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
 
 
-def check_has_permissions_on_project(permissions, account_project_id):
+def check_has_permissions_on_project(permissions=None, account_project_id=None):
     """Check if user is assigned to the project."""
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
     if user.type == UserType.STAFF:
@@ -31,6 +31,10 @@ def check_has_permissions_on_project(permissions, account_project_id):
 
     if user_role.account_project_id != account_project_id:
         abort(HTTPStatus.FORBIDDEN)
+
+    if not permissions:
+        # If no permissions are required, return success
+        return
 
     user_permissions = set(user_role.permissions)
     has_valid_permissions = user_permissions & set(permissions)

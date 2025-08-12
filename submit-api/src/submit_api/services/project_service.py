@@ -7,6 +7,7 @@ from submit_api.models.account_project_search_options import AccountProjectSearc
 from submit_api.models.project import Project as ProjectModel
 from submit_api.models.queries.account_project import ProjectQueries
 from submit_api.models.user import UserType
+from submit_api.services import authorization
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -16,6 +17,9 @@ class ProjectService:
     @classmethod
     def get_account_project_by_id(cls, account_project_id, is_staff: bool):
         """Get account project by id."""
+        authorization.check_has_permissions_on_project(
+            account_project_id=account_project_id,
+        )
         return ProjectQueries.get_account_project_by_id(account_project_id, is_staff)
 
     @classmethod
@@ -72,13 +76,3 @@ class ProjectService:
         """Get projects with pagination."""
         return ProjectQueries.get_filtered_account_projects_paginated(
             None, search_options, page, page_size, is_proponent)
-
-    @classmethod
-    def get_all_account_projects_with_latest_packages(cls):
-        """Get all account projects with latest packages."""
-        return AccountProjectModel.get_all_with_latest_packages()
-
-    @classmethod
-    def get_user_accessible_account_project_ids(cls, user):
-        """Get all account project IDs accessible by the user."""
-        return ProjectQueries.get_accessible_account_project_ids_for_user(user)
