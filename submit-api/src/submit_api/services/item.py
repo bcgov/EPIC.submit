@@ -3,7 +3,6 @@ from flask import current_app
 
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Item as ItemModel
-from submit_api.models.db import session_scope
 from submit_api.models.queries.package import PackageQueries
 from submit_api.services import authorization
 
