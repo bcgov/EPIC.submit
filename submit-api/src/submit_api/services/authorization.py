@@ -56,6 +56,7 @@ def check_assigned_on_package(package_id):
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
     if user.type == UserType.STAFF:
         return
+
     if not user or not user.account_user or not user.account_user.role:
         abort(HTTPStatus.UNAUTHORIZED)
 
