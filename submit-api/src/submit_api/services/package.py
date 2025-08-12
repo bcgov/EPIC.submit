@@ -42,7 +42,7 @@ class PackageService:
     @classmethod
     def get_package_by_id(cls, package_id):
         """Get package by id."""
-        authorization.check_assigned_on_package(package_id)
+        authorization.has_access_to_package(package_id)
         package = PackageModel.get_package_by_id_with_items(package_id)
         return package
 
@@ -657,6 +657,7 @@ class PackageService:
     @classmethod
     def create_update_request_note(cls, package_id, update_request_id, request_data):
         """Create a note for an update request."""
+        authorization.has_access_to_package(package_id)
         update_request = UpdateRequestModel.find_by_id(update_request_id)
         cls._validate_create_update_request_note(package_id, update_request)
         update_request.note = request_data.get("note")

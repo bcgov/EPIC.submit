@@ -44,7 +44,7 @@ def check_has_permissions_on_project(permissions=None, account_project_id=None):
     return
 
 
-def check_assigned_on_package(package_id):
+def has_access_to_package(package_id):
     """Check if user is assigned to the package."""
     if not package_id:
         abort(HTTPStatus.BAD_REQUEST)
