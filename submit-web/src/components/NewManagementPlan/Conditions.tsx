@@ -52,7 +52,7 @@ export const Conditions = () => {
 
   const handleNext = () => {
     if (!mainCondition) {
-      setErrorText("Please select a condition for each input");
+      setErrorText("Please select a condition/document.");
       return;
     }
     setFormData({
@@ -75,7 +75,7 @@ export const Conditions = () => {
 
   useEffect(() => {
     setErrorText(null);
-  }, [mainCondition, supportingConditions]);
+  }, [mainCondition]);
 
   const handleAnotherSupportingCondition = (
     index: number,
@@ -96,7 +96,6 @@ export const Conditions = () => {
 
   const handleNewCondition = () => {
     if (supportingConditions.includes(0)) {
-      setErrorText("Please select a condition for each input");
       return;
     }
     setSupportingConditions([...supportingConditions, 0]);
@@ -166,6 +165,13 @@ export const Conditions = () => {
               })}
           </TextField>
         </Grid>
+        {errorText && (
+          <Grid item xs={12} mb={"15px"}>
+            <Typography color="error" variant="body2">
+              {errorText}
+            </Typography>
+          </Grid>
+        )}
         {supportingConditions.map((input, index) => (
           <Grid key={`input-${input}`} item xs={12} container spacing={1}>
             <Grid item xs md={6} lg={4} key={input}>
@@ -180,9 +186,6 @@ export const Conditions = () => {
                   sx={{ marginBottom: "10px" }}
                   onChange={(e) => {
                     handleAnotherSupportingCondition(index, e.target.value);
-                    if (errorText) {
-                      setErrorText(null);
-                    }
                   }}
                   value={
                     conditions?.find((c) => c.condition_number === input)
@@ -254,13 +257,6 @@ export const Conditions = () => {
           </MuiLink>
         </Grid>
       </Grid>
-      {errorText && (
-        <Grid item xs={12}>
-          <Typography color="error" variant="body2">
-            {errorText}
-          </Typography>
-        </Grid>
-      )}
       <Grid container spacing={2} mt="5em">
         <Grid item>
           <Button variant="text" onClick={handleCancel}>
