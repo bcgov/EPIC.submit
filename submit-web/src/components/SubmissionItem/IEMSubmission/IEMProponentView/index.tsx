@@ -4,8 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useMemo } from "react";
-import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
+import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import {
   SUBMISSION_ITEM_STATUS,
@@ -27,6 +26,7 @@ import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { isAxiosError } from "axios";
+import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 
 export const IemSubmissionProponentView = () => {
   const {
@@ -37,7 +37,7 @@ export const IemSubmissionProponentView = () => {
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
-  const { setIsOpen } = useLoaderBackdrop();
+  const [isBackdropOpen, setIsBackdropOpen] = useState(false);
   const navigate = useNavigate();
 
   const accountProjectId = Number(accountProjectIdParam);
@@ -133,7 +133,7 @@ export const IemSubmissionProponentView = () => {
         informationAccurate,
         notes,
       } = formData;
-      setIsOpen(true);
+      setIsBackdropOpen(true);
       await callSaveSubmission({
         data: {
           type: SUBMISSION_TYPE.FORM,
@@ -159,7 +159,7 @@ export const IemSubmissionProponentView = () => {
           : "Failed to save submission";
       notify.error(errorMessage);
     } finally {
-      setIsOpen(false);
+      setIsBackdropOpen(false);
     }
   };
 
@@ -179,6 +179,7 @@ export const IemSubmissionProponentView = () => {
   if (!accountProject) return <Navigate to="/error" />;
   return (
     <SubmissionFormContainer>
+      <SubmitLoaderBackdrop isOpen={isBackdropOpen} />
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>

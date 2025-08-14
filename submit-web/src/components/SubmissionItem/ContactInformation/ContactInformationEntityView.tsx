@@ -5,8 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useEffect, useMemo } from "react";
-import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
+import { useMemo } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_ITEM_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
@@ -20,6 +19,7 @@ import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { validatePhoneNumber } from "./utils";
 import { isAxiosError } from "axios";
+import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -89,7 +89,6 @@ export const ContactInformationEntityView = () => {
 
   const isSubmitted = packageData?.submitted_on;
 
-  const { setIsOpen } = useLoaderBackdrop();
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
@@ -150,11 +149,6 @@ export const ContactInformationEntityView = () => {
     }
   };
 
-  useEffect(() => {
-    setIsOpen(isCreatingSubmissionPending);
-    return () => setIsOpen(false);
-  }, [isCreatingSubmissionPending, setIsOpen]);
-
   const handleCancel = () => {
     navigate({
       to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
@@ -165,6 +159,7 @@ export const ContactInformationEntityView = () => {
 
   return (
     <SubmissionFormContainer>
+      <SubmitLoaderBackdrop isOpen={isCreatingSubmissionPending} />
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmitHandler)} methods={methods}>
           <Grid container spacing={2}>
