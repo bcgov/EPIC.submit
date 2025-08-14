@@ -44,9 +44,7 @@ export const useSaveSubmission = ({
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_ITEM, submission.item_id],
       });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionItem?.package_id],
-      });
+
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });

@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import {
@@ -25,6 +25,8 @@ import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
+import { isAxiosError } from "axios";
 
 export const IemSubmissionProponentView = () => {
   const {
@@ -80,16 +82,16 @@ export const IemSubmissionProponentView = () => {
       iems: documentSubmissions
         .filter(
           (submission) =>
-            submission.submitted_document.folder === S3_FOLDER.IEMS.value,
+            submission.submitted_document?.folder === S3_FOLDER.IEMS.value,
         )
-        .map((submission) => submission.submitted_document.url),
+        .map((submission) => submission.submitted_document?.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
-            submission.submitted_document.folder ===
+            submission.submitted_document?.folder ===
             S3_FOLDER.SUPPORTING_DOCUMENTS.value,
         )
-        .map((submission) => submission.submitted_document.url),
+        .map((submission) => submission.submitted_document?.url),
     };
   }, [documentSubmissions]);
 
@@ -107,30 +109,14 @@ export const IemSubmissionProponentView = () => {
     formState: { errors, dirtyFields },
   } = methods;
 
-  const onCreateFailure = () => {
-    notify.error("Failed to save submission");
-  };
+  const { refetch } = useGetSubmissionPackage({
+    packageId: Number(submissionPackageId),
+  });
 
-  const onCreateSuccess = () => {
-    notify.success("Submission saved successfully");
-    navigate({
-      to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
-    });
-  };
-  const { mutate: callSaveSubmission, isPending: isCreatingSubmissionPending } =
-    useSaveSubmission({
-      accountProjectId,
-      submissionItem,
-      options: {
-        onSuccess: onCreateSuccess,
-        onError: onCreateFailure,
-      },
-    });
-
-  useEffect(() => {
-    setIsOpen(isCreatingSubmissionPending);
-    return () => setIsOpen(false);
-  }, [isCreatingSubmissionPending, setIsOpen]);
+  const { mutateAsync: callSaveSubmission } = useSaveSubmission({
+    accountProjectId,
+    submissionItem,
+  });
 
   const handleCompleteForm = (formData: IemSubmissionForm) => {
     saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value); // Add default status here
@@ -140,25 +126,41 @@ export const IemSubmissionProponentView = () => {
     formData: IemSubmissionForm,
     status: SubmissionItemStatus,
   ) => {
-    const {
-      conditionSatisfied,
-      allRequirementsAddressed,
-      informationAccurate,
-      notes,
-    } = formData;
-    callSaveSubmission({
-      data: {
-        type: SUBMISSION_TYPE.FORM,
-        status,
-        item_id: submissionItemId,
+    try {
+      const {
+        conditionSatisfied,
+        allRequirementsAddressed,
+        informationAccurate,
+        notes,
+      } = formData;
+      setIsOpen(true);
+      await callSaveSubmission({
         data: {
-          conditionSatisfied: stringToBoolean(conditionSatisfied),
-          allRequirementsAddressed: stringToBoolean(allRequirementsAddressed),
-          informationAccurate: stringToBoolean(informationAccurate),
-          notes,
+          type: SUBMISSION_TYPE.FORM,
+          status,
+          item_id: submissionItemId,
+          data: {
+            conditionSatisfied: stringToBoolean(conditionSatisfied),
+            allRequirementsAddressed: stringToBoolean(allRequirementsAddressed),
+            informationAccurate: stringToBoolean(informationAccurate),
+            notes,
+          },
         },
-      },
-    });
+      });
+      await refetch();
+      notify.success("Submission saved successfully");
+      navigate({
+        to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+      });
+    } catch (error) {
+      const errorMessage =
+        isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Failed to save submission";
+      notify.error(errorMessage);
+    } finally {
+      setIsOpen(false);
+    }
   };
 
   const saveAndClose = () => {

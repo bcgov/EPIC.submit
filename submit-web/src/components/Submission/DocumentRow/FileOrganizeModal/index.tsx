@@ -85,9 +85,9 @@ const FileOrganizeModal = ({
               display: "inline-block",
               verticalAlign: "bottom",
             }}
-            title={submission.submitted_document.name}
+            title={submission.submitted_document?.name}
           >
-            {submission.submitted_document.name}
+            {submission.submitted_document?.name}
           </Box>
           "
         </DialogTitle>

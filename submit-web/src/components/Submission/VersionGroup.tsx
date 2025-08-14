@@ -97,12 +97,12 @@ export default function VersionGroup({
             },
           });
         }}
-      />
+      />,
     );
   };
 
   const last_approved_package_version = packageVersions?.find(
-    (packageVersion) => packageVersion.is_approved
+    (packageVersion) => packageVersion.is_approved,
   );
 
   const isLatestVersion = useMemo(() => {

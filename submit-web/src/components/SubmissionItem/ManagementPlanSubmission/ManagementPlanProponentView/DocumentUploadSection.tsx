@@ -66,12 +66,13 @@ export const DocumentUploadSection = () => {
 
   const managementPlanDocuments = files?.filter(
     (submission) =>
-      submission.submitted_document.folder === S3_FOLDER.MANAGEMENT_PLANS.value,
+      submission.submitted_document?.folder ===
+      S3_FOLDER.MANAGEMENT_PLANS.value,
   );
 
   const supportingDocuments = files?.filter(
     (submission) =>
-      submission.submitted_document.folder ===
+      submission.submitted_document?.folder ===
       S3_FOLDER.SUPPORTING_DOCUMENTS.value,
   );
 

@@ -4,7 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
@@ -22,9 +22,13 @@ import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
 import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
 import { SubmissionFormContainer } from "../../SubmissionFormContainer";
-import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
+import {
+  getSubmissionPackageQueryOptions,
+  useGetSubmissionPackage,
+} from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
+import { isAxiosError } from "axios";
 
 export const ConsultationRecordProponentView = () => {
   const {
@@ -105,7 +109,7 @@ export const ConsultationRecordProponentView = () => {
 
     return {
       consultationRecords: documentSubmissions.map(
-        (submission) => submission.submitted_document.url,
+        (submission) => submission.submitted_document?.url,
       ),
     };
   }, [documentSubmissions]);
@@ -120,27 +124,14 @@ export const ConsultationRecordProponentView = () => {
     },
   });
 
-  const onCreateFailure = () => {
-    notify.error("Failed to save submission");
-  };
+  const { refetch } = useGetSubmissionPackage({
+    packageId: Number(submissionPackageId),
+  });
 
-  const onCreateSuccess = () => {
-    notify.success("Submission saved successfully");
-
-    navigate({
-      to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
-    });
-  };
-
-  const { mutate: callSaveSubmission, isPending: isCreatingSubmissionPending } =
-    useSaveSubmission({
-      accountProjectId,
-      submissionItem,
-      options: {
-        onSuccess: onCreateSuccess,
-        onError: onCreateFailure,
-      },
-    });
+  const { mutateAsync: callSaveSubmission } = useSaveSubmission({
+    accountProjectId,
+    submissionItem,
+  });
   const {
     handleSubmit,
     formState: { errors, dirtyFields },
@@ -162,25 +153,41 @@ export const ConsultationRecordProponentView = () => {
       writtenExplanationsProvidedToCommenters,
       notes,
     } = formData;
-    callSaveSubmission({
-      data: {
-        type: SUBMISSION_TYPE.FORM,
-        status,
-        item_id: submissionItemId,
+    setIsOpen(true);
+    try {
+      await callSaveSubmission({
         data: {
-          consultedParties,
-          allPartiesConsulted: stringToBoolean(allPartiesConsulted),
-          planWasReviewed: stringToBoolean(planWasReviewed),
-          writtenExplanationsProvidedToParties: stringToBoolean(
-            writtenExplanationsProvidedToParties,
-          ),
-          writtenExplanationsProvidedToCommenters: stringToBoolean(
-            writtenExplanationsProvidedToCommenters,
-          ),
-          notes,
+          type: SUBMISSION_TYPE.FORM,
+          status,
+          item_id: submissionItemId,
+          data: {
+            consultedParties,
+            allPartiesConsulted: stringToBoolean(allPartiesConsulted),
+            planWasReviewed: stringToBoolean(planWasReviewed),
+            writtenExplanationsProvidedToParties: stringToBoolean(
+              writtenExplanationsProvidedToParties,
+            ),
+            writtenExplanationsProvidedToCommenters: stringToBoolean(
+              writtenExplanationsProvidedToCommenters,
+            ),
+            notes,
+          },
         },
-      },
-    });
+      });
+      await refetch();
+      notify.success("Submission saved successfully");
+      navigate({
+        to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+      });
+    } catch (error) {
+      let errorMessage = "Failed to save submission";
+      if (isAxiosError(error) && error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      notify.error(errorMessage);
+    } finally {
+      setIsOpen(false);
+    }
   };
 
   const saveAndClose = () => {
@@ -196,11 +203,6 @@ export const ConsultationRecordProponentView = () => {
 
     saveSubmission(formData, SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value);
   };
-
-  useEffect(() => {
-    setIsOpen(isCreatingSubmissionPending);
-    return () => setIsOpen(false);
-  }, [isCreatingSubmissionPending, setIsOpen]);
 
   if (!accountProject) return <Navigate to="/error" />;
   if (!submissionPackage) return <Navigate to="/error" />;
