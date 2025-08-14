@@ -23,6 +23,7 @@ import {
 } from "@/components/Shared/PermissionGate/utils";
 import { managementPlanReviewSchema, RadioOptions } from "./constants";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
+import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
 
 export default function ActionButtons() {
   const {
@@ -43,6 +44,10 @@ export default function ActionButtons() {
   const { roles } = useAccount();
   const isStaff = checkIfStaff(roles);
   const isManager = checkIfManager(roles);
+
+  const { refetch } = useGetStaffSubmissionPackage({
+    packageId: submissionPackageId,
+  });
 
   const { mutateAsync: saveSubmissionReview } = useSaveSubmissionReview({
     itemId: Number(submissionItemId),
@@ -94,6 +99,7 @@ export default function ActionButtons() {
       };
       setIsSavingAndClosing(true);
       await saveSubmissionReview(requestBody);
+      await refetch();
       setIsSavingAndClosing(false);
       notify.success("Review saved successfully");
       navigate({
@@ -133,6 +139,7 @@ export default function ActionButtons() {
         type: SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
       };
       await saveSubmissionReview(requestBody);
+      await refetch();
       setIsSendingToManager(false);
       notify.success("Recommendation sent to manager");
     } catch (error) {

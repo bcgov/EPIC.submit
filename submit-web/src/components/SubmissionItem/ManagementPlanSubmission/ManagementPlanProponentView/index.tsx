@@ -83,17 +83,17 @@ export const ManagementPlanSubmissionProponentView = () => {
       managementPlans: documentSubmissions
         .filter(
           (submission) =>
-            submission.submitted_document.folder ===
+            submission.submitted_document?.folder ===
             S3_FOLDER.MANAGEMENT_PLANS.value,
         )
-        .map((submission) => submission.submitted_document.url),
+        .map((submission) => submission.submitted_document?.url),
       supportingDocuments: documentSubmissions
         .filter(
           (submission) =>
-            submission.submitted_document.folder ===
+            submission.submitted_document?.folder ===
             S3_FOLDER.SUPPORTING_DOCUMENTS.value,
         )
-        .map((submission) => submission.submitted_document.url),
+        .map((submission) => submission.submitted_document?.url),
     };
   }, [documentSubmissions]);
 

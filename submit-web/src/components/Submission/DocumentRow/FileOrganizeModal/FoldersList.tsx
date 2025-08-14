@@ -85,7 +85,7 @@ export const FoldersList = ({
     if (!submissions || !selectedFolder) return submissions;
     return submissions.filter(
       (submission) =>
-        submission.submitted_document.folder === selectedFolder.value &&
+        submission.submitted_document?.folder === selectedFolder.value &&
         submission.id !== submissionToMove.id, // Exclude the submission being moved
     );
   }, [submissions, selectedFolder, submissionToMove]);
@@ -236,7 +236,7 @@ export const FoldersList = ({
                   <Stack direction="row" alignItems="center" spacing={1}>
                     <InsertDriveFileIcon />
                     <Typography variant="body2" sx={{ ml: 1 }}>
-                      {submission.submitted_document.name}
+                      {submission.submitted_document?.name}
                     </Typography>
                   </Stack>
                   <Box sx={{ display: "flex", alignItems: "center" }}>

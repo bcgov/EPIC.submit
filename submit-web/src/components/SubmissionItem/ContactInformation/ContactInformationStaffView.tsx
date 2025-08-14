@@ -31,7 +31,7 @@ export const ContactInformationStaffView = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const handleCancel = () => {
@@ -106,7 +106,7 @@ export const ContactInformationStaffView = () => {
             <Grid item xs={8}>
               <TextField
                 value={String(
-                  get(contactInfo, "primaryContact.workPhoneNumber", "")
+                  get(contactInfo, "primaryContact.workPhoneNumber", ""),
                 )}
                 fullWidth
                 label="Work Phone Number"
@@ -115,7 +115,7 @@ export const ContactInformationStaffView = () => {
             <Grid item xs={4}>
               <TextField
                 value={String(
-                  get(contactInfo, "primaryContact.extensionNumber", "")
+                  get(contactInfo, "primaryContact.extensionNumber", ""),
                 )}
                 fullWidth
                 label="Ext."
@@ -187,7 +187,7 @@ export const ContactInformationStaffView = () => {
               <Grid item xs={8}>
                 <TextField
                   value={String(
-                    get(contactInfo, "secondaryContact.workPhoneNumber", "")
+                    get(contactInfo, "secondaryContact.workPhoneNumber", ""),
                   )}
                   fullWidth
                   label="Work Phone Number"
@@ -196,7 +196,7 @@ export const ContactInformationStaffView = () => {
               <Grid item xs={4}>
                 <TextField
                   value={String(
-                    get(contactInfo, "secondaryContact.extensionNumber", "")
+                    get(contactInfo, "secondaryContact.extensionNumber", ""),
                   )}
                   fullWidth
                   label="Ext."

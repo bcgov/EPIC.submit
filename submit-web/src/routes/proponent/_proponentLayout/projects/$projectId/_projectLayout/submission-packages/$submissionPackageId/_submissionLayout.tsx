@@ -15,6 +15,15 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
+
+const PendingComponent = () => (
+  <PageGrid>
+    <Grid item xs={12}>
+      <ContentBoxSkeleton />
+    </Grid>
+  </PageGrid>
+);
+
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
 )({
@@ -35,13 +44,7 @@ export const Route = createFileRoute(
     throw error;
   },
   pendingMs: 0,
-  pendingComponent: () => (
-    <PageGrid>
-      <Grid item xs={12}>
-        <ContentBoxSkeleton />
-      </Grid>
-    </PageGrid>
-  ),
+  pendingComponent: PendingComponent,
   beforeLoad: ({ context: { account } }) => {
     if (!account || account.isLoading) return;
     if (!account.userManagementRole) {
@@ -93,6 +96,5 @@ export default function SubmissionLayout() {
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
   }
-
   return <Outlet />;
 }

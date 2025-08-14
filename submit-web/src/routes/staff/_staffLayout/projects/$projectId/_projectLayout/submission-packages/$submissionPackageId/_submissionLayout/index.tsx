@@ -29,6 +29,7 @@ import { When } from "react-if";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import WarningBox from "@/components/Shared/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
+import { SubmitBackdrop } from "@/components/Shared/Backdrop";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -52,7 +53,7 @@ export default function SubmissionPage() {
 
   const submissionPackageId = Number(submissionPackageIdParam);
 
-  const { data: submissionPackage } = useGetStaffSubmissionPackage({
+  const { data: submissionPackage, isFetching } = useGetStaffSubmissionPackage({
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
@@ -97,6 +98,7 @@ export default function SubmissionPage() {
 
   return (
     <PageGrid>
+      <SubmitBackdrop isLoading={isFetching} />
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project?.name}

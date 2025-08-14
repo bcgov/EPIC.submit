@@ -105,7 +105,7 @@ export const ConsultationRecordProponentView = () => {
 
     return {
       consultationRecords: documentSubmissions.map(
-        (submission) => submission.submitted_document.url,
+        (submission) => submission.submitted_document?.url,
       ),
     };
   }, [documentSubmissions]);
