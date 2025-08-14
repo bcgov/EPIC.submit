@@ -51,13 +51,18 @@ class InvitationService:
         return None
 
     @staticmethod
-    def _check_action_authorized(project_ids, permissions=None):
+    def _check_action_authorized(project_ids, account_projects=None, permissions=None):
         """Check if the user has permissions on the provided project IDs."""
-        account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
+        if not account_projects:
+            account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
+            account_project_ids = [ap.id for ap in account_projects]
+        else:
+            account_project_ids = [ap.id for ap in account_projects]
+
         # assume one project for now, can be extended for multiple projects
         authorization.check_has_permissions_on_project(
             permissions=permissions or [ProponentPermissionsEnum.INVITE_USERS.value],
-            account_project_id=account_projects[0].id if account_projects else None
+            account_project_id=account_project_ids[0] if account_project_ids else None
         )
 
     @staticmethod
@@ -80,8 +85,18 @@ class InvitationService:
         role_name = invite_data.get('role_name')
         proponent_id = invite_data.get('proponent_id')
         project_ids = invite_data.get('project_ids')
+        account_project_ids = invite_data.get('account_project_ids')
+        account_projects = None
 
-        InvitationService._check_action_authorized(project_ids)
+        if not project_ids and not account_project_ids:
+            raise ResourceNotFoundError("No project IDs or account project IDs provided.")
+
+        if not project_ids and account_project_ids:
+            account_projects = AccountProjectModel.get_all_in_ids(account_project_ids)
+            project_ids = [ap.project_id for ap in account_projects]
+            invite_data['project_ids'] = project_ids
+
+        InvitationService._check_action_authorized(project_ids, account_projects=account_projects)
 
         role = InvitationService._validate_fetch_role(role_name)
 

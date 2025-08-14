@@ -52,6 +52,11 @@ class AccountProject(BaseModel):
         return cls.query.all()
 
     @classmethod
+    def get_all_in_ids(cls, ids):
+        """Get all projects in the given IDs."""
+        return cls.query.filter(cls.id.in_(ids)).all()
+
+    @classmethod
     def get_all_in_project_ids(cls, ids):
         """Get all projects in the given IDs."""
         return cls.query.filter(cls.project_id.in_(ids)).all()

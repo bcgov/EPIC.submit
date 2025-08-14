@@ -50,7 +50,7 @@ const newUser = yup.object().shape({
 type NewUserSchema = yup.InferType<typeof newUser>;
 
 export default function NewUserForm() {
-  const { accountId, proponentId } = useAccount();
+  const { accountId, proponentId, userManagementRole } = useAccount();
   const navigate = useNavigate();
   const { setOpen: setOpenModal, setClose: closeModal } = useModal();
 
@@ -130,29 +130,21 @@ export default function NewUserForm() {
 
   const selectedRole = watch("role_name");
 
-  const getProjectIds = () => {
-    const packageIds = watch("original_package_ids") || [];
-    const isSpecificSubmission =
-      selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
-    return (
-      accountPackages
-        ?.filter(
-          ({ packages }) =>
-            !isSpecificSubmission ||
-            packages.some(({ id }) => packageIds.includes(id.toString())),
-        )
-        .map(({ project_id }) => Number(project_id)) || []
-    );
-  };
-
   const handleCompleteForm = (formData: NewUserSchema) => {
     const { email, role_name, original_package_ids } = formData;
+    const account_project_id = userManagementRole?.account_project_id;
+
+    if (!account_project_id) {
+      notify.error("Error: you do not have access to any project.");
+      return;
+    }
+
     const request = {
       proponent_id: proponentId,
       account_id: accountId,
       role_name,
       email,
-      project_ids: getProjectIds(),
+      account_project_ids: [account_project_id],
       original_package_ids: original_package_ids
         ? original_package_ids.map(Number)
         : undefined,
