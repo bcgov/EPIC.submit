@@ -19,6 +19,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { validatePhoneNumber } from "./utils";
+import { isAxiosError } from "axios";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
@@ -33,7 +34,7 @@ const contactInformationSchema = yup.object().shape({
       .test(
         "phone-complete",
         "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-        validatePhoneNumber
+        validatePhoneNumber,
       ),
     workEmailAddress: yup
       .string()
@@ -52,7 +53,7 @@ const contactInformationSchema = yup.object().shape({
       .test(
         "phone-complete",
         "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-        validatePhoneNumber
+        validatePhoneNumber,
       ),
     workEmailAddress: yup
       .string()
@@ -92,7 +93,7 @@ export const ContactInformationEntityView = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -106,25 +107,17 @@ export const ContactInformationEntityView = () => {
 
   const { handleSubmit } = methods;
 
-  const onCreateFailure = () => {
-    notify.error("Failed to create submission");
-  };
+  const { refetch } = useGetSubmissionPackage({
+    packageId: Number(submissionPackageId),
+  });
 
-  const onCreateSuccess = () => {
-    notify.success("Submission created successfully");
-    navigate({
-      to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
-    });
-  };
-  const { mutate: saveSubmission, isPending: isCreatingSubmissionPending } =
-    useSaveSubmission({
-      accountProjectId,
-      submissionItem,
-      options: {
-        onSuccess: onCreateSuccess,
-        onError: onCreateFailure,
-      },
-    });
+  const {
+    mutateAsync: saveSubmission,
+    isPending: isCreatingSubmissionPending,
+  } = useSaveSubmission({
+    accountProjectId,
+    submissionItem,
+  });
 
   const onSubmitHandler = async (formData: ContactInformationForm) => {
     if (!submissionItem) {
@@ -138,9 +131,23 @@ export const ContactInformationEntityView = () => {
       status: isSubmitted ? undefined : SUBMISSION_ITEM_STATUS.COMPLETED.value,
       item_id: submissionItem.id,
     };
-    saveSubmission({
-      data: request,
-    });
+
+    try {
+      await saveSubmission({
+        data: request,
+      });
+      await refetch();
+      notify.success("Submission created successfully");
+      navigate({
+        to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+      });
+    } catch (error) {
+      let errorMessage = "Failed to create submission";
+      if (isAxiosError(error) && error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      notify.error(errorMessage);
+    }
   };
 
   useEffect(() => {
