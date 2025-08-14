@@ -29,8 +29,7 @@ import { When } from "react-if";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import WarningBox from "@/components/Shared/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
-import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
-import { useEffect } from "react";
+import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -40,7 +39,6 @@ export const Route = createFileRoute(
 
 export default function SubmissionPage() {
   const { reset } = usePackageTableStore();
-  const { setIsOpen } = useLoaderBackdrop();
   const {
     projectId: accountProjectIdParam,
     submissionPackageId: submissionPackageIdParam,
@@ -92,10 +90,6 @@ export default function SubmissionPage() {
     };
   });
 
-  useEffect(() => {
-    setIsOpen(isFetching);
-  }, [isFetching, setIsOpen]);
-
   const managementPlanName = useManagementPlanName(submissionPackage);
 
   if (!accountProject || !submissionPackage) {
@@ -104,6 +98,7 @@ export default function SubmissionPage() {
 
   return (
     <PageGrid>
+      <SubmitLoaderBackdrop isOpen={isFetching} />
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project?.name}

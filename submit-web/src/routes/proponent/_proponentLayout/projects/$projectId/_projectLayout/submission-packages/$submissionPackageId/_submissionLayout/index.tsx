@@ -41,8 +41,7 @@ import { GreyBox } from "@/components/Shared/GreyBox";
 import { AppConfig } from "@/utils/config";
 import WarningBox from "@/components/Shared/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
-import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
-import { useEffect } from "react";
+import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -52,7 +51,6 @@ export const Route = createFileRoute(
 
 export default function SubmissionPage() {
   const { setIsValidating, reset } = usePackageTableStore();
-  const { setIsOpen } = useLoaderBackdrop();
 
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const accountProjectId = Number(accountProjectIdParam);
@@ -107,10 +105,6 @@ export default function SubmissionPage() {
       reset();
     };
   });
-
-  useEffect(() => {
-    setIsOpen(isFetching);
-  }, [isFetching, setIsOpen]);
 
   const submitPackage = () => {
     if (!submissionPackage) {
@@ -178,6 +172,7 @@ export default function SubmissionPage() {
 
   return (
     <PageGrid>
+      <SubmitLoaderBackdrop isOpen={isFetching} />
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project?.name}

@@ -4,8 +4,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useMemo } from "react";
-import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
+import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { DocumentUploadSection } from "./DocumentUploadSection";
@@ -29,6 +28,7 @@ import {
 import { SubmissionPackage } from "@/models/Package";
 import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
 import { isAxiosError } from "axios";
+import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 
 export const ConsultationRecordProponentView = () => {
   const {
@@ -43,7 +43,7 @@ export const ConsultationRecordProponentView = () => {
     accountProjectId,
   });
 
-  const { setIsOpen } = useLoaderBackdrop();
+  const [isBackdropOpen, setIsBackdropOpen] = useState(false);
   const navigate = useNavigate();
 
   const queryClient = useQueryClient();
@@ -153,7 +153,7 @@ export const ConsultationRecordProponentView = () => {
       writtenExplanationsProvidedToCommenters,
       notes,
     } = formData;
-    setIsOpen(true);
+    setIsBackdropOpen(true);
     try {
       await callSaveSubmission({
         data: {
@@ -186,7 +186,7 @@ export const ConsultationRecordProponentView = () => {
       }
       notify.error(errorMessage);
     } finally {
-      setIsOpen(false);
+      setIsBackdropOpen(false);
     }
   };
 
@@ -209,6 +209,7 @@ export const ConsultationRecordProponentView = () => {
 
   return (
     <SubmissionFormContainer>
+      <SubmitLoaderBackdrop isOpen={isBackdropOpen} />
       <FormProvider {...methods}>
         <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>

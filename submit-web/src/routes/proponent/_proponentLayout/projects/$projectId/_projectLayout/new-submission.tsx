@@ -4,7 +4,7 @@ import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCar
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { ContentBox } from "@/components/Shared/ContentBox";
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
-import { useLoaderBackdrop } from "@/components/Shared/Overlays/loaderBackdropStore";
+import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import BarTitle from "@/components/Shared/Text/BarTitle";
@@ -16,10 +16,9 @@ import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { Box, Grid, Typography } from "@mui/material";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { useEffect } from "react";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission"
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
 )({
   component: NewManagementPlan,
   meta: () => [{ title: "New Submission Package" }],
@@ -42,7 +41,7 @@ export const Route = createFileRoute(
 export function NewManagementPlan() {
   // get the projectId from the route
   const { projectId } = Route.useParams();
-  const { setIsOpen } = useLoaderBackdrop();
+
   const { data: accountProject, isPending: isProjectPending } =
     useGetAccountProject({
       accountProjectId: Number(projectId),
@@ -67,13 +66,8 @@ export function NewManagementPlan() {
     onSuccess: onCreateSuccess,
   });
 
-  useEffect(() => {
-    setIsOpen(isCreatingSubmissionPackagePending);
-    return () => setIsOpen(false);
-  }, [isCreatingSubmissionPackagePending, setIsOpen]);
-
   const onCreateSubmissionPackage = (
-    metadata: Partial<NewManagementPlanForm>
+    metadata: Partial<NewManagementPlanForm>,
   ) => {
     const { name, type, ...restMetadata } = metadata;
     const newSubmissionPackageRequest = {
@@ -99,6 +93,7 @@ export function NewManagementPlan() {
 
   return (
     <PageGrid>
+      <SubmitLoaderBackdrop isOpen={isCreatingSubmissionPackagePending} />
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project.name}

@@ -1,10 +1,9 @@
-import React from "react";
 import { Backdrop, CircularProgress } from "@mui/material";
-import { useLoaderBackdrop } from "./loaderBackdropStore";
 
-const LoaderBackdropProvider: React.FC = () => {
-  const { isOpen } = useLoaderBackdrop();
-
+type SubmitLoaderBackdropProps = {
+  isOpen: boolean;
+};
+export const SubmitLoaderBackdrop = ({ isOpen }: SubmitLoaderBackdropProps) => {
   return (
     <Backdrop
       sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
@@ -14,5 +13,3 @@ const LoaderBackdropProvider: React.FC = () => {
     </Backdrop>
   );
 };
-
-export default LoaderBackdropProvider;
