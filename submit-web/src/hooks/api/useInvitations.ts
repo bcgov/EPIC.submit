@@ -23,7 +23,8 @@ type CreateInvitation = {
   proponent_id: number;
   role_name: string;
   email?: string;
-  project_ids: number[];
+  project_ids?: number[];
+  account_project_ids?: number[];
   package_ids?: number[];
   original_package_ids?: number[];
 };
@@ -32,6 +33,7 @@ const createInvitation = ({
   account_id,
   proponent_id,
   project_ids,
+  account_project_ids,
   package_ids,
   original_package_ids,
   email,
@@ -48,6 +50,7 @@ const createInvitation = ({
       project_ids,
       package_ids,
       original_package_ids,
+      account_project_ids,
     },
   });
 };

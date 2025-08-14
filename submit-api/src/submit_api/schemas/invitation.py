@@ -12,7 +12,8 @@ class CreateInvitationSchema(Schema):
 
     proponent_id = fields.Int(required=True, description="Proponent ID")
     account_id = fields.Int(required=False, description="Account ID")
-    project_ids = fields.List(fields.Int(), required=True, description="List of Project IDs")
+    project_ids = fields.List(fields.Int(), required=False, description="List of Project IDs")
+    account_project_ids = fields.List(fields.Int(), required=False, description="List of Account Project IDs")
     role_name = fields.Str(required=True, description="Role Name")
     package_ids = fields.List(fields.Int(), required=False, allow_none=True)
     original_package_ids = fields.List(fields.Int(),
