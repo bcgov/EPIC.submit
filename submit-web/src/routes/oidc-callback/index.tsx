@@ -3,6 +3,7 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { HTTP_STATUS } from "@/utils/constants";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback/")({
   component: OidcCallback,
@@ -16,6 +17,12 @@ function OidcCallback() {
   const baseProponentPath = "/proponent";
 
   const account = useAccount();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+
+  if (account.isLoading || isAuthLoading) {
+    return <PageLoader />;
+  }
+
   if (token) {
     return (
       <Navigate
@@ -27,8 +34,8 @@ function OidcCallback() {
     );
   }
 
-  if (account.isLoading) {
-    return <PageLoader />;
+  if (!isAuthenticated && !isAuthLoading) {
+    return <Navigate to="/" />;
   }
 
   if (account?.error?.status === HTTP_STATUS.NOT_FOUND) {
@@ -45,7 +52,10 @@ function OidcCallback() {
   }
 
   if (account.userType === USER_TYPE.PROPONENT && account.accountId) {
-    return <Navigate to={baseProponentPath} />;
+    const navPath = path?.startsWith(baseProponentPath)
+      ? path
+      : baseProponentPath;
+    return <Navigate to={navPath} />;
   }
 
   return <Navigate to="/logout" />;

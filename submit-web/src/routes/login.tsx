@@ -2,20 +2,15 @@ import { LoginOptions } from "@/components/Login/LoginOptions";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useAccount } from "@/store/accountStore";
-import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Grid } from "@mui/material";
-import {
-  createFileRoute,
-  useNavigate,
-  useSearch,
-} from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/login")({
   component: Login,
   validateSearch: (search) => ({
-    from: typeof search.from === "string" ? search.from : "",
+    path: typeof search.path === "string" ? search.path : "",
   }),
 });
 
@@ -24,24 +19,19 @@ function Login() {
   const { reset } = useAccount();
   const navigate = useNavigate();
 
-  const { from } = useSearch({
-    from: "/login",
-  });
+  const params = new URLSearchParams(window.location.search);
+  const path = params.get("path");
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      if (from !== LOGIN_REDIRECT.proponent) {
-        navigate({
-          to: "/logout",
-        });
-        reset();
-      }
-    } else {
+    if (isAuthenticated) {
       navigate({
         to: "/oidc-callback",
+        search: {
+          path: path,
+        },
       });
     }
-  }, [isAuthenticated, navigate, signinRedirect, from, reset]);
+  }, [isAuthenticated, navigate, signinRedirect, path, reset]);
 
   if (!isAuthenticated) {
     return (

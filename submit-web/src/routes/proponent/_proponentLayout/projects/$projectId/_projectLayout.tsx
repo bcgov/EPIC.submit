@@ -1,6 +1,7 @@
 import { ProjectsSkeleton } from "@/components/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
+import { useAccount } from "@/store/accountStore";
 import { HTTP_STATUS } from "@/utils/constants";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -68,8 +69,13 @@ function ProjectLayout() {
   const { data: accountProject } = useSuspenseQuery(
     getAccountProjectQueryOptions(accountProjectId),
   );
+  const { userManagementRole } = useAccount();
 
   if (!accountProject) return <Navigate to="/error" />;
+
+  if (userManagementRole?.account_project_id !== accountProjectId) {
+    return <Navigate to="/unauthorized" />;
+  }
 
   return <Outlet />;
 }
