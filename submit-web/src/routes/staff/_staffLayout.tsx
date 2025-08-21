@@ -6,7 +6,6 @@ import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { OidcConfig } from "@/utils/config";
-import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import {
   CatchBoundary,

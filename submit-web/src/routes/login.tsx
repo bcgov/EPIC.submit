@@ -2,7 +2,6 @@ import { LoginOptions } from "@/components/Login/LoginOptions";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useAccount } from "@/store/accountStore";
-import { OidcConfig } from "@/utils/config";
 import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Grid } from "@mui/material";
 import {
