@@ -4,7 +4,6 @@ import { AuthProvider } from "react-oidc-context";
 import { AppConfig, OidcConfig } from "../../../../src/utils/config";
 import { mockZustandStore, setupTokenStorage } from "../../utils";
 import { useAccount } from "../../../../src/store/accountStore";
-import { USER_TYPE } from "../../../../src/models/User";
 import { usePackageTableStore } from "../../../../src/components/Submission/packageTableStore";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "../../../../src/routeTree.gen";
