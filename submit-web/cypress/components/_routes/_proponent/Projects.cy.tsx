@@ -4,7 +4,6 @@ import { AuthProvider } from "react-oidc-context";
 import { AppConfig, OidcConfig } from "../../../../src/utils/config";
 import { mockZustandStore, setupTokenStorage } from "../../utils";
 import { useAccount } from "../../../../src/store/accountStore";
-import { USER_TYPE } from "../../../../src/models/User";
 import { usePackageTableStore } from "../../../../src/components/Submission/packageTableStore";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { routeTree } from "../../../../src/routeTree.gen";
@@ -55,12 +54,7 @@ describe("projects page", () => {
 
   beforeEach(() => {
     cy.viewport(1280, 800);
-    mockZustandStore(useAccount, {
-      userType: USER_TYPE.PROPONENT,
-      reset: () => {},
-      isLoading: false,
-      accountId: mockProponentAccount.accountId,
-    });
+    mockZustandStore(useAccount, mockProponentAccount);
     mockZustandStore(usePackageTableStore, {
       isValidating: false,
       reset: () => {},

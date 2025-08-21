@@ -7,7 +7,7 @@ import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import { Grid } from "@mui/material";
 import { createFileRoute, Navigate, notFound } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute(
@@ -29,7 +29,7 @@ export const Route = createFileRoute(
 });
 
 function UsersPage() {
-  const { accountId } = useAccount();
+  const { accountId, roles } = useAccount();
   const {
     data: users,
     isPending: isUsersLoading,
@@ -40,6 +40,13 @@ function UsersPage() {
     includeRoles: true,
   });
 
+  const hasInviteUsersPermission = useMemo(() => {
+    return hasPermission({
+      scopes: [ACCOUNT_USER_PERMISSIONS.INVITE_USERS],
+      permissions: roles || [],
+    });
+  }, [roles]);
+
   useEffect(() => {
     if (isUsersError) {
       notify.error("Failed to load documents");
@@ -48,6 +55,10 @@ function UsersPage() {
 
   if (isUsersError) {
     return <Navigate to={"/error"} />;
+  }
+
+  if (!hasInviteUsersPermission) {
+    return <Navigate to={"/not-found"} />;
   }
 
   return (

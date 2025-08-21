@@ -6,6 +6,7 @@ import { IDENTITY_PROVIDERS } from "@/models/User";
 
 export const LoginOptions = () => {
   const auth = useAuth();
+
   return (
     <>
       <Stack

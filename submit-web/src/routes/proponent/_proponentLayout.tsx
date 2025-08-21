@@ -1,7 +1,6 @@
 import { useIsMobile } from "@/hooks/common";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { LOGIN_REDIRECT } from "@/utils/constants";
 import { Box } from "@mui/material";
 import {
   CatchBoundary,
@@ -21,7 +20,9 @@ export const Route = createFileRoute("/proponent/_proponentLayout")({
     if (!authentication.isLoading && !authentication?.isAuthenticated) {
       return redirect({
         to: "/login",
-        search: `?from=${LOGIN_REDIRECT.proponent}`,
+        search: {
+          path: window.location.pathname,
+        },
       });
     }
 

@@ -19,6 +19,8 @@ import { Route as LogoutImport } from './routes/logout'
 import { Route as LoginImport } from './routes/login'
 import { Route as ErrorImport } from './routes/error'
 import { Route as IndexImport } from './routes/index'
+import { Route as StaffIndexImport } from './routes/staff/index'
+import { Route as ProponentIndexImport } from './routes/proponent/index'
 import { Route as OidcCallbackIndexImport } from './routes/oidc-callback/index'
 import { Route as StaffNoRolesImport } from './routes/staff/no-roles'
 import { Route as StaffStaffLayoutImport } from './routes/staff/_staffLayout'
@@ -113,6 +115,16 @@ const ErrorRoute = ErrorImport.update({
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const StaffIndexRoute = StaffIndexImport.update({
+  path: '/',
+  getParentRoute: () => StaffRoute,
+} as any)
+
+const ProponentIndexRoute = ProponentIndexImport.update({
+  path: '/',
+  getParentRoute: () => ProponentRoute,
 } as any)
 
 const OidcCallbackIndexRoute = OidcCallbackIndexImport.update({
@@ -450,6 +462,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OidcCallbackIndexImport
       parentRoute: typeof rootRoute
     }
+    '/proponent/': {
+      id: '/proponent/'
+      path: '/'
+      fullPath: '/proponent/'
+      preLoaderRoute: typeof ProponentIndexImport
+      parentRoute: typeof ProponentImport
+    }
+    '/staff/': {
+      id: '/staff/'
+      path: '/'
+      fullPath: '/staff/'
+      preLoaderRoute: typeof StaffIndexImport
+      parentRoute: typeof StaffImport
+    }
     '/proponent/_proponentLayout/profile': {
       id: '/proponent/_proponentLayout/profile'
       path: '/profile'
@@ -720,6 +746,7 @@ export const routeTree = rootRoute.addChildren({
             ),
         }),
     }),
+    ProponentIndexRoute,
     ProponentRegistrationCompleteRoute,
     ProponentRegistrationCreateAccountRoute,
     ProponentRegistrationIndexRoute,
@@ -752,6 +779,7 @@ export const routeTree = rootRoute.addChildren({
         }),
     }),
     StaffNoRolesRoute,
+    StaffIndexRoute,
   }),
   OidcCallbackIndexRoute,
 })
@@ -797,6 +825,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "proponent",
       "children": [
         "/proponent/_proponentLayout",
+        "/proponent/",
         "/proponent/registration/complete",
         "/proponent/registration/create-account",
         "/proponent/registration/"
@@ -822,7 +851,8 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "staff",
       "children": [
         "/staff/_staffLayout",
-        "/staff/no-roles"
+        "/staff/no-roles",
+        "/staff/"
       ]
     },
     "/staff/_staffLayout": {
@@ -842,6 +872,14 @@ export const routeTree = rootRoute.addChildren({
     },
     "/oidc-callback/": {
       "filePath": "oidc-callback/index.tsx"
+    },
+    "/proponent/": {
+      "filePath": "proponent/index.tsx",
+      "parent": "/proponent"
+    },
+    "/staff/": {
+      "filePath": "staff/index.tsx",
+      "parent": "/staff"
     },
     "/proponent/_proponentLayout/profile": {
       "filePath": "proponent/_proponentLayout/profile.tsx",

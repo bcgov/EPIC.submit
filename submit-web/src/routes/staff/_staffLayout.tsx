@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { LOGIN_REDIRECT } from "@/utils/constants";
+import { OidcConfig } from "@/utils/config";
 import { Box } from "@mui/material";
 import {
   CatchBoundary,
@@ -22,10 +22,13 @@ export const Route = createFileRoute("/staff/_staffLayout")({
   beforeLoad: ({ context: { account, authentication } }) => {
     if (!authentication.isLoading) {
       if (!authentication?.isAuthenticated) {
-        return redirect({
-          to: "/login",
-          search: `?from=${LOGIN_REDIRECT.staff}`,
+        authentication.signinRedirect({
+          redirect_uri: `${OidcConfig.redirect_uri}?path=${window.location.pathname}`,
+          extraQueryParams: {
+            kc_idp_hint: OidcConfig.kc_idp_hint,
+          },
         });
+        return;
       }
 
       if (authentication?.user?.profile.identity_provider !== IDIR) {
