@@ -11,6 +11,9 @@ export const Route = createFileRoute("/oidc-callback/")({
 function OidcCallback() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
+  const path = params.get("path");
+  const baseStaffPath = "/staff";
+  const baseProponentPath = "/proponent";
 
   const account = useAccount();
   if (token) {
@@ -37,11 +40,12 @@ function OidcCallback() {
   }
 
   if (account.userType === USER_TYPE.STAFF) {
-    return <Navigate to="/staff/projects" />;
+    const navPath = path?.startsWith(baseStaffPath) ? path : baseStaffPath;
+    return <Navigate to={navPath} />;
   }
 
   if (account.userType === USER_TYPE.PROPONENT && account.accountId) {
-    return <Navigate to="/proponent/projects" />;
+    return <Navigate to={baseProponentPath} />;
   }
 
   return <Navigate to="/logout" />;

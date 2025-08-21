@@ -31,14 +31,7 @@ function Login() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      if (from === LOGIN_REDIRECT.staff) {
-        signinRedirect({
-          redirect_uri: `${OidcConfig.redirect_uri}`,
-          extraQueryParams: {
-            kc_idp_hint: OidcConfig.kc_idp_hint,
-          },
-        });
-      } else if (from !== LOGIN_REDIRECT.proponent) {
+      if (from !== LOGIN_REDIRECT.proponent) {
         navigate({
           to: "/logout",
         });
@@ -51,7 +44,7 @@ function Login() {
     }
   }, [isAuthenticated, navigate, signinRedirect, from, reset]);
 
-  if (!isAuthenticated && from !== LOGIN_REDIRECT.staff) {
+  if (!isAuthenticated) {
     return (
       <PageGrid>
         <Grid item xs={12}>
