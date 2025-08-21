@@ -55,12 +55,7 @@ describe("projects page", () => {
 
   beforeEach(() => {
     cy.viewport(1280, 800);
-    mockZustandStore(useAccount, {
-      userType: USER_TYPE.PROPONENT,
-      reset: () => {},
-      isLoading: false,
-      accountId: mockProponentAccount.accountId,
-    });
+    mockZustandStore(useAccount, mockProponentAccount);
     mockZustandStore(usePackageTableStore, {
       isValidating: false,
       reset: () => {},
