@@ -101,7 +101,7 @@ function CreateAccountForm() {
       return filteredProjects[0];
     }
     return null;
-  }, [proponentProjects]);
+  }, [proponentProjects, invitation]);
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setAccount({
