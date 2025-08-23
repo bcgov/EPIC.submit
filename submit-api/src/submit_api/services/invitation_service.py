@@ -121,23 +121,15 @@ class InvitationService:
                 'existing_user': existing_user
             }
 
-        token = InvitationService.generate_uuid_token()
+        return InvitationService.create_invitation(invite_data)
 
+    @staticmethod
+    def create_invitation(invite_data):
+        """Create and persist a new invitation token."""
+        account_id = invite_data.get('account_id')
         role_name = invite_data.get('role_name')
         proponent_id = invite_data.get('proponent_id')
         project_ids = invite_data.get('project_ids')
-        account_project_ids = invite_data.get('account_project_ids')
-        account_projects = None
-
-        if not project_ids and not account_project_ids:
-            raise ResourceNotFoundError("No project IDs or account project IDs provided.")
-
-        if not project_ids and account_project_ids:
-            account_projects = AccountProjectModel.get_all_in_ids(account_project_ids)
-            project_ids = [ap.project_id for ap in account_projects]
-            invite_data['project_ids'] = project_ids
-
-        InvitationService._check_action_authorized(project_ids, account_projects=account_projects)
 
         role = InvitationService._validate_fetch_role(role_name)
 
@@ -145,6 +137,8 @@ class InvitationService:
             account = InvitationService._get_or_create_account(
                 account_id, proponent_id, project_ids, session)
             session.flush()
+
+            token = InvitationService.generate_uuid_token()
             invitation = InvitationService._create_invitation_record(invite_data,
                                                                      role,
                                                                      account,
