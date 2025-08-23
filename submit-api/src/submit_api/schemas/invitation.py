@@ -7,15 +7,21 @@ from submit_api.schemas.role import RoleSchema
 from marshmallow import Schema, fields
 
 
-class CreateInvitationSchema(Schema):
+class CreateNewAccountInvitationSchema(Schema):
+    """Schema for creating a new account invitation."""
+
+    proponent_id = fields.Int(required=True, description="Proponent ID")
+    role_name = fields.Str(required=True, description="Role Name")
+    project_ids = fields.List(fields.Int(), required=False, description="List of Project IDs")
+
+
+class CreateInvitationToExistingAccountProjectSchema(Schema):
     """Schema for creating an invitation."""
 
     proponent_id = fields.Int(required=True, description="Proponent ID")
     account_id = fields.Int(required=False, description="Account ID")
-    project_ids = fields.List(fields.Int(), required=False, description="List of Project IDs")
     account_project_ids = fields.List(fields.Int(), required=False, description="List of Account Project IDs")
     role_name = fields.Str(required=True, description="Role Name")
-    package_ids = fields.List(fields.Int(), required=False, allow_none=True)
     original_package_ids = fields.List(fields.Int(),
                                        required=False, allow_none=True, description="Original Package IDs")
     email = fields.Email(required=False, description="Optional email for client")

@@ -2,10 +2,11 @@
 import datetime
 import uuid
 from urllib.parse import urljoin
+
 from flask import current_app
 
 from submit_api.enums.role import RoleEnum, ProponentPermissionsEnum
-from submit_api.exceptions import ResourceNotFoundError
+from submit_api.exceptions import ResourceNotFoundError, BadRequestError
 from submit_api.models import AccountProject as AccountProjectModel, User
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
@@ -66,10 +67,50 @@ class InvitationService:
         )
 
     @staticmethod
-    def create_invitation(invite_data):
-        """Create and persist a new invitation token."""
+    def generate_new_entity_account_invitation(invite_data):
+        """Generate a new invitation token for an entity account."""
+        # Validate the input data
+        if not invite_data or not isinstance(invite_data, dict):
+            raise ValueError("Invalid invitation data provided.")
+        # Ensure required fields are present
+        required_fields = ['role_name', 'project_ids', 'proponent_id']
+        for field in required_fields:
+            if field not in invite_data:
+                raise ValueError(f"Missing required field: {field}")
+        project_ids = invite_data.get('project_ids')
+        existing_account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
+        if existing_account_projects:
+            raise BadRequestError("Invitation cannot be created for an existing account project.")
+        return InvitationService.create_invitation(invite_data)
+
+    @staticmethod
+    def invite_user_to_project(invite_data):
+        """Invite a user to a project by creating an invitation token."""
+        # Validate the input data
+        if not invite_data or not isinstance(invite_data, dict):
+            raise ValueError("Invalid invitation data provided.")
+
+        # Ensure required fields are present
+        required_fields = ['email', 'account_id', 'role_name']
+        for field in required_fields:
+            if field not in invite_data:
+                raise ValueError(f"Missing required field: {field}")
+
         email = invite_data.get('email')
         account_id = invite_data.get('account_id')
+        project_ids = invite_data.get('project_ids')
+        account_project_ids = invite_data.get('account_project_ids')
+        account_projects = None
+
+        if not project_ids and not account_project_ids:
+            raise ResourceNotFoundError("No project IDs or account project IDs provided.")
+
+        if not project_ids and account_project_ids:
+            account_projects = AccountProjectModel.get_all_in_ids(account_project_ids)
+            project_ids = [ap.project_id for ap in account_projects]
+            invite_data['project_ids'] = project_ids
+
+        InvitationService._check_action_authorized(project_ids, account_projects=account_projects)
 
         # Check for existing user
         existing_user = InvitationService._check_existing_user(email, account_id)
