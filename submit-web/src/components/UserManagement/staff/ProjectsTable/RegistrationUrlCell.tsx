@@ -4,7 +4,7 @@ import { Invitation } from "@/models/Invitation";
 import { AppConfig } from "@/utils/config";
 import { TextField, Tooltip } from "@mui/material";
 import { Project } from "@/models/Project";
-import { useCreateInvitation } from "@/hooks/api/useInvitations";
+import { useCreateNewAccountProjectInvitation } from "@/hooks/api/useInvitations";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { PlainTableCell } from "@/components/Shared/Table/common";
@@ -38,7 +38,7 @@ export const RegistrationUrlCell = ({
   const url = `${AppConfig.appUrl}/proponent/registration?token=${pendingInvitation?.token || latestUsedInvitation?.token}`;
 
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
-    useCreateInvitation({
+    useCreateNewAccountProjectInvitation({
       onSuccess: (data) => {
         addInvitation(data);
         notify.success("Invitation URL generated successfully");

@@ -23,7 +23,7 @@ import ControlledMultiSelect, {
 import { When } from "react-if";
 import { useMemo } from "react";
 import { getAccountPackagesByAccountIdQueryOptions } from "@/hooks/api/useProjects";
-import { useCreateInvitation } from "@/hooks/api/useInvitations";
+import { useCreateInvitationToExistingProject } from "@/hooks/api/useInvitations";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -55,7 +55,7 @@ export default function NewUserForm() {
   const { setOpen: setOpenModal, setClose: closeModal } = useModal();
 
   const { mutate: createInvite, isPending: isPendingInvitation } =
-    useCreateInvitation({
+    useCreateInvitationToExistingProject({
       onSuccess: () => {
         notify.success("User added successfully");
         navigate({ to: "/proponent/user-management" });
