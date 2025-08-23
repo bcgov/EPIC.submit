@@ -58,7 +58,7 @@ class AccountUsers(Resource):
 
         users = AccountUserService.get_users_by_account_projects(account_id, include_roles, include_invitees)
         if not users:
-            return {"message": f"No users found"}, HTTPStatus.NOT_FOUND
+            return {"message": "No users found"}, HTTPStatus.NOT_FOUND
 
         users_list_schema = AccountUserSchema(many=True)
         return users_list_schema.dump(users), HTTPStatus.OK

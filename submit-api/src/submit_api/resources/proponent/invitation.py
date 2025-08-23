@@ -25,7 +25,6 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema
 from submit_api.schemas.invitation import InvitationSchema, CreateInvitationToExistingAccountProjectSchema
 from submit_api.services.invitation_service import InvitationService
-from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("invitations", description="Endpoints for Invitation Management")
