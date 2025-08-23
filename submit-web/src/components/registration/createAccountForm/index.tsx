@@ -1,5 +1,4 @@
 import * as yup from "yup";
-import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
@@ -32,7 +31,7 @@ import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { YellowBar } from "@/components/Shared/YellowBar";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
 import { useTermsStore } from "@/store/termsStore";
@@ -89,9 +88,19 @@ function CreateAccountForm() {
     }
   }, [userId, navigateToNextStep]);
 
-  const { data: projects } = useLoadProjectsByProponentId(
+  const { data: proponentProjects } = useLoadProjectsByProponentId(
     invitation?.proponent_id,
   );
+
+  const project = useMemo(() => {
+    if (proponentProjects && proponentProjects.length > 0) {
+      const filteredProjects = proponentProjects.filter(
+        (pr) => pr.id && invitation?.project_ids.includes(pr.id),
+      );
+      return filteredProjects[0];
+    }
+    return null;
+  }, [proponentProjects, invitation]);
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setAccount({
@@ -147,7 +156,7 @@ function CreateAccountForm() {
 
   return (
     <>
-      <Banner>{projects?.[0]?.name || ""}</Banner>
+      <Banner>{project?.name || ""}</Banner>
       <GridContainer>
         <Grid item xs={12} mb={"16px"}>
           <YellowBar />
@@ -156,7 +165,7 @@ function CreateAccountForm() {
         <Grid item xs={12}>
           <Typography variant="body1">
             Please provide your information to set up your account for{" "}
-            {projects?.[0]?.name || ""}.
+            {project?.name || ""}.
             <br />
             <br />
             {invitation?.role.role_name ===
