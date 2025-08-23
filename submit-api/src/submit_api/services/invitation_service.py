@@ -2,10 +2,11 @@
 import datetime
 import uuid
 from urllib.parse import urljoin
+
 from flask import current_app
 
 from submit_api.enums.role import RoleEnum, ProponentPermissionsEnum
-from submit_api.exceptions import ResourceNotFoundError
+from submit_api.exceptions import ResourceNotFoundError, BadRequestError
 from submit_api.models import AccountProject as AccountProjectModel, User
 from submit_api.models.account import Account as AccountModel
 from submit_api.models.db import session_scope
@@ -66,24 +67,37 @@ class InvitationService:
         )
 
     @staticmethod
-    def create_invitation(invite_data):
-        """Create and persist a new invitation token."""
+    def generate_new_entity_account_invitation(invite_data):
+        """Generate a new invitation token for an entity account."""
+        # Validate the input data
+        if not invite_data or not isinstance(invite_data, dict):
+            raise ValueError("Invalid invitation data provided.")
+        # Ensure required fields are present
+        required_fields = ['role_name', 'project_ids', 'proponent_id']
+        for field in required_fields:
+            if field not in invite_data:
+                raise ValueError(f"Missing required field: {field}")
+        project_ids = invite_data.get('project_ids')
+        existing_account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
+        if existing_account_projects:
+            raise BadRequestError("Invitation cannot be created for an existing account project.")
+        return InvitationService.create_invitation(invite_data)
+
+    @staticmethod
+    def invite_user_to_project(invite_data):
+        """Invite a user to a project by creating an invitation token."""
+        # Validate the input data
+        if not invite_data or not isinstance(invite_data, dict):
+            raise ValueError("Invalid invitation data provided.")
+
+        # Ensure required fields are present
+        required_fields = ['email', 'account_id', 'role_name']
+        for field in required_fields:
+            if field not in invite_data:
+                raise ValueError(f"Missing required field: {field}")
+
         email = invite_data.get('email')
         account_id = invite_data.get('account_id')
-
-        # Check for existing user
-        existing_user = InvitationService._check_existing_user(email, account_id)
-        if existing_user:
-            return {
-                'success': False,
-                'message': 'User already exists',
-                'existing_user': existing_user
-            }
-
-        token = InvitationService.generate_uuid_token()
-
-        role_name = invite_data.get('role_name')
-        proponent_id = invite_data.get('proponent_id')
         project_ids = invite_data.get('project_ids')
         account_project_ids = invite_data.get('account_project_ids')
         account_projects = None
@@ -98,12 +112,33 @@ class InvitationService:
 
         InvitationService._check_action_authorized(project_ids, account_projects=account_projects)
 
+        # Check for existing user
+        existing_user = InvitationService._check_existing_user(email, account_id)
+        if existing_user:
+            return {
+                'success': False,
+                'message': 'User already exists',
+                'existing_user': existing_user
+            }
+
+        return InvitationService.create_invitation(invite_data)
+
+    @staticmethod
+    def create_invitation(invite_data):
+        """Create and persist a new invitation token."""
+        account_id = invite_data.get('account_id')
+        role_name = invite_data.get('role_name')
+        proponent_id = invite_data.get('proponent_id')
+        project_ids = invite_data.get('project_ids')
+
         role = InvitationService._validate_fetch_role(role_name)
 
         with session_scope() as session:
             account = InvitationService._get_or_create_account(
                 account_id, proponent_id, project_ids, session)
             session.flush()
+
+            token = InvitationService.generate_uuid_token()
             invitation = InvitationService._create_invitation_record(invite_data,
                                                                      role,
                                                                      account,

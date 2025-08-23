@@ -23,16 +23,15 @@ from submit_api.auth import auth
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema
-from submit_api.schemas.invitation import InvitationSchema, CreateInvitationSchema
+from submit_api.schemas.invitation import InvitationSchema, CreateInvitationToExistingAccountProjectSchema
 from submit_api.services.invitation_service import InvitationService
-from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("invitations", description="Endpoints for Invitation Management")
 
 # Schema to handle input and output
 invitation_add_schema = ApiHelper.convert_ma_schema_to_restx_model(
-    API, CreateInvitationSchema(), "CreateInvitation"
+    API, CreateInvitationToExistingAccountProjectSchema(), "CreateInvitation"
 )
 invitation_response_schema = ApiHelper.convert_ma_schema_to_restx_model(
     API, InvitationSchema(), "Invitation"
@@ -57,13 +56,13 @@ class InvitationsResource(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Invalid input data")
     @API.response(HTTPStatus.CONFLICT, "User already exists")
     @auth.require
-    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value, EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value])
     @cross_origin(origins=allowedorigins())
     def post():
         """Generate and persist an invitation token."""
-        payload = CreateInvitationSchema().load(request.json)
+        payload = CreateInvitationToExistingAccountProjectSchema().load(request.json)
 
-        result = InvitationService.create_invitation(payload)
+        result = InvitationService.invite_user_to_project(payload)
 
         if not result['success']:
             return result, HTTPStatus.CONFLICT

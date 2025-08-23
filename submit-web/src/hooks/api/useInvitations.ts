@@ -11,34 +11,30 @@ import { submitRequest, publicRequest } from "@/utils/axiosUtils";
 import { Role } from "@/models/AccountUser";
 import { useAccount } from "@/store/accountStore";
 
-export const useCreateInvitation = (options?: Options) => {
+export const useCreateInvitationToExistingProject = (options?: Options) => {
   return useMutation({
-    mutationFn: createInvitation,
+    mutationFn: createInvitationToExistingProject,
     ...options,
   });
 };
 
-type CreateInvitation = {
-  account_id?: number;
+type CreateInvitationToExistingProject = {
+  account_id: number;
   proponent_id: number;
   role_name: string;
-  email?: string;
-  project_ids?: number[];
-  account_project_ids?: number[];
-  package_ids?: number[];
+  email: string;
+  account_project_ids: number[];
   original_package_ids?: number[];
 };
 
-const createInvitation = ({
+const createInvitationToExistingProject = ({
   account_id,
   proponent_id,
-  project_ids,
   account_project_ids,
-  package_ids,
   original_package_ids,
   email,
   role_name,
-}: CreateInvitation) => {
+}: CreateInvitationToExistingProject) => {
   return submitRequest({
     url: `/invitations`,
     method: "post",
@@ -47,10 +43,37 @@ const createInvitation = ({
       proponent_id,
       role_name,
       email,
-      project_ids,
-      package_ids,
       original_package_ids,
       account_project_ids,
+    },
+  });
+};
+
+export const useCreateNewAccountProjectInvitation = (options?: Options) => {
+  return useMutation({
+    mutationFn: createNewAccountProjectInvitation,
+    ...options,
+  });
+};
+
+type CreateNewAccountProjectInvitation = {
+  proponent_id: number;
+  role_name: string;
+  project_ids: number[];
+};
+
+const createNewAccountProjectInvitation = ({
+  proponent_id,
+  project_ids,
+  role_name,
+}: CreateNewAccountProjectInvitation) => {
+  return submitRequest({
+    url: `/staff/invitations`,
+    method: "post",
+    data: {
+      proponent_id,
+      role_name,
+      project_ids,
     },
   });
 };

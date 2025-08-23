@@ -1,5 +1,6 @@
 """Service for account user management."""
 from datetime import datetime
+
 from flask import current_app
 
 from submit_api.enums.role import RoleEnum
@@ -16,15 +17,34 @@ from submit_api.models.user_status import UserStatusEnum
 from submit_api.models.db import db
 from submit_api.models.invitations import InvitationStatus
 from submit_api.services.keycloak import KeycloakService
+from submit_api.utils.token_info import TokenInfo
 
 
 class AccountUserService:
     """Account User management service."""
 
     @classmethod
-    def get_users_by_account(cls, account_id, include_roles=False, include_invitees=False):
+    def get_users_by_account_projects(cls, account_id, include_roles=False,
+                                      include_invitees=False):
         """Get all users associated with an account, optionally including roles & invitees."""
-        users = cls._fetch_users(account_id)
+        account_user = AccountUserModel.get_by_guid(TokenInfo.get_id())
+        if not account_user:
+            current_app.logger.warning("Unauthorized access attempt to account users.")
+            raise PermissionDeniedError("Unauthorized access to account users.")
+        account_project_ids = None
+        if account_user.role and account_user.role.account_project_id:
+            account_project_ids = [account_user.role.account_project_id]
+        return cls.get_users_by_account(
+            account_id,
+            include_roles=include_roles,
+            include_invitees=include_invitees,
+            account_project_ids=account_project_ids
+        )
+
+    @classmethod
+    def get_users_by_account(cls, account_id, include_roles=False, include_invitees=False, account_project_ids=None):
+        """Get all users associated with an account, optionally including roles & invitees."""
+        users = cls._fetch_users(account_id, account_project_ids)
         # roles_map = cls._fetch_roles(users) if include_roles else {}
 
         # Collect all unique package IDs first
@@ -53,7 +73,7 @@ class AccountUserService:
         if include_invitees:
             # we are fetching invitees as well since we are not creating users on invitations
             # fetch them since user list shows invitations as well..
-            invitees = cls._fetch_invitees(account_id, include_roles)
+            invitees = cls._fetch_invitees(account_id, include_roles, account_project_ids)
             user_list.extend(invitees)
 
         return user_list
@@ -65,9 +85,14 @@ class AccountUserService:
         return {pkg.version.original_package_id: pkg.name for pkg in packages}
 
     @staticmethod
-    def _fetch_users(account_id):
+    def _fetch_users(account_id, account_project_ids=None):
         """Fetch active users from the `account_users` table."""
-        return AccountUserModel.query.filter(AccountUserModel.account_id == account_id).all()
+        query = AccountUserModel.query.filter(AccountUserModel.account_id == account_id)
+        if account_project_ids:
+            query = query.join(UserRoleModel).filter(
+                UserRoleModel.account_project_id.in_(account_project_ids)
+            )
+        return query.all()
 
     @staticmethod
     def _fetch_user_status_name(user_id):
@@ -104,12 +129,22 @@ class AccountUserService:
         return roles_map
 
     @staticmethod
-    def _fetch_invitees(account_id, include_roles):
+    def _fetch_invitees(account_id, include_roles, account_project_ids=None):
         """Fetch invited users from the `invitations` table"""
-        invitees = InvitationsModel.query.filter(
+        project_ids = None
+        if account_project_ids:
+            project_ids = AccountProjectModel.query.filter(
+                AccountProjectModel.id.in_(account_project_ids)
+            ).with_entities(AccountProjectModel.project_id).all()
+            project_ids = [pid[0] for pid in project_ids]
+
+        invitees_query = InvitationsModel.query.filter(
             InvitationsModel.account_id == account_id,
             InvitationsModel.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
-        ).all()
+        )
+        if project_ids:
+            invitees_query = invitees_query.filter(InvitationsModel.project_ids.op('@>')(project_ids))
+        invitees = invitees_query.all()
 
         invited_users = []
         for invite in invitees:
