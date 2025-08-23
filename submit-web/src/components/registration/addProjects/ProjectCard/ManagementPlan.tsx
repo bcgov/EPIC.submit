@@ -36,7 +36,7 @@ export const ManagementPlan = ({ project }: { project: Project }) => {
         height={HEADER_HEIGHT}
       >
         <Typography variant="h5" fontWeight={600} px={2}>
-          {project.name}
+          {project?.name}
         </Typography>
       </Box>
       <Box height={BODY_HEIGHT}>
