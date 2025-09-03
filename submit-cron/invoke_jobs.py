@@ -17,6 +17,7 @@ This module will create statement records for each account.
 """
 import os
 import sys
+from enum import Enum
 
 from flask import Flask
 
@@ -65,12 +66,21 @@ def register_shellcontext(app):
     app.shell_context_processor(shell_context)
 
 
-def run(job_name):
+def email_sender(target_system=''):
     from tasks.submit_mail import SubmitMailer
+    from tasks.centre_mail import CentreMailer
+
+    if target_system == TargetSystem.CENTRE.value:
+        print('Starting Centre Email Sending At ', datetime.now())
+        CentreMailer.send_mail()
+    else:
+        print('Starting Submit Email Sending At ', datetime.now())
+        SubmitMailer.send_mail()
+
+
+def run(job_name, target_system=''):
     from tasks.sync_approved_condition import SyncApprovedCondition
     application = create_app()
-    from submit_cron.models import db
-    from submit_cron.models import ma
 
     with application.app_context():
 
