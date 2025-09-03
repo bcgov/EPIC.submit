@@ -67,6 +67,26 @@ class _Config():  # pylint: disable=too-few-public-methods
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # SUBMIT DB Configuration
+    SUBMIT_DB_USER = os.getenv("SUBMIT_DATABASE_USERNAME", "")
+    SUBMIT_DB_PASSWORD = os.getenv("SUBMIT_DATABASE_PASSWORD", "")
+    SUBMIT_DB_NAME = os.getenv("SUBMIT_DATABASE_NAME", "")
+    SUBMIT_DB_HOST = os.getenv("SUBMIT_DATABASE_HOST", "")
+    SUBMIT_DB_PORT = os.getenv("SUBMIT_DATABASE_PORT", "5432")
+    SUBMIT_DATABASE_URI = (
+        f"postgresql://{SUBMIT_DB_USER}:{SUBMIT_DB_PASSWORD}@{SUBMIT_DB_HOST}:{int(SUBMIT_DB_PORT)}/{SUBMIT_DB_NAME}"
+    )
+
+    # Compliance DB Configuration
+    CENTRE_DB_USER = os.getenv("CENTRE_DATABASE_USERNAME", "")
+    CENTRE_DB_PASSWORD = os.getenv("CENTRE_DATABASE_PASSWORD", "")
+    CENTRE_DB_NAME = os.getenv("CENTRE_DATABASE_NAME", "")
+    CENTRE_DB_HOST = os.getenv("CENTRE_DATABASE_HOST", "")
+    CENTRE_DB_PORT = os.getenv("CENTRE_DATABASE_PORT", "5432")
+    CENTRE_DATABASE_URI = (
+        f"postgresql://{CENTRE_DB_USER}:{CENTRE_DB_PASSWORD}@{CENTRE_DB_HOST}:{int(CENTRE_DB_PORT)}/{CENTRE_DB_NAME}"
+    )
+
     # JWT_OIDC Settings
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv('JWT_OIDC_WELL_KNOWN_CONFIG')
     JWT_OIDC_ALGORITHMS = os.getenv('JWT_OIDC_ALGORITHMS', 'RS256')
