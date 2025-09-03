@@ -29,24 +29,24 @@ import config
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.conf'))  # important to do this first
 
+class TargetSystem(Enum):
+    SUBMIT = "SUBMIT"
+    CENTRE = "CENTRE"
 
 def create_app(run_mode=os.getenv('FLASK_ENV', 'production')):
     """Return a configured Flask App using the Factory method."""
-    from submit_cron.models import db
-    from submit_cron.models import ma
+    # from submit_cron.models import db
+    # from submit_cron.models import ma
 
     app = Flask(__name__)
     print(f'>>>>> Creating app in run_mode: {run_mode}')
     print(f'>>>>> Creating app in run_mode: {config.get_named_config(run_mode)}')
 
-
     app.config.from_object(config.get_named_config(run_mode))
     # Configure Sentry
     app.logger.info(f'<<<< Starting Jobs >>>>')
-    db.init_app(app)
-    ma.init_app(app)
-
-
+    # db.init_app(app)
+    # ma.init_app(app)
 
     register_shellcontext(app)
 
@@ -78,14 +78,13 @@ def run(job_name):
         if job_name == 'EMAIL':
             print('Starting Email Sending At ', datetime.now())
 
-            SubmitMailer.send_mail()
+            email_sender(target_system)
             application.logger.info(f'<<<< Completed Submit Email Task >>>>')
         elif job_name == 'SYNC_CONDITION':
             SyncApprovedCondition.sync_approved_condition()
             application.logger.info(f'<<<< Completed Sync Approved Condition >>>>')
 
 
-
 if __name__ == "__main__":
-    run(sys.argv[1])
+    run(*sys.argv[1:])
 
