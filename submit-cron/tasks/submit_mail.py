@@ -14,6 +14,9 @@
 """MET Publish Scheduled Engagements."""
 from datetime import datetime
 
+from flask import current_app
+
+from submit_cron.models.db import init_submit_db, ma
 from submit_cron.services.mail_service import EmailService
 
 
@@ -23,5 +26,7 @@ class SubmitMailer:  # pylint:disable=too-few-public-methods
     @classmethod
     def send_mail(cls):
         """Publish the scheduled engagements."""
+        init_submit_db(current_app)
+        ma.init_app(current_app)
         print('Starting Email At---', datetime.now())
         EmailService.process_email_queue()
