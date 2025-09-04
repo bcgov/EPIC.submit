@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 class CentreEmailService:
     """Email service for Centre system, decoupled from submit_api models."""
 
-    _processors: Dict[str, Callable[[EmailJob], None]] = {}
+    _processors: Dict[str, Callable[[EmailJob], EmailDetails]] = {}
 
     @classmethod
-    def register_processor(cls, template_name: str, processor: Callable[[EmailJob], None]):
+    def register_processor(cls, template_name: str, processor: Callable[[EmailJob], EmailDetails]):
         """Register a template-specific processor function."""
         cls._processors[template_name] = processor
 
@@ -34,15 +34,15 @@ class CentreEmailService:
         for job in pending:
             try:
                 processor = cls._get_processor(job)
-                processor(job)
-
+                email_details = processor(job)
+                cls.send_email(email_details)
                 repository.mark_sent(job.id)
             except Exception as e:
                 logger.error("Error processing email %s: %s", job.id, e, exc_info=True)
                 repository.mark_failed(job.id, str(e))
 
     @classmethod
-    def _get_processor(cls, job: EmailJob) -> Callable[[EmailJob], None]:
+    def _get_processor(cls, job: EmailJob) -> Callable[[EmailJob], EmailDetails]:
         if job.template_name not in cls._processors:
             raise BadRequestError(f"Unsupported email template: {job.template_name}")
         return cls._processors[job.template_name]
