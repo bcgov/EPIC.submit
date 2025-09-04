@@ -19,6 +19,7 @@ from flask import current_app
 from submit_cron.repositories.email_repository import EmailRepository
 from submit_cron.models.db import init_centre_db, ma
 from submit_cron.services.centre_email_service import CentreEmailService
+from submit_cron.processors.centre import PROCESSORS  # noqa: F401 pylint:disable=unused-import
 
 
 class CentreMailer:  # pylint:disable=too-few-public-methods
@@ -26,11 +27,13 @@ class CentreMailer:  # pylint:disable=too-few-public-methods
 
     @classmethod
     def send_mail(cls):
+        print("Starting Centre Email At---", datetime.now())
         _Session = init_centre_db(current_app)
         session = _Session()
         ma.init_app(current_app)
 
-        print("Starting Centre Email At---", datetime.now())
+        for template_name, processor in PROCESSORS.items():
+            CentreEmailService.register_processor(template_name, processor)
 
         repo = EmailRepository(session)
         CentreEmailService.process_email_queue(repo, limit=100)
