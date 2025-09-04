@@ -36,13 +36,10 @@ class CentreEmailService:
                 processor = cls._get_processor(job)
                 processor(job)
 
-                job.status = "SENT"
-                job.sent_at = datetime.utcnow()
                 repository.mark_sent(job.id)
             except Exception as e:
                 logger.error("Error processing email %s: %s", job.id, e, exc_info=True)
                 repository.mark_failed(job.id, str(e))
-
 
     @classmethod
     def _get_processor(cls, job: EmailJob) -> Callable[[EmailJob], None]:
