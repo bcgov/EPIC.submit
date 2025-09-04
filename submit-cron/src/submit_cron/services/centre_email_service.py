@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 from typing import Callable, Dict
 
 from submit_cron.services.ches_service import ChesApiService
