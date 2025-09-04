@@ -23,7 +23,6 @@ def process_access_request_submitted(job: EmailJob) -> EmailDetails:
         "application_name": "EPIC.centre",    # required
         "requested_at": "2025-09-04 10:15 PT",# required (string already formatted)
         "sender": "staff@email.com",          # required (email address)
-        "logo_url": "https://..."             # optional
       }
     """
     payload = job.payload or {}
