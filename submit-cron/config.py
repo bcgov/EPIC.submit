@@ -67,16 +67,6 @@ class _Config():  # pylint: disable=too-few-public-methods
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # SUBMIT DB Configuration
-    SUBMIT_DB_USER = os.getenv("SUBMIT_DATABASE_USERNAME", "")
-    SUBMIT_DB_PASSWORD = os.getenv("SUBMIT_DATABASE_PASSWORD", "")
-    SUBMIT_DB_NAME = os.getenv("SUBMIT_DATABASE_NAME", "")
-    SUBMIT_DB_HOST = os.getenv("SUBMIT_DATABASE_HOST", "")
-    SUBMIT_DB_PORT = os.getenv("SUBMIT_DATABASE_PORT", "5432")
-    SUBMIT_DATABASE_URI = (
-        f"postgresql://{SUBMIT_DB_USER}:{SUBMIT_DB_PASSWORD}@{SUBMIT_DB_HOST}:{int(SUBMIT_DB_PORT)}/{SUBMIT_DB_NAME}"
-    )
-
     # Compliance DB Configuration
     CENTRE_DB_USER = os.getenv("CENTRE_DATABASE_USERNAME", "")
     CENTRE_DB_PASSWORD = os.getenv("CENTRE_DATABASE_PASSWORD", "")
