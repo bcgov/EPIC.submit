@@ -17,6 +17,7 @@ This module will create statement records for each account.
 """
 import os
 import sys
+from enum import Enum
 
 from flask import Flask
 
@@ -30,23 +31,21 @@ import config
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.conf'))  # important to do this first
 
 
+class TargetSystem(Enum):
+    SUBMIT = "SUBMIT"
+    CENTRE = "CENTRE"
+
+
 def create_app(run_mode=os.getenv('FLASK_ENV', 'production')):
     """Return a configured Flask App using the Factory method."""
-    from submit_cron.models import db
-    from submit_cron.models import ma
 
     app = Flask(__name__)
     print(f'>>>>> Creating app in run_mode: {run_mode}')
     print(f'>>>>> Creating app in run_mode: {config.get_named_config(run_mode)}')
 
-
     app.config.from_object(config.get_named_config(run_mode))
     # Configure Sentry
     app.logger.info(f'<<<< Starting Jobs >>>>')
-    db.init_app(app)
-    ma.init_app(app)
-
-
 
     register_shellcontext(app)
 
@@ -65,12 +64,21 @@ def register_shellcontext(app):
     app.shell_context_processor(shell_context)
 
 
-def run(job_name):
+def email_sender(target_system=''):
     from tasks.submit_mail import SubmitMailer
+    from tasks.centre_mail import CentreMailer
+
+    if target_system == TargetSystem.CENTRE.value:
+        print('Starting Centre Email Sending At ', datetime.now())
+        CentreMailer.send_mail()
+    else:
+        print('Starting Submit Email Sending At ', datetime.now())
+        SubmitMailer.send_mail()
+
+
+def run(job_name, target_system=''):
     from tasks.sync_approved_condition import SyncApprovedCondition
     application = create_app()
-    from submit_cron.models import db
-    from submit_cron.models import ma
 
     with application.app_context():
 
@@ -78,14 +86,13 @@ def run(job_name):
         if job_name == 'EMAIL':
             print('Starting Email Sending At ', datetime.now())
 
-            SubmitMailer.send_mail()
+            email_sender(target_system)
             application.logger.info(f'<<<< Completed Submit Email Task >>>>')
         elif job_name == 'SYNC_CONDITION':
             SyncApprovedCondition.sync_approved_condition()
             application.logger.info(f'<<<< Completed Sync Approved Condition >>>>')
 
 
-
 if __name__ == "__main__":
-    run(sys.argv[1])
+    run(*sys.argv[1:])
 

@@ -5,6 +5,8 @@ from flask import current_app
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 # DB initialize in __init__ file
 # db variable use for create models from here
@@ -17,15 +19,22 @@ migrate = Migrate()
 # Marshmallow for database model schema
 ma = Marshmallow()
 
-@contextmanager
-def session_scope():
-    """Provide a transactional scope around a series of operations."""
-    # Using the default session for the scope
-    session = db.session
-    try:
-        yield session
-        session.commit()
-    except Exception as e:  # noqa: B901, E722
-        current_app.logger.error(f'Error in session_scope: {e}')
-        session.rollback()
-        raise
+
+def create_session(engine_uri):
+    """Create a sessionmaker for the given database engine URI."""
+    engine = create_engine(engine_uri)
+    return sessionmaker(bind=engine)
+
+
+def init_centre_db(app):
+    """Initialize the session for the Compliance database."""
+    print("Initializing Compliance database...")
+    return create_session(app.config['CENTRE_DATABASE_URI'])
+
+
+def init_submit_db(current_app):
+    """Initialize the session for the Submit database."""
+    print("Initializing Submit database...")
+    app = current_app._get_current_object()
+    db.init_app(app)
+    return

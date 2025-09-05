@@ -62,12 +62,12 @@ class ChesApiService:
             self.access_token, self.token_expiry = self._get_access_token()
 
     @staticmethod
-    def _get_email_body_from_template(template_name: str, body_args: dict):
+    def _get_email_body_from_template(template_name: str, body_args: dict, template_sub_directory: str = None):
         """Get email body from a template."""
         if not template_name:
             raise ValueError('Template name is required')
 
-        template = Template.get_template(template_name)
+        template = Template.get_template(template_name, template_sub_directory)
         if not template:
             raise ValueError('Template not found')
         # logo is taken from submit UI / Web app..
@@ -79,23 +79,23 @@ class ChesApiService:
 
         return rendered_body
 
-    def _get_email_body(self, email_details: EmailDetails):
+    def _get_email_body(self, email_details: EmailDetails, template_sub_directory: str = None):
         """Get email body based on details or template."""
         if email_details.body:
             body = email_details.body
             body_type = 'text'
         else:
             body = self._get_email_body_from_template(email_details.template_name,
-                                                      email_details.body_args)
+                                                      email_details.body_args, template_sub_directory)
             body_type = 'html'
 
         return body, body_type
 
-    def send_email(self, email_details: EmailDetails):
+    def send_email(self, email_details: EmailDetails, template_sub_directory: str = None):
         """Generate document based on template and data."""
         self._ensure_valid_token()
 
-        body, body_type = self._get_email_body(email_details)
+        body, body_type = self._get_email_body(email_details, template_sub_directory)
 
         request_body = {
             'bodyType': body_type,

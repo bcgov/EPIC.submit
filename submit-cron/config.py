@@ -67,6 +67,16 @@ class _Config():  # pylint: disable=too-few-public-methods
     SQLALCHEMY_ECHO = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    # Compliance DB Configuration
+    CENTRE_DB_USER = os.getenv("CENTRE_DATABASE_USERNAME", "")
+    CENTRE_DB_PASSWORD = os.getenv("CENTRE_DATABASE_PASSWORD", "")
+    CENTRE_DB_NAME = os.getenv("CENTRE_DATABASE_NAME", "")
+    CENTRE_DB_HOST = os.getenv("CENTRE_DATABASE_HOST", "")
+    CENTRE_DB_PORT = os.getenv("CENTRE_DATABASE_PORT", "5432")
+    CENTRE_DATABASE_URI = (
+        f"postgresql://{CENTRE_DB_USER}:{CENTRE_DB_PASSWORD}@{CENTRE_DB_HOST}:{int(CENTRE_DB_PORT)}/{CENTRE_DB_NAME}"
+    )
+
     # JWT_OIDC Settings
     JWT_OIDC_WELL_KNOWN_CONFIG = os.getenv('JWT_OIDC_WELL_KNOWN_CONFIG')
     JWT_OIDC_ALGORITHMS = os.getenv('JWT_OIDC_ALGORITHMS', 'RS256')

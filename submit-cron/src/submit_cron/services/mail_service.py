@@ -21,7 +21,6 @@ from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_E
 from submit_cron.services.resubmission_email_service import ResubmissionEmailService
 
 
-
 class EmailService:  # pylint: disable=too-few-public-methods
     """Handles the general email sending operations."""
 
