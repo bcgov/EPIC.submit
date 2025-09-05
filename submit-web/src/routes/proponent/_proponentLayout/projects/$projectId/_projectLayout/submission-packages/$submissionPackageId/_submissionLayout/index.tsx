@@ -84,9 +84,10 @@ export default function SubmissionPage() {
   );
 
   const isNewerThanLastApprovedButNotApproved = Boolean(
-    latestApprovedVersion > 0 &&
+    (latestApprovedVersion > 0 &&
       !submissionPackage?.version?.is_approved &&
-      (submissionPackage?.version?.version ?? 0) > latestApprovedVersion,
+      submissionPackage?.version?.version) ??
+      0 > latestApprovedVersion,
   );
 
   const {
