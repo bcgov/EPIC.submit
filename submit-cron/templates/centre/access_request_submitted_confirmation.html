@@ -44,6 +44,14 @@
       margin-top: 30px;
       text-align: left;
     }
+    .cta-link {
+      color: #1a5a96;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .cta-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -55,11 +63,12 @@
     <div class="content">
       <p>Hello <strong>{{ user_name }}</strong>,</p>
 
-      <p>Your request for access to <strong>{{ application_name }}</strong> has been submitted successfully.</p>
+      <p>Your request for access to <a href="{{ application_url }}" class="cta-link">{{ application_name }}</a> has been submitted successfully.</p>
+
+      <p><strong>Request Details:</strong></p>
 
       <div class="grey-box">
-        <p><strong>Request Details:</strong></p>
-        <p><strong>Application:</strong> {{ application_name }}</p>
+        <p><strong>Application:</strong> <a href="{{ application_url }}">{{ application_name }}</a></p>
         <p><strong>Requested on:</strong> {{ requested_at }}</p>
       </div>
 
@@ -69,7 +78,7 @@
       </p>
 
       <p>
-        You can view the status of your request on the <strong>Request Access</strong> page in EPIC.centre.
+        You can view the status of your request on the <a href="{{ epic_centre_link }}" class="cta-link">Request Access</a> page in EPIC.centre.
       </p>
 
       <p>Thank you,</p>

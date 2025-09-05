@@ -13,6 +13,10 @@ class Template:
     """Template helper class."""
 
     @staticmethod
-    def get_template(template_filename):
+    def get_template(template_filename, sub_directory=None):
         """Get a template from the common template folder."""
-        return ENV.get_template(template_filename)
+        if sub_directory:
+            template_path = os.path.join(sub_directory, template_filename).replace(os.sep, '/')
+        else:
+            template_path = template_filename
+        return ENV.get_template(template_path)

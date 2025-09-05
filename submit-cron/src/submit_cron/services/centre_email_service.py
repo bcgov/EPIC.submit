@@ -51,6 +51,7 @@ class CentreEmailService:
         """Send email via CHES."""
         try:
             ches = ChesApiService()
-            return ches.send_email(email_details)
+            return ches.send_email(email_details, template_sub_directory='centre')
         except Exception as e:
-            raise BadRequestError(f"Failed to send email: {str(e)}")
+            logger.error("Failed to send email: %s", e, exc_info=True)
+            raise BadRequestError(f"Failed to send email")

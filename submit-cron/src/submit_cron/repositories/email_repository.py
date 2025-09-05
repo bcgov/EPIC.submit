@@ -60,7 +60,7 @@ class EmailRepository:
         stmt = (
             email_queue_table.update()
             .where(email_queue_table.c.id == email_id)
-            .values(status="FAILED", error_message=error_message, sent_at=func.now(), payload=None)
+            .values(status="FAILED", error_message=error_message, sent_at=func.now())
         )
         self.session.execute(stmt)
         self.session.commit()
