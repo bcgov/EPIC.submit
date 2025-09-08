@@ -36,7 +36,7 @@ def process_access_request_submitted(job: EmailJob) -> EmailDetails:
     subject = f"Your EPIC Access Request for {payload['application_name']} Has Been Submitted"
 
     email_details = EmailDetails(
-        template_name='access_request_submitted_confirmation.html',
+        template_name=job.template_name,
         body_args={
             'user_name': payload['user_name'],
             'application_name': payload['application_name'],
