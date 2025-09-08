@@ -20,32 +20,29 @@ def process_access_request_submitted(job: EmailJob) -> EmailDetails:
       {
         "recipients": ["user@example.com"],   # required
         "user_name": "Jane Doe",              # required
-        "user_email": "jane.doe@example.com", # required
         "application_name": "EPIC.centre",    # required
         "requested_at": "2025-09-04 10:15 PT",# required (string already formatted)
-        "auth_link": "https://example.com",   # required
         "sender": "staff@email.com",          # required (email address)
       }
     """
     payload = job.payload or {}
-    _require(payload, [
-        "recipients", "user_name", "user_email", "application_name", "requested_at", "auth_link", "sender"
-    ])
+    _require(payload, ["recipients", "user_name", "application_name", "requested_at", "sender",
+                       "application_url", "epic_centre_link"])
 
     recipients = payload["recipients"]
     if not isinstance(recipients, list) or not recipients:
         raise BadRequestError("payload.recipients must be a non-empty list of email addresses")
 
-    subject = f"EPIC Access Request: {payload['user_name']} for {payload['application_name']}"
+    subject = f"Your EPIC Access Request for {payload['application_name']} Has Been Submitted"
 
     email_details = EmailDetails(
-        template_name='access_request_received_notification.html',
+        template_name='access_request_submitted_confirmation.html',
         body_args={
             'user_name': payload['user_name'],
-            'user_email': payload['user_email'],
             'application_name': payload['application_name'],
+            'application_url': payload['application_url'],
             'requested_at': payload['requested_at'],
-            'auth_link': payload['auth_link'],
+            'epic_centre_link': payload['epic_centre_link'],
         },
         subject=subject,
         sender=payload['sender'],
