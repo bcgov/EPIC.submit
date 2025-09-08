@@ -33,6 +33,7 @@ class CentreMailer:  # pylint:disable=too-few-public-methods
         ma.init_app(current_app)
 
         for template_name, processor in PROCESSORS.items():
+            current_app.logger.debug(f"Registering processor for template: {template_name}")
             CentreEmailService.register_processor(template_name, processor)
 
         repo = EmailRepository(session)
