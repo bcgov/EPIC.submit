@@ -2,3 +2,5 @@
 */5 * * * * default cd /submit-cron && ./run_emailer.sh
 # SYNC APPROVED CONDITION Runs At every 5 minutes.
 0 17 * * 1-5 default cd /submit-cron && ./run_approved_condition.sh
+# CENTRE  EMAILER Runs At every 5 minutes.
+*/5 * * * * default cd /submit-cron && ./run_centre_emailer.sh
