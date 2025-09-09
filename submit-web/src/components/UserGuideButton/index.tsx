@@ -17,7 +17,8 @@ export const UserGuideButton = () => {
 
   const handleUserGuideClick = () => {
     // open new tab with user guide
-    window.open(AppConfig.userGuide, "_blank", "noopener,noreferrer");
+    const viewerUrl = `https://docs.google.com/gview?url=${encodeURIComponent(AppConfig.userGuide)}&embedded=true`;
+    window.open(viewerUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
