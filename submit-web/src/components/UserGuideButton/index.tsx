@@ -15,20 +15,18 @@ export const UserGuideButton = () => {
     return extractVersionFromUrl(AppConfig.userGuide);
   }, []);
 
-  const handleUserGuideClick = () => {
-    // open new tab with user guide
-    window.open(AppConfig.userGuide, "_blank", "noopener,noreferrer");
-  };
-
   return (
     <Typography
       variant="body1"
+      component="a"
+      href={AppConfig.userGuide}  // points to public folder
+      target="_blank"
+      rel="noopener noreferrer"
       sx={{
         cursor: "pointer",
         color: BCDesignTokens.iconsColorLink,
         textDecoration: "underline",
       }}
-      onClick={handleUserGuideClick}
     >
       <Stack direction="row" spacing={1} alignItems={"center"}>
         EPIC.submit User Guide {version ? ` v${version}` : ""}
