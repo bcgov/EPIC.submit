@@ -5,7 +5,7 @@ from urllib.parse import urljoin
 
 from flask import current_app
 
-from submit_api.enums.role import RoleEnum, ProponentPermissionsEnum
+from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import ResourceNotFoundError, BadRequestError
 from submit_api.models import AccountProject as AccountProjectModel, User
 from submit_api.models.account import Account as AccountModel
