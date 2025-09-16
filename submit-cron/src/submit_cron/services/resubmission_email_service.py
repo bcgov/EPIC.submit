@@ -6,7 +6,6 @@ from submit_api.models.account_user import AccountUser as AccountUserModel
 from submit_api.models.user_role import UserRole as UserRoleModel
 from submit_api.models.role import Role as RoleModel
 from submit_api.utils.constants import MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
-from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.enums.role import RoleEnum
 from submit_cron.models import db
 
