@@ -28,6 +28,7 @@ class Project(db.Model):
 
     __table_args__ = (
         db.Index('ix_projects_proponent_id', 'proponent_id'),
+        db.UniqueConstraint('name', 'proponent_id', name='uq_projects_name_proponent'),
     )
 
     def to_dict(self):
