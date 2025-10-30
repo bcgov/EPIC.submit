@@ -15,6 +15,7 @@
 
 from http import HTTPStatus
 
+from flask import g
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
@@ -33,6 +34,39 @@ API = Namespace("users", description="Endpoints for Account Management")
 user_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, UserSchema(), "User"
 )
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/me", methods=["GET", "OPTIONS"])
+class CurrentUser(Resource):
+    """Resource for getting current authenticated user with auto-provisioning."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API,
+        endpoint_description="Get current user, auto-provision staff if they have valid roles"
+    )
+    @API.response(code=200, model=user_model, description="Success")
+    @API.response(404, "Not Found")
+    @auth.require
+    @cross_origin(origins=allowedorigins())
+    def get():
+        """Get current authenticated user.
+
+        This endpoint will auto-provision staff users if they have valid
+        Keycloak roles but don't have a database record yet.
+        """
+        # Get token info from flask.g (set by @auth.require decorator)
+        token_info = g.get('token_info')
+        guid = token_info.get('sub') if token_info else None
+
+        if not guid:
+            raise ResourceNotFoundError("User GUID not found in token")
+
+        # Use get_or_provision method which will auto-create staff users with valid roles
+        user = UserService.get_or_provision_by_auth_guid(guid, token_info)
+
+        return UserSchema().dump(user), HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
