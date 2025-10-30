@@ -36,26 +36,23 @@ user_model = ApiHelper.convert_ma_schema_to_restx_model(
 )
 
 
-@cors_preflight("GET, OPTIONS")
-@API.route("/me", methods=["GET", "OPTIONS"])
+@cors_preflight("GET, OPTIONS, POST")
+@API.route("/me", methods=["GET", "POST", "OPTIONS"])
 class CurrentUser(Resource):
-    """Resource for getting current authenticated user with auto-provisioning."""
+    """Resource for getting current authenticated user."""
 
     @staticmethod
     @ApiHelper.swagger_decorators(
         API,
-        endpoint_description="Get current user, auto-provision staff if they have valid roles"
+        endpoint_description="Get or create current user, auto-provision staff if they have valid roles"
     )
-    @API.response(code=200, model=user_model, description="Success")
+    @API.response(code=200, model=user_model, description="User found")
+    @API.response(code=201, model=user_model, description="User created")
     @API.response(404, "Not Found")
     @auth.require
     @cross_origin(origins=allowedorigins())
-    def get():
-        """Get current authenticated user.
-
-        This endpoint will auto-provision staff users if they have valid
-        Keycloak roles but don't have a database record yet.
-        """
+    def post():
+        """Get or create current authenticated user."""
         # Get token info from flask.g (set by @auth.require decorator)
         token_info = g.get('token_info')
         guid = token_info.get('sub') if token_info else None
