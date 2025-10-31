@@ -34,6 +34,10 @@ export const getUserByGuid = (guid?: string) => {
   return submitRequest<User>({ url: `/users/guid/${guid}` });
 };
 
+export const getOrCreateCurrentUser = () => {
+  return submitRequest<User>({ url: `/users/me`, method: "post" });
+};
+
 type CreateAccountOptions = {
   onSuccess?: (data: CreateAccountResponse) => void;
   onError?: OnErrorType;
@@ -108,7 +112,7 @@ export const getAccount = async (
   }
 
   try {
-    const user = await getUserByGuid(guid);
+    const user = await getOrCreateCurrentUser();
 
     if (user?.account_user) {
       return {
