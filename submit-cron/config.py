@@ -108,6 +108,8 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     CONDITION_API_BASE_URL = os.getenv('CONDITION_API_BASE_URL')
 
+    ENVIRONMENT = os.getenv('ENVIRONMENT', os.getenv('ENV_NAME', ''))
+
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
     """Dev Config."""

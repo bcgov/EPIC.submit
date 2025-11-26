@@ -1,7 +1,6 @@
 """Service for integrating with the Common Hosted Email Service."""
 import base64
 import json
-import os
 from datetime import datetime, timedelta
 
 import requests
@@ -64,7 +63,7 @@ class ChesApiService:
 
     @staticmethod
     def _get_email_body_from_template(template_name: str, body_args: dict, template_sub_directory: str = None):
-        """Get email body from a template."""
+        """Get email body from a template with optional environment message for centre templates."""
         if not template_name:
             raise ValueError('Template name is required')
 
@@ -78,21 +77,32 @@ class ChesApiService:
         body_args['logo_url'] = f'{current_app.config.get("WEB_URL")}/assets/EAO_Logo-BZOR9oRj.png'
         rendered_body = template.render(body_args)
 
-        # Append environment message for centre templates
+        # Add environment notification for centre templates in non-production
         if template_sub_directory == 'centre':
-            env_name = os.getenv('ENVIRONMENT', os.getenv('ENV_NAME', ''))
+            env_name = current_app.config.get('ENVIRONMENT', '')
             if env_name and env_name.lower() != 'production':
-                env_message = f'''
-                    <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin: 20px 0; text-align: center; font-size: 14px; color: #856404;">
-                    <strong>You are using {env_name} environment</strong>
-                    </div>
-                '''
-                if '</body>' in rendered_body:
-                    rendered_body = rendered_body.replace('</body>', env_message + '  </body>')
-                else:
-                    rendered_body += env_message
+                env_message = ChesApiService._create_environment_banner(env_name)
+                rendered_body = ChesApiService._inject_environment_banner(rendered_body, env_message)
 
         return rendered_body
+
+    @staticmethod
+    def _create_environment_banner(env_name: str) -> str:
+        """Create HTML banner showing the current environment."""
+        return f'''
+            <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; 
+                        margin: 20px 0; text-align: center; font-size: 14px; color: #856404;">
+                <strong>You are using {env_name} environment</strong>
+            </div>
+        '''
+
+    @staticmethod
+    def _inject_environment_banner(rendered_body: str, env_message: str) -> str:
+        """Inject environment banner into the email body."""
+        if '</body>' in rendered_body:
+            return rendered_body.replace('</body>', f'{env_message}</body>')
+        else:
+            return rendered_body + env_message
 
     def _get_email_body(self, email_details: EmailDetails, template_sub_directory: str = None):
         """Get email body based on details or template."""
