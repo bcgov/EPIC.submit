@@ -83,10 +83,10 @@ class ChesApiService:
             env_name = os.getenv('ENVIRONMENT', os.getenv('ENV_NAME', ''))
             if env_name and env_name.lower() != 'production':
                 env_message = f'''
-    <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin: 20px 0; text-align: center; font-size: 14px; color: #856404;">
-      <strong>You are using {env_name} environment</strong>
-    </div>
-'''
+                    <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin: 20px 0; text-align: center; font-size: 14px; color: #856404;">
+                    <strong>You are using {env_name} environment</strong>
+                    </div>
+                '''
                 if '</body>' in rendered_body:
                     rendered_body = rendered_body.replace('</body>', env_message + '  </body>')
                 else:
