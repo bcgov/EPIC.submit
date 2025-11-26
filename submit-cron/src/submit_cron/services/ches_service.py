@@ -1,6 +1,7 @@
 """Service for integrating with the Common Hosted Email Service."""
 import base64
 import json
+import os
 from datetime import datetime, timedelta
 
 import requests
@@ -76,6 +77,20 @@ class ChesApiService:
         # this is like submit web hosts the logo and the email uses it as a static server to get the logo image.
         body_args['logo_url'] = f'{current_app.config.get("WEB_URL")}/assets/EAO_Logo-BZOR9oRj.png'
         rendered_body = template.render(body_args)
+
+        # Append environment message for centre templates
+        if template_sub_directory == 'centre':
+            env_name = os.getenv('ENVIRONMENT', os.getenv('ENV_NAME', ''))
+            if env_name and env_name.lower() != 'production':
+                env_message = f'''
+    <div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 10px; margin: 20px 0; text-align: center; font-size: 14px; color: #856404;">
+      <strong>You are using {env_name} environment</strong>
+    </div>
+'''
+                if '</body>' in rendered_body:
+                    rendered_body = rendered_body.replace('</body>', env_message + '  </body>')
+                else:
+                    rendered_body += env_message
 
         return rendered_body
 
