@@ -1,9 +1,11 @@
 from typing import List
-from sqlalchemy import Table, Column, Integer, String, Text, MetaData, select, DateTime, func
+
+from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, Text, func, select
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Session
 
 from submit_cron.models.email_job import EmailJob
+
 
 metadata = MetaData()
 
