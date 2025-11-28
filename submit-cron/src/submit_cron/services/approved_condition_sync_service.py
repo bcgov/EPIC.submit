@@ -1,8 +1,8 @@
 import requests
 from flask import current_app
+from submit_api.models.project import Project
 
 from submit_cron.models import db
-from submit_api.models.project import Project
 
 
 class ApprovedConditionService:

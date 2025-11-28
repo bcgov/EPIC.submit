@@ -24,8 +24,6 @@ from flask import Flask
 from utils.logger import setup_logging
 from datetime import datetime
 
-from submit_api.models.project import  Project
-
 import config
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.conf'))  # important to do this first
