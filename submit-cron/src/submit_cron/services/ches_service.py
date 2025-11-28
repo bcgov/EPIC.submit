@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 
 import requests
 from flask import current_app
-
 from submit_api.data_classes.email_details import EmailDetails
+
 from utils.template import Template
 
 
