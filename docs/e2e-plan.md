@@ -2,217 +2,95 @@
 
 ## 📘 Overview
 
-This document outlines a production-grade strategy for running **End-to-End (E2E) Cypress tests** against EPIC.submit in a fully deployed, **ephemeral OpenShift namespace**.
+This document outlines a full end-to-end testing strategy for the **EPIC.submit** application using **Cypress**, deployed in an **ephemeral OpenShift namespace** for each run.
+
+The goal is to validate the integrated system — including frontend, backend, and database — through browser-driven tests, without interfering with shared development environments.
 
 ---
 
 ## 🎯 Goals
 
-- Deploy a complete test environment (`submit-api`, `submit-web`, PostgreSQL) into a **disposable OpenShift namespace**
-- Run Cypress tests with **mocked Keycloak auth** (no IDIR or redirects)
-- Seed test data using a Kubernetes Job
-- Automatically clean up after test runs
-- Run tests on a **daily schedule** or via **manual trigger**
+- Deploy the full stack into a **temporary OpenShift namespace**
+- Seed test data via a Kubernetes Job
+- Run Cypress browser-based tests against the deployed frontend
+- Clean up test environments automatically
+- Run tests **on demand** or on a **daily schedule**
+- Support authentication via **Keycloak** in a way compatible with CI
 
 ---
 
-## 🚀 Workflow Triggers
-
-| Trigger Type     | Description                                  |
-|------------------|----------------------------------------------|
-| `workflow_dispatch` | Manually triggered by developers             |
-| `cron` (daily)   | Runs automatically at 04:00 UTC each day     |
-| `pull_request`   | ❌ Not used (avoiding PR-based E2E tests)    |
-
----
-
-## 🧱 Environment Architecture
-
-Each E2E run:
-1. Creates a disposable namespace (`submit-e2e-<run_id>`)
-2. Deploys all app components via Helm
-3. Seeds test data using a Job
-4. Runs Cypress tests against the deployed frontend
-5. Cleans up the namespace
-
----
-
-## 🧩 Components Involved
+## 🧩 Components Under Test
 
 | Component       | Description                                |
 |------------------|--------------------------------------------|
 | `submit-api`     | Flask backend with PostgreSQL              |
 | `submit-web`     | React frontend using `react-oidc-context`  |
-| `submit-patroni` | PostgreSQL HA cluster                      |
-| Keycloak         | External (IDIR-backed) realm               |
-| Cypress          | E2E test runner                            |
+| `submit-patroni` | PostgreSQL HA (can run in lightweight mode)|
+| Keycloak         | External realm (managed by another team)   |
+| Cypress          | E2E test runner (via GitHub Actions)       |
 
 ---
 
-## 🔐 Auth Strategy: Mocking `react-oidc-context`
+## 🔄 Test Execution Triggers
 
-### Problem:
-EPIC.submit uses Keycloak with **IDIR**, which **redirects to external login pages** that Cypress cannot automate.
-
-### Solution:
-In E2E mode, we **mock the `react-oidc-context` provider**, skipping the Keycloak login flow and injecting a fake user directly.
-
----
-
-### ✅ Steps to Mock Auth in E2E
-
-#### 1. Add `REACT_APP_E2E_TEST_MODE` flag to control auth mode
-
-#### 2. Replace `<OidcProvider>` with a conditional wrapper
-
-```tsx
-// src/App.tsx or index.tsx
-import { OidcProvider } from 'react-oidc-context';
-import { E2EAuthProvider } from './auth/E2EAuthProvider';
-
-const oidcConfig = { ... }; // Your actual Keycloak config
-const isE2ETestMode = process.env.REACT_APP_E2E_TEST_MODE === 'true';
-
-const App = () => {
-  return isE2ETestMode ? (
-    <E2EAuthProvider>
-      <Routes />
-    </E2EAuthProvider>
-  ) : (
-    <OidcProvider {...oidcConfig}>
-      <Routes />
-    </OidcProvider>
-  );
-};
-```
+| Trigger Type       | Description                                       |
+|--------------------|---------------------------------------------------|
+| `workflow_dispatch`| Manual trigger with optional env inputs          |
+| `schedule`         | Daily run at off-peak hours (04:00 UTC)           |
+| `pull_request`     | ❌ Not used — avoids test runs on every PR        |
 
 ---
 
-#### 3. Create the mock provider: `src/auth/E2EAuthProvider.tsx`
+## ⚙️ Test Environment Lifecycle
 
-```tsx
-// submit-web/src/auth/E2EAuthProvider.tsx
-import { createContext, useContext } from 'react';
+Each test run goes through this lifecycle:
 
-const MockAuthContext = createContext({
-  isAuthenticated: true,
-  user: {
-    profile: {
-      preferred_username: 'e2e-user',
-    },
-    access_token: 'mock-token',
-  },
-  signIn: () => {},
-  signOut: () => {},
-});
+1. **Create Namespace**  
+   Generate a temporary OpenShift namespace:
+   ```
+   submit-e2e-${GITHUB_RUN_ID}
+   ```
 
-export const E2EAuthProvider = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <MockAuthContext.Provider value={MockAuthContext._currentValue}>
-      {children}
-    </MockAuthContext.Provider>
-  );
-};
+2. **Deploy Components**  
+   Deploy all required services using your existing Helm charts:
+   - `submit-api`
+   - `submit-web`
+   - `submit-patroni` (lightweight DB)
 
-export const useMockAuth = () => useContext(MockAuthContext);
-```
+3. **Configure Environment**  
+   Override values for test-specific configuration (e.g., mock auth).
 
----
+4. **Seed Test Data**  
+   Run a Kubernetes Job that executes `flask seed` inside the API container.
 
-#### 4. Helm Chart Override for E2E
+5. **Run Cypress Tests**  
+   Launch tests via the GitHub Actions runner using real HTTP requests to the frontend.
 
-In your `submit-web` Helm values:
-
-```yaml
-env:
-  - name: REACT_APP_E2E_TEST_MODE
-    value: "true"
-```
-
-This ensures the app skips Keycloak in E2E runs.
+6. **Cleanup**  
+   Delete the temporary namespace, even if tests fail.
 
 ---
 
-## 🧪 GitHub Workflow: `.github/workflows/e2e.yml`
+## 🔐 Authentication Strategy
 
-```yaml
-name: Cypress E2E Tests
+The EPIC.submit frontend is protected by Keycloak with IDIR login. Because automated testing against IDIR is not feasible (due to SSO redirects), the E2E environment uses a **test-mode flag** to bypass real Keycloak auth.
 
-on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Target environment (default: e2e)"
-        required: false
-        default: "e2e"
-  schedule:
-    - cron: '0 4 * * *'  # Daily at 04:00 UTC
+### ✅ E2E Auth Bypass (Safe, Controlled)
 
-env:
-  NAMESPACE: submit-e2e-${{ github.run_id }}
+- Add an env var: `REACT_APP_E2E_TEST_MODE=true`
+- In this mode, the frontend **injects a mock user** instead of initiating the Keycloak login flow
+- Controlled by a conditional React wrapper (`E2EAuthProvider`), used only during E2E runs
+- Prevents dependence on IDIR or external SSO systems
 
-jobs:
-  e2e:
-    runs-on: ubuntu-22.04
-    if: github.repository == 'bcgov/EPIC.submit'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Login to OpenShift
-        run: |
-          oc login --server=${{ secrets.OPENSHIFT_LOGIN_REGISTRY }} --token=${{ secrets.OPENSHIFT_SA_TOKEN }}
-
-      - name: Create namespace
-        run: oc new-project $NAMESPACE
-
-      - name: Deploy database
-        run: |
-          helm upgrade --install submit-patroni ./deployment/charts/submit-patroni \
-            --namespace $NAMESPACE
-
-      - name: Deploy API
-        run: |
-          helm upgrade --install submit-api ./deployment/charts/submit-api \
-            --namespace $NAMESPACE \
-            --set image.tag=${{ github.sha }}
-
-      - name: Deploy Web (E2E mode)
-        run: |
-          helm upgrade --install submit-web ./deployment/charts/submit-web \
-            --namespace $NAMESPACE \
-            --set image.tag=${{ github.sha }} \
-            --set env[0].name=REACT_APP_E2E_TEST_MODE \
-            --set env[0].value=true
-
-      - name: Wait for deployments
-        run: |
-          oc rollout status deployment/submit-api -n $NAMESPACE
-          oc rollout status deployment/submit-web -n $NAMESPACE
-
-      - name: Seed test data
-        run: |
-          oc apply -f ./deployment/jobs/seed-data.yaml -n $NAMESPACE
-          oc wait --for=condition=complete job/seed-data -n $NAMESPACE --timeout=60s
-
-      - name: Run Cypress tests
-        working-directory: ./submit-web
-        run: |
-          npm ci
-          npx cypress run --e2e
-        env:
-          CYPRESS_BASE_URL: "https://submit-web-${{ env.NAMESPACE }}.apps.${{ secrets.OPENSHIFT_CLUSTER_DOMAIN }}"
-
-      - name: Cleanup namespace
-        if: always()
-        run: oc delete project $NAMESPACE
-```
+This keeps E2E tests fast, stable, and self-contained while avoiding auth-related flakiness.
 
 ---
 
-## 🌱 Database Seeding Job
+## 🌱 Database Seeding
 
-Create file: `deployment/jobs/seed-data.yaml`
+A `flask seed` command is implemented in `submit-api` to populate realistic test data.
+
+### Kubernetes Job Example: `deployment/jobs/seed-data.yaml`
 
 ```yaml
 apiVersion: batch/v1
@@ -232,14 +110,40 @@ spec:
       restartPolicy: Never
 ```
 
-Requires a `flask seed` command to be implemented.
+This job is applied after deployments, and blocks test execution until complete.
 
 ---
 
-## 📁 Cypress Test Scaffolding
+## 🤖 GitHub Actions Workflow: `.github/workflows/e2e.yml`
+
+### Triggers:
+```yaml
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment (default: e2e)"
+        required: false
+        default: "e2e"
+  schedule:
+    - cron: '0 4 * * *'  # Daily at 04:00 UTC
+```
+
+### Key Steps (Summary):
+- Login to OpenShift using service account
+- Create `submit-e2e-<run_id>` namespace
+- Deploy Helm charts for web/api/db
+- Set `REACT_APP_E2E_TEST_MODE=true` in frontend
+- Wait for rollout
+- Run DB seeding job
+- Run Cypress tests with `npx cypress run --e2e`
+- Delete namespace
+
+---
+
+## 📁 Cypress Setup
 
 ### Directory Layout
-
 ```
 submit-web/
 ├── cypress/
@@ -251,20 +155,18 @@ submit-web/
 ├── cypress.config.ts
 ```
 
-### Example `smoke.cy.ts`
-
+### Example Test: `smoke.cy.ts`
 ```ts
 describe('E2E Smoke Test', () => {
-  it('loads the dashboard for a mock user', () => {
+  it('should load dashboard and display mock user', () => {
     cy.visit('/');
-    cy.contains('Welcome'); // Adjust to match your app's text
+    cy.contains('Welcome');
     cy.contains('e2e-user');
   });
 });
 ```
 
-### `cypress.config.ts`
-
+### Cypress Config: `cypress.config.ts`
 ```ts
 import { defineConfig } from 'cypress';
 
@@ -290,7 +192,7 @@ export default defineConfig({
 
 ## ✅ Cleanup Policy
 
-Always clean up the namespace at the end of the run:
+Namespaces are **always deleted** at the end of test runs using:
 
 ```yaml
 - name: Cleanup namespace
@@ -302,19 +204,23 @@ Always clean up the namespace at the end of the run:
 
 ## ✅ Summary
 
-| Task                                  | Status       |
-|---------------------------------------|--------------|
-| Disposable OpenShift namespace        | ✅ Implemented |
-| Helm-based app deployment             | ✅ Configured |
-| Cypress E2E execution                 | ✅ Configured |
-| Mocked Keycloak auth via env flag     | ✅ Implemented |
-| Daily & manual test triggers only     | ✅ Configured |
-| PR-based test execution               | ❌ Skipped    |
+| Capability                             | Status        |
+|----------------------------------------|---------------|
+| Disposable OpenShift test environment  | ✅ Implemented |
+| Helm-based deployment                  | ✅ Reused      |
+| Database seeding                       | ✅ Planned     |
+| Cypress test execution                 | ✅ Planned     |
+| Real Keycloak / IDIR bypass            | ✅ With mock   |
+| Scheduled test runs                    | ✅ Daily @ 4am |
+| Manual test runs                       | ✅ Supported   |
+| PR-based test runs                     | ❌ Skipped     |
 
 ---
 
 ## 🚀 Future Enhancements
 
-- Store Cypress HTML reports as artifacts
-- Add more detailed test cases (permissions, edge cases)
-- Optional: spin up private Keycloak for complete isolation
+- Store Cypress results as GitHub artifacts
+- Add Slack or Teams notifications on test failure
+- Build out additional test scenarios (authZ, file uploads, etc.)
+- Optionally run with a private Keycloak test realm
+
