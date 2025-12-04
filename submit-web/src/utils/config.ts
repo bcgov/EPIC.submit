@@ -8,6 +8,7 @@ declare global {
       VITE_VERSION: string;
       VITE_APP_TITLE: string;
       VITE_APP_URL: string;
+      VITE_APP_BASE_PATH: string;
       VITE_OIDC_AUTHORITY: string;
       VITE_CLIENT_ID: string;
       VITE_OBJECT_STORAGE_URL: string;
@@ -32,6 +33,7 @@ const APP_VERSION =
   window._env_?.VITE_VERSION || import.meta.env.VITE_VERSION || "";
 const APP_TITLE =
   window._env_?.VITE_APP_TITLE || import.meta.env.VITE_APP_TITLE || "";
+const APP_BASE_PATH = window._env_?.VITE_APP_BASE_PATH || import.meta.env.VITE_APP_BASE_PATH;
 const APP_URL = window._env_?.VITE_APP_URL || import.meta.env.VITE_APP_URL;
 const OIDC_AUTHORITY =
   window._env_?.VITE_OIDC_AUTHORITY || import.meta.env.VITE_OIDC_AUTHORITY;
@@ -50,6 +52,7 @@ export const AppConfig = {
   version: APP_VERSION,
   appTitle: APP_TITLE,
   appUrl: APP_URL,
+  appBasePath: APP_BASE_PATH,
   clientId: CLIENT_ID,
   supportEmail: SUPPORT_EMAIL,
   userGuide: USER_GUIDE,
