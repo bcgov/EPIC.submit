@@ -26,3 +26,6 @@ dist-ssr
 
 /coverage
 /.nyc_output
+
+# Cypress environment secrets
+cypress.env.json

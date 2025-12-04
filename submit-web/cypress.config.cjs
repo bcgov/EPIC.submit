@@ -18,4 +18,22 @@ module.exports = defineConfig({
       return config
     },
   },
+
+  // E2E Testing Configuration
+  e2e: {
+    baseUrl: 'https://submit-web-c8b80a-dev.apps.gold.devops.gov.bc.ca',
+    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+    supportFile: 'cypress/support/e2e.ts',
+    video: true,
+    screenshotOnRunFailure: true,
+    defaultCommandTimeout: 10000,
+    requestTimeout: 10000,
+    retries: {
+      runMode: 2,
+      openMode: 0
+    },
+    setupNodeEvents(on, config) {
+      return config;
+    },
+  },
 });

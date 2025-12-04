@@ -1,0 +1,53 @@
+name: E2E Beachhead Tests
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./submit-web
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Create cypress.env.json
+        run: |
+          cat > cypress.env.json << EOF
+          {
+            "STAFF_USERNAME": "${{ secrets.CYPRESS_STAFF_USERNAME }}",
+            "STAFF_PASSWORD": "${{ secrets.CYPRESS_STAFF_PASSWORD }}",
+            "PROPONENT_USERNAME": "${{ secrets.CYPRESS_PROPONENT_USERNAME }}",
+            "PROPONENT_PASSWORD": "${{ secrets.CYPRESS_PROPONENT_PASSWORD }}"
+          }
+          EOF
+
+      - name: Run E2E tests
+        run: npx cypress run --e2e --browser chrome
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-screenshots
+          path: submit-web/cypress/screenshots
+
+      - name: Upload videos
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-videos
+          path: submit-web/cypress/videos
