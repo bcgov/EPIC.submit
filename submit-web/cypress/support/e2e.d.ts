@@ -13,5 +13,19 @@ declare namespace Cypress {
      * Logout from Keycloak and clear session storage
      */
     kcLogout(): Chainable<void>;
+
+    /**
+     * Login via BC Services Card (BCSC) test login flow
+     * @param username - BCSC test username
+     * @param password - BCSC test password
+     */
+    loginViaBCSC(username: string, password: string): Chainable<void>;
+
+    /**
+     * Login via BCeID (Business BCeID)
+     * @param username - BCeID username
+     * @param password - BCeID password
+     */
+    loginViaBCeID(username: string, password: string): Chainable<void>;
   }
 }

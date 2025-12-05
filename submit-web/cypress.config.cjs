@@ -28,6 +28,10 @@ module.exports = defineConfig({
     screenshotOnRunFailure: true,
     defaultCommandTimeout: 10000,
     requestTimeout: 10000,
+    pageLoadTimeout: 60000,  // Increased for OAuth redirects
+    // Enable cross-origin testing for BCSC/BCeID login flows
+    experimentalModifyObstructiveThirdPartyCode: true,
+    chromeWebSecurity: false,  // Required for cross-origin OAuth flow
     retries: {
       runMode: 2,
       openMode: 0

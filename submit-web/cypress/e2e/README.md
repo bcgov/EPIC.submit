@@ -24,9 +24,15 @@ Edit `cypress.env.json`:
   "STAFF_USERNAME": "your-staff-username",
   "STAFF_PASSWORD": "your-staff-password",
   "PROPONENT_USERNAME": "your-proponent-username",
-  "PROPONENT_PASSWORD": "your-proponent-password"
+  "PROPONENT_PASSWORD": "your-proponent-password",
+  "PROPONENT_BCSC_USERNAME": "your-bcsc-test-username",
+  "PROPONENT_BCSC_PASSWORD": "your-bcsc-test-password",
+  "PROPONENT_BCEID_USERNAME": "your-bceid-test-username",
+  "PROPONENT_BCEID_PASSWORD": "your-bceid-test-password"
 }
 ```
+
+**Note**: The first 4 credentials are for ROPC flow tests, the last 4 are for UI flow tests.
 
 **⚠️ Important**: `cypress.env.json` is gitignored - never commit this file!
 
@@ -92,39 +98,94 @@ Add these secrets via **Settings → Secrets and variables → Actions**:
 
 | Secret Name | Description |
 |-------------|-------------|
-| `CYPRESS_STAFF_USERNAME` | Staff test user username |
-| `CYPRESS_STAFF_PASSWORD` | Staff test user password |
-| `CYPRESS_PROPONENT_USERNAME` | Proponent test user username |
-| `CYPRESS_PROPONENT_PASSWORD` | Proponent test user password |
+| `CYPRESS_STAFF_USERNAME` | Staff test user username (ROPC flow) |
+| `CYPRESS_STAFF_PASSWORD` | Staff test user password (ROPC flow) |
+| `CYPRESS_PROPONENT_USERNAME` | Proponent test user username (ROPC flow) |
+| `CYPRESS_PROPONENT_PASSWORD` | Proponent test user password (ROPC flow) |
+| `CYPRESS_PROPONENT_BCSC_USERNAME` | BCSC test username (UI flow) |
+| `CYPRESS_PROPONENT_BCSC_PASSWORD` | BCSC test password (UI flow) |
+| `CYPRESS_PROPONENT_BCEID_USERNAME` | BCeID test username (UI flow) |
+| `CYPRESS_PROPONENT_BCEID_PASSWORD` | BCeID test password (UI flow) |
 
 ## Current Tests
 
-### staff-login.cy.ts
-Verifies staff user can:
-- Login via Keycloak
-- Access the dashboard
-- See "Projects" page
+### ROPC Flow Tests
 
-### proponent-login.cy.ts
-Verifies proponent user can:
-- Login via Keycloak
-- Access the dashboard
-- See "Projects" page
+**staff-login.cy.ts**
+- Uses `cy.kcLogin()` for fast token-based auth
+- Verifies staff user can access dashboard
+- Checks for "Projects" page
 
-## Authentication Flow
+**proponent-login.cy.ts**
+- Uses `cy.kcLogin()` for fast token-based auth
+- Verifies proponent user can access dashboard
+- Checks for "Projects" page
 
-Tests use the **Resource Owner Password Credentials (ROPC)** flow:
+### UI Flow Tests
+
+**proponent-bcsc-ui-login.cy.ts**
+- Uses `cy.loginViaBCSC()` for full BCSC UI flow
+- Tests actual BCSC login experience
+- Verifies multi-step authentication
+- Checks OAuth callback and routing
+
+**proponent-bceid-ui-login.cy.ts**
+- Uses `cy.loginViaBCeID()` for full BCeID UI flow
+- Tests actual BCeID login experience
+- Verifies cross-origin authentication
+- Checks OAuth callback and routing
+
+## Authentication Flows
+
+Tests support **two authentication approaches**:
+
+### 1. ROPC (Resource Owner Password Credentials) Flow
+
+**Files**: `staff-login.cy.ts`, `proponent-login.cy.ts`
+**Command**: `cy.kcLogin(username, password)`
 
 1. POST to Keycloak token endpoint with username/password
 2. Receive `access_token`, `id_token`, `refresh_token`
 3. Store tokens in `sessionStorage` matching `oidc-client-ts` format
 4. Visit app (authenticated session active)
 
-This approach:
-- ✅ Avoids brittle UI-based login automation
-- ✅ Faster than full OAuth redirect flow
+**Pros**:
+- ✅ Fast and reliable (no UI interaction)
+- ✅ Ideal for test setup/teardown
 - ✅ Works with existing `react-oidc-context` authentication
-- ❌ Requires Direct Access Grants enabled (already done)
+- ✅ Requires Direct Access Grants enabled (already done)
+
+**Cons**:
+- ❌ Doesn't test actual UI login flow
+- ❌ Bypasses identity provider pages
+
+### 2. Full UI Login Flow
+
+**Files**: `proponent-bcsc-ui-login.cy.ts`, `proponent-bceid-ui-login.cy.ts`
+**Commands**: `cy.loginViaBCSC(username, password)`, `cy.loginViaBCeID(username, password)`
+
+**BCSC (BC Services Card) Flow**:
+1. Click "Login" button → Select "BC Services Card"
+2. Redirected to `https://idtest.gov.bc.ca/login/entry#start`
+3. Click "Test with username and password"
+4. Fill credentials on `/login/auth` page
+5. OAuth callback → app routing
+
+**BCeID (Business BCeID) Flow**:
+1. Click "Login" button → Select "BCeID"
+2. Redirected to BCeID login page
+3. Fill credentials
+4. OAuth callback → app routing
+
+**Pros**:
+- ✅ Tests actual user login experience
+- ✅ Validates identity provider integration
+- ✅ Catches UI/UX issues
+
+**Cons**:
+- ❌ Slower than ROPC
+- ❌ More brittle (external page changes)
+- ❌ Network dependent
 
 ## Troubleshooting
 
@@ -163,7 +224,7 @@ This approach:
 - Verify assertions are checking correct elements
 - Update selectors if app structure changed
 
-### CORS Errors
+### CORS Errors (ROPC Flow)
 
 **Cause**: Keycloak and app on different domains
 
@@ -172,20 +233,59 @@ This approach:
 - Verify Keycloak URL is accessible
 - Check CORS settings in Keycloak client
 
+### Cross-Origin Errors (UI Flow)
+
+**Cause**: BCSC/BCeID pages on different domains
+
+**Fix**:
+- Verify `chromeWebSecurity: false` in `cypress.config.cjs`
+- Ensure `experimentalModifyObstructiveThirdPartyCode: true`
+- Check `pageLoadTimeout: 60000` for OAuth redirects
+
+### Login Button Not Found (UI Flow)
+
+**Cause**: Already logged in or button selector changed
+
+**Fix**:
+- Verify `cy.kcLogout()` in `beforeEach` is working
+- Check button selector matches actual UI
+- Inspect element in Cypress Test Runner
+
+### OAuth Callback Timeout (UI Flow)
+
+**Cause**: Slow network or auth failure
+
+**Fix**:
+- Check credentials are correct for the IdP
+- Verify redirect URI matches app config
+- Increase timeout in test assertions
+- Check network tab for auth errors
+
+### BCSC "Test with username and password" Not Clickable (UI Flow)
+
+**Cause**: Selector changed or page not loaded
+
+**Fix**:
+- Check selector: `#tile_test_with_username_password_device_div_id`
+- Add wait before clicking if needed
+- Verify you're on the correct BCSC environment (idtest.gov.bc.ca)
+
 ## File Structure
 
 ```
 submit-web/cypress/
 ├── e2e/
-│   ├── staff-login.cy.ts       # Staff user login test
-│   ├── proponent-login.cy.ts   # Proponent user login test
-│   └── README.md               # This file
+│   ├── staff-login.cy.ts              # Staff user login test (ROPC)
+│   ├── proponent-login.cy.ts          # Proponent user login test (ROPC)
+│   ├── proponent-bcsc-ui-login.cy.ts  # BCSC UI flow test
+│   ├── proponent-bceid-ui-login.cy.ts # BCeID UI flow test
+│   └── README.md                      # This file
 ├── support/
-│   ├── e2e.ts                  # Custom commands (kcLogin, kcLogout)
-│   ├── e2e.d.ts                # TypeScript definitions
-│   └── commands.ts             # Existing commands
-├── cypress.env.json.template    # Template for credentials
-└── cypress.env.json            # Actual credentials (gitignored)
+│   ├── e2e.ts                         # Custom commands (kcLogin, loginViaBCSC, loginViaBCeID, kcLogout)
+│   ├── e2e.d.ts                       # TypeScript definitions
+│   └── commands.ts                    # Existing commands
+├── cypress.env.json.template          # Template for credentials
+└── cypress.env.json                   # Actual credentials (gitignored)
 ```
 
 ## Next Steps
