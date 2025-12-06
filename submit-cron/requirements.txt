@@ -52,7 +52,7 @@ secure==0.3.0
 six==1.17.0
 tomli==2.2.1
 typing_extensions==4.13.2
-urllib3==2.4.0
+urllib3==2.6.0
 zimports==0.6.1
 zipp==3.21.0
 -e git+https://github.com/bcgov/EPIC.submit.git@develop#egg=submit-api&subdirectory=submit-api
