@@ -103,18 +103,17 @@ export async function loginViaBCSC(
   await page.getByRole("button", { name: "Continue" }).click();
 
   // Step 6: Wait for OAuth callback and routing
-  await page.waitForURL(/\/oidc-callback/, { timeout: 15000 });
-
-  // Wait for network to be idle (user data loading)
-  await page.waitForLoadState("networkidle");
+  await page.waitForURL(/\/oidc-callback/);
 
   // Wait for final routing to dashboard
-  await page.waitForURL(/\/(staff|proponent)/, { timeout: 20000 });
+  await page.waitForURL(/\/(staff|proponent)/);
 
   // Ensure not redirected to error page
   const url = page.url();
   if (url.includes("/error")) {
-    throw new Error("Login failed - redirected to error page. Check API connectivity.");
+    throw new Error(
+      "Login failed - redirected to error page. Check API connectivity.",
+    );
   }
 }
 
@@ -150,6 +149,8 @@ export async function loginViaBCeID(
   // Ensure not redirected to error page
   const url = page.url();
   if (url.includes("/error")) {
-    throw new Error("Login failed - redirected to error page. Check API connectivity.");
+    throw new Error(
+      "Login failed - redirected to error page. Check API connectivity.",
+    );
   }
 }
