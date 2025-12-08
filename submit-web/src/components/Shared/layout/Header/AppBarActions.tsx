@@ -172,7 +172,10 @@ export default function AppBarActions() {
                 </ListItemIcon>
                 <ListItemText primary="BC Services Card" />
               </MenuItem>
-              <MenuItem onClick={() => handleLogin(IDENTITY_PROVIDERS.BCEID)}>
+              <MenuItem
+                id="bceid-login"
+                onClick={() => handleLogin(IDENTITY_PROVIDERS.BCEID)}
+              >
                 <ListItemIcon>
                   <VpnKeyIcon />
                 </ListItemIcon>
