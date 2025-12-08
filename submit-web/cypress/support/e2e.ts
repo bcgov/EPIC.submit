@@ -71,7 +71,7 @@ Cypress.Commands.add("loginViaBCSC", (username: string, password: string) => {
   cy.visit("/");
   cy.get("button").contains("Login").click();
 
-  cy.contains("BC Services Card").click();
+  cy.get("#bcsc-login").click();
 
   cy.get("#tile_test_with_username_password_device_div_id").click();
 

@@ -166,7 +166,10 @@ export default function AppBarActions() {
             transformOrigin={{ vertical: "top", horizontal: "left" }}
           >
             <MenuList>
-              <MenuItem onClick={() => handleLogin(IDENTITY_PROVIDERS.BCSC)}>
+              <MenuItem
+                id="bcsc-login"
+                onClick={() => handleLogin(IDENTITY_PROVIDERS.BCSC)}
+              >
                 <ListItemIcon>
                   <RecentActorsIcon />
                 </ListItemIcon>

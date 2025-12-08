@@ -1,4 +1,4 @@
-describe.skip("Proponent User Login", () => {
+describe("Proponent User Login", () => {
   beforeEach(() => {
     cy.kcLogout();
   });
