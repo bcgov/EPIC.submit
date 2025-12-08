@@ -1,19 +1,19 @@
-describe('Proponent User Login via BCSC (UI Flow)', () => {
+describe("Proponent User Login via BCSC (UI Flow)", () => {
   beforeEach(() => {
     cy.kcLogout();
   });
 
-  it('should login via BC Services Card UI and access proponent dashboard', () => {
-    const username = Cypress.env('PROPONENT_BCSC_USERNAME');
-    const password = Cypress.env('PROPONENT_BCSC_PASSWORD');
+  it("should login via BC Services Card UI and access proponent dashboard", () => {
+    const username = Cypress.env("PROPONENT_BCSC_USERNAME");
+    const password = Cypress.env("PROPONENT_BCSC_PASSWORD");
 
     cy.loginViaBCSC(username, password);
 
     // Verify landed on proponent dashboard
-    cy.contains('Projects', { timeout: 15000 }).should('be.visible');
-    cy.url().should('include', '/proponent');
+    cy.contains("Projects", { timeout: 15000 }).should("be.visible");
+    cy.url().should("include", "/proponent");
 
     // Verify user greeting appears
-    cy.get('#menu-appbar').should('contain', 'Hi,');
+    cy.get("#menu-appbar").should("contain", "Hi,");
   });
 });

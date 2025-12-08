@@ -71,28 +71,19 @@ Cypress.Commands.add("loginViaBCSC", (username: string, password: string) => {
   cy.visit("/");
   cy.get("button").contains("Login").click();
 
-  // Step 2: Select BC Services Card from dropdown
   cy.contains("BC Services Card").click();
 
-  // Step 3: Handle BCSC test login pages (cross-origin)
-  cy.origin(
-    "https://idtest.gov.bc.ca",
-    { args: { username, password } },
-    ({ username, password }) => {
-      // Step 3a: Click "Test with username and password"
-      cy.get("#tile_test_with_username_password_device_div_id").click();
+  cy.get("#tile_test_with_username_password_device_div_id").click();
 
-      // Step 3b: Fill in credentials on auth form
-      cy.get("#username").type(username);
-      cy.get("#password").type(password, { log: false });
-      cy.get("#submit-btn").click();
-    },
-  );
+  cy.get("#username").type(username);
+  cy.get("#password").type(password, { log: false });
+  cy.get("#submit-btn").click();
 
-  // Step 4: Wait for OAuth callback and routing
+  cy.contains("I agree").click();
+  cy.contains("Continue").click();
+
   cy.url().should("include", "/oidc-callback", { timeout: 15000 });
 
-  // Step 5: Wait for account loading and final routing
   cy.url().should("match", /\/(staff|proponent)/, { timeout: 20000 });
 });
 
