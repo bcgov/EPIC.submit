@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="./e2e.d.ts" />
 
 import "./commands";
