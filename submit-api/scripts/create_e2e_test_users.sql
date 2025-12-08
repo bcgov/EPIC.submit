@@ -6,55 +6,55 @@
 -- STAFF TEST USER
 -- ============================================================
 
--- Create staff user in users table
-INSERT INTO users (auth_guid, type, status_id)
-VALUES ('REPLACE_WITH_KEYCLOAK_STAFF_USER_ID', 'STAFF', 1)
-ON CONFLICT (auth_guid) DO NOTHING;
+-- -- Create staff user in users table
+-- INSERT INTO users (auth_guid, type, status_id)
+-- VALUES ('REPLACE_WITH_KEYCLOAK_STAFF_USER_ID', 'STAFF', 1)
+-- ON CONFLICT (auth_guid) DO NOTHING;
 
--- Create staff_user entry
-INSERT INTO staff_users (user_id, first_name, last_name, work_email_address)
-SELECT id, 'E2E', 'Staff', 'e2e.staff@example.com'
-FROM users
-WHERE auth_guid = 'REPLACE_WITH_KEYCLOAK_STAFF_USER_ID'
-ON CONFLICT (user_id) DO NOTHING;
+-- -- Create staff_user entry
+-- INSERT INTO staff_users (user_id, first_name, last_name, work_email_address)
+-- SELECT id, 'E2E', 'Staff', 'e2e.staff@example.com'
+-- FROM users
+-- WHERE auth_guid = 'REPLACE_WITH_KEYCLOAK_STAFF_USER_ID'
+-- ON CONFLICT (user_id) DO NOTHING;
 
--- ============================================================
--- PROPONENT TEST USER
--- ============================================================
+-- -- ============================================================
+-- -- PROPONENT TEST USER
+-- -- ============================================================
 
--- Create proponent user in users table
-INSERT INTO users (auth_guid, type, status_id)
-VALUES ('REPLACE_WITH_KEYCLOAK_PROPONENT_USER_ID', 'PROPONENT', 1)
-ON CONFLICT (auth_guid) DO NOTHING;
+-- -- Create proponent user in users table
+-- INSERT INTO users (auth_guid, type, status_id)
+-- VALUES ('REPLACE_WITH_KEYCLOAK_PROPONENT_USER_ID', 'PROPONENT', 1)
+-- ON CONFLICT (auth_guid) DO NOTHING;
 
--- Create account for proponent (using test proponent_id 9999)
-INSERT INTO accounts (proponent_id)
-VALUES (9999)
-ON CONFLICT (proponent_id) DO NOTHING;
+-- -- Create account for proponent (using test proponent_id 9999)
+-- INSERT INTO accounts (proponent_id)
+-- VALUES (9999)
+-- ON CONFLICT (proponent_id) DO NOTHING;
 
--- Create account_user entry
-INSERT INTO account_users (
-  user_id,
-  account_id,
-  first_name,
-  last_name,
-  position,
-  work_email_address,
-  work_contact_number
-)
-SELECT
-  u.id,
-  a.id,
-  'E2E',
-  'Proponent',
-  'Test User',
-  'e2e.proponent@example.com',
-  '555-0100'
-FROM users u
-CROSS JOIN accounts a
-WHERE u.auth_guid = 'REPLACE_WITH_KEYCLOAK_PROPONENT_USER_ID'
-  AND a.proponent_id = 9999
-ON CONFLICT DO NOTHING;
+-- -- Create account_user entry
+-- INSERT INTO account_users (
+--   user_id,
+--   account_id,
+--   first_name,
+--   last_name,
+--   position,
+--   work_email_address,
+--   work_contact_number
+-- )
+-- SELECT
+--   u.id,
+--   a.id,
+--   'E2E',
+--   'Proponent',
+--   'Test User',
+--   'e2e.proponent@example.com',
+--   '555-0100'
+-- FROM users u
+-- CROSS JOIN accounts a
+-- WHERE u.auth_guid = 'REPLACE_WITH_KEYCLOAK_PROPONENT_USER_ID'
+--   AND a.proponent_id = 9999
+-- ON CONFLICT DO NOTHING;
 
 -- ============================================================
 -- VERIFICATION QUERIES (optional - run to verify)

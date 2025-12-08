@@ -29,3 +29,8 @@ dist-ssr
 
 # Cypress environment secrets
 cypress.env.json
+
+# Playwright environment secrets and test artifacts
+.env.playwright
+playwright-report/
+test-results/
