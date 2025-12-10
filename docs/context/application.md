@@ -41,7 +41,7 @@ The application is built as a microservices architecture with separate deployabl
 - **UI Components**: Material-UI (MUI) 5.15.x with Emotion for styling
 - **Forms**: React Hook Form with Yup validation
 - **Build Tool**: Vite 5.2.0
-- **Testing**: Cypress (E2E and component testing)
+- **Testing**: Playwright (E2E testing)
 - **Authentication**: Keycloak/OIDC via react-oidc-context
 - **HTTP Client**: Axios
 - **File Upload**: React Dropzone
@@ -193,8 +193,13 @@ EPIC.submit/
 │   │   ├── stores/              # Zustand state stores
 │   │   ├── styles/              # Theme and global styles
 │   │   └── hooks/               # Custom React hooks
+│   ├── playwright/              # E2E tests
+│   │   ├── e2e/                 # Test files
+│   │   ├── auth.ts              # Authentication helpers
+│   │   └── README.md            # Testing guide
 │   ├── package.json             # Dependencies and scripts
-│   └── cypress/                 # E2E tests
+│   ├── playwright.config.ts     # Playwright configuration
+│   └── .env.playwright          # Test credentials (gitignored)
 │
 ├── submit-api/                  # Backend Flask application
 │   ├── src/

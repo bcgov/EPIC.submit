@@ -86,17 +86,12 @@ USE_TEST_KEYCLOAK_DOCKER: YES
    - Package manager: npm with --legacy-peer-deps
    - Command: `npm run lint`
 
-2. **Testing**
-   - Test framework: Cypress (component tests)
-   - Browser: Chrome (headed mode)
-   - Command: `npx cypress run --component --headed --browser chrome`
-   - Coverage: nyc for code coverage reporting
-   - Note: Codecov integration available but commented out
-
-3. **Build Check**
+2. **Build Check**
    - Validates TypeScript compilation
    - Command: `npm run build --quiet`
    - Purpose: Ensure production build succeeds
+
+**Note**: E2E tests (Playwright) are run separately via manual workflow dispatch. See [E2E Testing Workflow](#e2e-testing-workflow) below.
 
 ### 2. Continuous Deployment (CD) Workflows
 
@@ -257,6 +252,71 @@ USE_TEST_KEYCLOAK_DOCKER: YES
 - Target: Configured via secret or manual input
 
 **Output**: OWASP ZAP Scan artifact
+
+#### E2E Testing Workflow ([e2e.yml](.github/workflows/e2e.yml))
+
+**Purpose**: End-to-end testing of authentication flows and user journeys
+
+**Trigger**: Manual workflow dispatch only
+
+**Framework**: Playwright
+
+**Test Coverage**:
+- Staff login (ROPC flow)
+- Proponent login (ROPC flow)
+- BC Services Card UI login flow
+- BCeID UI login flow (currently skipped)
+
+**Environment**:
+- Tests run against dev environment: `https://submit-web-c8b80a-dev.apps.gold.devops.gov.bc.ca`
+- Backend API: `https://submit-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api`
+- Keycloak: `https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic`
+
+**Steps**:
+
+1. **Install Dependencies**
+   ```bash
+   npm install --legacy-peer-deps
+   ```
+
+2. **Install Playwright Browsers**
+   ```bash
+   npx playwright install --with-deps chromium
+   ```
+
+3. **Create Test Environment Configuration**
+   - Creates `.env.playwright` from GitHub secrets
+   - Sets `BASE_URL` to dev environment
+   - Configures test user credentials
+
+4. **Run E2E Tests**
+   ```bash
+   npx playwright test
+   ```
+   - Browser: Chromium (headless)
+   - Retries: 2 attempts per test
+   - Timeout: 60 seconds per test
+
+5. **Upload Artifacts** (on failure or completion)
+   - Playwright HTML report (interactive test results)
+   - Test results (raw output)
+   - Traces (for debugging failed tests)
+
+**Required GitHub Secrets**:
+- `CYPRESS_STAFF_USERNAME` - Staff test user credentials
+- `CYPRESS_STAFF_PASSWORD`
+- `CYPRESS_PROPONENT_USERNAME` - Proponent test user credentials
+- `CYPRESS_PROPONENT_PASSWORD`
+- `CYPRESS_PROPONENT_BCSC_USERNAME` - BCSC test credentials
+- `CYPRESS_PROPONENT_BCSC_PASSWORD`
+- `CYPRESS_PROPONENT_BCEID_USERNAME` - BCeID test credentials
+- `CYPRESS_PROPONENT_BCEID_PASSWORD`
+
+**Note**: Secret names still use `CYPRESS_` prefix for backward compatibility with existing secrets configuration.
+
+**Artifacts Retention**: 30 days
+
+**Documentation**: See [e2e-testing.md](./e2e-testing.md) for comprehensive testing documentation.
 
 ---
 
