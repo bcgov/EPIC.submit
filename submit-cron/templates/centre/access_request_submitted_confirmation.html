@@ -63,22 +63,18 @@
     <div class="content">
       <p>Hello <strong>{{ user_name }}</strong>,</p>
 
-      <p>Your request for access to <a href="{{ application_url }}" class="cta-link">{{ application_name }}</a> has been submitted successfully.</p>
+      <p>Your request for access to {{ application_name }} has been submitted successfully.</p>
 
       <p><strong>Request Details:</strong></p>
 
       <div class="grey-box">
-        <p><strong>Application:</strong> <a href="{{ application_url }}">{{ application_name }}</a></p>
+        <p><strong>Application:</strong>{{ application_name }}</p>
         <p><strong>Requested on:</strong> {{ requested_at }}</p>
       </div>
 
       <p>
         Super Users for this application have been notified and will review your request.
         You will receive an email when your request has been processed.
-      </p>
-
-      <p>
-        You can view the status of your request on the <a href="{{ epic_centre_link }}" class="cta-link">Request Access</a> page in EPIC.centre.
       </p>
 
       <p>Thank you,</p>
