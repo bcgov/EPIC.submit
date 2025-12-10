@@ -27,10 +27,7 @@ dist-ssr
 /coverage
 /.nyc_output
 
-# Cypress environment secrets
-cypress.env.json
-
-# Playwright environment secrets and test artifacts
+# E2E test environment and artifacts
 .env.playwright
 playwright-report/
 test-results/
