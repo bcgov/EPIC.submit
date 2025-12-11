@@ -15,8 +15,6 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 
-const IDIR = "idir";
-
 export const Route = createFileRoute("/staff/_staffLayout")({
   component: Staff,
   beforeLoad: ({ context: { account, authentication } }) => {
@@ -29,12 +27,6 @@ export const Route = createFileRoute("/staff/_staffLayout")({
           },
         });
         return;
-      }
-
-      if (authentication?.user?.profile.identity_provider !== IDIR) {
-        return redirect({
-          to: "/logout",
-        });
       }
     }
     if (!account.isLoading) {

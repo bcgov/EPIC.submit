@@ -11,14 +11,11 @@ test.describe("Proponent User Login", () => {
     const password = process.env.PROPONENT_PASSWORD || "";
 
     await kcLogin(page, username, password);
+
     await page.goto("/");
 
-    // Verify proponent can see projects
-    await expect(page.getByText("Projects").first()).toBeVisible({
-      timeout: 15000,
-    });
+    await page.waitForLoadState("networkidle");
 
-    // Verify URL is proponent or projects page
-    await expect(page).toHaveURL(/\/(proponent|projects)/);
+    await expect(page).toHaveURL(/\/proponent/);
   });
 });

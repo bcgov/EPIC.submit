@@ -17,10 +17,6 @@ export const Route = createFileRoute("/staff/no-roles")({
           to: "/staff/projects",
         });
       }
-
-      return redirect({
-        to: "/logout",
-      });
     }
   },
 });
