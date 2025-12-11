@@ -30,7 +30,7 @@ jobs:
       - name: Create .env.playwright
         run: |
           cat > .env.playwright << EOF
-          BASE_URL=https://submit-web-c8b80a-dev.apps.gold.devops.gov.bc.ca
+          BASE_URL=https://dev.submit.eao.gov.bc.ca
           STAFF_USERNAME=${{ secrets.STAFF_USERNAME }}
           STAFF_PASSWORD=${{ secrets.STAFF_PASSWORD }}
           PROPONENT_USERNAME=${{ secrets.PROPONENT_USERNAME }}
