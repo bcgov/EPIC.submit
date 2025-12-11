@@ -31,14 +31,14 @@ jobs:
         run: |
           cat > .env.playwright << EOF
           BASE_URL=https://submit-web-c8b80a-dev.apps.gold.devops.gov.bc.ca
-          STAFF_USERNAME=${{ secrets.CYPRESS_STAFF_USERNAME }}
-          STAFF_PASSWORD=${{ secrets.CYPRESS_STAFF_PASSWORD }}
-          PROPONENT_USERNAME=${{ secrets.CYPRESS_PROPONENT_USERNAME }}
-          PROPONENT_PASSWORD=${{ secrets.CYPRESS_PROPONENT_PASSWORD }}
-          PROPONENT_BCSC_USERNAME=${{ secrets.CYPRESS_PROPONENT_BCSC_USERNAME }}
-          PROPONENT_BCSC_PASSWORD=${{ secrets.CYPRESS_PROPONENT_BCSC_PASSWORD }}
-          PROPONENT_BCEID_USERNAME=${{ secrets.CYPRESS_PROPONENT_BCEID_USERNAME }}
-          PROPONENT_BCEID_PASSWORD=${{ secrets.CYPRESS_PROPONENT_BCEID_PASSWORD }}
+          STAFF_USERNAME=${{ secrets.STAFF_USERNAME }}
+          STAFF_PASSWORD=${{ secrets.STAFF_PASSWORD }}
+          PROPONENT_USERNAME=${{ secrets.PROPONENT_USERNAME }}
+          PROPONENT_PASSWORD=${{ secrets.PROPONENT_PASSWORD }}
+          PROPONENT_BCSC_USERNAME=${{ secrets.PROPONENT_BCSC_USERNAME }}
+          PROPONENT_BCSC_PASSWORD=${{ secrets.PROPONENT_BCSC_PASSWORD }}
+          PROPONENT_BCEID_USERNAME=${{ secrets.PROPONENT_BCEID_USERNAME }}
+          PROPONENT_BCEID_PASSWORD=${{ secrets.PROPONENT_BCEID_PASSWORD }}
           EOF
 
       - name: Run Playwright tests
