@@ -108,6 +108,9 @@ export async function loginViaBCSC(
   // Wait for final routing to dashboard
   await page.waitForURL(/\/(staff|proponent)/);
 
+  // Wait for network to be idle (user data loading)
+  await page.waitForLoadState("networkidle");
+
   // Ensure not redirected to error page
   const url = page.url();
   if (url.includes("/error")) {
