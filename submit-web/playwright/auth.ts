@@ -151,6 +151,8 @@ export async function loginViaBCeID(
   // Wait for final routing to dashboard
   await page.waitForURL(/\/(staff|proponent)/, { timeout: 20000 });
 
+  await page.waitForLoadState("networkidle");
+
   // Ensure not redirected to error page
   const url = page.url();
   if (url.includes("/error")) {
