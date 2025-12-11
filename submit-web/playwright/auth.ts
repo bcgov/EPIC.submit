@@ -105,6 +105,8 @@ export async function loginViaBCSC(
   // Step 6: Wait for OAuth callback and routing
   await page.waitForURL(/\/oidc-callback/);
 
+  await page.waitForLoadState("networkidle");
+
   // Wait for final routing to dashboard
   await page.waitForURL(/\/(staff|proponent)/);
 
