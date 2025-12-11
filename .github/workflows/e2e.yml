@@ -1,0 +1,61 @@
+name: E2E Tests
+
+on:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./submit-web
+
+jobs:
+  playwright-tests:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Create .env.playwright
+        run: |
+          cat > .env.playwright << EOF
+          BASE_URL=https://submit-web-c8b80a-dev.apps.gold.devops.gov.bc.ca
+          STAFF_USERNAME=${{ secrets.CYPRESS_STAFF_USERNAME }}
+          STAFF_PASSWORD=${{ secrets.CYPRESS_STAFF_PASSWORD }}
+          PROPONENT_USERNAME=${{ secrets.CYPRESS_PROPONENT_USERNAME }}
+          PROPONENT_PASSWORD=${{ secrets.CYPRESS_PROPONENT_PASSWORD }}
+          PROPONENT_BCSC_USERNAME=${{ secrets.CYPRESS_PROPONENT_BCSC_USERNAME }}
+          PROPONENT_BCSC_PASSWORD=${{ secrets.CYPRESS_PROPONENT_BCSC_PASSWORD }}
+          PROPONENT_BCEID_USERNAME=${{ secrets.CYPRESS_PROPONENT_BCEID_USERNAME }}
+          PROPONENT_BCEID_PASSWORD=${{ secrets.CYPRESS_PROPONENT_BCEID_PASSWORD }}
+          EOF
+
+      - name: Run Playwright tests
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: submit-web/playwright-report
+          retention-days: 30
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-test-results
+          path: submit-web/test-results
+          retention-days: 30
