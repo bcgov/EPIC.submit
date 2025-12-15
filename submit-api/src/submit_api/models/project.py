@@ -90,7 +90,7 @@ class Project(db.Model):
             proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
 
         if include_projects:
-            projects = cls.query.filter_by(proponent_id=proponent_id).all()
+            projects = cls.query.filter_by(proponent_id=proponent_id).order_by(cls.name).all()
             proponent_dict["projects"] = [project.to_dict() for project in projects]
             account_projects = AccountProject.query.filter(AccountProject.account_id.in_(accounts_ids)).all()
             proponent_dict["account_projects"] = [{
