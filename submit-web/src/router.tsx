@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from "react";
 import { getAccount } from "./hooks/api/useAccounts";
 import { notify } from "./components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
+import { trackAnalytics } from "@epic/centre-analytics";
+import { AppConfig } from "./utils/config";
 
 type RouterProviderWithAuthContextProps = Readonly<{
   router: any;
@@ -13,6 +15,13 @@ export default function RouterProviderWithAuthContext({
   router,
 }: RouterProviderWithAuthContextProps) {
   const authentication = useAuth();
+
+  // Record user login analytics
+  trackAnalytics({
+    appName: 'epic_submit',
+    centreApiUrl: AppConfig.centreApiUrl,
+    enabled: authentication.isAuthenticated && !!authentication.user,
+  });
 
   const account = useAccount();
   const { setAccount } = account;
