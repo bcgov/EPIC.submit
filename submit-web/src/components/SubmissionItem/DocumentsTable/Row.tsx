@@ -1,15 +1,24 @@
 import { TableRow } from "@mui/material";
-import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import {
+  Submission,
+  SUBMISSION_STATUS,
+  SUBMISSION_TYPE,
+} from "@/models/Submission";
 import { useState } from "react";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
-import { useReplaceSubmussion } from "@/hooks/api/useSubmissions";
+import { useDeleteSubmission, useReplaceSubmussion } from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
-import { saveObject } from "@/hooks/api/useObjectStorage";
+import { deleteDocument, saveObject } from "@/hooks/api/useObjectStorage";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
+import { BCDesignTokens } from "epic.theme";
+import { useFileStore } from "@/store/fileStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEY } from "@/hooks/api/constants";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -22,13 +31,27 @@ export default function Row({
   folderPath,
   setIsPendingUpload,
 }: DocumentRowProps) {
+  const queryClient = useQueryClient();
   const { submissionPackageId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
+  const [isRemovingDocument, setIsRemovingDocument] = useState(false);
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isReplacingDocument, setIsReplacingDocument] = useState(false);
   const [currentSubmission, setCurrentSubmission] =
     useState<Submission>(documentSubmission);
+
+  const { removeFile } = useFileStore();
+
+  const { mutateAsync: deleteSubmission } = useDeleteSubmission({
+    submissionItemId: currentSubmission.item_id,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, documentSubmission.major_version], // major version is the package id
+      });
+      notify.success("Document removed successfully");
+    },
+  });
 
   const { mutateAsync: replaceSubmission } = useReplaceSubmussion({
     onSuccess: (newSubmission) => {
@@ -41,17 +64,16 @@ export default function Row({
     submissionPackageId: Number(submissionPackageId),
   });
 
-  const {
-    submitted_document: { name, url, folder },
-    version,
-    submitted_by,
-  } = currentSubmission;
+  const { submitted_document, version, submitted_by } = currentSubmission;
 
   const downloadDocument = async () => {
     try {
-      if (pendingGetObject) return;
+      if (pendingGetObject || !submitted_document) return;
       setPendingGetObject(true);
-      await getObjectFromS3({ name, url });
+      await getObjectFromS3({
+        name: submitted_document.name,
+        url: submitted_document.url,
+      });
     } catch (e) {
       const errorMessage = isAxiosError(e)
         ? (e.response?.data?.message ?? "Failed to download document")
@@ -85,7 +107,7 @@ export default function Row({
       const documentData = {
         name: fileToUpload.name,
         url: uploadedFile,
-        folder: folder,
+        folder: submitted_document?.folder,
       };
       await replaceSubmission({
         submissionId: currentSubmission.id,
@@ -105,6 +127,24 @@ export default function Row({
     }
   };
 
+  const removeDocument = async () => {
+    try {
+      setIsRemovingDocument(true);
+      await deleteDocument({ filepath: submitted_document?.url ?? "" });
+      await deleteSubmission(currentSubmission.id);
+      removeFile(currentSubmission.id);
+    } catch (e) {
+      notify.error("Failed to remove document");
+    } finally {
+      setIsRemovingDocument(false);
+    }
+  };
+
+  // Only allow removal of the first version of the document but not yet submitted
+  const isRemovable =
+    currentSubmission.status === SUBMISSION_STATUS.PENDING &&
+    currentSubmission.minor_version === 1;
+
   return (
     <TableRow>
       <SubmitTableCell>
@@ -119,7 +159,7 @@ export default function Row({
           }}
         > */}
         <DocumentLink
-          name={name}
+          name={submitted_document?.name ?? ""}
           loading={pendingGetObject}
           onClick={openDocument}
         />
@@ -128,12 +168,31 @@ export default function Row({
       <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
       <SubmitTableCell align="right">{version}</SubmitTableCell>
       <SubmitTableCell align="right">
-        <FileUploadButton
-          onChange={replaceDocument}
-          loading={isReplacingDocument}
-        >
-          Replace
-        </FileUploadButton>
+        {isRemovable ? (
+          <LoadingButton
+            variant="text"
+            loading={isRemovingDocument}
+            onClick={removeDocument}
+            sx={{
+              color: BCDesignTokens.typographyColorLink,
+              "&:hover": {
+                backgroundColor: "transparent",
+              },
+              "&:focus": {
+                outline: "none",
+              },
+            }}
+          >
+            Remove
+          </LoadingButton>
+        ) : (
+          <FileUploadButton
+            onChange={replaceDocument}
+            loading={isReplacingDocument}
+          >
+            Replace
+          </FileUploadButton>
+        )}
       </SubmitTableCell>
     </TableRow>
   );
