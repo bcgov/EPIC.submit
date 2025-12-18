@@ -40,29 +40,27 @@ const HistoryTableBody = ({
   loading: boolean;
 }) => {
   if (loading) {
-    return (
-      <>
-        <TableRow>
-          <HistoryTableCell colSpan={3} align="center">
-            <Typography variant="body2">
-              <Skeleton variant="text" />
-            </Typography>
-          </HistoryTableCell>
-        </TableRow>
-        <TableRow>
-          <HistoryTableCell colSpan={3} align="center">
-            <Typography variant="body2">
-              <Skeleton variant="text" />
-            </Typography>
-          </HistoryTableCell>
-        </TableRow>
-      </>
-    );
+    return [
+      <TableRow key="skeleton-1">
+        <HistoryTableCell colSpan={3} align="center">
+          <Typography variant="body2">
+            <Skeleton variant="text" />
+          </Typography>
+        </HistoryTableCell>
+      </TableRow>,
+      <TableRow key="skeleton-2">
+        <HistoryTableCell colSpan={3} align="center">
+          <Typography variant="body2">
+            <Skeleton variant="text" />
+          </Typography>
+        </HistoryTableCell>
+      </TableRow>
+    ];
   }
 
   if (!activityLogs || activityLogs.length === 0) {
     return (
-      <TableRow>
+      <TableRow key="no-history">
         <HistoryTableCell colSpan={3} align="center">
           <Typography variant="body2">No history available</Typography>
         </HistoryTableCell>
@@ -70,21 +68,17 @@ const HistoryTableBody = ({
     );
   }
 
-  return (
-    <>
-      {activityLogs.map((log) => (
-        <TableRow key={log.id}>
-          <HistoryTableCell>{log.action}</HistoryTableCell>
-          <HistoryTableCell align="left">
-            {dateUtils.formatDate(log.activity_at)}
-          </HistoryTableCell>
-          <HistoryTableCell align="right">
-            {log.entity_version}
-          </HistoryTableCell>
-        </TableRow>
-      ))}
-    </>
-  );
+  return activityLogs.map((log, index) => (
+    <TableRow key={log.id || `activity-log-${index}`}>
+      <HistoryTableCell>{log.action}</HistoryTableCell>
+      <HistoryTableCell align="left">
+        {dateUtils.formatDate(log.activity_at)}
+      </HistoryTableCell>
+      <HistoryTableCell align="right">
+        {log.entity_version}
+      </HistoryTableCell>
+    </TableRow>
+  ));
 };
 
 type HistoryTableProps = {
