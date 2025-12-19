@@ -80,7 +80,4 @@ class User(Resource):
     @cross_origin(origins=allowedorigins())
     def get(guid):
         """Fetch an account by id."""
-        user = UserService.get_by_auth_guid(guid)
-        if not user:
-            raise ResourceNotFoundError(f"User with guid {guid} not found")
-        return UserSchema().dump(user), HTTPStatus.OK
+        return "", HTTPStatus.OK
