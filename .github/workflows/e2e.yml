@@ -49,24 +49,6 @@ jobs:
 
           echo "All services are ready!"
 
-      # 3.5. Debug CORS configuration
-      - name: Debug CORS configuration
-        run: |
-          echo "=== Checking CORS_ORIGIN in API container ==="
-          docker compose -f docker-compose.e2e.yml exec -T api printenv | grep CORS_ORIGIN || echo "CORS_ORIGIN not set!"
-
-          echo ""
-          echo "=== API Startup Logs (checking allowedorigins print) ==="
-          docker compose -f docker-compose.e2e.yml logs api | tail -50
-
-          echo ""
-          echo "=== Testing CORS headers with curl ==="
-          curl -H "Origin: http://localhost:5173" \
-               -H "Access-Control-Request-Method: POST" \
-               -H "Access-Control-Request-Headers: Content-Type" \
-               -X OPTIONS \
-               http://localhost:3200/api/users/me -v 2>&1 | grep -i "access-control" || echo "No CORS headers found"
-
       # 4. Seed test data (COMMENTED OUT - Testing basic login first)
       # - name: Seed test data
       #   run: |
