@@ -62,7 +62,9 @@ export const SubmitTableContainer = styled(TableContainer)(() => ({
   cursor: "pointer",
 }));
 
-const StyledTableRow = styled(TableRow)<{ error?: boolean }>(({ error }) => ({
+const StyledTableRow = styled(TableRow, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(({ error }) => ({
   height: "40px",
   backgroundColor: error
     ? BCDesignTokens.supportSurfaceColorDanger
@@ -91,7 +93,9 @@ export const SubmitTablePrimaryRow = ({
   );
 };
 
-export const SubmitPrimaryRowTableCell = styled(TableCell)<{ error?: boolean }>(
+export const SubmitPrimaryRowTableCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(
   ({ error }) => ({
     borderTop: error
       ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
