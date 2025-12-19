@@ -47,7 +47,7 @@ export default function Row({
     submissionItemId: currentSubmission.item_id,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, documentSubmission.major_version], // major version is the package id
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, documentSubmission.major_version], // major version is the package version
       });
       notify.success("Document removed successfully");
     },
