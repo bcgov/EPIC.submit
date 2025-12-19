@@ -24,10 +24,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Start services via docker-compose
+      # 2. Start services via docker compose
       - name: Start services
         run: |
-          docker-compose -f docker-compose.e2e.yml up -d
+          docker compose -f docker-compose.e2e.yml up -d
           echo "Services starting..."
 
       # 3. Wait for services to be healthy
@@ -36,13 +36,13 @@ jobs:
           echo "Waiting for services to be healthy..."
 
           # Wait for all services to report healthy status
-          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker-compose -f docker-compose.e2e.yml ps -q db))" = "healthy" ]; do echo "Waiting for db..."; sleep 2; done'
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.e2e.yml ps -q db))" = "healthy" ]; do echo "Waiting for db..."; sleep 2; done'
           echo "✓ Database is healthy"
 
-          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker-compose -f docker-compose.e2e.yml ps -q api))" = "healthy" ]; do echo "Waiting for API..."; sleep 2; done'
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.e2e.yml ps -q api))" = "healthy" ]; do echo "Waiting for API..."; sleep 2; done'
           echo "✓ API is healthy"
 
-          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker-compose -f docker-compose.e2e.yml ps -q web))" = "healthy" ]; do echo "Waiting for Web..."; sleep 2; done'
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.e2e.yml ps -q web))" = "healthy" ]; do echo "Waiting for Web..."; sleep 2; done'
           echo "✓ Web is healthy"
 
           echo "All services are ready!"
@@ -53,7 +53,7 @@ jobs:
       #     echo "Seeding test data..."
 
       #     # Get API container name
-      #     API_CONTAINER=$(docker-compose -f docker-compose.e2e.yml ps -q api)
+      #     API_CONTAINER=$(docker compose -f docker-compose.e2e.yml ps -q api)
 
       #     # Verify database is ready using pg_isready
       #     echo "Verifying database readiness..."
@@ -123,19 +123,19 @@ jobs:
         if: failure()
         run: |
           echo "=== API Logs ==="
-          docker-compose -f docker-compose.e2e.yml logs api
+          docker compose -f docker-compose.e2e.yml logs api
 
           echo "=== Web Logs ==="
-          docker-compose -f docker-compose.e2e.yml logs web
+          docker compose -f docker-compose.e2e.yml logs web
 
           echo "=== Database Logs ==="
-          docker-compose -f docker-compose.e2e.yml logs db
+          docker compose -f docker-compose.e2e.yml logs db
 
       # 9. Cleanup
       - name: Cleanup
         if: always()
         run: |
-          docker-compose -f docker-compose.e2e.yml down -v
+          docker compose -f docker-compose.e2e.yml down -v
           echo "Cleanup completed"
 
       # 10. Fail if tests failed
