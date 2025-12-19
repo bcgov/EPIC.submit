@@ -56,6 +56,10 @@ jobs:
           docker compose -f docker-compose.e2e.yml exec -T api printenv | grep CORS_ORIGIN || echo "CORS_ORIGIN not set!"
 
           echo ""
+          echo "=== API Startup Logs (checking allowedorigins print) ==="
+          docker compose -f docker-compose.e2e.yml logs api | tail -50
+
+          echo ""
           echo "=== Testing CORS headers with curl ==="
           curl -H "Origin: http://localhost:5173" \
                -H "Access-Control-Request-Method: POST" \
