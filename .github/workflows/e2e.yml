@@ -1,49 +1,107 @@
-name: E2E Tests
+name: E2E Tests (Docker Compose)
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Manual trigger for now
+  # pull_request:      # Uncomment to enable PR triggers
+  #   paths:
+  #     - 'submit-web/**'
+  #     - 'submit-api/**'
+  #     - 'docker-compose.e2e.yml'
+  #     - '.github/workflows/e2e.yml'
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ./submit-web
+env:
+  # Use DEV Keycloak credentials from GitHub secrets
+  KEYCLOAK_ADMIN_CLIENT: ${{ secrets.KEYCLOAK_ADMIN_CLIENT_DEV }}
+  KEYCLOAK_ADMIN_SECRET: ${{ secrets.KEYCLOAK_ADMIN_SECRET_DEV }}
 
 jobs:
-  playwright-tests:
-    runs-on: ubuntu-22.04
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
+      # 1. Checkout code
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
+      # 2. Start services via docker-compose
+      - name: Start services
+        run: |
+          docker-compose -f docker-compose.e2e.yml up -d
+          echo "Services starting..."
+
+      # 3. Wait for services to be healthy
+      - name: Wait for services
+        run: |
+          echo "Waiting for services to be healthy..."
+
+          # Wait for all services to report healthy status
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker-compose -f docker-compose.e2e.yml ps -q db))" = "healthy" ]; do echo "Waiting for db..."; sleep 2; done'
+          echo "✓ Database is healthy"
+
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker-compose -f docker-compose.e2e.yml ps -q api))" = "healthy" ]; do echo "Waiting for API..."; sleep 2; done'
+          echo "✓ API is healthy"
+
+          timeout 120 bash -c 'until [ "$(docker inspect --format="{{.State.Health.Status}}" $(docker-compose -f docker-compose.e2e.yml ps -q web))" = "healthy" ]; do echo "Waiting for Web..."; sleep 2; done'
+          echo "✓ Web is healthy"
+
+          echo "All services are ready!"
+
+      # 4. Seed test data (COMMENTED OUT - Testing basic login first)
+      # - name: Seed test data
+      #   run: |
+      #     echo "Seeding test data..."
+
+      #     # Get API container name
+      #     API_CONTAINER=$(docker-compose -f docker-compose.e2e.yml ps -q api)
+
+      #     # Verify database is ready using pg_isready
+      #     echo "Verifying database readiness..."
+      #     timeout 30 bash -c 'until docker exec '"$API_CONTAINER"' pg_isready -h db -U submit -d submit; do echo "Waiting for Postgres..."; sleep 2; done'
+      #     echo "✓ Database is ready for connections"
+
+      #     # Copy seed script to container
+      #     docker cp submit-api/scripts/seed_e2e_test_data.sql $API_CONTAINER:/tmp/seed.sql
+
+      #     # Execute seed script
+      #     docker exec $API_CONTAINER psql -h db -U submit -d submit -f /tmp/seed.sql
+
+      #     echo "Test data seeded successfully!"
+
+      # 5. Install Playwright dependencies
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18.x'
+          cache: 'npm'
+          cache-dependency-path: submit-web/package-lock.json
 
       - name: Install dependencies
+        working-directory: ./submit-web
         run: npm install --legacy-peer-deps
 
-      - name: Install Playwright Browsers
+      - name: Install Playwright browsers
+        working-directory: ./submit-web
         run: npx playwright install --with-deps chromium
 
-      - name: Create .env.playwright
-        run: |
-          cat > .env.playwright << EOF
-          BASE_URL=https://dev.submit.eao.gov.bc.ca
-          STAFF_USERNAME=${{ secrets.STAFF_USERNAME }}
-          STAFF_PASSWORD=${{ secrets.STAFF_PASSWORD }}
-          PROPONENT_USERNAME=${{ secrets.PROPONENT_USERNAME }}
-          PROPONENT_PASSWORD=${{ secrets.PROPONENT_PASSWORD }}
-          PROPONENT_BCSC_USERNAME=${{ secrets.PROPONENT_BCSC_USERNAME }}
-          PROPONENT_BCSC_PASSWORD=${{ secrets.PROPONENT_BCSC_PASSWORD }}
-          PROPONENT_BCEID_USERNAME=${{ secrets.PROPONENT_BCEID_USERNAME }}
-          PROPONENT_BCEID_PASSWORD=${{ secrets.PROPONENT_BCEID_PASSWORD }}
-          EOF
-
+      # 6. Run Playwright tests
       - name: Run Playwright tests
+        id: tests
+        continue-on-error: true
+        working-directory: ./submit-web
+        env:
+          BASE_URL: http://localhost:5173
+          STAFF_USERNAME: ${{ secrets.STAFF_USERNAME }}
+          STAFF_PASSWORD: ${{ secrets.STAFF_PASSWORD }}
+          PROPONENT_USERNAME: ${{ secrets.PROPONENT_USERNAME }}
+          PROPONENT_PASSWORD: ${{ secrets.PROPONENT_PASSWORD }}
+          PROPONENT_BCSC_USERNAME: ${{ secrets.PROPONENT_BCSC_USERNAME }}
+          PROPONENT_BCSC_PASSWORD: ${{ secrets.PROPONENT_BCSC_PASSWORD }}
+          PROPONENT_BCEID_USERNAME: ${{ secrets.PROPONENT_BCEID_USERNAME }}
+          PROPONENT_BCEID_PASSWORD: ${{ secrets.PROPONENT_BCEID_PASSWORD }}
         run: npx playwright test
 
+      # 7. Upload artifacts
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -59,3 +117,28 @@ jobs:
           name: playwright-test-results
           path: submit-web/test-results
           retention-days: 30
+
+      # 8. Show logs on failure
+      - name: Show service logs
+        if: failure()
+        run: |
+          echo "=== API Logs ==="
+          docker-compose -f docker-compose.e2e.yml logs api
+
+          echo "=== Web Logs ==="
+          docker-compose -f docker-compose.e2e.yml logs web
+
+          echo "=== Database Logs ==="
+          docker-compose -f docker-compose.e2e.yml logs db
+
+      # 9. Cleanup
+      - name: Cleanup
+        if: always()
+        run: |
+          docker-compose -f docker-compose.e2e.yml down -v
+          echo "Cleanup completed"
+
+      # 10. Fail if tests failed
+      - name: Fail if tests failed
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
