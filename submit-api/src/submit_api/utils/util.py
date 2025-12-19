@@ -58,7 +58,9 @@ def allowedorigins():
     _allowedcors = os.getenv('CORS_ORIGIN')
     if not _allowedcors:
         return []
-    return [entry.strip() for entry in re.split(r',\s*', _allowedcors) if entry.strip()]
+    allowed_origins = [entry.strip() for entry in re.split(r',\s*', _allowedcors) if entry.strip()]
+    print(f'Allowed origins: {allowed_origins}')
+    return allowed_origins
 
 
 class Singleton(type):
