@@ -67,7 +67,17 @@ jobs:
                -X OPTIONS \
                http://localhost:3200/api/users/me -v 2>&1 | grep -i "access-control" || echo "No CORS headers found"
 
-      # 4. Seed test data
+      # 4. Wait for migrations to complete
+      - name: Wait for migrations
+        run: |
+          echo "Waiting for database migrations to complete..."
+          DB_CONTAINER=$(docker compose -f docker-compose.e2e.yml ps -q db)
+
+          # Wait until the users table exists (created by migrations)
+          timeout 60 bash -c 'until docker exec '"$DB_CONTAINER"' psql -U submit -d submit -c "\dt users" 2>&1 | grep -q users; do echo "Waiting for migrations..."; sleep 2; done'
+          echo "✓ Migrations completed"
+
+      # 5. Seed test data
       - name: Seed test data
         run: |
           echo "Seeding test data..."
@@ -75,7 +85,7 @@ jobs:
           docker exec -i $DB_CONTAINER psql -U submit -d submit < submit-api/scripts/seed_e2e_test_data.sql
           echo "✓ Test data seeded successfully!"
 
-      # 5. Install Playwright dependencies
+      # 6. Install Playwright dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -91,7 +101,7 @@ jobs:
         working-directory: ./submit-web
         run: npx playwright install --with-deps chromium
 
-      # 6. Run Playwright tests
+      # 7. Run Playwright tests
       - name: Run Playwright tests
         id: tests
         continue-on-error: true
@@ -108,7 +118,7 @@ jobs:
           PROPONENT_BCEID_PASSWORD: ${{ secrets.PROPONENT_BCEID_PASSWORD }}
         run: npx playwright test
 
-      # 7. Upload artifacts
+      # 8. Upload artifacts
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -125,7 +135,7 @@ jobs:
           path: submit-web/test-results
           retention-days: 30
 
-      # 8. Cleanup test data
+      # 9. Cleanup test data
       - name: Cleanup test data
         if: always()
         run: |
@@ -134,7 +144,7 @@ jobs:
           docker exec -i $DB_CONTAINER psql -U submit -d submit < submit-api/scripts/cleanup_e2e_test_data.sql
           echo "✓ Test data cleaned up!"
 
-      # 9. Show logs on failure
+      # 10. Show logs on failure
       - name: Show service logs
         if: failure()
         run: |
@@ -147,14 +157,14 @@ jobs:
           echo "=== Database Logs ==="
           docker compose -f docker-compose.e2e.yml logs db
 
-      # 10. Cleanup
+      # 11. Cleanup
       - name: Cleanup
         if: always()
         run: |
           docker compose -f docker-compose.e2e.yml down -v
           echo "Cleanup completed"
 
-      # 11. Fail if tests failed
+      # 12. Fail if tests failed
       - name: Fail if tests failed
         if: steps.tests.outcome == 'failure'
         run: exit 1
