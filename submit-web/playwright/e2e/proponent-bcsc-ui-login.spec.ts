@@ -1,20 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { loginViaBCSC, kcLogout } from "../auth";
-import { seedProponentUser, cleanupTestData } from "../helpers/seed";
 
 test.describe("Proponent User Login via BCSC (UI Flow)", () => {
-  const testGuid = "71cb238c-147e-4d6b-85d1-de7f8659f049";
-
-  test.beforeAll(async () => {
-    // Seed the test proponent user with account and role
-    await seedProponentUser(testGuid);
-  });
-
-  test.afterAll(async () => {
-    // Cleanup test data after all tests complete
-    await cleanupTestData({ guid: testGuid });
-  });
-
   test.beforeEach(async ({ page }) => {
     await kcLogout(page);
   });
