@@ -80,6 +80,10 @@ jobs:
           echo "Database info:"
           docker exec $DB_CONTAINER psql -U submit -d submit -c "SELECT version();"
 
+          echo ""
+          echo "=== API Container Logs (checking for migrations) ==="
+          docker compose -f docker-compose.e2e.yml logs api | grep -i "migration\|upgrade\|error" || echo "No migration logs found"
+
       # 5. Install Playwright dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v4
