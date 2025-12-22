@@ -67,7 +67,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-    command: >
+    entrypoint: >
       sh -c "
         echo 'Running database migrations...' &&
         flask db upgrade &&
