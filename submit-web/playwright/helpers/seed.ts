@@ -1,81 +1,90 @@
 /**
  * E2E Test Data Seeding Helpers
  *
- * These TypeScript helpers call standalone Python scripts that seed test data.
- * All seeding logic is written in Python to match the API language and use SQLAlchemy models.
+ * These helpers call Python seeding scripts inside the API container via docker compose exec.
+ * Each test can seed its own data using beforeEach hooks for maximum test isolation.
  */
 
 import { execSync } from 'child_process';
+import path from 'path';
 
 /**
- * Detect if running in Docker environment
+ * Get the path to docker-compose.e2e.yml from the helpers directory
  */
-function isDockerEnvironment(): boolean {
-  return process.env.USE_DOCKER === 'true' || process.env.CI === 'true';
+function getDockerComposePath(): string {
+  // From submit-web/playwright/helpers/ -> ../../docker-compose.e2e.yml
+  return path.join(__dirname, '..', '..', '..', 'docker-compose.e2e.yml');
 }
 
 /**
- * Execute Python seeding script in the appropriate environment
+ * Execute a Python seeding script inside the API container
  */
-function execPythonScript(scriptPath: string): void {
-  if (isDockerEnvironment()) {
-    // Running in Docker (CI or docker-compose setup)
-    execSync(
-      `docker exec $(docker compose -f docker-compose.e2e.yml ps -q api) ` +
-      `python /opt/app-root/src/${scriptPath}`,
-      { stdio: 'inherit' }
-    );
-  } else {
-    // Running locally without Docker
-    execSync(
-      `cd submit-api && python ${scriptPath}`,
-      { stdio: 'inherit' }
-    );
-  }
-}
+function execPythonInContainer(command: string): void {
+  const composePath = getDockerComposePath();
 
-/**
- * Seed a proponent user with account and role.
- * Uses the default test GUID: 71cb238c-147e-4d6b-85d1-de7f8659f049
- *
- * @param guid - The auth_guid for the user (defaults to standard test GUID)
- */
-export async function seedProponentUser(
-  guid: string = '71cb238c-147e-4d6b-85d1-de7f8659f049'
-): Promise<void> {
   try {
-    console.log(`Seeding proponent user: ${guid}`);
-    execPythonScript('scripts/seed_default_proponent.py');
-    console.log(`✓ Proponent user seeded`);
+    execSync(
+      `docker compose -f "${composePath}" exec -T api ${command}`,
+      { stdio: 'inherit' }
+    );
   } catch (error) {
-    console.error(`Failed to seed proponent user`, error);
+    console.error('Failed to execute command in container:', command);
     throw error;
   }
 }
 
 /**
- * Clean up test data for the default test user.
- * Removes the default test GUID: 71cb238c-147e-4d6b-85d1-de7f8659f049
+ * Seed a proponent user for E2E testing
  *
- * @param options - Optional (currently unused, kept for API compatibility)
+ * @param guid - Keycloak user GUID
+ * @param options - Optional user details
  */
-export async function cleanupTestData(options: {
+export function seedProponentUser(
+  guid: string,
+  options: {
+    proponentId?: number;
+    firstName?: string;
+    lastName?: string;
+    position?: string;
+    workEmail?: string;
+    workPhone?: string;
+    extension?: string;
+    role?: string;
+  } = {}
+): void {
+  const args = [
+    `--guid ${guid}`,
+    options.proponentId ? `--proponent-id ${options.proponentId}` : '',
+    options.firstName ? `--first-name "${options.firstName}"` : '',
+    options.lastName ? `--last-name "${options.lastName}"` : '',
+    options.position ? `--position "${options.position}"` : '',
+    options.workEmail ? `--work-email "${options.workEmail}"` : '',
+    options.workPhone ? `--work-phone "${options.workPhone}"` : '',
+    options.extension ? `--extension "${options.extension}"` : '',
+    options.role ? `--role ${options.role}` : '',
+  ].filter(Boolean).join(' ');
+
+  console.log(`Seeding proponent user: ${guid}`);
+  execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
+  console.log(`✓ Proponent user seeded`);
+}
+
+/**
+ * Cleanup test data
+ *
+ * @param options - User GUID or Proponent ID to delete
+ */
+export function cleanupTestData(options: {
   guid?: string;
-} = {}): Promise<void> {
-  try {
-    console.log('Cleaning up test data...');
-    execPythonScript('scripts/cleanup_default_proponent.py');
-    console.log('✓ Test data cleaned up');
-  } catch (error) {
-    console.error('Failed to cleanup test data', error);
-    throw error;
-  }
-}
+  proponentId?: number;
+}): void {
+  const args = [
+    '--cleanup',
+    options.guid ? `--guid ${options.guid}` : '',
+    options.proponentId ? `--proponent-id ${options.proponentId}` : '',
+  ].filter(Boolean).join(' ');
 
-/**
- * Seed the default E2E test proponent user.
- * Uses the standard test GUID: 71cb238c-147e-4d6b-85d1-de7f8659f049
- */
-export async function seedDefaultProponentUser(): Promise<void> {
-  await seedProponentUser();
+  console.log('Cleaning up test data...');
+  execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
+  console.log('✓ Test data cleaned up');
 }

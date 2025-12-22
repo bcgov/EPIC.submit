@@ -183,29 +183,63 @@ def cleanup_test_data(guid: str = None, proponent_id: int = None):
 
 def main():
     """Main entry point for seeding E2E test data."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Seed E2E test data')
+
+    # Seeding arguments
+    parser.add_argument('--guid', type=str, help='User GUID')
+    parser.add_argument('--proponent-id', type=int, default=8888, help='Proponent ID')
+    parser.add_argument('--first-name', type=str, default='E2E', help='First name')
+    parser.add_argument('--last-name', type=str, default='Proponent', help='Last name')
+    parser.add_argument('--position', type=str, default='Test Administrator', help='Position/title')
+    parser.add_argument('--work-email', type=str, default='e2e.proponent@test.example.com', help='Work email')
+    parser.add_argument('--work-phone', type=str, default='555-0100', help='Work phone')
+    parser.add_argument('--extension', type=str, default='101', help='Phone extension')
+    parser.add_argument('--role', type=str, default='PROJECT_ADMIN', help='Role name')
+
+    # Cleanup flag
+    parser.add_argument('--cleanup', action='store_true', help='Cleanup test data instead of seeding')
+
+    args = parser.parse_args()
+
     print("=" * 60)
-    print("E2E Test Data Seeding")
+    if args.cleanup:
+        print("E2E Test Data Cleanup")
+    else:
+        print("E2E Test Data Seeding")
     print("=" * 60)
 
     app = create_app()
 
     with app.app_context():
-        # Seed the default proponent user for E2E tests
-        seed_proponent_user(
-            guid='71cb238c-147e-4d6b-85d1-de7f8659f049',
-            proponent_id=8888,
-            first_name='E2E',
-            last_name='Proponent',
-            position='Test Administrator',
-            work_email='e2e.proponent@test.example.com',
-            work_phone='555-0100',
-            extension='101',
-            role_name='PROJECT_ADMIN'
-        )
+        if args.cleanup:
+            # Cleanup mode
+            cleanup_test_data(guid=args.guid, proponent_id=args.proponent_id)
+        else:
+            # Seeding mode
+            if not args.guid:
+                print("Error: --guid is required for seeding")
+                sys.exit(1)
+
+            seed_proponent_user(
+                guid=args.guid,
+                proponent_id=args.proponent_id,
+                first_name=args.first_name,
+                last_name=args.last_name,
+                position=args.position,
+                work_email=args.work_email,
+                work_phone=args.work_phone,
+                extension=args.extension,
+                role_name=args.role
+            )
 
         print()
         print("=" * 60)
-        print("✓ E2E test data seeded successfully!")
+        if args.cleanup:
+            print("✓ E2E test data cleanup completed!")
+        else:
+            print("✓ E2E test data seeded successfully!")
         print("=" * 60)
 
 
