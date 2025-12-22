@@ -13,6 +13,7 @@ from submit_api import create_app
 from submit_api.models import User, Account, AccountUser, UserRole, Role
 from submit_api.models.db import db
 from submit_api.models.user import UserType
+from submit_api.models.account_terms_of_service import TermsOfService
 
 
 def seed_proponent_user(
@@ -24,7 +25,8 @@ def seed_proponent_user(
     work_email: str = "e2e.proponent@test.example.com",
     work_phone: str = "555-0100",
     extension: str = "101",
-    role_name: str = "PROJECT_ADMIN"
+    role_name: str = "PROJECT_ADMIN",
+    accept_terms_of_service: bool = True
 ) -> tuple:
     """Seed a proponent user with account and role.
 
@@ -38,6 +40,7 @@ def seed_proponent_user(
         work_phone: User's work phone number
         extension: Phone extension (optional)
         role_name: Role to assign (default: PROJECT_ADMIN)
+        accept_terms_of_service: Whether to accept terms of service (default: True)
 
     Returns:
         tuple: (user, account, account_user, user_role)
@@ -72,8 +75,24 @@ def seed_proponent_user(
         })
         print(f"  ✓ Created account (ID: {account.id}, proponent_id: {proponent_id})")
 
+    # Get or create active terms of service (if accepting)
+    terms_of_service_version = None
+    if accept_terms_of_service:
+        terms_of_service = TermsOfService.get_active_terms_of_service()
+        if not terms_of_service:
+            # Create a default terms of service for E2E testing
+            terms_of_service = TermsOfService.create_terms_of_service({
+                'version': 1,
+                'content': 'E2E Test Terms of Service',
+                'active': True
+            })
+            print(f"  ✓ Created terms of service (version: {terms_of_service.version})")
+        else:
+            print(f"  ℹ Using existing terms of service (version: {terms_of_service.version})")
+        terms_of_service_version = terms_of_service.version
+
     # Create account user
-    account_user = AccountUser.create_account_user({
+    account_user_data = {
         'user_id': user.id,
         'account_id': account.id,
         'first_name': first_name,
@@ -82,8 +101,17 @@ def seed_proponent_user(
         'work_email_address': work_email,
         'work_contact_number': work_phone,
         'extension_number': extension
-    })
-    print(f"  ✓ Created account user (ID: {account_user.id})")
+    }
+
+    if terms_of_service_version:
+        account_user_data['terms_of_service_version_id'] = terms_of_service_version
+
+    account_user = AccountUser.create_account_user(account_user_data)
+
+    if accept_terms_of_service:
+        print(f"  ✓ Created account user (ID: {account_user.id}, accepted ToS: version {terms_of_service_version})")
+    else:
+        print(f"  ✓ Created account user (ID: {account_user.id}, no ToS acceptance)")
 
     # Get role
     role = Role.get_by_name(role_name)
@@ -166,16 +194,35 @@ def cleanup_test_data(guid: str = None, proponent_id: int = None):
         user = User.get_by_guid(guid)
         if user:
             print(f"Deleting user with GUID: {guid}")
-            # Cascade delete will handle account_users, user_roles, etc.
+
+            # Get account_user to find related records
+            account_user = AccountUser.get_by_guid(guid)
+            if account_user:
+                # Delete user roles first (depends on account_user)
+                user_roles = UserRole.query.filter_by(account_user_id=account_user.id).all()
+                for user_role in user_roles:
+                    db.session.delete(user_role)
+                    print(f"  ✓ Deleted user role (ID: {user_role.id})")
+
+                # Delete account user
+                db.session.delete(account_user)
+                print(f"  ✓ Deleted account user (ID: {account_user.id})")
+
+            # Delete user
             db.session.delete(user)
             print(f"  ✓ Deleted user (ID: {user.id})")
 
     if proponent_id:
         account = Account.get_by_proponent_id(proponent_id)
         if account:
-            print(f"Deleting account with proponent_id: {proponent_id}")
-            db.session.delete(account)
-            print(f"  ✓ Deleted account (ID: {account.id})")
+            # Check if account has any remaining users
+            remaining_users = AccountUser.query.filter_by(account_id=account.id).count()
+            if remaining_users == 0:
+                print(f"Deleting account with proponent_id: {proponent_id}")
+                db.session.delete(account)
+                print(f"  ✓ Deleted account (ID: {account.id})")
+            else:
+                print(f"  ℹ Skipping account deletion (ID: {account.id}) - has {remaining_users} remaining users")
 
     db.session.commit()
     print("  ✓ Cleanup committed to database")
@@ -197,6 +244,7 @@ def main():
     parser.add_argument('--work-phone', type=str, default='555-0100', help='Work phone')
     parser.add_argument('--extension', type=str, default='101', help='Phone extension')
     parser.add_argument('--role', type=str, default='PROJECT_ADMIN', help='Role name')
+    parser.add_argument('--no-terms-of-service', action='store_true', help='Do not accept terms of service (default: accept ToS)')
 
     # Cleanup flag
     parser.add_argument('--cleanup', action='store_true', help='Cleanup test data instead of seeding')
@@ -231,7 +279,8 @@ def main():
                 work_email=args.work_email,
                 work_phone=args.work_phone,
                 extension=args.extension,
-                role_name=args.role
+                role_name=args.role,
+                accept_terms_of_service=not args.no_terms_of_service
             )
 
         print()
