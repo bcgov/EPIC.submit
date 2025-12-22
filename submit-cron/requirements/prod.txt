@@ -12,7 +12,7 @@ python-dotenv
 psycopg2-binary
 marshmallow-enum==1.5.1
 marshmallow-sqlalchemy==1.0.0
-marshmallow==3.21.3
+marshmallow==3.26.2
 jsonschema
 requests
 itsdangerous
