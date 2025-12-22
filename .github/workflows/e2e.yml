@@ -67,7 +67,20 @@ jobs:
                -X OPTIONS \
                http://localhost:3200/api/users/me -v 2>&1 | grep -i "access-control" || echo "No CORS headers found"
 
-      # 4. Install Playwright dependencies
+      # 4. Debug database migrations
+      - name: Debug database tables
+        run: |
+          echo "=== Listing database tables ==="
+          DB_CONTAINER=$(docker compose -f docker-compose.e2e.yml ps -q db)
+
+          echo "Tables in database:"
+          docker exec $DB_CONTAINER psql -U submit -d submit -c "\dt" || echo "No tables found or error listing tables"
+
+          echo ""
+          echo "Database info:"
+          docker exec $DB_CONTAINER psql -U submit -d submit -c "SELECT version();"
+
+      # 5. Install Playwright dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -83,7 +96,7 @@ jobs:
         working-directory: ./submit-web
         run: npx playwright install --with-deps chromium
 
-      # 5. Run Playwright tests
+      # 6. Run Playwright tests
       - name: Run Playwright tests
         id: tests
         continue-on-error: true
@@ -100,7 +113,7 @@ jobs:
           PROPONENT_BCEID_PASSWORD: ${{ secrets.PROPONENT_BCEID_PASSWORD }}
         run: npx playwright test
 
-      # 6. Upload artifacts
+      # 7. Upload artifacts
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -117,7 +130,7 @@ jobs:
           path: submit-web/test-results
           retention-days: 30
 
-      # 7. Show logs on failure
+      # 8. Show logs on failure
       - name: Show service logs
         if: failure()
         run: |
@@ -130,14 +143,14 @@ jobs:
           echo "=== Database Logs ==="
           docker compose -f docker-compose.e2e.yml logs db
 
-      # 8. Cleanup
+      # 9. Cleanup
       - name: Cleanup
         if: always()
         run: |
           docker compose -f docker-compose.e2e.yml down -v
           echo "Cleanup completed"
 
-      # 9. Fail if tests failed
+      # 10. Fail if tests failed
       - name: Fail if tests failed
         if: steps.tests.outcome == 'failure'
         run: exit 1
