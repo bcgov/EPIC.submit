@@ -115,26 +115,32 @@ class ProjectQueries:
         return query
 
     @classmethod
-    def get_paginated_account_project_ids(cls, account_id: int, filtered_package_ids: list,
-                                          page: int, page_size: int, user: User = None) -> tuple:
+    def get_paginated_account_project_ids(cls, account_id: int, page: int, page_size: int,
+                                          filtered_package_ids: list = None, user: User = None) -> tuple:
         """Retrieve paginated AccountProject IDs based on filtering."""
-        query = db.session.query(AccountProject)
+        query = db.session.query(AccountProject).join(Project)
 
         if account_id is not None:
             query = cls._filter_account_projects_by_user_access(query, user)
 
         if filtered_package_ids is None:
-            account_project_ids_query = query.distinct(AccountProject.id)
+            account_project_ids_subquery = query.with_entities(AccountProject.id).distinct()
         else:
-            account_project_ids_query = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
-                                         .distinct(AccountProject.id))
+            account_project_ids_subquery = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
+                                            .with_entities(AccountProject.id).distinct())
+
+        account_project_ids_query = (
+            db.session.query(AccountProject.id)
+            .join(Project)
+            .filter(AccountProject.id.in_(account_project_ids_subquery))
+            .order_by(Project.name)
+        )
 
         if page and page_size:
-            paginated_result = (account_project_ids_query.with_entities(AccountProject.id)
-                                .paginate(page=page, per_page=page_size))
+            paginated_result = account_project_ids_query.paginate(page=page, per_page=page_size)
             return [row[0] for row in paginated_result.items], paginated_result.total
 
-        return ([row[0] for row in account_project_ids_query.with_entities(AccountProject.id).all()],
+        return ([row[0] for row in account_project_ids_query.all()],
                 account_project_ids_query.count())
 
     @classmethod
@@ -143,8 +149,10 @@ class ProjectQueries:
         """Retrieve full AccountProject objects, apply schema, and filter packages."""
         account_projects = (
             db.session.query(AccountProject)
+            .join(Project, AccountProject.project_id == Project.id)
             .filter(AccountProject.id.in_(account_project_ids))
             .options(joinedload(AccountProject.packages))
+            .order_by(Project.name)
         ).all()
 
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
@@ -173,8 +181,8 @@ class ProjectQueries:
 
         filtered_package_ids = cls.get_filtered_package_ids(search_options, user)
 
-        account_project_ids, total = cls.get_paginated_account_project_ids(account_id, filtered_package_ids,
-                                                                           page, page_size, user)
+        account_project_ids, total = cls.get_paginated_account_project_ids(account_id, page, page_size,
+                                                                           filtered_package_ids, user)
 
         if not account_project_ids:
             return [], 0

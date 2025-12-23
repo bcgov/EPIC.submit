@@ -1,0 +1,101 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: submit
+      POSTGRES_USER: submit
+      POSTGRES_PASSWORD: submit
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U submit -d submit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Submit API (Flask Backend)
+  api:
+    build:
+      context: ./submit-api
+      dockerfile: Dockerfile
+    ports:
+      - "3200:8080"
+    environment:
+      # Database connection
+      DATABASE_USERNAME: submit
+      DATABASE_PASSWORD: submit
+      DATABASE_NAME: submit
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+
+      # Flask config
+      FLASK_ENV: development
+      FLASK_APP: wsgi.py
+
+      # CORS (allow localhost frontend)
+      CORS_ORIGIN: http://localhost:5173,http://localhost:3200
+
+      # Keycloak/OIDC (use DEV services)
+      JWT_OIDC_WELL_KNOWN_CONFIG: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
+      JWT_OIDC_AUDIENCE: epic-submit
+      JWT_OIDC_ISSUER: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
+      JWT_OIDC_ALGORITHMS: RS256
+      JWT_OIDC_JWKS_URI: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic/protocol/openid-connect/certs
+      JWT_OIDC_CACHING_ENABLED: "True"
+      JWT_OIDC_JWKS_CACHE_TIMEOUT: "3000000"
+
+      # Keycloak admin credentials (from GitHub secrets)
+      KEYCLOAK_ADMIN_CLIENT: ${KEYCLOAK_ADMIN_CLIENT}
+      KEYCLOAK_ADMIN_SECRET: ${KEYCLOAK_ADMIN_SECRET}
+      KEYCLOAK_BASE_URL: https://dev.loginproxy.gov.bc.ca
+      KEYCLOAK_URL_REALM: eao-epic
+
+      # External services (DEV)
+      EPIC_DOCUMENT_API_URL: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
+      CONDITION_API_URL: https://condition-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
+
+      # Site config
+      SITE_URL: http://localhost:5173
+      BC_SERVICE_CARD_URL: https://id.gov.bc.ca
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ops/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    command: >
+      sh -c "
+        echo 'Running database migrations...' &&
+        flask db upgrade &&
+        echo 'Starting API server...' &&
+        gunicorn --bind 0.0.0.0:8080 --timeout 60 --workers 3 wsgi:application
+      "
+
+  # Submit Web (React Frontend - DEV MODE)
+  web:
+    build:
+      context: ./submit-web
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:3200/api
+      VITE_OBJECT_STORAGE_URL: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
+      VITE_CONDITIONS_LIBRARY_URL: https://condition-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
+      VITE_OIDC_AUTHORITY: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
+      VITE_CLIENT_ID: epic-submit
+      VITE_APP_URL: http://localhost:5173
+      VITE_ENV: ci
+      VITE_APP_TITLE: EPIC.submit
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
