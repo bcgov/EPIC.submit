@@ -2,7 +2,7 @@
 
 ## Overview
 
-EPIC.submit uses **Playwright** for end-to-end (E2E) testing to validate authentication flows and critical user journeys. The testing strategy focuses on establishing a "beachhead" of core functionality tests that can be expanded over time.
+EPIC.submit uses **Playwright** for end-to-end (E2E) testing to validate authentication flows and critical user journeys. The testing strategy uses a **fully containerized environment** via Docker Compose to ensure consistent, isolated test execution both locally and in CI. Tests focus on establishing a "beachhead" of core functionality that can be expanded over time.
 
 ## Testing Framework
 
@@ -12,6 +12,122 @@ EPIC.submit uses **Playwright** for end-to-end (E2E) testing to validate authent
 - Built-in parallelization and retries
 - Excellent debugging tools (trace viewer, inspector)
 - Supports Chromium, Firefox, and WebKit
+
+## Containerized Test Environment
+
+### Benefits of Containerization
+
+The containerized approach provides:
+
+✅ **Consistency**: Identical environment locally and in CI
+✅ **Isolation**: Each test run gets fresh database and services
+✅ **Reproducibility**: Same Docker images = same behavior everywhere
+✅ **No Manual Setup**: No need to run dev servers manually
+✅ **Fast Cleanup**: `docker compose down -v` removes everything
+✅ **Real Integrations**: Tests against actual Flask API + PostgreSQL, not mocks
+✅ **Simplified Onboarding**: New developers just need Docker installed
+
+### Architecture Overview
+
+E2E tests run against a **fully containerized stack** defined in `docker-compose.e2e.yml`:
+
+```
+┌─────────────────────────────────────────────────┐
+│ Host Machine (Test Runner)                     │
+│                                                 │
+│  ┌──────────────────────────────────────────┐ │
+│  │ Playwright Test Suite                    │ │
+│  │ - Runs on host (not containerized)       │ │
+│  │ - Connects to http://localhost:5173      │ │
+│  │ - Executes docker compose exec for seeds │ │
+│  └────────────┬────────────┬────────────────┘ │
+│               │            │                   │
+│               │            │                   │
+└───────────────┼────────────┼───────────────────┘
+                │            │
+        HTTP    │            │  docker exec
+    ┌───────────▼────────┐   │
+    │                    │   │
+┌───┼────────────────────┼───┼───────────────────┐
+│   │ Docker Compose     │   │                   │
+│   │                    │   │                   │
+│   │  ┌──────────────┐  │   │                   │
+│   │  │ web          │◄─┘   │                   │
+│   │  │ (Vite dev)   │      │                   │
+│   │  │ :5173        │      │                   │
+│   │  └──────┬───────┘      │                   │
+│   │         │ HTTP         │                   │
+│   │  ┌──────▼───────┐      │                   │
+│   │  │ api          │◄─────┘ (seeding scripts) │
+│   │  │ (Flask)      │                          │
+│   │  │ :8080→:3200  │                          │
+│   │  └──────┬───────┘                          │
+│   │         │ SQL                               │
+│   │  ┌──────▼───────┐                          │
+│   │  │ db           │                          │
+│   │  │ (PostgreSQL) │                          │
+│   │  │ :5432        │                          │
+│   │  └──────────────┘                          │
+│   │                                             │
+└───┼─────────────────────────────────────────────┘
+    │
+    │ (External services - DEV environment)
+    └──► Keycloak: dev.loginproxy.gov.bc.ca
+         Object Storage: epic-document-api (dev)
+         Conditions Library: condition-api (dev)
+```
+
+### Container Services
+
+**1. Database (db)**
+- **Image**: `postgres:15`
+- **Port**: `5432:5432`
+- **Credentials**: `submit/submit/submit` (user/password/database)
+- **Health Check**: `pg_isready` every 5 seconds
+- **Purpose**: Isolated test database with fresh schema on each run
+
+**2. API (api)**
+- **Build**: `submit-api/Dockerfile`
+- **Port**: `3200:8080` (host:container)
+- **Startup**:
+  1. Waits for database health check
+  2. Runs migrations: `flask db upgrade`
+  3. Starts Gunicorn: `--workers 3 --timeout 60`
+- **Health Check**: `curl http://localhost:8080/ops/healthz` every 10 seconds
+- **Authentication**: Uses DEV Keycloak (real OAuth flows)
+- **CORS**: Configured for `http://localhost:5173`
+
+**3. Web (web)**
+- **Build**: `submit-web/Dockerfile.dev` (Vite dev mode, not production build)
+- **Port**: `5173:5173`
+- **Startup**:
+  1. Waits for API health check
+  2. Installs dependencies (if needed)
+  3. Starts Vite dev server
+- **Health Check**: `curl http://localhost:5173` every 10 seconds
+- **Configuration**: Environment variables injected at runtime
+
+### Data Seeding Strategy
+
+Tests seed data by **executing Python scripts inside the API container**:
+
+```typescript
+// TypeScript helper (runs on host)
+seedProponentUser('test-guid-123');
+
+// Executes this command:
+docker compose -f docker-compose.e2e.yml exec -T api \
+  python scripts/seed_e2e_data.py --guid test-guid-123
+```
+
+**Benefits**:
+- ✅ Uses Python/SQLAlchemy models (same as application)
+- ✅ No TypeScript→SQL translation needed
+- ✅ Matches API's language and ORM
+- ✅ Can leverage existing service layer functions
+- ✅ Automatic cleanup after tests
+
+**Implementation**: See `submit-web/playwright/helpers/seed.ts`
 
 ## Test Architecture
 
@@ -154,30 +270,47 @@ Similar to BCSC flow but simpler (no intermediate consent page).
 
 ### Local Development
 
+E2E tests use Docker Compose to create an isolated, reproducible environment. All services run in containers except the Playwright test runner itself.
+
 **Prerequisites**:
-1. Frontend dev server running: `npm run dev` (or deployed environment)
-2. Backend API running: `http://localhost:3200` (or configure `VITE_API_URL`)
-3. Test credentials configured in `.env.playwright`
-4. Playwright browsers installed: `npx playwright install chromium`
+1. **Docker** and **Docker Compose** installed
+2. **Node.js** 18+ installed (for running Playwright on host)
+3. **Test credentials** configured in `.env.playwright`
+4. **Playwright browsers** installed: `npx playwright install chromium`
+
+**Step 1: Start Containerized Services**
+
+From the project root:
+
+```bash
+# Start all services (db, api, web)
+docker compose -f docker-compose.e2e.yml up -d
+
+# Wait for services to be healthy (optional - tests will wait automatically)
+docker compose -f docker-compose.e2e.yml ps
+```
+
+This starts:
+- PostgreSQL database (runs migrations automatically)
+- Flask API (http://localhost:3200)
+- Vite dev server (http://localhost:5173)
+
+**Step 2: Run Playwright Tests**
+
+From `submit-web/` directory:
 
 **Interactive UI Mode** (recommended for development):
 ```bash
-npm run test:ui
-# or
 npx playwright test --ui
 ```
 
 **Headed Mode** (see browser):
 ```bash
-npm run test:headed
-# or
 npx playwright test --headed
 ```
 
 **Headless Mode** (default):
 ```bash
-npm test
-# or
 npx playwright test
 ```
 
@@ -188,16 +321,47 @@ npx playwright test proponent-bcsc-ui-login
 
 **Debug Mode**:
 ```bash
-npm run test:debug
-# or
 npx playwright test --debug
 ```
 
-**View Last Report**:
+**Step 3: View Results**
+
 ```bash
-npm run test:report
-# or
+# View last test report
 npx playwright show-report
+```
+
+**Step 4: Cleanup**
+
+```bash
+# Stop and remove containers
+docker compose -f docker-compose.e2e.yml down
+
+# Remove containers AND volumes (fresh database next run)
+docker compose -f docker-compose.e2e.yml down -v
+```
+
+### Troubleshooting Local Setup
+
+**Services not healthy:**
+```bash
+# Check service logs
+docker compose -f docker-compose.e2e.yml logs db
+docker compose -f docker-compose.e2e.yml logs api
+docker compose -f docker-compose.e2e.yml logs web
+
+# Check service health status
+docker compose -f docker-compose.e2e.yml ps
+```
+
+**Port conflicts:**
+If ports 3200, 5173, or 5432 are already in use, stop conflicting services or modify ports in `docker-compose.e2e.yml`.
+
+**Database issues:**
+```bash
+# Reset database with fresh schema
+docker compose -f docker-compose.e2e.yml down -v
+docker compose -f docker-compose.e2e.yml up -d
 ```
 
 ### CI/CD Execution
@@ -206,95 +370,339 @@ npx playwright show-report
 
 **Trigger**: Manual dispatch (`workflow_dispatch`)
 
-**Environment**: Tests against dev environment URL
+**Environment**: Fully containerized stack (identical to local development)
 
-**Steps**:
-1. Install dependencies
-2. Install Playwright browsers (`chromium` only for CI)
-3. Create `.env.playwright` from GitHub secrets
-4. Run tests headless
-5. Upload artifacts (HTML report, test results, traces)
+**Pipeline Steps**:
+
+**1. Checkout Code**
+```yaml
+- uses: actions/checkout@v4
+```
+
+**2. Start Containerized Services**
+```bash
+docker compose -f docker-compose.e2e.yml up -d
+```
+
+**3. Wait for Health Checks**
+- Database: 120s timeout, checks every 2s
+- API: 180s timeout, checks every 2s
+- Web: 300s timeout, checks every 5s (longer for npm install + Vite startup)
+
+**4. Debug Steps** (for troubleshooting)
+- CORS configuration validation
+- Database migration verification
+- API container logs
+
+**5. Setup Node.js and Playwright**
+```bash
+- uses: actions/setup-node@v4
+  with:
+    node-version: '18.x'
+    cache: 'npm'
+- npm install --legacy-peer-deps
+- npx playwright install --with-deps chromium
+```
+
+**6. Run Playwright Tests**
+```bash
+npx playwright test
+```
+
+Environment variables passed to tests:
+- `BASE_URL`: http://localhost:5173
+- `STAFF_USERNAME`, `STAFF_PASSWORD`
+- `PROPONENT_USERNAME`, `PROPONENT_PASSWORD`
+- `PROPONENT_BCSC_USERNAME`, `PROPONENT_BCSC_PASSWORD`
+- `PROPONENT_BCEID_USERNAME`, `PROPONENT_BCEID_PASSWORD`
+
+**7. Upload Artifacts** (always, even on failure)
+- Playwright HTML report (30-day retention)
+- Test results (30-day retention)
+
+**8. Show Service Logs** (on failure)
+```bash
+docker compose -f docker-compose.e2e.yml logs api
+docker compose -f docker-compose.e2e.yml logs web
+docker compose -f docker-compose.e2e.yml logs db
+```
+
+**9. Cleanup** (always)
+```bash
+docker compose -f docker-compose.e2e.yml down -v
+```
 
 **Required GitHub Secrets**:
-- `CYPRESS_STAFF_USERNAME` (reused from Cypress migration)
-- `CYPRESS_STAFF_PASSWORD`
-- `CYPRESS_PROPONENT_USERNAME`
-- `CYPRESS_PROPONENT_PASSWORD`
-- `CYPRESS_PROPONENT_BCSC_USERNAME`
-- `CYPRESS_PROPONENT_BCSC_PASSWORD`
-- `CYPRESS_PROPONENT_BCEID_USERNAME`
-- `CYPRESS_PROPONENT_BCEID_PASSWORD`
+- `KEYCLOAK_ADMIN_CLIENT_DEV` - Keycloak admin client ID
+- `KEYCLOAK_ADMIN_SECRET_DEV` - Keycloak admin client secret
+- `STAFF_USERNAME` - Staff test user
+- `STAFF_PASSWORD` - Staff test password
+- `PROPONENT_USERNAME` - Proponent test user
+- `PROPONENT_PASSWORD` - Proponent test password
+- `PROPONENT_BCSC_USERNAME` - BCSC test credentials
+- `PROPONENT_BCSC_PASSWORD` - BCSC test password
+- `PROPONENT_BCEID_USERNAME` - BCeID test credentials
+- `PROPONENT_BCEID_PASSWORD` - BCeID test password
 
 **Artifacts**:
 - Playwright HTML report (interactive, browsable test results)
-- Test results (raw test output)
-- Traces (for failed tests, viewable in trace viewer)
+- Test results (screenshots, videos, traces for failed tests)
 
 ## Test Environment Requirements
 
-### Frontend
+### Containerized Services (Automatic)
 
-- **Dev Server**: Must be running on configured `BASE_URL`
-- **OIDC Config**: Keycloak at `https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic`
-- **Client ID**: `epic-submit`
-- **Environment Variables**: Must be configured in `.env` file
+All application services are **automatically provisioned** via Docker Compose:
 
-### Backend
+**✅ Database**
+- PostgreSQL 15
+- Fresh schema on each run (via migrations)
+- Isolated test data
 
-- **API URL**: Must be accessible at `VITE_API_URL` (from frontend `.env`)
-- **Endpoints Required**:
-  - `/api/users/me` - User provisioning
-  - `/api/users/guid/{guid}` - User lookup
-  - `/api/projects/accounts/{id}` - Project data
-- **CORS**: Must allow requests from frontend origin
+**✅ Backend API**
+- Flask application with Gunicorn
+- Automatic database migrations on startup
+- Health checked before tests run
+- CORS pre-configured for `http://localhost:5173`
 
-### External Services
+**✅ Frontend**
+- Vite dev server (not production build)
+- Environment variables injected at container startup
+- Health checked before tests run
 
-- **Keycloak**: `https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic`
-- **BCSC Test Environment**: `https://idtest.gov.bc.ca`
-- **BCeID Dev Environment**: `https://dev.loginproxy.gov.bc.ca`
+### External Services (DEV Environment)
+
+The following **external services** are used from the DEV environment (not containerized):
+
+**Keycloak (Identity Provider)**
+- URL: `https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic`
+- Client ID: `epic-submit`
+- Purpose: Real OAuth/OIDC authentication flows
+- Required for: BCSC login, BCeID login, ROPC token generation
+
+**BC Services Card Test Environment**
+- URL: `https://idtest.gov.bc.ca`
+- Purpose: BCSC test login flow
+- Credentials: Test accounts from GitHub secrets
+
+**BCeID Test Environment**
+- URL: `https://dev.loginproxy.gov.bc.ca`
+- Purpose: Business BCeID login flow
+
+**Object Storage API**
+- URL: `https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api`
+- Purpose: Document upload/download
+
+**Conditions Library API**
+- URL: `https://condition-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api`
+- Purpose: Compliance condition data
+
+### Why Hybrid Containerized + External Services?
+
+**Containerized** (db, api, web):
+- ✅ Full control over versions and configuration
+- ✅ Isolated test environment
+- ✅ Fast startup and teardown
+- ✅ Consistent across local and CI
+
+**External DEV services** (Keycloak, BCSC, etc.):
+- ✅ Real OAuth flows (not mocked)
+- ✅ Validates production-like authentication
+- ✅ Tests actual identity provider integration
+- ❌ Dependency on external availability
 
 ## Test Database Setup
 
-**Script**: `submit-api/scripts/create_e2e_test_users.sql`
+### Automatic Migration
 
-Creates test users in the database:
-- Staff test user
-- Proponent test user
+The API container **automatically runs migrations** on startup:
 
-**Important**: Update GUIDs in the script to match actual Keycloak user GUIDs before running.
+```bash
+# From docker-compose.e2e.yml entrypoint:
+flask db upgrade && \
+gunicorn --bind 0.0.0.0:8080 wsgi:application
+```
+
+This ensures the test database always has the latest schema.
+
+### Data Seeding
+
+Tests seed their own data using the **docker exec pattern**:
+
+```typescript
+// In test beforeEach hook:
+test.beforeEach(() => {
+  seedProponentUser('test-guid-123', {
+    firstName: 'Test',
+    lastName: 'User',
+    proponentId: 8888
+  });
+});
+
+// In test afterEach hook:
+test.afterEach(() => {
+  cleanupTestData({ guid: 'test-guid-123' });
+});
+```
+
+This executes:
+```bash
+docker compose -f docker-compose.e2e.yml exec -T api \
+  python scripts/seed_e2e_data.py \
+  --guid test-guid-123 \
+  --first-name Test \
+  --last-name User \
+  --proponent-id 8888
+```
+
+**Benefits**:
+- Each test gets fresh data
+- No shared state between tests
+- Automatic cleanup
+- Python/SQLAlchemy for data creation (matches API)
 
 ## Common Issues and Solutions
 
-### Issue 1: ERR_CONNECTION_REFUSED to API
+### Issue 1: Services Not Starting
 
 **Symptoms**:
-- Tests redirect to `/error` page
-- Console shows connection refused errors
-- API logs show successful requests (race condition)
+- `docker compose up` fails
+- Containers exit immediately
+- Health checks never pass
 
-**Causes**:
-- Backend API not fully initialized when frontend makes first request
-- Connection pool limits
-- Network timing issues
+**Debugging**:
+```bash
+# Check service status
+docker compose -f docker-compose.e2e.yml ps
+
+# View logs for failing service
+docker compose -f docker-compose.e2e.yml logs db
+docker compose -f docker-compose.e2e.yml logs api
+docker compose -f docker-compose.e2e.yml logs web
+
+# Check for port conflicts
+netstat -an | grep 5432  # Database
+netstat -an | grep 3200  # API
+netstat -an | grep 5173  # Web
+```
+
+**Common Solutions**:
+1. **Port already in use**: Stop conflicting services or change ports in `docker-compose.e2e.yml`
+2. **Build failures**: Rebuild images with `docker compose -f docker-compose.e2e.yml build --no-cache`
+3. **Database not ready**: Increase health check retries in compose file
+
+### Issue 2: API Container Fails Health Checks
+
+**Symptoms**:
+- API container starts but never becomes healthy
+- Migrations fail
+- `/ops/healthz` endpoint returns 500
+
+**Debugging**:
+```bash
+# Check API logs
+docker compose -f docker-compose.e2e.yml logs api
+
+# Check if migrations ran
+docker compose -f docker-compose.e2e.yml logs api | grep migration
+
+# Test health endpoint manually
+curl http://localhost:3200/ops/healthz
+```
+
+**Common Causes**:
+1. **Migration failures**: Schema conflicts, missing dependencies
+2. **Database connection issues**: Wrong credentials, db not ready
+3. **Missing secrets**: `KEYCLOAK_ADMIN_CLIENT` or `KEYCLOAK_ADMIN_SECRET` not set
 
 **Solutions**:
-1. **Wait for network idle** (already implemented in auth helpers)
-   ```typescript
-   await page.goto('/', { waitUntil: 'networkidle' });
-   ```
+```bash
+# Reset database completely
+docker compose -f docker-compose.e2e.yml down -v
+docker compose -f docker-compose.e2e.yml up -d
 
-2. **Ensure backend is running** before tests:
-   ```bash
-   curl http://localhost:3200/api/health
-   ```
+# Check database connectivity from API container
+docker compose -f docker-compose.e2e.yml exec api \
+  psql -h db -U submit -d submit -c "SELECT 1;"
+```
 
-3. **Check API URL configuration** in frontend `.env`:
-   ```bash
-   VITE_API_URL=http://127.0.0.1:3200/api
-   ```
+### Issue 3: Web Container Build Issues
 
-### Issue 2: SecurityError on sessionStorage
+**Symptoms**:
+- Web container fails to build
+- `npm install` errors
+- Vite server won't start
+
+**Debugging**:
+```bash
+# View web container logs
+docker compose -f docker-compose.e2e.yml logs web
+
+# Rebuild web container
+docker compose -f docker-compose.e2e.yml build --no-cache web
+```
+
+**Common Solutions**:
+1. **Node version mismatch**: Check Dockerfile.dev uses Node 18+
+2. **npm install failures**: Delete `node_modules` and rebuild
+3. **Port 5173 in use**: Stop other Vite servers or change port
+
+### Issue 4: Tests Can't Connect to Services
+
+**Symptoms**:
+- Tests timeout waiting for `http://localhost:5173`
+- Connection refused errors
+- Playwright can't reach services
+
+**Debugging**:
+```bash
+# Verify services are accessible from host
+curl http://localhost:5173      # Web
+curl http://localhost:3200/api  # API
+curl http://localhost:5432      # Database (should refuse connection - expected)
+
+# Check if services are healthy
+docker compose -f docker-compose.e2e.yml ps
+```
+
+**Solutions**:
+1. Ensure services are fully started before running tests
+2. Check firewall/antivirus isn't blocking localhost connections
+3. Use `127.0.0.1` instead of `localhost` if DNS issues
+
+### Issue 5: Data Seeding Failures
+
+**Symptoms**:
+- `seedProponentUser()` throws errors
+- "container not found" messages
+- Tests fail with missing data
+
+**Debugging**:
+```bash
+# Check if API container is running
+docker compose -f docker-compose.e2e.yml ps api
+
+# Run seeding script manually
+docker compose -f docker-compose.e2e.yml exec -T api \
+  python scripts/seed_e2e_data.py --guid test-123
+```
+
+**Common Causes**:
+1. **API container not running**: Start services first
+2. **Wrong compose file path**: Seeding helpers look for `docker-compose.e2e.yml` in project root
+3. **Python script errors**: Check script exists and has no syntax errors
+
+**Solutions**:
+```bash
+# Verify script location
+ls submit-api/scripts/seed_e2e_data.py
+
+# Test script directly in container
+docker compose -f docker-compose.e2e.yml exec api \
+  python scripts/seed_e2e_data.py --help
+```
+
+### Issue 6: SecurityError on sessionStorage
 
 **Symptoms**: `SecurityError: Failed to read the 'sessionStorage' property`
 
@@ -302,7 +710,7 @@ Creates test users in the database:
 
 **Solution**: Already fixed in `kcLogout()` function with try-catch wrapper
 
-### Issue 3: Strict Mode Violation - Multiple Elements
+### Issue 7: Strict Mode Violation - Multiple Elements
 
 **Symptoms**: `Error: strict mode violation: getByRole() resolved to 4 elements`
 
@@ -313,36 +721,40 @@ Creates test users in the database:
 await page.getByRole('button', { name: 'Login' }).first().click();
 ```
 
-### Issue 4: Test Fails After OAuth Callback
-
-**Symptoms**: Test times out or fails after `/oidc-callback`
-
-**Causes**:
-- User data API calls failing
-- Token not properly stored
-- Backend not responding
-
-**Debugging**:
-1. Run in headed mode: `npm run test:headed`
-2. Check Network tab in Playwright Inspector
-3. Verify API calls complete successfully
-4. Check for redirects to `/error`
-
-**Solution**: Ensure `waitForLoadState('networkidle')` after callback (already implemented)
-
-### Issue 5: Tests Pass Locally, Fail in CI
+### Issue 8: Tests Pass Locally, Fail in CI
 
 **Common Causes**:
-- Different `BASE_URL` configuration
-- Missing environment variables
-- Network timeouts
-- Browser not installed
+- GitHub secrets not configured
+- Services fail health checks in CI (timing)
+- Browser not installed in CI
+- Docker daemon issues in GitHub Actions
 
 **Solutions**:
-1. Verify GitHub secrets are set correctly
-2. Check workflow creates `.env.playwright` properly
-3. Ensure `npx playwright install chromium` runs in CI
-4. Increase timeouts if needed in config
+1. **Verify secrets**: Check all required secrets are set in repository settings
+2. **Increase timeouts**: Health check timeouts might need adjustment for CI
+3. **Check workflow logs**: Look for service startup failures
+4. **Verify Playwright install**: Ensure `npx playwright install --with-deps chromium` runs
+
+### Issue 9: CORS Errors in Browser Console
+
+**Symptoms**:
+- API requests blocked by CORS
+- "Access-Control-Allow-Origin" errors in browser
+- Tests fail after authentication
+
+**Debugging**:
+```bash
+# Check CORS configuration in API container
+docker compose -f docker-compose.e2e.yml exec api printenv | grep CORS
+
+# Test CORS headers manually
+curl -H "Origin: http://localhost:5173" \
+     -H "Access-Control-Request-Method: POST" \
+     -X OPTIONS \
+     http://localhost:3200/api/users/me -v
+```
+
+**Solution**: Verify `CORS_ORIGIN` in `docker-compose.e2e.yml` includes `http://localhost:5173`
 
 ## Best Practices
 
@@ -434,5 +846,7 @@ Use Playwright's debugging tools:
 
 **Last Updated**: December 2024
 **Framework**: Playwright
+**Test Environment**: Fully containerized (Docker Compose)
 **Test Coverage**: Authentication flows (ROPC + BCSC UI)
+**Data Seeding**: Docker exec pattern with Python scripts
 **Status**: Production ready, expandable
