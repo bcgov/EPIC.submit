@@ -23,6 +23,7 @@ from faker import Faker
 from src.submit_api.config import get_named_config
 from submit_api.utils.roles import EpicSubmitRole
 
+
 fake = Faker()
 
 CONFIG = get_named_config('testing')

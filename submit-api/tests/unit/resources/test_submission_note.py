@@ -2,14 +2,12 @@
 
 from http import HTTPStatus
 
-from tests.utilities.factory_utils import (
-    factory_item_model,
-    factory_user_model,
-    factory_auth_header,
-)
-from tests.utilities.factory_scenarios import TestJwtClaims
-
 from faker import Faker
+
+from tests.utilities.factory_scenarios import TestJwtClaims
+from tests.utilities.factory_utils import factory_auth_header, factory_item_model, factory_user_model
+
+
 fake = Faker()
 
 

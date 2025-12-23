@@ -196,12 +196,14 @@ export const ContactInformationEntityView = () => {
         setValue("primaryContact.givenName", selectedUser.first_name ?? "");
         setValue("primaryContact.surname", selectedUser.last_name ?? "");
         setValue("primaryContact.position", selectedUser.position ?? "");
+        setValue("primaryContact.company", selectedUser.company_name ?? "");
         setValue("primaryContact.workPhoneNumber", selectedUser.work_contact_number ?? "");
         setValue("primaryContact.workEmailAddress", selectedUser.work_email_address ?? "");
         clearErrors([
           "primaryContact.givenName",
           "primaryContact.surname",
           "primaryContact.position",
+          "primaryContact.company",
           "primaryContact.workPhoneNumber",
           "primaryContact.workEmailAddress",
         ]);
@@ -218,12 +220,14 @@ export const ContactInformationEntityView = () => {
         setValue("secondaryContact.givenName", selectedUser.first_name ?? "");
         setValue("secondaryContact.surname", selectedUser.last_name ?? "");
         setValue("secondaryContact.position", selectedUser.position ?? "");
+        setValue("secondaryContact.company", selectedUser.company_name ?? "");
         setValue("secondaryContact.workPhoneNumber", selectedUser.work_contact_number ?? "");
         setValue("secondaryContact.workEmailAddress", selectedUser.work_email_address ?? "");
         clearErrors([
           "secondaryContact.givenName",
           "secondaryContact.surname",
           "secondaryContact.position",
+          "secondaryContact.company",
           "secondaryContact.workPhoneNumber",
           "secondaryContact.workEmailAddress",
         ]);
@@ -341,6 +345,7 @@ export const ContactInformationEntityView = () => {
                   name="primaryContact.company"
                   label="Company Name"
                   fullWidth
+                  disabled={isPrimaryUserSelected}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -430,6 +435,7 @@ export const ContactInformationEntityView = () => {
                     name="secondaryContact.company"
                     label="Company Name"
                     fullWidth
+                    disabled={isSecondaryUserSelected}
                   />
                 </Grid>
                 <Grid item xs={12}>

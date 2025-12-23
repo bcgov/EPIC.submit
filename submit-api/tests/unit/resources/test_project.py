@@ -8,11 +8,9 @@ from http import HTTPStatus
 from submit_api import get_named_config
 from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
-    factory_project_model,
-    factory_account_model,
-    factory_account_project_model,
-    factory_auth_header, factory_user_model
-)
+    factory_account_model, factory_account_project_model, factory_auth_header, factory_project_model,
+    factory_user_model)
+
 
 CONFIG = get_named_config("testing")
 

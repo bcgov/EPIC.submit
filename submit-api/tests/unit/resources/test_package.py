@@ -4,9 +4,8 @@ from http import HTTPStatus
 from faker import Faker
 
 from tests.utilities.factory_scenarios import TestPackageScenarios
-from tests.utilities.factory_utils import (
-    factory_package_model, setup_authenticated_proponent,
-)
+from tests.utilities.factory_utils import factory_package_model, setup_authenticated_proponent
+
 
 fake = Faker()
 
