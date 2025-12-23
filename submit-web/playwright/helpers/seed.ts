@@ -75,18 +75,67 @@ export function seedProponentUser(
 }
 
 /**
- * Cleanup test data
+ * Seed a complete proponent + project setup
  *
- * @param options - User GUID or Proponent ID to delete
+ * @param guid - Keycloak user GUID
+ * @param options - Combined user and project options
+ */
+export function seedProponentWithProject(
+  guid: string,
+  options: {
+    proponentId?: number;
+    firstName?: string;
+    lastName?: string;
+    position?: string;
+    workEmail?: string;
+    workPhone?: string;
+    extension?: string;
+    role?: string;
+    projectId?: number;
+    projectName?: string;
+    accountProjectId?: number;
+    eaCertificate?: string;
+    epicGuid?: string;
+  } = {}
+): void {
+  const args = [
+    `--guid ${guid}`,
+    '--with-project',
+    options.proponentId ? `--proponent-id ${options.proponentId}` : '',
+    options.firstName ? `--first-name "${options.firstName}"` : '',
+    options.lastName ? `--last-name "${options.lastName}"` : '',
+    options.position ? `--position "${options.position}"` : '',
+    options.workEmail ? `--work-email "${options.workEmail}"` : '',
+    options.workPhone ? `--work-phone "${options.workPhone}"` : '',
+    options.extension ? `--extension "${options.extension}"` : '',
+    options.role ? `--role ${options.role}` : '',
+    options.projectId ? `--project-id ${options.projectId}` : '',
+    options.projectName ? `--project-name "${options.projectName}"` : '',
+    options.accountProjectId ? `--account-project-id ${options.accountProjectId}` : '',
+    options.eaCertificate ? `--ea-certificate "${options.eaCertificate}"` : '',
+    options.epicGuid ? `--epic-guid "${options.epicGuid}"` : '',
+  ].filter(Boolean).join(' ');
+
+  console.log(`Seeding complete proponent setup with project for GUID: ${guid}`);
+  execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
+  console.log(`✓ Proponent with project seeded`);
+}
+
+/**
+ * Cleanup test data (enhanced)
+ *
+ * @param options - User GUID, Proponent ID, or Project ID to delete
  */
 export function cleanupTestData(options: {
   guid?: string;
   proponentId?: number;
+  projectId?: number;
 }): void {
   const args = [
     '--cleanup',
     options.guid ? `--guid ${options.guid}` : '',
     options.proponentId ? `--proponent-id ${options.proponentId}` : '',
+    options.projectId ? `--project-id ${options.projectId}` : '',
   ].filter(Boolean).join(' ');
 
   console.log('Cleaning up test data...');

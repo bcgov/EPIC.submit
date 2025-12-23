@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { kcLogin, kcLogout } from "../auth";
-import { seedProponentUser, cleanupTestData } from "../helpers/seed";
+import { kcLogin, kcLogout } from "../../auth";
+import { seedProponentUser, cleanupTestData } from "../../helpers/seed";
 
 test.describe("Proponent User Login", () => {
   const testGuid = "71cb238c-147e-4d6b-85d1-de7f8659f049";

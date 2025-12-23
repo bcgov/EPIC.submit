@@ -14,6 +14,8 @@ from submit_api.models import User, Account, AccountUser, UserRole, Role
 from submit_api.models.db import db
 from submit_api.models.user import UserType
 from submit_api.models.account_terms_of_service import TermsOfService
+from submit_api.models.project import Project
+from submit_api.models.account_project import AccountProject
 
 
 def seed_proponent_user(
@@ -183,12 +185,175 @@ def seed_staff_user(
     return user, staff_user
 
 
-def cleanup_test_data(guid: str = None, proponent_id: int = None):
+def seed_project(
+    project_id: int = 9999,
+    name: str = "E2E Test Project",
+    proponent_id: int = 8888,
+    proponent_name: str = "E2E Test Proponent Inc.",
+    ea_certificate: str = "E2E-2024-01",
+    epic_guid: str = "e2e-project-epic-guid",
+    has_approved_condition: bool = True
+) -> Project:
+    """Seed a project for E2E testing.
+
+    Args:
+        project_id: Unique project ID (for idempotency)
+        name: Project name
+        proponent_id: Proponent ID (must match account proponent_id)
+        proponent_name: Proponent company name
+        ea_certificate: EA Certificate number
+        epic_guid: EPIC GUID for the project
+        has_approved_condition: Whether project has approved conditions
+
+    Returns:
+        Project: The created or existing project
+    """
+    print(f"Creating project: {name} (ID: {project_id})")
+
+    # Check if project already exists
+    existing_project = Project.query.filter_by(id=project_id).first()
+    if existing_project:
+        print(f"  ℹ Project already exists (ID: {existing_project.id})")
+        return existing_project
+
+    # Create project
+    project = Project(
+        id=project_id,
+        name=name,
+        proponent_id=proponent_id,
+        proponent_name=proponent_name,
+        ea_certificate=ea_certificate,
+        epic_guid=epic_guid,
+        has_approved_condition=has_approved_condition
+    )
+    db.session.add(project)
+    db.session.commit()
+    print(f"  ✓ Created project (ID: {project.id})")
+
+    return project
+
+
+def seed_account_project(
+    account_id: int,
+    project_id: int,
+    account_project_id: int = 7777
+) -> AccountProject:
+    """Link an account to a project.
+
+    Args:
+        account_id: Account ID
+        project_id: Project ID
+        account_project_id: Explicit ID for AccountProject (for predictability)
+
+    Returns:
+        AccountProject: The created or existing account-project link
+    """
+    print(f"Linking account {account_id} to project {project_id}")
+
+    # Check if link already exists
+    existing_link = AccountProject.query.filter_by(
+        account_id=account_id,
+        project_id=project_id
+    ).first()
+
+    if existing_link:
+        print(f"  ℹ Account-project link already exists (ID: {existing_link.id})")
+        return existing_link
+
+    # Check if specific ID exists
+    existing_by_id = AccountProject.query.filter_by(id=account_project_id).first()
+    if existing_by_id:
+        print(f"  ℹ AccountProject ID {account_project_id} already exists, using auto-increment")
+        account_project_id = None  # Let database auto-increment
+
+    # Create link
+    if account_project_id:
+        account_project = AccountProject(
+            id=account_project_id,
+            account_id=account_id,
+            project_id=project_id
+        )
+    else:
+        account_project = AccountProject(
+            account_id=account_id,
+            project_id=project_id
+        )
+
+    db.session.add(account_project)
+    db.session.commit()
+    print(f"  ✓ Created account-project link (ID: {account_project.id})")
+
+    return account_project
+
+
+def seed_proponent_with_project(
+    guid: str,
+    proponent_id: int = 8888,
+    project_id: int = 9999,
+    account_project_id: int = 7777,
+    project_name: str = "Coastal GasLink Pipeline",
+    **kwargs
+) -> tuple:
+    """Convenience function to seed a complete proponent + project setup.
+
+    This demonstrates the "batteries included" approach for E2E tests.
+
+    Args:
+        guid: User GUID
+        proponent_id: Proponent ID for account
+        project_id: Project ID
+        account_project_id: AccountProject ID (hardcoded for predictability)
+        project_name: Name of the project
+        **kwargs: Additional options for seed_proponent_user
+
+    Returns:
+        tuple: (user, account, account_user, user_role, project, account_project)
+    """
+    print("=" * 60)
+    print(f"Seeding complete proponent setup with project")
+    print("=" * 60)
+
+    # Seed proponent user (creates User, Account, AccountUser, UserRole)
+    user, account, account_user, user_role = seed_proponent_user(
+        guid=guid,
+        proponent_id=proponent_id,
+        **kwargs
+    )
+
+    # Seed project
+    project = seed_project(
+        project_id=project_id,
+        name=project_name,
+        proponent_id=proponent_id,
+        proponent_name=f"Proponent {proponent_id}"
+    )
+
+    # Link account to project
+    account_project = seed_account_project(
+        account_id=account.id,
+        project_id=project.id,
+        account_project_id=account_project_id
+    )
+
+    print()
+    print("=" * 60)
+    print("✓ Complete proponent setup seeded successfully!")
+    print(f"  - User: {user.id}")
+    print(f"  - Account: {account.id}")
+    print(f"  - Project: {project.id}")
+    print(f"  - AccountProject: {account_project.id}")
+    print("=" * 60)
+
+    return user, account, account_user, user_role, project, account_project
+
+
+def cleanup_test_data(guid: str = None, proponent_id: int = None, project_id: int = None):
     """Clean up test data.
 
     Args:
         guid: User GUID to delete (optional)
         proponent_id: Proponent ID to delete (optional)
+        project_id: Project ID to delete (optional)
     """
     if guid:
         user = User.get_by_guid(guid)
@@ -215,6 +380,12 @@ def cleanup_test_data(guid: str = None, proponent_id: int = None):
     if proponent_id:
         account = Account.get_by_proponent_id(proponent_id)
         if account:
+            # Delete account-project links for this account
+            account_projects = AccountProject.query.filter_by(account_id=account.id).all()
+            for ap in account_projects:
+                db.session.delete(ap)
+                print(f"  ✓ Deleted account-project link (ID: {ap.id})")
+
             # Check if account has any remaining users
             remaining_users = AccountUser.query.filter_by(account_id=account.id).count()
             if remaining_users == 0:
@@ -223,6 +394,18 @@ def cleanup_test_data(guid: str = None, proponent_id: int = None):
                 print(f"  ✓ Deleted account (ID: {account.id})")
             else:
                 print(f"  ℹ Skipping account deletion (ID: {account.id}) - has {remaining_users} remaining users")
+
+    if project_id:
+        project = Project.query.filter_by(id=project_id).first()
+        if project:
+            # Check if project has any remaining account links
+            remaining_links = AccountProject.query.filter_by(project_id=project.id).count()
+            if remaining_links == 0:
+                print(f"Deleting project with ID: {project_id}")
+                db.session.delete(project)
+                print(f"  ✓ Deleted project (ID: {project.id})")
+            else:
+                print(f"  ℹ Skipping project deletion (ID: {project.id}) - has {remaining_links} remaining account links")
 
     db.session.commit()
     print("  ✓ Cleanup committed to database")
@@ -246,6 +429,14 @@ def main():
     parser.add_argument('--role', type=str, default='PROJECT_ADMIN', help='Role name')
     parser.add_argument('--no-terms-of-service', action='store_true', help='Do not accept terms of service (default: accept ToS)')
 
+    # Project seeding arguments
+    parser.add_argument('--with-project', action='store_true', help='Also seed a project and link it to account')
+    parser.add_argument('--project-id', type=int, default=9999, help='Project ID')
+    parser.add_argument('--project-name', type=str, default='Coastal GasLink Pipeline', help='Project name')
+    parser.add_argument('--account-project-id', type=int, default=7777, help='AccountProject ID')
+    parser.add_argument('--ea-certificate', type=str, default='E2E-2024-01', help='EA Certificate')
+    parser.add_argument('--epic-guid', type=str, default='e2e-project-guid', help='EPIC GUID')
+
     # Cleanup flag
     parser.add_argument('--cleanup', action='store_true', help='Cleanup test data instead of seeding')
 
@@ -263,25 +454,48 @@ def main():
     with app.app_context():
         if args.cleanup:
             # Cleanup mode
-            cleanup_test_data(guid=args.guid, proponent_id=args.proponent_id)
+            cleanup_test_data(
+                guid=args.guid,
+                proponent_id=args.proponent_id,
+                project_id=args.project_id if args.with_project else None
+            )
         else:
             # Seeding mode
             if not args.guid:
                 print("Error: --guid is required for seeding")
                 sys.exit(1)
 
-            seed_proponent_user(
-                guid=args.guid,
-                proponent_id=args.proponent_id,
-                first_name=args.first_name,
-                last_name=args.last_name,
-                position=args.position,
-                work_email=args.work_email,
-                work_phone=args.work_phone,
-                extension=args.extension,
-                role_name=args.role,
-                accept_terms_of_service=not args.no_terms_of_service
-            )
+            if args.with_project:
+                # Use convenience function to seed everything
+                seed_proponent_with_project(
+                    guid=args.guid,
+                    proponent_id=args.proponent_id,
+                    project_id=args.project_id,
+                    account_project_id=args.account_project_id,
+                    project_name=args.project_name,
+                    first_name=args.first_name,
+                    last_name=args.last_name,
+                    position=args.position,
+                    work_email=args.work_email,
+                    work_phone=args.work_phone,
+                    extension=args.extension,
+                    role_name=args.role,
+                    accept_terms_of_service=not args.no_terms_of_service
+                )
+            else:
+                # Just seed proponent user
+                seed_proponent_user(
+                    guid=args.guid,
+                    proponent_id=args.proponent_id,
+                    first_name=args.first_name,
+                    last_name=args.last_name,
+                    position=args.position,
+                    work_email=args.work_email,
+                    work_phone=args.work_phone,
+                    extension=args.extension,
+                    role_name=args.role,
+                    accept_terms_of_service=not args.no_terms_of_service
+                )
 
         print()
         print("=" * 60)
