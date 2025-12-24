@@ -48,7 +48,10 @@ test.describe("Submission Creation", () => {
     const packagePage = new SubmissionPackagePage(page);
 
     // Step 1: Verify we're on project dashboard
-    await dashboardPage.verifyOnProjectDashboard("Coastal GasLink Pipeline");
+    await dashboardPage.verifyOnProjectDashboard(
+      accountProjectId,
+      "Coastal GasLink Pipeline",
+    );
 
     // Step 2: Click "New Submission"
     await dashboardPage.clickNewSubmission();

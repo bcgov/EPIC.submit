@@ -40,12 +40,19 @@ export class ProjectDashboardPage extends BasePage {
   /**
    * Verify user is on project dashboard
    */
-  async verifyOnProjectDashboard(expectedProjectName?: string): Promise<void> {
+  async verifyOnProjectDashboard(
+    accountProjectId: number,
+    expectedProjectName?: string,
+  ): Promise<void> {
     await expect(this.page).toHaveURL(/\/proponent\/projects\/\d+/);
     await expect(this.newSubmissionButton).toBeVisible();
 
     if (expectedProjectName) {
-      await expect(this.page.getByText(expectedProjectName)).toBeVisible();
+      await expect(
+        this.page
+          .getByTestId(`project-${accountProjectId}`)
+          .getByText(expectedProjectName),
+      ).toBeVisible();
     }
   }
 
