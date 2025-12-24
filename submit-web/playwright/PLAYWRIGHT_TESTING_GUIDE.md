@@ -9,12 +9,14 @@ This guide helps you run and understand the E2E tests for EPIC.submit. The tests
 ### First Time Setup
 
 1. **Install Playwright browsers** (one-time):
+
    ```bash
    cd submit-web
    npx playwright install chromium
    ```
 
 2. **Copy environment template**:
+
    ```bash
    cp .env.playwright.template .env.playwright
    ```
@@ -34,6 +36,7 @@ This guide helps you run and understand the E2E tests for EPIC.submit. The tests
 ### Running Tests
 
 **Start services** (from project root):
+
 ```bash
 docker compose -f docker-compose.e2e.yml up -d
 ```
@@ -41,6 +44,7 @@ docker compose -f docker-compose.e2e.yml up -d
 This starts PostgreSQL, API, and Web automatically. Wait ~2 minutes for health checks to complete.
 
 **Run tests** (from submit-web/):
+
 ```bash
 npm run test:ui      # Interactive mode (recommended)
 npm run test:headed  # Watch browser
@@ -49,6 +53,7 @@ npm run test:debug   # Debug mode
 ```
 
 **Stop services**:
+
 ```bash
 docker compose -f docker-compose.e2e.yml down
 ```
@@ -91,11 +96,11 @@ submit-web/playwright/
 ### Basic Pattern
 
 ```typescript
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('my test', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByText('Welcome')).toBeVisible();
+test("my test", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByText("Welcome")).toBeVisible();
 });
 ```
 
@@ -104,12 +109,12 @@ test('my test', async ({ page }) => {
 Fixtures automatically set up test data and authentication:
 
 ```typescript
-import { test } from '../../fixtures/db.fixtures';
+import { test } from "../../fixtures/db.fixtures";
 
-test('create submission', async ({ authenticatedProponentWithProject }) => {
+test("create submission", async ({ authenticatedProponentWithProject }) => {
   // Already logged in with seeded data!
   const { page } = authenticatedProponentWithProject;
-  await page.getByRole('button', { name: 'New Submission' }).click();
+  await page.getByRole("button", { name: "New Submission" }).click();
 });
 ```
 
@@ -120,9 +125,9 @@ test('create submission', async ({ authenticatedProponentWithProject }) => {
 Page Objects make tests cleaner and more maintainable:
 
 ```typescript
-import { ProjectDashboardPage } from '../../pages/submissions';
+import { ProjectDashboardPage } from "../../pages/submissions";
 
-test('navigate dashboard', async ({ page }) => {
+test("navigate dashboard", async ({ page }) => {
   const dashboard = new ProjectDashboardPage(page);
   await dashboard.navigateToProject(123);
   await dashboard.clickNewSubmission();
@@ -138,11 +143,11 @@ test('navigate dashboard', async ({ page }) => {
 Use `kcLogin()` for quick authentication without UI interaction:
 
 ```typescript
-import { kcLogin } from '../auth';
+import { kcLogin } from "../auth";
 
-test('my test', async ({ page }) => {
+test("my test", async ({ page }) => {
   await kcLogin(page, process.env.STAFF_USERNAME!, process.env.STAFF_PASSWORD!);
-  await page.goto('/');
+  await page.goto("/");
   // Now authenticated
 });
 ```
@@ -155,10 +160,14 @@ test('my test', async ({ page }) => {
 Use `loginViaBCSC()` or `loginViaBCeID()` to test the complete login experience:
 
 ```typescript
-import { loginViaBCSC } from '../auth';
+import { loginViaBCSC } from "../auth";
 
-test('BCSC login', async ({ page }) => {
-  await loginViaBCSC(page, process.env.PROPONENT_BCSC_USERNAME!, process.env.PROPONENT_BCSC_PASSWORD!);
+test("BCSC login", async ({ page }) => {
+  await loginViaBCSC(
+    page,
+    process.env.PROPONENT_BCSC_USERNAME!,
+    process.env.PROPONENT_BCSC_PASSWORD!,
+  );
   // Now on dashboard
 });
 ```
@@ -171,9 +180,9 @@ test('BCSC login', async ({ page }) => {
 Fixtures handle authentication automatically:
 
 ```typescript
-import { test } from '../../fixtures/db.fixtures';
+import { test } from "../../fixtures/db.fixtures";
 
-test('my test', async ({ authenticatedProponentWithProject }) => {
+test("my test", async ({ authenticatedProponentWithProject }) => {
   // Already authenticated and navigated to project dashboard!
 });
 ```
@@ -256,6 +265,7 @@ docker compose -f docker-compose.e2e.yml exec api \
 ## CI/CD
 
 Tests run in GitHub Actions via workflow dispatch. Required secrets:
+
 - `CYPRESS_STAFF_USERNAME` / `CYPRESS_STAFF_PASSWORD`
 - `CYPRESS_PROPONENT_USERNAME` / `CYPRESS_PROPONENT_PASSWORD`
 - `CYPRESS_PROPONENT_BCSC_USERNAME` / `CYPRESS_PROPONENT_BCSC_PASSWORD`
@@ -273,6 +283,7 @@ Tests run in GitHub Actions via workflow dispatch. Required secrets:
 **Last Updated**: January 2025
 **Status**: Production E2E Framework
 **Quick Links**:
+
 - Run tests: `docker compose -f docker-compose.e2e.yml up -d && npm run test:ui`
 - Docs: https://playwright.dev
 - Examples: [submit-web/playwright/e2e/submissions/](e2e/submissions/)

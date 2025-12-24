@@ -1,5 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from '../BasePage';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "../BasePage";
 
 /**
  * Project Dashboard Page Object
@@ -16,14 +16,18 @@ export class ProjectDashboardPage extends BasePage {
     super(page);
 
     // Button with AddIcon and "New Submission" text
-    this.newSubmissionButton = page.getByRole('button', { name: /New Submission/i });
+    this.newSubmissionButton = page.getByRole("button", {
+      name: /New Submission/i,
+    });
 
     // Project info
-    this.projectTitle = page.getByRole('heading', { level: 1 });
+    this.projectTitle = page.getByRole("heading", { level: 1 });
 
     // Sections
     this.activeSubmissionsSection = page.getByText(/Active Submissions/i);
-    this.pastSubmissionsSection = page.getByText(/Review Completed by the EAO/i);
+    this.pastSubmissionsSection = page.getByText(
+      /Review Completed by the EAO/i,
+    );
   }
 
   /**
@@ -58,7 +62,9 @@ export class ProjectDashboardPage extends BasePage {
    */
   async getActiveSubmissionsCount(): Promise<number> {
     // This would query the table rows in active submissions section
-    const rows = await this.page.locator('[data-testid="active-submissions-table"] tbody tr').count();
+    const rows = await this.page
+      .locator('[data-testid="active-submissions-table"] tbody tr')
+      .count();
     return rows;
   }
 }

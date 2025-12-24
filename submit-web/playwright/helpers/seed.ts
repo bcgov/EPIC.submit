@@ -5,10 +5,10 @@
  * Each test can seed its own data using beforeEach hooks for maximum test isolation.
  */
 
-import { execSync } from 'child_process';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { execSync } from "child_process";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -18,7 +18,7 @@ const __dirname = dirname(__filename);
  */
 function getDockerComposePath(): string {
   // From submit-web/playwright/helpers/ -> ../../docker-compose.e2e.yml
-  return path.join(__dirname, '..', '..', '..', 'docker-compose.e2e.yml');
+  return path.join(__dirname, "..", "..", "..", "docker-compose.e2e.yml");
 }
 
 /**
@@ -28,26 +28,51 @@ function execPythonInContainer(command: string): void {
   const composePath = getDockerComposePath();
 
   try {
-    execSync(
-      `docker compose -f "${composePath}" exec -T api ${command}`,
-      { stdio: 'inherit' }
-    );
+    execSync(`docker compose -f "${composePath}" exec -T api ${command}`, {
+      stdio: "inherit",
+    });
   } catch (error) {
-    console.error('Failed to execute command in container:', command);
+    console.error("Failed to execute command in container:", command);
     throw error;
   }
+}
+
+/**
+ * Seed an account for a proponent organization
+ *
+ * @param proponentId - Proponent ID
+ * @param options - Optional account details
+ */
+export function seedAccount(
+  proponentId: number = 8888,
+  options: {
+    accountId?: number;
+  } = {},
+): void {
+  const args = [
+    "--account-only",
+    `--proponent-id ${proponentId}`,
+    options.accountId ? `--account-id ${options.accountId}` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  console.log(`Seeding account for proponent ID: ${proponentId}`);
+  execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
+  console.log(`✓ Account seeded`);
 }
 
 /**
  * Seed a proponent user for E2E testing
  *
  * @param guid - Keycloak user GUID
+ * @param accountId - Account ID to add user to (REQUIRED)
  * @param options - Optional user details
  */
 export function seedProponentUser(
   guid: string,
+  accountId: number,
   options: {
-    proponentId?: number;
     firstName?: string;
     lastName?: string;
     position?: string;
@@ -55,19 +80,21 @@ export function seedProponentUser(
     workPhone?: string;
     extension?: string;
     role?: string;
-  } = {}
+  } = {},
 ): void {
   const args = [
     `--guid ${guid}`,
-    options.proponentId ? `--proponent-id ${options.proponentId}` : '',
-    options.firstName ? `--first-name "${options.firstName}"` : '',
-    options.lastName ? `--last-name "${options.lastName}"` : '',
-    options.position ? `--position "${options.position}"` : '',
-    options.workEmail ? `--work-email "${options.workEmail}"` : '',
-    options.workPhone ? `--work-phone "${options.workPhone}"` : '',
-    options.extension ? `--extension "${options.extension}"` : '',
-    options.role ? `--role ${options.role}` : '',
-  ].filter(Boolean).join(' ');
+    `--account-id-for-user ${accountId}`,
+    options.firstName ? `--first-name "${options.firstName}"` : "",
+    options.lastName ? `--last-name "${options.lastName}"` : "",
+    options.position ? `--position "${options.position}"` : "",
+    options.workEmail ? `--work-email "${options.workEmail}"` : "",
+    options.workPhone ? `--work-phone "${options.workPhone}"` : "",
+    options.extension ? `--extension "${options.extension}"` : "",
+    options.role ? `--role ${options.role}` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   console.log(`Seeding proponent user: ${guid}`);
   execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
@@ -84,6 +111,7 @@ export function seedProponentWithProject(
   guid: string,
   options: {
     proponentId?: number;
+    accountId?: number;
     firstName?: string;
     lastName?: string;
     position?: string;
@@ -96,27 +124,34 @@ export function seedProponentWithProject(
     accountProjectId?: number;
     eaCertificate?: string;
     epicGuid?: string;
-  } = {}
+  } = {},
 ): void {
   const args = [
     `--guid ${guid}`,
-    '--with-project',
-    options.proponentId ? `--proponent-id ${options.proponentId}` : '',
-    options.firstName ? `--first-name "${options.firstName}"` : '',
-    options.lastName ? `--last-name "${options.lastName}"` : '',
-    options.position ? `--position "${options.position}"` : '',
-    options.workEmail ? `--work-email "${options.workEmail}"` : '',
-    options.workPhone ? `--work-phone "${options.workPhone}"` : '',
-    options.extension ? `--extension "${options.extension}"` : '',
-    options.role ? `--role ${options.role}` : '',
-    options.projectId ? `--project-id ${options.projectId}` : '',
-    options.projectName ? `--project-name "${options.projectName}"` : '',
-    options.accountProjectId ? `--account-project-id ${options.accountProjectId}` : '',
-    options.eaCertificate ? `--ea-certificate "${options.eaCertificate}"` : '',
-    options.epicGuid ? `--epic-guid "${options.epicGuid}"` : '',
-  ].filter(Boolean).join(' ');
+    "--with-project",
+    options.proponentId ? `--proponent-id ${options.proponentId}` : "",
+    options.accountId ? `--account-id ${options.accountId}` : "",
+    options.firstName ? `--first-name "${options.firstName}"` : "",
+    options.lastName ? `--last-name "${options.lastName}"` : "",
+    options.position ? `--position "${options.position}"` : "",
+    options.workEmail ? `--work-email "${options.workEmail}"` : "",
+    options.workPhone ? `--work-phone "${options.workPhone}"` : "",
+    options.extension ? `--extension "${options.extension}"` : "",
+    options.role ? `--role ${options.role}` : "",
+    options.projectId ? `--project-id ${options.projectId}` : "",
+    options.projectName ? `--project-name "${options.projectName}"` : "",
+    options.accountProjectId
+      ? `--account-project-id ${options.accountProjectId}`
+      : "",
+    options.eaCertificate ? `--ea-certificate "${options.eaCertificate}"` : "",
+    options.epicGuid ? `--epic-guid "${options.epicGuid}"` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  console.log(`Seeding complete proponent setup with project for GUID: ${guid}`);
+  console.log(
+    `Seeding complete proponent setup with project for GUID: ${guid}`,
+  );
   execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
   console.log(`✓ Proponent with project seeded`);
 }
@@ -132,13 +167,15 @@ export function cleanupTestData(options: {
   projectId?: number;
 }): void {
   const args = [
-    '--cleanup',
-    options.guid ? `--guid ${options.guid}` : '',
-    options.proponentId ? `--proponent-id ${options.proponentId}` : '',
-    options.projectId ? `--project-id ${options.projectId}` : '',
-  ].filter(Boolean).join(' ');
+    "--cleanup",
+    options.guid ? `--guid ${options.guid}` : "",
+    options.proponentId ? `--proponent-id ${options.proponentId}` : "",
+    options.projectId ? `--project-id ${options.projectId}` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  console.log('Cleaning up test data...');
+  console.log("Cleaning up test data...");
   execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
-  console.log('✓ Test data cleaned up');
+  console.log("✓ Test data cleaned up");
 }

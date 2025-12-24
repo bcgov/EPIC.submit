@@ -51,6 +51,7 @@ export interface ProjectSeedOptions {
  * Combined proponent + project seeding options
  */
 export interface ProponentWithProjectOptions extends ProponentUserOptions {
+  accountId?: number;
   projectId?: number;
   projectName?: string;
   accountProjectId?: number;

@@ -20,7 +20,7 @@ from submit_api.models.account_project import AccountProject
 
 def seed_proponent_user(
     guid: str,
-    proponent_id: int = 8888,
+    account_id: int,
     first_name: str = "E2E",
     last_name: str = "Proponent",
     position: str = "Test Administrator",
@@ -28,13 +28,14 @@ def seed_proponent_user(
     work_phone: str = "555-0100",
     extension: str = "101",
     role_name: str = "PROJECT_ADMIN",
-    accept_terms_of_service: bool = True
+    accept_terms_of_service: bool = True,
+    account_project_id: int = None
 ) -> tuple:
-    """Seed a proponent user with account and role.
+    """Seed a proponent user (User + AccountUser + UserRole).
 
     Args:
         guid: The auth_guid for the user (from Keycloak)
-        proponent_id: Unique proponent ID for the account
+        account_id: ID of the account to add user to (REQUIRED)
         first_name: User's first name
         last_name: User's last name
         position: User's position/title
@@ -43,9 +44,10 @@ def seed_proponent_user(
         extension: Phone extension (optional)
         role_name: Role to assign (default: PROJECT_ADMIN)
         accept_terms_of_service: Whether to accept terms of service (default: True)
+        account_project_id: AccountProject ID for project-specific role, None for account-wide (default: None)
 
     Returns:
-        tuple: (user, account, account_user, user_role)
+        tuple: (user, account_user, user_role)
     """
     print(f"Creating proponent user with GUID: {guid}")
 
@@ -56,7 +58,7 @@ def seed_proponent_user(
         existing_account_user = AccountUser.get_by_guid(guid)
         if existing_account_user:
             print(f"  ℹ Account user already exists (ID: {existing_account_user.id})")
-            return existing_user, existing_account_user.account, existing_account_user, existing_account_user.role
+            return existing_user, existing_account_user, existing_account_user.role
 
     # Create user
     user = User.create_user({
@@ -65,17 +67,10 @@ def seed_proponent_user(
     })
     print(f"  ✓ Created user (ID: {user.id})")
 
-    # Check if account already exists
-    existing_account = Account.get_by_proponent_id(proponent_id)
-    if existing_account:
-        print(f"  ℹ Account already exists for proponent_id {proponent_id} (ID: {existing_account.id})")
-        account = existing_account
-    else:
-        # Create account
-        account = Account.create_account({
-            'proponent_id': proponent_id
-        })
-        print(f"  ✓ Created account (ID: {account.id}, proponent_id: {proponent_id})")
+    # Fetch account (must exist)
+    account = Account.query.get(account_id)
+    if not account:
+        raise ValueError(f"Account with ID {account_id} not found")
 
     # Get or create active terms of service (if accepting)
     terms_of_service_version = None
@@ -123,16 +118,17 @@ def seed_proponent_user(
     # Create user role
     user_role = UserRole.create_user_role({
         'account_user_id': account_user.id,
-        'account_project_id': None,  # NULL for account-wide role
+        'account_project_id': account_project_id,  # None for account-wide, ID for project-specific
         'package_ids': None,  # NULL for project-wide role
         'role_id': role.id
     })
-    print(f"  ✓ Created user role (ID: {user_role.id}, role: {role_name})")
+    role_scope = f"project {account_project_id}" if account_project_id else "account-wide"
+    print(f"  ✓ Created user role (ID: {user_role.id}, role: {role_name}, scope: {role_scope})")
 
     db.session.commit()
     print(f"  ✓ Committed to database")
 
-    return user, account, account_user, user_role
+    return user, account_user, user_role
 
 
 def seed_staff_user(
@@ -183,6 +179,40 @@ def seed_staff_user(
     print(f"  ✓ Committed to database")
 
     return user, staff_user
+
+
+def seed_account(
+    proponent_id: int = 8888,
+    account_id: int = None
+) -> Account:
+    """Seed an account for a proponent organization.
+
+    Args:
+        proponent_id: Unique proponent ID
+        account_id: Optional explicit account ID (for idempotency)
+
+    Returns:
+        Account: The created or existing account
+    """
+    print(f"Creating account for proponent_id: {proponent_id}")
+
+    # Check if account already exists
+    existing_account = Account.get_by_proponent_id(proponent_id)
+    if existing_account:
+        print(f"  ℹ Account already exists (ID: {existing_account.id})")
+        return existing_account
+
+    # Create account
+    if account_id:
+        account = Account(id=account_id, proponent_id=proponent_id)
+        db.session.add(account)
+    else:
+        account = Account.create_account({'proponent_id': proponent_id})
+
+    db.session.commit()
+    print(f"  ✓ Created account (ID: {account.id}, proponent_id: {proponent_id})")
+
+    return account
 
 
 def seed_project(
@@ -289,18 +319,24 @@ def seed_account_project(
 def seed_proponent_with_project(
     guid: str,
     proponent_id: int = 8888,
+    account_id: int = None,
     project_id: int = 9999,
     account_project_id: int = 7777,
     project_name: str = "Coastal GasLink Pipeline",
     **kwargs
 ) -> tuple:
-    """Convenience function to seed a complete proponent + project setup.
+    """Seed complete proponent + project setup.
 
-    This demonstrates the "batteries included" approach for E2E tests.
+    Logical flow:
+    1. Create Account for proponent organization
+    2. Create Project
+    3. Link Account to Project via AccountProject
+    4. Add User to Account with project-specific role
 
     Args:
         guid: User GUID
         proponent_id: Proponent ID for account
+        account_id: Optional explicit account ID (for idempotency)
         project_id: Project ID
         account_project_id: AccountProject ID (hardcoded for predictability)
         project_name: Name of the project
@@ -313,14 +349,10 @@ def seed_proponent_with_project(
     print(f"Seeding complete proponent setup with project")
     print("=" * 60)
 
-    # Seed proponent user (creates User, Account, AccountUser, UserRole)
-    user, account, account_user, user_role = seed_proponent_user(
-        guid=guid,
-        proponent_id=proponent_id,
-        **kwargs
-    )
+    # 1. Create Account
+    account = seed_account(proponent_id=proponent_id, account_id=account_id)
 
-    # Seed project
+    # 2. Create Project
     project = seed_project(
         project_id=project_id,
         name=project_name,
@@ -328,32 +360,41 @@ def seed_proponent_with_project(
         proponent_name=f"Proponent {proponent_id}"
     )
 
-    # Link account to project
+    # 3. Link Account to Project
     account_project = seed_account_project(
         account_id=account.id,
         project_id=project.id,
         account_project_id=account_project_id
     )
 
+    # 4. Add User to Account
+    user, account_user, user_role = seed_proponent_user(
+        guid=guid,
+        account_id=account.id,
+        account_project_id=account_project_id,
+        **kwargs
+    )
+
     print()
     print("=" * 60)
     print("✓ Complete proponent setup seeded successfully!")
-    print(f"  - User: {user.id}")
     print(f"  - Account: {account.id}")
     print(f"  - Project: {project.id}")
     print(f"  - AccountProject: {account_project.id}")
+    print(f"  - User: {user.id}")
     print("=" * 60)
 
     return user, account, account_user, user_role, project, account_project
 
 
-def cleanup_test_data(guid: str = None, proponent_id: int = None, project_id: int = None):
+def cleanup_test_data(guid: str = None, proponent_id: int = None, project_id: int = None, account_id: int = None):
     """Clean up test data.
 
     Args:
         guid: User GUID to delete (optional)
         proponent_id: Proponent ID to delete (optional)
         project_id: Project ID to delete (optional)
+        account_id: Account ID to delete (optional)
     """
     if guid:
         user = User.get_by_guid(guid)
@@ -376,6 +417,25 @@ def cleanup_test_data(guid: str = None, proponent_id: int = None, project_id: in
             # Delete user
             db.session.delete(user)
             print(f"  ✓ Deleted user (ID: {user.id})")
+
+    # Cleanup by account_id
+    if account_id:
+        account = Account.query.get(account_id)
+        if account:
+            # Delete account-project links for this account
+            account_projects = AccountProject.query.filter_by(account_id=account.id).all()
+            for ap in account_projects:
+                db.session.delete(ap)
+                print(f"  ✓ Deleted account-project link (ID: {ap.id})")
+
+            # Check if account has any remaining users
+            remaining_users = AccountUser.query.filter_by(account_id=account.id).count()
+            if remaining_users == 0:
+                print(f"Deleting account with ID: {account_id}")
+                db.session.delete(account)
+                print(f"  ✓ Deleted account (ID: {account.id})")
+            else:
+                print(f"  ℹ Skipping account deletion (ID: {account.id}) - has {remaining_users} remaining users")
 
     if proponent_id:
         account = Account.get_by_proponent_id(proponent_id)
@@ -429,6 +489,11 @@ def main():
     parser.add_argument('--role', type=str, default='PROJECT_ADMIN', help='Role name')
     parser.add_argument('--no-terms-of-service', action='store_true', help='Do not accept terms of service (default: accept ToS)')
 
+    # Account seeding arguments
+    parser.add_argument('--account-only', action='store_true', help='Seed only account (no user)')
+    parser.add_argument('--account-id', type=int, help='Explicit account ID (for idempotency)')
+    parser.add_argument('--account-id-for-user', type=int, help='Account ID to add user to (required when not using --with-project)')
+
     # Project seeding arguments
     parser.add_argument('--with-project', action='store_true', help='Also seed a project and link it to account')
     parser.add_argument('--project-id', type=int, default=9999, help='Project ID')
@@ -461,15 +526,16 @@ def main():
             )
         else:
             # Seeding mode
-            if not args.guid:
-                print("Error: --guid is required for seeding")
-                sys.exit(1)
-
             if args.with_project:
-                # Use convenience function to seed everything
+                # Seed complete setup
+                if not args.guid:
+                    print("Error: --guid is required for seeding with project")
+                    sys.exit(1)
+
                 seed_proponent_with_project(
                     guid=args.guid,
                     proponent_id=args.proponent_id,
+                    account_id=args.account_id,
                     project_id=args.project_id,
                     account_project_id=args.account_project_id,
                     project_name=args.project_name,
@@ -482,11 +548,24 @@ def main():
                     role_name=args.role,
                     accept_terms_of_service=not args.no_terms_of_service
                 )
+            elif args.account_only:
+                # Seed just account
+                seed_account(
+                    proponent_id=args.proponent_id,
+                    account_id=args.account_id
+                )
             else:
-                # Just seed proponent user
+                # Seed just user (requires account_id)
+                if not args.guid:
+                    print("Error: --guid is required for seeding user")
+                    sys.exit(1)
+                if not args.account_id_for_user:
+                    print("Error: --account-id-for-user is required when seeding user without --with-project")
+                    sys.exit(1)
+
                 seed_proponent_user(
                     guid=args.guid,
-                    proponent_id=args.proponent_id,
+                    account_id=args.account_id_for_user,
                     first_name=args.first_name,
                     last_name=args.last_name,
                     position=args.position,

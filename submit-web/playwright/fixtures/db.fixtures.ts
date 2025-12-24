@@ -3,14 +3,18 @@
  * Demonstrates Playwright fixture composition and auto-cleanup
  */
 
-import { test as base, Page } from '@playwright/test';
+import { test as base, Page } from "@playwright/test";
 import {
+  seedAccount,
   seedProponentUser,
   seedProponentWithProject,
-  cleanupTestData
-} from '../helpers/seed';
-import { kcLogin, kcLogout } from '../auth';
-import type { ProponentUserOptions, ProponentWithProjectOptions } from '../types';
+  cleanupTestData,
+} from "../helpers/seed";
+import { kcLogin, kcLogout } from "../auth";
+import type {
+  ProponentUserOptions,
+  ProponentWithProjectOptions,
+} from "../types";
 
 /**
  * Extended test context with database seeding
@@ -21,6 +25,8 @@ type DbFixtures = {
    */
   seededProponent: {
     guid: string;
+    proponentId: number;
+    accountId: number;
     options?: ProponentUserOptions;
   };
 
@@ -62,24 +68,29 @@ export const test = base.extend<DbFixtures>({
    * Fixture: Seeded proponent user
    */
   seededProponent: async ({}, use) => {
-    const guid = '71cb238c-147e-4d6b-85d1-de7f8659f049';
+    const guid = "71cb238c-147e-4d6b-85d1-de7f8659f049";
+    const proponentId = 8888;
+    const accountId = 5555;
+
     const options: ProponentUserOptions = {
-      proponentId: 8888,
-      firstName: 'E2E',
-      lastName: 'Proponent',
-      position: 'Test Administrator',
-      workEmail: 'e2e.proponent@test.example.com',
-      workPhone: '250-555-0100',
-      role: 'PROJECT_ADMIN',
+      firstName: "E2E",
+      lastName: "Proponent",
+      position: "Test Administrator",
+      workEmail: "e2e.proponent@test.example.com",
+      workPhone: "250-555-0100",
+      role: "PROJECT_ADMIN",
     };
 
-    console.log('\n🌱 [Fixture] Seeding proponent user...');
-    seedProponentUser(guid, options);
+    console.log("\n🌱 [Fixture] Seeding account...");
+    seedAccount(proponentId, { accountId });
 
-    await use({ guid, options });
+    console.log("\n🌱 [Fixture] Seeding proponent user...");
+    seedProponentUser(guid, accountId, options);
 
-    console.log('\n🧹 [Fixture] Cleaning up proponent user...');
-    cleanupTestData({ guid, proponentId: options.proponentId });
+    await use({ guid, proponentId, accountId, options });
+
+    console.log("\n🧹 [Fixture] Cleaning up proponent user...");
+    cleanupTestData({ guid, proponentId });
   },
 
   /**
@@ -87,18 +98,18 @@ export const test = base.extend<DbFixtures>({
    * Demonstrates fixture composition: builds on seededProponent
    */
   authenticatedProponentSession: async ({ page, seededProponent }, use) => {
-    console.log('\n🔐 [Fixture] Authenticating proponent...');
+    console.log("\n🔐 [Fixture] Authenticating proponent...");
 
     await kcLogout(page);
     await kcLogin(
       page,
       process.env.PROPONENT_USERNAME!,
-      process.env.PROPONENT_PASSWORD!
+      process.env.PROPONENT_PASSWORD!,
     );
 
     await use(page);
 
-    console.log('\n👋 [Fixture] Logging out...');
+    console.log("\n👋 [Fixture] Logging out...");
     await kcLogout(page);
   },
 
@@ -107,27 +118,27 @@ export const test = base.extend<DbFixtures>({
    * Seeds complete setup: User → Account → Project → AccountProject
    */
   seededProponentWithProject: async ({}, use) => {
-    const guid = '71cb238c-147e-4d6b-85d1-de7f8659f049';
+    const guid = "71cb238c-147e-4d6b-85d1-de7f8659f049";
     const proponentId = 8888;
     const projectId = 9999;
     const accountProjectId = 7777;
 
     const options: ProponentWithProjectOptions = {
       proponentId,
-      firstName: 'E2E',
-      lastName: 'Proponent',
-      position: 'Test Administrator',
-      workEmail: 'e2e.proponent@test.example.com',
-      workPhone: '250-555-0100',
-      role: 'PROJECT_ADMIN',
+      firstName: "E2E",
+      lastName: "Proponent",
+      position: "Test Administrator",
+      workEmail: "e2e.proponent@test.example.com",
+      workPhone: "250-555-0100",
+      role: "PROJECT_ADMIN",
       projectId,
-      projectName: 'Coastal GasLink Pipeline',
+      projectName: "Coastal GasLink Pipeline",
       accountProjectId,
-      eaCertificate: 'E2E-2024-01',
-      epicGuid: 'e2e-test-project-guid',
+      eaCertificate: "E2E-2024-01",
+      epicGuid: "e2e-test-project-guid",
     };
 
-    console.log('\n🌱 [Fixture] Seeding proponent with project...');
+    console.log("\n🌱 [Fixture] Seeding proponent with project...");
     seedProponentWithProject(guid, options);
 
     await use({
@@ -135,11 +146,11 @@ export const test = base.extend<DbFixtures>({
       proponentId,
       projectId,
       accountProjectId,
-      options
+      options,
     });
 
-    console.log('\n🧹 [Fixture] Cleaning up proponent with project...');
-    cleanupTestData({ guid, proponentId, projectId });
+    console.log("\n🧹 [Fixture] Cleaning up proponent with project...");
+    // cleanupTestData({ guid, proponentId, projectId });
   },
 
   /**
@@ -149,23 +160,23 @@ export const test = base.extend<DbFixtures>({
    */
   authenticatedProponentWithProject: async (
     { page, seededProponentWithProject },
-    use
+    use,
   ) => {
-    console.log('\n🔐 [Fixture] Authenticating proponent with project...');
+    console.log("\n🔐 [Fixture] Authenticating proponent with project...");
 
     await kcLogout(page);
     await kcLogin(
       page,
       process.env.PROPONENT_USERNAME!,
-      process.env.PROPONENT_PASSWORD!
+      process.env.PROPONENT_PASSWORD!,
     );
 
     // Navigate to project dashboard automatically
-    console.log('\n🚀 [Fixture] Navigating to project dashboard...');
+    console.log("\n🚀 [Fixture] Navigating to project dashboard...");
     await page.goto(
-      `/proponent/projects/${seededProponentWithProject.accountProjectId}`
+      `/proponent/projects/${seededProponentWithProject.accountProjectId}`,
     );
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     // Provide everything to test
     await use({
@@ -176,9 +187,9 @@ export const test = base.extend<DbFixtures>({
       accountProjectId: seededProponentWithProject.accountProjectId,
     });
 
-    console.log('\n👋 [Fixture] Logging out...');
+    console.log("\n👋 [Fixture] Logging out...");
     await kcLogout(page);
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";
