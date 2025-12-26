@@ -1,5 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from '../BasePage';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "../BasePage";
 
 /**
  * Conditions Selection Form Page Object
@@ -18,15 +18,17 @@ export class ConditionsFormPage extends BasePage {
     super(page);
 
     // Main condition selector (first dropdown/select)
-    this.mainConditionDropdown = page.getByLabel(/Main Condition|Condition\/Document/i).first();
+    this.mainConditionDropdown = page.getByTestId("main-condition");
 
     // Supporting conditions
     this.supportingConditionsSection = page.getByText(/Supporting Conditions/i);
-    this.addSupportingConditionButton = page.getByRole('button', { name: /Add.*Condition/i });
+    this.addSupportingConditionButton = page.getByRole("button", {
+      name: /Add.*Condition/i,
+    });
 
     // Navigation
-    this.nextButton = page.getByRole('button', { name: /Next|Continue/i });
-    this.cancelButton = page.getByRole('button', { name: /Cancel/i });
+    this.nextButton = page.getByRole("button", { name: /Next|Continue/i });
+    this.cancelButton = page.getByRole("button", { name: /Cancel/i });
 
     // Validation
     this.errorMessage = page.locator('[role="alert"]');
@@ -45,7 +47,7 @@ export class ConditionsFormPage extends BasePage {
    */
   async selectMainCondition(conditionName: string): Promise<void> {
     await this.mainConditionDropdown.click();
-    await this.page.getByRole('option', { name: conditionName }).click();
+    await this.page.getByRole("option", { name: conditionName }).click();
   }
 
   /**
@@ -53,11 +55,17 @@ export class ConditionsFormPage extends BasePage {
    */
   async selectMainConditionByIndex(index: number): Promise<void> {
     await this.mainConditionDropdown.click();
-    const options = await this.page.getByRole('option').all();
+
+    // wait for options to be loaded
+    await this.page.waitForSelector('[role="option"]');
+
+    const options = await this.page.getByRole("option").all();
     if (index < options.length) {
       await options[index].click();
     } else {
-      throw new Error(`Option index ${index} out of bounds (${options.length} options available)`);
+      throw new Error(
+        `Option index ${index} out of bounds (${options.length} options available)`,
+      );
     }
   }
 
@@ -72,7 +80,7 @@ export class ConditionsFormPage extends BasePage {
     const lastDropdown = dropdowns[dropdowns.length - 1];
 
     await lastDropdown.click();
-    await this.page.getByRole('option', { name: conditionName }).click();
+    await this.page.getByRole("option", { name: conditionName }).click();
   }
 
   /**
@@ -112,7 +120,7 @@ export class ConditionsFormPage extends BasePage {
    */
   async fillConditionsFormWithSupporting(
     mainCondition: string,
-    supportingConditions: string[]
+    supportingConditions: string[],
   ): Promise<void> {
     await this.selectMainCondition(mainCondition);
 

@@ -221,7 +221,7 @@ def seed_project(
     proponent_id: int = 8888,
     proponent_name: str = "E2E Test Proponent Inc.",
     ea_certificate: str = "E2E-2024-01",
-    epic_guid: str = "e2e-project-epic-guid",
+    epic_guid: str = "588511d4aaecd9001b82656c",
     has_approved_condition: bool = True
 ) -> Project:
     """Seed a project for E2E testing.
@@ -500,7 +500,7 @@ def main():
     parser.add_argument('--project-name', type=str, default='Coastal GasLink Pipeline', help='Project name')
     parser.add_argument('--account-project-id', type=int, default=7777, help='AccountProject ID')
     parser.add_argument('--ea-certificate', type=str, default='E2E-2024-01', help='EA Certificate')
-    parser.add_argument('--epic-guid', type=str, default='e2e-project-guid', help='EPIC GUID')
+    parser.add_argument('--epic-guid', type=str, default='588511d4aaecd9001b82656c', help='EPIC GUID')
 
     # Cleanup flag
     parser.add_argument('--cleanup', action='store_true', help='Cleanup test data instead of seeding')

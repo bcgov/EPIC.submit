@@ -1,5 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from '../BasePage';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "../BasePage";
 
 /**
  * Plan Details Form Page Object
@@ -21,13 +21,19 @@ export class PlanDetailsFormPage extends BasePage {
     this.planNameDisplay = page.locator('[data-testid="plan-name"]');
 
     // Confirmation radio buttons
-    this.confirmationRadioYes = page.getByRole('radio', { name: /Yes|Correct/i });
-    this.confirmationRadioNo = page.getByRole('radio', { name: /No|Incorrect/i });
+    this.confirmationRadioYes = page.locator(
+      'input[type="radio"][name="radio-yes"]',
+    );
+    this.confirmationRadioNo = page.locator(
+      'input[type="radio"][name="radio-no"]',
+    );
 
     // Actions
-    this.createSubmissionButton = page.getByRole('button', { name: /Create.*Submission/i });
-    this.backButton = page.getByRole('button', { name: /Back/i });
-    this.cancelButton = page.getByRole('button', { name: /Cancel/i });
+    this.createSubmissionButton = page.getByRole("button", {
+      name: /Create.*Submission/i,
+    });
+    this.backButton = page.getByRole("button", { name: /Back/i });
+    this.cancelButton = page.getByRole("button", { name: /Cancel/i });
   }
 
   /**
@@ -57,7 +63,7 @@ export class PlanDetailsFormPage extends BasePage {
   async clickCreateSubmission(): Promise<void> {
     await this.createSubmissionButton.click();
     // Wait for creation to complete (loading state)
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState("networkidle");
   }
 
   /**

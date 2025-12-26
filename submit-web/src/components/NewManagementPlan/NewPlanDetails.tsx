@@ -42,7 +42,7 @@ export const NewPlanDetails = ({
   });
 
   const handleIsCorrectChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setIsCorrect(event.target.value);
   };
@@ -90,7 +90,7 @@ export const NewPlanDetails = ({
   };
 
   const consultedParties = Array.isArray(
-    mainCondition?.condition_attributes?.parties_required_to_be_consulted
+    mainCondition?.condition_attributes?.parties_required_to_be_consulted,
   )
     ? mainCondition?.condition_attributes?.parties_required_to_be_consulted
     : [];
@@ -174,11 +174,13 @@ export const NewPlanDetails = ({
               value={YES}
               control={<Radio />}
               label="Yes, this information is correct"
+              name="radio-yes"
             />
             <FormControlLabel
               value={NO}
               control={<Radio />}
               label="No, this information is incorrect"
+              name="radio-no"
             />
           </RadioGroup>
           {isCorrect === NO && (

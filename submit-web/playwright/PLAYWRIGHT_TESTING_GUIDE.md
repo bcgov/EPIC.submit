@@ -262,6 +262,26 @@ docker compose -f docker-compose.e2e.yml exec api \
   python scripts/seed_e2e_data.py --guid test-123
 ```
 
+### API Code Changes Not Reflecting
+
+If you've updated API code but changes aren't appearing:
+
+```bash
+# Quick rebuild (30-60 seconds)
+docker compose -f docker-compose.e2e.yml up -d --build api
+
+# Quick restart (5-10 seconds - only if no dependency changes)
+docker compose -f docker-compose.e2e.yml restart api
+
+# View API logs
+docker compose -f docker-compose.e2e.yml logs -f api
+```
+
+**When to rebuild vs restart:**
+
+- **Rebuild**: Added dependencies, changed Dockerfile, or major changes
+- **Restart**: Only changed Python code (faster)
+
 ## CI/CD
 
 Tests run in GitHub Actions via workflow dispatch. Required secrets:

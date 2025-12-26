@@ -135,7 +135,7 @@ export const test = base.extend<DbFixtures>({
       projectName: "Coastal GasLink Pipeline",
       accountProjectId,
       eaCertificate: "E2E-2024-01",
-      epicGuid: "e2e-test-project-guid",
+      epicGuid: "588511d4aaecd9001b82656c",
     };
 
     console.log("\n🌱 [Fixture] Seeding proponent with project...");
@@ -150,7 +150,7 @@ export const test = base.extend<DbFixtures>({
     });
 
     console.log("\n🧹 [Fixture] Cleaning up proponent with project...");
-    // cleanupTestData({ guid, proponentId, projectId });
+    cleanupTestData({ guid, proponentId, projectId });
   },
 
   /**
