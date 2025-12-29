@@ -82,5 +82,5 @@ class User(Resource):
         """Fetch an account by id."""
         user = UserService.get_by_auth_guid(guid)
         if not user:
-            raise ResourceNotFoundError(f"User with guid {guid} not found")
+            raise ResourceNotFoundError(f"User with GUID '{guid}' not found")
         return UserSchema().dump(user), HTTPStatus.OK
