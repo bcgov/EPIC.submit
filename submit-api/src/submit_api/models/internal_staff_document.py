@@ -30,7 +30,7 @@ class InternalStaffDocument(BaseModel):
     type = Column(db.Enum(InternalStaffDocumentType), nullable=False)
     package_id = Column(
         db.Integer,
-        db.ForeignKey('packages.id', name='internal_staff_documents_package_id_fkey'),
+        db.ForeignKey('packages.id', name='internal_staff_documents_package_id_fkey', ondelete='CASCADE'),
         nullable=False
     )
     created_by = Column(

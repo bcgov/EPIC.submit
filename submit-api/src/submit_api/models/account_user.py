@@ -21,7 +21,7 @@ class AccountUser(BaseModel):
     __tablename__ = 'account_users'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    account_id = Column(db.Integer, ForeignKey('accounts.id'), nullable=False)
+    account_id = Column(db.Integer, ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False)
     first_name = Column(db.String(50), nullable=False)
     last_name = Column(db.String(50), nullable=False)
     full_name = column_property(first_name + ' ' + last_name)
@@ -32,7 +32,7 @@ class AccountUser(BaseModel):
     extension_number = Column(db.String(50), nullable=True)
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
-    role = db.relationship('UserRole', back_populates='account_user', uselist=False)
+    role = db.relationship('UserRole', back_populates='account_user', uselist=False, cascade='all, delete', passive_deletes=True)
     terms_of_service_version_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.version'), nullable=True)
     terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
     company_name = Column(db.String(255), nullable=True)

@@ -20,7 +20,7 @@ class Invitations(BaseModel):
     __tablename__ = 'invitations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(Integer, ForeignKey('accounts.id'), nullable=False)
+    account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False)
     project_ids = Column(ARRAY(Integer), nullable=False)
     package_ids = Column(ARRAY(Integer), nullable=True)
     original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs

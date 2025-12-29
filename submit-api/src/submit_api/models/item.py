@@ -19,7 +19,7 @@ class Item(BaseModel):
     __tablename__ = 'items'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False)
+    package_id = Column(db.Integer, ForeignKey('packages.id', ondelete='CASCADE'), nullable=False)
     type_id = Column(db.Integer, ForeignKey('item_types.id'), nullable=False)
     sort_order = Column(db.Integer, nullable=True, default=0)
     type = db.relationship('ItemType', foreign_keys=[type_id], lazy='joined')
@@ -28,15 +28,17 @@ class Item(BaseModel):
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String(255), nullable=True)
     version = Column(db.Integer, nullable=False, default=1)
-    reviews = db.relationship('SubmissionReview', backref='item', lazy='select')
-    notes = db.relationship('SubmissionItemNote', backref='item', lazy='select')
+    reviews = db.relationship('SubmissionReview', backref='item', lazy='select', cascade='all, delete', passive_deletes=True)
+    notes = db.relationship('SubmissionItemNote', backref='item', lazy='select', cascade='all, delete', passive_deletes=True)
     reviewed_on = Column(db.DateTime, nullable=True)
     review_start_date = Column(db.DateTime, nullable=True)
     submissions = db.relationship(
         'Submission',
         lazy='joined',
         primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))',
-        order_by='Submission.created_date.asc()'
+        order_by='Submission.created_date.asc()',
+        cascade='all, delete',
+        passive_deletes=True
     )
 
     # add unique constraint package_id and type_id
