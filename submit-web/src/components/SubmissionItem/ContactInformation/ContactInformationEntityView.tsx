@@ -34,7 +34,7 @@ const contactInformationSchema = yup.object().shape({
       .test(
         "phone-complete",
         "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-        validatePhoneNumber,
+        validatePhoneNumber
       ),
     workEmailAddress: yup
       .string()
@@ -53,7 +53,7 @@ const contactInformationSchema = yup.object().shape({
       .test(
         "phone-complete",
         "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-        validatePhoneNumber,
+        validatePhoneNumber
       ),
     workEmailAddress: yup
       .string()
@@ -92,7 +92,7 @@ export const ContactInformationEntityView = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -164,7 +164,15 @@ export const ContactInformationEntityView = () => {
         <Form onSubmit={handleSubmit(onSubmitHandler)} methods={methods}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <BarBlueTitle title="Contact Information" />
+              <BarBlueTitle title="Submission Contact Information" />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body1" lineHeight={"normal"}>
+                Provide the contact details for the person(s) we should reach
+                out to if we have questions about this submission package. You
+                can select from your saved contacts or add new contact
+                information below.
+              </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography
