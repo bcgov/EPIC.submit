@@ -10,7 +10,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
 
-from submit_api.models import Package, PackageVersion, UserRole, Invitations
+from submit_api.models import Package, PackageVersion, UserRole
 
 # revision identifiers, used by Alembic.
 revision = '7cadbb980cf7'
@@ -51,14 +51,29 @@ def upgrade():
         ]
         role.original_package_ids = mapped_ids
 
-    invitations = session.query(Invitations).filter(Invitations.package_ids.isnot(None)).all()
+    # Update invitations using raw SQL to avoid ORM model dependency issues
+    invitations_table = sa.table(
+        'invitations',
+        sa.column('id', sa.Integer),
+        sa.column('package_ids', sa.ARRAY(sa.Integer)),
+        sa.column('original_package_ids', sa.ARRAY(sa.Integer))
+    )
+    invitations = bind.execute(
+        sa.select(invitations_table.c.id, invitations_table.c.package_ids)
+        .where(invitations_table.c.package_ids.isnot(None))
+    ).fetchall()
+
     for invitation in invitations:
         mapped_ids = [
             package_to_original.get(pid)
             for pid in invitation.package_ids or []
             if package_to_original.get(pid) is not None
         ]
-        invitation.original_package_ids = mapped_ids
+        bind.execute(
+            invitations_table.update()
+            .where(invitations_table.c.id == invitation.id)
+            .values(original_package_ids=mapped_ids)
+        )
 
     session.commit()
 

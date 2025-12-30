@@ -6,10 +6,7 @@ Tests for proponents.
 from http import HTTPStatus
 
 from tests.utilities.factory_utils import (
-    factory_project_with_proponent,
-    factory_account_model,
-    factory_invitation_model,
-)
+    factory_account_model, factory_invitation_model, factory_project_with_proponent)
 
 
 def test_get_all_proponents(client, session):

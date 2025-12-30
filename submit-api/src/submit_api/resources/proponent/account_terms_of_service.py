@@ -50,7 +50,7 @@ class TermsOfService(Resource):
         """Fetch active terms of service."""
         terms_of_service = TermsOfServiceModel.get_active_terms_of_service()
         if not terms_of_service:
-            return ResourceNotFoundError("No active terms of service found")
+            raise ResourceNotFoundError("No active terms of service found")
         return TermsOfServiceSchema().dump(terms_of_service), HTTPStatus.OK
 
     @staticmethod

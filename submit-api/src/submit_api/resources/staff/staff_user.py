@@ -56,7 +56,7 @@ class StaffUser(Resource):
         """Fetch a staff by id."""
         staff = StaffUserService.get_staff_by_id(guid)
         if not staff:
-            return ResourceNotFoundError(f"User with guid {guid} not found")
+            raise ResourceNotFoundError(f"User with guid {guid} not found")
         return StaffUserSchema().dump(staff), HTTPStatus.OK
 
 

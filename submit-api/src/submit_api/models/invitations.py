@@ -20,7 +20,7 @@ class Invitations(BaseModel):
     __tablename__ = 'invitations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(Integer, ForeignKey('accounts.id'), nullable=False)
+    account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False)
     project_ids = Column(ARRAY(Integer), nullable=False)
     package_ids = Column(ARRAY(Integer), nullable=True)
     original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs
@@ -30,6 +30,7 @@ class Invitations(BaseModel):
     expiry_date = Column(TIMESTAMP, default=datetime.utcnow)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     is_first_time = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False)
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
     role = relationship('Role', foreign_keys=[role_id], lazy='select')

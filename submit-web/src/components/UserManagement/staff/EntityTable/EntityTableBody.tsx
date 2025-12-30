@@ -50,9 +50,11 @@ export const EntityTableBody = ({
             Loading proponents...
           </TableCell>
         </TableRow>
-        <TableCell>
-          <LinearProgress />
-        </TableCell>
+        <TableRow>
+          <TableCell>
+            <LinearProgress />
+          </TableCell>
+        </TableRow>
       </>
     );
   }

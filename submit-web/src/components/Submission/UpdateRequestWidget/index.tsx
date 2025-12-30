@@ -11,7 +11,7 @@ import {
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
-import { useMemo, useState } from "react";
+import { useMemo, useState, Fragment } from "react";
 import { SubmissionPackage } from "@/models/Package";
 import RequestSection from "./RequestSection";
 import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
@@ -227,14 +227,13 @@ export default function UpdateRequestWidget({
         </PermissionsGate>
         {updateRequests.length > 0 ? (
           updateRequests.map((updateRequest, index) => (
-            <>
+            <Fragment key={updateRequest.id}>
               <RequestSection
-                key={updateRequest.id}
                 updateRequest={updateRequest}
                 submissionPackage={submissionPackage}
               />
               {index !== updateRequests.length - 1 && <Divider />}
-            </>
+            </Fragment>
           ))
         ) : (
           <Typography variant="body1" sx={{ mb: 1 }}>

@@ -27,12 +27,13 @@ class SubmissionReview(BaseModel):
     __tablename__ = 'submission_reviews'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    item_id = Column(db.Integer, ForeignKey('items.id'), nullable=False)
+    item_id = Column(db.Integer, ForeignKey('items.id', ondelete='CASCADE'), nullable=False)
     status = Column(db.Enum(SubmissionReviewStatus), nullable=False,
                     default=SubmissionReviewStatus.PENDING_STAFF_REVIEW.value)
     active = Column(db.Boolean, nullable=False, default=True)
 
-    entries = db.relationship('SubmissionReviewEntry', backref='review', lazy='joined')
+    entries = db.relationship('SubmissionReviewEntry', backref='review',
+                              lazy='joined', cascade='all, delete', passive_deletes=True)
 
     __table_args__ = (
         db.Index('submission_reviews_item_id_idx', item_id),

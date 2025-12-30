@@ -3,9 +3,10 @@ import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledSelect from "@/components/Shared/controlled/ControlledSelect";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_ITEM_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
@@ -20,45 +21,108 @@ import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { validatePhoneNumber } from "./utils";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
+import { useGetAccountUsers } from "@/hooks/api/useAccountUsers";
 
 const contactInformationSchema = yup.object().shape({
   primaryContact: yup.object().shape({
-    givenName: yup.string().required("Please enter a given name."),
-    surname: yup.string().required("Please enter a surname."),
-    position: yup.string().required("Please enter a position/role."),
-    company: yup.string().required("Please enter a company."),
+    accountUserId: yup.string().nullable(),
+    givenName: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a given name."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    surname: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a surname."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    position: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a position/role."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    company: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a company."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     extensionNumber: yup.string(),
-    workPhoneNumber: yup
-      .string()
-      .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
-      .test(
-        "phone-complete",
-        "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-        validatePhoneNumber,
-      ),
-    workEmailAddress: yup
-      .string()
-      .email("Invalid email")
-      .required("Please enter a valid email address."),
+    workPhoneNumber: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) =>
+        schema
+          .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+          .test(
+            "phone-complete",
+            "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
+            validatePhoneNumber,
+          ),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    workEmailAddress: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) =>
+        schema
+          .email("Invalid email")
+          .required("Please enter a valid email address."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   }),
   secondaryContact: yup.object().shape({
-    givenName: yup.string().required("Please enter a given name."),
-    surname: yup.string().required("Please enter a surname."),
-    position: yup.string().required("Please enter a position/role."),
-    company: yup.string().required("Please enter a company."),
-    extensionNumber: yup.string(),
-    workPhoneNumber: yup
+    accountUserId: yup
       .string()
-      .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+      .nullable()
       .test(
-        "phone-complete",
-        "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-        validatePhoneNumber,
+        "not-same-as-primary",
+        "Secondary contact cannot be the same as primary contact.",
+        function (value) {
+          const root = this.from?.[1]?.value;
+          const primaryUserId = root?.primaryContact?.accountUserId;
+          if (!value || !primaryUserId) return true;
+          return value !== primaryUserId;
+        },
       ),
-    workEmailAddress: yup
-      .string()
-      .email("Invalid email")
-      .required("Please enter a valid email address."),
+    givenName: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a given name."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    surname: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a surname."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    position: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a position/role."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    company: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) => schema.required("Please enter a company."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    extensionNumber: yup.string(),
+    workPhoneNumber: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) =>
+        schema
+          .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+          .test(
+            "phone-complete",
+            "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
+            validatePhoneNumber,
+          ),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    workEmailAddress: yup.string().when("accountUserId", {
+      is: (val: number | null) => !val,
+      then: (schema) =>
+        schema
+          .email("Invalid email")
+          .required("Please enter a valid email address."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   }),
 });
 
@@ -83,6 +147,18 @@ export const ContactInformationEntityView = () => {
     accountProjectId,
   });
 
+  const { data: accountUsers } = useGetAccountUsers({
+    accountId: accountProject?.account_id,
+  });
+
+  const accountUserOptions = useMemo(() => {
+    if (!accountUsers) return [];
+    return accountUsers.map((user) => ({
+      value: user.id ?? 0,
+      label: user.full_name,
+    }));
+  }, [accountUsers]);
+
   const { data: packageData } = useGetSubmissionPackage({
     packageId: Number(submissionPackageId),
   });
@@ -92,7 +168,7 @@ export const ContactInformationEntityView = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -104,7 +180,60 @@ export const ContactInformationEntityView = () => {
     defaultValues,
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, watch, clearErrors, setValue } = methods;
+
+  const primaryContactUserId = watch("primaryContact.accountUserId");
+  const secondaryContactUserId = watch("secondaryContact.accountUserId");
+  const isPrimaryUserSelected = Boolean(primaryContactUserId);
+  const isSecondaryUserSelected = Boolean(secondaryContactUserId);
+
+  useEffect(() => {
+    if (primaryContactUserId && accountUsers) {
+      const selectedUser = accountUsers.find(
+        (user) => String(user.id) === String(primaryContactUserId)
+      );
+      if (selectedUser) {
+        setValue("primaryContact.givenName", selectedUser.first_name ?? "");
+        setValue("primaryContact.surname", selectedUser.last_name ?? "");
+        setValue("primaryContact.position", selectedUser.position ?? "");
+        setValue("primaryContact.company", selectedUser.company_name ?? "");
+        setValue("primaryContact.workPhoneNumber", selectedUser.work_contact_number ?? "");
+        setValue("primaryContact.workEmailAddress", selectedUser.work_email_address ?? "");
+        clearErrors([
+          "primaryContact.givenName",
+          "primaryContact.surname",
+          "primaryContact.position",
+          "primaryContact.company",
+          "primaryContact.workPhoneNumber",
+          "primaryContact.workEmailAddress",
+        ]);
+      }
+    }
+  }, [primaryContactUserId, accountUsers, setValue, clearErrors]);
+
+  useEffect(() => {
+    if (secondaryContactUserId && accountUsers) {
+      const selectedUser = accountUsers.find(
+        (user) => String(user.id) === String(secondaryContactUserId)
+      );
+      if (selectedUser) {
+        setValue("secondaryContact.givenName", selectedUser.first_name ?? "");
+        setValue("secondaryContact.surname", selectedUser.last_name ?? "");
+        setValue("secondaryContact.position", selectedUser.position ?? "");
+        setValue("secondaryContact.company", selectedUser.company_name ?? "");
+        setValue("secondaryContact.workPhoneNumber", selectedUser.work_contact_number ?? "");
+        setValue("secondaryContact.workEmailAddress", selectedUser.work_email_address ?? "");
+        clearErrors([
+          "secondaryContact.givenName",
+          "secondaryContact.surname",
+          "secondaryContact.position",
+          "secondaryContact.company",
+          "secondaryContact.workPhoneNumber",
+          "secondaryContact.workEmailAddress",
+        ]);
+      }
+    }
+  }, [secondaryContactUserId, accountUsers, setValue, clearErrors]);
 
   const { refetch } = useGetSubmissionPackage({
     packageId: Number(submissionPackageId),
@@ -164,7 +293,15 @@ export const ContactInformationEntityView = () => {
         <Form onSubmit={handleSubmit(onSubmitHandler)} methods={methods}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <BarBlueTitle title="Contact Information" />
+              <BarBlueTitle title="Submission Contact Information" />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography variant="body1" lineHeight={"normal"}>
+                Provide the contact details for the person(s) we should reach
+                out to if we have questions about this submission package. You
+                can select from your saved contacts or add new contact
+                information below.
+              </Typography>
             </Grid>
             <Grid item xs={12}>
               <Typography
@@ -187,10 +324,20 @@ export const ContactInformationEntityView = () => {
               }}
             >
               <Grid item xs={12}>
+                <ControlledSelect
+                  name="primaryContact.accountUserId"
+                  label="Add New Contact or Select Existing User"
+                  options={accountUserOptions}
+                  placeholder="Add New Contact"
+                  fullWidth
+                />
+              </Grid>
+              <Grid item xs={12}>
                 <ControlledTextField
                   name="primaryContact.givenName"
                   label="Given Name"
                   fullWidth
+                  disabled={isPrimaryUserSelected}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -198,6 +345,7 @@ export const ContactInformationEntityView = () => {
                   name="primaryContact.surname"
                   label="Surname"
                   fullWidth
+                  disabled={isPrimaryUserSelected}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -205,6 +353,7 @@ export const ContactInformationEntityView = () => {
                   name="primaryContact.company"
                   label="Company Name"
                   fullWidth
+                  disabled={isPrimaryUserSelected}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -212,6 +361,7 @@ export const ContactInformationEntityView = () => {
                   name="primaryContact.position"
                   label="Position/Role"
                   fullWidth
+                  disabled={isPrimaryUserSelected}
                 />
               </Grid>
               <Grid item xs={12} container spacing={1}>
@@ -221,6 +371,7 @@ export const ContactInformationEntityView = () => {
                     mask="(999) 999-9999"
                     label="Work Phone Number"
                     fullWidth
+                    disabled={isPrimaryUserSelected}
                   />
                 </Grid>
                 <Grid item xs={4}>
@@ -229,6 +380,7 @@ export const ContactInformationEntityView = () => {
                     mask="9999"
                     label="Ext."
                     fullWidth
+                    disabled={isPrimaryUserSelected}
                   />
                 </Grid>
               </Grid>
@@ -237,6 +389,7 @@ export const ContactInformationEntityView = () => {
                   name="primaryContact.workEmailAddress"
                   label="Work Email Address"
                   fullWidth
+                  disabled={isPrimaryUserSelected}
                 />
               </Grid>
             </Grid>
@@ -261,10 +414,20 @@ export const ContactInformationEntityView = () => {
                 }}
               >
                 <Grid item xs={12}>
+                  <ControlledSelect
+                    name="secondaryContact.accountUserId"
+                    label="Add New Contact or Select Existing User"
+                    options={accountUserOptions}
+                    placeholder="Add New Contact"
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12}>
                   <ControlledTextField
                     name="secondaryContact.givenName"
                     label="Given Name"
                     fullWidth
+                    disabled={isSecondaryUserSelected}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -272,6 +435,7 @@ export const ContactInformationEntityView = () => {
                     name="secondaryContact.surname"
                     label="Surname"
                     fullWidth
+                    disabled={isSecondaryUserSelected}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -279,6 +443,7 @@ export const ContactInformationEntityView = () => {
                     name="secondaryContact.company"
                     label="Company Name"
                     fullWidth
+                    disabled={isSecondaryUserSelected}
                   />
                 </Grid>
                 <Grid item xs={12}>
@@ -286,6 +451,7 @@ export const ContactInformationEntityView = () => {
                     name="secondaryContact.position"
                     label="Position/Role"
                     fullWidth
+                    disabled={isSecondaryUserSelected}
                   />
                 </Grid>
                 <Grid item xs={12} container spacing={1}>
@@ -295,6 +461,7 @@ export const ContactInformationEntityView = () => {
                       mask="(999) 999-9999"
                       label="Work Phone Number"
                       fullWidth
+                      disabled={isSecondaryUserSelected}
                     />
                   </Grid>
                   <Grid item xs={4}>
@@ -303,6 +470,7 @@ export const ContactInformationEntityView = () => {
                       mask="9999"
                       label="Ext."
                       fullWidth
+                      disabled={isSecondaryUserSelected}
                     />
                   </Grid>
                 </Grid>
@@ -311,6 +479,7 @@ export const ContactInformationEntityView = () => {
                     name="secondaryContact.workEmailAddress"
                     label="Work Email Address"
                     fullWidth
+                    disabled={isSecondaryUserSelected}
                   />
                 </Grid>
               </Grid>
