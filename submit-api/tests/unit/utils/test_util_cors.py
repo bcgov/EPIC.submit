@@ -36,8 +36,7 @@ TEST_CORS_METHODS_DATA = [
 
 
 @pytest.mark.parametrize('methods', TEST_CORS_METHODS_DATA)
-@patch.dict('os.environ', {'CORS_ORIGIN': ''}, clear=False)
-def test_cors_preflight_post(methods):
+def test_cors_preflight_post(methods, app):
     """Assert that the options methos is added to the class and that the correct access controls are set."""
     app = Flask(__name__)
 

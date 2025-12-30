@@ -79,7 +79,6 @@ def allowedorigins():
         print('No CORS_ORIGIN set, defaulting to empty list')
         return []
     allowed_origins = [entry.strip() for entry in re.split(r',\s*', _allowedcors) if entry.strip()]
-    print(f'Allowed origins: {allowed_origins}')
     return allowed_origins
 
 

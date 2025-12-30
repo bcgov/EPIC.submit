@@ -17,4 +17,13 @@ module.exports = {
     "no-console": "error",
     "@typescript-eslint/no-explicit-any": "off",
   },
+  overrides: [
+    {
+      // Allow console.log in E2E test files and helpers
+      files: ["playwright/**/*.ts", "playwright/**/*.js"],
+      rules: {
+        "no-console": "off",
+      },
+    },
+  ],
 };
