@@ -34,7 +34,7 @@ class UpdateRequest(BaseModel):
     __tablename__ = 'update_requests'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    submission_package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False)
+    submission_package_id = Column(db.Integer, ForeignKey('packages.id', ondelete='CASCADE'), nullable=False)
     submission_item_types = Column(db.ARRAY(db.Integer), nullable=False)
     active = Column(db.Boolean, nullable=False, default=True)
     created_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=False)
