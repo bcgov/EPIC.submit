@@ -35,6 +35,7 @@ class AccountUser(BaseModel):
     role = db.relationship('UserRole', back_populates='account_user', uselist=False)
     terms_of_service_version_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.version'), nullable=True)
     terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
+    company_name = Column(db.String(255), nullable=True)
 
     terms_of_service = db.relationship(
         'TermsOfService',
@@ -61,6 +62,7 @@ class AccountUser(BaseModel):
             "work_contact_number": self.work_contact_number,
             "user_id": self.user_id,
             "extension_number": self.extension_number,
+            "company_name": self.company_name,
             "role": self.role.to_dict() if self.role else None,
         }
 

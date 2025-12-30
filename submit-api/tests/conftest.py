@@ -14,16 +14,20 @@
 """Common setup and fixtures for the pytest suite used by this service."""
 from random import random
 
-import pytest
 from faker import Faker
-from flask_migrate import Migrate, upgrade
-from sqlalchemy import event, text
-from sqlalchemy.orm import sessionmaker, scoped_session
+from flask_migrate import Migrate
+from flask_migrate import upgrade
+import pytest
+from sqlalchemy import event
+from sqlalchemy import text
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
 
 from submit_api import create_app
 from submit_api.auth import jwt as _jwt
 from submit_api.config import get_named_config
 from submit_api.models import db as _db
+
 
 fake = Faker()
 CONFIG = get_named_config("testing")
@@ -46,6 +50,7 @@ def app():
         sess.execute(drop_schema_sql)
         sess.commit()
         upgrade()  # Apply migrations
+        print('MIGRATIONS APPLIED')
         yield _app
         _db.session.remove()
     return _app

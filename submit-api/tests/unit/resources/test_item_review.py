@@ -2,20 +2,22 @@
 
 from http import HTTPStatus
 
+from faker import Faker
+
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.package_type import PackageTypeId
 from submit_api.models.item_type import SubmissionItemTypeId
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.schemas.submission_review import SubmissionReviewSchema
-from tests.utilities.factory_utils import (
-    factory_item_model,
-    factory_user_model,
-    factory_auth_header, factory_package_model, set_global_token_info, create_contact_info_submission,
-)
 from tests.utilities.factory_scenarios import TestJwtClaims
+from tests.utilities.factory_utils import create_contact_info_submission
+from tests.utilities.factory_utils import factory_auth_header
+from tests.utilities.factory_utils import factory_item_model
+from tests.utilities.factory_utils import factory_package_model
+from tests.utilities.factory_utils import factory_user_model
+from tests.utilities.factory_utils import set_global_token_info
 
-from faker import Faker
 
 fake = Faker()
 
@@ -387,7 +389,7 @@ def test_fail_management_plan_item(client, session, jwt):
                        status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
     mp_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.MANAGEMENT_PLAN_FORM.value,
                                  status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
-    create_contact_info_submission(item_id=contact_info_item.id)
+    create_contact_info_submission(item_id=contact_info_item.id, auth_guid=auth_guid)
     session.flush()
 
     # Generate authentication headers
@@ -455,7 +457,7 @@ def test_fail_iem_item(client, session, jwt):
                        status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
     iem_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.IEM.value,
                                   status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
-    create_contact_info_submission(item_id=contact_info_item.id)
+    create_contact_info_submission(item_id=contact_info_item.id, auth_guid=auth_guid)
     session.flush()
 
     # Generate authentication headers
