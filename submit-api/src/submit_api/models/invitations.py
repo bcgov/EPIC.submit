@@ -21,7 +21,7 @@ class Invitations(BaseModel):
     __tablename__ = 'invitations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(Integer, ForeignKey('accounts.id'), nullable=False)
+    account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False)
     project_ids = Column(ARRAY(Integer), nullable=False)
     package_ids = Column(ARRAY(Integer), nullable=True)
     original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs
@@ -44,9 +44,9 @@ class Invitations(BaseModel):
         return datetime.now(timezone.utc) > self.expiry_date.replace(tzinfo=timezone.utc)
 
     @is_expired.expression
-    def is_expired(cls):  # noqa: N805
+    def is_expired(cls):  # noqa: N805  # pylint: disable=no-self-argument
         """SQL expression for is_expired check."""
-        return cls.expiry_date < func.timezone('UTC', func.now())
+        return cls.expiry_date < func.timezone('UTC', func.now())  # pylint: disable=not-callable
 
     def to_dict(self):
         """Convert object to dictionary."""

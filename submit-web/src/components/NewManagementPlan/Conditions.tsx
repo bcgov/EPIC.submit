@@ -131,6 +131,7 @@ export const Conditions = () => {
         </Grid>
         <Grid item xs md={6} lg={4}>
           <TextField
+            data-testid="main-condition"
             select
             fullWidth
             sx={{ marginBottom: "10px" }}

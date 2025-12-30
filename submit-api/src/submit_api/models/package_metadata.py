@@ -29,7 +29,7 @@ class PackageMetadata(BaseModel):
     __tablename__ = 'package_metadata'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    package_id = Column(db.Integer, ForeignKey('packages.id'), nullable=False, unique=True)
+    package_id = Column(db.Integer, ForeignKey('packages.id', ondelete='CASCADE'), nullable=False, unique=True)
     json = Column(db.JSON)
 
     # add index on package_id

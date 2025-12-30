@@ -142,6 +142,7 @@ class AccountUserService:
         invitees_query = InvitationsModel.query.filter(
             InvitationsModel.account_id == account_id,
             # The list should excluded expired and revoked invitations
+            # pylint: disable=invalid-unary-operand-type
             ~(and_(InvitationsModel.is_expired, InvitationsModel.status == InvitationStatus.REVOKED.value)),
             InvitationsModel.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
         )
