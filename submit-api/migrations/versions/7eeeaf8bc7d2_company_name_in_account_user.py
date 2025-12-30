@@ -1,7 +1,7 @@
 """company_name in account_user
 
 Revision ID: 7eeeaf8bc7d2
-Revises: f3e5506ce9df
+Revises: 471bff2fa76c
 Create Date: 2025-12-22 16:41:16.606864
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '7eeeaf8bc7d2'
-down_revision = 'f3e5506ce9df'
+down_revision = '471bff2fa76c'
 branch_labels = None
 depends_on = None
 
