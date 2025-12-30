@@ -67,7 +67,8 @@ export const test = base.extend<DbFixtures>({
   /**
    * Fixture: Seeded proponent user
    */
-  seededProponent: async (_, use) => {
+  // eslint-disable-next-line no-empty-pattern
+  seededProponent: async ({}, use) => {
     const guid = "71cb238c-147e-4d6b-85d1-de7f8659f049";
     const proponentId = 8888;
     const accountId = 5555;
@@ -117,7 +118,8 @@ export const test = base.extend<DbFixtures>({
    * Fixture: Seeded proponent with project
    * Seeds complete setup: User → Account → Project → AccountProject
    */
-  seededProponentWithProject: async (_, use) => {
+  // eslint-disable-next-line no-empty-pattern
+  seededProponentWithProject: async ({}, use) => {
     const guid = "71cb238c-147e-4d6b-85d1-de7f8659f049";
     const proponentId = 8888;
     const projectId = 9999;
