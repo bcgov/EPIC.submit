@@ -16,6 +16,9 @@
 
 Test-Suite to ensure that the CORS decorator is working as expected.
 """
+from unittest.mock import patch
+
+from flask import Flask
 import pytest
 
 from src.submit_api.utils.util import cors_preflight
@@ -33,12 +36,15 @@ TEST_CORS_METHODS_DATA = [
 
 
 @pytest.mark.parametrize('methods', TEST_CORS_METHODS_DATA)
-def test_cors_preflight_post(methods):
+def test_cors_preflight_post(methods, app):
     """Assert that the options methos is added to the class and that the correct access controls are set."""
+    app = Flask(__name__)
+
     @cors_preflight(methods)  # pylint: disable=too-few-public-methods
     class TestCors():
         pass
 
-    rv = TestCors().options()  # pylint: disable=no-member
-    assert rv[2]['Access-Control-Allow-Origin'] == '*'
-    assert rv[2]['Access-Control-Allow-Methods'] == methods
+    with app.test_request_context():
+        rv = TestCors().options()  # pylint: disable=no-member
+        assert rv[2]['Access-Control-Allow-Origin'] == '*'
+        assert rv[2]['Access-Control-Allow-Methods'] == methods

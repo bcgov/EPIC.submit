@@ -1,4 +1,4 @@
-name: E2E Tests (Docker Compose)
+name: E2E Tests
 
 on:
   workflow_dispatch:  # Manual trigger for now
@@ -49,28 +49,7 @@ jobs:
 
           echo "All services are ready!"
 
-      # 4. Seed test data (COMMENTED OUT - Testing basic login first)
-      # - name: Seed test data
-      #   run: |
-      #     echo "Seeding test data..."
-
-      #     # Get API container name
-      #     API_CONTAINER=$(docker compose -f docker-compose.e2e.yml ps -q api)
-
-      #     # Verify database is ready using pg_isready
-      #     echo "Verifying database readiness..."
-      #     timeout 30 bash -c 'until docker exec '"$API_CONTAINER"' pg_isready -h db -U submit -d submit; do echo "Waiting for Postgres..."; sleep 2; done'
-      #     echo "✓ Database is ready for connections"
-
-      #     # Copy seed script to container
-      #     docker cp submit-api/scripts/seed_e2e_test_data.sql $API_CONTAINER:/tmp/seed.sql
-
-      #     # Execute seed script
-      #     docker exec $API_CONTAINER psql -h db -U submit -d submit -f /tmp/seed.sql
-
-      #     echo "Test data seeded successfully!"
-
-      # 5. Install Playwright dependencies
+      # 4. Install Playwright dependencies
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -86,7 +65,7 @@ jobs:
         working-directory: ./submit-web
         run: npx playwright install --with-deps chromium
 
-      # 6. Run Playwright tests
+      # 5. Run Playwright tests
       - name: Run Playwright tests
         id: tests
         continue-on-error: true
@@ -103,7 +82,7 @@ jobs:
           PROPONENT_BCEID_PASSWORD: ${{ secrets.PROPONENT_BCEID_PASSWORD }}
         run: npx playwright test
 
-      # 7. Upload artifacts
+      # 6. Upload artifacts
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
@@ -120,7 +99,7 @@ jobs:
           path: submit-web/test-results
           retention-days: 30
 
-      # 8. Show logs on failure
+      # 7. Show logs on failure
       - name: Show service logs
         if: failure()
         run: |
@@ -133,14 +112,14 @@ jobs:
           echo "=== Database Logs ==="
           docker compose -f docker-compose.e2e.yml logs db
 
-      # 9. Cleanup
+      # 8. Cleanup
       - name: Cleanup
         if: always()
         run: |
           docker compose -f docker-compose.e2e.yml down -v
           echo "Cleanup completed"
 
-      # 10. Fail if tests failed
+      # 9. Fail if tests failed
       - name: Fail if tests failed
         if: steps.tests.outcome == 'failure'
         run: exit 1

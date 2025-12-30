@@ -1,5 +1,5 @@
 import { AccountProject } from "@/models/Project";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { Project } from "./Project";
 import { ContentBoxSkeleton } from "../Shared/ContentBox/ContentBoxSkeleton";
 import { Navigate } from "@tanstack/react-router";
@@ -10,11 +10,11 @@ type ProjectsParams = {
 export const Projects = ({ accountProjects }: ProjectsParams) => {
   if (!accountProjects) return <Navigate to={"/error"} />;
   return (
-    <Stack spacing={2} direction={"column"}>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, marginBottom: 2 }}>
       {accountProjects.map((accountProject) => (
         <Project key={accountProject.id} accountProject={accountProject} />
       ))}
-    </Stack>
+    </Box>
   );
 };
 

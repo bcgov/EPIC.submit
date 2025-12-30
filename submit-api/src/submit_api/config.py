@@ -97,6 +97,9 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     INVITATION_EXPIRY_DAYS = int(os.getenv('INVITATION_EXPIRY_DAYS', '7'))  # Default to 7 days
 
+    # CORS
+    CORS_ORIGIN = os.getenv('CORS_ORIGIN', '')
+
 
 class DevConfig(_Config):  # pylint: disable=too-few-public-methods
     """Dev Config."""

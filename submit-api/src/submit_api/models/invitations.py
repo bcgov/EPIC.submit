@@ -30,6 +30,7 @@ class Invitations(BaseModel):
     expiry_date = Column(TIMESTAMP, default=datetime.utcnow)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     is_first_time = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False)
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
     role = relationship('Role', foreign_keys=[role_id], lazy='select')

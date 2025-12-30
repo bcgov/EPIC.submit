@@ -30,9 +30,27 @@ def cors_preflight(methods):
 
     def wrapper(f):
         def options(self, *args, **kwargs):  # pylint: disable=unused-argument
+            # Get allowed origins dynamically
+            allowed = allowedorigins()
+
+            # Get the requesting origin from the request headers
+            from flask import request  # pylint: disable=import-outside-toplevel
+            request_origin = request.headers.get('Origin', '')
+
+            # Check if the requesting origin is in our allowed list
+            # For CORS with credentials, we must return the specific origin, not '*'
+            if request_origin in allowed:
+                origin = request_origin
+            elif allowed:
+                # Fallback to first allowed origin if request origin not provided
+                origin = allowed[0]
+            else:
+                # Fallback to '*' for backward compatibility when no origins configured
+                origin = '*'
+
             return {'Allow': 'GET, DELETE, PUT, POST'}, 200, \
                    {
-                       'Access-Control-Allow-Origin': '*',
+                       'Access-Control-Allow-Origin': origin,
                        'Access-Control-Allow-Methods': methods,
                        'Access-Control-Allow-Headers': 'Authorization, Content-Type, registries-trace-id, '
                                                        'invitation_token'}
@@ -56,9 +74,12 @@ def snake2camelback(snake_dict: dict):
 def allowedorigins():
     """Return allowed origin."""
     _allowedcors = os.getenv('CORS_ORIGIN')
+    print(f'CORS_ORIGIN environment variable: {_allowedcors}')
     if not _allowedcors:
+        print('No CORS_ORIGIN set, defaulting to empty list')
         return []
-    return [entry.strip() for entry in re.split(r',\s*', _allowedcors) if entry.strip()]
+    allowed_origins = [entry.strip() for entry in re.split(r',\s*', _allowedcors) if entry.strip()]
+    return allowed_origins
 
 
 class Singleton(type):

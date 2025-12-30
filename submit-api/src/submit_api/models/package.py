@@ -82,7 +82,7 @@ class Package(BaseModel):
                            type_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String, ForeignKey(
-        'users.auth_guid'), nullable=True)
+        'users.auth_guid', name='packages_submitted_by_fkey'), nullable=True)
     submitted_by_user = db.relationship(
         'User', foreign_keys=[submitted_by], lazy='joined')
     completed_on = Column(db.DateTime, nullable=True)
