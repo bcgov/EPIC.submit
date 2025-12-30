@@ -98,8 +98,8 @@ export const test = base.extend<DbFixtures>({
    * Fixture: Authenticated proponent session
    * Demonstrates fixture composition: builds on seededProponent
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   authenticatedProponentSession: async (
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     { page, seededProponent: _seededProponent },
     use,
   ) => {
