@@ -1,5 +1,6 @@
 """Service for account user management."""
 from datetime import datetime
+from sqlalchemy import and_
 
 from flask import current_app
 
@@ -140,6 +141,8 @@ class AccountUserService:
 
         invitees_query = InvitationsModel.query.filter(
             InvitationsModel.account_id == account_id,
+            # The list should excluded expired and revoked invitations
+            ~(and_(InvitationsModel.is_expired, InvitationsModel.status == InvitationStatus.REVOKED.value)),
             InvitationsModel.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
         )
         if project_ids:
