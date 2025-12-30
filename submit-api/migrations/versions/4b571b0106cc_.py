@@ -1,7 +1,7 @@
 """ Add cascade delete to foreign keys
 
 Revision ID: 4b571b0106cc
-Revises: 7eeeaf8bc7d2
+Revises: 127a1e8c797e
 Create Date: 2025-12-26 13:51:14.367625
 
 """
@@ -9,7 +9,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '4b571b0106cc'
-down_revision = '7eeeaf8bc7d2'
+down_revision = '127a1e8c797e'
 branch_labels = None
 depends_on = None
 
