@@ -23,6 +23,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { usePackageTableStore } from "./packageTableStore";
 
 type VersionGroupProps = Readonly<{
   currentPackageVersion: PackageVersion;
@@ -41,6 +42,7 @@ export default function VersionGroup({
   const { setOpen: setOpenModal } = useModal();
 
   const navigate = useNavigate();
+  const { reset } = usePackageTableStore();
   const { data: packageVersions, isPending: isVersionsLoading } =
     useGetPackageVersionsByOriginalPackageId({
       originalPackageId: currentPackageVersion.original_package_id,
@@ -77,6 +79,7 @@ export default function VersionGroup({
   });
 
   function handleUpdatePackageId(newPackageId: number) {
+    reset();
     loadNewPackage(newPackageId);
   }
 
