@@ -67,7 +67,7 @@ export const test = base.extend<DbFixtures>({
   /**
    * Fixture: Seeded proponent user
    */
-  seededProponent: async ({}, use) => {
+  seededProponent: async (_, use) => {
     const guid = "71cb238c-147e-4d6b-85d1-de7f8659f049";
     const proponentId = 8888;
     const accountId = 5555;
@@ -97,7 +97,7 @@ export const test = base.extend<DbFixtures>({
    * Fixture: Authenticated proponent session
    * Demonstrates fixture composition: builds on seededProponent
    */
-  authenticatedProponentSession: async ({ page, seededProponent }, use) => {
+  authenticatedProponentSession: async ({ page, seededProponent: _seededProponent }, use) => {
     console.log("\n🔐 [Fixture] Authenticating proponent...");
 
     await kcLogout(page);
@@ -117,7 +117,7 @@ export const test = base.extend<DbFixtures>({
    * Fixture: Seeded proponent with project
    * Seeds complete setup: User → Account → Project → AccountProject
    */
-  seededProponentWithProject: async ({}, use) => {
+  seededProponentWithProject: async (_, use) => {
     const guid = "71cb238c-147e-4d6b-85d1-de7f8659f049";
     const proponentId = 8888;
     const projectId = 9999;
