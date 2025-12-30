@@ -98,7 +98,11 @@ export const test = base.extend<DbFixtures>({
    * Fixture: Authenticated proponent session
    * Demonstrates fixture composition: builds on seededProponent
    */
-  authenticatedProponentSession: async ({ page, seededProponent: _seededProponent }, use) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  authenticatedProponentSession: async (
+    { page, seededProponent: _seededProponent },
+    use,
+  ) => {
     console.log("\n🔐 [Fixture] Authenticating proponent...");
 
     await kcLogout(page);

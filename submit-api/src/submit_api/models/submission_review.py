@@ -32,7 +32,8 @@ class SubmissionReview(BaseModel):
                     default=SubmissionReviewStatus.PENDING_STAFF_REVIEW.value)
     active = Column(db.Boolean, nullable=False, default=True)
 
-    entries = db.relationship('SubmissionReviewEntry', backref='review', lazy='joined', cascade='all, delete', passive_deletes=True)
+    entries = db.relationship('SubmissionReviewEntry', backref='review',
+                              lazy='joined', cascade='all, delete', passive_deletes=True)
 
     __table_args__ = (
         db.Index('submission_reviews_item_id_idx', item_id),

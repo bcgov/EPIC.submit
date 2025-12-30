@@ -28,8 +28,10 @@ class Item(BaseModel):
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String(255), nullable=True)
     version = Column(db.Integer, nullable=False, default=1)
-    reviews = db.relationship('SubmissionReview', backref='item', lazy='select', cascade='all, delete', passive_deletes=True)
-    notes = db.relationship('SubmissionItemNote', backref='item', lazy='select', cascade='all, delete', passive_deletes=True)
+    reviews = db.relationship('SubmissionReview', backref='item', lazy='select',
+                              cascade='all, delete', passive_deletes=True)
+    notes = db.relationship('SubmissionItemNote', backref='item', lazy='select',
+                            cascade='all, delete', passive_deletes=True)
     reviewed_on = Column(db.DateTime, nullable=True)
     review_start_date = Column(db.DateTime, nullable=True)
     submissions = db.relationship(
