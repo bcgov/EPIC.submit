@@ -49,6 +49,8 @@ export const authenticatedProponentWithProject = test.extend({
 });
 ```
 
+*Note*: These TypeScript fixtures are defined in `submit-web/playwright/fixtures/db.fixtures.ts`. They call helpers in `submit-web/playwright/helpers/seed.ts`, which execute the Python seeding scripts via `docker compose exec`.
+
 ## Future Phases (Not Yet Implemented)
 
 When adding new test scenarios (packages, reviews, documents), new domain modules will be added:
@@ -81,7 +83,20 @@ These will be added incrementally as E2E tests are written that need them.
 
 ### For Future Complex Tests
 ✅ **Easy to find logic** - Domain-organized modules
-✅ **Reusable functions** - Import from `seeds.submissions`, etc.
+✅ **Reusable functions** - Import from `seeds` modules
+
+Example when adding new seeding functions:
+```python
+# In seeds/submissions.py (future phase)
+from seeds import seed_account, seed_project  # Reuse core functions
+from submit_api.models import Package, Submission
+from submit_api.models.db import db
+
+def seed_package(account_project_id, package_id=1000):
+    """Seed a package for testing submissions."""
+    # Implementation...
+```
+
 ✅ **Scalable** - Add new domains without bloating one file
 
 ### For Maintainability

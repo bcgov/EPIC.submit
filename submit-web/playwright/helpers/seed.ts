@@ -157,6 +157,35 @@ export function seedProponentWithProject(
 }
 
 /**
+ * Seed a package with items ready to fill
+ *
+ * @param accountProjectId - AccountProject ID (required)
+ * @param options - Package configuration options
+ */
+export function seedPackageWithItems(
+  accountProjectId: number,
+  options: {
+    packageId?: number;
+    packageType?: "Management Plan" | "IEM";
+    packageName?: string;
+  } = {},
+): void {
+  const args = [
+    `--account-project-id ${accountProjectId}`,
+    "--with-package-items",
+    options.packageId ? `--package-id ${options.packageId}` : "",
+    options.packageType ? `--package-type "${options.packageType}"` : "",
+    options.packageName ? `--package-name "${options.packageName}"` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  console.log(`Seeding package with items for account project: ${accountProjectId}`);
+  execPythonInContainer(`python scripts/seed_e2e_data.py ${args}`);
+  console.log(`✓ Package with items seeded`);
+}
+
+/**
  * Cleanup test data (enhanced)
  *
  * @param options - User GUID, Proponent ID, or Project ID to delete

@@ -8,6 +8,7 @@ import {
   seedAccount,
   seedProponentUser,
   seedProponentWithProject,
+  seedPackageWithItems,
   cleanupTestData,
 } from "../helpers/seed";
 import { kcLogin, kcLogout } from "../auth";
@@ -57,6 +58,20 @@ type DbFixtures = {
     proponentId: number;
     projectId: number;
     accountProjectId: number;
+  };
+
+  /**
+   * Fixture: Seeded proponent + project + package with items + authenticated session
+   * Complete setup for submission tests with package ready to fill
+   */
+  authenticatedProponentWithPackage: {
+    page: Page;
+    guid: string;
+    proponentId: number;
+    projectId: number;
+    accountProjectId: number;
+    packageId: number;
+    packageType: "Management Plan" | "IEM";
   };
 };
 
@@ -191,6 +206,55 @@ export const test = base.extend<DbFixtures>({
       proponentId: seededProponentWithProject.proponentId,
       projectId: seededProponentWithProject.projectId,
       accountProjectId: seededProponentWithProject.accountProjectId,
+    });
+
+    console.log("\n👋 [Fixture] Logging out...");
+    await kcLogout(page);
+  },
+
+  /**
+   * Fixture: Authenticated proponent with package ready to fill
+   * The complete setup for submission package E2E tests
+   * Builds on seededProponentWithProject + adds package seeding
+   */
+  authenticatedProponentWithPackage: async (
+    { page, seededProponentWithProject },
+    use,
+  ) => {
+    const packageId = 8888;
+    const packageType: "Management Plan" | "IEM" = "Management Plan";
+
+    console.log("\n🌱 [Fixture] Seeding package with items...");
+    seedPackageWithItems(seededProponentWithProject.accountProjectId, {
+      packageId,
+      packageType,
+      packageName: "E2E Test Package",
+    });
+
+    console.log("\n🔐 [Fixture] Authenticating proponent with package...");
+
+    await kcLogout(page);
+    await kcLogin(
+      page,
+      process.env.PROPONENT_USERNAME!,
+      process.env.PROPONENT_PASSWORD!,
+    );
+
+    // Navigate to package page automatically
+    console.log("\n🚀 [Fixture] Navigating to package page...");
+    await page.goto(
+      `/proponent/projects/${seededProponentWithProject.accountProjectId}/submission-packages/${packageId}`,
+    );
+    await page.waitForLoadState("networkidle");
+
+    await use({
+      page,
+      guid: seededProponentWithProject.guid,
+      proponentId: seededProponentWithProject.proponentId,
+      projectId: seededProponentWithProject.projectId,
+      accountProjectId: seededProponentWithProject.accountProjectId,
+      packageId,
+      packageType,
     });
 
     console.log("\n👋 [Fixture] Logging out...");

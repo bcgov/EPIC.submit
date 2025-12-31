@@ -129,6 +129,14 @@ docker compose -f docker-compose.e2e.yml exec -T api \
 
 **Implementation**: See `submit-web/playwright/helpers/seed.ts`
 
+**Architecture**: The seeding script uses a modular structure:
+1. TypeScript helper calls `seedProponentUser()`
+2. Helper executes: `docker compose exec -T api python scripts/seed_e2e_data.py`
+3. `seed_e2e_data.py` imports functions from `seeds/core.py`
+4. Functions in `seeds/` perform the database operations using SQLAlchemy
+
+This modular approach (implemented in Phase 1) keeps `seed_e2e_data.py` as a thin CLI wrapper while organizing seeding logic by domain in the `seeds/` directory.
+
 ## Test Architecture
 
 ### Directory Structure

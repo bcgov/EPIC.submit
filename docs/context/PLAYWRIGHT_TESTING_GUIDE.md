@@ -80,8 +80,10 @@ submit-web/playwright/
 │   ├── onboarding/        # Registration tests
 │   └── submissions/       # Submission tests
 ├── fixtures/              # Test setup helpers (auto-seeding)
+│   └── db.fixtures.ts     # Database seeding fixtures
 ├── pages/                 # Page Object Model
 ├── helpers/               # Utilities (seeding, environment)
+│   └── seed.ts            # Calls Python seeding scripts via docker exec
 └── types/                 # TypeScript types
 ```
 
