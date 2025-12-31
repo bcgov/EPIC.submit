@@ -5,9 +5,10 @@ Manages the invitation tokens for project onboarding.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
-from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean
+from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean, func
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
@@ -34,6 +35,18 @@ class Invitations(BaseModel):
 
     account = relationship('Account', foreign_keys=[account_id], lazy='joined')
     role = relationship('Role', foreign_keys=[role_id], lazy='select')
+
+    @hybrid_property
+    def is_expired(self):
+        """Check if the invitation has expired based on expiry_date."""
+        if self.expiry_date is None:
+            return False
+        return datetime.now(timezone.utc) > self.expiry_date.replace(tzinfo=timezone.utc)
+
+    @is_expired.expression
+    def is_expired(cls):  # noqa: N805  # pylint: disable=no-self-argument
+        """SQL expression for is_expired check."""
+        return cls.expiry_date < func.timezone('UTC', func.now())  # pylint: disable=not-callable
 
     def to_dict(self):
         """Convert object to dictionary."""

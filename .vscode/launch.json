@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Submit API",
-            "type": "python",
+            "type": "debugpy",
             "cwd": "${workspaceFolder}/submit-api/",
             "request": "launch",
             "program": "${workspaceFolder}/submit-api/wsgi.py",
@@ -15,11 +15,21 @@
         },
         {
             "name": "Submit CRON - CENTRE",
-            "type": "python",
+            "type": "debugpy",
             "cwd": "${workspaceFolder}/submit-cron/",
             "request": "launch",
             "program": "${workspaceFolder}/submit-cron/invoke_jobs.py",
             "args": ["EMAIL", "CENTRE"],
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Submit CRON - SUBMIT",
+            "type": "debugpy",
+            "cwd": "${workspaceFolder}/submit-cron/",
+            "request": "launch",
+            "program": "${workspaceFolder}/submit-cron/invoke_jobs.py",
+            "args": ["EMAIL", "SUBMIT"],
             "console": "integratedTerminal",
             "justMyCode": true
         }
