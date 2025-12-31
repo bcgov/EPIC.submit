@@ -19,6 +19,7 @@ from seeds import (
     seed_proponent_user,
     seed_staff_user,
     seed_proponent_with_project,
+    seed_package_with_items,
     cleanup_test_data
 )
 
@@ -53,6 +54,12 @@ def main():
     parser.add_argument('--account-project-id', type=int, default=7777, help='AccountProject ID')
     parser.add_argument('--ea-certificate', type=str, default='E2E-2024-01', help='EA Certificate')
     parser.add_argument('--epic-guid', type=str, default='588511d4aaecd9001b82656c', help='EPIC GUID')
+
+    # Package seeding arguments
+    parser.add_argument('--with-package-items', action='store_true', help='Seed a package with items ready to fill')
+    parser.add_argument('--package-id', type=int, default=8888, help='Package ID')
+    parser.add_argument('--package-type', type=str, default='Management Plan', choices=['Management Plan', 'IEM'], help='Package type')
+    parser.add_argument('--package-name', type=str, default='E2E Test Package', help='Package name')
 
     # Cleanup flag
     parser.add_argument('--cleanup', action='store_true', help='Cleanup test data instead of seeding')
@@ -99,6 +106,18 @@ def main():
                     extension=args.extension,
                     role_name=args.role,
                     accept_terms_of_service=not args.no_terms_of_service
+                )
+            elif args.with_package_items:
+                # Seed package with items
+                if not args.account_project_id:
+                    print("Error: --account-project-id is required for seeding package")
+                    sys.exit(1)
+
+                seed_package_with_items(
+                    account_project_id=args.account_project_id,
+                    package_id=args.package_id,
+                    package_type=args.package_type,
+                    package_name=args.package_name
                 )
             elif args.account_only:
                 # Seed just account
