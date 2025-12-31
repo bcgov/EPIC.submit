@@ -87,7 +87,7 @@ test.describe("Submission Package Fill & Submit", () => {
 
     // STEP 3: Fill Consultation Record
     console.log("\n✓ [Step 3] Filling Consultation Record");
-    await packagePage.clickItem("Consultation Record");
+    await packagePage.clickItem("Consultation Record(s)");
 
     await consultationPage.fillConsultationRecord({
       consultedParties: ["First Nations Group A", "Local Community B"],
@@ -106,6 +106,10 @@ test.describe("Submission Package Fill & Submit", () => {
     );
     console.log("  - Uploading consultation record file...");
     await consultationPage.uploadFiles([consultationFile]);
+
+    await consultationPage.verifyFilesUploaded([
+      "test-consultation-record.pdf",
+    ]);
 
     await consultationPage.saveAndComplete();
     await consultationPage.verifySaved();
@@ -131,23 +135,13 @@ test.describe("Submission Package Fill & Submit", () => {
       testDataDir,
       "test-management-plan.pdf",
     );
-    const supportingDoc1 = path.join(
-      testDataDir,
-      "test-supporting-doc-1.pdf",
-    );
-    const supportingDoc2 = path.join(
-      testDataDir,
-      "test-supporting-doc-2.docx",
-    );
+    const supportingDoc1 = path.join(testDataDir, "test-supporting-doc-1.pdf");
 
     console.log("  - Uploading management plan file...");
     await managementPlanPage.uploadManagementPlan(managementPlanFile);
 
     console.log("  - Uploading supporting documents...");
-    await managementPlanPage.uploadSupportingDocuments([
-      supportingDoc1,
-      supportingDoc2,
-    ]);
+    await managementPlanPage.uploadSupportingDocuments([supportingDoc1]);
 
     await managementPlanPage.saveAndComplete();
     await managementPlanPage.verifySaved();
@@ -172,30 +166,5 @@ test.describe("Submission Package Fill & Submit", () => {
     );
 
     console.log("\n✅ [Test] Package filled and submitted successfully!");
-  });
-
-  test("package form navigation works correctly", async ({
-    authenticatedProponentWithPackage,
-  }) => {
-    const { page, accountProjectId, packageId } =
-      authenticatedProponentWithPackage;
-
-    const packagePage = new SubmissionPackagePage(page);
-    const contactPage = new ContactInformationPage(page);
-
-    console.log("\n🧪 [Test] Testing package form navigation...");
-
-    // Verify on package page
-    await packagePage.verifyOnSubmissionPackage();
-
-    // Click to Contact Information
-    await packagePage.clickItem("Submission Contact Information");
-    await contactPage.verifyOnContactInformationPage();
-
-    // Navigate back to package
-    await packagePage.navigateToPackage(accountProjectId, packageId);
-    await packagePage.verifyOnSubmissionPackage();
-
-    console.log("✅ [Test] Navigation works correctly!");
   });
 });

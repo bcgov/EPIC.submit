@@ -39,26 +39,49 @@ export class ContactInformationPage extends BasePage {
     this.primaryContactDropdown = page
       .getByLabel(/Add New Contact or Select Existing User/i)
       .first();
-    this.primaryGivenName = page.getByLabel(/Given Name/i).first();
-    this.primarySurname = page.getByLabel(/Surname/i).first();
-    this.primaryCompany = page.getByLabel(/Company Name/i).first();
-    this.primaryPosition = page.getByLabel(/Position\/Role/i).first();
-    this.primaryPhone = page.getByLabel(/Work Phone Number/i).first();
-    this.primaryExtension = page.getByLabel(/Ext\./i).first();
-    this.primaryEmail = page.getByLabel(/Work Email Address/i).first();
-
+    this.primaryGivenName = page.locator(
+      'input[name="primaryContact.givenName"]',
+    );
+    this.primarySurname = page.locator('input[name="primaryContact.surname"]');
+    this.primaryCompany = page.locator('input[name="primaryContact.company"]');
+    this.primaryPosition = page.locator(
+      'input[name="primaryContact.position"]',
+    );
+    this.primaryPhone = page.locator(
+      'input[name="primaryContact.workPhoneNumber"]',
+    );
+    this.primaryExtension = page.locator(
+      'input[name="primaryContact.extensionNumber"]',
+    );
+    this.primaryEmail = page.locator(
+      'input[name="primaryContact.workEmailAddress"]',
+    );
     // Secondary contact fields
     // Note: Using .last() to get secondary contact fields
     this.secondaryContactDropdown = page
       .getByLabel(/Add New Contact or Select Existing User/i)
       .last();
-    this.secondaryGivenName = page.getByLabel(/Given Name/i).last();
-    this.secondarySurname = page.getByLabel(/Surname/i).last();
-    this.secondaryCompany = page.getByLabel(/Company Name/i).last();
-    this.secondaryPosition = page.getByLabel(/Position\/Role/i).last();
-    this.secondaryPhone = page.getByLabel(/Work Phone Number/i).last();
-    this.secondaryExtension = page.getByLabel(/Ext\./i).last();
-    this.secondaryEmail = page.getByLabel(/Work Email Address/i).last();
+    this.secondaryGivenName = page.locator(
+      'input[name="secondaryContact.givenName"]',
+    );
+    this.secondarySurname = page.locator(
+      'input[name="secondaryContact.surname"]',
+    );
+    this.secondaryCompany = page.locator(
+      'input[name="secondaryContact.company"]',
+    );
+    this.secondaryPosition = page.locator(
+      'input[name="secondaryContact.position"]',
+    );
+    this.secondaryPhone = page.locator(
+      'input[name="secondaryContact.workPhoneNumber"]',
+    );
+    this.secondaryExtension = page.locator(
+      'input[name="secondaryContact.extensionNumber"]',
+    );
+    this.secondaryEmail = page.locator(
+      'input[name="secondaryContact.workEmailAddress"]',
+    );
 
     // Buttons and messages
     this.saveButton = page.getByRole("button", { name: /^Save$/i });

@@ -51,7 +51,9 @@ const contactInformationSchema = yup.object().shape({
       is: (val: number | null) => !val,
       then: (schema) =>
         schema
-          .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+          .required(
+            "Please enter a phone number in this format: (xxx) xxx-xxxx.",
+          )
           .test(
             "phone-complete",
             "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
@@ -107,7 +109,9 @@ const contactInformationSchema = yup.object().shape({
       is: (val: number | null) => !val,
       then: (schema) =>
         schema
-          .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
+          .required(
+            "Please enter a phone number in this format: (xxx) xxx-xxxx.",
+          )
           .test(
             "phone-complete",
             "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
@@ -168,7 +172,7 @@ export const ContactInformationEntityView = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
   const defaultValues = useMemo(() => {
     if (!formSubmission?.submitted_form?.submission_json) return {};
@@ -190,15 +194,21 @@ export const ContactInformationEntityView = () => {
   useEffect(() => {
     if (primaryContactUserId && accountUsers) {
       const selectedUser = accountUsers.find(
-        (user) => String(user.id) === String(primaryContactUserId)
+        (user) => String(user.id) === String(primaryContactUserId),
       );
       if (selectedUser) {
         setValue("primaryContact.givenName", selectedUser.first_name ?? "");
         setValue("primaryContact.surname", selectedUser.last_name ?? "");
         setValue("primaryContact.position", selectedUser.position ?? "");
         setValue("primaryContact.company", selectedUser.company_name ?? "");
-        setValue("primaryContact.workPhoneNumber", selectedUser.work_contact_number ?? "");
-        setValue("primaryContact.workEmailAddress", selectedUser.work_email_address ?? "");
+        setValue(
+          "primaryContact.workPhoneNumber",
+          selectedUser.work_contact_number ?? "",
+        );
+        setValue(
+          "primaryContact.workEmailAddress",
+          selectedUser.work_email_address ?? "",
+        );
         clearErrors([
           "primaryContact.givenName",
           "primaryContact.surname",
@@ -214,15 +224,21 @@ export const ContactInformationEntityView = () => {
   useEffect(() => {
     if (secondaryContactUserId && accountUsers) {
       const selectedUser = accountUsers.find(
-        (user) => String(user.id) === String(secondaryContactUserId)
+        (user) => String(user.id) === String(secondaryContactUserId),
       );
       if (selectedUser) {
         setValue("secondaryContact.givenName", selectedUser.first_name ?? "");
         setValue("secondaryContact.surname", selectedUser.last_name ?? "");
         setValue("secondaryContact.position", selectedUser.position ?? "");
         setValue("secondaryContact.company", selectedUser.company_name ?? "");
-        setValue("secondaryContact.workPhoneNumber", selectedUser.work_contact_number ?? "");
-        setValue("secondaryContact.workEmailAddress", selectedUser.work_email_address ?? "");
+        setValue(
+          "secondaryContact.workPhoneNumber",
+          selectedUser.work_contact_number ?? "",
+        );
+        setValue(
+          "secondaryContact.workEmailAddress",
+          selectedUser.work_email_address ?? "",
+        );
         clearErrors([
           "secondaryContact.givenName",
           "secondaryContact.surname",

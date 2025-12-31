@@ -1,5 +1,5 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from '../BasePage';
+import { Page, Locator, expect } from "@playwright/test";
+import { BasePage } from "../BasePage";
 
 /**
  * Submission Package Page Object
@@ -15,7 +15,7 @@ export class SubmissionPackagePage extends BasePage {
   constructor(page: Page) {
     super(page);
 
-    this.packageTitle = page.getByRole('heading', { level: 1 });
+    this.packageTitle = page.getByRole("heading", { level: 1 });
     this.packageStatus = page.locator('[data-testid="package-status"]');
     this.itemsTable = page.locator('[data-testid="items-table"]');
     this.successMessage = page.getByText(/successfully created/i);
@@ -53,7 +53,7 @@ export class SubmissionPackagePage extends BasePage {
     const url = this.getCurrentUrl();
     const match = url.match(/submission-packages\/(\d+)/);
     if (!match) {
-      throw new Error('Could not extract package ID from URL');
+      throw new Error("Could not extract package ID from URL");
     }
     return parseInt(match[1], 10);
   }
@@ -64,7 +64,7 @@ export class SubmissionPackagePage extends BasePage {
    * @param itemName - Name of the item (e.g., "Submission Contact Information", "Consultation Record")
    */
   async clickItem(itemName: string): Promise<void> {
-    await this.page.getByText(itemName).click();
+    await this.page.getByTestId(`submission-item-action-${itemName}`).click();
     await this.waitForReady();
   }
 
@@ -74,15 +74,22 @@ export class SubmissionPackagePage extends BasePage {
    * @param accountProjectId - Account project ID
    * @param packageId - Package ID
    */
-  async navigateToPackage(accountProjectId: number, packageId: number): Promise<void> {
-    await this.goto(`/proponent/projects/${accountProjectId}/submission-packages/${packageId}`);
+  async navigateToPackage(
+    accountProjectId: number,
+    packageId: number,
+  ): Promise<void> {
+    await this.goto(
+      `/proponent/projects/${accountProjectId}/submission-packages/${packageId}`,
+    );
   }
 
   /**
    * Click "Submit to EAO" button to submit the package
    */
   async submitPackage(): Promise<void> {
-    const submitButton = this.page.getByRole('button', { name: /Submit to EAO/i });
+    const submitButton = this.page.getByRole("button", {
+      name: /Submit to EAO/i,
+    });
     await submitButton.click();
     await this.waitForReady();
   }

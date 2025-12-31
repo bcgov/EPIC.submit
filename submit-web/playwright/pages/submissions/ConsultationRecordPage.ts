@@ -63,7 +63,7 @@ export class ConsultationRecordPage extends BasePage {
       .locator('input[type="radio"][value="false"]')
       .nth(3);
 
-    this.notesTextarea = page.getByLabel(/Notes\/Comments/i);
+    this.notesTextarea = page.locator('textarea[name="notes"]');
 
     // File upload
     this.uploader = page.locator('[data-cy="uploader"]');
@@ -144,16 +144,20 @@ export class ConsultationRecordPage extends BasePage {
 
     // Wait for document table to show uploaded files
     // Wait for at least one row to appear in the document table
-    await this.page.waitForSelector(
-      '[data-testid="document-table"] tbody tr',
-      {
-        state: "visible",
-        timeout: 15000,
-      },
-    );
+    await this.page.waitForSelector('[data-testid="document-table"] tbody tr', {
+      state: "visible",
+      timeout: 15000,
+    });
 
     // Wait a bit for upload to complete (no progress spinner)
     await this.page.waitForTimeout(2000);
+  }
+
+  async verifyFilesUploaded(expectedFileNames: string[]): Promise<void> {
+    for (const fileName of expectedFileNames) {
+      const fileRow = this.documentTable.getByText(fileName);
+      await expect(fileRow).toBeVisible();
+    }
   }
 
   /**

@@ -52,7 +52,7 @@ export class ManagementPlanPage extends BasePage {
       .nth(2);
 
     // Notes field
-    this.notesTextarea = page.getByLabel(/Notes\/Comments/i);
+    this.notesTextarea = page.locator('textarea[name="notes"]');
 
     // File inputs
     // Note: There are typically two separate file upload sections in Management Plan form
@@ -116,13 +116,19 @@ export class ManagementPlanPage extends BasePage {
     await this.managementPlanFileInput.setInputFiles([filePath]);
 
     // Wait for document to appear in table
-    await this.page.waitForSelector(
-      '[data-testid="document-table"] tbody tr',
-      {
+    await this.page
+      .waitForSelector("table", {
         state: "visible",
         timeout: 15000,
-      },
-    );
+      })
+      .then(() =>
+        this.page
+          .locator("table")
+          .first()
+          .locator("tbody tr")
+          .first()
+          .waitFor({ state: "visible" }),
+      );
 
     // Wait for upload to complete
     await this.page.waitForTimeout(2000);
@@ -142,8 +148,15 @@ export class ManagementPlanPage extends BasePage {
     await this.page.waitForTimeout(2000);
 
     // Optional: verify the expected number of rows
+    await this.page.locator("table").nth(1).waitFor({
+      state: "visible",
+      timeout: 15000,
+    });
+
     const rows = await this.page
-      .locator('[data-testid="document-table"] tbody tr')
+      .locator("table")
+      .nth(1)
+      .locator("tbody tr")
       .count();
     if (rows < filePaths.length) {
       console.warn(
@@ -151,6 +164,13 @@ export class ManagementPlanPage extends BasePage {
       );
     }
   }
+
+  // async verifyFilesUploaded(expectedFileNames: string[]): Promise<void> {
+  //   for (const fileName of expectedFileNames) {
+  //     const fileRow = this.documentTable.getByText(fileName);
+  //     await expect(fileRow).toBeVisible();
+  //   }
+  // }
 
   /**
    * Save form and continue later
