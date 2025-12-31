@@ -16,8 +16,6 @@
 
 Test-Suite to ensure that the CORS decorator is working as expected.
 """
-from unittest.mock import patch
-
 from flask import Flask
 import pytest
 

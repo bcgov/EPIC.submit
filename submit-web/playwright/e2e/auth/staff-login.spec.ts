@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { kcLogin, kcLogout } from "../auth";
+import { kcLogin, kcLogout } from "../../auth";
 
 test.describe("Staff User Login", () => {
   test.beforeEach(async ({ page }) => {

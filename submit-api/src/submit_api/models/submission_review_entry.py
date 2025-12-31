@@ -25,7 +25,7 @@ class SubmissionReviewEntry(BaseModel):
     __tablename__ = 'submission_review_entries'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    review_id = Column(db.Integer, ForeignKey('submission_reviews.id'), nullable=False)
+    review_id = Column(db.Integer, ForeignKey('submission_reviews.id', ondelete='CASCADE'), nullable=False)
     type = Column(db.Enum(SubmissionReviewEntryType), nullable=False)
     updated_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=True)
     updated_by_user = db.relationship('User', foreign_keys=[updated_by], lazy='joined')
