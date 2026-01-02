@@ -26,6 +26,7 @@ const updateUserProfileSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
   surname: yup.string().required("Please enter your surname."),
   position: yup.string().required("Please enter your position."),
+  companyName: yup.string().required("Please enter your company name."),
   phone: yup
     .string()
     .required("Please enter a phone number in this format: (xxx) xxx-xxxx.")
@@ -89,6 +90,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
       givenName: user?.first_name || "",
       surname: user?.last_name || "",
       position: user?.position || "",
+      companyName: user?.company_name || "",
       phone: user?.work_contact_number || "",
       email: user?.work_email_address || "",
     },
@@ -101,6 +103,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
       givenName: user?.first_name || "",
       surname: user?.last_name || "",
       position: user?.position || "",
+      companyName: user?.company_name || "",
       phone: user?.work_contact_number || "",
       email: user?.work_email_address || "",
     });
@@ -112,6 +115,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
       first_name: data.givenName,
       last_name: data.surname,
       position: data.position,
+      company_name: data.companyName,
       work_contact_number: data.phone,
       work_email_address: data.email,
     };
@@ -198,6 +202,15 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                 <ControlledTextField
                   name="position"
                   label="Position/Role"
+                  fullWidth
+                  InputLabelProps={{
+                    sx: { fontWeight: "bold" },
+                  }}
+                  sx={{ marginBottom: "4px" }}
+                />
+                <ControlledTextField
+                  name="companyName"
+                  label="Company Name"
                   fullWidth
                   InputLabelProps={{
                     sx: { fontWeight: "bold" },

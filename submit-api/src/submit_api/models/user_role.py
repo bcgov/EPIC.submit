@@ -14,8 +14,8 @@ class UserRole(BaseModel):
     __tablename__ = "user_roles"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_user_id = Column(Integer, ForeignKey("account_users.id"), nullable=False)
-    account_project_id = Column(Integer, ForeignKey("account_projects.id"),
+    account_user_id = Column(Integer, ForeignKey("account_users.id", ondelete='CASCADE'), nullable=False)
+    account_project_id = Column(Integer, ForeignKey("account_projects.id", ondelete='CASCADE'),
                                 nullable=True)  # NULL for account-wide roles
     package_ids = Column(ARRAY(Integer), nullable=True)  # NULL for project-wide roles
     original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs

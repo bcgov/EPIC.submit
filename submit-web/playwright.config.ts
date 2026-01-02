@@ -17,7 +17,7 @@ export default defineConfig({
   // Test execution settings
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0, // No retries on failure
   workers: process.env.CI ? 1 : undefined,
 
   // Reporter configuration
@@ -32,7 +32,7 @@ export default defineConfig({
     baseURL: process.env.BASE_URL || 'http://localhost:5173',
 
     // Collect trace on failure
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
 
     // Screenshot on failure
     screenshot: 'only-on-failure',

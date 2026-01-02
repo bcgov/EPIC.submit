@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: "{{ .Chart.Name }}"
-  name: "{{ .Chart.Name }}"
+    app: "{{ .Release.Name }}"
+  name: "{{ .Release.Name }}"
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Chart.Name }}
+      app: {{ .Release.Name }}
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -17,7 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Chart.Name }}
+        app: {{ .Release.Name }}
     spec:
       initContainers:
         - name: pre-hook-update-db
@@ -29,7 +29,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.database.secret }}
-                  key: app-db-name
+                  key: app-db-username
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -39,13 +39,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.database.secret }}
-                  key: app-db-username
+                  key: app-db-name
             - name: DATABASE_HOST
               value: {{ .Values.database.service.name }}
             - name: DATABASE_PORT
               value: "{{ .Values.database.service.port }}"
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Release.Name }}
           image: "{{ tpl .Values.image.repository . }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -74,67 +74,67 @@ spec:
             - name: JWT_OIDC_ALGORITHMS
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: JWT_OIDC_ALGORITHMS
             - name: JWT_OIDC_AUDIENCE
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: JWT_OIDC_AUDIENCE
             - name: JWT_OIDC_CACHING_ENABLED
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: JWT_OIDC_CACHING_ENABLED
             - name: JWT_OIDC_ISSUER
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: JWT_OIDC_ISSUER
             - name: JWT_OIDC_JWKS_CACHE_TIMEOUT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: JWT_OIDC_JWKS_CACHE_TIMEOUT
             - name: JWT_OIDC_WELL_KNOWN_CONFIG
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: JWT_OIDC_WELL_KNOWN_CONFIG
             - name: PYTHONBUFFERED
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: PYTHONBUFFERED
             - name: KEYCLOAK_BASE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: KEYCLOAK_BASE_URL
             - name: KEYCLOAK_REALM_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: KEYCLOAK_REALM_NAME
             - name: KEYCLOAK_ADMIN_CLIENT
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: KEYCLOAK_ADMIN_CLIENT
             - name: KEYCLOAK_ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: KEYCLOAK_ADMIN_SECRET
             - name: CONNECT_TIMEOUT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: CONNECT_TIMEOUT
             - name: CORS_ORIGIN
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Chart.Name }}
+                  name: {{ .Release.Name }}
                   key: CORS_ORIGIN
           resources:
             limits:

@@ -13,6 +13,7 @@ type IFormInputMaskProps = {
 const ControlledInputMask: FC<IFormInputMaskProps> = ({
   name,
   mask,
+  disabled,
   ...otherProps
 }) => {
   const {
@@ -29,11 +30,13 @@ const ControlledInputMask: FC<IFormInputMaskProps> = ({
       render={({ field: { onChange, onBlur, ref, value } }) => (
         <InputMask
           mask={mask}
+          name={name}
           value={value || ""} // Ensure controlled input with default value
           onChange={(e) => {
             onChange(e.target.value); // Pass the masked value to react-hook-form
           }}
           onBlur={onBlur}
+          disabled={disabled}
         >
           <TextField
             {...otherProps}

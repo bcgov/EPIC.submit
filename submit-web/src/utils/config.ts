@@ -12,7 +12,6 @@ declare global {
       VITE_CLIENT_ID: string;
       VITE_OBJECT_STORAGE_URL: string;
       VITE_CONDITIONS_LIBRARY_URL: string;
-      VITE_CENTRE_API_URL: string;
       VITE_USER_GUIDE: string;
     };
   }
@@ -26,10 +25,6 @@ const OBJECT_STORAGE_URL =
 const CONDITIONS_LIBRARY_URL =
   window._env_?.VITE_CONDITIONS_LIBRARY_URL ||
   import.meta.env.VITE_CONDITIONS_LIBRARY_URL ||
-  "";
-const CENTRE_API_URL =
-  window._env_?.VITE_CENTRE_API_URL ||
-  import.meta.env.VITE_CENTRE_API_URL ||
   "";
 const APP_ENVIRONMENT =
   window._env_?.VITE_ENV || import.meta.env.VITE_ENV || "";
@@ -51,7 +46,6 @@ export const AppConfig = {
   apiUrl: `${API_URL}`,
   documentUrl: `${OBJECT_STORAGE_URL}`,
   conditionsLibraryUrl: `${CONDITIONS_LIBRARY_URL}`,
-  centreApiUrl: `${CENTRE_API_URL}`,
   environment: APP_ENVIRONMENT,
   version: APP_VERSION,
   appTitle: APP_TITLE,
