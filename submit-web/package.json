@@ -17,6 +17,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
+    "@epic/centre-analytics": "git+https://github.com/bcgov/EPIC.analytics.git#main",
     "@hookform/resolvers": "^3.9.0",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.20",
