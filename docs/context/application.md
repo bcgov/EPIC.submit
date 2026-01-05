@@ -49,7 +49,7 @@ The application is built as a microservices architecture with separate deployabl
 
 ### Backend (submit-api)
 - **Framework**: Flask (Python)
-- **Language**: Python 3.9+
+- **Language**: Python 3.12+
 - **Database ORM**: SQLAlchemy
 - **Database Migration**: Flask-Migrate (Alembic)
 - **Serialization**: Marshmallow

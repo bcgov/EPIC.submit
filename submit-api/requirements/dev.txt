@@ -2,7 +2,7 @@
 -r prod.txt
 
 coverage
-pylint==v2.13.8
+pylint==3.2.7
 pylint-flask
 pytest
 pytest-cov
@@ -10,7 +10,7 @@ pytest-env
 pytest-dotenv
 pytest-mock
 requests
-flake8==4.0.1
+flake8==7.1.1
 flake8-blind-except
 Flask-JWT-Extended==4.6.0
 flake8-debugger
