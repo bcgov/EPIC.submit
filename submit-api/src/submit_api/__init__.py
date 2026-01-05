@@ -81,7 +81,7 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'development')):
     @app.after_request
     def set_secure_headers(response):
         """Set security headers."""
-        secure_headers.framework.flask(response)
+        secure_headers.set_headers(response)
         response.headers['Cross-Origin-Resource-Policy'] = 'cross-origin'
         response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
         response.headers['Cross-Origin-Embedder-Policy'] = 'unsafe-none'

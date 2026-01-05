@@ -149,10 +149,12 @@ class KeycloakService:
         url = f"{base_url}/auth/admin/realms/{realm}/{relative_url}"
         if http_method == HttpMethod.GET:
             response = requests.get(url, headers=headers, timeout=timeout)
-        if http_method == HttpMethod.PUT:
+        elif http_method == HttpMethod.PUT:
             response = requests.put(url, headers=headers, data=data, timeout=timeout)
-        if http_method == HttpMethod.DELETE:
+        elif http_method == HttpMethod.DELETE:
             response = requests.delete(url, headers=headers, timeout=timeout)
+        else:
+            raise ValueError(f"Unsupported HTTP method: {http_method}")
         response.raise_for_status()
         return response
 
