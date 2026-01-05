@@ -46,13 +46,13 @@ Three separate microservices with independent CI/CD pipelines:
 **Jobs**:
 
 1. **Linting**
-   - Python version: 3.9
+   - Python version: 3.12
    - Tools: pylint, flake8
    - Dependencies: libsasl2-dev, libldap2-dev, libssl-dev
    - Command: `make pylint && make flake8`
 
 2. **Testing**
-   - Python version: 3.9
+   - Python version: 3.12
    - Services: PostgreSQL 12 (Docker container)
    - Test framework: pytest
    - Database: PostgreSQL with health checks
@@ -382,7 +382,7 @@ test tag → promote → prod tag
 
 **Dockerfile**: `submit-api/Dockerfile`
 
-**Base Image**: `python:3.9-buster`
+**Base Image**: `python:3.12-slim-bookworm`
 
 **Build Steps**:
 1. Create working directory `/opt/app-root`
