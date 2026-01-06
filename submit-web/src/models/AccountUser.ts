@@ -37,6 +37,7 @@ export type AccountUserWithRole = {
   position?: string;
   work_email_address: string;
   work_contact_number?: string;
+  extension_number?: string;
   company_name?: string;
   account?: Account;
   status: UserPackageStatus;

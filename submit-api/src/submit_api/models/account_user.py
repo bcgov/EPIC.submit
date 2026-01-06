@@ -77,6 +77,7 @@ class AccountUser(BaseModel):
             position=data.get('position', None),
             work_email_address=data.get('work_email_address', None),
             work_contact_number=data.get('work_contact_number', None),
+            company_name=data.get('company_name', None),
             user_id=data.get('user_id', None),
             extension_number=data.get('extension_number', None),
             terms_of_service_version_id=data.get('terms_of_service_version_id')

@@ -321,6 +321,7 @@ class InvitationService:
             "last_name": payload.get("last_name"),
             "work_email_address": payload.get("work_email_address"),
             "work_contact_number": payload.get("work_contact_number"),
+            "company_name": payload.get("company_name"),
             "position": payload.get("position"),
             "user_id": user_id,
             "extension_number": payload.get("extension_number"),

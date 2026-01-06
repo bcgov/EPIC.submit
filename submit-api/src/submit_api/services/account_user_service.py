@@ -237,6 +237,16 @@ class AccountUserService:
         user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
 
+    @classmethod
+    def get_account_user_by_id(cls, account_user_id):
+        """Fetch a user by account_user id."""
+        user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        if not user:
+            return None
+        user_dict = user.to_dict()
+        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
+        return user_dict
+
     @staticmethod
     def _apply_update_data(account_user, update_data):
         """Apply update data to the account user."""
