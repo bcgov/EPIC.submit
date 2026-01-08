@@ -31,6 +31,7 @@ from .package_metadata import PackageMetadata
 from .package_type import PackageType
 from .package_version import PackageVersion
 from .project import Project
+from .proponent import Proponent
 from .staff_user import StaffUser
 from .submission import Submission
 from .submission_review import SubmissionReview

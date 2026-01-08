@@ -16,6 +16,19 @@ export const useGetProponents = () => {
   });
 };
 
+const getAllProponents = () => {
+  return submitRequest<Proponent[]>({
+    url: `staff/proponents/all`,
+  });
+};
+
+export const useGetAllProponents = () => {
+  return useQuery({
+    queryKey: [QUERY_KEY.PROPONENTS, "all"],
+    queryFn: getAllProponents,
+  });
+};
+
 type GetProponentOptions = {
   includeProjects?: boolean;
   includeInvitations?: boolean;
