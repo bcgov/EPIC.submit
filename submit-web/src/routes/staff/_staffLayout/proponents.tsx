@@ -6,6 +6,7 @@ import {
 import { Box, Grid, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { createFileRoute } from "@tanstack/react-router";
+import ProponentStatusFilter from "@/components/Filters/ProponentStatusFilter";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/proponents",
@@ -30,20 +31,25 @@ function ProponentsHolders() {
       }}
     >
       <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <TextField
-            value={searchText}
-            variant="outlined"
-            onChange={(e) => setSearchText(e.target.value)}
-            sx={{
-              margin: 0,
-              width: "398px",
-            }}
-            placeholder="Search Proponents/Holders by Name"
-            InputProps={{
-              startAdornment: <SearchIcon htmlColor="#858a8c" />,
-            }}
-          />
+        <Grid container item xs={12} spacing={2}>
+          <Grid item xs={3}>
+            <TextField
+              value={searchText}
+              variant="outlined"
+              onChange={(e) => setSearchText(e.target.value)}
+              sx={{
+                margin: 0,
+                width: "100%",
+              }}
+              placeholder="Search Proponents/Holders by Name"
+              InputProps={{
+                startAdornment: <SearchIcon htmlColor="#858a8c" />,
+              }}
+            />
+          </Grid>
+          <Grid item xs={3}>
+            <ProponentStatusFilter />
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           <ContentBox

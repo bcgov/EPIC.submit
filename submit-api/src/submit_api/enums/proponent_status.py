@@ -7,8 +7,8 @@ import enum
 class ProponentStatus(enum.Enum):
     """Enum for proponent statuses."""
 
-    ELIGIBLE = "Eligible"
-    INELIGIBLE = "Ineligible"
-    PENDING_ONBOARDING = "Pending Onboarding"
-    ONBOARDED = "Onboarded"
+    ELIGIBLE = "ELIGIBLE"
+    INELIGIBLE = "INELIGIBLE"
+    PENDING_ONBOARDING = "PENDING_ONBOARDING"
+    ONBOARDED = "ONBOARDED"
 

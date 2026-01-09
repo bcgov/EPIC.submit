@@ -29,7 +29,7 @@ function compareByName(a: Proponent, b: Proponent, order: "asc" | "desc") {
 }
 
 export const ProponentsHoldersTable = (props: TableProps) => {
-  const { searchText, sortOrder, toggleSortOrder } = useProponentsHoldersTable();
+  const { searchText, sortOrder, toggleSortOrder, statusFilters } = useProponentsHoldersTable();
   const { data, isPending, isError } = useGetAllProponents();
   const [proponents, setProponents] = useState<Proponent[]>([]);
   const [page, setPage] = useState(DEFAULT_PAGE);
@@ -37,7 +37,7 @@ export const ProponentsHoldersTable = (props: TableProps) => {
 
   useEffect(() => {
     setPage(DEFAULT_PAGE);
-  }, [searchText]);
+  }, [searchText, statusFilters]);
 
   useEffect(() => {
     setProponents(data || []);
@@ -66,14 +66,25 @@ export const ProponentsHoldersTable = (props: TableProps) => {
   };
 
   const filteredProponents = useMemo(() => {
-    if (!searchText.trim()) {
-      return proponents;
+    let filtered = proponents;
+
+    // Filter by search text
+    if (searchText.trim()) {
+      const normalizedSearch = searchText.trim().toLowerCase().replace(/\s+/g, " ");
+      filtered = filtered.filter((proponent) =>
+        proponent?.name?.toLowerCase().includes(normalizedSearch),
+      );
     }
-    const normalizedSearch = searchText.trim().toLowerCase().replace(/\s+/g, " ");
-    return proponents.filter((proponent) =>
-      proponent?.name?.toLowerCase().includes(normalizedSearch),
-    );
-  }, [proponents, searchText]);
+
+    // Filter by status
+    if (statusFilters.length > 0) {
+      filtered = filtered.filter((proponent) =>
+        proponent.status && statusFilters.includes(proponent.status),
+      );
+    }
+
+    return filtered;
+  }, [proponents, searchText, statusFilters]);
 
   const sortedProponents = useMemo(
     () => [...filteredProponents].sort((a, b) => compareByName(a, b, sortOrder)),
@@ -103,10 +114,10 @@ export const ProponentsHoldersTable = (props: TableProps) => {
   return (
     <Box>
       <TableContainer>
-        <Table {...props}>
+        <Table {...props} sx={{ tableLayout: "fixed" }}>
           <TableHead>
             <TableRow>
-              <SubmitTableHeadCell>
+              <SubmitTableHeadCell sx={{ width: "50%" }}>
                 <TableSortLabel
                   active={false}
                   direction={sortOrder}
@@ -116,8 +127,8 @@ export const ProponentsHoldersTable = (props: TableProps) => {
                   Entities
                 </TableSortLabel>
               </SubmitTableHeadCell>
-              <SubmitTableHeadCell>Status</SubmitTableHeadCell>
-              <SubmitTableHeadCell>Actions</SubmitTableHeadCell>
+              <SubmitTableHeadCell sx={{ width: "25%" }}>Status</SubmitTableHeadCell>
+              <SubmitTableHeadCell sx={{ width: "25%" }}>Actions</SubmitTableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody key={`table-body-${page}-${rowsPerPage}`}>

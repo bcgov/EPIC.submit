@@ -31,8 +31,10 @@ from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
 from submit_api.models.invitations import Invitations, InvitationStatus
 from submit_api.models.project import Project
+from submit_api.models.proponent import Proponent
 from submit_api.models.submission import SubmissionStatus, SubmissionType
 from submit_api.models.user import UserType
+from submit_api.enums.proponent_status import ProponentStatus
 
 from tests.utilities.factory_scenarios import TestJwtClaims
 
@@ -86,6 +88,19 @@ def factory_account_model(proponent_id=1234):
     db.session.add(account)
     db.session.commit()
     return account
+
+
+def factory_proponent_model(proponent_id=1234, name="Test Proponent", status=None, is_deleted=False):
+    """Create a proponent model."""
+    proponent = Proponent(
+        proponent_id=proponent_id,
+        name=name,
+        status=status,
+        is_deleted=is_deleted
+    )
+    db.session.add(proponent)
+    db.session.commit()
+    return proponent
 
 
 def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):

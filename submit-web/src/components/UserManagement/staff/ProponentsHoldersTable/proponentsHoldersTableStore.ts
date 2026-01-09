@@ -8,6 +8,9 @@ interface ProponentsHoldersTableStoreState {
   sortOrder: SortOrder;
   setSortOrder: (sortOrder: SortOrder) => void;
   toggleSortOrder: () => void;
+  statusFilters: string[];
+  setStatusFilters: (statusFilters: string[]) => void;
+  resetFilters: () => void;
 }
 
 export const useProponentsHoldersTable = create<ProponentsHoldersTableStoreState>((set) => ({
@@ -16,5 +19,8 @@ export const useProponentsHoldersTable = create<ProponentsHoldersTableStoreState
   sortOrder: "asc",
   setSortOrder: (sortOrder: SortOrder) => set({ sortOrder }),
   toggleSortOrder: () => set((state) => ({ sortOrder: state.sortOrder === "asc" ? "desc" : "asc" })),
+  statusFilters: [],
+  setStatusFilters: (statusFilters: string[]) => set({ statusFilters }),
+  resetFilters: () => set({ searchText: "", statusFilters: [] }),
 }));
 

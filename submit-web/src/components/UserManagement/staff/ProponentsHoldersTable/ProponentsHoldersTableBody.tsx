@@ -7,6 +7,7 @@ import {
   LinearProgress,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
+import { ProponentStatusChip } from "@/components/ProponentStatusChip";
 
 type ProponentsHoldersTableBodyProps = {
   isLoading: boolean;
@@ -66,7 +67,7 @@ export const ProponentsHoldersTableBody = ({
   if (proponents.length === 0) {
     return (
       <TableRow>
-        <TableCell colSpan={3}>No proponents found</TableCell>
+        <TableCell colSpan={3} align="center">No proponents/holders found</TableCell>
       </TableRow>
     );
   }
@@ -76,7 +77,9 @@ export const ProponentsHoldersTableBody = ({
       {proponents.map((entity) => (
         <TableRow key={entity.id}>
           <PlainTableCell>{entity.name}</PlainTableCell>
-          <PlainTableCell />
+          <PlainTableCell>
+            <ProponentStatusChip status={entity.status} />
+          </PlainTableCell>
           <PlainTableCell>
             <MuiLink
               component="button"
