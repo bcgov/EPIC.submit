@@ -42,4 +42,3 @@ class Proponent(db.Model):
         if not include_deleted:
             query = query.filter(cls.is_deleted.is_(False))
         return query.order_by(cls.name).all()
-
