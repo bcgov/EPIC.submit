@@ -43,4 +43,3 @@ class Proponent(db.Model):
             query = query.filter(cls.is_deleted.is_(False))
         return query.order_by(cls.name).all()
 
-
