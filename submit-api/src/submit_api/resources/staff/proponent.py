@@ -19,7 +19,6 @@ from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.proponent import ProponentSchema
 from submit_api.services.proponent_service import ProponentService
@@ -71,7 +70,7 @@ class AllProponents(Resource):
     @cross_origin(origins=allowedorigins())
     def get():
         """Get all proponents without filtering by has_approved_condition.
-        
+
         Uses the new Proponent table for the new proponent management pages.
         """
         proponents = ProponentService.get_all_proponents(include_deleted=False)

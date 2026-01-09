@@ -112,21 +112,21 @@ def test_get_all_proponents_from_table(client, session):
     data = response.get_json()
     assert isinstance(data, list)
     assert len(data) >= 2
-    
+
     # Check that both proponents are in the response
     proponent_ids = [p["proponent_id"] for p in data]
     assert proponent1.proponent_id in proponent_ids
     assert proponent2.proponent_id in proponent_ids
-    
+
     # Check that deleted proponent is not in the response
     assert 1003 not in proponent_ids
-    
+
     # Check that status is properly serialized
     alpha_proponent = next(p for p in data if p["proponent_id"] == proponent1.proponent_id)
     assert alpha_proponent["status"] == "ELIGIBLE"
     assert alpha_proponent["name"] == "Alpha Proponent"
     assert alpha_proponent["is_deleted"] is False
-    
+
     beta_proponent = next(p for p in data if p["proponent_id"] == proponent2.proponent_id)
     assert beta_proponent["status"] == "ONBOARDED"
     assert beta_proponent["name"] == "Beta Proponent"
@@ -146,7 +146,7 @@ def test_get_all_proponents_with_null_status(client, session):
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
     assert isinstance(data, list)
-    
+
     proponent_data = next(p for p in data if p["proponent_id"] == proponent.proponent_id)
     assert proponent_data["status"] is None
     assert proponent_data["name"] == "Null Status Proponent"

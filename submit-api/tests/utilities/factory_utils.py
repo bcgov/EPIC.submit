@@ -34,7 +34,6 @@ from submit_api.models.project import Project
 from submit_api.models.proponent import Proponent
 from submit_api.models.submission import SubmissionStatus, SubmissionType
 from submit_api.models.user import UserType
-from submit_api.enums.proponent_status import ProponentStatus
 
 from tests.utilities.factory_scenarios import TestJwtClaims
 
