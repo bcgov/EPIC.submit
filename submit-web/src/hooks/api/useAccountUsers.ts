@@ -30,6 +30,25 @@ export const useGetAccountUsers = ({ accountId }: GetAccountUsersOptions) => {
   });
 };
 
+const getAccountUserById = (accountUserId: number) => {
+  return submitRequest<AccountUserWithRole>({
+    url: `/accounts/users/${accountUserId}`,
+  });
+};
+
+type GetAccountUserByIdOptions = {
+  accountUserId?: number;
+};
+
+export const useGetAccountUserById = ({ accountUserId }: GetAccountUserByIdOptions) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.ACCOUNT_USER, accountUserId],
+    queryFn: () => getAccountUserById(accountUserId!),
+    enabled: Boolean(accountUserId),
+    ...defaultUseQueryOptions,
+  });
+};
+
 const getUserProfileByGuid = (guid?: string) => {
   return submitRequest<AccountUserWithRole>({ url: `/accounts/user/${guid}` });
 };

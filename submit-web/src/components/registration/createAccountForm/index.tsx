@@ -40,6 +40,7 @@ import { validatePhoneNumber } from "@/components/SubmissionItem/ContactInformat
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
   surname: yup.string().required("Please enter your surname."),
+  companyName: yup.string().required("Please enter your company name."),
   position: yup.string().required("Please enter your position."),
   phone: yup
     .string()
@@ -142,6 +143,7 @@ function CreateAccountForm() {
     const accountData = {
       first_name: data.givenName,
       last_name: data.surname,
+      company_name: data.companyName,
       position: data.position,
       work_contact_number: data.phone,
       work_email_address: data.email,
@@ -166,22 +168,22 @@ function CreateAccountForm() {
           <Typography variant="body1">
             Please provide your information to set up your account for{" "}
             {project?.name || ""}.
-            <br />
-            <br />
-            {invitation?.role.role_name ===
-              USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
-              <>
-                Project Administrators can
-                <ul style={{ paddingTop: "0rem", marginTop: "0rem" }}>
-                  <li>Access all the submissions</li>
-                  <li>
-                    Create new submissions and submit submissions to the EAO
-                  </li>
-                  <li>Add users and manage user access</li>
-                </ul>
-              </>
-            )}
           </Typography>
+          {invitation?.role.role_name ===
+            USER_MANAGEMENT_ROLE.PROJECT_ADMIN && (
+            <Box component="div" mt={2}>
+              <Typography variant="body1" component="span">
+                Project Administrators can
+              </Typography>
+              <ul style={{ paddingTop: "0rem", marginTop: "0rem" }}>
+                <li>Access all the submissions</li>
+                <li>
+                  Create new submissions and submit submissions to the EAO
+                </li>
+                <li>Add users and manage user access</li>
+              </ul>
+            </Box>
+          )}
         </Grid>
 
         <Grid
@@ -228,6 +230,15 @@ function CreateAccountForm() {
                     InputLabelProps={{
                       sx: { fontWeight: 700 },
                     }}
+                    sx={{ mb: 0 }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <ControlledTextField
+                    name="companyName"
+                    label="Company Name"
+                    fullWidth
+                    InputLabelProps={{ sx: { fontWeight: 700 } }}
                     sx={{ mb: 0 }}
                   />
                 </Grid>

@@ -6,7 +6,7 @@ import ControlledTextField from "@/components/Shared/controlled/ControlledTextFi
 import ControlledSelect from "@/components/Shared/controlled/ControlledSelect";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_ITEM_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
@@ -184,12 +184,15 @@ export const ContactInformationEntityView = () => {
     defaultValues,
   });
 
-  const { handleSubmit, watch, clearErrors, setValue } = methods;
+  const { handleSubmit, watch, clearErrors, setValue, trigger } = methods;
 
   const primaryContactUserId = watch("primaryContact.accountUserId");
   const secondaryContactUserId = watch("secondaryContact.accountUserId");
   const isPrimaryUserSelected = Boolean(primaryContactUserId);
   const isSecondaryUserSelected = Boolean(secondaryContactUserId);
+
+  const prevPrimaryContactUserId = useRef(primaryContactUserId);
+  const prevSecondaryContactUserId = useRef(secondaryContactUserId);
 
   useEffect(() => {
     if (primaryContactUserId && accountUsers) {
@@ -218,8 +221,20 @@ export const ContactInformationEntityView = () => {
           "primaryContact.workEmailAddress",
         ]);
       }
+    } else if (!primaryContactUserId && prevPrimaryContactUserId.current) {
+      setValue("primaryContact.givenName", "");
+      setValue("primaryContact.surname", "");
+      setValue("primaryContact.position", "");
+      setValue("primaryContact.company", "");
+      setValue("primaryContact.workPhoneNumber", "");
+      setValue("primaryContact.workEmailAddress", "");
+      setValue("primaryContact.extensionNumber", "");
     }
-  }, [primaryContactUserId, accountUsers, setValue, clearErrors]);
+    prevPrimaryContactUserId.current = primaryContactUserId;
+    if (secondaryContactUserId) {
+      trigger("secondaryContact.accountUserId");
+    }
+  }, [primaryContactUserId, accountUsers, setValue, clearErrors, secondaryContactUserId, trigger]);
 
   useEffect(() => {
     if (secondaryContactUserId && accountUsers) {
@@ -248,8 +263,20 @@ export const ContactInformationEntityView = () => {
           "secondaryContact.workEmailAddress",
         ]);
       }
+    } else if (!secondaryContactUserId && prevSecondaryContactUserId.current) {
+      setValue("secondaryContact.givenName", "");
+      setValue("secondaryContact.surname", "");
+      setValue("secondaryContact.position", "");
+      setValue("secondaryContact.company", "");
+      setValue("secondaryContact.workPhoneNumber", "");
+      setValue("secondaryContact.workEmailAddress", "");
+      setValue("secondaryContact.extensionNumber", "");
     }
-  }, [secondaryContactUserId, accountUsers, setValue, clearErrors]);
+    prevSecondaryContactUserId.current = secondaryContactUserId;
+    if (secondaryContactUserId && primaryContactUserId) {
+      trigger("secondaryContact.accountUserId");
+    }
+  }, [secondaryContactUserId, accountUsers, setValue, clearErrors, primaryContactUserId, trigger]);
 
   const { refetch } = useGetSubmissionPackage({
     packageId: Number(submissionPackageId),
@@ -269,9 +296,37 @@ export const ContactInformationEntityView = () => {
       return;
     }
 
+    const dataToSubmit = { ...formData };
+
+    if (dataToSubmit.primaryContact?.accountUserId) {
+      dataToSubmit.primaryContact = {
+        accountUserId: dataToSubmit.primaryContact.accountUserId,
+        givenName: "",
+        surname: "",
+        position: "",
+        company: "",
+        workPhoneNumber: "",
+        workEmailAddress: "",
+        extensionNumber: "",
+      };
+    }
+
+    if (dataToSubmit.secondaryContact?.accountUserId) {
+      dataToSubmit.secondaryContact = {
+        accountUserId: dataToSubmit.secondaryContact.accountUserId,
+        givenName: "",
+        surname: "",
+        position: "",
+        company: "",
+        workPhoneNumber: "",
+        workEmailAddress: "",
+        extensionNumber: "",
+      };
+    }
+
     const request = {
       type: SUBMISSION_TYPE.FORM,
-      data: formData,
+      data: dataToSubmit,
       status: isSubmitted ? undefined : SUBMISSION_ITEM_STATUS.COMPLETED.value,
       item_id: submissionItem.id,
     };

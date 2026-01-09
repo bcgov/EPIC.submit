@@ -98,6 +98,25 @@ class AccountUser(Resource):
         return AccountUserSchema().dump(edited_account_user), HTTPStatus.OK
 
 
+@cors_preflight("GET, OPTIONS")
+@API.route("/users/<int:account_user_id>", methods=["GET", "OPTIONS"])
+class AccountUserById(Resource):
+    """Resource for fetching a user by account_user id."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch a user by account_user id")
+    @API.response(code=HTTPStatus.OK, description="Success", model=account_user_list_model)
+    @API.response(HTTPStatus.NOT_FOUND, "User not found")
+    @auth.require
+    @cross_origin(origins=allowedorigins())
+    def get(account_user_id):
+        """Fetch a user by account_user id."""
+        user = AccountUserService.get_account_user_by_id(account_user_id)
+        if not user:
+            return {"message": f"No user found for account_user id {account_user_id}"}, HTTPStatus.NOT_FOUND
+        return AccountUserSchema().dump(user), HTTPStatus.OK
+
+
 @cors_preflight("PATCH, OPTIONS")
 @API.route("/user/<int:account_user_id>/role", methods=["PATCH", "OPTIONS"])
 class EditUserRole(Resource):
