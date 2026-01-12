@@ -7,6 +7,10 @@ metadata:
     app-group: submit-app
 data:
   crontab: |
-    {{ .Values.cronTab }}
+{{ .Values.cronTab | indent 4 }}
   WEB_URL: {{ .Values.web.url }}
   SENDER_EMAIL: {{ .Values.sender.email }}
+  STAFF_SUPPORT_MAIL_ID: {{ .Values.sender.email }}
+  KEYCLOAK_BASE_URL: {{ .Values.keycloak.baseUrl }}
+  KEYCLOAK_REALM_NAME: {{ .Values.keycloak.realmName }}
+  CONDITION_API_BASE_URL: {{ .Values.conditionApi.baseUrl }}

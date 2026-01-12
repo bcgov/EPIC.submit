@@ -1,0 +1,10 @@
+app: submit-cron  # Replace with your desired application name
+githubRepo: https://github.com/bcgov/EPIC.submit.git  # Replace with your actual repo URL
+githubContextDir: /submit-cron
+resources:
+  limits:
+    cpu: 1500m
+    memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 2Gi

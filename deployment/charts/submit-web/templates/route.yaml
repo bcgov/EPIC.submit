@@ -5,7 +5,7 @@ metadata:
     app: {{ .Release.Name }}
   name: {{ .Release.Name }}
 spec:
-  host: {{ tpl .Values.app.url . }}
+  host: {{ .Values.app.url | replace "https://" "" }}
   tls:
     insecureEdgeTerminationPolicy: Redirect
     termination: edge
