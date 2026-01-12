@@ -9,7 +9,7 @@ class ProponentService:
     @classmethod
     def get_proponent(cls, proponent_id, include_invitations=False, include_projects=False):
         """Get proponent by id."""
-        return Project.get_proponent_by_id(
+        return Proponent.get_proponent_by_id(
             proponent_id,
             include_invitations=include_invitations,
             include_projects=include_projects
