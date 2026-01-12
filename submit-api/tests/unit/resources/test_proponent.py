@@ -27,13 +27,13 @@ def test_get_all_proponents_with_approved_conditions(client, session):
 
 def test_get_proponent_by_id(client, session):
     """Test for proponents."""
-    project = factory_project_with_proponent(proponent_id=5678, proponent_name="SingleProponent")
+    factory_proponent_model(id=5678, name="SingleProponent", is_deleted=False)
 
-    response = client.get(f"/api/proponents/{project.proponent_id}")
+    response = client.get("/api/proponents/5678")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
-    assert data["id"] == project.proponent_id
+    assert data["id"] == 5678
     assert data["name"] == "SingleProponent"
     assert "projects" not in data
     assert "invitations" not in data
@@ -41,13 +41,14 @@ def test_get_proponent_by_id(client, session):
 
 def test_get_proponent_with_projects(client, session):
     """Test for proponents."""
+    factory_proponent_model(id=9999, name="ProjProponent", is_deleted=False)
     project = factory_project_with_proponent(proponent_id=9999, proponent_name="ProjProponent")
 
-    response = client.get(f"/api/proponents/{project.proponent_id}?include-projects=true")
+    response = client.get("/api/proponents/9999?include-projects=true")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
-    assert data["id"] == project.proponent_id
+    assert data["id"] == 9999
     assert data["name"] == "ProjProponent"
     assert "projects" in data
     assert isinstance(data["projects"], list)
@@ -56,15 +57,15 @@ def test_get_proponent_with_projects(client, session):
 
 def test_get_proponent_with_invitations(client, session):
     """Test for proponents."""
-    project = factory_project_with_proponent(proponent_id=3333, proponent_name="InviteProponent")
-    account = factory_account_model(proponent_id=project.proponent_id)
+    factory_proponent_model(id=3333, name="InviteProponent", is_deleted=False)
+    account = factory_account_model(proponent_id=3333)
     factory_invitation_model(account_id=account.id, status="PENDING")
 
-    response = client.get(f"/api/proponents/{project.proponent_id}?include-invitations=true")
+    response = client.get("/api/proponents/3333?include-invitations=true")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
-    assert data["id"] == project.proponent_id
+    assert data["id"] == 3333
     assert "invitations" in data
     assert isinstance(data["invitations"], list)
     assert len(data["invitations"]) >= 1
@@ -72,16 +73,15 @@ def test_get_proponent_with_invitations(client, session):
 
 def test_get_proponent_full_data(client, session):
     """Test for proponents."""
-    project = factory_project_with_proponent(proponent_id=4444, proponent_name="FullProponent")
-    account = factory_account_model(proponent_id=project.proponent_id)
+    factory_proponent_model(id=4444, name="FullProponent", is_deleted=False)
+    account = factory_account_model(proponent_id=4444)
     factory_invitation_model(account_id=account.id, status="USED")
 
-    response = client.get(
-        f"/api/proponents/{project.proponent_id}?include-invitations=true&include-projects=true")
+    response = client.get("/api/proponents/4444?include-invitations=true&include-projects=true")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
-    assert data["id"] == project.proponent_id
+    assert data["id"] == 4444
     assert data["name"] == "FullProponent"
     assert "projects" in data
     assert "invitations" in data

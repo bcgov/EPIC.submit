@@ -1,6 +1,5 @@
 """Service for proponent management."""
 from submit_api.models.proponent import Proponent
-from submit_api.models.project import Project
 
 
 class ProponentService:

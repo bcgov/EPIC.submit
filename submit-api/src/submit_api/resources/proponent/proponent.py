@@ -19,6 +19,7 @@ from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
+from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.proponent import ProponentSchema
 from submit_api.services.proponent_service import ProponentService
@@ -81,4 +82,6 @@ class Proponent(Resource):
         include_invitations = request.args.get("include-invitations", "false").lower() == "true"
         include_projects = request.args.get("include-projects", "false").lower() == "true"
         proponent = ProponentService.get_proponent(proponent_id, include_invitations, include_projects)
+        if not proponent:
+            raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
         return proponent, HTTPStatus.OK
