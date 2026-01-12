@@ -37,43 +37,27 @@ proponent_model = ApiHelper.convert_ma_schema_to_restx_model(
     "",
     methods=["GET", "OPTIONS"],
 )
-class Proponents(Resource):
-    """Resource for fetching proponents."""
-
-    @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Get proponents")
-    @API.response(
-        code=HTTPStatus.OK, model=proponent_model, description="Get proponents"
-    )
-    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cross_origin(origins=allowedorigins())
-    def get():
-        """Get all proponents."""
-        proponents = ProponentService.get_proponents_from_projects()
-        return ProponentSchema(many=True).dump(proponents), HTTPStatus.OK
-
-
-@cors_preflight("GET, OPTIONS")
-@API.route(
-    "/all",
-    methods=["GET", "OPTIONS"],
-)
 class AllProponents(Resource):
-    """Resource for fetching all proponents without filter."""
+    """Resource for fetching all proponents."""
 
     @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Get all proponents without filter")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get all proponents")
     @API.response(
-        code=HTTPStatus.OK, model=proponent_model, description="Get all proponents without filter"
+        code=HTTPStatus.OK, model=proponent_model, description="Get all proponents"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cross_origin(origins=allowedorigins())
     def get():
-        """Get all proponents without filtering by has_approved_condition.
+        """Get all proponents.
 
-        Uses the new Proponent table for the new proponent management pages.
+        Query parameters:
+        - approved-conditions: If 'true', returns only proponents with approved conditions.
         """
-        proponents = ProponentService.get_all_proponents(include_deleted=False)
+        approved_conditions = request.args.get("approved-conditions", "false").lower() == "true"
+        proponents = ProponentService.get_all_proponents(
+            include_deleted=False,
+            approved_conditions_only=approved_conditions
+        )
         return ProponentSchema(many=True).dump(proponents), HTTPStatus.OK
 
 
@@ -98,3 +82,4 @@ class Proponent(Resource):
         include_projects = request.args.get("include-projects", "false").lower() == "true"
         proponent = ProponentService.get_proponent(proponent_id, include_invitations, include_projects)
         return proponent, HTTPStatus.OK
+

@@ -16,7 +16,6 @@ class ProponentSchema(Schema):
         unknown = EXCLUDE
 
     id = fields.Int(data_key="id")
-    proponent_id = fields.Int(data_key="proponent_id", allow_none=False)
     name = fields.Str(data_key="name", allow_none=False)
     status = fields.Enum(enum=ProponentStatus, data_key="status", allow_none=True, required=False)
     is_deleted = fields.Bool(data_key="is_deleted", allow_none=False)

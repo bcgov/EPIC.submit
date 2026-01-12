@@ -5,7 +5,6 @@ export type ProponentStatus = "ELIGIBLE" | "INELIGIBLE" | "PENDING_ONBOARDING" |
 
 export type Proponent = {
   id: number;
-  proponent_id: number;
   name: string;
   status?: ProponentStatus | null;
   is_deleted: boolean;

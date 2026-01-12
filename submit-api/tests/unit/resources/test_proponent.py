@@ -11,11 +11,13 @@ from tests.utilities.factory_utils import (
     factory_proponent_model)
 
 
-def test_get_all_proponents(client, session):
-    """Test all get proponents."""
+def test_get_all_proponents_with_approved_conditions(client, session):
+    """Test get proponents with approved conditions filter."""
     factory_project_with_proponent(proponent_id=1234, proponent_name="TestProponent")
+    # Create proponent in Proponent table to match the new implementation
+    factory_proponent_model(id=1234, name="TestProponent", is_deleted=False)
 
-    response = client.get("/api/staff/proponents")
+    response = client.get("/api/proponents?approved-conditions=true")
 
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
@@ -27,7 +29,7 @@ def test_get_proponent_by_id(client, session):
     """Test for proponents."""
     project = factory_project_with_proponent(proponent_id=5678, proponent_name="SingleProponent")
 
-    response = client.get(f"/api/staff/proponents/{project.proponent_id}")
+    response = client.get(f"/api/proponents/{project.proponent_id}")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
@@ -41,7 +43,7 @@ def test_get_proponent_with_projects(client, session):
     """Test for proponents."""
     project = factory_project_with_proponent(proponent_id=9999, proponent_name="ProjProponent")
 
-    response = client.get(f"/api/staff/proponents/{project.proponent_id}?include-projects=true")
+    response = client.get(f"/api/proponents/{project.proponent_id}?include-projects=true")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
@@ -58,7 +60,7 @@ def test_get_proponent_with_invitations(client, session):
     account = factory_account_model(proponent_id=project.proponent_id)
     factory_invitation_model(account_id=account.id, status="PENDING")
 
-    response = client.get(f"/api/staff/proponents/{project.proponent_id}?include-invitations=true")
+    response = client.get(f"/api/proponents/{project.proponent_id}?include-invitations=true")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
@@ -75,7 +77,7 @@ def test_get_proponent_full_data(client, session):
     factory_invitation_model(account_id=account.id, status="USED")
 
     response = client.get(
-        f"/api/staff/proponents/{project.proponent_id}?include-invitations=true&include-projects=true")
+        f"/api/proponents/{project.proponent_id}?include-invitations=true&include-projects=true")
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
@@ -88,25 +90,25 @@ def test_get_proponent_full_data(client, session):
 def test_get_all_proponents_from_table(client, session):
     """Test get all proponents from the new Proponent table."""
     proponent1 = factory_proponent_model(
-        proponent_id=1001,
+        id=1001,
         name="Alpha Proponent",
         status=ProponentStatus.ELIGIBLE,
         is_deleted=False
     )
     proponent2 = factory_proponent_model(
-        proponent_id=1002,
+        id=1002,
         name="Beta Proponent",
         status=ProponentStatus.ONBOARDED,
         is_deleted=False
     )
     # Create a deleted proponent that should not be returned
     factory_proponent_model(
-        proponent_id=1003,
+        id=1003,
         status=ProponentStatus.INELIGIBLE,
         is_deleted=True
     )
 
-    response = client.get("/api/staff/proponents/all")
+    response = client.get("/api/proponents")
 
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
@@ -114,20 +116,20 @@ def test_get_all_proponents_from_table(client, session):
     assert len(data) >= 2
 
     # Check that both proponents are in the response
-    proponent_ids = [p["proponent_id"] for p in data]
-    assert proponent1.proponent_id in proponent_ids
-    assert proponent2.proponent_id in proponent_ids
+    proponent_ids = [p["id"] for p in data]
+    assert proponent1.id in proponent_ids
+    assert proponent2.id in proponent_ids
 
     # Check that deleted proponent is not in the response
     assert 1003 not in proponent_ids
 
     # Check that status is properly serialized
-    alpha_proponent = next(p for p in data if p["proponent_id"] == proponent1.proponent_id)
+    alpha_proponent = next(p for p in data if p["id"] == proponent1.id)
     assert alpha_proponent["status"] == "ELIGIBLE"
     assert alpha_proponent["name"] == "Alpha Proponent"
     assert alpha_proponent["is_deleted"] is False
 
-    beta_proponent = next(p for p in data if p["proponent_id"] == proponent2.proponent_id)
+    beta_proponent = next(p for p in data if p["id"] == proponent2.id)
     assert beta_proponent["status"] == "ONBOARDED"
     assert beta_proponent["name"] == "Beta Proponent"
 
@@ -135,26 +137,26 @@ def test_get_all_proponents_from_table(client, session):
 def test_get_all_proponents_with_null_status(client, session):
     """Test get all proponents with null status."""
     proponent = factory_proponent_model(
-        proponent_id=2001,
+        id=2001,
         name="Null Status Proponent",
         status=None,
         is_deleted=False
     )
 
-    response = client.get("/api/staff/proponents/all")
+    response = client.get("/api/proponents")
 
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
     assert isinstance(data, list)
 
-    proponent_data = next(p for p in data if p["proponent_id"] == proponent.proponent_id)
+    proponent_data = next(p for p in data if p["id"] == proponent.id)
     assert proponent_data["status"] is None
     assert proponent_data["name"] == "Null Status Proponent"
 
 
 def test_get_all_proponents_empty(client, session):
     """Test get all proponents when no proponents exist."""
-    response = client.get("/api/staff/proponents/all")
+    response = client.get("/api/proponents")
 
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()

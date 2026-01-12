@@ -8,12 +8,7 @@ class ProponentService:
 
     @classmethod
     def get_proponent(cls, proponent_id, include_invitations=False, include_projects=False):
-        """Get proponent by id.
-
-        Maintains backward compatibility by using Project.get_proponent_by_id()
-        for existing pages like invitations. This ensures the invitations page
-        continues to work as before.
-        """
+        """Get proponent by id."""
         return Project.get_proponent_by_id(
             proponent_id,
             include_invitations=include_invitations,
@@ -21,29 +16,18 @@ class ProponentService:
         )
 
     @classmethod
-    def get_proponents_from_projects(cls):
-        """Get all proponents from Project model.
+    def get_all_proponents(cls, include_deleted=False, approved_conditions_only=False):
+        """Get all proponents from the Proponent table.
 
-        Maintains backward compatibility for invitations page.
-        This was previously used by invitations.
-        Returns list of dictionaries with 'id' and 'name' keys.
+        Args:
+            include_deleted: If True, includes deleted proponents. Defaults to False.
+            approved_conditions_only: If True, returns only proponents that have projects 
+                                     with approved conditions. Defaults to False.
+
+        Returns:
+            List of Proponent objects.
         """
-        proponents = Project.get_all_proponents()
-        return [
-            {
-                "id": proponent_id,
-                "proponent_id": proponent_id,
-                "name": proponent_name,
-                "status": None,
-                "is_deleted": False
-            }
-            for proponent_id, proponent_name in proponents
-        ]
-
-    @classmethod
-    def get_all_proponents(cls, include_deleted=False):
-        """Get all proponents from the new Proponent table.
-
-        Uses the new Proponent model for the new proponent management pages.
-        """
-        return Proponent.get_all_proponents(include_deleted=include_deleted)
+        return Proponent.get_all_proponents(
+            include_deleted=include_deleted,
+            approved_conditions_only=approved_conditions_only
+        )

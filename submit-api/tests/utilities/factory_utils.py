@@ -89,10 +89,10 @@ def factory_account_model(proponent_id=1234):
     return account
 
 
-def factory_proponent_model(proponent_id=1234, name="Test Proponent", status=None, is_deleted=False):
+def factory_proponent_model(id=1234, name="Test Proponent", status=None, is_deleted=False):
     """Create a proponent model."""
     proponent = Proponent(
-        proponent_id=proponent_id,
+        id=id,
         name=name,
         status=status,
         is_deleted=is_deleted
