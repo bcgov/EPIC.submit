@@ -82,4 +82,3 @@ class Proponent(Resource):
         include_projects = request.args.get("include-projects", "false").lower() == "true"
         proponent = ProponentService.get_proponent(proponent_id, include_invitations, include_projects)
         return proponent, HTTPStatus.OK
-

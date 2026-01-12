@@ -21,7 +21,7 @@ class ProponentService:
 
         Args:
             include_deleted: If True, includes deleted proponents. Defaults to False.
-            approved_conditions_only: If True, returns only proponents that have projects 
+            approved_conditions_only: If True, returns only proponents that have projects
                                      with approved conditions. Defaults to False.
 
         Returns:
