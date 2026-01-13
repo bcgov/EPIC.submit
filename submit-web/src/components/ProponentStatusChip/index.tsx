@@ -2,47 +2,39 @@ import { ProponentStatus } from "@/models/Proponent";
 import { Box, Chip } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 
-type StyleProps = {
-  sx: Record<string, string | number>;
+const STATUS_LABELS = {
+  ELIGIBLE: "Eligible",
+  PENDING_ONBOARDING: "Pending Onboarding",
+  INELIGIBLE: "Ineligible",
+  ONBOARDED: "Onboarded",
+} as const;
+
+type StatusStyle = {
+  background: string;
+  borderColor: string;
   label: string;
 };
 
-const statusStyles: Record<ProponentStatus, StyleProps> = {
+const statusStyles: Record<ProponentStatus, StatusStyle> = {
   ELIGIBLE: {
-    sx: {
-      borderRadius: "2px",
-      border: "1px solid #9B6BDA",
-      background: "#F6E4FF",
-      height: "24px",
-    },
-    label: "Eligible",
+    background: "#F6E4FF",
+    borderColor: "#9B6BDA",
+    label: STATUS_LABELS.ELIGIBLE,
   },
   PENDING_ONBOARDING: {
-    sx: {
-      borderRadius: "2px",
-      border: "1px solid #1E5189",
-      background: "#D8EAFD",
-      height: "24px",
-    },
-    label: "Pending Onboarding",
+    background: "#D8EAFD",
+    borderColor: "#1E5189",
+    label: STATUS_LABELS.PENDING_ONBOARDING,
   },
   INELIGIBLE: {
-    sx: {
-      borderRadius: "2px",
-      border: "1px solid #F18A15",
-      background: "#FFDEB8",
-      height: "24px",
-    },
-    label: "Ineligible",
+    background: "#FFDEB8",
+    borderColor: "#F18A15",
+    label: STATUS_LABELS.INELIGIBLE,
   },
   ONBOARDED: {
-    sx: {
-      borderRadius: "2px",
-      border: "1px solid #42814A",
-      background: "#F6FFF8",
-      height: "24px",
-    },
-    label: "Onboarded",
+    background: "#F6FFF8",
+    borderColor: "#42814A",
+    label: STATUS_LABELS.ONBOARDED,
   },
 };
 
@@ -62,7 +54,10 @@ export function ProponentStatusChip({ status }: ProponentStatusChipProps) {
       <Chip
         label={style.label}
         sx={{
-          ...style.sx,
+          borderRadius: "2px",
+          height: "24px",
+          border: `1px solid ${style.borderColor}`,
+          background: style.background,
           fontSize: BCDesignTokens.typographyFontSizeSmallBody,
           fontWeight: BCDesignTokens.typographyFontWeightMedium,
           color: BCDesignTokens.typographyColorPrimary,

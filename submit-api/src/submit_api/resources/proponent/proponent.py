@@ -53,11 +53,13 @@ class AllProponents(Resource):
 
         Query parameters:
         - approved-conditions: If 'true', returns only proponents with approved conditions.
+                                  If not provided, returns all proponents regardless of approved conditions.
         """
-        approved_conditions = request.args.get("approved-conditions", "false").lower() == "true"
+        approved_conditions_param = request.args.get("approved-conditions")
+        approved_conditions_only = approved_conditions_param.lower() == "true" if approved_conditions_param else None
         proponents = ProponentService.get_all_proponents(
             include_deleted=False,
-            approved_conditions_only=approved_conditions
+            approved_conditions_only=approved_conditions_only
         )
         return ProponentSchema(many=True).dump(proponents), HTTPStatus.OK
 

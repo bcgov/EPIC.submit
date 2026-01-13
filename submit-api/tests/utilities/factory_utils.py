@@ -89,8 +89,10 @@ def factory_account_model(proponent_id=1234):
     return account
 
 
-def factory_proponent_model(id=1234, name="Test Proponent", status=None, is_deleted=False):
+def factory_proponent_model(id=None, name="Test Proponent", status=None, is_deleted=False):
     """Create a proponent model."""
+    if id is None:
+        id = fake.random_int(min=1000, max=999999)
     proponent = Proponent(
         id=id,
         name=name,

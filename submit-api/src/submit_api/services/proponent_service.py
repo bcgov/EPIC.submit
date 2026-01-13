@@ -15,17 +15,8 @@ class ProponentService:
         )
 
     @classmethod
-    def get_all_proponents(cls, include_deleted=False, approved_conditions_only=False):
-        """Get all proponents from the Proponent table.
-
-        Args:
-            include_deleted: If True, includes deleted proponents. Defaults to False.
-            approved_conditions_only: If True, returns only proponents that have projects
-                                     with approved conditions. Defaults to False.
-
-        Returns:
-            List of Proponent objects.
-        """
+    def get_all_proponents(cls, include_deleted=False, approved_conditions_only=None):
+        """Get all proponents from the Proponent table."""
         return Proponent.get_all_proponents(
             include_deleted=include_deleted,
             approved_conditions_only=approved_conditions_only

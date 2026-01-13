@@ -90,20 +90,17 @@ def test_get_proponent_full_data(client, session):
 def test_get_all_proponents_from_table(client, session):
     """Test get all proponents from the new Proponent table."""
     proponent1 = factory_proponent_model(
-        id=1001,
         name="Alpha Proponent",
         status=ProponentStatus.ELIGIBLE,
         is_deleted=False
     )
     proponent2 = factory_proponent_model(
-        id=1002,
         name="Beta Proponent",
         status=ProponentStatus.ONBOARDED,
         is_deleted=False
     )
     # Create a deleted proponent that should not be returned
-    factory_proponent_model(
-        id=1003,
+    deleted_proponent = factory_proponent_model(
         status=ProponentStatus.INELIGIBLE,
         is_deleted=True
     )
@@ -121,7 +118,7 @@ def test_get_all_proponents_from_table(client, session):
     assert proponent2.id in proponent_ids
 
     # Check that deleted proponent is not in the response
-    assert 1003 not in proponent_ids
+    assert deleted_proponent.id not in proponent_ids
 
     # Check that status is properly serialized
     alpha_proponent = next(p for p in data if p["id"] == proponent1.id)
@@ -137,7 +134,6 @@ def test_get_all_proponents_from_table(client, session):
 def test_get_all_proponents_with_null_status(client, session):
     """Test get all proponents with null status."""
     proponent = factory_proponent_model(
-        id=2001,
         name="Null Status Proponent",
         status=None,
         is_deleted=False

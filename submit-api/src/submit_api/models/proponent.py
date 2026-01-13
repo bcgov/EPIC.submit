@@ -35,20 +35,11 @@ class Proponent(db.Model):
         }
 
     @classmethod
-    def get_all_proponents(cls, include_deleted=False, approved_conditions_only=False):
-        """Get all proponents.
-
-        Args:
-            include_deleted: If True, includes deleted proponents. Defaults to False.
-            approved_conditions_only: If True, returns only proponents that have projects
-                                     with approved conditions. Defaults to False.
-
-        Returns:
-            List of Proponent objects ordered by name.
-        """
+    def get_all_proponents(cls, include_deleted=False, approved_conditions_only=None):
+        """Get all proponents."""
         query = cls.query
 
-        if approved_conditions_only:
+        if approved_conditions_only is True:
             query = query.join(Project, cls.id == Project.proponent_id)
             query = query.filter(Project.has_approved_condition.is_(True))
             query = query.distinct()
