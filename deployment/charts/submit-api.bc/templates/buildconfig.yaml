@@ -22,7 +22,7 @@ spec:
     git:
       uri: {{ .Values.githubRepo }}
       ref: develop  # Can be overridden during install
-      contextDir: {{ .Values.githubContextDir }}
+    contextDir: {{ .Values.githubContextDir }}
   triggers:
   - type: ConfigChange
 runPolicy: Serial
