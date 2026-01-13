@@ -19,6 +19,7 @@ from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
+from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.proponent import ProponentSchema
 from submit_api.services.proponent_service import ProponentService
@@ -26,8 +27,6 @@ from submit_api.utils.util import allowedorigins, cors_preflight
 
 
 API = Namespace("proponents", description="Endpoints for Proponent fetching")
-"""Custom exception messages
-"""
 
 proponent_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ProponentSchema(), "Proponent"
@@ -39,19 +38,29 @@ proponent_model = ApiHelper.convert_ma_schema_to_restx_model(
     "",
     methods=["GET", "OPTIONS"],
 )
-class Proponents(Resource):
-    """Resource for fetching proponents."""
+class AllProponents(Resource):
+    """Resource for fetching all proponents."""
 
     @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Get proponents")
+    @ApiHelper.swagger_decorators(API, endpoint_description="Get all proponents")
     @API.response(
-        code=HTTPStatus.OK, model=proponent_model, description="Get proponents"
+        code=HTTPStatus.OK, model=proponent_model, description="Get all proponents"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cross_origin(origins=allowedorigins())
     def get():
-        """Get all proponents."""
-        proponents = ProponentService.get_proponents()
+        """Get all proponents.
+
+        Query parameters:
+        - approved-conditions: If 'true', returns only proponents with approved conditions.
+                                  If not provided, returns all proponents regardless of approved conditions.
+        """
+        approved_conditions_param = request.args.get("approved-conditions")
+        approved_conditions_only = approved_conditions_param.lower() == "true" if approved_conditions_param else None
+        proponents = ProponentService.get_all_proponents(
+            include_deleted=False,
+            approved_conditions_only=approved_conditions_only
+        )
         return ProponentSchema(many=True).dump(proponents), HTTPStatus.OK
 
 
@@ -75,4 +84,6 @@ class Proponent(Resource):
         include_invitations = request.args.get("include-invitations", "false").lower() == "true"
         include_projects = request.args.get("include-projects", "false").lower() == "true"
         proponent = ProponentService.get_proponent(proponent_id, include_invitations, include_projects)
+        if not proponent:
+            raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
         return proponent, HTTPStatus.OK

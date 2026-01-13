@@ -26,6 +26,7 @@ import { Route as StaffNoRolesImport } from './routes/staff/no-roles'
 import { Route as StaffStaffLayoutImport } from './routes/staff/_staffLayout'
 import { Route as ProponentProponentLayoutImport } from './routes/proponent/_proponentLayout'
 import { Route as ProponentRegistrationIndexImport } from './routes/proponent/registration/index'
+import { Route as StaffStaffLayoutProponentsImport } from './routes/staff/_staffLayout/proponents'
 import { Route as ProponentRegistrationCreateAccountImport } from './routes/proponent/registration/create-account'
 import { Route as ProponentRegistrationCompleteImport } from './routes/proponent/registration/complete'
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
@@ -163,6 +164,13 @@ const ProponentProponentLayoutAboutpageLazyRoute =
       (d) => d.Route,
     ),
   )
+
+const StaffStaffLayoutProponentsRoute = StaffStaffLayoutProponentsImport.update(
+  {
+    path: '/proponents',
+    getParentRoute: () => StaffStaffLayoutRoute,
+  } as any,
+)
 
 const ProponentRegistrationCreateAccountRoute =
   ProponentRegistrationCreateAccountImport.update({
@@ -497,6 +505,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentRegistrationCreateAccountImport
       parentRoute: typeof ProponentImport
     }
+    '/staff/_staffLayout/proponents': {
+      id: '/staff/_staffLayout/proponents'
+      path: '/proponents'
+      fullPath: '/staff/proponents'
+      preLoaderRoute: typeof StaffStaffLayoutProponentsImport
+      parentRoute: typeof StaffStaffLayoutImport
+    }
     '/proponent/_proponentLayout/aboutpage': {
       id: '/proponent/_proponentLayout/aboutpage'
       path: '/aboutpage'
@@ -753,6 +768,7 @@ export const routeTree = rootRoute.addChildren({
   }),
   StaffRoute: StaffRoute.addChildren({
     StaffStaffLayoutRoute: StaffStaffLayoutRoute.addChildren({
+      StaffStaffLayoutProponentsRoute,
       StaffStaffLayoutDocumentsIndexRoute,
       StaffStaffLayoutInvitationsIndexRoute,
       StaffStaffLayoutProjectsIndexRoute,
@@ -859,6 +875,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "staff/_staffLayout.tsx",
       "parent": "/staff",
       "children": [
+        "/staff/_staffLayout/proponents",
         "/staff/_staffLayout/documents/",
         "/staff/_staffLayout/invitations/",
         "/staff/_staffLayout/projects/",
@@ -892,6 +909,10 @@ export const routeTree = rootRoute.addChildren({
     "/proponent/registration/create-account": {
       "filePath": "proponent/registration/create-account.tsx",
       "parent": "/proponent"
+    },
+    "/staff/_staffLayout/proponents": {
+      "filePath": "staff/_staffLayout/proponents.tsx",
+      "parent": "/staff/_staffLayout"
     },
     "/proponent/_proponentLayout/aboutpage": {
       "filePath": "proponent/_proponentLayout/aboutpage.lazy.tsx",

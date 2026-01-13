@@ -5,7 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 
 const getProponents = () => {
   return submitRequest<Proponent[]>({
-    url: `staff/proponents`,
+    url: `proponents`,
+    params: {
+      "approved-conditions": "true",
+    },
   });
 };
 
@@ -13,6 +16,19 @@ export const useGetProponents = () => {
   return useQuery({
     queryKey: [QUERY_KEY.PROPONENTS],
     queryFn: getProponents,
+  });
+};
+
+const getAllProponents = () => {
+  return submitRequest<Proponent[]>({
+    url: `proponents`,
+  });
+};
+
+export const useGetAllProponents = () => {
+  return useQuery({
+    queryKey: [QUERY_KEY.PROPONENTS, "all"],
+    queryFn: getAllProponents,
   });
 };
 
@@ -33,7 +49,7 @@ const getProponent = (
     params["include-invitations"] = String(Boolean(options.includeInvitations));
   }
   return submitRequest<Proponent>({
-    url: `staff/proponents/${proponentId}`,
+    url: `proponents/${proponentId}`,
     params,
   });
 };

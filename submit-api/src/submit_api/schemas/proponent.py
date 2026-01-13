@@ -1,20 +1,23 @@
 """Proponent schema.
 
-This module defines the schema for the project entity.
+This module defines the schema for the proponent entity.
 """
 
 from marshmallow import EXCLUDE, Schema, fields
+from submit_api.enums.proponent_status import ProponentStatus
 
 
 class ProponentSchema(Schema):
-    """project schema."""
+    """Proponent schema."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Exclude unknown fields in the deserialized output."""
 
         unknown = EXCLUDE
 
-    id = fields.Int(data_key="id", attribute="proponent_id")
-    name = fields.Str(data_key="name", attribute="proponent_name")
+    id = fields.Int(data_key="id")
+    name = fields.Str(data_key="name", allow_none=False)
+    status = fields.Enum(enum=ProponentStatus, data_key="status", allow_none=True, required=False)
+    is_deleted = fields.Bool(data_key="is_deleted", allow_none=False)
     invitations = fields.List(fields.Int(), data_key="invitations", required=False, default=[])
     projects = fields.List(fields.Int(), data_key="projects", required=False, default=[])
