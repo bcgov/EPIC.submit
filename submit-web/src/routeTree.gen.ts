@@ -34,6 +34,7 @@ import { Route as ProponentRegistrationCompleteImport } from './routes/proponent
 import { Route as ProponentAccountRegistrationSecondAdminImport } from './routes/proponent/account-registration/second-admin'
 import { Route as ProponentAccountRegistrationCreateAccountImport } from './routes/proponent/account-registration/create-account'
 import { Route as ProponentAccountRegistrationConfirmProjectsImport } from './routes/proponent/account-registration/confirm-projects'
+import { Route as ProponentAccountRegistrationCompletedImport } from './routes/proponent/account-registration/completed'
 import { Route as ProponentProponentLayoutProfileImport } from './routes/proponent/_proponentLayout/profile'
 import { Route as StaffStaffLayoutProjectsIndexImport } from './routes/staff/_staffLayout/projects/index'
 import { Route as StaffStaffLayoutInvitationsIndexImport } from './routes/staff/_staffLayout/invitations/index'
@@ -216,6 +217,12 @@ const ProponentAccountRegistrationCreateAccountRoute =
 const ProponentAccountRegistrationConfirmProjectsRoute =
   ProponentAccountRegistrationConfirmProjectsImport.update({
     path: '/confirm-projects',
+    getParentRoute: () => ProponentAccountRegistrationRouteRoute,
+  } as any)
+
+const ProponentAccountRegistrationCompletedRoute =
+  ProponentAccountRegistrationCompletedImport.update({
+    path: '/completed',
     getParentRoute: () => ProponentAccountRegistrationRouteRoute,
   } as any)
 
@@ -533,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentProponentLayoutProfileImport
       parentRoute: typeof ProponentProponentLayoutImport
     }
+    '/proponent/account-registration/completed': {
+      id: '/proponent/account-registration/completed'
+      path: '/completed'
+      fullPath: '/proponent/account-registration/completed'
+      preLoaderRoute: typeof ProponentAccountRegistrationCompletedImport
+      parentRoute: typeof ProponentAccountRegistrationRouteImport
+    }
     '/proponent/account-registration/confirm-projects': {
       id: '/proponent/account-registration/confirm-projects'
       path: '/confirm-projects'
@@ -799,6 +813,7 @@ export const routeTree = rootRoute.addChildren({
   NotFoundRoute,
   ProponentAccountRegistrationRouteRoute:
     ProponentAccountRegistrationRouteRoute.addChildren({
+      ProponentAccountRegistrationCompletedRoute,
       ProponentAccountRegistrationConfirmProjectsRoute,
       ProponentAccountRegistrationCreateAccountRoute,
       ProponentAccountRegistrationSecondAdminRoute,
@@ -918,6 +933,7 @@ export const routeTree = rootRoute.addChildren({
     "/proponent/account-registration": {
       "filePath": "proponent/account-registration/route.tsx",
       "children": [
+        "/proponent/account-registration/completed",
         "/proponent/account-registration/confirm-projects",
         "/proponent/account-registration/create-account",
         "/proponent/account-registration/second-admin",
@@ -988,6 +1004,10 @@ export const routeTree = rootRoute.addChildren({
     "/proponent/_proponentLayout/profile": {
       "filePath": "proponent/_proponentLayout/profile.tsx",
       "parent": "/proponent/_proponentLayout"
+    },
+    "/proponent/account-registration/completed": {
+      "filePath": "proponent/account-registration/completed.tsx",
+      "parent": "/proponent/account-registration"
     },
     "/proponent/account-registration/confirm-projects": {
       "filePath": "proponent/account-registration/confirm-projects.tsx",
