@@ -7,6 +7,7 @@ from datetime import datetime
 from marshmallow import EXCLUDE, Schema, fields
 
 from submit_api.schemas.package import PackageSchema, StaffPackageSchema
+from submit_api.schemas.proponent import ProponentSchema
 
 
 class ProjectSchema(Schema):
@@ -20,7 +21,7 @@ class ProjectSchema(Schema):
     id = fields.Int(data_key="id")
     name = fields.Str(data_key="name")
     proponent_id = fields.Int(data_key="proponent_id")
-    proponent_name = fields.Str(data_key="proponent_name")
+    proponent = fields.Nested(ProponentSchema, data_key="proponent", allow_none=True)
     ea_certificate = fields.Str(data_key="ea_certificate")
     epic_guid = fields.Str(data_key="epic_guid")
 

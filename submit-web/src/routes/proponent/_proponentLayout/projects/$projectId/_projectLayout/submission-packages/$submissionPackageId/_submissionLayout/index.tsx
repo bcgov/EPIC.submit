@@ -177,7 +177,7 @@ export default function SubmissionPage() {
       <Grid item xs={12}>
         <ContentBox
           mainLabel={accountProject?.project?.name}
-          topLabel={accountProject?.project?.proponent_name}
+          topLabel={accountProject?.project?.proponent?.name || ""}
           bottomLabel={
             accountProject?.project?.ea_certificate
               ? `EAC # ${accountProject?.project?.ea_certificate}`

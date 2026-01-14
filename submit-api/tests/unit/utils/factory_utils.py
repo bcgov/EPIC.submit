@@ -9,12 +9,22 @@ from submit_api.models.account_project import AccountProject
 from submit_api.models.project import Project
 
 
-def factory_project_model(name="Test Project", proponent_id=1234, proponent_name="Test Proponent"):
+def factory_project_model(name="Test Project", proponent_id=1234):
     """Create a project model."""
+    from submit_api.models.proponent import Proponent
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+    
     project = Project(
         name=name,
         proponent_id=proponent_id,
-        proponent_name=proponent_name,
         ea_certificate=None,
         epic_guid=None
     )
