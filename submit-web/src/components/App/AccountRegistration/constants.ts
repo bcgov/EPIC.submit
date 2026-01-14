@@ -1,0 +1,4 @@
+export const CREATE_ACCOUNT_STEPS = {
+  CREATE_ACCOUNT_FORM: 0,
+  ADD_PROJECTS: 1,
+};

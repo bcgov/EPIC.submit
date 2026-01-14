@@ -68,5 +68,11 @@ export const useGetProponent = (
   proponentId: number,
   options: GetProponentOptions = {},
 ) => {
-  return useQuery(getProponentOptions(proponentId, options));
+  return useQuery({
+    queryKey: [QUERY_KEY.PROPONENT, proponentId],
+    queryFn: () => getProponent(Number(proponentId), options),
+    enabled: !!proponentId,
+    staleTime: 30 * 60 * 1000, // 30 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes
+  });
 };
