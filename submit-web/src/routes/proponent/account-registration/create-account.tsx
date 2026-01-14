@@ -3,6 +3,7 @@ import { RegistrationPageTitle } from "@/components/App/AccountRegistration/Regi
 import ContactInformationForm from "@/components/App/AccountRegistration/ContactInformationForm";
 import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/formStore";
 import { Fragment } from "react/jsx-runtime";
+import { TermsOfServiceProvider } from "@/components/Shared/TermsOfService";
 
 export const Route = createFileRoute(
   "/proponent/account-registration/create-account"
@@ -31,7 +32,9 @@ function CreateAccount() {
           </Fragment>
         }
       />
-      <ContactInformationForm />
+      <TermsOfServiceProvider>
+        <ContactInformationForm />
+      </TermsOfServiceProvider>
     </>
   );
 }
