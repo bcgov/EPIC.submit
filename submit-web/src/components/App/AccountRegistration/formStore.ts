@@ -3,8 +3,6 @@ import { Invitation } from "@/models/Invitation";
 import { create } from "zustand";
 
 interface CreateAccountFormState {
-  step: number;
-  setStep: (step: number) => void;
   invitation?: Invitation;
   setInvitation: (invitation: Invitation) => void;
   entityName?: string;
@@ -16,8 +14,6 @@ type CreateAccountFormPersist = PersistOptions<CreateAccountFormState>;
 export const useCreateAccountFormStore = create<CreateAccountFormState>()(
   persist(
     (set) => ({
-      step: 0,
-      setStep: (step) => set({ step }),
       invitation: undefined,
       setInvitation: (invitation) => set({ invitation }),
       entityName: undefined,

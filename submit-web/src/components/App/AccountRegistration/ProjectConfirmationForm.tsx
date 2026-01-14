@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Box,
   Radio,
@@ -9,9 +9,15 @@ import {
   Button,
   Alert,
 } from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function ProjectConfirmationForm() {
   const [isCorrect, setIsCorrect] = useState<string>("");
+  const navigate = useNavigate();
+
+  const navigateToNextStep = useCallback(() => {
+    navigate({ to: "/proponent/account-registration/completed" });
+  }, [navigate]);
 
   return (
     <Box
@@ -45,7 +51,11 @@ export default function ProjectConfirmationForm() {
           />
         </RadioGroup>
       </FormControl>
-      {isCorrect === "yes" && <Button color="primary">Next</Button>}
+      {isCorrect === "yes" && (
+        <Button color="primary" onClick={navigateToNextStep}>
+          Next
+        </Button>
+      )}
       {isCorrect === "no" && (
         <Alert severity="warning" sx={{ width: "100%" }}>
           Please contact EAO.

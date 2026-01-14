@@ -18,7 +18,6 @@ import {
 } from "@mui/material";
 import Button from "@mui/material/Button";
 import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/formStore";
-import { CREATE_ACCOUNT_STEPS } from "@/components/App/AccountRegistration/constants";
 import {
   AcceptInvitationResponse,
   useAcceptInvitation,
@@ -27,7 +26,7 @@ import { useAccount } from "@/store/accountStore";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
 import { useTermsStore } from "@/store/termsStore";
@@ -65,11 +64,9 @@ const StyledControlledTextField = styled(ControlledTextField)({
 function ContactInformationForm() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { setStep, invitation, entityName } = useCreateAccountFormStore();
+  const { invitation, entityName } = useCreateAccountFormStore();
   const { setAccount, userId } = useAccount();
   const navigate = useNavigate();
-
-  console.log("userId", userId);
 
   const [showTermsError, setShowTermsError] = useState(false);
   const {
@@ -82,17 +79,17 @@ function ContactInformationForm() {
 
   const navigateToNextStep = useCallback(() => {
     if (invitation?.is_first_time) {
-      setStep(CREATE_ACCOUNT_STEPS.ADD_PROJECTS);
+      navigate({ to: "/proponent/account-registration/second-admin" });
     } else {
       navigate({ to: "/proponent/projects" });
     }
-  }, [setStep, invitation, navigate]);
+  }, [invitation, navigate]);
 
-  // useEffect(() => {
-  //   if (userId) {
-  //     navigateToNextStep();
-  //   }
-  // }, [userId, navigateToNextStep]);
+  useEffect(() => {
+    if (userId) {
+      navigateToNextStep();
+    }
+  }, [userId, navigateToNextStep]);
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setAccount({

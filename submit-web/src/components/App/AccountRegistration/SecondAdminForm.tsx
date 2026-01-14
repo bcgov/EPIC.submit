@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   Box,
   Typography,
@@ -11,9 +11,24 @@ import {
   Button,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { useNavigate } from "@tanstack/react-router";
 
 export default function SecondAdminForm() {
   const [inviteAdmin, setInviteAdmin] = useState<string>("");
+  const navigate = useNavigate();
+
+  const navigateToNextStep = useCallback(() => {
+    navigate({ to: "/proponent/account-registration/confirm-projects" });
+  }, [navigate]);
+
+  const onSendInvite = useCallback(() => {
+    // TODO: Implement send invite logic
+    navigateToNextStep();
+  }, [navigateToNextStep]);
+
+  const onNext = useCallback(() => {
+    navigateToNextStep();
+  }, [navigateToNextStep]);
 
   return (
     <Box
@@ -61,12 +76,16 @@ export default function SecondAdminForm() {
             The user will receive an email invitation to join your account.
           </Typography>
           <TextField type="email" variant="outlined" fullWidth sx={{ mb: 2 }} />
-          <Button color="primary">
+          <Button color="primary" onClick={onSendInvite}>
             Send Invite
           </Button>
         </Box>
       )}
-      {inviteAdmin === "no" && <Button color="primary">Next</Button>}
+      {inviteAdmin === "no" && (
+        <Button color="primary" onClick={onNext}>
+          Next
+        </Button>
+      )}
     </Box>
   );
 }

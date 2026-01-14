@@ -3,10 +3,12 @@ import { BCDesignTokens } from "epic.theme";
 
 export const RegistrationPageTitle = ({
   mainTitle,
+  mainTitleExtension,
   subTitle,
 }: {
   mainTitle: string;
-  subTitle: React.ReactNode;
+  mainTitleExtension?: React.ReactNode;
+  subTitle?: React.ReactNode;
 }) => {
   return (
     <Box mb={3}>
@@ -19,10 +21,10 @@ export const RegistrationPageTitle = ({
         }}
         data-testid="registration-title-yellow-bar"
       />
-      <Typography variant="h5" mb={1.5}>
-        {mainTitle}
+      <Typography variant="h5" mb={1.5} display="flex" alignItems="center" gap={1}>
+        {mainTitle} {mainTitleExtension}
       </Typography>
-      <Typography variant="body1">{subTitle}</Typography>
+      {subTitle && <Typography variant="body1">{subTitle}</Typography>}
     </Box>
   );
 };
