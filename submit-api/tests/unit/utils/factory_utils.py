@@ -21,7 +21,7 @@ def factory_project_model(name="Test Project", proponent_id=1234):
         )
         db.session.add(proponent)
         db.session.flush()
-    
+
     project = Project(
         name=name,
         proponent_id=proponent_id,
@@ -35,6 +35,17 @@ def factory_project_model(name="Test Project", proponent_id=1234):
 
 def factory_account_model(proponent_id=1234):
     """Create an account model."""
+    from submit_api.models.proponent import Proponent
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+
     account = Account(proponent_id=proponent_id)
     db.session.add(account)
     db.session.commit()
