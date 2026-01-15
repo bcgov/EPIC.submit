@@ -27,7 +27,7 @@ def test_get_project_by_id(client, session, jwt):
     proponent_name = "Test Proponent Name"
     proponent_id = fake.random_int(min=1000, max=9999)
     factory_proponent_model(id=proponent_id, name=proponent_name, is_deleted=False)
-    
+
     account = factory_account_model(proponent_id=proponent_id)
     project = factory_project_model(name="TestProject", proponent_id=proponent_id)
     account_project = factory_account_project_model(account_id=account.id, project_id=project.id)
@@ -43,10 +43,10 @@ def test_get_project_by_id(client, session, jwt):
 
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
-    
+
     assert data["id"] == account_project.id
     assert data["project"]["name"] == "TestProject"
-    
+
     assert "proponent" in data["project"]
     assert data["project"]["proponent"] is not None
     assert data["project"]["proponent"]["name"] == proponent_name
