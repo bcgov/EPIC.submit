@@ -43,7 +43,7 @@ from .staff.staff_user import API as STAFF_USER_API
 from .staff.submission_item_note import API as STAFF_SUBMISSION_ITEM_NOTE_API
 from .staff.activity_log import API as STAFF_ACTIVITY_LOG_API
 from .staff.submitted_document import API as SUBMITTED_DOCUMENT_API
-from .staff.proponent import API as STAFF_PROPONENT_API
+from .proponent.proponent import API as PROPONENT_API
 from .staff.submission import API as STAFF_SUBMISSION_API
 from .staff.invitation import API as STAFF_INVITATION_API
 
@@ -82,6 +82,7 @@ API.add_namespace(INVITATION_API)
 API.add_namespace(ACCOUNT_USER_API)
 API.add_namespace(ACTIVITY_LOG_API)
 API.add_namespace(ACCOUNT_TERMS_OF_SERVICE_API)
+API.add_namespace(PROPONENT_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,
@@ -98,6 +99,6 @@ STAFF_API.add_namespace(STAFF_SUBMISSION_ITEM_NOTE_API)
 STAFF_API.add_namespace(STAFF_USER_API)
 STAFF_API.add_namespace(STAFF_ACTIVITY_LOG_API)
 STAFF_API.add_namespace(SUBMITTED_DOCUMENT_API)
-STAFF_API.add_namespace(STAFF_PROPONENT_API)
+STAFF_API.add_namespace(PROPONENT_API)
 STAFF_API.add_namespace(STAFF_SUBMISSION_API)
 STAFF_API.add_namespace(STAFF_INVITATION_API)

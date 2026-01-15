@@ -1,0 +1,30 @@
+import { Typography, Box } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
+
+export const RegistrationPageTitle = ({
+  mainTitle,
+  mainTitleExtension,
+  subTitle,
+}: {
+  mainTitle: string;
+  mainTitleExtension?: React.ReactNode;
+  subTitle?: React.ReactNode;
+}) => {
+  return (
+    <Box mb={3}>
+      <Box
+        sx={{
+          width: 32,
+          height: 4,
+          backgroundColor: BCDesignTokens.themePrimaryGold,
+          borderRadius: 2,
+        }}
+        data-testid="registration-title-yellow-bar"
+      />
+      <Typography variant="h5" mb={1.5} display="flex" alignItems="center" gap={1}>
+        {mainTitle} {mainTitleExtension}
+      </Typography>
+      {subTitle && <Typography variant="body1">{subTitle}</Typography>}
+    </Box>
+  );
+};
