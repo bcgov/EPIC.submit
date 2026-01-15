@@ -4,7 +4,7 @@ import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSke
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { ProjectsTable } from "@/components/UserManagement/staff/ProjectsTable";
+import { ProjectsTable } from "@/components/UserManagement/staff/ProjectsTable/ProjectsTable";
 import { RegistrationUrl } from "@/components/UserManagement/staff/RegistrationUrl";
 import { getProponentOptions } from "@/hooks/api/useProponents";
 import { HTTP_STATUS } from "@/utils/constants";
