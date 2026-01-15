@@ -13,7 +13,7 @@ from tests.utilities.factory_utils import (
 
 def test_get_all_proponents_with_approved_conditions(client, session):
     """Test get proponents with approved conditions filter."""
-    factory_project_with_proponent(proponent_id=1234, proponent_name="TestProponent")
+    factory_project_with_proponent(proponent_id=1234)
     # Create proponent in Proponent table to match the new implementation
     factory_proponent_model(id=1234, name="TestProponent", is_deleted=False)
 
@@ -42,7 +42,7 @@ def test_get_proponent_by_id(client, session):
 def test_get_proponent_with_projects(client, session):
     """Test for proponents."""
     factory_proponent_model(id=9999, name="ProjProponent", is_deleted=False)
-    project = factory_project_with_proponent(proponent_id=9999, proponent_name="ProjProponent")
+    project = factory_project_with_proponent(proponent_id=9999)
 
     response = client.get("/api/proponents/9999?include-projects=true")
     assert response.status_code == HTTPStatus.OK

@@ -67,12 +67,21 @@ def generate_abbreviation(number_of_characters):
     return "".join(random.choices(string.ascii_uppercase, k=number_of_characters))
 
 
-def factory_project_model(name="Test Project", proponent_id=1234, proponent_name="Test Proponent"):
+def factory_project_model(name="Test Project", proponent_id=1234):
     """Create a project model."""
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+
     project = Project(
         name=name,
         proponent_id=proponent_id,
-        proponent_name=proponent_name,
         ea_certificate=None,
         epic_guid=None
     )
@@ -83,6 +92,16 @@ def factory_project_model(name="Test Project", proponent_id=1234, proponent_name
 
 def factory_account_model(proponent_id=1234):
     """Create an account model."""
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+
     account = Account(proponent_id=proponent_id)
     db.session.add(account)
     db.session.commit()
@@ -93,6 +112,15 @@ def factory_proponent_model(id=None, name="Test Proponent", status=None, is_dele
     """Create a proponent model."""
     if id is None:
         id = fake.random_int(min=1000, max=999999)
+    existing_proponent = Proponent.query.filter_by(id=id).first()
+    if existing_proponent:
+        # Update existing proponent with provided values
+        existing_proponent.name = name
+        if status is not None:
+            existing_proponent.status = status
+        existing_proponent.is_deleted = is_deleted
+        db.session.commit()
+        return existing_proponent
     proponent = Proponent(
         id=id,
         name=name,
@@ -131,10 +159,20 @@ def factory_account_project_model(account_id, project_id):
 
 def factory_project_with_proponent(**kwargs):
     """Create a project with proponent."""
+    proponent_id = kwargs.get("proponent_id", fake.random_int(min=1000, max=9999))
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+
     project = Project(
         name=kwargs.get("name", fake.company()),
-        proponent_id=kwargs.get("proponent_id", fake.random_int(min=1000, max=9999)),
-        proponent_name=kwargs.get("proponent_name", fake.company()),
+        proponent_id=proponent_id,
         ea_certificate=kwargs.get("ea_certificate", fake.uuid4()),
         epic_guid=kwargs.get("epic_guid", fake.uuid4()),
         has_approved_condition=kwargs.get("has_approved_condition", True),

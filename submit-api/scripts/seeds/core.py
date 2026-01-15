@@ -209,7 +209,6 @@ def seed_project(
     project_id: int = 9999,
     name: str = "E2E Test Project",
     proponent_id: int = 8888,
-    proponent_name: str = "E2E Test Proponent Inc.",
     ea_certificate: str = "E2E-2024-01",
     epic_guid: str = "588511d4aaecd9001b82656c",
     has_approved_condition: bool = True
@@ -220,7 +219,6 @@ def seed_project(
         project_id: Unique project ID (for idempotency)
         name: Project name
         proponent_id: Proponent ID (must match account proponent_id)
-        proponent_name: Proponent company name
         ea_certificate: EA Certificate number
         epic_guid: EPIC GUID for the project
         has_approved_condition: Whether project has approved conditions
@@ -241,7 +239,6 @@ def seed_project(
         id=project_id,
         name=name,
         proponent_id=proponent_id,
-        proponent_name=proponent_name,
         ea_certificate=ea_certificate,
         epic_guid=epic_guid,
         has_approved_condition=has_approved_condition
@@ -346,8 +343,7 @@ def seed_proponent_with_project(
     project = seed_project(
         project_id=project_id,
         name=project_name,
-        proponent_id=proponent_id,
-        proponent_name=f"Proponent {proponent_id}"
+        proponent_id=proponent_id
     )
 
     # 3. Link Account to Project

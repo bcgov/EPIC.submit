@@ -4,7 +4,7 @@ Manages the account
 """
 from __future__ import annotations
 
-from sqlalchemy import Column
+from sqlalchemy import Column, ForeignKey
 
 from .base_model import BaseModel
 from .db import db
@@ -16,9 +16,10 @@ class Account(BaseModel):
     __tablename__ = 'accounts'
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
-    proponent_id = Column(db.Integer(), nullable=False, unique=True)
+    proponent_id = Column(db.Integer(), ForeignKey('proponents.id'), nullable=False, unique=True)
     account_users = db.relationship('AccountUser', back_populates='account',
                                     lazy='select', cascade='all, delete', passive_deletes=True)
+    proponent = db.relationship('Proponent', foreign_keys=[proponent_id], lazy='joined')
 
     @classmethod
     def get_by_proponent_id(cls, proponent_id) -> Account:

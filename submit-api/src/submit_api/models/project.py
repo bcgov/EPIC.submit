@@ -4,13 +4,9 @@ Manages the account project
 """
 from __future__ import annotations
 
-from sqlalchemy import Column
+from sqlalchemy import Column, ForeignKey
 
-from .account_project import AccountProject
-from .account import Account
-from .invitations import Invitations
 from .db import db
-from ..enums.invitation_status import InvitationStatus
 
 
 class Project(db.Model):
@@ -20,11 +16,12 @@ class Project(db.Model):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     name = Column(db.String(), nullable=False)
-    proponent_id = Column(db.Integer(), nullable=False)
-    proponent_name = Column(db.String(), nullable=False)
+    proponent_id = Column(db.Integer(), ForeignKey('proponents.id'), nullable=False)
     ea_certificate = Column(db.String(255), nullable=True, default=None)
     epic_guid = Column(db.String(255), nullable=True, default=None)
     has_approved_condition = Column(db.Boolean, nullable=True, default=False)
+
+    proponent = db.relationship('Proponent', foreign_keys=[proponent_id], lazy='joined')
 
     __table_args__ = (
         db.Index('ix_projects_proponent_id', 'proponent_id'),
@@ -37,7 +34,7 @@ class Project(db.Model):
             "id": self.id,
             "name": self.name,
             "proponent_id": self.proponent_id,
-            "proponent_name": self.proponent_name,
+            "proponent": self.proponent.to_dict() if self.proponent else None,
             "ea_certificate": self.ea_certificate,
             "epic_guid": self.epic_guid,
         }
@@ -51,52 +48,3 @@ class Project(db.Model):
     def get_one_by_proponent_id(cls, proponent_id):
         """Fetch project by proponent id."""
         return cls.query.filter_by(proponent_id=proponent_id).first()
-
-    @classmethod
-    def get_all_proponents(cls):
-        """Get all proponents."""
-        proponents = (
-            cls.query
-            .with_entities(cls.proponent_id, cls.proponent_name)
-            .filter(cls.has_approved_condition.is_(True))
-            .distinct()
-            .order_by(cls.proponent_name)
-            .all()
-        )
-        return proponents
-
-    @classmethod
-    def get_proponent_by_id(cls, proponent_id, include_invitations=False, include_projects=False):
-        """Get all proponents."""
-        proponent = cls.query.filter_by(proponent_id=proponent_id).first()
-        if not proponent:
-            return None
-
-        proponent_dict = {
-            "id": proponent.proponent_id,
-            "name": proponent.proponent_name,
-        }
-        if not include_invitations and not include_projects:
-            return proponent_dict
-
-        accounts_ids = Account.query.with_entities(Account.id).filter_by(proponent_id=proponent_id).all()
-        accounts_ids = [account_id for account_id, in accounts_ids]
-
-        if include_invitations and accounts_ids:
-            invitations = Invitations.query.filter(
-                Invitations.account_id.in_(accounts_ids),
-                Invitations.status.in_([InvitationStatus.PENDING.value, InvitationStatus.USED.value])
-            ).all()
-            proponent_dict["invitations"] = [invitation.to_dict() for invitation in invitations]
-
-        if include_projects:
-            projects = cls.query.filter_by(proponent_id=proponent_id).order_by(cls.name).all()
-            proponent_dict["projects"] = [project.to_dict() for project in projects]
-            account_projects = AccountProject.query.filter(AccountProject.account_id.in_(accounts_ids)).all()
-            proponent_dict["account_projects"] = [{
-                "id": account_project.id,
-                "account_id": account_project.account_id,
-                "project_id": account_project.project_id,
-            } for account_project in account_projects]
-
-        return proponent_dict
