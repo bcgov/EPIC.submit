@@ -26,7 +26,7 @@
     "@tanstack/react-router": "^1.45.7",
     "@tanstack/router-devtools": "^1.45.7",
     "@tanstack/router-plugin": "^1.45.7",
-    "axios": "^1.7.2",
+    "axios": "^1.13.2",
     "dayjs": "^1.11.13",
     "dompurify": "^3.2.6",
     "epic.theme": "latest",
