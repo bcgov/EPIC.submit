@@ -9,7 +9,6 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useMemo, useEffect, useRef } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_ITEM_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
-import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
@@ -437,18 +436,18 @@ export const ContactInformationEntityView = () => {
               </Grid>
               <Grid item xs={12} container spacing={1}>
                 <Grid item xs={8}>
-                  <ControlledInputMask
+                  <ControlledTextField
                     name="primaryContact.workPhoneNumber"
-                    mask="(999) 999-9999"
+                    mask="(000) 000-0000"
                     label="Work Phone Number"
                     fullWidth
                     disabled={isPrimaryUserSelected}
                   />
                 </Grid>
                 <Grid item xs={4}>
-                  <ControlledInputMask
+                  <ControlledTextField
                     name="primaryContact.extensionNumber"
-                    mask="9999"
+                    mask="0000"
                     label="Ext."
                     fullWidth
                     disabled={isPrimaryUserSelected}
@@ -527,18 +526,18 @@ export const ContactInformationEntityView = () => {
                 </Grid>
                 <Grid item xs={12} container spacing={1}>
                   <Grid item xs={8}>
-                    <ControlledInputMask
+                    <ControlledTextField
                       name="secondaryContact.workPhoneNumber"
-                      mask="(999) 999-9999"
+                      mask="(000) 000-0000"
                       label="Work Phone Number"
                       fullWidth
                       disabled={isSecondaryUserSelected}
                     />
                   </Grid>
                   <Grid item xs={4}>
-                    <ControlledInputMask
+                    <ControlledTextField
                       name="secondaryContact.extensionNumber"
-                      mask="9999"
+                      mask="0000"
                       label="Ext."
                       fullWidth
                       disabled={isSecondaryUserSelected}
