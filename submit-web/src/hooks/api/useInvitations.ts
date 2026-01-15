@@ -91,6 +91,16 @@ export const useGetInvitation = (token: string, enabled: boolean) => {
   });
 };
 
+export const useGetInvitationByToken = (token: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.INVITATION, token],
+    queryFn: () => getInvitation(token),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    enabled: !!token,
+  });
+};
+
 type CreateAccountRequest = {
   first_name: string;
   last_name: string;
