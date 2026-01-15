@@ -6,7 +6,6 @@ import { useAuth } from "react-oidc-context";
 import { Banner } from "@/components/registration/Banner";
 import { GridContainer } from "@/components/registration/GridContainer";
 import { BCDesignTokens } from "epic.theme";
-import ControlledInputMask from "@/components/Shared/controlled/ControlledInputMask";
 import { Save } from "@mui/icons-material";
 import {
   CircularProgress,
@@ -253,9 +252,9 @@ function CreateAccountForm() {
                 </Grid>
                 <Grid item xs={12} container spacing={1}>
                   <Grid item xs={8.5}>
-                    <ControlledInputMask
+                    <ControlledTextField
                       name="phone"
-                      mask="(999) 999-9999"
+                      mask="(000) 000-0000"
                       label="Your Work Phone Number"
                       fullWidth
                       InputLabelProps={{
@@ -264,9 +263,9 @@ function CreateAccountForm() {
                     />
                   </Grid>
                   <Grid item xs={3}>
-                    <ControlledInputMask
+                    <ControlledTextField
                       name="extension_number"
-                      mask="9999"
+                      mask="0000"
                       label="Ext."
                       fullWidth
                       sx={{ ml: 1 }}
