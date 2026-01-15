@@ -14,15 +14,19 @@ export default function BarTitle({ title }: { title: string }) {
 export function BarBlueTitle({
   title,
   fullWidth,
+  tooltip,
   bold = true,
+  variant = "h4",
 }: {
   title: string;
   fullWidth?: boolean;
+  tooltip?: React.ReactNode;
   bold?: boolean;
+  variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }) {
   return (
     <Typography
-      variant="h4"
+      variant={variant}
       color={BCDesignTokens.themeBlue100}
       sx={{
         mt: BCDesignTokens.layoutMarginSmall,
@@ -31,7 +35,10 @@ export function BarBlueTitle({
         fontWeight: bold ? "bold" : "normal",
       }}
     >
-      {title}
+      <>
+        {title}
+        {tooltip}
+      </>
     </Typography>
   );
 }

@@ -7,7 +7,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import ProponentStatusFilter from "@/components/Filters/ProponentStatusFilter";
 
 export const Route = createFileRoute(
-  "/staff/_staffLayout/proponents",
+  "/staff/_staffLayout/proponents/",
 )({
   component: ProponentsHolders,
   meta: () => [

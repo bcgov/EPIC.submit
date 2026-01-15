@@ -10,6 +10,7 @@ import {
   TableProps,
   TableRow,
   LinearProgress,
+  Checkbox,
 } from "@mui/material";
 import TableSortLabel from "@mui/material/TableSortLabel";
 import { useEffect, useMemo, useState, ReactNode, useCallback } from "react";
@@ -39,8 +40,12 @@ export type DataTableProps<T> = Readonly<{
   defaultSortKey?: string;
   defaultSortOrder?: "asc" | "desc";
   onSortChange?: (sortKey: string, sortOrder: "asc" | "desc") => void;
+  paginated?: boolean;
   rowsPerPageOptions?: readonly number[];
   tableProps?: TableProps;
+  selectable?: boolean;
+  selected?: (string | number)[];
+  onSelectionChange?: (selected: (string | number)[]) => void;
 }>;
 
 export function DataTable<T>({
@@ -55,8 +60,12 @@ export function DataTable<T>({
   defaultSortKey,
   defaultSortOrder = "asc",
   onSortChange,
+  paginated = true,
   rowsPerPageOptions = [10, 25],
   tableProps,
+  selectable = false,
+  selected = [],
+  onSelectionChange,
 }: DataTableProps<T>) {
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
@@ -117,6 +126,34 @@ export function DataTable<T>({
     return sortOrder === "asc" ? sorted : sorted.reverse();
   }, [data, sortKey, sortOrder, columns, sortable]);
 
+  const handleSelectAllClick = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.checked) {
+        const newSelected = sortedData.map((row) => getRowId(row));
+        onSelectionChange?.(newSelected);
+      } else {
+        onSelectionChange?.([]);
+      }
+    },
+    [sortedData, getRowId, onSelectionChange],
+  );
+
+  const handleRowClick = useCallback(
+    (rowId: string | number) => {
+      const selectedIndex = selected.indexOf(rowId);
+      let newSelected: (string | number)[] = [];
+
+      if (selectedIndex === -1) {
+        newSelected = [...selected, rowId];
+      } else {
+        newSelected = selected.filter((id) => id !== rowId);
+      }
+
+      onSelectionChange?.(newSelected);
+    },
+    [selected, onSelectionChange],
+  );
+
   useEffect(() => {
     const totalPages = Math.max(1, Math.ceil(sortedData.length / rowsPerPage));
     if (sortedData.length > 0 && page >= totalPages) {
@@ -128,6 +165,9 @@ export function DataTable<T>({
     if (sortedData.length === 0) {
       return [];
     }
+    if (!paginated) {
+      return sortedData
+    }
 
     const startIndex = page * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
@@ -135,6 +175,14 @@ export function DataTable<T>({
   }, [sortedData, page, rowsPerPage]);
 
   const emptyRows = Math.max(0, rowsPerPage - paginatedData.length);
+
+  const isSelected = useCallback(
+    (rowId: string | number) => selected.indexOf(rowId) !== -1,
+    [selected],
+  );
+
+  const numSelected = selected.length;
+  const rowCount = sortedData.length;
 
   return (
     <Box>
@@ -145,6 +193,20 @@ export function DataTable<T>({
         >
           <TableHead>
             <TableRow>
+              {selectable && (
+                <SubmitTableHeadCell padding="checkbox">
+                  <Checkbox
+                    color="primary"
+                    indeterminate={numSelected > 0 && numSelected < rowCount}
+                    checked={rowCount > 0 && numSelected === rowCount}
+                    onChange={handleSelectAllClick}
+                    inputProps={{
+                      "aria-label": "select all",
+                    }}
+                    sx={{ p: 0, ml: 0.5 }}
+                  />
+                </SubmitTableHeadCell>
+              )}
               {columns.map((column) => (
                 <SubmitTableHeadCell
                   key={column.id}
@@ -169,7 +231,7 @@ export function DataTable<T>({
           <TableBody key={`table-body-${page}-${rowsPerPage}`}>
             {isError && (
               <TableRow>
-                <TableCell colSpan={columns.length} align="center">
+                <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center">
                   {errorMessage}
                 </TableCell>
               </TableRow>
@@ -179,7 +241,7 @@ export function DataTable<T>({
               <>
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns.length + (selectable ? 1 : 0)}
                     sx={{
                       border: "none",
                     }}
@@ -189,7 +251,7 @@ export function DataTable<T>({
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell colSpan={columns.length}>
+                  <TableCell colSpan={columns.length + (selectable ? 1 : 0)}>
                     <LinearProgress />
                   </TableCell>
                 </TableRow>
@@ -198,7 +260,7 @@ export function DataTable<T>({
 
             {!isLoading && !isError && paginatedData.length === 0 && (
               <TableRow>
-                <TableCell colSpan={columns.length} align="center">
+                <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center">
                   {emptyMessage}
                 </TableCell>
               </TableRow>
@@ -206,38 +268,72 @@ export function DataTable<T>({
 
             {!isLoading &&
               !isError &&
-              paginatedData.map((row) => (
-                <TableRow key={getRowId(row)}>
-                  {columns.map((column) => {
-                    const cellContent =
-                      column.renderCell?.(row) ?? column.getValue?.(row) ?? null;
-                    return (
-                      <PlainTableCell key={column.id}>
-                        {cellContent}
-                      </PlainTableCell>
-                    );
-                  })}
-                </TableRow>
-              ))}
+              paginatedData.map((row) => {
+                const rowId = getRowId(row);
+                const isItemSelected = isSelected(rowId);
 
-            {!isLoading && !isError && emptyRows > 0 && (
+                return (
+                  <TableRow
+                    key={rowId}
+                    hover={selectable}
+                    onClick={() => selectable && handleRowClick(rowId)}
+                    role={selectable ? "checkbox" : undefined}
+                    aria-checked={selectable ? isItemSelected : undefined}
+                    selected={isItemSelected}
+                    sx={{ 
+                      cursor: selectable ? "pointer" : "default",
+                      "&.Mui-selected": {
+                        backgroundColor: "transparent",
+                      },
+                      "&.Mui-selected:hover": {
+                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                      },
+                    }}
+                  >
+                    {selectable && (
+                      <PlainTableCell padding="checkbox">
+                        <Checkbox
+                          color="primary"
+                          checked={isItemSelected}
+                          inputProps={{
+                            "aria-labelledby": `checkbox-${rowId}`,
+                          }}
+                          sx={{ p: 0 }}
+                        />
+                      </PlainTableCell>
+                    )}
+                    {columns.map((column) => {
+                      const cellContent =
+                        column.renderCell?.(row) ?? column.getValue?.(row) ?? null;
+                      return (
+                        <PlainTableCell key={column.id}>
+                          {cellContent}
+                        </PlainTableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
+
+            {paginated && !isLoading && !isError && emptyRows > 0 && (
               <TableRow style={{ height: ROW_HEIGHT * emptyRows }}>
-                <TableCell colSpan={columns.length} sx={{ border: "none" }} />
+                <TableCell colSpan={columns.length + (selectable ? 1 : 0)} sx={{ border: "none" }} />
               </TableRow>
             )}
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        component="div"
-        count={sortedData.length}
-        page={page}
-        rowsPerPage={rowsPerPage}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        rowsPerPageOptions={rowsPerPageOptions}
-      />
+      {paginated && (
+        <TablePagination
+          component="div"
+          count={sortedData.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={rowsPerPageOptions}
+        />
+      )}
     </Box>
   );
 }
-

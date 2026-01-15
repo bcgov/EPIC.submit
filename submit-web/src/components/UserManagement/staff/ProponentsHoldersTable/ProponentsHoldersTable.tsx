@@ -40,7 +40,7 @@ export const ProponentsHoldersTable = (props: TableProps) => {
 
   const handleViewProponent = useCallback(
     (id: number) => {
-      navigate({ to: `/staff/invitations/entities/${id}` });
+      navigate({ to: `/staff/proponents/${id}` });
     },
     [navigate],
   );
