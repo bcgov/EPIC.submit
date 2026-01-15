@@ -4,29 +4,28 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 // import { AppConfig } from "@/utils/config";
 import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 // import { Project } from "@/models/Project";
-import { useCreateNewAccountProjectInvitation } from "@/hooks/api/useInvitations";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+// import { useCreateNewAccountProjectInvitation } from "@/hooks/api/useInvitations";
+// import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 // import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useState } from "react";
 
-type RegistrationUrlProps = {
-};
+// type RegistrationUrlProps = {
+// };
 
-export const RegistrationUrl = ({
-}: RegistrationUrlProps) => {
-  const [tooltipText, setTooltipText] = useState("Copy");
+export const RegistrationUrl = () => {
+  const [tooltipText] = useState("Copy");
   
 
-  const { mutate: createInvitation, isPending: isCreatingInvitation } =
-    useCreateNewAccountProjectInvitation({
-      onSuccess: (data) => {
-        // addInvitation(data);
-        notify.success("Invitation URL generated successfully");
-      },
-      onError: () => {
-        notify.error("Error generating invitation URL");
-      },
-    });
+  // const { mutate: createInvitation, isPending: isCreatingInvitation } =
+  //   useCreateNewAccountProjectInvitation({
+  //     onSuccess: (data) => {
+  //       // addInvitation(data);
+  //       notify.success("Invitation URL generated successfully");
+  //     },
+  //     onError: () => {
+  //       notify.error("Error generating invitation URL");
+  //     },
+  //   });
       
   const handleGenerateUrlClick = () => {
     // TODO
@@ -64,7 +63,7 @@ export const RegistrationUrl = ({
         <LoadingButton
           variant="contained"
           color="primary"
-          loading={isCreatingInvitation}
+          // TODO: loading={isCreatingInvitation}
           onClick={handleGenerateUrlClick}
           sx={{ whiteSpace: "nowrap" }}
         >

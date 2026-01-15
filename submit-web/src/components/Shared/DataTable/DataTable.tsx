@@ -172,7 +172,7 @@ export function DataTable<T>({
     const startIndex = page * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     return sortedData.slice(startIndex, endIndex);
-  }, [sortedData, page, rowsPerPage]);
+  }, [sortedData, page, rowsPerPage, paginated]);
 
   const emptyRows = Math.max(0, rowsPerPage - paginatedData.length);
 
