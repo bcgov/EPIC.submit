@@ -112,6 +112,15 @@ def factory_proponent_model(id=None, name="Test Proponent", status=None, is_dele
     """Create a proponent model."""
     if id is None:
         id = fake.random_int(min=1000, max=999999)
+    existing_proponent = Proponent.query.filter_by(id=id).first()
+    if existing_proponent:
+        # Update existing proponent with provided values
+        existing_proponent.name = name
+        if status is not None:
+            existing_proponent.status = status
+        existing_proponent.is_deleted = is_deleted
+        db.session.commit()
+        return existing_proponent
     proponent = Proponent(
         id=id,
         name=name,
