@@ -68,6 +68,7 @@ class Proponent(db.Model):
         proponent_dict = {
             "id": proponent.id,
             "name": proponent.name,
+            "status": proponent.status.value if proponent.status else None
         }
         if not include_invitations and not include_projects:
             return proponent_dict

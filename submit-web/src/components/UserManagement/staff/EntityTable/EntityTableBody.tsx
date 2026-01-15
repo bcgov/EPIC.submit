@@ -25,7 +25,7 @@ export const EntityTableBody = ({
 
   const handleRowClick = (id: number) => {
     navigate({
-      to: `/staff/invitations/entities/${id}`,
+      to: `/staff/proponents/${id}`,
     });
   };
 
