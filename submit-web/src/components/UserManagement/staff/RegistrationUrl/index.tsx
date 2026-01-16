@@ -1,1 +1,0 @@
-export { RegistrationUrl } from "./RegistrationUrl"
