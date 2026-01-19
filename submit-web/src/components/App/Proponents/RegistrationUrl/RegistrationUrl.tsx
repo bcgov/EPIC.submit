@@ -15,11 +15,13 @@ import { useState } from "react";
 type RegistrationUrlProps = {
   pendingInvitation?: Invitation;
   selectedProjectsIds: (string | number)[];
+  onInvitationCreated: () => void;
 };
 
 export const RegistrationUrl = ({
   pendingInvitation,
-  selectedProjectsIds
+  selectedProjectsIds,
+  onInvitationCreated
 }: RegistrationUrlProps) => {
   const [tooltipText, setTooltipText] = useState("Copy");
   const { proponentId } = useParams({
@@ -34,8 +36,8 @@ export const RegistrationUrl = ({
 
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
     useCreateNewAccountProjectInvitation({
-      onSuccess: (data) => {
-        // addInvitation(data);
+      onSuccess: () => {
+        onInvitationCreated();
         notify.success("Invitation URL generated successfully");
       },
       onError: () => {

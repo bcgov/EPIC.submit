@@ -8,14 +8,14 @@ from sqlalchemy import Column, String, Integer, Boolean, Enum as SQLEnum
 
 from .account import Account
 from .account_project import AccountProject
-from .db import db
+from .base_model import BaseModel
 from .invitations import Invitations
 from .project import Project
 from ..enums.invitation_status import InvitationStatus
 from ..enums.proponent_status import ProponentStatus
 
 
-class Proponent(db.Model):
+class Proponent(BaseModel):
     """Definition of the Proponent entity."""
 
     __tablename__ = 'proponents'

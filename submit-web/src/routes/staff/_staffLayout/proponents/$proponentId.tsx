@@ -1,4 +1,3 @@
-/*eslint sort-imports: "error"*/
 import { ProjectsTable } from "@/components/App/Proponents/ProjectsTable/ProjectsTable";
 import { RegistrationUrl } from "@/components/App/Proponents/RegistrationUrl/RegistrationUrl";
 import { ProponentStatusChip } from "@/components/ProponentStatusChip";
@@ -17,6 +16,7 @@ import { createFileRoute, notFound, useParams } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 import { BCDesignTokens } from "epic.theme";
 import { useEffect, useState } from "react";
+import { Box } from "@mui/material";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/proponents/$proponentId",
@@ -61,7 +61,7 @@ function ProponentPage() {
   const { proponentId } = useParams({
     from: "/staff/_staffLayout/proponents/$proponentId",
   });
-  const { data: proponent, isPending, isError } = useSuspenseQuery(
+  const { data: proponent, isPending, isError, refetch } = useSuspenseQuery(
     getProponentOptions(proponentId, {
       includeProjects: true,
       includeInvitations: true,
@@ -114,22 +114,45 @@ function ProponentPage() {
                 </Tooltip>
               } 
             />
-            <ProjectsTable 
-              projects={proponent?.projects}
-              pendingProjectIds={pendingInvitation?.project_ids}
-              selectedProjectsIds={selectedProjectsIds}
-              onSelectionChange={setSelectedProjectsIds}
-              isLoading={isPending}
-              isError={isError}
-              sx={{ 
-                mt: BCDesignTokens.layoutMarginXxlarge, 
-                mb: BCDesignTokens.layoutMarginXxxlarge 
-              }}
-            />
-            <RegistrationUrl
-              pendingInvitation={pendingInvitation}
-              selectedProjectsIds={selectedProjectsIds}
-            />
+            {proponent?.status == "INELIGIBLE" || proponent?.projects?.length == 0 ? (
+              <Box
+                  sx={{
+                    mt: BCDesignTokens.layoutMarginXlarge,
+                    border: 1,
+                    borderColor: BCDesignTokens.surfaceColorBorderDefault
+                  }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    lineHeight: BCDesignTokens.typographyLineHeightsRegular,
+                    px: BCDesignTokens.layoutPaddingSmall
+                  }}
+                >
+                  No other Project/Work for this Proponent/Holder is currently eligible to be onboarded in EPIC.submit
+                </Typography>
+              </Box>
+            ) : (
+              <>
+                <ProjectsTable 
+                  projects={proponent?.projects}
+                  pendingProjectIds={pendingInvitation?.project_ids}
+                  selectedProjectsIds={selectedProjectsIds}
+                  onSelectionChange={setSelectedProjectsIds}
+                  isLoading={isPending}
+                  isError={isError}
+                  sx={{ 
+                    mt: BCDesignTokens.layoutMarginXxlarge, 
+                    mb: BCDesignTokens.layoutMarginXxxlarge 
+                  }}
+                />
+                <RegistrationUrl
+                  pendingInvitation={pendingInvitation}
+                  selectedProjectsIds={selectedProjectsIds}
+                  onInvitationCreated={refetch}
+                />
+              </>
+            )}
         </ContentBox>
       </Grid>
     </PageGrid>

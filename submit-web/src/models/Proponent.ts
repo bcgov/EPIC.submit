@@ -1,7 +1,7 @@
 import { Invitation } from "./Invitation";
 import { AccountProject, Project } from "./Project";
 
-export type ProponentStatus = "ELIGIBLE" | "INELIGIBLE" | "PENDING_ONBOARDING" | "ONBOARDED";
+export type ProponentStatus = "ELIGIBLE" | "INELIGIBLE" | "INVITE_GENERATED" | "PENDING_ONBOARDING" | "ONBOARDED";
 
 export type Proponent = {
   id: number;

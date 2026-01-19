@@ -23,8 +23,8 @@ from submit_api.auth import auth
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema
-from submit_api.schemas.invitation import (InvitationSchema, CreateInvitationToExistingAccountProjectSchema, 
-                                            CreateNewAccountInvitationSchema)
+from submit_api.schemas.invitation import (InvitationSchema, CreateInvitationToExistingAccountProjectSchema,
+                                           CreateNewAccountInvitationSchema)
 from submit_api.services.invitation_service import InvitationService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -94,7 +94,7 @@ class AccountInvitationsResource(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Invalid input data")
     @API.response(HTTPStatus.CONFLICT, "User already exists")
     @auth.require
-    @auth.has_one_of_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     @cross_origin(origins=allowedorigins())
     def post():
         """Generate and persist an invitation token."""
