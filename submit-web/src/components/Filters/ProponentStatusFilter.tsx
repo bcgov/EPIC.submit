@@ -1,3 +1,5 @@
+import { useProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable/proponentsHoldersTableStore";
+import { ProponentStatus } from "@/models/Proponent";
 import {
   Box,
   FormControl,
@@ -6,10 +8,8 @@ import {
   SelectChangeEvent,
   Typography,
 } from "@mui/material";
-import { useProponentsHoldersTable } from "@/components/UserManagement/staff/ProponentsHoldersTable/proponentsHoldersTableStore";
-import { ProponentStatus } from "@/models/Proponent";
-import { ProponentStatusChip } from "../ProponentStatusChip";
 import { BCDesignTokens } from "epic.theme";
+import { ProponentStatusChip } from "../ProponentStatusChip";
 
 const PROPONENT_STATUS_OPTIONS: ProponentStatus[] = [
   "ELIGIBLE",

@@ -59,7 +59,7 @@ export const useCreateNewAccountProjectInvitation = (options?: Options) => {
 type CreateNewAccountProjectInvitation = {
   proponent_id: number;
   role_name: string;
-  project_ids: number[];
+  project_ids: (string | number)[];
 };
 
 const createNewAccountProjectInvitation = ({
@@ -68,7 +68,7 @@ const createNewAccountProjectInvitation = ({
   role_name,
 }: CreateNewAccountProjectInvitation) => {
   return submitRequest({
-    url: `/staff/invitations`,
+    url: `/invitations/account`,
     method: "post",
     data: {
       proponent_id,

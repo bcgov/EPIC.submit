@@ -19,6 +19,10 @@ export const SubmitTableHeadCell = styled(TableCell)(() => ({
   padding: BCDesignTokens.layoutPaddingXsmall,
 }));
 
+export const SubmitCheckboxTableHeadCell = styled(SubmitTableHeadCell)(() => ({
+  textAlign: 'center'
+}));
+
 export const SubmitTableCell = styled(TableCell)(() => ({
   borderTop: `1px solid ${BCDesignTokens.themeBlue20}`,
   borderBottom: `1px solid ${BCDesignTokens.themeBlue20}`,
@@ -53,6 +57,12 @@ export const PlainTableCell = styled(TableCell)(() => ({
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
   },
+}));
+
+export const PlainCheckboxTableCell = styled(PlainTableCell)(() => ({
+  padding: 0,
+  borderRight: `1px solid ${BCDesignTokens.themeGray40}`,
+  textAlign: 'center'
 }));
 
 export const SubmitTableHead = styled(TableHead)(() => ({}));
