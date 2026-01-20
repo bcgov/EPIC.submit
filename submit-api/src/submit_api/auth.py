@@ -69,7 +69,7 @@ class Auth:  # pylint: disable=too-few-public-methods
                 user = db.session.query(User).filter_by(auth_guid=cls().sub).first()
                 if user.type == UserType.STAFF:
                     # pylint: disable=no-value-for-parameter
-                    if jwt.contains_role(roles=roles):
+                    if jwt.has_one_of_roles(roles):
                         return f(*args, **kwargs)
                     raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
 

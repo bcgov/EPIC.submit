@@ -227,6 +227,9 @@ class InvitationService:
     def get_invitation_by_id(invitation_id):
         """Retrieve an invitation by invitation_id."""
         invitation = InvitationsModel.find_by_id(invitation_id)
+        if not invitation:
+            return None
+
         InvitationService._check_action_authorized(invitation.project_ids)
         InvitationService._validate_invitation_access(invitation)
         return invitation
@@ -406,8 +409,8 @@ class InvitationService:
         """Revoke an invitation by updating its status."""
         invitation = InvitationsModel.query.filter_by(
             token=token, status=InvitationStatus.PENDING.value).first()
-        InvitationService._check_action_authorized(invitation.project_ids)
         if invitation:
+            InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
             return True
@@ -419,9 +422,10 @@ class InvitationService:
         with session_scope() as session:
             invitation = InvitationsModel.query.filter_by(token=token).first()
 
-            InvitationService._check_action_authorized(invitation.project_ids)
             if not invitation or invitation.status != InvitationStatus.PENDING.value:
                 return False
+
+            InvitationService._check_action_authorized(invitation.project_ids)
 
             # Extend expiry date by 1 week from current date
             invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)

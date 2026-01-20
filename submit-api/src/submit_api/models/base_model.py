@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Super class to handle all operations related to base model."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import declared_attr
@@ -30,8 +30,8 @@ class BaseModel(db.Model):
 
     __abstract__ = True
 
-    created_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=True)
+    created_date = db.Column(db.DateTime, default=datetime.now(UTC), nullable=False)
+    updated_date = db.Column(db.DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC), nullable=True)
 
     @declared_attr
     def created_by(cls):  # pylint:disable=no-self-argument, # noqa: N805

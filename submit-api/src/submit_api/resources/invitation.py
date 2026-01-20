@@ -171,9 +171,10 @@ class ResendInvitationResource(Resource):
     def post(invitation_id):
         """Resend an invitation token."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
-        result = InvitationService.resend_invitation(invitation.token)
-        if result:
-            return {}, HTTPStatus.NO_CONTENT
+        if invitation:
+            result = InvitationService.revoke_invitation(invitation.token)
+            if result:
+                return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
 
 
@@ -204,7 +205,8 @@ class InvitationByIdResource(Resource):
     def delete(invitation_id):
         """Revoke an invitation by ID."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
-        result = InvitationService.revoke_invitation(invitation.token)
-        if result:
-            return {}, HTTPStatus.NO_CONTENT
+        if invitation:
+            result = InvitationService.revoke_invitation(invitation.token)
+            if result:
+                return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
