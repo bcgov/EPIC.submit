@@ -14,3 +14,12 @@ data:
   KEYCLOAK_BASE_URL: {{ .Values.keycloak.baseUrl }}
   KEYCLOAK_REALM_NAME: {{ .Values.keycloak.realmName }}
   CONDITION_API_BASE_URL: {{ .Values.conditionApi.baseUrl }}
+  SIGNUP_URL_PATH: {{ .Values.signup_url_path }}
+  DATABASE_USERNAME: {{ .Values.database.submit.username }}
+  DATABASE_NAME: {{ .Values.database.submit.name }}
+  DATABASE_HOST: {{ .Values.database.submit.host }}
+  DATABASE_PORT: {{ .Values.database.submit.port | quote }}
+  CENTRE_DATABASE_USERNAME: {{ .Values.database.centre.username }}
+  CENTRE_DATABASE_NAME: {{ .Values.database.centre.name }}
+  CENTRE_DATABASE_HOST: {{ .Values.database.centre.host }}
+  CENTRE_DATABASE_PORT: {{ .Values.database.centre.port | quote }}
