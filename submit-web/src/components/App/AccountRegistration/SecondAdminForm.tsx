@@ -9,7 +9,6 @@ import {
   FormLabel,
   TextField,
   Button,
-  CircularProgress,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useNavigate } from "@tanstack/react-router";
@@ -20,6 +19,7 @@ import {
   useCreateInvitationToExistingProject,
 } from "@/hooks/api/useInvitations";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/formStore";
 
@@ -178,14 +178,14 @@ export default function SecondAdminForm() {
             disabled={isSendingInvite}
             sx={{ mb: 2 }}
           />
-          <Button
+          <LoadingButton
             color="primary"
             onClick={onSendInvite}
-            disabled={isSendingInvite || !email}
-            startIcon={isSendingInvite ? <CircularProgress size={20} /> : null}
+            disabled={!email}
+            loading={isSendingInvite}
           >
-            {isSendingInvite ? "Sending..." : "Send Invite"}
-          </Button>
+            Send Invite
+          </LoadingButton>
         </Box>
       )}
       {inviteAdmin === "no" && (
