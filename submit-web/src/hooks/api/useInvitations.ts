@@ -23,7 +23,7 @@ type CreateInvitationToExistingProject = {
   proponent_id: number;
   role_name: string;
   email: string;
-  account_project_ids: number[];
+  account_project_ids?: number[];
   original_package_ids?: number[];
 };
 
@@ -43,8 +43,8 @@ const createInvitationToExistingProject = ({
       proponent_id,
       role_name,
       email,
-      original_package_ids,
       account_project_ids,
+      original_package_ids,
     },
   });
 };
@@ -110,6 +110,7 @@ type CreateAccountRequest = {
   proponent_id: number;
   auth_guid: string;
   extension_number?: string;
+  company_name?: string;
   terms_of_service_version_id: number | null;
   has_agreed_to_terms: boolean;
 };

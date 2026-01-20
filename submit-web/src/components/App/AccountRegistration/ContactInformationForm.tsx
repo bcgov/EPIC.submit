@@ -98,6 +98,7 @@ function ContactInformationForm() {
       roles: data.roles[0].permissions,
       userType: USER_TYPE.PROPONENT,
       accountId: data.account_id,
+      proponentId: invitation?.proponent_id || 0,
     });
 
     queryClient.refetchQueries({
@@ -138,8 +139,9 @@ function ContactInformationForm() {
       work_contact_number: data.phone,
       work_email_address: data.email,
       auth_guid: user?.profile.sub,
-      proponent_id: invitation.account_id,
+      proponent_id: invitation.proponent_id,
       extension_number: data.extension_number,
+      company_name: data.company,
       terms_of_service_version_id: versionId,
       has_agreed_to_terms: termsAccepted,
     };
