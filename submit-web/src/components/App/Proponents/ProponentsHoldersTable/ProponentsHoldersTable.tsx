@@ -1,12 +1,12 @@
-import { DataTable, Column } from "@/components/Shared/DataTable";
-import { useGetAllProponents } from "@/hooks/api/useProponents";
-import { TableProps, Link as MuiLink } from "@mui/material";
-import { useEffect, useMemo, useCallback } from "react";
-import { Proponent } from "@/models/Proponent";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useProponentsHoldersTable } from "./proponentsHoldersTableStore";
-import { useNavigate } from "@tanstack/react-router";
 import { ProponentStatusChip } from "@/components/ProponentStatusChip";
+import { Column, DataTable } from "@/components/Shared/DataTable";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { useGetAllProponents } from "@/hooks/api/useProponents";
+import { Proponent } from "@/models/Proponent";
+import { Link as MuiLink, TableProps } from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useMemo } from "react";
+import { useProponentsHoldersTable } from "./proponentsHoldersTableStore";
 
 export const ProponentsHoldersTable = (props: TableProps) => {
   const { searchText, statusFilters } = useProponentsHoldersTable();

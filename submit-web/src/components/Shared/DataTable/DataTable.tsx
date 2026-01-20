@@ -1,6 +1,8 @@
-import { SubmitTableHeadCell, PlainTableCell } from "@/components/Shared/Table/common";
+import { OutlinedCheckbox } from "@/components/Shared/Icons/OutlinedCheckbox";
+import { PlainCheckboxTableCell, PlainTableCell, SubmitCheckboxTableHeadCell, SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import {
   Box,
+  LinearProgress,
   Table,
   TableBody,
   TableCell,
@@ -9,11 +11,10 @@ import {
   TablePagination,
   TableProps,
   TableRow,
-  LinearProgress,
-  Checkbox,
 } from "@mui/material";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import { useEffect, useMemo, useState, ReactNode, useCallback } from "react";
+import { BCDesignTokens } from "epic.theme";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 const DEFAULT_PAGE = 0;
@@ -46,6 +47,7 @@ export type DataTableProps<T> = Readonly<{
   selectable?: boolean;
   selected?: (string | number)[];
   onSelectionChange?: (selected: (string | number)[]) => void;
+  successfulRows?: (string | number)[];
 }>;
 
 export function DataTable<T>({
@@ -66,16 +68,53 @@ export function DataTable<T>({
   selectable = false,
   selected = [],
   onSelectionChange,
+  successfulRows = [],
 }: DataTableProps<T>) {
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_ROWS_PER_PAGE);
   const [sortKey, setSortKey] = useState<string | undefined>(defaultSortKey);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(defaultSortOrder);
 
-  useEffect(() => {
-    setPage(DEFAULT_PAGE);
-  }, [data.length]);
+  // Sorting
+  const sortedData = useMemo(() => {
+    if (!sortKey || !sortable) return data;
 
+    const column = columns.find((col) => col.id === sortKey);
+    if (!column?.getValue) return data;
+
+    const sorted = [...data].sort((a, b) => {
+      const aValue = column.getValue?.(a) ?? "";
+      const bValue = column.getValue?.(b) ?? "";
+      return String(aValue).localeCompare(String(bValue), undefined, {
+        sensitivity: "base",
+      });
+    });
+
+    return sortOrder === "asc" ? sorted : sorted.reverse();
+  }, [data, sortKey, sortOrder, columns, sortable]);
+
+  const handleSort = useCallback(
+    (columnId: string) => {
+      if (!sortable) return;
+
+      const newSortOrder =
+        sortKey === columnId && sortOrder === "asc" ? "desc" : "asc";
+      setSortKey(columnId);
+      setSortOrder(newSortOrder);
+      onSortChange?.(columnId, newSortOrder);
+    },
+    [sortable, sortKey, sortOrder, onSortChange],
+  );
+
+  // Pagination
+  const paginatedData = useMemo(() => {
+    if (sortedData.length === 0) return [];
+    if (!paginated) return sortedData
+
+    const startIndex = page * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    return sortedData.slice(startIndex, endIndex);
+  }, [sortedData, page, rowsPerPage, paginated]);
 
   const handleChangeRowsPerPage = useCallback(
     (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -92,54 +131,47 @@ export function DataTable<T>({
     setPage(Math.max(0, Math.floor(newPage)));
   }, []);
 
-  const handleSort = useCallback(
-    (columnId: string) => {
-      if (!sortable) return;
+  useEffect(() => {
+    setPage(DEFAULT_PAGE);
+  }, [data.length]);
 
-      const newSortOrder =
-        sortKey === columnId && sortOrder === "asc" ? "desc" : "asc";
-      setSortKey(columnId);
-      setSortOrder(newSortOrder);
-      onSortChange?.(columnId, newSortOrder);
-    },
-    [sortable, sortKey, sortOrder, onSortChange],
+  useEffect(() => {
+    const totalPages = Math.max(1, Math.ceil(sortedData.length / rowsPerPage));
+    if (sortedData.length > 0 && page >= totalPages) {
+      setPage(Math.max(0, totalPages - 1));
+    }
+  }, [sortedData.length, rowsPerPage, page]);
+
+  // Successful Rows
+  const isSuccessful = useCallback(
+    (rowId: string | number) => successfulRows.indexOf(rowId) !== -1,
+    [successfulRows],
   );
 
-  const sortedData = useMemo(() => {
-    if (!sortKey || !sortable) {
-      return data;
-    }
-
-    const column = columns.find((col) => col.id === sortKey);
-    if (!column?.getValue) {
-      return data;
-    }
-
-    const sorted = [...data].sort((a, b) => {
-      const aValue = column.getValue?.(a) ?? "";
-      const bValue = column.getValue?.(b) ?? "";
-      return String(aValue).localeCompare(String(bValue), undefined, {
-        sensitivity: "base",
-      });
-    });
-
-    return sortOrder === "asc" ? sorted : sorted.reverse();
-  }, [data, sortKey, sortOrder, columns, sortable]);
+  // Row Selection
+  const isSelected = useCallback(
+    (rowId: string | number) => selected.indexOf(rowId) !== -1,
+    [selected],
+  );
 
   const handleSelectAllClick = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       if (event.target.checked) {
-        const newSelected = sortedData.map((row) => getRowId(row));
+        const newSelected = sortedData
+          .map((row) => getRowId(row))
+          .filter((rowId) => !isSuccessful(rowId));
         onSelectionChange?.(newSelected);
       } else {
         onSelectionChange?.([]);
       }
     },
-    [sortedData, getRowId, onSelectionChange],
+    [sortedData, getRowId, onSelectionChange, isSuccessful],
   );
 
   const handleRowClick = useCallback(
     (rowId: string | number) => {
+      if (isSuccessful(rowId)) return;
+
       const selectedIndex = selected.indexOf(rowId);
       let newSelected: (string | number)[] = [];
 
@@ -151,38 +183,12 @@ export function DataTable<T>({
 
       onSelectionChange?.(newSelected);
     },
-    [selected, onSelectionChange],
+    [selected, onSelectionChange, isSuccessful],
   );
-
-  useEffect(() => {
-    const totalPages = Math.max(1, Math.ceil(sortedData.length / rowsPerPage));
-    if (sortedData.length > 0 && page >= totalPages) {
-      setPage(Math.max(0, totalPages - 1));
-    }
-  }, [sortedData.length, rowsPerPage, page]);
-
-  const paginatedData = useMemo(() => {
-    if (sortedData.length === 0) {
-      return [];
-    }
-    if (!paginated) {
-      return sortedData
-    }
-
-    const startIndex = page * rowsPerPage;
-    const endIndex = startIndex + rowsPerPage;
-    return sortedData.slice(startIndex, endIndex);
-  }, [sortedData, page, rowsPerPage, paginated]);
 
   const emptyRows = Math.max(0, rowsPerPage - paginatedData.length);
-
-  const isSelected = useCallback(
-    (rowId: string | number) => selected.indexOf(rowId) !== -1,
-    [selected],
-  );
-
-  const numSelected = selected.length;
-  const rowCount = sortedData.length;
+  const numSelected = selected.filter((id) => !isSuccessful(id)).length;
+  const selectableRowCount = sortedData.filter((row) => !isSuccessful(getRowId(row))).length;
 
   return (
     <Box>
@@ -194,18 +200,16 @@ export function DataTable<T>({
           <TableHead>
             <TableRow>
               {selectable && (
-                <SubmitTableHeadCell padding="checkbox">
-                  <Checkbox
-                    color="primary"
-                    indeterminate={numSelected > 0 && numSelected < rowCount}
-                    checked={rowCount > 0 && numSelected === rowCount}
+                <SubmitCheckboxTableHeadCell padding="checkbox">
+                  <OutlinedCheckbox
+                    indeterminate={numSelected > 0 && numSelected < selectableRowCount}
+                    checked={selectableRowCount > 0 && numSelected === selectableRowCount}
                     onChange={handleSelectAllClick}
                     inputProps={{
                       "aria-label": "select all",
                     }}
-                    sx={{ p: 0, ml: 0.5 }}
                   />
-                </SubmitTableHeadCell>
+                </SubmitCheckboxTableHeadCell>
               )}
               {columns.map((column) => (
                 <SubmitTableHeadCell
@@ -271,36 +275,36 @@ export function DataTable<T>({
               paginatedData.map((row) => {
                 const rowId = getRowId(row);
                 const isItemSelected = isSelected(rowId);
+                const isItemSuccessful = isSuccessful(rowId);
 
                 return (
                   <TableRow
                     key={rowId}
-                    hover={selectable}
+                    hover={selectable && !isItemSuccessful}
                     onClick={() => selectable && handleRowClick(rowId)}
                     role={selectable ? "checkbox" : undefined}
-                    aria-checked={selectable ? isItemSelected : undefined}
-                    selected={isItemSelected}
+                    aria-checked={selectable ? isItemSuccessful : undefined}
+                    selected={isItemSuccessful}
                     sx={{ 
-                      cursor: selectable ? "pointer" : "default",
+                      cursor: selectable && !isItemSuccessful ? "pointer" : "default",
                       "&.Mui-selected": {
-                        backgroundColor: "transparent",
+                        backgroundColor: isItemSuccessful ? BCDesignTokens.supportSurfaceColorSuccess : "transparent",
                       },
                       "&.Mui-selected:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.04)",
+                        backgroundColor: isItemSuccessful ? BCDesignTokens.supportSurfaceColorSuccess : "rgba(0, 0, 0, 0.04)",
                       },
                     }}
                   >
                     {selectable && (
-                      <PlainTableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
+                      <PlainCheckboxTableCell>
+                        <OutlinedCheckbox
+                          checked={isItemSelected || isItemSuccessful}
+                          isItemSuccessful={isItemSuccessful}
                           inputProps={{
                             "aria-labelledby": `checkbox-${rowId}`,
                           }}
-                          sx={{ p: 0 }}
                         />
-                      </PlainTableCell>
+                      </PlainCheckboxTableCell>
                     )}
                     {columns.map((column) => {
                       const cellContent =

@@ -23,8 +23,10 @@ from submit_api.auth import auth
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account import AccountCreateSchema
-from submit_api.schemas.invitation import InvitationSchema, CreateInvitationToExistingAccountProjectSchema
+from submit_api.schemas.invitation import (InvitationSchema, CreateInvitationToExistingAccountProjectSchema,
+                                           CreateNewAccountInvitationSchema)
 from submit_api.services.invitation_service import InvitationService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 API = Namespace("invitations", description="Endpoints for Invitation Management")
@@ -40,8 +42,8 @@ invitation_response_schema = ApiHelper.convert_ma_schema_to_restx_model(
 
 @cors_preflight("POST, OPTIONS")
 @API.route("", methods=["POST", "OPTIONS"])
-class InvitationsResource(Resource):
-    """Resource to create and manage invitation tokens."""
+class ProjectInvitationsResource(Resource):
+    """Resource to create and manage invitation tokens for projects."""
 
     @staticmethod
     @ApiHelper.swagger_decorators(
@@ -63,6 +65,42 @@ class InvitationsResource(Resource):
         payload = CreateInvitationToExistingAccountProjectSchema().load(request.json)
 
         result = InvitationService.invite_user_to_project(payload)
+
+        if not result['success']:
+            return result, HTTPStatus.CONFLICT
+
+        # Return invitation data with the URL
+        response = InvitationSchema().dump(result['invitation'])
+        response['invitation_url'] = result['url']
+
+        return response, HTTPStatus.CREATED
+
+
+@cors_preflight("POST, OPTIONS")
+@API.route("/account", methods=["POST", "OPTIONS"])
+class AccountInvitationsResource(Resource):
+    """Resource to create and manage invitation tokens for accounts."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Create a new invitation token"
+    )
+    @API.expect(invitation_add_schema)
+    @API.response(
+        code=HTTPStatus.CREATED,
+        model=invitation_response_schema,
+        description="Invitation token created",
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Invalid input data")
+    @API.response(HTTPStatus.CONFLICT, "User already exists")
+    @auth.require
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @cross_origin(origins=allowedorigins())
+    def post():
+        """Generate and persist an invitation token."""
+        payload = CreateNewAccountInvitationSchema().load(request.json)
+
+        result = InvitationService.generate_new_entity_account_invitation(payload)
 
         if not result['success']:
             return result, HTTPStatus.CONFLICT
@@ -133,9 +171,10 @@ class ResendInvitationResource(Resource):
     def post(invitation_id):
         """Resend an invitation token."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
-        result = InvitationService.resend_invitation(invitation.token)
-        if result:
-            return {}, HTTPStatus.NO_CONTENT
+        if invitation:
+            result = InvitationService.revoke_invitation(invitation.token)
+            if result:
+                return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
 
 
@@ -166,7 +205,8 @@ class InvitationByIdResource(Resource):
     def delete(invitation_id):
         """Revoke an invitation by ID."""
         invitation = InvitationService.get_invitation_by_id(invitation_id)
-        result = InvitationService.revoke_invitation(invitation.token)
-        if result:
-            return {}, HTTPStatus.NO_CONTENT
+        if invitation:
+            result = InvitationService.revoke_invitation(invitation.token)
+            if result:
+                return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND

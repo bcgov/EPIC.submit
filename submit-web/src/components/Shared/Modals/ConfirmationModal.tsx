@@ -18,6 +18,7 @@ type ConfirmationModalProps = {
   description: string | React.ReactNode;
   onConfirm: () => void;
   confirmText?: string;
+  hideSecondary?: boolean;
   // Either show cancel or secondary action, but not both
   cancelText?: string;
   onCancel?: () => void;
@@ -30,6 +31,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   description,
   onConfirm,
   confirmText,
+  hideSecondary,
   cancelText,
   onCancel,
   secondaryActionText,
@@ -75,7 +77,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       </DialogContent>
       <Divider />
       <DialogActions sx={{ padding: "1rem" }}>
-        {showCancel ? (
+        {!hideSecondary && showCancel ? (
           <Button onClick={handleCancel} color="secondary" sx={{ border: 0 }}>
             {cancelText ?? "Cancel"}
           </Button>

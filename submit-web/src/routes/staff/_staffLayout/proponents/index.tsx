@@ -1,6 +1,6 @@
 import { ContentBox } from "@/components/Shared/ContentBox";
-import { ProponentsHoldersTable } from "@/components/UserManagement/staff/ProponentsHoldersTable";
-import { useProponentsHoldersTable } from "@/components/UserManagement/staff/ProponentsHoldersTable/proponentsHoldersTableStore";
+import { ProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable";
+import { useProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable/proponentsHoldersTableStore";
 import { Box, Grid, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { createFileRoute } from "@tanstack/react-router";

@@ -4,6 +4,7 @@ import { BCDesignTokens } from "epic.theme";
 
 const STATUS_LABELS = {
   ELIGIBLE: "Eligible",
+  INVITE_GENERATED: "Invite Generated",
   PENDING_ONBOARDING: "Pending Onboarding",
   INELIGIBLE: "Ineligible",
   ONBOARDED: "Onboarded",
@@ -20,6 +21,11 @@ const statusStyles: Record<ProponentStatus, StatusStyle> = {
     background: "#F6E4FF",
     borderColor: "#9B6BDA",
     label: STATUS_LABELS.ELIGIBLE,
+  },
+  INVITE_GENERATED: {
+    background: "#D8EAFD",
+    borderColor: "#1E5189",
+    label: STATUS_LABELS.INVITE_GENERATED,
   },
   PENDING_ONBOARDING: {
     background: "#D8EAFD",

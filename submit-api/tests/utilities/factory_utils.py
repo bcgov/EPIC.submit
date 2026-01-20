@@ -16,6 +16,7 @@
 
 Test Utility for creating model factory.
 """
+from datetime import datetime, timedelta, UTC
 import random
 import string
 
@@ -182,18 +183,28 @@ def factory_project_with_proponent(**kwargs):
     return project
 
 
-def factory_invitation_model(account_id, status=InvitationStatus.PENDING.value, project_ids=None, package_ids=None,
-                             email=None, role_id=None):
-    """Create and return a mock invitation entry."""
+def factory_invitation_model(
+    account_id,
+    project_ids=[1],
+    package_ids=[],
+    token=fake.uuid4(),
+    email=fake.email(),
+    status=InvitationStatus.PENDING.value,
+    expiry_date=datetime.now(UTC) + timedelta(days=7),
+    role_id=None,
+    is_first_time=False
+):
     """Create and return a mock invitation entry."""
     invitation = Invitations(
         account_id=account_id,
-        token=fake.uuid4(),
-        project_ids=project_ids or [1],
-        package_ids=package_ids or [],
-        email=email or fake.email(),
+        project_ids=project_ids,
+        package_ids=package_ids,
+        token=token,
+        email=email,
         status=status,
-        role_id=role_id
+        expiry_date=expiry_date,
+        role_id=role_id,
+        is_first_time=is_first_time
     )
     db.session.add(invitation)
     db.session.commit()
