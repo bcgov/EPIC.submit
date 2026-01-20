@@ -2,6 +2,7 @@ import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/
 import { RegistrationPageTitle } from "@/components/App/AccountRegistration/RegistrationPageTitle";
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment } from "react/jsx-runtime";
+import { useMemo } from "react";
 import { Grid } from "@mui/material";
 import { useLoadProjectsByProponentId } from "@/hooks/api/useProjects";
 import { ProjectCard } from "@/components/App/AccountRegistration/ProjectCard";
@@ -19,6 +20,15 @@ function ConfirmProjects() {
     invitation?.proponent_id
   );
 
+  const filteredProjects = useMemo(() => {
+    if (!projects || !invitation?.project_ids || invitation.project_ids.length === 0) {
+      return [];
+    }
+    return projects.filter((project) =>
+      invitation.project_ids.includes(project.id)
+    );
+  }, [projects, invitation?.project_ids]);
+
   return (
     <>
       <RegistrationPageTitle
@@ -30,7 +40,7 @@ function ConfirmProjects() {
         }
       />
       <Grid container spacing={3} mb={6}>
-        {projects?.map((project) => (
+        {filteredProjects.map((project) => (
           <Grid item key={project.id}>
             <ProjectCard key={project.id} project={project} />
           </Grid>
