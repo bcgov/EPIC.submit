@@ -17,8 +17,8 @@ import {
   Tooltip,
 } from "@mui/material";
 import Button from "@mui/material/Button";
-import { useCreateAccountForm } from "../formStore";
-import { CREATE_ACCOUNT_STEPS } from "../constants";
+import { useCreateAccountForm } from "@/components/App/registration/formStore";
+import { CREATE_ACCOUNT_STEPS } from "@/components/App/registration/constants";
 import {
   AcceptInvitationResponse,
   useAcceptInvitation,

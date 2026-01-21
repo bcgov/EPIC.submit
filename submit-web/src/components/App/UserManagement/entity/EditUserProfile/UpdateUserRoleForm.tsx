@@ -17,7 +17,7 @@ import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "@/components/App/UserStatusChip";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
-import { FormOptions } from "../NewUser/FormOptions";
+import { FormOptions } from "@/components/App/UserManagement/entity/NewUser/FormOptions";
 import { FormProvider, useForm } from "react-hook-form";
 import Form from "@/components/Shared/Forms/common";
 import * as yup from "yup";
@@ -39,7 +39,7 @@ import { useAccount } from "@/store/accountStore";
 import { UserPackageStatus } from "@/components/App/UserStatusChip";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
-import { useUserStore } from "./../../entity/userStore";
+import { useUserStore } from "@/components/App/UserManagement/entity/userStore";
 import { useQuery } from "@tanstack/react-query";
 import UpdateUserRoleSkeleton from "./UpdateUserRoleSkeleton";
 

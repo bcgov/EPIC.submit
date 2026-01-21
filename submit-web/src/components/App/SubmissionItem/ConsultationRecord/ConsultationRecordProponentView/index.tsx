@@ -19,8 +19,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
-import { consultationRecordSchema, ConsultationRecordForm } from "../constants";
-import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import {
+  consultationRecordSchema,
+  ConsultationRecordForm,
+} from "@/components/App/SubmissionItem/ConsultationRecord/constants";
+import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import {
   getSubmissionPackageQueryOptions,
   useGetSubmissionPackage,

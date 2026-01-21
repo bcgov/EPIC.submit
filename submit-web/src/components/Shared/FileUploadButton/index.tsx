@@ -1,6 +1,6 @@
 import { VisuallyHiddenInput } from "./VisuallyHiddenInput";
 import { BCDesignTokens } from "epic.theme";
-import { LoadingButton } from "../LoadingButton";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
 
 type FileUploadButtonProps = {
   onChange: (file: FileList) => void;

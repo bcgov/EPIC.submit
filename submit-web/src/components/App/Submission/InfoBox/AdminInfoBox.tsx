@@ -3,8 +3,8 @@ import { Grid, Stack, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { get, isArray } from "lodash";
 import { useMemo } from "react";
-import VersionGroup from "../VersionGroup";
-import { SubmissionHistory } from "./SubmissionHistory";
+import VersionGroup from "@/components/App/Submission/VersionGroup";
+import { SubmissionHistory } from "@/components/App/Submission/InfoBox/SubmissionHistory";
 
 type InfoBoxProps = {
   submissionPackage: SubmissionPackage;

@@ -9,7 +9,7 @@ import { TableRow } from "@mui/material";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
-import { DocumentLink } from "../../Shared/DocumentLink";
+import { DocumentLink } from "@/components/Shared/DocumentLink";
 
 type DocumentRowProps = Readonly<{
   submittedDocument: SubmittedDocument;

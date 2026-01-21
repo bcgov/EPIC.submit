@@ -5,7 +5,7 @@ import { SUBMISSION_TYPE } from "@/models/Submission";
 import FormFieldSection from "./FormFieldSection";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import ReviewSection from "./ReviewSection";
-import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -27,11 +27,11 @@ export const ConsultationRecordStaffView = () => {
   });
 
   const { data: submissionItem } = useSuspenseQuery(
-    getSubmissionItemForStaffQueryOptions({ itemId: submissionId })
+    getSubmissionItemForStaffQueryOptions({ itemId: submissionId }),
   );
 
   const formSubmission = submissionItem?.submissions?.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const formData = useMemo(() => {
@@ -57,7 +57,7 @@ export const ConsultationRecordStaffView = () => {
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
     getSubmissionPackageQueryOptions({
       packageId: Number(submissionPackageId),
-    }).queryKey
+    }).queryKey,
   );
 
   const partiesList =

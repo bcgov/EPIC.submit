@@ -11,7 +11,7 @@ import {
   EAO_SUBMISSION_ITEM_FILTERS,
   PROPONENT_SUBMISSION_ITEM_FILTERS,
 } from "@/models/Submission";
-import { SubmissionStatusChip } from "../SubmissionStatusChip";
+import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
 import { BCDesignTokens } from "epic.theme";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";

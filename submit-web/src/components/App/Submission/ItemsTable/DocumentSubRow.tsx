@@ -4,7 +4,7 @@ import { Submission } from "@/models/Submission";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
-import { StatusCell } from "../DocumentRow/StatusCell";
+import { StatusCell } from "@/components/App/Submission/DocumentRow/StatusCell";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 

@@ -13,7 +13,7 @@ import { useGetAccountProject } from "@/hooks/api/useProjects";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
-import { SubmissionFormContainer } from "../SubmissionFormContainer";
+import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
@@ -233,7 +233,14 @@ export const ContactInformationEntityView = () => {
     if (secondaryContactUserId) {
       trigger("secondaryContact.accountUserId");
     }
-  }, [primaryContactUserId, accountUsers, setValue, clearErrors, secondaryContactUserId, trigger]);
+  }, [
+    primaryContactUserId,
+    accountUsers,
+    setValue,
+    clearErrors,
+    secondaryContactUserId,
+    trigger,
+  ]);
 
   useEffect(() => {
     if (secondaryContactUserId && accountUsers) {
@@ -275,7 +282,14 @@ export const ContactInformationEntityView = () => {
     if (secondaryContactUserId && primaryContactUserId) {
       trigger("secondaryContact.accountUserId");
     }
-  }, [secondaryContactUserId, accountUsers, setValue, clearErrors, primaryContactUserId, trigger]);
+  }, [
+    secondaryContactUserId,
+    accountUsers,
+    setValue,
+    clearErrors,
+    primaryContactUserId,
+    trigger,
+  ]);
 
   const { refetch } = useGetSubmissionPackage({
     packageId: Number(submissionPackageId),

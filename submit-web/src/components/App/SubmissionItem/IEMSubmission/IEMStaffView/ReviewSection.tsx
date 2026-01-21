@@ -31,9 +31,9 @@ import {
 } from "@/components/Shared/PermissionGate/utils";
 import { iemReviewSchema, RadioOptions } from "./constants";
 import ActionButtons from "./ActionButtons";
-import NotesSection from "../../NotesSection";
+import NotesSection from "@/components/App/SubmissionItem/NotesSection";
 import { When } from "react-if";
-import AddRequestSection from "../../AddRequestSection";
+import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
 import { NotificationBox } from "./NotificationBox";
 
 type iemReviewForm = yup.InferType<typeof iemReviewSchema>;

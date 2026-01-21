@@ -1,5 +1,5 @@
 import { ACCOUNT_USER_PERMISSIONS, USER_MANAGEMENT_ROLE } from "@/models/Role";
-import PermissionsGate from "../../PermissionGate";
+import PermissionsGate from "@/components/Shared/PermissionGate";
 import { MainListItem } from "./MainListItem";
 import ProjectsSubRoutes from "./ProjectsSubRoutes";
 import { SubListItem } from "./SubListItem";

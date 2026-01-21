@@ -13,7 +13,7 @@ import { SubmissionPackage } from "@/models/Package";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
-import { UpdateRequestStatusChip } from "../../UpdateRequestStatusChip";
+import { UpdateRequestStatusChip } from "@/components/App/UpdateRequestStatusChip";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { getSubmissionItemLabel } from "@/utils";
@@ -42,7 +42,7 @@ export default function RequestSection({
   const isProponent = userType === USER_TYPE.PROPONENT;
 
   const submissionItems = submissionPackage.items.filter((item) =>
-    submission_item_types.includes(item.type_id)
+    submission_item_types.includes(item.type_id),
   );
 
   const { mutate: acceptUpdateRequest, isPending: isUpdating } =

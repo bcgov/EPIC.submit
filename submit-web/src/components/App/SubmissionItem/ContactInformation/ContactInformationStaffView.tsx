@@ -4,7 +4,7 @@ import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
-import { SubmissionFormContainer } from "../SubmissionFormContainer";
+import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { get } from "lodash";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
@@ -33,45 +33,80 @@ export const ContactInformationStaffView = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM
+    (submission) => submission.type === SUBMISSION_TYPE.FORM,
   );
 
   const contactInfo = formSubmission?.submitted_form?.submission_json;
 
   const primaryContactUserId = get(contactInfo, "primaryContact.accountUserId");
-  const secondaryContactUserId = get(contactInfo, "secondaryContact.accountUserId");
+  const secondaryContactUserId = get(
+    contactInfo,
+    "secondaryContact.accountUserId",
+  );
 
   const { data: primaryUser } = useGetAccountUserById({
-    accountUserId: primaryContactUserId ? Number(primaryContactUserId) : undefined,
+    accountUserId: primaryContactUserId
+      ? Number(primaryContactUserId)
+      : undefined,
   });
 
   const { data: secondaryUser } = useGetAccountUserById({
-    accountUserId: secondaryContactUserId ? Number(secondaryContactUserId) : undefined,
+    accountUserId: secondaryContactUserId
+      ? Number(secondaryContactUserId)
+      : undefined,
   });
 
   const primaryContactData = useMemo(() => {
-  return {
-    givenName: primaryUser?.first_name ?? get(contactInfo, "primaryContact.givenName", ""),
-    surname: primaryUser?.last_name ?? get(contactInfo, "primaryContact.surname", ""),
-    company: primaryUser?.company_name ?? get(contactInfo, "primaryContact.company", ""),
-    position: primaryUser?.position ?? get(contactInfo, "primaryContact.position", ""),
-    workPhoneNumber: primaryUser?.work_contact_number ?? get(contactInfo, "primaryContact.workPhoneNumber", ""),
-    extensionNumber: primaryUser?.extension_number ?? get(contactInfo, "primaryContact.extensionNumber", ""),
-    workEmailAddress: primaryUser?.work_email_address ?? get(contactInfo, "primaryContact.workEmailAddress", ""),
-  };
-}, [primaryUser, contactInfo]);
+    return {
+      givenName:
+        primaryUser?.first_name ??
+        get(contactInfo, "primaryContact.givenName", ""),
+      surname:
+        primaryUser?.last_name ??
+        get(contactInfo, "primaryContact.surname", ""),
+      company:
+        primaryUser?.company_name ??
+        get(contactInfo, "primaryContact.company", ""),
+      position:
+        primaryUser?.position ??
+        get(contactInfo, "primaryContact.position", ""),
+      workPhoneNumber:
+        primaryUser?.work_contact_number ??
+        get(contactInfo, "primaryContact.workPhoneNumber", ""),
+      extensionNumber:
+        primaryUser?.extension_number ??
+        get(contactInfo, "primaryContact.extensionNumber", ""),
+      workEmailAddress:
+        primaryUser?.work_email_address ??
+        get(contactInfo, "primaryContact.workEmailAddress", ""),
+    };
+  }, [primaryUser, contactInfo]);
 
-const secondaryContactData = useMemo(() => {
-  return {
-    givenName: secondaryUser?.first_name ?? get(contactInfo, "secondaryContact.givenName", ""),
-    surname: secondaryUser?.last_name ?? get(contactInfo, "secondaryContact.surname", ""),
-    company: secondaryUser?.company_name ?? get(contactInfo, "secondaryContact.company", ""),
-    position: secondaryUser?.position ?? get(contactInfo, "secondaryContact.position", ""),
-    workPhoneNumber: secondaryUser?.work_contact_number ?? get(contactInfo, "secondaryContact.workPhoneNumber", ""),
-    extensionNumber: secondaryUser?.extension_number ?? get(contactInfo, "secondaryContact.extensionNumber", ""),
-    workEmailAddress: secondaryUser?.work_email_address ?? get(contactInfo, "secondaryContact.workEmailAddress", ""),
-  };
-}, [secondaryUser, contactInfo]);
+  const secondaryContactData = useMemo(() => {
+    return {
+      givenName:
+        secondaryUser?.first_name ??
+        get(contactInfo, "secondaryContact.givenName", ""),
+      surname:
+        secondaryUser?.last_name ??
+        get(contactInfo, "secondaryContact.surname", ""),
+      company:
+        secondaryUser?.company_name ??
+        get(contactInfo, "secondaryContact.company", ""),
+      position:
+        secondaryUser?.position ??
+        get(contactInfo, "secondaryContact.position", ""),
+      workPhoneNumber:
+        secondaryUser?.work_contact_number ??
+        get(contactInfo, "secondaryContact.workPhoneNumber", ""),
+      extensionNumber:
+        secondaryUser?.extension_number ??
+        get(contactInfo, "secondaryContact.extensionNumber", ""),
+      workEmailAddress:
+        secondaryUser?.work_email_address ??
+        get(contactInfo, "secondaryContact.workEmailAddress", ""),
+    };
+  }, [secondaryUser, contactInfo]);
 
   const handleCancel = () => {
     navigate({

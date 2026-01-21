@@ -3,10 +3,10 @@ import {
   SubmissionItem as TypeSubmissionItem,
 } from "@/models/SubmissionItem";
 import { Case, Switch } from "react-if";
-import { ManagementPlanSubmissionStaffView } from "../ManagementPlanSubmission/ManagementPlanStaffView";
-import { ConsultationRecordStaffView } from "../ConsultationRecord/ConsultationRecordStaffView";
-import { ContactInformationStaffView } from "../ContactInformation/ContactInformationStaffView";
-import { IEMStaffView } from "../IEMSubmission/IEMStaffView";
+import { ManagementPlanSubmissionStaffView } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanStaffView";
+import { ConsultationRecordStaffView } from "@/components/App/SubmissionItem/ConsultationRecord/ConsultationRecordStaffView";
+import { ContactInformationStaffView } from "@/components/App/SubmissionItem/ContactInformation/ContactInformationStaffView";
+import { IEMStaffView } from "@/components/App/SubmissionItem/IEMSubmission/IEMStaffView";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;

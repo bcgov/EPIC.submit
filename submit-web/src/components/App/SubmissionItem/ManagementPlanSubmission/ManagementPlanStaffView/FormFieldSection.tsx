@@ -14,7 +14,7 @@ import { get } from "lodash";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useParams } from "@tanstack/react-router";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { ManagementPlanSubmissionForm } from "../ManagementPlanProponentView/constants";
+import { ManagementPlanSubmissionForm } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanProponentView/constants";
 
 const defaultFormData = {
   conditionSatisfied: "",

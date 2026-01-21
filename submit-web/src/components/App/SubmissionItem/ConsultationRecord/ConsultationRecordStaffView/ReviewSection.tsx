@@ -26,8 +26,8 @@ import {
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
 import { NotificationBox } from "./NotificationBox";
-import NotesSection from "../../NotesSection";
-import AddRequestSection from "../../AddRequestSection";
+import NotesSection from "@/components/App/SubmissionItem/NotesSection";
+import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
 import { When } from "react-if";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;

@@ -5,11 +5,11 @@ import { When } from "react-if";
 import { SubmissionPackage } from "@/models/Package";
 import { useFileStore } from "@/store/fileStore";
 import { useEffect } from "react";
-import SubmissionItemTableRow from "../SubmissionItemTableRow";
-import { isSubmissionItemReadyToSubmit } from "../utils";
-import InternalDocumentsRows from "../../SubmissionItem/InternalDocuments/Rows";
-import { usePackageTableStore } from "../packageTableStore";
-import ItemsTableHead from "./ItemsTableHead";
+import SubmissionItemTableRow from "@/components/App/Submission/SubmissionItemTableRow";
+import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
+import InternalDocumentsRows from "@/components/App/SubmissionItem/InternalDocuments/Rows";
+import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
+import ItemsTableHead from "@/components/App/Submission/ItemsTable/ItemsTableHead";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;

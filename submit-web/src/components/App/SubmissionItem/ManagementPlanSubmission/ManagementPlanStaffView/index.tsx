@@ -6,7 +6,7 @@ import { booleanToString } from "@/utils";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import FormFieldSection from "./FormFieldSection";
 import ReviewSection from "./ReviewSection";
-import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";

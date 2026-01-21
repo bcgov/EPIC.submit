@@ -33,9 +33,9 @@ import { managementPlanReviewSchema, RadioOptions } from "./constants";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import ActionButtons from "./ActionButtons";
-import NotesSection from "../../NotesSection";
+import NotesSection from "@/components/App/SubmissionItem/NotesSection";
 import { When } from "react-if";
-import AddRequestSection from "../../AddRequestSection";
+import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
 import { NotificationBox } from "./NotificationBox";
 
 type managementPlanReviewForm = yup.InferType<

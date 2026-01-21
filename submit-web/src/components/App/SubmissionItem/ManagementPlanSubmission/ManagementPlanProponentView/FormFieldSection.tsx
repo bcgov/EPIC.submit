@@ -2,13 +2,13 @@ import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadio
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { ManagementPlanSubmissionForm } from "../ManagementPlanStaffView";
 import { FieldErrors, get } from "react-hook-form";
 import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
 import { useParams } from "@tanstack/react-router";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useMemo } from "react";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { ManagementPlanSubmissionForm } from "./constants";
 
 type FormFieldSectionProps = Readonly<{
   errors: FieldErrors<ManagementPlanSubmissionForm>;

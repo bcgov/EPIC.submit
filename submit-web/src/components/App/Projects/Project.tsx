@@ -1,9 +1,9 @@
 import { Box, Button, Divider, styled, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import AddIcon from "@mui/icons-material/Add";
-import { ProjectStatus } from "../registration/addProjects/ProjectStatus";
-import { PROJECT_STATUS } from "../registration/addProjects/ProjectCard/constants";
-import ProjectTable from "./ProjectTable";
+import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
+import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import ProjectTable from "@/components/App/Projects/ProjectTable";
 import { AccountProject } from "@/models/Project";
 import { useNavigate } from "@tanstack/react-router";
 import { ContentBox } from "@/components/Shared/ContentBox";

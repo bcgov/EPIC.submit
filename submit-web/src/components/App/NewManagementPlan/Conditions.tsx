@@ -18,7 +18,7 @@ import { useGetConditions } from "@/hooks/useConditions";
 import { Condition } from "@/models/Condition";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { BarBlueTitle } from "../../Shared/Text/BarTitle";
+import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 
 const NUM_STEPS = Object.keys(MANAGEMENT_PLAN_FORM_STEPS).length;
 export const Conditions = () => {

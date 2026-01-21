@@ -2,13 +2,13 @@ import {
   SUBMISSION_ITEM_TYPE,
   SubmissionItem as TypeSubmissionItem,
 } from "@/models/SubmissionItem";
-import { ManagementPlanSubmissionProponentView } from "../ManagementPlanSubmission/ManagementPlanProponentView";
-import { ConsultationRecordUpdateForm } from "../ConsultationRecord/ConsultationRecordUpdateForm";
-import { ConsultationRecordProponentView } from "../ConsultationRecord/ConsultationRecordProponentView";
-import { ManagementPlanUpdateForm } from "../ManagementPlanSubmission/ManagementPlanUpdateForm";
-import { ContactInformationEntityView } from "../ContactInformation/ContactInformationEntityView";
-import { IemSubmissionProponentView } from "../IEMSubmission/IEMProponentView";
-import { IEMUpdateForm } from "../IEMSubmission/IEMUpdateForm";
+import { ManagementPlanSubmissionProponentView } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanProponentView";
+import { ConsultationRecordUpdateForm } from "@/components/App/SubmissionItem/ConsultationRecord/ConsultationRecordUpdateForm";
+import { ConsultationRecordProponentView } from "@/components/App/SubmissionItem/ConsultationRecord/ConsultationRecordProponentView";
+import { ManagementPlanUpdateForm } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanUpdateForm";
+import { ContactInformationEntityView } from "@/components/App/SubmissionItem/ContactInformation/ContactInformationEntityView";
+import { IemSubmissionProponentView } from "@/components/App/SubmissionItem/IEMSubmission/IEMProponentView";
+import { IEMUpdateForm } from "@/components/App/SubmissionItem/IEMSubmission/IEMUpdateForm";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;

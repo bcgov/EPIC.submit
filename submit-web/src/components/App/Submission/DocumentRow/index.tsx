@@ -9,8 +9,8 @@ import {
   SubmitTableRow,
 } from "@/components/Shared/Table/common";
 import { StatusCell } from "./StatusCell";
-import SubmissionItemReviewConfirmation from "../SubmissionItemReviewConfirmation";
-import DocumentsSubTable from "../ItemsTable/DocumentsSubTable";
+import SubmissionItemReviewConfirmation from "@/components/App/Submission/SubmissionItemReviewConfirmation";
+import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";

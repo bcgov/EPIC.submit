@@ -21,7 +21,7 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import FormFieldSection from "./FormFieldSection";
 import ActionButtons from "./ActionButtons";
-import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";

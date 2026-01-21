@@ -8,10 +8,10 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import DocumentRow from "../DocumentRow";
+import DocumentRow from "@/components/App/Submission/DocumentRow";
 import { When } from "react-if";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
-import { SubmissionItemTableRowProps } from ".";
+import { SubmissionItemTableRowProps } from "@/components/App/Submission/SubmissionItemTableRow";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";

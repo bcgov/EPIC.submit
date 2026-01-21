@@ -3,12 +3,12 @@ import dateUtils from "@/utils/dateUtils";
 import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionPackage } from "@/models/Package";
-import { PackageStatusChipStack } from "../../PackageStatusChip/PackageStatusChipStack";
+import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
 import {
   StyledProjectTableCell,
   StyledProjectTableRow,
-} from "./StyledComponents";
-import EmptyRow from "./EmptyRow";
+} from "@/components/App/Projects/ProjectTable/StyledComponents";
+import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
 import { SubmitLink } from "@/components/Shared/SubmitLink";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";

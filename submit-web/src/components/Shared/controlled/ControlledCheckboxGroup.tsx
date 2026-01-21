@@ -2,7 +2,10 @@ import { FC } from "react";
 import { FormControl, FormHelperText } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { get } from "lodash";
-import { CheckboxGroup, CheckboxGroupProps } from "../CheckboxGroup";
+import {
+  CheckboxGroup,
+  CheckboxGroupProps,
+} from "@/components/Shared/CheckboxGroup";
 
 type IFormInputProps = {
   name: string;

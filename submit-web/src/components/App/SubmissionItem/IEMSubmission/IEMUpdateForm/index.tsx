@@ -1,8 +1,8 @@
 import { Box, Button } from "@mui/material";
-import { SubmissionFormContainer } from "../../SubmissionFormContainer";
+import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
-import DocumentsTable from "../../DocumentsTable";
+import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 

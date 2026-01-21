@@ -14,7 +14,7 @@ import { BCDesignTokens } from "epic.theme";
 import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
-import { ConsultationRecordForm } from "../constants";
+import { ConsultationRecordForm } from "@/components/App/SubmissionItem/ConsultationRecord/constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { SubmissionPackageType } from "@/components/Shared/types";
 

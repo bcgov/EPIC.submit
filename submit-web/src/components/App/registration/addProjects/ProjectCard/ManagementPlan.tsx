@@ -1,8 +1,8 @@
 import { Box, Paper, Typography } from "@mui/material";
 import { styled } from "@mui/system";
 import { BCDesignTokens } from "epic.theme";
-import { ProjectStatus } from "../ProjectStatus";
-import { PROJECT_STATUS } from "./constants";
+import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
+import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
 import { Project } from "@/models/Project";
 
 const HEADER_HEIGHT = 54;
