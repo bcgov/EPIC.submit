@@ -1,7 +1,7 @@
 import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { StaffItemForm } from "@/components/SubmissionItem/ItemForm/StaffItemForm";
+import { StaffItemForm } from "@/components/App/SubmissionItem/ItemForm/StaffItemForm";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { getSubmissionItemLabel } from "@/utils";
 import { HTTP_STATUS } from "@/utils/constants";

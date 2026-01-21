@@ -4,7 +4,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import {
   ProponentItemForm,
   ProponentItemUpdateForm,
-} from "@/components/SubmissionItem/ItemForm/ProponentItemForm";
+} from "@/components/App/SubmissionItem/ItemForm/ProponentItemForm";
 import { getSubmissionItemQueryOptions } from "@/hooks/api/useItems";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionItemMethod } from "@/models/SubmissionItem";

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
 import { QUERY_KEY } from "./constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { Note } from "@/components/SubmissionItem/Note";
+import { Note } from "@/components/App/SubmissionItem/Note";
 
 type CreateNoteType = {
   submission_item_id: number;

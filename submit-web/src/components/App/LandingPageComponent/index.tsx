@@ -2,7 +2,7 @@ import { Typography, Grid, Paper, Box, Link, Container } from "@mui/material";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { AppConfig } from "@/utils/config";
 import { BCDesignTokens } from "epic.theme";
-import { UserGuideButton } from "@/components/UserGuideButton";
+import { UserGuideButton } from "@/components/App/UserGuideButton";
 import { BCeIDLogin } from "@/components/App/LandingPageComponent/BCeIDLogin";
 import { BCServiceCardLogin } from "@/components/App/LandingPageComponent/BCServiceCardLogin";
 

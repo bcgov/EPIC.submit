@@ -1,4 +1,4 @@
-import { ProponentStatusChip } from "@/components/ProponentStatusChip";
+import { ProponentStatusChip } from "@/components/App/ProponentStatusChip";
 import { Column, DataTable } from "@/components/Shared/DataTable";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useGetAllProponents } from "@/hooks/api/useProponents";
@@ -23,7 +23,10 @@ export const ProponentsHoldersTable = (props: TableProps) => {
     let filtered = data;
 
     if (searchText.trim()) {
-      const normalizedSearch = searchText.trim().toLowerCase().replace(/\s+/g, " ");
+      const normalizedSearch = searchText
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
       filtered = filtered.filter((proponent) =>
         proponent.name?.toLowerCase().includes(normalizedSearch),
       );
@@ -31,7 +34,8 @@ export const ProponentsHoldersTable = (props: TableProps) => {
 
     if (statusFilters.length > 0) {
       filtered = filtered.filter(
-        (proponent) => proponent.status && statusFilters.includes(proponent.status),
+        (proponent) =>
+          proponent.status && statusFilters.includes(proponent.status),
       );
     }
 

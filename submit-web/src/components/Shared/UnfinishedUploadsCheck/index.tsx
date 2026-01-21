@@ -1,7 +1,7 @@
 import { useFileStore } from "@/store/fileStore";
 import React from "react";
-import { useModal } from "../Modals/modalStore";
-import UpdateModal from "../Modals/UpdateModal";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import UpdateModal from "@/components/Shared/Modals/UpdateModal";
 import { WarningAmber } from "@mui/icons-material";
 import { Typography, Box } from "@mui/material";
 
@@ -23,13 +23,13 @@ export const UnfinishedUploadsCheck = ({
       setOpenModal(
         <UpdateModal
           title={
-          <Box display="flex" alignItems="center" gap={1}>
-            <WarningAmber color="warning" />
-            <Typography variant="h6" component="span">
-              Please wait!
-            </Typography>
-          </Box>
-        }
+            <Box display="flex" alignItems="center" gap={1}>
+              <WarningAmber color="warning" />
+              <Typography variant="h6" component="span">
+                Please wait!
+              </Typography>
+            </Box>
+          }
           description="Please remain on this page until all the documents are uploaded."
         />,
       );

@@ -1,4 +1,4 @@
-import { TabPanel } from "@/components/registration/TabPanel";
+import { TabPanel } from "@/components/App/registration/TabPanel";
 import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/proponent/registration/create-account")({

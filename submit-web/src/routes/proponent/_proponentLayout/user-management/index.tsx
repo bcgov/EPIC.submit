@@ -1,7 +1,10 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { hasPermission } from "@/components/Shared/PermissionGate/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { DataSkeleton, UserTable } from "@/components/UserManagement/entity";
+import {
+  DataSkeleton,
+  UserTable,
+} from "@/components/App/UserManagement/entity";
 import { useGetUserByAccountId } from "@/hooks/api/useAccounts";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";

@@ -1,4 +1,4 @@
-import { FileUploadProps, FileUpload } from "@/components/FileUpload";
+import { FileUploadProps, FileUpload } from "@/components/Shared/FileUpload";
 import { FormHelperText, Stack } from "@mui/material";
 import { get } from "lodash";
 import { Controller, useFormContext } from "react-hook-form";

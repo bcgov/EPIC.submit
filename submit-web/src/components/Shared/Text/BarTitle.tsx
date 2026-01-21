@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { YellowBar } from "../YellowBar";
+import { YellowBar } from "@/components/Shared/YellowBar";
 import { BCDesignTokens } from "epic.theme";
 
 export default function BarTitle({ title }: { title: string }) {

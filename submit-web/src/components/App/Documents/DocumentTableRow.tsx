@@ -3,7 +3,7 @@ import dateUtils from "@/utils/dateUtils";
 import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmittedDocument } from "@/models/Submission";
-import { SubmissionStatusChip } from "../../SubmissionStatusChip";
+import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { TableRow } from "@mui/material";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";

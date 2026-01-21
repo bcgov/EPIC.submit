@@ -30,7 +30,7 @@ import { useCallback, useEffect, useState } from "react";
 import { USER_TYPE } from "@/models/User";
 import { theme } from "@/styles/theme";
 import { useTermsStore } from "@/store/termsStore";
-import { validatePhoneNumber } from "@/components/SubmissionItem/ContactInformation/utils";
+import { validatePhoneNumber } from "@/components/App/SubmissionItem/ContactInformation/utils";
 
 const createAccountSchema = yup.object().shape({
   givenName: yup.string().required("Please enter your given name."),
@@ -43,7 +43,7 @@ const createAccountSchema = yup.object().shape({
     .test(
       "phone-validation",
       "Please enter a complete phone number in this format: (xxx) xxx-xxxx.",
-      validatePhoneNumber
+      validatePhoneNumber,
     ),
   email: yup
     .string()

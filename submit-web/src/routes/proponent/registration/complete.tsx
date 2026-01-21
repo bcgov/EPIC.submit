@@ -1,4 +1,4 @@
-import { GridContainer } from "@/components/registration/GridContainer";
+import { GridContainer } from "@/components/App/registration/GridContainer";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useAccount } from "@/store/accountStore";
 import {
