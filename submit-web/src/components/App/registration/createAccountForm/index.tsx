@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import { useAuth } from "react-oidc-context";
 import { Banner } from "@/components/App/registration/Banner";
 import { GridContainer } from "@/components/App/registration/GridContainer";

@@ -4,7 +4,7 @@ import * as yup from "yup";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";
 import { useCreateInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";

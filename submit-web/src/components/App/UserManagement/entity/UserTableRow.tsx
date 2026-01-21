@@ -6,7 +6,7 @@ import {
   CircularProgress,
   Tooltip,
 } from "@mui/material";
-import { SubmitLink } from "@/components/Shared/SubmitLink";
+import { SubmitLink } from "@/components/Shared/Text/SubmitLink";
 import UserStatusChip from "@/components/App/UserStatusChip";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { roleDetails, USER_MANAGEMENT_ROLE } from "@/models/Role";

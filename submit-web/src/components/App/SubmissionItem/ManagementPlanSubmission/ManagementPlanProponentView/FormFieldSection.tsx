@@ -1,9 +1,9 @@
-import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
+import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { Grid, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FieldErrors, get } from "react-hook-form";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import { useParams } from "@tanstack/react-router";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useMemo } from "react";

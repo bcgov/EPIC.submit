@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import {
   Chip,
   Grid,
@@ -11,7 +11,7 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { BCDesignTokens } from "epic.theme";
-import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
+import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
 import { ConsultationRecordForm } from "@/components/App/SubmissionItem/ConsultationRecord/constants";

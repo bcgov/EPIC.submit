@@ -23,7 +23,7 @@ import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
 import { Box, Grid, Link, Typography } from "@mui/material";
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import ItemsTable from "@/components/App/Submission/ItemsTable";
@@ -35,11 +35,11 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
-import { SuccessBox } from "@/components/Shared/SuccessBox";
+import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/App/Submission/SuccessBox";
-import { GreyBox } from "@/components/Shared/GreyBox";
+import { GreyBox } from "@/components/Shared/Layouts/GreyBox";
 import { AppConfig } from "@/utils/config";
-import WarningBox from "@/components/Shared/WarningBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 

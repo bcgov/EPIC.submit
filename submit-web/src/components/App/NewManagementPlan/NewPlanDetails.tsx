@@ -14,7 +14,7 @@ import { When } from "react-if";
 import { useMemo, useState } from "react";
 import { useManagementPlanForm } from "./formStore";
 import { theme } from "@/styles/theme";
-import WarningBox from "@/components/Shared/WarningBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { BCDesignTokens } from "epic.theme";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { NewManagementPlanForm } from "./types";

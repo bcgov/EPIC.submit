@@ -14,8 +14,8 @@ import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Form from "@/components/Shared/Forms/common";
-import ControlledCheckboxGroup from "@/components/Shared/controlled/ControlledCheckboxGroup";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledCheckboxGroup from "@/components/Shared/ControlledFormFields/ControlledCheckboxGroup";
+import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import { getSubmissionItemLabel } from "@/utils";
 
 const requestUpdateSchema = yup.object().shape({

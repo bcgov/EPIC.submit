@@ -6,7 +6,7 @@ import { PROJECT_STATUS } from "@/components/App/registration/addProjects/Projec
 import ProjectTable from "@/components/App/Projects/ProjectTable";
 import { AccountProject } from "@/models/Project";
 import { useNavigate } from "@tanstack/react-router";
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { When } from "react-if";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";

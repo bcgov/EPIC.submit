@@ -7,10 +7,10 @@ import {
   Stack,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
+import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import UserTableHead from "./UserTableHead";
 import UserTableRow from "./UserTableRow";
-import { TableBox } from "@/components/Shared/TableBox";
+import { TableBox } from "@/components/Shared/Layouts/TableBox";
 import { Add } from "@mui/icons-material";
 import { useNavigate } from "@tanstack/react-router";
 import { AccountUserWithRole } from "@/models/AccountUser";

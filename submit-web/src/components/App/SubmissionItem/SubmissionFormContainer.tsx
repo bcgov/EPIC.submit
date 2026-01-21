@@ -1,7 +1,7 @@
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { Box, Grid, Skeleton, Typography } from "@mui/material";
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { BCDesignTokens } from "epic.theme";
 import { CardInnerBox } from "@/components/App/Projects/Project";
 import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";

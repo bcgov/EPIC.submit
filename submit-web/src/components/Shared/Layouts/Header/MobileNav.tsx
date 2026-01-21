@@ -3,7 +3,7 @@ import { AppConfig } from "@/utils/config";
 import MenuIcon from "@mui/icons-material/Menu";
 import { theme } from "@/styles/theme";
 import { openDrawer } from "@/components/Shared/Drawers/DrawerStore";
-import SideNavBar from "@/components/Shared/layout/SideNav/SideNavBar";
+import SideNavBar from "@/components/Shared/Layouts/SideNav/SideNavBar";
 
 export default function MobileNav() {
   return (

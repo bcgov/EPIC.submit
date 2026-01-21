@@ -1,11 +1,11 @@
 import { Box, Table, TableBody, TableContainer, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmittedDocument } from "@/models/Submission";
-import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
+import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import DocumentTableHead from "./DocumentTableHead";
 import DocumentTableRow from "./DocumentTableRow";
 import { Navigate } from "@tanstack/react-router";
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 
 type DocumentsParams = {
   documents?: SubmittedDocument[];

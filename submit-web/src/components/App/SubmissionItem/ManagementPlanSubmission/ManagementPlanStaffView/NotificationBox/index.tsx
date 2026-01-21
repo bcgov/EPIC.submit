@@ -1,5 +1,5 @@
 import { checkIfStaff } from "@/components/Shared/PermissionGate/utils";
-import { SuccessBox } from "@/components/Shared/SuccessBox";
+import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { SUBMISSION_REVIEW_STATUS } from "@/models/SubmissionReview";
@@ -19,7 +19,7 @@ export const NotificationBox = () => {
 
   const submissionItem = queryClient.getQueryData<SubmissionItem>(
     getSubmissionItemForStaffQueryOptions({ itemId: Number(submissionItemId) })
-      .queryKey
+      .queryKey,
   );
 
   const submissionReview = submissionItem?.review;

@@ -4,7 +4,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import ActionButtons from "./ActionButtons";
-import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
+import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
 import { SubmitRadio } from "@/components/Shared/SubmitRadio";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { TableBox } from "@/components/Shared/TableBox";
+import { TableBox } from "@/components/Shared/Layouts/TableBox";
 import {
   Box,
   Container,

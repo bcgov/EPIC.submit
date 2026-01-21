@@ -1,7 +1,7 @@
 import { AccountProject } from "@/models/Project";
 import { Box, Stack } from "@mui/material";
 import { Project } from "./Project";
-import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
+import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { Navigate } from "@tanstack/react-router";
 
 type ProjectsParams = {

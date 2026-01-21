@@ -36,12 +36,11 @@ export default function DocumentRow({
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
-  const {
-    submitted_document: { name, url },
-    version,
-    minor_version,
-    submitted_by,
-  } = documentSubmission;
+  const { submitted_document, version, minor_version, submitted_by } =
+    documentSubmission;
+
+  const name = submitted_document?.name || "";
+  const url = submitted_document?.url || "";
 
   const openDocument = async () => {
     try {

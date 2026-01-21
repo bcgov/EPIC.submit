@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { TableBox } from "@/components/Shared/TableBox";
+import { TableBox } from "@/components/Shared/Layouts/TableBox";
 import {
   Box,
   Button,
@@ -16,7 +16,7 @@ import { AccountUserWithRole } from "@/models/AccountUser";
 import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "@/components/App/UserStatusChip";
-import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
+import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
 import { FormOptions } from "@/components/App/UserManagement/entity/NewUser/FormOptions";
 import { FormProvider, useForm } from "react-hook-form";
 import Form from "@/components/Shared/Forms/common";
@@ -33,7 +33,7 @@ import { When } from "react-if";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import ControlledMultiSelect, {
   OptionType,
-} from "@/components/Shared/controlled/ControlledMultiSelect";
+} from "@/components/Shared/ControlledFormFields/ControlledMultiSelect";
 import { getAccountPackagesByAccountIdQueryOptions } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { UserPackageStatus } from "@/components/App/UserStatusChip";

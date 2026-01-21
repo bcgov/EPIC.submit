@@ -3,7 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useNavigate } from "@tanstack/react-router";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect, useState } from "react";
-import { TableBox } from "@/components/Shared/TableBox";
+import { TableBox } from "@/components/Shared/Layouts/TableBox";
 import {
   Box,
   Button,
@@ -16,7 +16,7 @@ import {
 import { useSaveUserProfile } from "@/hooks/api/useAccountUsers";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { AccountUserWithRole } from "@/models/AccountUser";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "@/components/App/UserStatusChip";

@@ -1,4 +1,4 @@
-import { TableBox } from "@/components/Shared/TableBox";
+import { TableBox } from "@/components/Shared/Layouts/TableBox";
 import { Box, Container, Divider, Skeleton, Stack } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 

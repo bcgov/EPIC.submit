@@ -4,7 +4,7 @@ import { GridContainer } from "@/components/App/registration/GridContainer";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Caption2 } from "@/components/Shared/Typographies";
-import WarningBox from "@/components/Shared/WarningBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useGetAccountProjectsByUserId } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { Button, Grid, Link, Stack, Typography } from "@mui/material";

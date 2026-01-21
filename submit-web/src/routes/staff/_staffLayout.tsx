@@ -1,5 +1,5 @@
-import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
-import EaoSideNavBar from "@/components/Shared/layout/SideNav/EaoSideNavBar";
+import BreadcrumbNav from "@/components/Shared/Layouts/SideNav/BreadcrumbNav";
+import EaoSideNavBar from "@/components/Shared/Layouts/SideNav/EaoSideNavBar";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useIsMobile } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";

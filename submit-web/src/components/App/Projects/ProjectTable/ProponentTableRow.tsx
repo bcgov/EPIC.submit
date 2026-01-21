@@ -10,7 +10,7 @@ import {
 } from "@/components/App/Projects/ProjectTable/StyledComponents";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
-import { SubmitLink } from "@/components/Shared/SubmitLink";
+import { SubmitLink } from "@/components/Shared/Text/SubmitLink";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 
 interface ProjectRowProps {

@@ -1,5 +1,5 @@
-import { LabelValuePair } from "@/components/Shared/LabelValuePair";
-import { SuccessBox } from "@/components/Shared/SuccessBox";
+import { LabelValuePair } from "@/components/Shared/Text/LabelValuePair";
+import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
 import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
 import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import {

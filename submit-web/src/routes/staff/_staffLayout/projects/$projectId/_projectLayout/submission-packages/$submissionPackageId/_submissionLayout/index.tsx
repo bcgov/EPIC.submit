@@ -1,6 +1,6 @@
 import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { Box, Grid, Typography } from "@mui/material";
 import {
   createFileRoute,
@@ -24,10 +24,10 @@ import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { SuccessBox } from "@/components/Shared/SuccessBox";
+import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
 import { When } from "react-if";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
-import WarningBox from "@/components/Shared/WarningBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 

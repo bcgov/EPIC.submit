@@ -11,7 +11,7 @@ import {
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { SubmitLink } from "@/components/Shared/SubmitLink";
+import { SubmitLink } from "@/components/Shared/Text/SubmitLink";
 import { useMemo } from "react";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 

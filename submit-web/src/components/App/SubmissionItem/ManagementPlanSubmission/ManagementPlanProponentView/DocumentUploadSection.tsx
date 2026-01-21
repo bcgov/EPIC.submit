@@ -4,7 +4,7 @@ import { BCDesignTokens, EAOColors } from "epic.theme";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import { ControlledFileUpload } from "@/components/Shared/controlled/ControlledFileUpload";
+import { ControlledFileUpload } from "@/components/Shared/ControlledFormFields/ControlledFileUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import DocumentTable from "@/components/App/DocumentUpload/DocumentTable";

@@ -1,4 +1,4 @@
-import { TableBox } from "@/components/Shared/TableBox";
+import { TableBox } from "@/components/Shared/Layouts/TableBox";
 import {
   Box,
   Button,
@@ -8,8 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import ControlledRadioGroup from "@/components/Shared/controlled/ControlledRadioGroup";
-import ControlledTextField from "@/components/Shared/controlled/ControlledTextField";
+import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
+import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -19,7 +19,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
 import ControlledMultiSelect, {
   OptionType,
-} from "@/components/Shared/controlled/ControlledMultiSelect";
+} from "@/components/Shared/ControlledFormFields/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
 import { getAccountPackagesByAccountIdQueryOptions } from "@/hooks/api/useProjects";

@@ -1,8 +1,8 @@
 import { ProjectsTable } from "@/components/App/Proponents/ProjectsTable/ProjectsTable";
 import { RegistrationUrl } from "@/components/App/Proponents/RegistrationUrl/RegistrationUrl";
 import { ProponentStatusChip } from "@/components/App/ProponentStatusChip";
-import { ContentBox } from "@/components/Shared/ContentBox";
-import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
+import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";

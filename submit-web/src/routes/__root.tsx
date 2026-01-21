@@ -1,5 +1,5 @@
-import EAOAppBar from "@/components/Shared/layout/Header/EAOAppBar";
-import Footer from "@/components/Shared/layout/Footer";
+import EAOAppBar from "@/components/Shared/Layouts/Header/EAOAppBar";
+import Footer from "@/components/Shared/Layouts/Footer";
 import PageNotFound from "@/components/Shared/PageNotFound";
 import { Box } from "@mui/system";
 import {

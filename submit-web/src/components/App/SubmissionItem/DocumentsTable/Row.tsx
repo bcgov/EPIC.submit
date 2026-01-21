@@ -8,7 +8,10 @@ import { useState } from "react";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
-import { useDeleteSubmission, useReplaceSubmussion } from "@/hooks/api/useSubmissions";
+import {
+  useDeleteSubmission,
+  useReplaceSubmussion,
+} from "@/hooks/api/useSubmissions";
 import { useParams } from "@tanstack/react-router";
 import { deleteDocument, saveObject } from "@/hooks/api/useObjectStorage";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
@@ -47,7 +50,10 @@ export default function Row({
     submissionItemId: currentSubmission.item_id,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, documentSubmission.major_version], // major version is the package version
+        queryKey: [
+          QUERY_KEY.SUBMISSION_PACKAGE,
+          documentSubmission.major_version,
+        ], // major version is the package version
       });
       notify.success("Document removed successfully");
     },

@@ -1,4 +1,4 @@
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { ProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable";
 import { useProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable/proponentsHoldersTableStore";
 import { Box, Grid, TextField, Typography } from "@mui/material";

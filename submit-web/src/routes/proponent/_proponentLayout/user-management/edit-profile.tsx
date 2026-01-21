@@ -33,7 +33,7 @@ export const Route = createFileRoute(
         title: "Edit Profile",
         path: "/proponent/user-management/edit-profile",
       },
-    ].filter(Boolean),
+    ].filter(Boolean) as any,
 });
 
 function ProfileEditPage() {

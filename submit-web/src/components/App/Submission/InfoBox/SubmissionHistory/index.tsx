@@ -1,4 +1,4 @@
-import { SubmitLink } from "@/components/Shared/SubmitLink";
+import { SubmitLink } from "@/components/Shared/Text/SubmitLink";
 import {
   Accordion,
   AccordionDetails,

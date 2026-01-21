@@ -2,7 +2,7 @@ import { Button, Grid, Stack, Typography } from "@mui/material";
 import { When } from "react-if";
 import { useManagementPlanForm } from "./formStore";
 import { theme } from "@/styles/theme";
-import WarningBox from "@/components/Shared/WarningBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionPackage } from "@/models/Package";
 import { get } from "lodash";
