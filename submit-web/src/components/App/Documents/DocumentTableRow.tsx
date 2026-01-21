@@ -3,13 +3,13 @@ import dateUtils from "@/utils/dateUtils";
 import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmittedDocument } from "@/models/Submission";
-import { SubmissionStatusChip } from "../SubmissionStatusChip";
+import { SubmissionStatusChip } from "../../SubmissionStatusChip";
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { TableRow } from "@mui/material";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
-import { DocumentLink } from "../Shared/DocumentLink";
+import { DocumentLink } from "../../Shared/DocumentLink";
 
 type DocumentRowProps = Readonly<{
   submittedDocument: SubmittedDocument;

@@ -14,12 +14,12 @@ import { When } from "react-if";
 import { useMemo, useState } from "react";
 import { useManagementPlanForm } from "./formStore";
 import { theme } from "@/styles/theme";
-import WarningBox from "../Shared/WarningBox";
+import WarningBox from "../../Shared/WarningBox";
 import { BCDesignTokens } from "epic.theme";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { NewManagementPlanForm } from "./types";
 import { get } from "lodash";
-import { SubmissionPackageType } from "../Shared/types";
+import { SubmissionPackageType } from "../../Shared/types";
 import { AppConfig } from "@/utils/config";
 
 const YES = "yes";

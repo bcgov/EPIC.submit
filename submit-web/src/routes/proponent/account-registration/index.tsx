@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { useGetInvitationByToken } from "@/hooks/api/useInvitations";
 import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/formStore";
-import { LandingPageComponent } from "@/components/LandingPageComponent";
+import { LandingPageComponent } from "@/components/App/LandingPageComponent";
 
 export const Route = createFileRoute("/proponent/account-registration/")({
   loader: ({ location }) => {

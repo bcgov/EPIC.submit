@@ -1,5 +1,5 @@
 import { Box, BoxProps } from "@mui/material";
-import { BarBlueTitle } from "../Shared/Text/BarTitle";
+import { BarBlueTitle } from "../../Shared/Text/BarTitle";
 
 type TabBoxProps = {
   title: string;

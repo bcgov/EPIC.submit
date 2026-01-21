@@ -1,5 +1,5 @@
-import { Form } from "@/components/NewManagementPlan/Form";
-import { NewManagementPlanForm } from "@/components/NewManagementPlan/types";
+import { Form } from "@/components/App/NewManagementPlan/Form";
+import { NewManagementPlanForm } from "@/components/App/NewManagementPlan/types";
 import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
 import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
 import { ContentBox } from "@/components/Shared/ContentBox";

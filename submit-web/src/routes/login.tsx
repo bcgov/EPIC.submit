@@ -1,4 +1,4 @@
-import { LoginOptions } from "@/components/Login/LoginOptions";
+import { LoginOptions } from "@/components/App/Login/LoginOptions";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { useAccount } from "@/store/accountStore";

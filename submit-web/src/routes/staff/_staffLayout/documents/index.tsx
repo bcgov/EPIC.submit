@@ -1,4 +1,4 @@
-import { Documents, DocumentsSkeleton } from "@/components/Documents";
+import { Documents, DocumentsSkeleton } from "@/components/App/Documents";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useGetSubmittedDocumentsForStaff } from "@/hooks/api/useSubmittedDocuments";

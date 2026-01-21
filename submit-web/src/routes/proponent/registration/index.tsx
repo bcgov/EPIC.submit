@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { useGetInvitation } from "@/hooks/api/useInvitations";
 import { useCreateAccountForm } from "@/components/registration/formStore";
-import { LandingPageComponent } from "@/components/LandingPageComponent";
+import { LandingPageComponent } from "@/components/App/LandingPageComponent";
 
 export const Route = createFileRoute("/proponent/registration/")({
   component: Registration,

@@ -1,23 +1,12 @@
-import {
-  Typography,
-  Button,
-  Grid,
-  Paper,
-  Box,
-  Link,
-  Container,
-  Stack,
-} from "@mui/material";
+import { Typography, Grid, Paper, Box, Link, Container } from "@mui/material";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { OidcConfig, AppConfig } from "@/utils/config";
+import { AppConfig } from "@/utils/config";
 import { BCDesignTokens } from "epic.theme";
-import { IDENTITY_PROVIDERS } from "@/models/User";
 import { UserGuideButton } from "@/components/UserGuideButton";
-import { useAuth } from "react-oidc-context";
+import { BCeIDLogin } from "@/components/App/LandingPageComponent/BCeIDLogin";
+import { BCServiceCardLogin } from "@/components/App/LandingPageComponent/BCServiceCardLogin";
 
 export const LandingPageComponent = () => {
-  const { signinRedirect } = useAuth();
-
   return (
     <Container maxWidth={"lg"} sx={{ mb: BCDesignTokens.layoutMarginXlarge }}>
       <Box
@@ -120,79 +109,8 @@ export const LandingPageComponent = () => {
         <Grid item xs={12} md={5}>
           <Box sx={{ p: 3, pb: 0 }}>
             <BarTitle title={"How do I get access?"} />
-            <Stack
-              p={2}
-              my={BCDesignTokens.layoutMarginXlarge}
-              spacing={2}
-              sx={{ border: `1px solid ${BCDesignTokens.themeGray30}` }}
-            >
-              <Typography variant="h6">
-                Login with your Business BCeID
-              </Typography>
-              <Typography variant="body1">
-                For more information on registering for a Business BCeID, visit{" "}
-                <Link
-                  href="https://www.bceid.ca/register/business/getting_started/getting_started.aspx"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  https://www.bceid.ca/register
-                </Link>
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                sx={{ mt: 1 }}
-                onClick={() =>
-                  signinRedirect({
-                    redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
-                    extraQueryParams: {
-                      kc_idp_hint: IDENTITY_PROVIDERS.BCEID,
-                    },
-                  })
-                }
-              >
-                Login with Business BCeID
-              </Button>
-            </Stack>
-            <Stack
-              p={2}
-              mb={BCDesignTokens.layoutMarginLarge}
-              spacing={2}
-              sx={{ border: `1px solid ${BCDesignTokens.themeGray30}` }}
-            >
-              <Typography variant="h6">
-                Login with your BC Services Card account
-              </Typography>
-              <Typography variant="body1" pb={4}>
-                For more information on how to use or set up a BC Services Card
-                account, visit{" "}
-                <Link
-                  href="https://www.id.gov.bc.ca"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  www.id.gov.bc.ca
-                </Link>
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                onClick={() =>
-                  signinRedirect({
-                    redirect_uri: `${OidcConfig.redirect_uri}${window.location.search}`,
-                    extraQueryParams: {
-                      kc_idp_hint: IDENTITY_PROVIDERS.BCSC,
-                    },
-                  })
-                }
-                sx={{ mt: 1 }}
-              >
-                Login with BC Services Card
-              </Button>
-            </Stack>
+            <BCeIDLogin />
+            <BCServiceCardLogin />
           </Box>
 
           <Paper elevation={0} sx={{ p: 3, pt: 0 }}>
