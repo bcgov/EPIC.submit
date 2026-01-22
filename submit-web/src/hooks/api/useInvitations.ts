@@ -23,7 +23,7 @@ type CreateInvitationToExistingProject = {
   proponent_id: number;
   role_name: string;
   email: string;
-  account_project_ids: number[];
+  account_project_ids?: number[];
   original_package_ids?: number[];
 };
 
@@ -43,8 +43,8 @@ const createInvitationToExistingProject = ({
       proponent_id,
       role_name,
       email,
-      original_package_ids,
       account_project_ids,
+      original_package_ids,
     },
   });
 };
@@ -59,7 +59,7 @@ export const useCreateNewAccountProjectInvitation = (options?: Options) => {
 type CreateNewAccountProjectInvitation = {
   proponent_id: number;
   role_name: string;
-  project_ids: number[];
+  project_ids: (string | number)[];
 };
 
 const createNewAccountProjectInvitation = ({
@@ -68,7 +68,7 @@ const createNewAccountProjectInvitation = ({
   role_name,
 }: CreateNewAccountProjectInvitation) => {
   return submitRequest({
-    url: `/staff/invitations`,
+    url: `/invitations/account`,
     method: "post",
     data: {
       proponent_id,
@@ -91,6 +91,16 @@ export const useGetInvitation = (token: string, enabled: boolean) => {
   });
 };
 
+export const useGetInvitationByToken = (token: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.INVITATION, token],
+    queryFn: () => getInvitation(token),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    enabled: !!token,
+  });
+};
+
 type CreateAccountRequest = {
   first_name: string;
   last_name: string;
@@ -100,6 +110,7 @@ type CreateAccountRequest = {
   proponent_id: number;
   auth_guid: string;
   extension_number?: string;
+  company_name?: string;
   terms_of_service_version_id: number | null;
   has_agreed_to_terms: boolean;
 };

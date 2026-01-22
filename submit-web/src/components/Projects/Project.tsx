@@ -47,8 +47,9 @@ export const Project = ({ accountProject }: ProjectParam) => {
 
   return (
     <ContentBox
+      data-testid={`project-${accountProject.id}`}
       mainLabel={name}
-      topLabel={accountProject.project.proponent_name}
+      topLabel={accountProject.project.proponent?.name || ""}
       bottomLabel={ea_certificate ? `EAC # ${ea_certificate}` : ""}
     >
       <Box

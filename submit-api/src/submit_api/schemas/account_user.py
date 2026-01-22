@@ -21,6 +21,7 @@ class AccountUserSchema(Schema):
     position = fields.Str()
     work_email_address = fields.Email()
     work_contact_number = fields.Str()
+    company_name = fields.Str()
     user_id = fields.Int()
     role = fields.Nested(UserRoleSchema)
     status = fields.Str(required=False)

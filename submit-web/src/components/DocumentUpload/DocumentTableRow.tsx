@@ -110,7 +110,7 @@ export default function DocumentTableRow({
 
   const downloadDocument = async () => {
     try {
-      if (pendingGetObject) return;
+      if (pendingGetObject || !submitted_document) return;
       setPendingGetObject(true);
       await getObjectFromS3({
         name: submitted_document.name,
@@ -124,7 +124,7 @@ export default function DocumentTableRow({
   };
 
   const updateFormField = async () => {
-    if (!formFieldName) return;
+    if (!formFieldName || !submitted_document) return;
 
     const prev = getValues(formFieldName) as string[]; // get the current array
     const newValue = prev.filter(
@@ -140,7 +140,7 @@ export default function DocumentTableRow({
   const onRemoveClick = async () => {
     try {
       setIsRemovingDocument(true);
-      await deleteDocument({ filepath: submitted_document.url });
+      await deleteDocument({ filepath: submitted_document?.url ?? "" });
       await deleteSubmission(documentItem.id);
       removeFile(documentItem.id);
 
@@ -155,7 +155,7 @@ export default function DocumentTableRow({
 
   return (
     <PackageTableRow
-      key={`row-${documentItem.submitted_document.name}`}
+      key={`row-${documentItem.submitted_document?.name ?? ""}`}
       error={error}
     >
       <DocumentTableCell colSpan={2}>
@@ -171,7 +171,7 @@ export default function DocumentTableRow({
           }}
         >
           <DocumentLink
-            name={submitted_document.name}
+            name={submitted_document?.name ?? ""}
             onClick={downloadDocument}
             loading={pendingGetObject}
           />

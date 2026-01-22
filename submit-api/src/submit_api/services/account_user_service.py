@@ -1,5 +1,6 @@
 """Service for account user management."""
 from datetime import datetime
+from sqlalchemy import and_
 
 from flask import current_app
 
@@ -140,6 +141,9 @@ class AccountUserService:
 
         invitees_query = InvitationsModel.query.filter(
             InvitationsModel.account_id == account_id,
+            # The list should excluded expired and revoked invitations
+            # pylint: disable=invalid-unary-operand-type
+            ~(and_(InvitationsModel.is_expired, InvitationsModel.status == InvitationStatus.REVOKED.value)),
             InvitationsModel.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
         )
         if project_ids:
@@ -229,6 +233,16 @@ class AccountUserService:
     def get_account_user(cls, guid):
         """Fetch an user for a user id."""
         user = AccountUserModel.get_by_guid(guid)
+        user_dict = user.to_dict()
+        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
+        return user_dict
+
+    @classmethod
+    def get_account_user_by_id(cls, account_user_id):
+        """Fetch a user by account_user id."""
+        user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        if not user:
+            return None
         user_dict = user.to_dict()
         user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict

@@ -77,6 +77,7 @@ spec:
               value: "{{ .Values.database.host }}"
             - name: DATABASE_PORT
               value: "{{ .Values.database.port }}"
+            
       containers:
         - name: {{ .Values.name }}
           image: image-registry.openshift-image-registry.svc:5000/{{ .Values.imageNamespace }}/{{ .Values.name }}:{{ .Values.imageTag }}
@@ -88,16 +89,6 @@ spec:
               mountPath: /submit-cron/cron/
               readOnly: true
           env: # same as above
-            - name: DATABASE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: submit-patroni
-                  key: app-db-username
-            - name: DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: submit-patroni
-                  key: app-db-password
             - name: CHES_TOKEN_ENDPOINT
               valueFrom:
                 secretKeyRef:
@@ -129,6 +120,36 @@ spec:
               value: "{{ .Values.database.host }}"
             - name: DATABASE_PORT
               value: "{{ .Values.database.port }}"
+            - name: SENDER_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: SENDER_EMAIL
+            - name: STAFF_SUPPORT_MAIL_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: STAFF_SUPPORT_MAIL_ID
+            - name: KEYCLOAK_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: KEYCLOAK_BASE_URL
+            - name: KEYCLOAK_REALM_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: KEYCLOAK_REALM_NAME
+            - name: KEYCLOAK_SERVICE_ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.name }}
+                  key: KEYCLOAK_SERVICE_ACCOUNT_ID
+            - name: KEYCLOAK_SERVICE_ACCOUNT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.name }}
+                  key: KEYCLOAK_SERVICE_ACCOUNT_SECRET
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}

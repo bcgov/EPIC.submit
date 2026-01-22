@@ -11,6 +11,44 @@ import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { isAxiosError } from "axios";
 
+const getAccountUsers = (accountId: number) => {
+  return submitRequest<AccountUserWithRole[]>({
+    url: `/accounts/${accountId}/users`,
+  });
+};
+
+type GetAccountUsersOptions = {
+  accountId?: number;
+};
+
+export const useGetAccountUsers = ({ accountId }: GetAccountUsersOptions) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.ACCOUNT_USERS, accountId],
+    queryFn: () => getAccountUsers(accountId!),
+    enabled: Boolean(accountId),
+    ...defaultUseQueryOptions,
+  });
+};
+
+const getAccountUserById = (accountUserId: number) => {
+  return submitRequest<AccountUserWithRole>({
+    url: `/accounts/users/${accountUserId}`,
+  });
+};
+
+type GetAccountUserByIdOptions = {
+  accountUserId?: number;
+};
+
+export const useGetAccountUserById = ({ accountUserId }: GetAccountUserByIdOptions) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.ACCOUNT_USER, accountUserId],
+    queryFn: () => getAccountUserById(accountUserId!),
+    enabled: Boolean(accountUserId),
+    ...defaultUseQueryOptions,
+  });
+};
+
 const getUserProfileByGuid = (guid?: string) => {
   return submitRequest<AccountUserWithRole>({ url: `/accounts/user/${guid}` });
 };

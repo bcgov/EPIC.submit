@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Super class to handle all operations related to base model."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import Column
 from sqlalchemy.ext.declarative import declared_attr
@@ -30,16 +30,16 @@ class BaseModel(db.Model):
 
     __abstract__ = True
 
-    created_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    updated_date = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=True)
+    created_date = db.Column(db.DateTime, default=datetime.now(UTC), nullable=False)
+    updated_date = db.Column(db.DateTime, default=datetime.now(UTC), onupdate=datetime.now(UTC), nullable=True)
 
     @declared_attr
-    def created_by(cls):  # pylint:disable=no-self-argument, no-self-use, # noqa: N805
+    def created_by(cls):  # pylint:disable=no-self-argument, # noqa: N805
         """Return foreign key for created by."""
         return Column(db.String(50), default=cls._get_current_user)
 
     @declared_attr
-    def updated_by(cls):  # pylint:disable=no-self-argument, no-self-use, # noqa: N805
+    def updated_by(cls):  # pylint:disable=no-self-argument, # noqa: N805
         """Return foreign key for modified by."""
         return Column(db.String(50))
 

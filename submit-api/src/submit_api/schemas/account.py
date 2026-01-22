@@ -30,6 +30,7 @@ class AccountCreateSchema(Schema):
     last_name = fields.Str(data_key="last_name")
     work_email_address = fields.Str(data_key="work_email_address")
     work_contact_number = fields.Str(data_key="work_contact_number")
+    company_name = fields.Str(data_key="company_name")
     position = fields.Str(data_key="position")
     proponent_id = fields.Int(data_key="proponent_id")
     auth_guid = fields.Str(data_key="auth_guid")

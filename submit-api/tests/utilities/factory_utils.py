@@ -16,6 +16,7 @@
 
 Test Utility for creating model factory.
 """
+from datetime import datetime, timedelta, UTC
 import random
 import string
 
@@ -25,16 +26,18 @@ from flask import g
 from src.submit_api.config import get_named_config
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.role import RoleEnum
-from submit_api.models import User, AccountUser, UserRole, Role, PackageVersion, Submission, SubmittedForm
-from submit_api.models import db, Item, ItemType
+from submit_api.models import (
+    AccountUser, Item, ItemType, PackageVersion, Role, Submission, SubmittedForm, User, UserRole, db)
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
-from submit_api.models.invitations import InvitationStatus
-from submit_api.models.invitations import Invitations
+from submit_api.models.invitations import Invitations, InvitationStatus
 from submit_api.models.project import Project
-from submit_api.models.submission import SubmissionType, SubmissionStatus
+from submit_api.models.proponent import Proponent
+from submit_api.models.submission import SubmissionStatus, SubmissionType
 from submit_api.models.user import UserType
+
 from tests.utilities.factory_scenarios import TestJwtClaims
+
 
 CONFIG = get_named_config("testing")
 fake = Faker()
@@ -65,12 +68,21 @@ def generate_abbreviation(number_of_characters):
     return "".join(random.choices(string.ascii_uppercase, k=number_of_characters))
 
 
-def factory_project_model(name="Test Project", proponent_id=1234, proponent_name="Test Proponent"):
-    """Factory project model."""
+def factory_project_model(name="Test Project", proponent_id=1234):
+    """Create a project model."""
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+
     project = Project(
         name=name,
         proponent_id=proponent_id,
-        proponent_name=proponent_name,
         ea_certificate=None,
         epic_guid=None
     )
@@ -80,15 +92,49 @@ def factory_project_model(name="Test Project", proponent_id=1234, proponent_name
 
 
 def factory_account_model(proponent_id=1234):
-    """Factory account model."""
+    """Create an account model."""
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+
     account = Account(proponent_id=proponent_id)
     db.session.add(account)
     db.session.commit()
     return account
 
 
+def factory_proponent_model(id=None, name="Test Proponent", status=None, is_deleted=False):
+    """Create a proponent model."""
+    if id is None:
+        id = fake.random_int(min=1000, max=999999)
+    existing_proponent = Proponent.query.filter_by(id=id).first()
+    if existing_proponent:
+        # Update existing proponent with provided values
+        existing_proponent.name = name
+        if status is not None:
+            existing_proponent.status = status
+        existing_proponent.is_deleted = is_deleted
+        db.session.commit()
+        return existing_proponent
+    proponent = Proponent(
+        id=id,
+        name=name,
+        status=status,
+        is_deleted=is_deleted
+    )
+    db.session.add(proponent)
+    db.session.commit()
+    return proponent
+
+
 def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):
-    """Factory user model."""
+    """Create a user model."""
     from submit_api.models.user import User
 
     user = User(
@@ -105,7 +151,7 @@ def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):
 
 
 def factory_account_project_model(account_id, project_id):
-    """Factory account project model."""
+    """Create an account project model."""
     account_project = AccountProject(account_id=account_id, project_id=project_id)
     db.session.add(account_project)
     db.session.commit()
@@ -113,11 +159,21 @@ def factory_account_project_model(account_id, project_id):
 
 
 def factory_project_with_proponent(**kwargs):
-    """Factory project."""
+    """Create a project with proponent."""
+    proponent_id = kwargs.get("proponent_id", fake.random_int(min=1000, max=9999))
+    existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
+    if not existing_proponent:
+        proponent = Proponent(
+            id=proponent_id,
+            name=f"Test Proponent {proponent_id}",
+            is_deleted=False
+        )
+        db.session.add(proponent)
+        db.session.flush()
+
     project = Project(
         name=kwargs.get("name", fake.company()),
-        proponent_id=kwargs.get("proponent_id", fake.random_int(min=1000, max=9999)),
-        proponent_name=kwargs.get("proponent_name", fake.company()),
+        proponent_id=proponent_id,
         ea_certificate=kwargs.get("ea_certificate", fake.uuid4()),
         epic_guid=kwargs.get("epic_guid", fake.uuid4()),
         has_approved_condition=kwargs.get("has_approved_condition", True),
@@ -127,18 +183,28 @@ def factory_project_with_proponent(**kwargs):
     return project
 
 
-def factory_invitation_model(account_id, status=InvitationStatus.PENDING.value, project_ids=None, package_ids=None,
-                             email=None, role_id=None):
-    """Create and return a mock invitation entry."""
+def factory_invitation_model(
+    account_id,
+    project_ids=[1],
+    package_ids=[],
+    token=fake.uuid4(),
+    email=fake.email(),
+    status=InvitationStatus.PENDING.value,
+    expiry_date=datetime.now(UTC) + timedelta(days=7),
+    role_id=None,
+    is_first_time=False
+):
     """Create and return a mock invitation entry."""
     invitation = Invitations(
         account_id=account_id,
-        token=fake.uuid4(),
-        project_ids=project_ids or [1],
-        package_ids=package_ids or [],
-        email=email or fake.email(),
+        project_ids=project_ids,
+        package_ids=package_ids,
+        token=token,
+        email=email,
         status=status,
-        role_id=role_id
+        expiry_date=expiry_date,
+        role_id=role_id,
+        is_first_time=is_first_time
     )
     db.session.add(invitation)
     db.session.commit()
@@ -146,7 +212,7 @@ def factory_invitation_model(account_id, status=InvitationStatus.PENDING.value, 
 
 
 def factory_item_type_model(name=None, code=None):
-    """Factory item type model."""
+    """Create an item type model."""
     item_type = ItemType(
         name=name or fake.word().capitalize(),
         code=code or fake.lexify(text="???")
@@ -157,7 +223,7 @@ def factory_item_type_model(name=None, code=None):
 
 
 def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=None):
-    """Factory item model using hardcoded item_type_id."""
+    """Create an item model using hardcoded item_type_id."""
     package = package or factory_package_model()
 
     item = Item(
@@ -173,7 +239,7 @@ def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=
 
 def factory_package_model(account_project=None, name=None, status=None, package_type_id=1,
                           original_package_id=None, version=1, submitted_to_eao_for=None):
-    """Factory package model using hardcoded package_type_id."""
+    """Create a package model using hardcoded package_type_id."""
     from submit_api.models.package import Package, PackageStatus
 
     if not account_project:
@@ -202,7 +268,7 @@ def factory_package_model(account_project=None, name=None, status=None, package_
 
 
 def factory_package_metadata_model(package_id, metadata: dict = None, submitted_to_eao_for=None):
-    """Factory package metadata model."""
+    """Create a package metadata model."""
     from submit_api.models.package_metadata import PackageMetadata
 
     if not metadata:
@@ -284,7 +350,7 @@ def create_proponent_with_role(session, *, auth_guid: str, account_id: int,
 
 
 def setup_authenticated_proponent(session, jwt, role=RoleEnum.PROJECT_ADMIN.value):
-    """Helper to set up authenticated proponent with headers and account_project."""
+    """Set up authenticated proponent with headers and account_project."""
     account = factory_account_model()
     project = factory_project_model()
     account_project = factory_account_project_model(account.id, project.id)
@@ -308,7 +374,8 @@ def setup_authenticated_proponent(session, jwt, role=RoleEnum.PROJECT_ADMIN.valu
 
 
 def create_contact_info_submission(
-    item_id
+    item_id,
+    auth_guid
 ):
     """Create a contact information submission."""
     submitted_form = SubmittedForm(
@@ -325,7 +392,7 @@ def create_contact_info_submission(
         item_id=item_id,  # Assuming package_id corresponds to the item_id
         type=SubmissionType.FORM,  # Replace with the appropriate SubmissionType
         submitted_document_id=None,  # Replace with the appropriate document ID or None
-        created_by=fake.uuid4(),  # Replace with the appropriate user ID
+        created_by=auth_guid,  # Replace with the appropriate user ID
         major_version=1,
         minor_version=1,
         active=True,

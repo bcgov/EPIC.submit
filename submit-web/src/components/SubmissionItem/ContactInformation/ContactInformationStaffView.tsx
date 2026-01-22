@@ -8,6 +8,8 @@ import { SubmissionFormContainer } from "../SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { get } from "lodash";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
+import { useGetAccountUserById } from "@/hooks/api/useAccountUsers";
+import { useMemo } from "react";
 
 export const ContactInformationStaffView = () => {
   const {
@@ -31,8 +33,45 @@ export const ContactInformationStaffView = () => {
   const navigate = useNavigate();
 
   const formSubmission = submissionItem?.submissions.find(
-    (submission) => submission.type === SUBMISSION_TYPE.FORM,
+    (submission) => submission.type === SUBMISSION_TYPE.FORM
   );
+
+  const contactInfo = formSubmission?.submitted_form?.submission_json;
+
+  const primaryContactUserId = get(contactInfo, "primaryContact.accountUserId");
+  const secondaryContactUserId = get(contactInfo, "secondaryContact.accountUserId");
+
+  const { data: primaryUser } = useGetAccountUserById({
+    accountUserId: primaryContactUserId ? Number(primaryContactUserId) : undefined,
+  });
+
+  const { data: secondaryUser } = useGetAccountUserById({
+    accountUserId: secondaryContactUserId ? Number(secondaryContactUserId) : undefined,
+  });
+
+  const primaryContactData = useMemo(() => {
+  return {
+    givenName: primaryUser?.first_name ?? get(contactInfo, "primaryContact.givenName", ""),
+    surname: primaryUser?.last_name ?? get(contactInfo, "primaryContact.surname", ""),
+    company: primaryUser?.company_name ?? get(contactInfo, "primaryContact.company", ""),
+    position: primaryUser?.position ?? get(contactInfo, "primaryContact.position", ""),
+    workPhoneNumber: primaryUser?.work_contact_number ?? get(contactInfo, "primaryContact.workPhoneNumber", ""),
+    extensionNumber: primaryUser?.extension_number ?? get(contactInfo, "primaryContact.extensionNumber", ""),
+    workEmailAddress: primaryUser?.work_email_address ?? get(contactInfo, "primaryContact.workEmailAddress", ""),
+  };
+}, [primaryUser, contactInfo]);
+
+const secondaryContactData = useMemo(() => {
+  return {
+    givenName: secondaryUser?.first_name ?? get(contactInfo, "secondaryContact.givenName", ""),
+    surname: secondaryUser?.last_name ?? get(contactInfo, "secondaryContact.surname", ""),
+    company: secondaryUser?.company_name ?? get(contactInfo, "secondaryContact.company", ""),
+    position: secondaryUser?.position ?? get(contactInfo, "secondaryContact.position", ""),
+    workPhoneNumber: secondaryUser?.work_contact_number ?? get(contactInfo, "secondaryContact.workPhoneNumber", ""),
+    extensionNumber: secondaryUser?.extension_number ?? get(contactInfo, "secondaryContact.extensionNumber", ""),
+    workEmailAddress: secondaryUser?.work_email_address ?? get(contactInfo, "secondaryContact.workEmailAddress", ""),
+  };
+}, [secondaryUser, contactInfo]);
 
   const handleCancel = () => {
     navigate({
@@ -40,15 +79,13 @@ export const ContactInformationStaffView = () => {
     });
   };
 
-  const contactInfo = formSubmission?.submitted_form?.submission_json;
-
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
     <SubmissionFormContainer>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <BarBlueTitle title="Contact Information" />
+          <BarBlueTitle title="Submission Contact Information" />
         </Grid>
         <Grid item xs={12}>
           <Typography
@@ -75,7 +112,7 @@ export const ContactInformationStaffView = () => {
               name="primaryContact.givenName"
               label="Given Name"
               fullWidth
-              value={get(contactInfo, "primaryContact.givenName")}
+              value={primaryContactData.givenName}
             />
           </Grid>
           <Grid item xs={12}>
@@ -83,7 +120,7 @@ export const ContactInformationStaffView = () => {
               name="primaryContact.surname"
               label="Surname"
               fullWidth
-              value={get(contactInfo, "primaryContact.surname")}
+              value={primaryContactData.surname}
             />
           </Grid>
           <Grid item xs={12}>
@@ -91,7 +128,7 @@ export const ContactInformationStaffView = () => {
               name="primaryContact.company"
               label="Company Name"
               fullWidth
-              value={get(contactInfo, "primaryContact.company")}
+              value={primaryContactData.company}
             />
           </Grid>
           <Grid item xs={12}>
@@ -99,24 +136,20 @@ export const ContactInformationStaffView = () => {
               name="primaryContact.position"
               label="Position/Role"
               fullWidth
-              value={get(contactInfo, "primaryContact.position")}
+              value={primaryContactData.position}
             />
           </Grid>
           <Grid item xs={12} container spacing={1}>
             <Grid item xs={8}>
               <TextField
-                value={String(
-                  get(contactInfo, "primaryContact.workPhoneNumber", ""),
-                )}
+                value={String(primaryContactData.workPhoneNumber)}
                 fullWidth
                 label="Work Phone Number"
               />
             </Grid>
             <Grid item xs={4}>
               <TextField
-                value={String(
-                  get(contactInfo, "primaryContact.extensionNumber", ""),
-                )}
+                value={String(primaryContactData.extensionNumber)}
                 fullWidth
                 label="Ext."
               />
@@ -127,7 +160,7 @@ export const ContactInformationStaffView = () => {
               name="primaryContact.workEmailAddress"
               label="Work Email Address"
               fullWidth
-              value={get(contactInfo, "primaryContact.workEmailAddress")}
+              value={primaryContactData.workEmailAddress}
             />
           </Grid>
         </Grid>
@@ -156,7 +189,7 @@ export const ContactInformationStaffView = () => {
                 name="secondaryContact.givenName"
                 label="Given Name"
                 fullWidth
-                value={get(contactInfo, "secondaryContact.givenName")}
+                value={secondaryContactData.givenName}
               />
             </Grid>
             <Grid item xs={12}>
@@ -164,7 +197,7 @@ export const ContactInformationStaffView = () => {
                 name="secondaryContact.surname"
                 label="Surname"
                 fullWidth
-                value={get(contactInfo, "secondaryContact.surname")}
+                value={secondaryContactData.surname}
               />
             </Grid>
             <Grid item xs={12}>
@@ -172,7 +205,7 @@ export const ContactInformationStaffView = () => {
                 name="secondaryContact.company"
                 label="Company Name"
                 fullWidth
-                value={get(contactInfo, "secondaryContact.company")}
+                value={secondaryContactData.company}
               />
             </Grid>
             <Grid item xs={12}>
@@ -180,24 +213,20 @@ export const ContactInformationStaffView = () => {
                 name="secondaryContact.position"
                 label="Position/Role"
                 fullWidth
-                value={get(contactInfo, "secondaryContact.position")}
+                value={secondaryContactData.position}
               />
             </Grid>
             <Grid item xs={12} container spacing={1}>
               <Grid item xs={8}>
                 <TextField
-                  value={String(
-                    get(contactInfo, "secondaryContact.workPhoneNumber", ""),
-                  )}
+                  value={String(secondaryContactData.workPhoneNumber)}
                   fullWidth
                   label="Work Phone Number"
                 />
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  value={String(
-                    get(contactInfo, "secondaryContact.extensionNumber", ""),
-                  )}
+                  value={String(secondaryContactData.extensionNumber)}
                   fullWidth
                   label="Ext."
                 />
@@ -208,7 +237,7 @@ export const ContactInformationStaffView = () => {
                 name="secondaryContact.workEmailAddress"
                 label="Work Email Address"
                 fullWidth
-                value={get(contactInfo, "secondaryContact.workEmailAddress")}
+                value={secondaryContactData.workEmailAddress}
               />
             </Grid>
           </Grid>

@@ -8,6 +8,7 @@ type ContentBoxProps = {
   mainLabel: React.ReactNode;
   topLabel?: string;
   bottomLabel?: string;
+  statusChip?: React.ReactNode;
   children?: React.ReactNode;
   contentBoxVariant?: ContentBoxVariant;
 } & PaperProps;
@@ -16,6 +17,7 @@ export const ContentBox = ({
   mainLabel = "",
   topLabel,
   bottomLabel,
+  statusChip,
   contentBoxVariant = "primary",
   ...rest
 }: ContentBoxProps) => {
@@ -82,6 +84,7 @@ export const ContentBox = ({
             </Typography>
           </Stack>
         )}
+        {statusChip}
       </Box>
       <Box
         sx={{

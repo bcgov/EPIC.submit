@@ -18,6 +18,6 @@ class SubmissionItemNote(BaseModel):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     note = Column(Text, nullable=False)
-    item_id = Column(db.Integer, db.ForeignKey("items.id"), nullable=False)
+    item_id = Column(db.Integer, db.ForeignKey("items.id", ondelete='CASCADE'), nullable=False)
     created_by = Column(db.String, db.ForeignKey("users.auth_guid"), nullable=True)
     created_by_user = db.relationship("User", foreign_keys=[created_by], lazy="joined")

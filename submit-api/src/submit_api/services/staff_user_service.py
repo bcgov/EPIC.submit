@@ -52,7 +52,7 @@ class StaffUserService:
         username = keycloak_user.get("username")
 
         if not auth_guid:
-            raise Exception(f"Keycloak user with email '{email}' does not have a valid ID.")
+            raise ValueError(f"Keycloak user with email '{email}' does not have a valid ID.")
 
         # 2. Create or fetch local User
         user = UserModel.get_by_guid(auth_guid)

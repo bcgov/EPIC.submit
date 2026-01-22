@@ -26,3 +26,8 @@ dist-ssr
 
 /coverage
 /.nyc_output
+
+# E2E test environment and artifacts
+.env.playwright
+playwright-report/
+test-results/

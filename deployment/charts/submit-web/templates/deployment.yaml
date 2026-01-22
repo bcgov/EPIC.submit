@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: {{ .Values.app.name }}
-  name: {{ .Chart.Name }}
+    app: {{ .Release.Name }}
+  name: {{ .Release.Name }}
 spec:
   replicas: {{ .Values.replicas.count }}
   selector:
     matchLabels:
-      app: {{ .Values.app.name }}
+      app: {{ .Release.Name }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -17,10 +17,10 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Values.app.name }}
+        app: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: {{ .Release.Name }}
           image: "{{ .Values.image.repository }}{{ tpl .Values.image.name . }}:{{ .Values.image.tag }}"
           imagePullPolicy: Always
           ports:
@@ -40,5 +40,5 @@ spec:
       volumes:
         - name: config-volume
           configMap:
-            name: {{ .Chart.Name }}
+            name: {{ .Release.Name }}
             defaultMode: 420

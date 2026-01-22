@@ -28,6 +28,14 @@ class InternalStaffDocument(BaseModel):
     name = Column(db.String(255), nullable=False)
     url = Column(db.String(), nullable=False)
     type = Column(db.Enum(InternalStaffDocumentType), nullable=False)
-    package_id = Column(db.Integer, db.ForeignKey('packages.id'), nullable=False)
-    created_by = Column(db.String, db.ForeignKey('users.auth_guid'), nullable=True)
+    package_id = Column(
+        db.Integer,
+        db.ForeignKey('packages.id', name='internal_staff_documents_package_id_fkey', ondelete='CASCADE'),
+        nullable=False
+    )
+    created_by = Column(
+        db.String,
+        db.ForeignKey('users.auth_guid', name='internal_staff_documents_created_by_fkey'),
+        nullable=True
+    )
     created_by_user = db.relationship('User', foreign_keys=[created_by], lazy='joined')

@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 from flask import current_app
 
+from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import ResourceNotFoundError, BadRequestError
 from submit_api.models import AccountProject as AccountProjectModel, User
@@ -13,6 +14,7 @@ from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
 from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
+from submit_api.models.proponent import Proponent as ProponentModel
 from submit_api.models.role import Role as RoleModel
 from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.user import UserType
@@ -72,15 +74,20 @@ class InvitationService:
         # Validate the input data
         if not invite_data or not isinstance(invite_data, dict):
             raise ValueError("Invalid invitation data provided.")
+
         # Ensure required fields are present
         required_fields = ['role_name', 'project_ids', 'proponent_id']
         for field in required_fields:
             if field not in invite_data:
                 raise ValueError(f"Missing required field: {field}")
+
+        # Check for existing account_projects
         project_ids = invite_data.get('project_ids')
         existing_account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
         if existing_account_projects:
             raise BadRequestError("Invitation cannot be created for an existing account project.")
+
+        # Create invitation
         return InvitationService.create_invitation(invite_data)
 
     @staticmethod
@@ -147,6 +154,8 @@ class InvitationService:
                                                                      account,
                                                                      token,
                                                                      session)
+
+            InvitationService._update_proponent_status_by_account(account.id, ProponentStatus.INVITE_GENERATED)
 
             return {
                 'success': True,
@@ -218,6 +227,9 @@ class InvitationService:
     def get_invitation_by_id(invitation_id):
         """Retrieve an invitation by invitation_id."""
         invitation = InvitationsModel.find_by_id(invitation_id)
+        if not invitation:
+            return None
+
         InvitationService._check_action_authorized(invitation.project_ids)
         InvitationService._validate_invitation_access(invitation)
         return invitation
@@ -256,13 +268,17 @@ class InvitationService:
         if proponent_id:
             return InvitationService._get_or_create_account_by_proponent(proponent_id, project_ids, session)
 
-        raise ResourceNotFoundError(
-            "No valid account found for the provided data.")
+        raise ResourceNotFoundError("No valid account found for the provided data.")
 
     @staticmethod
     def _get_account_by_id(account_id):
         """Retrieve an account by account_id."""
         return AccountModel.find_by_id(account_id)
+
+    @staticmethod
+    def _get_proponent_by_id(proponent_id):
+        """Retrieve a proponent by proponent_id."""
+        return ProponentModel.find_by_id(proponent_id)
 
     @staticmethod
     def _get_or_create_account_by_proponent(proponent_id, project_ids, session):
@@ -321,6 +337,7 @@ class InvitationService:
             "last_name": payload.get("last_name"),
             "work_email_address": payload.get("work_email_address"),
             "work_contact_number": payload.get("work_contact_number"),
+            "company_name": payload.get("company_name"),
             "position": payload.get("position"),
             "user_id": user_id,
             "extension_number": payload.get("extension_number"),
@@ -350,6 +367,14 @@ class InvitationService:
         }
 
     @staticmethod
+    def _update_proponent_status_by_account(account_id, status):
+        """Update proponent status using account_id."""
+        account = InvitationService._get_account_by_id(account_id)
+        proponent = InvitationService._get_proponent_by_id(account.proponent_id)
+        proponent.status = status
+        proponent.save()
+
+    @staticmethod
     def _generate_signup_url(token):
         """Generate a full URL with token for invitation."""
         base_url = current_app.config['BASE_APP_URL']
@@ -374,6 +399,9 @@ class InvitationService:
         if invitation.expiry_date < datetime.datetime.utcnow():
             return {"error": "Invitation has expired"}, False
 
+        # Update proponent status
+        InvitationService._update_proponent_status_by_account(invitation.account_id, ProponentStatus.PENDING_ONBOARDING)
+
         return invitation, True
 
     @staticmethod
@@ -381,8 +409,8 @@ class InvitationService:
         """Revoke an invitation by updating its status."""
         invitation = InvitationsModel.query.filter_by(
             token=token, status=InvitationStatus.PENDING.value).first()
-        InvitationService._check_action_authorized(invitation.project_ids)
         if invitation:
+            InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
             return True
@@ -394,9 +422,10 @@ class InvitationService:
         with session_scope() as session:
             invitation = InvitationsModel.query.filter_by(token=token).first()
 
-            InvitationService._check_action_authorized(invitation.project_ids)
             if not invitation or invitation.status != InvitationStatus.PENDING.value:
                 return False
+
+            InvitationService._check_action_authorized(invitation.project_ids)
 
             # Extend expiry date by 1 week from current date
             invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)

@@ -139,6 +139,7 @@ export default function ProponentSubmissionItemTableRow({
           >
             <Typography
               variant="body2"
+              data-testid={`submission-item-action-${name}`}
               sx={{
                 color: BCDesignTokens.typographyColorLink,
                 "&:hover": {

@@ -1,4 +1,4 @@
-FROM python:3.10-buster
+FROM python:3.12-slim-bookworm
 
 # ========================================================================================================
 # Install go-crond (from https://github.com/BCDevOps/go-crond)
@@ -16,6 +16,17 @@ ARG BUILD_DATE="missing"
 
 ENV VCS_REF=${VCS_REF}
 ENV BUILD_DATE=${BUILD_DATE}
+
+
+# Install system requirements (moved up for curl)
+RUN apt-get update && apt-get install -y \
+    libsasl2-dev \
+    libldap2-dev \
+    libssl-dev \
+    gcc \
+    git \
+    curl \
+ && rm -rf /var/lib/apt/lists/*
 
 LABEL org.label-schema.vcs-ref=${VCS_REF} \
     org.label-schema.build-date=${BUILD_DATE}
@@ -35,6 +46,7 @@ ENV HOME=/submit-cron
 RUN mkdir $HOME && chmod 755 $HOME
 
 WORKDIR $HOME
+
 
 # Install the requirements
 COPY ./requirements.txt .

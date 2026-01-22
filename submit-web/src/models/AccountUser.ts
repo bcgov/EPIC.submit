@@ -22,6 +22,7 @@ export type AccountUser = {
   position: string;
   work_email_address: string;
   work_contact_number: string;
+  company_name: string;
   account: Account;
   role: Role;
   has_agreed_to_terms: boolean;
@@ -36,6 +37,8 @@ export type AccountUserWithRole = {
   position?: string;
   work_email_address: string;
   work_contact_number?: string;
+  extension_number?: string;
+  company_name?: string;
   account?: Account;
   status: UserPackageStatus;
   role: Role;

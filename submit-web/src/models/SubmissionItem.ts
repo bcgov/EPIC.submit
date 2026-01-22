@@ -15,14 +15,14 @@ export type SubmissionItemType = {
 };
 
 export enum SUBMISSION_ITEM_TYPE {
-  CONTACT_INFORMATION = "Contact Information Form",
+  CONTACT_INFORMATION = "Submission Contact Information",
   MANAGEMENT_PLAN = "Management Plan",
   CONSULTATION_RECORD = "Consultation Record(s)",
   IEM = "IEM Terms of Engagement",
 }
 
 export const SubmissionItemTypeLabelMap = {
-  [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: "Contact Information Form",
+  [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: "Submission Contact Information",
   [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: "Management Plan",
   [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: "Consultation Record(s)",
   [SUBMISSION_ITEM_TYPE.IEM]:

@@ -74,7 +74,7 @@ class Package(BaseModel):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     account_project_id = Column(db.Integer, ForeignKey(
-        'account_projects.id'), nullable=False)
+        'account_projects.id', ondelete='CASCADE'), nullable=False)
     name = Column(db.String(255), nullable=False)
     type_id = Column(db.Integer, ForeignKey(
         'package_types.id'), nullable=False)
@@ -82,14 +82,14 @@ class Package(BaseModel):
                            type_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String, ForeignKey(
-        'users.auth_guid'), nullable=True)
+        'users.auth_guid', name='packages_submitted_by_fkey'), nullable=True)
     submitted_by_user = db.relationship(
         'User', foreign_keys=[submitted_by], lazy='joined')
     completed_on = Column(db.DateTime, nullable=True)
     meta = db.relationship(
-        'PackageMetadata', backref='package', lazy='joined', uselist=False)
+        'PackageMetadata', backref='package', lazy='joined', uselist=False, cascade='all, delete', passive_deletes=True)
     items = db.relationship('Item', backref='package',
-                            lazy='select', order_by='Item.sort_order')
+                            lazy='select', order_by='Item.sort_order', cascade='all, delete', passive_deletes=True)
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False,
                     default=[PackageStatus.NEW.value])
     active = Column(db.Boolean, nullable=False, default=True)
@@ -105,7 +105,9 @@ class Package(BaseModel):
 
     internal_staff_documents = db.relationship('InternalStaffDocument',
                                                backref='package',
-                                               lazy='joined')
+                                               lazy='joined',
+                                               cascade='all, delete',
+                                               passive_deletes=True)
 
     @property
     def update_requests(self):
