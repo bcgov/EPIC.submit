@@ -11,8 +11,8 @@ import {
 } from "@tanstack/react-router";
 import { TermsOfServiceProvider } from "@/components/Shared/TermsOfService";
 import { PageLoader } from "@/components/Shared/PageLoader";
-import BreadcrumbNav from "@/components/Shared/layout/SideNav/BreadcrumbNav";
-import SideNavBar from "@/components/Shared/layout/SideNav/SideNavBar";
+import BreadcrumbNav from "@/components/Shared/Layouts/SideNav/BreadcrumbNav";
+import SideNavBar from "@/components/Shared/Layouts/SideNav/SideNavBar";
 
 export const Route = createFileRoute("/proponent/_proponentLayout")({
   component: ProponentLayout,

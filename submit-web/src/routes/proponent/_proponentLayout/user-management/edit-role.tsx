@@ -1,11 +1,11 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import UpdateUserRole from "@/components/UserManagement/entity/EditUserProfile/UpdateUserRoleForm";
+import UpdateUserRole from "@/components/App/UserManagement/entity/EditUserProfile/UpdateUserRoleForm";
 import { Grid } from "@mui/material";
-import { useUserStore } from "@/components/UserManagement/entity/userStore";
+import { useUserStore } from "@/components/App/UserManagement/entity/userStore";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/edit-role"
+  "/proponent/_proponentLayout/user-management/edit-role",
 )({
   component: UpdateUserRoleFormPage,
   loader: () => {

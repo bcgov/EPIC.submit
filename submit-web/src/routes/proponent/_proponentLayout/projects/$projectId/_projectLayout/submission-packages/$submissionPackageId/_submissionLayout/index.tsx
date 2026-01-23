@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { InfoBox } from "@/components/Submission/InfoBox";
+import { InfoBox } from "@/components/App/Submission/InfoBox";
 import {
   useGetPackageVersionsByOriginalPackageId,
   useGetSubmissionPackage,
@@ -17,16 +17,16 @@ import { PACKAGE_STATUS } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Case, Switch, Unless, When } from "react-if";
-import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
-import { usePackageTableStore } from "@/components/Submission/packageTableStore";
-import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
+import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
+import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
+import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
-import { isSubmissionItemReadyToSubmit } from "@/components/Submission/utils";
+import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
 import { Box, Grid, Link, Typography } from "@mui/material";
-import { ContentBox } from "@/components/Shared/ContentBox";
-import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import ItemsTable from "@/components/Submission/ItemsTable";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
+import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
+import ItemsTable from "@/components/App/Submission/ItemsTable";
 import {
   UPDATE_REQUEST_STATUS,
   UPDATE_REQUEST_TYPE,
@@ -35,11 +35,11 @@ import BarTitle from "@/components/Shared/Text/BarTitle";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
-import { SuccessBox } from "@/components/Shared/SuccessBox";
-import { SubmissionSuccessBox } from "@/components/Submission/SuccessBox";
-import { GreyBox } from "@/components/Shared/GreyBox";
+import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
+import { SubmissionSuccessBox } from "@/components/App/Submission/SuccessBox";
+import { GreyBox } from "@/components/Shared/Layouts/GreyBox";
 import { AppConfig } from "@/utils/config";
-import WarningBox from "@/components/Shared/WarningBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 

@@ -1,14 +1,12 @@
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { ProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable";
 import { useProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable/proponentsHoldersTableStore";
 import { Box, Grid, TextField, Typography } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { createFileRoute } from "@tanstack/react-router";
-import ProponentStatusFilter from "@/components/Filters/ProponentStatusFilter";
+import ProponentStatusFilter from "@/components/App/Filters/ProponentStatusFilter";
 
-export const Route = createFileRoute(
-  "/staff/_staffLayout/proponents/",
-)({
+export const Route = createFileRoute("/staff/_staffLayout/proponents/")({
   component: ProponentsHolders,
   meta: () => [
     {
@@ -31,19 +29,19 @@ function ProponentsHolders() {
       <Grid container spacing={2}>
         <Grid container item xs={12} spacing={2}>
           <Grid item xs={3}>
-          <TextField
-            value={searchText}
-            variant="outlined"
-            onChange={(e) => setSearchText(e.target.value)}
-            sx={{
-              margin: 0,
+            <TextField
+              value={searchText}
+              variant="outlined"
+              onChange={(e) => setSearchText(e.target.value)}
+              sx={{
+                margin: 0,
                 width: "100%",
-            }}
-            placeholder="Search Proponents/Holders by Name"
-            InputProps={{
-              startAdornment: <SearchIcon htmlColor="#858a8c" />,
-            }}
-          />
+              }}
+              placeholder="Search Proponents/Holders by Name"
+              InputProps={{
+                startAdornment: <SearchIcon htmlColor="#858a8c" />,
+              }}
+            />
           </Grid>
           <Grid item xs={3}>
             <ProponentStatusFilter />

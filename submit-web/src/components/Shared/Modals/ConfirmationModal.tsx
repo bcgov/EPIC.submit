@@ -10,7 +10,7 @@ import {
 } from "@mui/material";
 import { useModal } from "./modalStore";
 import { modalStyle } from "./constants";
-import { LoadingButton } from "../LoadingButton";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
 import CloseIcon from "@mui/icons-material/Close";
 
 type ConfirmationModalProps = {

@@ -1,6 +1,6 @@
-import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import { ContentBox } from "@/components/Shared/ContentBox";
+import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { Box, Grid, Typography } from "@mui/material";
 import {
   createFileRoute,
@@ -10,24 +10,24 @@ import {
 } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { InfoBox } from "@/components/Submission/InfoBox";
+import { InfoBox } from "@/components/App/Submission/InfoBox";
 import {
   useGetPackageVersionsByOriginalPackageId,
   useGetStaffSubmissionPackage,
 } from "@/hooks/api/usePackages";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
-import { PackageStatusChipStack } from "@/components/PackageStatusChip/PackageStatusChipStack";
-import { usePackageTableStore } from "@/components/Submission/packageTableStore";
+import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
+import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
 import { useQueryClient } from "@tanstack/react-query";
-import ItemsTable from "@/components/Submission/ItemsTable";
+import ItemsTable from "@/components/App/Submission/ItemsTable";
 import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
-import UpdateRequestWidget from "@/components/Submission/UpdateRequestWidget";
+import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import BarTitle from "@/components/Shared/Text/BarTitle";
-import { SuccessBox } from "@/components/Shared/SuccessBox";
+import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
 import { When } from "react-if";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
-import WarningBox from "@/components/Shared/WarningBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 

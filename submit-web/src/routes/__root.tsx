@@ -1,5 +1,5 @@
-import EAOAppBar from "@/components/Shared/layout/Header/EAOAppBar";
-import Footer from "@/components/Shared/layout/Footer";
+import EAOAppBar from "@/components/Shared/Layouts/Header/EAOAppBar";
+import Footer from "@/components/Shared/Layouts/Footer";
 import PageNotFound from "@/components/Shared/PageNotFound";
 import { Box } from "@mui/system";
 import {
@@ -15,7 +15,7 @@ import DrawerProvider from "@/components/Shared/Drawers/DrawerProvider";
 import { QueryClient } from "@tanstack/react-query";
 import { AppConfig } from "@/utils/config";
 import { When } from "react-if";
-import ScrollToTop from "@/components/ScrollToTop";
+import ScrollToTop from "@/components/Shared/ScrollToTop";
 import { AccountStoreState } from "@/store/accountStore";
 
 type RouterContext = {

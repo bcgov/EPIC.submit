@@ -1,11 +1,11 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import UserDetails from "@/components/UserManagement/entity/EditUserProfile/UserDetails";
+import UserDetails from "@/components/App/UserManagement/entity/EditUserProfile/UserDetails";
 import { Grid } from "@mui/material";
-import { useUserStore } from "@/components/UserManagement/entity/userStore";
+import { useUserStore } from "@/components/App/UserManagement/entity/userStore";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/user-details"
+  "/proponent/_proponentLayout/user-management/user-details",
 )({
   component: ProfileEditPage,
   loader: () => {

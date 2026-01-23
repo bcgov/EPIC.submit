@@ -1,9 +1,9 @@
-import { Form } from "@/components/NewManagementPlan/Form";
-import { NewManagementPlanForm } from "@/components/NewManagementPlan/types";
-import { PROJECT_STATUS } from "@/components/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/registration/addProjects/ProjectStatus";
-import { ContentBox } from "@/components/Shared/ContentBox";
-import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
+import { Form } from "@/components/App/NewManagementPlan/Form";
+import { NewManagementPlanForm } from "@/components/App/NewManagementPlan/types";
+import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
+import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";

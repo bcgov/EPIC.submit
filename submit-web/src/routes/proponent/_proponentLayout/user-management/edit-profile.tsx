@@ -1,7 +1,7 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { useEffect } from "react";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import ProfileEditForm from "@/components/UserManagement/entity/EditUserProfile/ProfileEditForm";
+import ProfileEditForm from "@/components/App/UserManagement/entity/EditUserProfile/ProfileEditForm";
 import { useAccountGetUserByGuid } from "@/hooks/api/useAccountUsers";
 import { useAuth } from "react-oidc-context";
 import { PageLoader } from "@/components/Shared/PageLoader";
@@ -10,7 +10,7 @@ import { Grid } from "@mui/material";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/edit-profile"
+  "/proponent/_proponentLayout/user-management/edit-profile",
 )({
   component: ProfileEditPage,
   loader: ({ context }) => {
@@ -33,7 +33,7 @@ export const Route = createFileRoute(
         title: "Edit Profile",
         path: "/proponent/user-management/edit-profile",
       },
-    ].filter(Boolean),
+    ].filter(Boolean) as any,
 });
 
 function ProfileEditPage() {

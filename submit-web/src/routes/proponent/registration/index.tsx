@@ -5,8 +5,8 @@ import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 import { useGetInvitation } from "@/hooks/api/useInvitations";
-import { useCreateAccountForm } from "@/components/registration/formStore";
-import { LandingPageComponent } from "@/components/LandingPageComponent";
+import { useCreateAccountForm } from "@/components/App/registration/formStore";
+import { LandingPageComponent } from "@/components/App/LandingPageComponent";
 
 export const Route = createFileRoute("/proponent/registration/")({
   component: Registration,

@@ -3,12 +3,12 @@ import { Grid } from "@mui/material";
 import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { Else, If, Then } from "react-if";
-import { Projects, ProjectsSkeleton } from "@/components/Projects";
+import { Projects, ProjectsSkeleton } from "@/components/App/Projects";
 import { useEffect } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import ProjectFilters from "@/components/Filters/ProjectFilters";
-import { useProjectFilters } from "@/components/Filters/projectFilterStore";
+import ProjectFilters from "@/components/App/Filters/ProjectFilters";
+import { useProjectFilters } from "@/components/App/Filters/projectFilterStore";
 import { USER_TYPE } from "@/models/User";
 
 export const Route = createFileRoute("/proponent/_proponentLayout/projects/")({

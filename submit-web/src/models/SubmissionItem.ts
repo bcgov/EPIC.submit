@@ -1,4 +1,4 @@
-import { Note } from "@/components/SubmissionItem/Note";
+import { Note } from "@/components/App/SubmissionItem/Note";
 import { Submission, SubmissionItemStatus } from "./Submission";
 import { SubmissionReview } from "./SubmissionReview";
 import { User } from "./User";

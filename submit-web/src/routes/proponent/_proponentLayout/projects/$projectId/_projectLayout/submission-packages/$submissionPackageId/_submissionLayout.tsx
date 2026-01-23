@@ -1,4 +1,4 @@
-import { ContentBoxSkeleton } from "@/components/Shared/ContentBox/ContentBoxSkeleton";
+import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";

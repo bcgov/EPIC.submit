@@ -1,7 +1,7 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { Grid } from "@mui/material";
 import { createFileRoute, Navigate, useParams } from "@tanstack/react-router";
-import { Project as ProjectComponent } from "@/components/Projects/Project";
+import { Project as ProjectComponent } from "@/components/App/Projects/Project";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 
 export const Route = createFileRoute(

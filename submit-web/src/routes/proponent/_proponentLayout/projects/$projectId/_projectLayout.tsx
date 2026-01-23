@@ -1,4 +1,4 @@
-import { ProjectsSkeleton } from "@/components/Projects";
+import { ProjectsSkeleton } from "@/components/App/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";

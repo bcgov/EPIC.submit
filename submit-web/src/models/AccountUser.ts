@@ -1,4 +1,4 @@
-import { UserPackageStatus } from "@/components/UserStatusChip";
+import { UserPackageStatus } from "@/components/App/UserStatusChip";
 import { Account } from "./Account";
 import { USER_MANAGEMENT_ROLE } from "./Role";
 
