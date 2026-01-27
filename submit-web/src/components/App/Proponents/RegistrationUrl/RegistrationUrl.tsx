@@ -67,7 +67,7 @@ export const RegistrationUrl = ({
     createInvitation({
       proponent_id: proponentId,
       project_ids: selectedProjectsIds,
-      role_name: USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+      role_name: USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
     });
   };
 

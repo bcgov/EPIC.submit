@@ -24,6 +24,10 @@ export const roleDetails: Record<
   USER_MANAGEMENT_ROLE,
   { label: string; info: string }
 > = {
+  [USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN]: {
+    label: "Account Administrator",
+    info: "Full access to an account (including creating new submissions and submitting to EAO), manage users, and system settings.",
+  },
   [USER_MANAGEMENT_ROLE.PROJECT_ADMIN]: {
     label: "Project Administrator",
     info: "Full access to all submissions (including creating new submissions and submitting to EAO), manage users, and system settings.",
