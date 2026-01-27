@@ -66,7 +66,8 @@ class Auth:  # pylint: disable=too-few-public-methods
             @Auth.require
             @wraps(f)
             def wrapper(*args, **kwargs):
-                user = db.session.query(User).filter_by(auth_guid=cls().sub).first()
+                print("PREFERRED USERNAME", cls().preferred_username)
+                user = db.session.query(User).filter_by(auth_guid=cls().preferred_username).first()
                 if user.type == UserType.STAFF:
                     # pylint: disable=no-value-for-parameter
                     if jwt.has_one_of_roles(roles):
@@ -89,6 +90,11 @@ class Auth:  # pylint: disable=too-few-public-methods
     def sub(self):
         """Retrieve the subject (sub) claim from the JWT token."""
         return g.token_info.get("sub") if hasattr(g, "token_info") else None
+    
+    @property
+    def preferred_username(self):
+        """Retrieve the preferred username claim from the JWT token."""
+        return g.token_info.get("preferred_username") if hasattr(g, "token_info") else None
 
 
 auth = Auth()

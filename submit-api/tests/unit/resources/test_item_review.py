@@ -25,7 +25,7 @@ fake = Faker()
 def test_create_review_consultation_record_success(client, session, jwt):
     """Test creating a review for a submission item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value)
@@ -85,7 +85,7 @@ def test_create_review_consultation_record_success(client, session, jwt):
 def test_create_review_consultation_record_fail(client, session, jwt):
     """Test creating a review for a submission item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value)
@@ -141,7 +141,7 @@ def test_create_review_consultation_record_fail(client, session, jwt):
 def test_approve_management_plan_item_satisfaction(client, session, jwt):
     """Test approving a management plan item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value,
@@ -200,7 +200,7 @@ def test_approve_management_plan_item_satisfaction(client, session, jwt):
 def test_approve_management_plan_item_acceptance(client, session, jwt):
     """Test approving a management plan item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value,
@@ -259,7 +259,7 @@ def test_approve_management_plan_item_acceptance(client, session, jwt):
 def test_approve_management_plan_item_approval(client, session, jwt):
     """Test approving a management plan item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value,
@@ -318,7 +318,7 @@ def test_approve_management_plan_item_approval(client, session, jwt):
 def test_review_iem_package(client, session, jwt):
     """Test reviewing an IEM package."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.IEM.value, submitted_to_eao_for='Approval')
@@ -375,7 +375,7 @@ def test_review_iem_package(client, session, jwt):
 def test_fail_management_plan_item(client, session, jwt):
     """Test approving a management plan item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value,
@@ -443,7 +443,7 @@ def test_fail_management_plan_item(client, session, jwt):
 def test_fail_iem_item(client, session, jwt):
     """Test approving a management plan item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
     factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.IEM.value,

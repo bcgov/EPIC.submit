@@ -123,7 +123,7 @@ class ProjectQueries:
         if account_id is not None:
             query = cls._filter_account_projects_by_user_access(query, user)
 
-        if filtered_package_ids is None:
+        if filtered_package_ids is None or len(filtered_package_ids) == 0:
             account_project_ids_subquery = query.with_entities(AccountProject.id).distinct()
         else:
             account_project_ids_subquery = (query.join(Package).filter(Package.id.in_(filtered_package_ids))

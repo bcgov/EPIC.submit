@@ -36,7 +36,7 @@ class TestJwtClaims(dict, Enum):
         'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
         'sub': 'f7a4a1d4-73a8-4cbc-a40f-bb1145302065',
         'idp_userid': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302065',
-        'preferred_username': f'{fake.user_name()}@idir',
+        'preferred_username': 'teststaff@idir',
         'given_name': fake.first_name(),
         'family_name': fake.last_name(),
         'tenant_id': 1,
@@ -65,7 +65,7 @@ class TestJwtClaims(dict, Enum):
         'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
         'sub': '12345678-aaaa-bbbb-cccc-1234567890ab',  # Unique for this proponent
         'idp_userid': '12345678-aaaa-bbbb-cccc-1234567890ab',
-        'preferred_username': f'{fake.user_name()}@example.com',
+        'preferred_username': 'testproponent@example.com',
         'given_name': fake.first_name(),
         'family_name': fake.last_name(),
         'tenant_id': 1,
