@@ -138,14 +138,14 @@ function CreateAccountForm() {
       return;
     }
 
-    if (!user?.profile.sub || !invitation) return;
+    if (!user?.profile.preferred_username || !invitation) return;
     const accountData = {
       first_name: data.givenName,
       last_name: data.surname,
       position: data.position,
       work_contact_number: data.phone,
       work_email_address: data.email,
-      auth_guid: user?.profile.sub,
+      auth_guid: user?.profile.preferred_username,
       proponent_id: invitation.account_id,
       extension_number: data.extension_number,
       terms_of_service_version_id: versionId,

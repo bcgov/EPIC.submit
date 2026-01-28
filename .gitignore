@@ -160,3 +160,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 .DS_Store
+deployment/charts/submit-api/values.prod.yaml
+deployment/charts/submit-cron/values.prod.yaml
+deployment/charts/submit-web/values.prod.yaml

@@ -18,6 +18,16 @@ class TokenInfo:
             return None
 
     @staticmethod
+    @user_context
+    def get_username(**kwargs):
+        """Get the username from identity provider."""
+        try:
+            user_from_context: UserContext = kwargs['user_context']
+            return user_from_context.user_name
+        except AttributeError:
+            return None
+
+    @staticmethod
     def get_user_data():
         """Get the user data."""
         token_info = g.jwt_oidc_token_info

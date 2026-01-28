@@ -43,7 +43,7 @@ function ProfileEditPage() {
     isPending: isUserAccountLoading,
     isError: isUsersError,
   } = useAccountGetUserByGuid({
-    guid: user?.profile.sub,
+    guid: user?.profile.preferred_username,
   });
 
   useEffect(() => {
@@ -63,7 +63,7 @@ function ProfileEditPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProfileEditForm user={account_user} guid={user.profile.sub} />
+        <ProfileEditForm user={account_user} guid={user.profile.preferred_username} />
       </Grid>
     </PageGrid>
   );
