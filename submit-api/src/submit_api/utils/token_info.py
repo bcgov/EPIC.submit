@@ -10,10 +10,20 @@ class TokenInfo:
     @staticmethod
     @user_context
     def get_id(**kwargs):
-        """Get the user identifier."""
+        """Get the user identifier (username from identity provider)."""
         try:
             user_from_context: UserContext = kwargs['user_context']
-            return user_from_context.sub
+            return user_from_context.user_name
+        except AttributeError:
+            return None
+
+    @staticmethod
+    @user_context
+    def get_username(**kwargs):
+        """Get the username from identity provider."""
+        try:
+            user_from_context: UserContext = kwargs['user_context']
+            return user_from_context.user_name
         except AttributeError:
             return None
 
