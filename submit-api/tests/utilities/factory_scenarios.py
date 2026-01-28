@@ -36,9 +36,9 @@ class TestJwtClaims(dict, Enum):
         'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
         'sub': 'f7a4a1d4-73a8-4cbc-a40f-bb1145302065',
         'idp_userid': 'f7a4a1d3-73a8-4cbc-a40f-bb1145302065',
-        'preferred_username': f'{fake.user_name()}@idir',
-        'given_name': fake.first_name(),
-        'family_name': fake.last_name(),
+        'preferred_username': 'teststaff@idir',
+        'given_name': 'Test',
+        'family_name': 'Staff',
         'tenant_id': 1,
         'email': 'staff@gov.bc.ca',
         'identity_provider': 'IDIR',
@@ -65,11 +65,11 @@ class TestJwtClaims(dict, Enum):
         'iss': CONFIG.JWT_OIDC_TEST_ISSUER,
         'sub': '12345678-aaaa-bbbb-cccc-1234567890ab',  # Unique for this proponent
         'idp_userid': '12345678-aaaa-bbbb-cccc-1234567890ab',
-        'preferred_username': f'{fake.user_name()}@example.com',
-        'given_name': fake.first_name(),
-        'family_name': fake.last_name(),
+        'preferred_username': 'testproponent@example.com',
+        'given_name': 'Test',
+        'family_name': 'Proponent',
         'tenant_id': 1,
-        'email': fake.email(),
+        'email': 'testproponent@example.com',
         'identity_provider': 'bceidbusiness',  # simulate proponent (BCEID or similar)
         'aud': CONFIG.JWT_OIDC_TEST_AUDIENCE,
         'realm_access': {
