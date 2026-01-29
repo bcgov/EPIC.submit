@@ -26,3 +26,4 @@ requests
 flask_cors
 pyhumps
 importlib-resources
+pytz

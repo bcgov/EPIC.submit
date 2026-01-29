@@ -33,6 +33,11 @@ class UserRole(BaseModel):
     def get_permissions_from_role(role: str) -> list[ProponentPermissionsEnum]:
         """Get permissions from role."""
         permissions_map = {
+            RoleEnum.ACCOUNT_PRIMARY_ADMIN.value: [
+                ProponentPermissionsEnum.CREATE_PACKAGE.value,
+                ProponentPermissionsEnum.SUBMIT_PACKAGE.value,
+                ProponentPermissionsEnum.INVITE_USERS.value
+            ],
             RoleEnum.PROJECT_ADMIN.value: [
                 ProponentPermissionsEnum.CREATE_PACKAGE.value,
                 ProponentPermissionsEnum.SUBMIT_PACKAGE.value,

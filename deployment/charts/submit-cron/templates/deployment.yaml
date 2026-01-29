@@ -22,62 +22,6 @@ spec:
         app-group: submit-app
         environment: {{ .Values.env }}
     spec:
-      initContainers:
-        - name: pre-hook-update-db
-          image: image-registry.openshift-image-registry.svc:5000/{{ .Values.imageNamespace }}/{{ .Values.name }}:{{ .Values.imageTag }}
-          command: ["/submit-cron/pre-hook-update-db.sh"]
-          volumeMounts:
-            - name: cron-config
-              mountPath: /submit-cron/cron/
-              readOnly: true
-          env:
-            - name: DATABASE_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: submit-patroni
-                  key: app-db-username
-            - name: DATABASE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: submit-patroni
-                  key: app-db-password
-            - name: CHES_TOKEN_ENDPOINT
-              valueFrom:
-                secretKeyRef:
-                  name: ches-secrets
-                  key: CHES_TOKEN_ENDPOINT
-            - name: CHES_BASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: ches-secrets
-                  key: CHES_BASE_URL
-            - name: CHES_CLIENT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: ches-secrets
-                  key: CHES_CLIENT_ID
-            - name: CHES_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: ches-secrets
-                  key: CHES_CLIENT_SECRET
-            - name: SENDER_EMAIL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.name }}-config
-                  key: SENDER_EMAIL
-            - name: WEB_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.name }}-config
-                  key: WEB_URL
-            - name: DATABASE_NAME
-              value: "{{ .Values.database.username }}"
-            - name: DATABASE_HOST
-              value: "{{ .Values.database.host }}"
-            - name: DATABASE_PORT
-              value: "{{ .Values.database.port }}"
-            
       containers:
         - name: {{ .Values.name }}
           image: image-registry.openshift-image-registry.svc:5000/{{ .Values.imageNamespace }}/{{ .Values.name }}:{{ .Values.imageTag }}
@@ -89,6 +33,56 @@ spec:
               mountPath: /submit-cron/cron/
               readOnly: true
           env: # same as above
+            - name: DATABASE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: DATABASE_USERNAME
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.name }}
+                  key: DATABASE_PASSWORD
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: DATABASE_NAME
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: DATABASE_PORT
+            - name: CENTRE_DATABASE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: CENTRE_DATABASE_USERNAME
+            - name: CENTRE_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.name }}
+                  key: CENTRE_DATABASE_PASSWORD
+            - name: CENTRE_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: CENTRE_DATABASE_NAME
+            - name: CENTRE_DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: CENTRE_DATABASE_HOST
+            - name: CENTRE_DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: CENTRE_DATABASE_PORT
             - name: CHES_TOKEN_ENDPOINT
               valueFrom:
                 secretKeyRef:
@@ -114,12 +108,6 @@ spec:
                 configMapKeyRef:
                   name: {{ .Values.name }}-config
                   key: WEB_URL
-            - name: DATABASE_NAME
-              value: "{{ .Values.database.username }}"
-            - name: DATABASE_HOST
-              value: "{{ .Values.database.host }}"
-            - name: DATABASE_PORT
-              value: "{{ .Values.database.port }}"
             - name: SENDER_EMAIL
               valueFrom:
                 configMapKeyRef:
@@ -150,6 +138,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.name }}
                   key: KEYCLOAK_SERVICE_ACCOUNT_SECRET
+            - name: CONDITION_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.name }}-config
+                  key: CONDITION_API_BASE_URL
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu }}
