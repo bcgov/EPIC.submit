@@ -49,7 +49,7 @@ class BaseModel(db.Model):
 
         Used to populate the created_by and modified_by relationships on all models.
         """
-        return TokenInfo.get_id()
+        return TokenInfo.get_username()
 
     @classmethod
     def find_by_id(cls, identifier: int):

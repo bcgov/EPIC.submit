@@ -13,7 +13,7 @@ class TokenInfo:
         """Get the user identifier (username from identity provider)."""
         try:
             user_from_context: UserContext = kwargs['user_context']
-            return user_from_context.user_name
+            return user_from_context.sub
         except AttributeError:
             return None
 

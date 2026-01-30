@@ -45,7 +45,7 @@ class ConsultationRecordService:
             entity_id=package.version.original_package_id,
             action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
             entity_version=package.version.version,
-            actor_id=TokenInfo.get_id(),
+            actor_id=TokenInfo.get_username(),
             session=session
         )
         current_app.logger.info(
@@ -69,7 +69,7 @@ class ConsultationRecordService:
             entity_id=package.version.original_package_id,
             action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
             entity_version=package.version.version,
-            actor_id=TokenInfo.get_id(),
+            actor_id=TokenInfo.get_username(),
             session=session
         )
         cls._create_rejection_email_queue(
@@ -101,7 +101,7 @@ class ConsultationRecordService:
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
             submission_item_types=data.get('item_types'),
-            created_by=TokenInfo.get_id(),
+            created_by=TokenInfo.get_username(),
             reason=data.get('reason'),
             type=data.get('type')
         )

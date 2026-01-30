@@ -26,7 +26,7 @@ class ProjectService:
     def get_projects_by_account_id(cls, account_id, search_options: AccountProjectSearchOptions = None,
                                    is_proponent=True):
         """Get projects by account id."""
-        guid = TokenInfo.get_id()
+        guid = TokenInfo.get_username()
         user = UserModel.get_by_guid(guid)
 
         if not user:

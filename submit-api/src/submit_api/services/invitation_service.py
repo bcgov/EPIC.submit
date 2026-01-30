@@ -237,7 +237,7 @@ class InvitationService:
     @staticmethod
     def _validate_invitation_access(invitation):
         """Validate if the current user has access to the invitation."""
-        auth_guid = TokenInfo.get_id()
+        auth_guid = TokenInfo.get_username()
         user = User.get_by_guid(auth_guid)
 
         if not user:

@@ -35,7 +35,7 @@ class InternalStaffDocumentService:
             url=data.get("url"),
             type=data.get("type"),
             package_id=package_id,
-            created_by=TokenInfo.get_id(),
+            created_by=TokenInfo.get_username(),
         )
         internal_staff_document.save()
         return internal_staff_document

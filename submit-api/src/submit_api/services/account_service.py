@@ -101,7 +101,7 @@ class AccountService:
     @classmethod
     def get_all_account_packages(cls, account_id):
         """Get packages by account id."""
-        user = UserModel.get_by_guid(TokenInfo.get_id())
+        user = UserModel.get_by_guid(TokenInfo.get_username())
         if not user:
             raise ResourceNotFoundError("User not found")
         account_project_ids = [user.account_user.role.account_project_id] if user.account_user else None

@@ -43,7 +43,7 @@ export async function kcLogin(
     token_type: "Bearer",
     scope: "openid profile email",
     profile: {
-      sub: username,
+      preferred_username: username,
     },
   };
 

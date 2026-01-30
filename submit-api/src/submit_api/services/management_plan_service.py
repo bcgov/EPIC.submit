@@ -151,7 +151,7 @@ class ManagementPlanService:
         update_request = UpdateRequest(
             submission_package_id=data.get('package_id'),
             submission_item_types=data.get('submission_item_types'),
-            created_by=TokenInfo.get_id(),
+            created_by=TokenInfo.get_username(),
             reason=data.get('reason'),
             type=data.get('type')
         )
