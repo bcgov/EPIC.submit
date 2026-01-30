@@ -62,6 +62,11 @@ class InvitationService:
         else:
             account_project_ids = [ap.id for ap in account_projects]
 
+        # If no account_projects exist yet (new entity invitation not yet accepted),
+        # skip the permission check as it's handled by staff role authorization at API level
+        if not account_project_ids:
+            return
+
         # assume one project for now, can be extended for multiple projects
         authorization.check_has_permissions_on_project(
             permissions=permissions or [ProponentPermissionsEnum.INVITE_USERS.value],
@@ -200,6 +205,10 @@ class InvitationService:
             account_user = InvitationService._create_account_user(
                 user.id, invitation.account_id, payload, session)
 
+            # Create account projects if they don't exist (handles concurrent invitations gracefully)
+            InvitationService._create_account_projects(
+                invitation.account_id, invitation.project_ids, session)
+
             account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
             roles = []
             for account_project in account_projects:
@@ -287,8 +296,6 @@ class InvitationService:
         if not account:
             account_data = {'proponent_id': proponent_id}
             account = AccountModel.create_account(account_data, session)
-        InvitationService._create_account_projects(
-            account.id, project_ids, session)
         return account
 
     @staticmethod
@@ -313,7 +320,7 @@ class InvitationService:
             role_id=role.id,
             package_ids=invite_data.get('package_ids'),
             original_package_ids=invite_data.get('original_package_ids'),
-            expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
+            expiry_date=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=expiry_days),
             is_first_time=is_first_time
         )
         session.add(invitation)
@@ -396,7 +403,12 @@ class InvitationService:
         if invitation.status != InvitationStatus.PENDING.value:
             return {"error": "Invitation is not valid"}, False
 
-        if invitation.expiry_date < datetime.datetime.utcnow():
+        # Ensure expiry_date is timezone-aware for comparison
+        expiry_date = invitation.expiry_date
+        if expiry_date.tzinfo is None:
+            expiry_date = expiry_date.replace(tzinfo=datetime.timezone.utc)
+
+        if expiry_date < datetime.datetime.now(datetime.timezone.utc):
             return {"error": "Invitation has expired"}, False
 
         # Update proponent status
@@ -428,7 +440,7 @@ class InvitationService:
             InvitationService._check_action_authorized(invitation.project_ids)
 
             # Extend expiry date by 1 week from current date
-            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)
+            invitation.expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(weeks=1)
 
             InvitationService._create_email_queue_record(
                 invitation.id, session)
