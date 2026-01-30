@@ -69,7 +69,7 @@ class TestJwtClaims(dict, Enum):
         'given_name': fake.first_name(),
         'family_name': fake.last_name(),
         'tenant_id': 1,
-        'email': fake.email(),
+        'email': 'testproponent@example.com',
         'identity_provider': 'bceidbusiness',  # simulate proponent (BCEID or similar)
         'aud': CONFIG.JWT_OIDC_TEST_AUDIENCE,
         'realm_access': {

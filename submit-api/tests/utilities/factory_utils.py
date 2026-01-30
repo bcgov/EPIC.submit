@@ -355,7 +355,8 @@ def setup_authenticated_proponent(session, jwt, role=RoleEnum.PROJECT_ADMIN.valu
     project = factory_project_model()
     account_project = factory_account_project_model(account.id, project.id)
 
-    auth_guid = fake.uuid4()
+    claims = TestJwtClaims.proponent_role.copy()
+    auth_guid = claims["preferred_username"]
     user, account_user, _ = create_proponent_with_role(
         session,
         auth_guid=auth_guid,
