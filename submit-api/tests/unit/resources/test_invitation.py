@@ -29,9 +29,6 @@ CONFIG = get_named_config("testing")
 
 def test_create_invitation_to_existing_account(client, session, jwt):
     """Test creating invitation for existing account."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
-    factory_user_model(auth_guid=auth_guid)
-
     headers, account_project = setup_authenticated_proponent(session, jwt)
     payload = {
         "proponent_id": 1234,
@@ -53,7 +50,7 @@ def test_create_invitation_to_existing_account(client, session, jwt):
 
 def test_create_invitation_conflict(client, session, jwt):
     """Test creating invitation when user already exists."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     # Mock the service to return a conflict
@@ -79,7 +76,7 @@ def test_create_invitation_conflict(client, session, jwt):
 
 def test_create_new_account_invitation(client, session, jwt):
     """Test creating invitation for new account."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     project = factory_project_model(name="New Project", proponent_id=5678)
@@ -137,9 +134,6 @@ def test_get_invitation_expired(client, session, jwt):
 
 def test_delete_invitation_by_token(client, session, jwt):
     """Test revoking invitation by token."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
-    factory_user_model(auth_guid=auth_guid)
-
     headers, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
@@ -153,7 +147,7 @@ def test_delete_invitation_by_token(client, session, jwt):
 
 def test_delete_invitation_not_found(client, session, jwt):
     """Test revoking non-existent invitation."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
@@ -205,9 +199,6 @@ def test_accept_invitation_invalid_token(client, session):
 
 def test_get_invitation_by_id(client, session, jwt):
     """Test retrieving invitation by ID."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
-    factory_user_model(auth_guid=auth_guid)
-
     headers, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
@@ -224,7 +215,7 @@ def test_get_invitation_by_id(client, session, jwt):
 
 def test_get_invitation_by_id_not_found(client, session, jwt):
     """Test retrieving non-existent invitation by ID."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
@@ -235,9 +226,6 @@ def test_get_invitation_by_id_not_found(client, session, jwt):
 
 def test_delete_invitation_by_id(client, session, jwt):
     """Test revoking invitation by ID."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
-    factory_user_model(auth_guid=auth_guid)
-
     headers, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
@@ -251,7 +239,7 @@ def test_delete_invitation_by_id(client, session, jwt):
 
 def test_delete_invitation_by_id_not_found(client, session, jwt):
     """Test revoking non-existent invitation by ID."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
@@ -262,9 +250,6 @@ def test_delete_invitation_by_id_not_found(client, session, jwt):
 
 def test_resend_invitation(client, session, jwt):
     """Test resending an invitation."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
-    factory_user_model(auth_guid=auth_guid)
-
     headers, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
@@ -278,7 +263,7 @@ def test_resend_invitation(client, session, jwt):
 
 def test_resend_invitation_not_found(client, session, jwt):
     """Test resending non-existent invitation."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
@@ -289,9 +274,6 @@ def test_resend_invitation_not_found(client, session, jwt):
 
 def test_resend_used_invitation(client, session, jwt):
     """Test resending already used invitation."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
-    factory_user_model(auth_guid=auth_guid)
-
     headers, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
@@ -328,7 +310,7 @@ def test_delete_invitation_unauthorized(client, session):
 
 def test_create_invitation_with_multiple_projects(client, session, jwt):
     """Test creating invitation with multiple account projects."""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     account = factory_account_model(proponent_id=1234)

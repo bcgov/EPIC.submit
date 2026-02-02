@@ -30,7 +30,7 @@ type IdentityProvider =
 export default function AppBarActions() {
   const auth = useAuth();
   const { data: user_data, isPending: isUserDataLoading } = useGetUserByGuid({
-    guid: auth.user?.profile?.sub,
+    guid: auth.user?.profile?.preferred_username,
   });
 
   const navigate = useNavigate();

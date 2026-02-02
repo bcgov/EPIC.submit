@@ -33,7 +33,7 @@ class SubmissionItemNoteService:
         note = SubmissionItemNoteModel(
             note=data.get("note"),
             item_id=submission_item_id,
-            created_by=TokenInfo.get_id(),
+            created_by=TokenInfo.get_username(),
         )
         note.save()
         return note

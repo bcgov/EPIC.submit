@@ -55,7 +55,7 @@ class CurrentUser(Resource):
         """Get or create current authenticated user."""
         # Get token info from flask.g (set by @auth.require decorator)
         token_info = g.get('token_info')
-        guid = token_info.get('sub') if token_info else None
+        guid = token_info.get('preferred_username') if token_info else None
 
         if not guid:
             raise ResourceNotFoundError("User GUID not found in token")

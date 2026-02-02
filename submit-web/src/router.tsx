@@ -32,7 +32,7 @@ export default function RouterProviderWithAuthContext({
   const getAccountData = useCallback(async () => {
     try {
       const data = await getAccount(
-        authentication?.user?.profile.sub,
+        authentication?.user?.profile.preferred_username,
         authentication.user?.access_token,
       );
       router.invalidate();
