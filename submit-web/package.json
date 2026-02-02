@@ -17,7 +17,7 @@
   "dependencies": {
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
-    "@epic/centre-analytics": "git+https://github.com/bcgov/EPIC.analytics.git#main",
+    "@epic/centre-analytics": "git+https://github.com/bcgov/EPIC.analytics.git#v1.0.0",
     "@hookform/resolvers": "^3.9.0",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.20",
@@ -26,7 +26,7 @@
     "@tanstack/react-router": "^1.45.7",
     "@tanstack/router-devtools": "^1.45.7",
     "@tanstack/router-plugin": "^1.45.7",
-    "axios": "^1.7.2",
+    "axios": "^1.13.2",
     "dayjs": "^1.11.13",
     "dompurify": "^3.2.6",
     "epic.theme": "latest",
