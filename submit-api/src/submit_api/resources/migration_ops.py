@@ -45,7 +45,7 @@ class MigrateUserIdsToUsernames(Resource):
     @auth.require
     @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
     @cross_origin(origins=allowedorigins())
-    def post():  # pylint: disable=too-many-locals
+    def post():  # pylint: disable=too-many-locals,too-many-statements
         """
         Migrate Keycloak user IDs to identity provider usernames.
 
@@ -62,17 +62,62 @@ class MigrateUserIdsToUsernames(Resource):
         try:
             current_app.logger.info("Starting user ID to username migration...")
 
-            # Disable foreign key constraints temporarily
-            current_app.logger.info("Disabling foreign key constraints...")
-            db.session.execute(text("SET session_replication_role = 'replica';"))
+            # Query all foreign key constraints that reference users.auth_guid
+            current_app.logger.info("Querying foreign key constraints on users.auth_guid...")
+            fk_query = text("""
+                SELECT 
+                    tc.table_name, 
+                    tc.constraint_name,
+                    kcu.column_name
+                FROM information_schema.table_constraints AS tc
+                JOIN information_schema.key_column_usage AS kcu
+                    ON tc.constraint_name = kcu.constraint_name
+                    AND tc.table_schema = kcu.table_schema
+                JOIN information_schema.constraint_column_usage AS ccu
+                    ON ccu.constraint_name = tc.constraint_name
+                    AND ccu.table_schema = tc.table_schema
+                WHERE tc.constraint_type = 'FOREIGN KEY'
+                    AND ccu.table_name = 'users'
+                    AND ccu.column_name = 'auth_guid'
+                    AND tc.table_schema = 'public'
+            """)
+
+            fk_constraints = db.session.execute(fk_query).fetchall()
+            dropped_constraints = []
+
+            # Drop each foreign key constraint
+            current_app.logger.info(f"Dropping {len(fk_constraints)} foreign key constraints...")
+            for constraint in fk_constraints:
+                table_name = constraint[0]
+                constraint_name = constraint[1]
+                column_name = constraint[2]
+
+                drop_sql = f"ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {constraint_name}"
+                db.session.execute(text(drop_sql))
+
+                dropped_constraints.append({
+                    'table': table_name,
+                    'constraint': constraint_name,
+                    'column': column_name
+                })
+                current_app.logger.info(f"Dropped constraint {constraint_name} on {table_name}.{column_name}")
 
             # Fetch all users from Keycloak
             current_app.logger.info("Fetching users from Keycloak...")
             users = KeycloakService.get_users()
 
             if not users:
-                # Re-enable foreign key constraints before returning
-                db.session.execute(text("SET session_replication_role = 'origin';"))
+                # Recreate constraints before returning
+                current_app.logger.info("No users found, recreating constraints...")
+                for fk in dropped_constraints:
+                    create_sql = f"""
+                        ALTER TABLE {fk['table']}
+                        ADD CONSTRAINT {fk['constraint']}
+                        FOREIGN KEY ({fk['column']})
+                        REFERENCES users(auth_guid)
+                    """
+                    db.session.execute(text(create_sql))
+                db.session.commit()
                 return {
                     "message": "No users found in Keycloak",
                     "migrated_count": 0
@@ -171,12 +216,25 @@ class MigrateUserIdsToUsernames(Resource):
                         migration_results["errors"].append(error_msg)
                         raise e
 
-            # Commit all changes
-            db.session.commit()
+            # Recreate all foreign key constraints
+            current_app.logger.info(f"Recreating {len(dropped_constraints)} foreign key constraints...")
+            for fk in dropped_constraints:
+                table_name = fk['table']
+                constraint_name = fk['constraint']
+                column_name = fk['column']
 
-            # Re-enable foreign key constraints
-            current_app.logger.info("Re-enabling foreign key constraints...")
-            db.session.execute(text("SET session_replication_role = 'origin';"))
+                create_sql = f"""
+                    ALTER TABLE {table_name}
+                    ADD CONSTRAINT {constraint_name}
+                    FOREIGN KEY ({column_name})
+                    REFERENCES users(auth_guid)
+                """
+                db.session.execute(text(create_sql))
+                current_app.logger.info(f"Recreated constraint {constraint_name} on {table_name}.{column_name}")
+
+            current_app.logger.info("All foreign key constraints recreated successfully")
+
+            # Commit all changes
             db.session.commit()
 
             current_app.logger.info("Migration completed successfully!")
@@ -187,12 +245,7 @@ class MigrateUserIdsToUsernames(Resource):
             }, HTTPStatus.OK
 
         except Exception as e:  # noqa: B902  # pylint: disable=broad-exception-caught
-            # Re-enable foreign key constraints on error
-            try:
-                db.session.execute(text("SET session_replication_role = 'origin';"))
-            except Exception:  # noqa: B902  # pylint: disable=broad-exception-caught
-                pass  # If this fails, the session will be rolled back anyway
-
+            # Transaction will rollback automatically, including constraint drops
             db.session.rollback()
             error_msg = f"Migration failed: {str(e)}"
             current_app.logger.error(error_msg)
