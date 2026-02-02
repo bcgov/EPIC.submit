@@ -144,13 +144,12 @@ class InvitationService:
         account_id = invite_data.get('account_id')
         role_name = invite_data.get('role_name')
         proponent_id = invite_data.get('proponent_id')
-        project_ids = invite_data.get('project_ids')
 
         role = InvitationService._validate_fetch_role(role_name)
 
         with session_scope() as session:
             account = InvitationService._get_or_create_account(
-                account_id, proponent_id, project_ids, session)
+                account_id, proponent_id, session)
             session.flush()
 
             token = InvitationService.generate_uuid_token()
@@ -269,13 +268,13 @@ class InvitationService:
         return True
 
     @staticmethod
-    def _get_or_create_account(account_id, proponent_id, project_ids, session):
+    def _get_or_create_account(account_id, proponent_id, session):
         """Retrieve or create an account based on proponent_id or account_id."""
         if account_id:
             return InvitationService._get_account_by_id(account_id)
 
         if proponent_id:
-            return InvitationService._get_or_create_account_by_proponent(proponent_id, project_ids, session)
+            return InvitationService._get_or_create_account_by_proponent(proponent_id, session)
 
         raise ResourceNotFoundError("No valid account found for the provided data.")
 
@@ -290,7 +289,7 @@ class InvitationService:
         return ProponentModel.find_by_id(proponent_id)
 
     @staticmethod
-    def _get_or_create_account_by_proponent(proponent_id, project_ids, session):
+    def _get_or_create_account_by_proponent(proponent_id, session):
         """Retrieve or create an account by proponent_id."""
         account = AccountModel.get_by_proponent_id(proponent_id)
         if not account:
