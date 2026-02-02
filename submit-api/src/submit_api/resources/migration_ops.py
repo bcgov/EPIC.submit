@@ -45,7 +45,7 @@ class MigrateUserIdsToUsernames(Resource):
     @auth.require
     @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
     @cross_origin(origins=allowedorigins())
-    def post():  # pylint: disable=too-many-locals
+    def post():  # pylint: disable=too-many-locals,too-many-statements
         """
         Migrate Keycloak user IDs to identity provider usernames.
 
@@ -91,10 +91,10 @@ class MigrateUserIdsToUsernames(Resource):
                 table_name = constraint[0]
                 constraint_name = constraint[1]
                 column_name = constraint[2]
-                
+
                 drop_sql = f"ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {constraint_name}"
                 db.session.execute(text(drop_sql))
-                
+
                 dropped_constraints.append({
                     'table': table_name,
                     'constraint': constraint_name,
@@ -111,9 +111,9 @@ class MigrateUserIdsToUsernames(Resource):
                 current_app.logger.info("No users found, recreating constraints...")
                 for fk in dropped_constraints:
                     create_sql = f"""
-                        ALTER TABLE {fk['table']} 
-                        ADD CONSTRAINT {fk['constraint']} 
-                        FOREIGN KEY ({fk['column']}) 
+                        ALTER TABLE {fk['table']}
+                        ADD CONSTRAINT {fk['constraint']}
+                        FOREIGN KEY ({fk['column']})
                         REFERENCES users(auth_guid)
                     """
                     db.session.execute(text(create_sql))
@@ -222,11 +222,11 @@ class MigrateUserIdsToUsernames(Resource):
                 table_name = fk['table']
                 constraint_name = fk['constraint']
                 column_name = fk['column']
-                
+
                 create_sql = f"""
-                    ALTER TABLE {table_name} 
-                    ADD CONSTRAINT {constraint_name} 
-                    FOREIGN KEY ({column_name}) 
+                    ALTER TABLE {table_name}
+                    ADD CONSTRAINT {constraint_name}
+                    FOREIGN KEY ({column_name})
                     REFERENCES users(auth_guid)
                 """
                 db.session.execute(text(create_sql))
