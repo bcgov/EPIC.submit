@@ -83,7 +83,13 @@ class Proponent(Resource):
         """Get a proponent by id."""
         include_invitations = request.args.get("include-invitations", "false").lower() == "true"
         include_projects = request.args.get("include-projects", "false").lower() == "true"
-        proponent = ProponentService.get_proponent(proponent_id, include_invitations, include_projects)
+        include_administrators = request.args.get("include-administrators", "false").lower() == "true"
+        proponent = ProponentService.get_proponent(
+            proponent_id,
+            include_invitations,
+            include_projects,
+            include_administrators,
+        )
         if not proponent:
             raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
         return proponent, HTTPStatus.OK

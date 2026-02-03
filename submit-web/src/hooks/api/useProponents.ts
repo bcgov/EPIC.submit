@@ -35,6 +35,7 @@ export const useGetAllProponents = () => {
 type GetProponentOptions = {
   includeProjects?: boolean;
   includeInvitations?: boolean;
+  includeAdministrators?: boolean;
 };
 
 const getProponent = (
@@ -47,6 +48,11 @@ const getProponent = (
   }
   if (options.includeInvitations) {
     params["include-invitations"] = String(Boolean(options.includeInvitations));
+  }
+  if (options.includeAdministrators) {
+    params["include-administrators"] = String(
+      Boolean(options.includeAdministrators),
+    );
   }
   return submitRequest<Proponent>({
     url: `proponents/${proponentId}`,

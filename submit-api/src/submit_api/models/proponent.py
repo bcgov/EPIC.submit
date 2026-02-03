@@ -8,11 +8,13 @@ from sqlalchemy import Column, String, Integer, Boolean, Enum as SQLEnum
 
 from .account import Account
 from .account_project import AccountProject
+from .account_user import AccountUser
 from .base_model import BaseModel
 from .invitations import Invitations
 from .project import Project
 from ..enums.invitation_status import InvitationStatus
 from ..enums.proponent_status import ProponentStatus
+from ..enums.role import RoleEnum
 
 
 class Proponent(BaseModel):
@@ -50,7 +52,13 @@ class Proponent(BaseModel):
         return query.order_by(cls.name).all()
 
     @classmethod
-    def get_proponent_by_id(cls, proponent_id, include_invitations=False, include_projects=False):
+    def get_proponent_by_id(
+        cls,
+        proponent_id,
+        include_invitations=False,
+        include_projects=False,
+        include_administrators=False,
+    ):
         """Get proponent by id.
 
         Args:
@@ -70,7 +78,7 @@ class Proponent(BaseModel):
             "name": proponent.name,
             "status": proponent.status.value if proponent.status else None
         }
-        if not include_invitations and not include_projects:
+        if not include_invitations and not include_projects and not include_administrators:
             return proponent_dict
 
         accounts_ids = Account.query.with_entities(Account.id).filter_by(proponent_id=proponent_id).all()
@@ -92,5 +100,41 @@ class Proponent(BaseModel):
                 "account_id": account_project.account_id,
                 "project_id": account_project.project_id,
             } for account_project in account_projects]
+
+        if include_administrators and accounts_ids:
+            account_users = AccountUser.query.filter(
+                AccountUser.account_id.in_(accounts_ids)
+            ).all()
+
+            administrators = []
+            for user in account_users:
+                user_role = getattr(user, "role", None)
+                if not user_role or not user_role.active:
+                    continue
+
+                role_name = user_role.role.role_name
+                if role_name not in (
+                    RoleEnum.ACCOUNT_PRIMARY_ADMIN.value
+                ):
+                    continue
+
+                if not user.user_id:
+                    # Skip users that have not completed registration.
+                    continue
+
+                administrators.append(
+                    {
+                        "id": user.id,
+                        "first_name": user.first_name,
+                        "last_name": user.last_name,
+                        "full_name": user.full_name,
+                        "position": user.position,
+                        "company_name": user.company_name,
+                        "work_contact_number": user.work_contact_number,
+                        "work_email_address": user.work_email_address,
+                    }
+                )
+
+            proponent_dict["administrators"] = administrators
 
         return proponent_dict

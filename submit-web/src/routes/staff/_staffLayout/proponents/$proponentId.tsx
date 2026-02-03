@@ -1,4 +1,5 @@
 import { ProjectsTable } from "@/components/App/Proponents/ProjectsTable/ProjectsTable";
+import { ContactsSection } from "@/components/App/Proponents/Contacts";
 import { RegistrationUrl } from "@/components/App/Proponents/RegistrationUrl/RegistrationUrl";
 import { ProponentStatusChip } from "@/components/App/ProponentStatusChip";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
@@ -10,13 +11,12 @@ import { getProponentOptions } from "@/hooks/api/useProponents";
 import { InvitationStatus } from "@/models/Invitation";
 import { HTTP_STATUS } from "@/utils/constants";
 import { InfoOutlined } from "@mui/icons-material";
-import { Grid, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useParams } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 import { BCDesignTokens } from "epic.theme";
 import { useEffect, useState } from "react";
-import { Box } from "@mui/material";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/proponents/$proponentId",
@@ -27,6 +27,7 @@ export const Route = createFileRoute(
       getProponentOptions(Number(proponentId), {
         includeProjects: true,
         includeInvitations: true,
+        includeAdministrators: true,
       }),
     ),
   onError: (error) => {
@@ -72,6 +73,7 @@ function ProponentPage() {
     getProponentOptions(proponentId, {
       includeProjects: true,
       includeInvitations: true,
+      includeAdministrators: true,
     }),
   );
 
@@ -91,7 +93,7 @@ function ProponentPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ alignSelf: "flex-start" }}>
         <ContentBox
           mainLabel={proponent?.name}
           statusChip={<ProponentStatusChip status={proponent?.status} />}
@@ -168,6 +170,10 @@ function ProponentPage() {
               />
             </>
           )}
+          <ContactsSection
+            entityName={proponent?.name}
+            administrators={proponent?.administrators}
+          />
         </ContentBox>
       </Grid>
     </PageGrid>
