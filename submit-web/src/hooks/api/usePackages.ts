@@ -187,6 +187,20 @@ const getPackageVersionsByOriginalPackageId = ({
   });
 };
 
+const addIsLatestFlag = (versions: PackageVersion[]): PackageVersion[] => {
+  const seenApprovalStatus = new Set<boolean>();
+  
+  return versions.map((pv) => {
+    const isLatest = !seenApprovalStatus.has(pv.is_approved);
+    seenApprovalStatus.add(pv.is_approved);
+    
+    return {
+      ...pv,
+      is_latest: isLatest,
+    };
+  });
+};
+
 type UseGetPackageVersionsByOriginalPackageIdParams = {
   originalPackageId?: number;
   enabled?: boolean;
@@ -198,6 +212,7 @@ export const getPackageVersionsByOriginalPackageIdQueryOptions = ({
   queryOptions({
     queryKey: [QUERY_KEY.PACKAGE_VERSIONS, originalPackageId],
     queryFn: () => getPackageVersionsByOriginalPackageId({ originalPackageId }),
+    select: (data) => addIsLatestFlag(data),
     enabled: enabled && Boolean(originalPackageId),
   });
 

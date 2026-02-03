@@ -163,7 +163,7 @@ class PackageSchema(Schema):
     @post_dump
     def map_status(self, data, many, **kwargs):
         """Map status."""
-        auth_guid = TokenInfo.get_id()
+        auth_guid = TokenInfo.get_username()
         if not auth_guid:
             data['status'] = []
             return data

@@ -71,24 +71,17 @@ export default function SubmissionPage() {
     enabled: Boolean(submissionPackage?.version?.original_package_id),
   });
 
-  const isLatestApprovedPackageVersion = packageVersions?.find(
-    (packageVersion) =>
-      packageVersion.is_approved &&
-      packageVersion.package_id === submissionPackageId,
+  const currentPackageVersion = packageVersions?.find(
+    (pv) => pv.package_id === submissionPackageId
   );
 
-  const latestApprovedVersion = Math.max(
-    ...(packageVersions
-      ?.filter((pv) => pv.is_approved)
-      .map((pv) => pv.version) || [0]),
-  );
+  const isLatestApprovedPackageVersion = 
+    currentPackageVersion?.is_latest && 
+    currentPackageVersion?.is_approved;
 
-  const isNewerThanLastApprovedButNotApproved = Boolean(
-    (latestApprovedVersion > 0 &&
-      !submissionPackage?.version?.is_approved &&
-      submissionPackage?.version?.version) ??
-      0 > latestApprovedVersion,
-  );
+  const isNewerThanLastApprovedButNotApproved = 
+    currentPackageVersion?.is_latest && 
+    !currentPackageVersion?.is_approved;
 
   const {
     mutate: updateStateSubmissionPackage,

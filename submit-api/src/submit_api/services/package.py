@@ -282,7 +282,7 @@ class PackageService:
         """Update package submission details."""
         current_app.logger.info(f"Updating submission details for package {package.id}")
         package.submitted_on = datetime.utcnow()
-        package.submitted_by = TokenInfo.get_id()
+        package.submitted_by = TokenInfo.get_username()
 
         session.add(package)
 
@@ -600,7 +600,7 @@ class PackageService:
             submission_package_id=package.id,
             submission_item_types=request_data.get("submission_item_types"),
             reason=request_data.get("reason"),
-            created_by=TokenInfo.get_id()
+            created_by=TokenInfo.get_username()
         )
         update_request.save()
         return update_request
@@ -668,7 +668,7 @@ class PackageService:
     @classmethod
     def _validate_account_user(cls):
         """Validate the account user."""
-        auth_guid = TokenInfo.get_id()
+        auth_guid = TokenInfo.get_username()
         user = User.get_by_guid(auth_guid)
         if not user or not user.type == UserType.PROPONENT:
             raise BadRequestError("User is not an account user")

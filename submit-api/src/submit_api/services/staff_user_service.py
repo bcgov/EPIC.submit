@@ -45,24 +45,23 @@ class StaffUserService:
         """Create a user from Keycloak and assign them to a Keycloak group."""
         # 1. Fetch user from Keycloak
         keycloak_user = KeycloakService.get_user_by_email(email)
-        auth_guid = keycloak_user.get("id")
+        username = keycloak_user.get("username")
         first_name = keycloak_user.get("firstName") or ""
         last_name = keycloak_user.get("lastName") or ""
         work_email = keycloak_user.get("email")
-        username = keycloak_user.get("username")
 
-        if not auth_guid:
-            raise ValueError(f"Keycloak user with email '{email}' does not have a valid ID.")
+        if not username:
+            raise ValueError(f"Keycloak user with email '{email}' does not have a valid username.")
 
         # 2. Create or fetch local User
-        user = UserModel.get_by_guid(auth_guid)
+        user = UserModel.get_by_guid(username)
         if not user:
             user_data = {
-                "auth_guid": auth_guid,
+                "auth_guid": username,
                 "type": UserType.STAFF
             }
             user = UserModel.create_user(user_data)
-            current_app.logger.info(f"Created User with GUID {auth_guid}")
+            current_app.logger.info(f"Created User with username {username}")
 
         # 3. Create or fetch local StaffUser
         staff_user = user.staff_user
@@ -74,7 +73,7 @@ class StaffUserService:
                 "user_id": user.id
             }
             staff_user = StaffUser.create_staff_user(staff_user_data)
-            current_app.logger.info(f"Created StaffUser for User with GUID {auth_guid}")
+            current_app.logger.info(f"Created StaffUser for User with username {username}")
 
         # 4. Assign to Keycloak group
         group_id = KeycloakService.get_group_id_by_path(group_name)
