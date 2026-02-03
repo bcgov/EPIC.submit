@@ -21,7 +21,7 @@ CONFIG = get_named_config("testing")
 
 def test_get_project_by_id(client, session, jwt):
     """Test get project by id"""
-    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     proponent_name = "Test Proponent Name"
@@ -58,7 +58,7 @@ def test_get_project_by_id_no_roles(client, session, jwt):
     claims["realm_access"]["roles"] = []
     claims["resource_access"][CONFIG.JWT_OIDC_TEST_AUDIENCE]["roles"] = []
 
-    auth_guid = claims['sub']
+    auth_guid = claims['preferred_username']
     factory_user_model(auth_guid=auth_guid)
 
     account = factory_account_model()

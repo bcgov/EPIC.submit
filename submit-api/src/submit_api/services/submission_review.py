@@ -97,7 +97,7 @@ class SubmissionReviewService:
         form_answers = review_data.get('form_answers', {})
         review_entry = cls.get_or_create_active_item_review_entry(review.id, review_type)
         review_entry.entry = form_answers
-        review_entry.updated_by = TokenInfo.get_id()
+        review_entry.updated_by = TokenInfo.get_username()
         session.add(review_entry)
         session.flush()
         current_app.logger.debug(f"Submission review answers saved for review {review.id}.")

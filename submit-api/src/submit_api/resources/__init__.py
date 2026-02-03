@@ -25,6 +25,7 @@ from flask import Blueprint
 
 from .apihelper import Api
 from .ops import API as OPS_API
+from .migration_ops import API as MIGRATION_API
 from .proponent.account import API as ACCOUNT_API
 from .proponent.item import API as ITEM_API
 from .proponent.package import API as PACKAGE_API
@@ -61,6 +62,7 @@ API_OPS = Api(
 )
 
 API_OPS.add_namespace(OPS_API, path="/")
+API_OPS.add_namespace(MIGRATION_API, path="/")
 
 API = Api(
     API_BLUEPRINT,

@@ -78,7 +78,7 @@ class ActivityLogService:
             entity_id=entity_id,
             entity_version=entity_version,
             action=action,
-            actor_id=actor_id or TokenInfo.get_id(),
+            actor_id=actor_id or TokenInfo.get_username(),
             actor_type=actor_type,
             visibility=visibility,
             activity_at=datetime.utcnow()

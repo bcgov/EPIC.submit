@@ -28,7 +28,7 @@ class AccountUserService:
     def get_users_by_account_projects(cls, account_id, include_roles=False,
                                       include_invitees=False):
         """Get all users associated with an account, optionally including roles & invitees."""
-        account_user = AccountUserModel.get_by_guid(TokenInfo.get_id())
+        account_user = AccountUserModel.get_by_guid(TokenInfo.get_username())
         if not account_user:
             current_app.logger.warning("Unauthorized access attempt to account users.")
             raise PermissionDeniedError("Unauthorized access to account users.")

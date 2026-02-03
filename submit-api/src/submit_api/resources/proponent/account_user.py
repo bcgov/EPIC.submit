@@ -133,7 +133,7 @@ class EditUserRole(Resource):
     @cross_origin(origins=allowedorigins())
     def patch(account_user_id):
         """Edit a user's role."""
-        user_guid = auth.sub
+        user_guid = auth.preferred_username
         new_role_data = EditRoleSchema().load(API.payload)
         try:
             updated_role_data = AccountUserService.update_role(user_guid, account_user_id, new_role_data)
@@ -161,7 +161,7 @@ class EditUserStatus(Resource):
     @cross_origin(origins=allowedorigins())
     def patch(account_user_id):
         """Edit a user's status."""
-        user_guid = auth.sub
+        user_guid = auth.preferred_username
         try:
             data = request.get_json()
             if data.get('active', None) is None:

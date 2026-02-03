@@ -19,7 +19,7 @@ from submit_api.utils.token_info import TokenInfo
 
 def check_has_permissions_on_project(permissions=None, account_project_id=None):
     """Check if user is assigned to the project."""
-    user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
+    user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
     if user.type == UserType.STAFF:
         return
 
@@ -53,7 +53,7 @@ def has_access_to_package(package_id):
     if not package:
         abort(HTTPStatus.NOT_FOUND)
 
-    user: UserModel = UserModel.get_by_guid(TokenInfo.get_id())
+    user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
     if user.type == UserType.STAFF:
         return
 

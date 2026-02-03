@@ -14,7 +14,7 @@ fake = Faker()
 def test_create_note_success(client, session, jwt):
     """Test creating a staff note for a submission item."""
     claims = TestJwtClaims.staff_admin_role
-    auth_guid = claims["sub"]
+    auth_guid = claims["preferred_username"]
 
     factory_user_model(auth_guid=auth_guid)
     item = factory_item_model(item_type_id=1, status="NEW", submitted_by=auth_guid)

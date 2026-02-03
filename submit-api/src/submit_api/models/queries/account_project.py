@@ -92,7 +92,7 @@ class ProjectQueries:
     def _filter_account_projects_by_user_access(cls, query=None, user: User = None):
         """Filter AccountProjects by all accessible projects of the user."""
         if user is None:
-            user = User.get_by_guid(TokenInfo.get_id())
+            user = User.get_by_guid(TokenInfo.get_username())
 
         if not user:
             raise ValueError("User not found.")
@@ -177,7 +177,7 @@ class ProjectQueries:
     ) -> tuple:
         """Main method to orchestrate filtered and paginated retrieval of AccountProjects."""
         if user is None:
-            user = User.get_by_guid(TokenInfo.get_id())
+            user = User.get_by_guid(TokenInfo.get_username())
 
         filtered_package_ids = cls.get_filtered_package_ids(search_options, user)
 
@@ -217,7 +217,7 @@ class ProjectQueries:
     def _filter_packages_by_user_access(cls, package_query=None, user: User = None):
         """Filter packages by all accessible packages of the user."""
         if user is None:
-            user = User.get_by_guid(TokenInfo.get_id())
+            user = User.get_by_guid(TokenInfo.get_username())
 
         if not user:
             raise ValueError("User not found.")

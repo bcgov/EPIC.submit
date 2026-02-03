@@ -81,7 +81,7 @@ class FormSubmissionCreator(SubmissionCreatorFactory):
             item_id=item_id,
             type=SubmissionType.FORM.value,
             submitted_form_id=submitted_form_id,
-            created_by=TokenInfo.get_id()
+            created_by=TokenInfo.get_username()
         )
         session.add(submission)
         session.commit()
@@ -145,7 +145,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                     "original_submission_id": submission.id,
                     "root_submission_id": submission.root_submission_id,
                     "status": SubmissionStatus.PENDING,
-                    "created_by": TokenInfo.get_id()
+                    "created_by": TokenInfo.get_username()
                 }
             )
             current_app.logger.info("New submission created with id: %s to replace submission_id: %s.",
@@ -420,7 +420,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             submitted_document_id=submission_data.get("submitted_document_id"),
             major_version=major_version,
             minor_version=minor_version,
-            created_by=submission_data.get("created_by", TokenInfo.get_id()),
+            created_by=submission_data.get("created_by", TokenInfo.get_username()),
             root_submission_id=submission_data.get("root_submission_id"),
             status=submission_data.get("status", SubmissionStatus.PENDING),
         )
