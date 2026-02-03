@@ -102,39 +102,37 @@ class Proponent(BaseModel):
             } for account_project in account_projects]
 
         if include_administrators and accounts_ids:
-            account_users = AccountUser.query.filter(
-                AccountUser.account_id.in_(accounts_ids)
-            ).all()
-
-            administrators = []
-            for user in account_users:
-                user_role = getattr(user, "role", None)
-                if not user_role or not user_role.active:
-                    continue
-
-                role_name = user_role.role.role_name
-                if role_name not in (
-                    RoleEnum.ACCOUNT_PRIMARY_ADMIN.value
-                ):
-                    continue
-
-                if not user.user_id:
-                    # Skip users that have not completed registration.
-                    continue
-
-                administrators.append(
-                    {
-                        "id": user.id,
-                        "first_name": user.first_name,
-                        "last_name": user.last_name,
-                        "full_name": user.full_name,
-                        "position": user.position,
-                        "company_name": user.company_name,
-                        "work_contact_number": user.work_contact_number,
-                        "work_email_address": user.work_email_address,
-                    }
-                )
-
-            proponent_dict["administrators"] = administrators
+            proponent_dict["administrators"] = cls._build_administrators(
+                AccountUser.query.filter(
+                    AccountUser.account_id.in_(accounts_ids)
+                ).all()
+            )
 
         return proponent_dict
+
+    @classmethod
+    def _build_administrators(cls, account_users):
+        """Build administrators list from account users."""
+        administrators = []
+        for user in account_users:
+            user_role = getattr(user, "role", None)
+            if not user_role or not user_role.active:
+                continue
+
+            if user_role.role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+                continue
+
+            if not user.user_id:
+                continue
+
+            administrators.append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "full_name": user.full_name,
+                "position": user.position,
+                "company_name": user.company_name,
+                "work_contact_number": user.work_contact_number,
+                "work_email_address": user.work_email_address,
+            })
+        return administrators
