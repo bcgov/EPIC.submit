@@ -22,13 +22,13 @@ def upgrade():
     op.execute("ALTER TYPE submissiontypestatus RENAME TO submissiontype")
     
     # Create new submissiontypestatus enum for status column
-    op.execute("CREATE TYPE submissiontypestatus AS ENUM ('SUBMITTED', 'REJECTED', 'APPROVED', 'PENDING')")
+    op.execute("CREATE TYPE submissiontypestatus AS ENUM ('SUBMITTED', 'REJECTED', 'APPROVED', 'PENDING', 'PENDING_REPLACEMENT')")
     
     with op.batch_alter_table('submissions', schema=None) as batch_op:
         # Change status column from submissionstatus to submissiontypestatus
         batch_op.alter_column('status',
                existing_type=postgresql.ENUM('SUBMITTED', 'REJECTED', 'APPROVED', 'PENDING', 'PENDING_REPLACEMENT', name='submissionstatus'),
-               type_=sa.Enum('SUBMITTED', 'REJECTED', 'APPROVED', 'PENDING', name='submissiontypestatus'),
+               type_=sa.Enum('SUBMITTED', 'REJECTED', 'APPROVED', 'PENDING', 'PENDING_REPLACEMENT', name='submissiontypestatus'),
                existing_nullable=True,
                postgresql_using='status::text::submissiontypestatus')
     

@@ -62,11 +62,6 @@ class InvitationService:
         else:
             account_project_ids = [ap.id for ap in account_projects]
 
-        # If no account_projects exist yet (new entity invitation not yet accepted),
-        # skip the permission check as it's handled by staff role authorization at API level
-        if not account_project_ids:
-            return
-
         # assume one project for now, can be extended for multiple projects
         authorization.check_has_permissions_on_project(
             permissions=permissions or [ProponentPermissionsEnum.INVITE_USERS.value],
