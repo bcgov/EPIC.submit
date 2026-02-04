@@ -356,7 +356,7 @@ def test_renew_invitation(client, session, jwt):
     assert response.status_code == HTTPStatus.NO_CONTENT
 
     # Verify expiry date is updated
-    assert invitation.expiry_date > datetime.now(timezone.utc)
+    assert invitation.expiry_date > datetime.utcnow()
     assert invitation.status == InvitationStatus.PENDING.value
 
 
