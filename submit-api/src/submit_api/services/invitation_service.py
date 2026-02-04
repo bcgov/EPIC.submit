@@ -435,3 +435,16 @@ class InvitationService:
 
             session.add(invitation)
             return True
+
+    @staticmethod
+    def renew_invitation(invitation_id):
+        """Renew an invitation by ID."""
+        invitation = InvitationsModel.find_by_id(invitation_id)
+        if invitation:
+            InvitationService._check_action_authorized(invitation.project_ids)
+            invitation.status = InvitationStatus.PENDING.value
+            # renew invitation expiry date by 30 days from the current date
+            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(days=30)
+            InvitationsModel.commit()
+            return True
+        return False

@@ -210,3 +210,22 @@ class InvitationByIdResource(Resource):
             if result:
                 return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
+
+@cors_preflight("PATCH, OPTIONS")
+@API.route("/id/<int:invitation_id>/renew", methods=["PATCH", "OPTIONS"])
+class InvitationRenewResource(Resource):
+    """Resource to renew an invitation by ID."""
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Renew invitation by ID")
+    @API.response(HTTPStatus.OK, "Invitation renewed")
+    @API.response(HTTPStatus.NOT_FOUND, "Invitation not found")
+    @auth.require
+    @auth.has_one_of_roles([ProponentPermissionsEnum.INVITE_USERS.value])
+    def patch(invitation_id):
+        """Renew an invitation by ID."""
+        invitation = InvitationService.get_invitation_by_id(invitation_id)
+        if invitation:
+            result = InvitationService.renew_invitation(invitation_id)
+            if result:
+                return {}, HTTPStatus.NO_CONTENT
+        return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
