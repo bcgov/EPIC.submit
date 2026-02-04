@@ -443,8 +443,8 @@ class InvitationService:
         if invitation:
             InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.PENDING.value
-            # renew invitation expiry date by 30 days from the current date
-            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(days=30)
+            expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
+            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days)
             InvitationsModel.commit()
             return True
         return False
