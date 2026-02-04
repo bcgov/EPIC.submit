@@ -211,10 +211,12 @@ class InvitationByIdResource(Resource):
                 return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
 
+
 @cors_preflight("PATCH, OPTIONS")
 @API.route("/id/<int:invitation_id>/renew", methods=["PATCH", "OPTIONS"])
 class InvitationRenewResource(Resource):
     """Resource to renew an invitation by ID."""
+
     @staticmethod
     @ApiHelper.swagger_decorators(API, endpoint_description="Renew invitation by ID")
     @API.response(HTTPStatus.OK, "Invitation renewed")

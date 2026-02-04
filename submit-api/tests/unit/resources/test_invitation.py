@@ -3,7 +3,7 @@
 Tests for invitation resource endpoints.
 """
 
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -124,7 +124,7 @@ def test_get_invitation_expired(client, session, jwt):
     _, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
-        expiry_date=datetime.now(UTC) - timedelta(days=1),  # Expired
+        expiry_date=datetime.utcnow() - timedelta(days=1),  # Expired
     )
 
     response = client.get(f"/api/invitations/{invitation.token}")
@@ -341,7 +341,7 @@ def test_renew_invitation(client, session, jwt):
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
         project_ids=[account_project.project_id],
-        expiry_date=datetime.now(UTC) - timedelta(days=1)  # Expired
+        expiry_date=datetime.utcnow() - timedelta(days=1)  # Expired
     )
 
     response = client.patch(f"/api/invitations/id/{invitation.id}/renew", headers=headers)
