@@ -69,28 +69,14 @@
     </div>
 
     <div class="content">
-      <p>Hello,</p>
+      <p>Hello, {{user_name}}</p>
 
-      <p>A user has requested access to an EPIC application that you administer.</p>
-
-      <p><strong>Request Details:</strong></p>
-      <div class="grey-box">
-        <p><strong>Requestor:</strong> {{ user_name }}</p>
-        <p><strong>Email:</strong> {{ user_email }}</p>
-        <p><strong>Application:</strong> {{ application_name }}</p>
-        <p><strong>Requested on:</strong> {{ requested_at }}</p>
-      </div>
-
-      <p>This user is requesting access to <strong>{{ application_name }}</strong>.</p>
-      <p>Please click the link below to review this request based on the user’s role and responsibilities.</p>
-
-      <div class="grey-box">
-        <a href="{{ auth_link }}">Review Request in EPIC.centre</a>
-      </div>
-
-      <p>A confirmation email will be sent to the requester when their access level is updated in EPIC.centre.</p>
-
+      <p>Your access request for {{application_name}} has been denied.</p>
+      <p>If you have any questions or believe you should have been approved, please email <a class="cta-link" href="mailto:EAO.EPICsystem@gov.bc.ca">EAO.EPICsystem@gov.bc.ca</a>.</p>
+    
       <p>Thank you,</p>
+
+      <p><strong>EPIC.centre System</strong></p>
     </div>
 
     <div class="footer">

@@ -1,11 +1,13 @@
 import logging
 from typing import Callable, Dict
 
-from submit_cron.services.ches_service import ChesApiService
-from submit_cron.repositories.email_repository import EmailRepository
-from submit_cron.models.email_job import EmailJob
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
+
+from submit_cron.models.email_job import EmailJob
+from submit_cron.repositories.email_repository import EmailRepository
+from submit_cron.services.ches_service import ChesApiService
+
 
 logger = logging.getLogger(__name__)
 
