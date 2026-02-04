@@ -139,13 +139,12 @@ class InvitationService:
         account_id = invite_data.get('account_id')
         role_name = invite_data.get('role_name')
         proponent_id = invite_data.get('proponent_id')
-        project_ids = invite_data.get('project_ids')
 
         role = InvitationService._validate_fetch_role(role_name)
 
         with session_scope() as session:
             account = InvitationService._get_or_create_account(
-                account_id, proponent_id, project_ids, session)
+                account_id, proponent_id, session)
             session.flush()
 
             token = InvitationService.generate_uuid_token()
@@ -199,6 +198,10 @@ class InvitationService:
 
             account_user = InvitationService._create_account_user(
                 user.id, invitation.account_id, payload, session)
+
+            # Create account projects if they don't exist (handles concurrent invitations gracefully)
+            InvitationService._create_account_projects(
+                invitation.account_id, invitation.project_ids, session)
 
             account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
             roles = []
@@ -260,13 +263,13 @@ class InvitationService:
         return True
 
     @staticmethod
-    def _get_or_create_account(account_id, proponent_id, project_ids, session):
+    def _get_or_create_account(account_id, proponent_id, session):
         """Retrieve or create an account based on proponent_id or account_id."""
         if account_id:
             return InvitationService._get_account_by_id(account_id)
 
         if proponent_id:
-            return InvitationService._get_or_create_account_by_proponent(proponent_id, project_ids, session)
+            return InvitationService._get_or_create_account_by_proponent(proponent_id, session)
 
         raise ResourceNotFoundError("No valid account found for the provided data.")
 
@@ -281,14 +284,12 @@ class InvitationService:
         return ProponentModel.find_by_id(proponent_id)
 
     @staticmethod
-    def _get_or_create_account_by_proponent(proponent_id, project_ids, session):
+    def _get_or_create_account_by_proponent(proponent_id, session):
         """Retrieve or create an account by proponent_id."""
         account = AccountModel.get_by_proponent_id(proponent_id)
         if not account:
             account_data = {'proponent_id': proponent_id}
             account = AccountModel.create_account(account_data, session)
-        InvitationService._create_account_projects(
-            account.id, project_ids, session)
         return account
 
     @staticmethod
@@ -313,7 +314,7 @@ class InvitationService:
             role_id=role.id,
             package_ids=invite_data.get('package_ids'),
             original_package_ids=invite_data.get('original_package_ids'),
-            expiry_date=datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days),
+            expiry_date=datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=expiry_days),
             is_first_time=is_first_time
         )
         session.add(invitation)
@@ -396,7 +397,12 @@ class InvitationService:
         if invitation.status != InvitationStatus.PENDING.value:
             return {"error": "Invitation is not valid"}, False
 
-        if invitation.expiry_date < datetime.datetime.utcnow():
+        # Ensure expiry_date is timezone-aware for comparison
+        expiry_date = invitation.expiry_date
+        if expiry_date.tzinfo is None:
+            expiry_date = expiry_date.replace(tzinfo=datetime.timezone.utc)
+
+        if expiry_date < datetime.datetime.now(datetime.timezone.utc):
             return {"error": "Invitation has expired"}, False
 
         # Update proponent status
@@ -428,7 +434,7 @@ class InvitationService:
             InvitationService._check_action_authorized(invitation.project_ids)
 
             # Extend expiry date by 1 week from current date
-            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(weeks=1)
+            invitation.expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(weeks=1)
 
             InvitationService._create_email_queue_record(
                 invitation.id, session)
