@@ -2,8 +2,11 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useCreateNewAccountProjectInvitation } from "@/hooks/api/useInvitations";
-import { Invitation } from "@/models/Invitation";
+import {
+  useCreateNewAccountProjectInvitation,
+  useRenewInvitation,
+} from "@/hooks/api/useInvitations";
+import { Invitation, InvitationStatus } from "@/models/Invitation";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { AppConfig } from "@/utils/config";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
@@ -21,18 +24,23 @@ type RegistrationUrlProps = {
 export const RegistrationUrl = ({
   pendingInvitation,
   selectedProjectsIds,
-  onInvitationCreated
+  onInvitationCreated,
 }: RegistrationUrlProps) => {
   const [tooltipText, setTooltipText] = useState("Copy");
   const { proponentId } = useParams({
     from: "/staff/_staffLayout/proponents/$proponentId",
   });
-  const {
-    setOpen: setOpenModal,
-    setClose: setCloseModal,
-  } = useModal();
-  
+  const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
+
   const url = `${AppConfig.appUrl}/proponent/account-registration?token=${pendingInvitation?.token}`;
+  const helperText = pendingInvitation
+    ? pendingInvitation.is_expired
+      ? "This link has expired, You can renew the link by clicking the 'Renew Link' button"
+      : pendingInvitation.expiry_date
+        ? "This link will expire on " +
+          new Date(pendingInvitation.expiry_date).toISOString().split("T")[0]
+        : ""
+    : "";
 
   const { mutate: createInvitation, isPending: isCreatingInvitation } =
     useCreateNewAccountProjectInvitation({
@@ -58,7 +66,7 @@ export const RegistrationUrl = ({
       />,
     );
   };
-      
+
   const handleGenerateUrlClick = () => {
     if (selectedProjectsIds.length === 0) {
       openConfirmationModal();
@@ -71,26 +79,43 @@ export const RegistrationUrl = ({
     });
   };
 
+  const { mutate: renewInvitation, isPending: isRenewingInvitation } =
+    useRenewInvitation({
+      onSuccess: () => {
+        onInvitationCreated();
+        notify.success("Invitation URL renewed successfully");
+      },
+      onError: () => {
+        notify.error("Error renewing invitation URL");
+      },
+    });
+
+  const handleRenewUrlClick = () => {
+    renewInvitation(pendingInvitation?.id || 0);
+  };
+
   const handleCopyClick = () => {
     navigator.clipboard.writeText(url);
     setTooltipText("Copied");
     setTimeout(() => setTooltipText("Copy"), 2000);
     notify.success("Link copied successfully");
   };
-  
+
   return (
     <Grid
       container
       spacing={2}
-      sx={{ 
-        mb: BCDesignTokens.layoutMarginXxlarge 
+      sx={{
+        mb: BCDesignTokens.layoutMarginXxlarge,
       }}
     >
       <Grid item sm={12} md={5}>
         <TextField
           value={pendingInvitation ? url : ""}
-          sx={{ margin: 0 }}
-          InputProps={{ 
+          sx={{
+            margin: 0,
+          }}
+          InputProps={{
             readOnly: true,
             endAdornment: (
               <Tooltip title={tooltipText} arrow>
@@ -105,23 +130,41 @@ export const RegistrationUrl = ({
                   </IconButton>
                 </span>
               </Tooltip>
-            )
+            ),
           }}
           onFocus={(e) => e.target.blur()}
+          helperText={helperText}
+          FormHelperTextProps={{
+            sx: {
+              ml: "14px !important",
+              color: pendingInvitation?.is_expired
+                ? BCDesignTokens.typographyColorDanger + " !important"
+                : "",
+            },
+          }}
           fullWidth
         />
       </Grid>
       <Grid item xs={2}>
-        <LoadingButton
-          variant="contained"
-          color="primary"
-          loading={isCreatingInvitation}
-          onClick={handleGenerateUrlClick}
-          disabled={!!pendingInvitation}
-          sx={{ whiteSpace: "nowrap" }}
-        >
-          Generate URL
-        </LoadingButton>
+        {pendingInvitation?.is_expired &&
+        pendingInvitation.status === InvitationStatus.PENDING ? (
+          <LoadingButton
+            color="secondary"
+            loading={isRenewingInvitation}
+            onClick={handleRenewUrlClick}
+          >
+            Renew Link
+          </LoadingButton>
+        ) : (
+          <LoadingButton
+            color="primary"
+            loading={isCreatingInvitation}
+            onClick={handleGenerateUrlClick}
+            disabled={!!pendingInvitation}
+          >
+            Generate Link
+          </LoadingButton>
+        )}
       </Grid>
     </Grid>
   );
