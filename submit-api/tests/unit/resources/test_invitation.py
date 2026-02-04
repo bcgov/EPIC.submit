@@ -348,13 +348,13 @@ def test_renew_invitation(client, session, jwt):
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
         project_ids=[account_project.project_id],
-        expiry_date=datetime.utcnow() - timedelta(days=1)  # Expired
+        expiry_date=datetime.now(timezone.utc) - timedelta(days=1)  # Expired
     )
 
     response = client.patch(f"/api/invitations/id/{invitation.id}/renew", headers=headers)
 
     assert response.status_code == HTTPStatus.NO_CONTENT
-    
+
     # Verify expiry date is updated
     assert invitation.expiry_date > datetime.utcnow()
     assert invitation.status == InvitationStatus.PENDING.value
