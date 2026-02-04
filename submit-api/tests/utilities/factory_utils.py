@@ -16,7 +16,7 @@
 
 Test Utility for creating model factory.
 """
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 import random
 import string
 
@@ -190,11 +190,15 @@ def factory_invitation_model(
     token=fake.uuid4(),
     email=fake.email(),
     status=InvitationStatus.PENDING.value,
-    expiry_date=datetime.now(UTC) + timedelta(days=7),
+    expiry_date=datetime.now(timezone.utc) + timedelta(days=7),
     role_id=None,
     is_first_time=False
 ):
     """Create and return a mock invitation entry."""
+    if role_id is None:
+        role = Role.get_by_name(RoleEnum.PROJECT_ADMIN.value)
+        role_id = role.id if role else None
+
     invitation = Invitations(
         account_id=account_id,
         project_ids=project_ids,
