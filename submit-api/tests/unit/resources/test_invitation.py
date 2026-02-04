@@ -3,7 +3,7 @@
 Tests for invitation resource endpoints.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -124,7 +124,7 @@ def test_get_invitation_expired(client, session, jwt):
     _, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
-        expiry_date=datetime.utcnow() - timedelta(days=1),  # Expired
+        expiry_date=datetime.now(timezone.utc) - timedelta(days=1),  # Expired
     )
 
     response = client.get(f"/api/invitations/{invitation.token}")
@@ -161,6 +161,7 @@ def test_accept_invitation(client, session, jwt):
     _, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
+        project_ids=[account_project.project_id]
     )
 
     payload = {
@@ -181,6 +182,12 @@ def test_accept_invitation(client, session, jwt):
     data = response.get_json()
     print(data)
     assert "user_id" in data
+
+    # Verify that account_projects were created during acceptance
+    from submit_api.models import AccountProject as AccountProjectModel
+    account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
+    assert len(account_projects) > 0
+    assert any(ap.account_id == invitation.account_id for ap in account_projects)
 
 
 def test_accept_invitation_invalid_token(client, session):
