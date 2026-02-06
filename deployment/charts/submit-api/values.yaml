@@ -19,6 +19,12 @@ database:
   service:
     name: submit-patroni
     port: 5432
+  demo:
+    enabled: false
+    suffix: demo
+    username: ""
+    password: ""
+    name: ""
 
 service:
   type: ClusterIP
