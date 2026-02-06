@@ -52,6 +52,9 @@
     .cta-link:hover {
       text-decoration: underline;
     }
+    .label-black {
+      color: black;
+    }
   </style>
 </head>
 <body>
@@ -61,15 +64,15 @@
     </div>
 
     <div class="content">
-      <p>Hello <strong>{{ user_name }}</strong>,</p>
+      <p>Hello,</p>
 
       <p>Your request for access to {{ application_name }} has been submitted successfully.</p>
 
       <p><strong>Request Details:</strong></p>
 
       <div class="grey-box">
-        <p><strong>Application:</strong> {{ application_name }}</p>
-        <p><strong>Requested on:</strong> {{ requested_at }}</p>
+        <p><strong><span class="label-black">Application:</span></strong> {{ application_name }}</p>
+        <p><strong><span class="label-black">Requested on:</span></strong> {{ requested_at }}</p>
       </div>
 
       <p>
