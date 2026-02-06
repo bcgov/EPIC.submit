@@ -27,7 +27,7 @@ from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
-API = Namespace("staff-user", description="Endpoints for Staff Management")
+API = Namespace("staff-users", description="Endpoints for Staff Management")
 """Custom exception messages
 """
 
