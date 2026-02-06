@@ -60,6 +60,9 @@
     .cta-link:hover {
       text-decoration: underline;
     }
+    .label-black {
+      color: black;
+    }
   </style>
 </head>
 <body>
@@ -69,14 +72,14 @@
     </div>
 
     <div class="content">
-      <p>Hello, {{user_name}}</p>
+      <p>Hello,</p>
 
       <p>Your access request has been approved.</p>
 
       <p><strong>Access Details:</strong></p>
       <div class="grey-box">
-        <p><strong>Application:</strong> {{ application_name }}</p>
-        <p><strong>Access Level:</strong> {{ access_level }}</p>
+        <p><strong><span class="label-black">Application:</span></strong> {{ application_name }}</p>
+        <p><strong><span class="label-black">Access Level:</span></strong> {{ access_level }}</p>
       </div>
 
       <p>You can now access this application from the <strong><a class="cta-link" href="{{ auth_link }}">EPIC.centre launchpad</a></strong>.</p>
