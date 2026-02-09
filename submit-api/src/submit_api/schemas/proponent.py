@@ -22,6 +22,7 @@ class ProponentSchema(Schema):
     invitations = fields.List(fields.Int(), data_key="invitations", required=False, default=[])
     projects = fields.List(fields.Int(), data_key="projects", required=False, default=[])
 
+
 class EnableProponentProjectsSchema(Schema):
     """Schema for adding account_projects to proponent."""
 

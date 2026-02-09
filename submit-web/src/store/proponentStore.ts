@@ -32,7 +32,7 @@ const initialState = {
   eligibleProjects: [],
 };
 
-export const useProponentStore = create<ProponentState>((set, get) => ({
+export const useProponentStore = create<ProponentState>((set) => ({
   ...initialState,
   
   setProponent: (proponent) => {

@@ -36,7 +36,7 @@ class ProponentService:
 
         if not proponent:
             raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
-        if not proponent.status is ProponentStatus.ONBOARDED:
+        if proponent.status is not ProponentStatus.ONBOARDED:
             raise BadRequestError("Can only enable projects for onboarded proponents.")
 
         account = Account.get_by_proponent_id(proponent_id)

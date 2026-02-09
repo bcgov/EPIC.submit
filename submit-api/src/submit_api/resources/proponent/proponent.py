@@ -93,6 +93,7 @@ class Proponent(Resource):
             raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
         return proponent, HTTPStatus.OK
 
+
 @cors_preflight("POST, OPTIONS")
 @API.route(
     "/<int:proponent_id>/projects",
