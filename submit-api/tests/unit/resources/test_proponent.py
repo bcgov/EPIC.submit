@@ -173,7 +173,7 @@ def test_enable_proponent_projects_success(client, session, jwt):
         status=ProponentStatus.ONBOARDED,
         is_deleted=False
     )
-    account = factory_account_model(proponent_id=proponent.id)
+    factory_account_model(proponent_id=proponent.id)
 
     project1 = factory_project_model(name="Project 1", proponent_id=proponent.id)
     project2 = factory_project_model(name="Project 2", proponent_id=proponent.id)
@@ -191,7 +191,7 @@ def test_enable_proponent_projects_success(client, session, jwt):
     assert data["name"] == "Onboarded Proponent"
     assert "account_projects" in data
     assert len(data["account_projects"]) == 2
-    
+
     # Verify the account_projects were created with correct IDs
     account_project_ids = [ap["project_id"] for ap in data["account_projects"]]
     assert project1.id in account_project_ids
@@ -224,7 +224,7 @@ def test_enable_proponent_projects_not_onboarded(client, session, jwt):
         status=ProponentStatus.ELIGIBLE,
         is_deleted=False
     )
-    account = factory_account_model(proponent_id=proponent.id)
+    factory_account_model(proponent_id=proponent.id)
     project = factory_project_model(name="Project", proponent_id=proponent.id)
 
     payload = {
