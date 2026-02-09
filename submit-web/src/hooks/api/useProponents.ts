@@ -1,7 +1,7 @@
 import { Proponent } from "@/models/Proponent";
-import { submitRequest } from "@/utils/axiosUtils";
+import { OnErrorType, submitRequest } from "@/utils/axiosUtils";
 import { QUERY_KEY } from "./constants";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 const getProponents = () => {
   return submitRequest<Proponent[]>({
@@ -74,5 +74,32 @@ export const useGetProponent = (
     enabled: !!proponentId,
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
+  });
+};
+
+const enableProponentProjects = ({
+  proponentId,
+  projectIds,
+}: {
+  proponentId: number;
+  projectIds: (string | number)[];
+}) => {
+  return submitRequest<Proponent>({
+    url: `proponents/${proponentId}/projects`,
+    method: "post",
+    data: {
+      projects: projectIds
+    },
+  });
+};
+
+type EnableProponentProjectOptions = {
+  onSuccess?: (data: Proponent) => void;
+  onError?: OnErrorType;
+};
+export const useEnableProponentProject = (options: EnableProponentProjectOptions) => {
+  return useMutation({
+    mutationFn: enableProponentProjects,
+    ...options,
   });
 };
