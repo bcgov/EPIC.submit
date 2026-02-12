@@ -22,7 +22,10 @@ import ControlledMultiSelect, {
 } from "@/components/Shared/ControlledFormFields/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
-import { getAccountPackagesByAccountIdQueryOptions } from "@/hooks/api/useProjects";
+import {
+  getAccountPackagesByAccountIdQueryOptions,
+  useGetAccountProjectsByAccount,
+} from "@/hooks/api/useProjects";
 import { useCreateInvitationToExistingProject } from "@/hooks/api/useInvitations";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
@@ -42,6 +45,15 @@ const newUser = yup.object().shape({
     .when("role_name", {
       is: (value: string) =>
         value === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
+      then: (schema) => schema.min(1, "Please select at least one submission."),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+  project_ids: yup
+    .array()
+    .of(yup.string()) // Ensures project IDs are strings
+    .when("role_name", {
+      is: (value: string) =>
+        value === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN,
       then: (schema) => schema.min(1, "Please select at least one project."),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -53,6 +65,10 @@ export default function NewUserForm() {
   const { accountId, proponentId, userManagementRole } = useAccount();
   const navigate = useNavigate();
   const { setOpen: setOpenModal, setClose: closeModal } = useModal();
+
+  const { data: accountProjects } = useGetAccountProjectsByAccount({
+    accountId,
+  });
 
   const { mutate: createInvite, isPending: isPendingInvitation } =
     useCreateInvitationToExistingProject({
@@ -152,7 +168,7 @@ export default function NewUserForm() {
     createInvite(request);
   };
 
-  const options: OptionType[] = useMemo(
+  const accountPackageOptions: OptionType[] = useMemo(
     () =>
       accountPackages?.flatMap((accountProject) =>
         Object.values(accountProject.packages).map((pkg) => ({
@@ -161,6 +177,15 @@ export default function NewUserForm() {
         })),
       ) || [],
     [accountPackages],
+  );
+
+  const accountProjectOptions: OptionType[] = useMemo(
+    () =>
+      accountProjects?.flatMap((accountProject) => ({
+        value: String(accountProject.project_id),
+        label: accountProject.project.name,
+      })) || [],
+    [accountProjects],
   );
 
   if (isPendingPackages) {
@@ -254,24 +279,47 @@ export default function NewUserForm() {
                 What permissions should this user have?
               </Typography>
               <ControlledRadioGroup name="role_name">
-                <FormOptions error={Boolean(errors["role_name"])} />
-              </ControlledRadioGroup>
-
-              <When
-                condition={
-                  selectedRole ===
-                  USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
-                }
-              >
-                <Typography sx={{ fontWeight: 700 }}>
-                  Which Submission(s) would you like to assign that user to?
-                </Typography>
-                <ControlledMultiSelect
-                  multiple
-                  name="original_package_ids"
-                  options={options}
+                <FormOptions
+                  error={Boolean(errors["role_name"])}
+                  selectedRole={selectedRole}
+                  selectionsNode={
+                    <>
+                      <When
+                        condition={
+                          selectedRole ===
+                          USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
+                        }
+                      >
+                        <Typography sx={{ fontWeight: 700 }}>
+                          Which Submission(s) would you like to assign that user
+                          to?
+                        </Typography>
+                        <ControlledMultiSelect
+                          multiple
+                          name="original_package_ids"
+                          options={accountPackageOptions}
+                        />
+                      </When>
+                      <When
+                        condition={
+                          selectedRole ===
+                          USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN
+                        }
+                      >
+                        <Typography sx={{ fontWeight: 700 }}>
+                          Which Project(s) would you like to assign this user
+                          to?
+                        </Typography>
+                        <ControlledMultiSelect
+                          multiple
+                          name="project_ids"
+                          options={accountProjectOptions}
+                        />
+                      </When>
+                    </>
+                  }
                 />
-              </When>
+              </ControlledRadioGroup>
 
               <Stack
                 direction="row"

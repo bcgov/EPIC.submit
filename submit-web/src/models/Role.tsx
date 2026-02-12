@@ -16,6 +16,7 @@ export const EPIC_SUBMIT_ROLE = Object.freeze<
 export enum USER_MANAGEMENT_ROLE {
   ACCOUNT_PRIMARY_ADMIN = "ACCOUNT_PRIMARY_ADMIN",
   PROJECT_ADMIN = "PROJECT_ADMIN",
+  SPECIFIC_PROJECT_ADMIN = "SPECIFIC_PROJECT_ADMIN",
   SUBMISSION_ADMIN = "SUBMISSION_ADMIN",
   SPECIFIC_SUBMISSION_CONTRIBUTOR = "SPECIFIC_SUBMISSION_CONTRIBUTOR",
 }
@@ -31,6 +32,10 @@ export const roleDetails: Record<
   [USER_MANAGEMENT_ROLE.PROJECT_ADMIN]: {
     label: "Project Administrator",
     info: "Full access to all submissions (including creating new submissions and submitting to EAO), manage users, and system settings.",
+  },
+  [USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN]: {
+    label: "Project Administrator - Specific Project(s)",
+    info: "Full access to all submissions for the selected projects (including creating new submissions and submitting to EAO), manage users (excluding Account Administrators)",
   },
   [USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN]: {
     label: "Collaborator - All Submissions",
