@@ -1,17 +1,17 @@
-"""add SPECIFIC_PROJECT_ADMIN role
+"""add_specific_project_admin_role
 
-Revision ID: 3909b5d64403
-Revises: e9ede8ab9185
-Create Date: 2026-02-12 14:24:14.669903
+Revision ID: 0d2911c8aea0
+Revises: 2656a9b67883
+Create Date: 2026-02-12 16:54:23.374905
 
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
+
 
 # revision identifiers, used by Alembic.
-revision = '3909b5d64403'
-down_revision = 'e9ede8ab9185'
+revision = '0d2911c8aea0'
+down_revision = '2656a9b67883'
 branch_labels = None
 depends_on = None
 
@@ -25,5 +25,6 @@ def upgrade():
 
 def downgrade():
     op.execute("""
-    DELETE FROM roles WHERE role_name = 'SPECIFIC_PROJECT_ADMIN'
+    DELETE FROM invitations WHERE role_id = (SELECT id FROM roles WHERE role_name = 'SPECIFIC_PROJECT_ADMIN');
+    DELETE FROM roles WHERE role_name = 'SPECIFIC_PROJECT_ADMIN';
     """)
