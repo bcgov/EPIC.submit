@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.name }}
+  name: {{ .Release.Name }}
   labels:
-    app: {{ .Values.name }}
+    app: {{ .Release.Name }}
     app-group: submit-app
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.name }}
+      app: {{ .Release.Name }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -18,12 +18,12 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Values.name }}
+        app: {{ .Release.Name }}
         app-group: submit-app
         environment: {{ .Values.env }}
     spec:
       containers:
-        - name: {{ .Values.name }}
+        - name: {{ .Release.Name }}
           image: image-registry.openshift-image-registry.svc:5000/{{ .Values.imageNamespace }}/{{ .Values.name }}:{{ .Values.imageTag }}
           ports:
             - containerPort: 8080
@@ -36,52 +36,52 @@ spec:
             - name: DATABASE_USERNAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: DATABASE_USERNAME
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.name }}
+                  name: {{ .Release.Name }}
                   key: DATABASE_PASSWORD
             - name: DATABASE_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: DATABASE_NAME
             - name: DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: DATABASE_HOST
             - name: DATABASE_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: DATABASE_PORT
             - name: CENTRE_DATABASE_USERNAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: CENTRE_DATABASE_USERNAME
             - name: CENTRE_DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.name }}
+                  name: {{ .Release.Name }}
                   key: CENTRE_DATABASE_PASSWORD
             - name: CENTRE_DATABASE_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: CENTRE_DATABASE_NAME
             - name: CENTRE_DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: CENTRE_DATABASE_HOST
             - name: CENTRE_DATABASE_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: CENTRE_DATABASE_PORT
             - name: CHES_TOKEN_ENDPOINT
               valueFrom:
@@ -106,42 +106,42 @@ spec:
             - name: WEB_URL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: WEB_URL
             - name: SENDER_EMAIL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: SENDER_EMAIL
             - name: STAFF_SUPPORT_MAIL_ID
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: STAFF_SUPPORT_MAIL_ID
             - name: KEYCLOAK_BASE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: KEYCLOAK_BASE_URL
             - name: KEYCLOAK_REALM_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: KEYCLOAK_REALM_NAME
             - name: KEYCLOAK_SERVICE_ACCOUNT_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.name }}
+                  name: {{ .Release.Name }}
                   key: KEYCLOAK_SERVICE_ACCOUNT_ID
             - name: KEYCLOAK_SERVICE_ACCOUNT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.name }}
+                  name: {{ .Release.Name }}
                   key: KEYCLOAK_SERVICE_ACCOUNT_SECRET
             - name: CONDITION_API_BASE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.name }}-config
+                  name: {{ .Release.Name }}-config
                   key: CONDITION_API_BASE_URL
           resources:
             requests:
@@ -156,7 +156,7 @@ spec:
       volumes:
         - name: cron-config
           configMap:
-            name: {{ .Values.name }}-config
+            name: {{ .Release.Name }}-config
             defaultMode: 420
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
