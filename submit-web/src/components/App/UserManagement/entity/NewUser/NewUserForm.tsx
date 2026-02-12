@@ -73,7 +73,7 @@ export default function NewUserForm() {
   const { mutate: createInvite, isPending: isPendingInvitation } =
     useCreateInvitationToExistingProject({
       onSuccess: () => {
-        notify.success("User added successfully");
+        notify.success("User invited successfully");
         navigate({ to: "/proponent/user-management" });
       },
       onError: (error: any) => {
