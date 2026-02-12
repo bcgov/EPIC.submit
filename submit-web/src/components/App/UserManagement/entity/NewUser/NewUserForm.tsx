@@ -14,7 +14,7 @@ import * as yup from "yup";
 import { FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Form from "@/components/Shared/Forms/common";
-import { FormOptions } from "./FormOptions";
+import { UserRoleOptions } from "./UserRoleOptions";
 import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
 import ControlledMultiSelect, {
@@ -279,7 +279,7 @@ export default function NewUserForm() {
                 What permissions should this user have?
               </Typography>
               <ControlledRadioGroup name="role_name">
-                <FormOptions
+                <UserRoleOptions
                   error={Boolean(errors["role_name"])}
                   selectedRole={selectedRole}
                   selectionsNode={

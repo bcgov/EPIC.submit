@@ -8,19 +8,19 @@ import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { useAccount } from "@/store/accountStore";
 import { useMemo } from "react";
 
-type FormOptionsProps = {
+type UserRoleOptionsProps = {
   error: boolean;
   disabled?: boolean;
   selectionsNode?: React.ReactNode;
   selectedRole?: string;
 };
 
-export const FormOptions = ({
+export const UserRoleOptions = ({
   error = true,
   disabled = false,
   selectionsNode,
   selectedRole,
-}: FormOptionsProps) => {
+}: UserRoleOptionsProps) => {
   const { accountId } = useAccount();
   const { data: accountProjects } = useGetAccountProjectsByAccount({
     accountId,
