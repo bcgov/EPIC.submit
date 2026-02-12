@@ -135,6 +135,7 @@ export default function NewUserForm() {
       email: "",
       role_name: "",
       original_package_ids: [],
+      project_ids: [],
     },
   });
 
@@ -147,7 +148,7 @@ export default function NewUserForm() {
   const selectedRole = watch("role_name");
 
   const handleCompleteForm = (formData: NewUserSchema) => {
-    const { email, role_name, original_package_ids } = formData;
+    const { email, role_name, original_package_ids, project_ids } = formData;
     const account_project_id = userManagementRole?.account_project_id;
 
     if (!account_project_id) {
@@ -161,9 +162,8 @@ export default function NewUserForm() {
       role_name,
       email,
       account_project_ids: [account_project_id],
-      original_package_ids: original_package_ids
-        ? original_package_ids.map(Number)
-        : undefined,
+      project_ids: project_ids?.map(Number) ?? undefined,
+      original_package_ids: original_package_ids?.map(Number) ?? undefined,
     };
     createInvite(request);
   };

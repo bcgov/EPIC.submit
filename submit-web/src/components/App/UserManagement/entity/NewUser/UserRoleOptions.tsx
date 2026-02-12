@@ -30,6 +30,7 @@ export const UserRoleOptions = ({
     Record<string, { label: string; info: string }>
   >(() => {
     if (accountProjects && accountProjects.length > 1) {
+      //multiple projects
       roleDetails[USER_MANAGEMENT_ROLE.PROJECT_ADMIN].label =
         "Project Administrator - All Projects";
       return roleDetails;
