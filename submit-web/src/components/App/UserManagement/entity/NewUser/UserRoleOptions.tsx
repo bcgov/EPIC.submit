@@ -35,9 +35,11 @@ export const UserRoleOptions = ({
         "Project Administrator - All Projects";
       return roleDetails;
     }
-    const { [USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN]: _, ...rest } =
-      roleDetails;
-    return rest;
+    return Object.fromEntries(
+      Object.entries(roleDetails).filter(
+        ([key]) => key !== USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN,
+      ),
+    );
   }, [accountProjects]);
 
   return (
