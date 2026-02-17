@@ -74,7 +74,7 @@ def has_access_to_package(package_id):
     user_roles: list[UserRoleModel] = account_user.roles
 
     sufficient_roles = {RoleEnum.PROJECT_ADMIN.value, RoleEnum.SUBMISSION_ADMIN.value}
-    
+
     for user_role in user_roles:
         if user_role.role.role_name in sufficient_roles:
             # check for specific access ...
