@@ -65,8 +65,8 @@ class MigrateUserIdsToUsernames(Resource):
             # Query all foreign key constraints that reference users.auth_guid
             current_app.logger.info("Querying foreign key constraints on users.auth_guid...")
             fk_query = text("""
-                SELECT 
-                    tc.table_name, 
+                SELECT
+                    tc.table_name,
                     tc.constraint_name,
                     kcu.column_name
                 FROM information_schema.table_constraints AS tc
