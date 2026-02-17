@@ -447,6 +447,7 @@ class InvitationService:
         """Renew an invitation by ID."""
         invitation = InvitationsModel.find_by_id(invitation_id)
         if invitation:
+            # TODO: Check invitation is PENDING or REVOKED once cron job is finalized
             InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.PENDING.value
             expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
