@@ -370,7 +370,7 @@ class AccountUserService:
         user_dict = updated_user.to_dict()
         user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
 
-        role = user_dict.get("role") # Compatibility
+        role = user_dict.get("role")  # Compatibility
         roles = user_dict.get("roles", [])
 
         if not roles:
