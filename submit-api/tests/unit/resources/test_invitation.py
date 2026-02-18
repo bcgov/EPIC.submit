@@ -340,3 +340,32 @@ def test_create_invitation_with_multiple_projects(client, session, jwt):
     assert response.status_code == HTTPStatus.CREATED
     data = response.get_json()
     assert "token" in data
+
+
+def test_renew_invitation(client, session, jwt):
+    """Test renewing an invitation."""
+    headers, account_project = setup_authenticated_proponent(session, jwt)
+    invitation = factory_invitation_model(
+        account_id=account_project.account_id,
+        project_ids=[account_project.project_id],
+        expiry_date=datetime.now(timezone.utc) - timedelta(days=1)  # Expired
+    )
+
+    response = client.patch(f"/api/invitations/id/{invitation.id}/renew", headers=headers)
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+
+    # Verify expiry date is updated
+    assert invitation.expiry_date > datetime.utcnow()
+    assert invitation.status == InvitationStatus.PENDING.value
+
+
+def test_renew_invitation_not_found(client, session, jwt):
+    """Test renewing a non-existent invitation."""
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.patch("/api/invitations/id/99999/renew", headers=headers)
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
