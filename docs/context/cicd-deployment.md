@@ -565,7 +565,7 @@ app:
   api: https://submit-api-{namespace}.apps.gold.devops.gov.bc.ca/api
   env: dev
   version: 1.0.0
-  title: EPIC.Submit
+  title: EPIC.submit
   objectStorageUrl: https://epic-document-{namespace}.apps.gold.devops.gov.bc.ca/api
   oidcAuthority: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
   clientId: epic-submit

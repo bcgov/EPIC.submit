@@ -211,6 +211,9 @@ class InvitationService:
                 roles.append(role)
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
+            # Update proponent status
+            InvitationService._update_proponent_status_by_account(invitation.account_id, ProponentStatus.ONBOARDED)
+
             return {
                 "message": "User access granted successfully",
                 "user_id": account_user.user_id,
@@ -441,3 +444,17 @@ class InvitationService:
 
             session.add(invitation)
             return True
+
+    @staticmethod
+    def renew_invitation(invitation_id):
+        """Renew an invitation by ID."""
+        invitation = InvitationsModel.find_by_id(invitation_id)
+        if invitation:
+            # TODO: Check invitation is PENDING or REVOKED once cron job is finalized
+            InvitationService._check_action_authorized(invitation.project_ids)
+            invitation.status = InvitationStatus.PENDING.value
+            expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
+            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days)
+            InvitationsModel.commit()
+            return True
+        return False
