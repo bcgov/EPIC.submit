@@ -21,3 +21,14 @@ class ProponentSchema(Schema):
     is_deleted = fields.Bool(data_key="is_deleted", allow_none=False)
     invitations = fields.List(fields.Int(), data_key="invitations", required=False, default=[])
     projects = fields.List(fields.Int(), data_key="projects", required=False, default=[])
+
+
+class EnableProponentProjectsSchema(Schema):
+    """Schema for adding account_projects to proponent."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    projects = fields.List(fields.Int(), data_key="projects")

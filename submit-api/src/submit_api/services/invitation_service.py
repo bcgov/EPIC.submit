@@ -211,6 +211,9 @@ class InvitationService:
                 roles.append(role)
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
+            # Update proponent status
+            InvitationService._update_proponent_status_by_account(invitation.account_id, ProponentStatus.ONBOARDED)
+
             return {
                 "message": "User access granted successfully",
                 "user_id": account_user.user_id,

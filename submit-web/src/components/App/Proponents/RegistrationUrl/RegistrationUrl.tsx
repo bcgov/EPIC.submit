@@ -6,8 +6,9 @@ import {
   useCreateNewAccountProjectInvitation,
   useRenewInvitation,
 } from "@/hooks/api/useInvitations";
-import { Invitation, InvitationStatus } from "@/models/Invitation";
+import { InvitationStatus } from "@/models/Invitation";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { useProponentStore } from "@/store/proponentStore";
 import { AppConfig } from "@/utils/config";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
@@ -16,17 +17,21 @@ import { BCDesignTokens } from "epic.theme";
 import { useState } from "react";
 
 type RegistrationUrlProps = {
-  pendingInvitation?: Invitation;
-  selectedProjectsIds: (string | number)[];
   onInvitationCreated: () => void;
 };
 
 export const RegistrationUrl = ({
-  pendingInvitation,
-  selectedProjectsIds,
   onInvitationCreated,
 }: RegistrationUrlProps) => {
   const [tooltipText, setTooltipText] = useState("Copy");
+
+  const pendingInvitation = useProponentStore(
+    (state) => state.pendingInvitation,
+  );
+  const selectedProjectsIds = useProponentStore(
+    (state) => state.selectedProjectsIds,
+  );
+
   const { proponentId } = useParams({
     from: "/staff/_staffLayout/proponents/$proponentId",
   });
@@ -107,6 +112,7 @@ export const RegistrationUrl = ({
       spacing={2}
       sx={{
         mb: BCDesignTokens.layoutMarginXxlarge,
+        mt: BCDesignTokens.layoutMarginXlarge,
       }}
     >
       <Grid item sm={12} md={5}>
