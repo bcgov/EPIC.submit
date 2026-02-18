@@ -11,13 +11,11 @@ import { getProponentOptions } from "@/hooks/api/useProponents";
 import { useProponentStore } from "@/store/proponentStore";
 import { HTTP_STATUS } from "@/utils/constants";
 import { Grid, Typography } from "@mui/material";
-import { InfoOutlined } from "@mui/icons-material";
-import { Box, Grid, IconButton, Tooltip, Typography } from "@mui/material";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useParams } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
 import { BCDesignTokens } from "epic.theme";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/proponents/$proponentId",
