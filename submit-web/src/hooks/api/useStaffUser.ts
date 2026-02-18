@@ -11,12 +11,12 @@ type CreateStaffRequest = {
 };
 
 const fetchStaffUserByGUID = (id?: string) => {
-  return submitRequest<StaffUser>({ url: `staff/staff-users/${id}` });
+  return submitRequest<StaffUser>({ url: `staff/staff-user/${id}` });
 };
 
 const addStaffUser = (data: CreateStaffRequest) => {
   return submitRequest<StaffUser>({
-    url: "staff/staff-users",
+    url: "staff/staff-user",
     method: "post",
     data,
   });
