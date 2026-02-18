@@ -18,6 +18,8 @@ from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.consultation_record_service import ConsultationRecordService
 from submit_api.services.iem_service import IEMTermsOfEngagementService
 from submit_api.services.management_plan_service import ManagementPlanService
+from submit_api.services.package_version_service import PackageVersionService
+from submit_api.utils.constants import SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -132,6 +134,14 @@ class SubmissionReviewService:
         item = cls._get_submission_item_by_id(item_id)
         item.status = cls._get_awaiting_manager_review_status(item)
         cls._update_package_status(item.package_id, session)
+        # Notify MPT Managers when MP or Consultation Record requires Manager's approval
+        if item.type.name in (
+            SubmissionItemType.MANAGEMENT_PLAN_FORM.value,
+            SubmissionItemType.CONSULTATION_RECORD.value,
+        ):
+            PackageVersionService.create_email_queue(
+                item.package_id, SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE
+            )
         current_app.logger.info(f"Recommendation sent to manager for item {item_id}.")
         return item
 
