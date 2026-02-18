@@ -190,3 +190,17 @@ const revokeInvitation = (invitationId: number) => {
     method: "delete",
   });
 };
+
+export const useRenewInvitation = (options?: Options) => {
+  return useMutation({
+    mutationFn: (invitationId: number) => renewInvitation(invitationId),
+    ...options,
+  });
+};
+
+const renewInvitation = (invitationId: number) => {
+  return submitRequest({
+    url: `/invitations/id/${invitationId}/renew`,
+    method: "patch",
+  });
+};
