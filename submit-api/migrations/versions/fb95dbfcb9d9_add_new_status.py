@@ -22,7 +22,13 @@ def upgrade():
         DECLARE
             itemstatus_values text[];
             packagestatus_values text[];
+            items_count integer;
+            packages_count integer;
         BEGIN
+            -- Check if tables have data
+            SELECT COUNT(*) INTO items_count FROM items;
+            SELECT COUNT(*) INTO packages_count FROM packages;
+            
             -- Get existing values
             SELECT array_agg(quote_literal(enumlabel)) INTO itemstatus_values FROM pg_enum WHERE enumtypid = 'itemstatus'::regtype;
             SELECT array_agg(quote_literal(enumlabel)) INTO packagestatus_values FROM pg_enum WHERE enumtypid = 'packagestatus'::regtype;
@@ -35,9 +41,14 @@ def upgrade():
             ALTER TABLE items ALTER COLUMN status TYPE itemstatus_new USING status::text::itemstatus_new;
             ALTER TABLE packages ALTER COLUMN status TYPE packagestatus_new[] USING status::text[]::packagestatus_new[];
             
-            -- Update data
-            UPDATE items SET status = 'NEW' WHERE status = 'NEW_SUBMISSION';
-            UPDATE packages SET status = array_replace(status, 'NEW_SUBMISSION', 'NEW');
+            -- Update data only if tables have rows
+            IF items_count > 0 THEN
+                UPDATE items SET status = 'NEW' WHERE status = 'NEW_SUBMISSION';
+            END IF;
+            
+            IF packages_count > 0 THEN
+                UPDATE packages SET status = array_replace(status, 'NEW_SUBMISSION', 'NEW');
+            END IF;
             
             -- Drop old types and rename new ones
             DROP TYPE itemstatus;
