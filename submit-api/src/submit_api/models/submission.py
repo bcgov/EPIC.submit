@@ -37,7 +37,7 @@ class Submission(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     submitted_form_id = Column(db.Integer, ForeignKey('submitted_forms.id'), nullable=True)
     item_id = Column(db.Integer, ForeignKey('items.id', ondelete='CASCADE'), nullable=False)
-    type = Column(Enum(SubmissionType), nullable=False)
+    type = Column(Enum(SubmissionType, name='submissiontype'), nullable=False)
     submitted_document_id = Column(db.Integer, ForeignKey('submitted_documents.id'), nullable=True)
     submitted_form = db.relationship('SubmittedForm', foreign_keys=[submitted_form_id], lazy='joined')
     submitted_document = db.relationship('SubmittedDocument', foreign_keys=[submitted_document_id], lazy='joined')

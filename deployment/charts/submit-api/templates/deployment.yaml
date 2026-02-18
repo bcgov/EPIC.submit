@@ -25,6 +25,23 @@ spec:
           command:
             - /opt/app-root/pre-hook-update-db.sh
           env:
+            {{- if .Values.database.demo.enabled }}
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secret }}-{{ .Values.database.demo.suffix }}
+                  key: app-db-username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secret }}-{{ .Values.database.demo.suffix }}
+                  key: app-db-password
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secret }}-{{ .Values.database.demo.suffix }}
+                  key: app-db-name
+            {{- else }}
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -40,6 +57,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.database.secret }}
                   key: app-db-name
+            {{- end }}
             - name: DATABASE_HOST
               value: {{ .Values.database.service.name }}
             - name: DATABASE_PORT
@@ -52,6 +70,23 @@ spec:
             - containerPort: 8080
               protocol: TCP
           env:
+            {{- if .Values.database.demo.enabled }}
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secret }}-{{ .Values.database.demo.suffix }}
+                  key: app-db-username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secret }}-{{ .Values.database.demo.suffix }}
+                  key: app-db-password
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.secret }}-{{ .Values.database.demo.suffix }}
+                  key: app-db-name
+            {{- else }}
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -67,6 +102,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.database.secret }}
                   key: app-db-name
+            {{- end }}
             - name: DATABASE_HOST
               value: {{ .Values.database.service.name }}
             - name: DATABASE_PORT

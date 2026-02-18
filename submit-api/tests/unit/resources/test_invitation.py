@@ -3,7 +3,7 @@
 Tests for invitation resource endpoints.
 """
 
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from unittest.mock import patch
 
@@ -124,7 +124,7 @@ def test_get_invitation_expired(client, session, jwt):
     _, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
-        expiry_date=datetime.now(UTC) - timedelta(days=1),  # Expired
+        expiry_date=datetime.now(timezone.utc) - timedelta(days=1),  # Expired
     )
 
     response = client.get(f"/api/invitations/{invitation.token}")
@@ -161,6 +161,7 @@ def test_accept_invitation(client, session, jwt):
     _, account_project = setup_authenticated_proponent(session, jwt)
     invitation = factory_invitation_model(
         account_id=account_project.account_id,
+        project_ids=[account_project.project_id]
     )
 
     payload = {
@@ -181,6 +182,12 @@ def test_accept_invitation(client, session, jwt):
     data = response.get_json()
     print(data)
     assert "user_id" in data
+
+    # Verify that account_projects were created during acceptance
+    from submit_api.models import AccountProject as AccountProjectModel
+    account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
+    assert len(account_projects) > 0
+    assert any(ap.account_id == invitation.account_id for ap in account_projects)
 
 
 def test_accept_invitation_invalid_token(client, session):
@@ -333,3 +340,32 @@ def test_create_invitation_with_multiple_projects(client, session, jwt):
     assert response.status_code == HTTPStatus.CREATED
     data = response.get_json()
     assert "token" in data
+
+
+def test_renew_invitation(client, session, jwt):
+    """Test renewing an invitation."""
+    headers, account_project = setup_authenticated_proponent(session, jwt)
+    invitation = factory_invitation_model(
+        account_id=account_project.account_id,
+        project_ids=[account_project.project_id],
+        expiry_date=datetime.now(timezone.utc) - timedelta(days=1)  # Expired
+    )
+
+    response = client.patch(f"/api/invitations/id/{invitation.id}/renew", headers=headers)
+
+    assert response.status_code == HTTPStatus.NO_CONTENT
+
+    # Verify expiry date is updated
+    assert invitation.expiry_date > datetime.utcnow()
+    assert invitation.status == InvitationStatus.PENDING.value
+
+
+def test_renew_invitation_not_found(client, session, jwt):
+    """Test renewing a non-existent invitation."""
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.patch("/api/invitations/id/99999/renew", headers=headers)
+
+    assert response.status_code == HTTPStatus.NOT_FOUND

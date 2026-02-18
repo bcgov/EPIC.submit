@@ -19,10 +19,12 @@ from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
+from submit_api.auth import auth
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.proponent import ProponentSchema
+from submit_api.schemas.proponent import ProponentSchema, EnableProponentProjectsSchema
 from submit_api.services.proponent_service import ProponentService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -30,6 +32,9 @@ API = Namespace("proponents", description="Endpoints for Proponent fetching")
 
 proponent_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ProponentSchema(), "Proponent"
+)
+post_proponent_account_projects_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, EnableProponentProjectsSchema(), "EnableProjects"
 )
 
 
@@ -93,3 +98,30 @@ class Proponent(Resource):
         if not proponent:
             raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
         return proponent, HTTPStatus.OK
+
+
+@cors_preflight("POST, OPTIONS")
+@API.route(
+    "/<int:proponent_id>/projects",
+    methods=["POST", "OPTIONS"],
+)
+class ProponentProject(Resource):
+    """Resource for managing proponent projects."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Enable proponent project in EPIC.submit")
+    @API.expect(post_proponent_account_projects_model)
+    @API.response(
+        code=HTTPStatus.CREATED, model=proponent_model, description="Enable proponent project in EPIC.submit"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @auth.require
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @cross_origin(origins=allowedorigins())
+    def post(proponent_id):
+        """Create new account_project(s) for proponent."""
+        payload = EnableProponentProjectsSchema().load(request.json)
+        ProponentService.add_eligible_account_projects(proponent_id, payload)
+        proponent = ProponentService.get_proponent(proponent_id, True, True)
+        return proponent, HTTPStatus.CREATED
