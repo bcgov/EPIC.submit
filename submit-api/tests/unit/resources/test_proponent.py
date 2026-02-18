@@ -6,9 +6,11 @@ Tests for proponents.
 from http import HTTPStatus
 
 from submit_api.enums.proponent_status import ProponentStatus
+from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
-    factory_account_model, factory_invitation_model, factory_project_with_proponent,
-    factory_proponent_model)
+    factory_account_model, factory_auth_header, factory_invitation_model,
+    factory_project_model, factory_project_with_proponent,
+    factory_proponent_model, factory_user_model)
 
 
 def test_get_all_proponents_with_approved_conditions(client, session):
@@ -158,3 +160,78 @@ def test_get_all_proponents_empty(client, session):
     data = response.get_json()
     assert isinstance(data, list)
     assert len(data) == 0
+
+
+def test_enable_proponent_projects_success(client, session, jwt):
+    """Test successfully enabling projects for an onboarded proponent."""
+    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    factory_user_model(auth_guid=auth_guid)
+
+    proponent = factory_proponent_model(
+        id=1234,
+        name="Onboarded Proponent",
+        status=ProponentStatus.ONBOARDED,
+        is_deleted=False
+    )
+    factory_account_model(proponent_id=proponent.id)
+
+    project1 = factory_project_model(name="Project 1", proponent_id=proponent.id)
+    project2 = factory_project_model(name="Project 2", proponent_id=proponent.id)
+
+    payload = {
+        "projects": [project1.id, project2.id]
+    }
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.post(f"/api/proponents/{proponent.id}/projects", json=payload, headers=headers)
+
+    assert response.status_code == HTTPStatus.CREATED
+    data = response.get_json()
+    assert data["id"] == proponent.id
+    assert data["name"] == "Onboarded Proponent"
+    assert "account_projects" in data
+    assert len(data["account_projects"]) == 2
+
+    # Verify the account_projects were created with correct IDs
+    account_project_ids = [ap["project_id"] for ap in data["account_projects"]]
+    assert project1.id in account_project_ids
+    assert project2.id in account_project_ids
+
+
+def test_enable_proponent_projects_not_found(client, session, jwt):
+    """Test enabling projects for a non-existent proponent."""
+    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    factory_user_model(auth_guid=auth_guid)
+
+    payload = {
+        "projects": [1, 2, 3]
+    }
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.post("/api/proponents/99999/projects", json=payload, headers=headers)
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_enable_proponent_projects_not_onboarded(client, session, jwt):
+    """Test enabling projects for a proponent that is not onboarded."""
+    auth_guid = TestJwtClaims.staff_admin_role['sub']
+    factory_user_model(auth_guid=auth_guid)
+
+    proponent = factory_proponent_model(
+        id=2222,
+        name="Eligible Proponent",
+        status=ProponentStatus.ELIGIBLE,
+        is_deleted=False
+    )
+    factory_account_model(proponent_id=proponent.id)
+    project = factory_project_model(name="Project", proponent_id=proponent.id)
+
+    payload = {
+        "projects": [project.id]
+    }
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.post(f"/api/proponents/{proponent.id}/projects", json=payload, headers=headers)
+
+    assert response.status_code == HTTPStatus.BAD_REQUEST
