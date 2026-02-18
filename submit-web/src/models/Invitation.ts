@@ -14,6 +14,7 @@ export type Invitation = {
   email: string;
   status: string;
   expiry_date: string;
+  is_expired: boolean;
   created_date: string;
   is_first_time: boolean;
   role: Role;
