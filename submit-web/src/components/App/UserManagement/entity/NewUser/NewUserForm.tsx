@@ -156,10 +156,16 @@ export default function NewUserForm() {
       return;
     }
 
+    // if role is SPECIFIC_PROJECT_ADMIN, set role to PROJECT_ADMIN since its the same role in backend
+    const selected_role_name =
+      role_name === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN
+        ? USER_MANAGEMENT_ROLE.PROJECT_ADMIN
+        : role_name;
+
     const request = {
       proponent_id: proponentId,
       account_id: accountId,
-      role_name,
+      role_name: selected_role_name,
       email,
       account_project_ids: [account_project_id],
       project_ids: project_ids?.map(Number) ?? undefined,
