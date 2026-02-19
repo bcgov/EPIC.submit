@@ -17,39 +17,35 @@ from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
 
 
-def check_has_permissions_on_project(permissions=None, account_project_id=None):
-    """Check if user is assigned to the project."""
+def check_has_permissions_on_project(permissions=None, account_project_ids=None):
+    """Check if user is assigned to all of the given projects."""
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
     if user.type == UserType.STAFF:
         return
 
-    if not user or not user.account_user or not user.account_user.role or not account_project_id:
+    if not user or not user.account_user or not user.account_user.role or not account_project_ids:
         abort(HTTPStatus.UNAUTHORIZED)
 
     account_user: AccountUserModel = user.account_user
     user_roles: list[UserRoleModel] = account_user.roles
 
-    # Check against all roles
-    has_project_access = False
-    valid_role = None
+    # Collect roles that match any of the requested project IDs
+    matched_roles = [role for role in user_roles if role.account_project_id in account_project_ids]
+    matched_project_ids = {role.account_project_id for role in matched_roles}
 
-    for role in user_roles:
-        if role.account_project_id == account_project_id:
-            has_project_access = True
-            valid_role = role
-            break
-
-    if not has_project_access:
+    # Require access to ALL requested project IDs
+    if not matched_project_ids.issuperset(set(account_project_ids)):
         abort(HTTPStatus.FORBIDDEN)
 
     if not permissions:
         # If no permissions are required, return success
         return
 
-    user_permissions = set(valid_role.permissions)
-    has_valid_permissions = user_permissions & set(permissions)
-    if not has_valid_permissions:
-        abort(HTTPStatus.FORBIDDEN)
+    # All matched roles must satisfy the required permissions
+    required_permissions = set(permissions)
+    for role in matched_roles:
+        if not set(role.permissions) & required_permissions:
+            abort(HTTPStatus.FORBIDDEN)
 
     return
 
