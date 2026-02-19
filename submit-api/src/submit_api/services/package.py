@@ -56,7 +56,7 @@ class PackageService:
         """Create a new package."""
         authorization.check_has_permissions_on_project(
             [ProponentPermissionsEnum.CREATE_PACKAGE.value],
-            account_project_id
+            [account_project_id]
         )
         with session_scope() as session:
             package_type = PackageTypeModel.find_by_name(
@@ -352,7 +352,7 @@ class PackageService:
             package = cls._get_and_validate_complete_package(package_id)
             authorization.check_has_permissions_on_project(
                 permissions=[ProponentPermissionsEnum.SUBMIT_PACKAGE.value],
-                account_project_id=package.account_project_id
+                account_project_ids=[package.account_project_id]
             )
             if package.submitted_on:
                 submitted_package: PackageModel = cls._resubmit_package(package, session)

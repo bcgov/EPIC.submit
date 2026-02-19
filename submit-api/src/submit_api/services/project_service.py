@@ -18,7 +18,7 @@ class ProjectService:
     def get_account_project_by_id(cls, account_project_id, is_staff: bool):
         """Get account project by id."""
         authorization.check_has_permissions_on_project(
-            account_project_id=account_project_id,
+            account_project_ids=[account_project_id],
         )
         return ProjectQueries.get_account_project_by_id(account_project_id, is_staff)
 

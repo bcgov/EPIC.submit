@@ -65,7 +65,7 @@ class InvitationService:
         # assume one project for now, can be extended for multiple projects
         authorization.check_has_permissions_on_project(
             permissions=permissions or [ProponentPermissionsEnum.INVITE_USERS.value],
-            account_project_id=account_project_ids[0] if account_project_ids else None
+            account_project_ids=account_project_ids
         )
 
     @staticmethod
