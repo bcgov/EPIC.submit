@@ -48,8 +48,8 @@ export const UserTable = ({ users }: { users: AccountUserWithRole[] }) => {
           <Table>
             <UserTableHead />
             <TableBody>
-              {users.map((user) => (
-                <UserTableRow key={user.id} user={user} />
+              {users.map((user, index) => (
+                <UserTableRow key={index} user={user} />
               ))}
             </TableBody>
           </Table>

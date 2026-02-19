@@ -17,7 +17,7 @@ import { BCDesignTokens } from "epic.theme";
 import UserInfoBox from "./UserInfoBox";
 import UserStatusChip from "@/components/App/UserStatusChip";
 import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
-import { FormOptions } from "@/components/App/UserManagement/entity/NewUser/FormOptions";
+import { UserRoleOptions } from "@/components/App/UserManagement/entity/NewUser/UserRoleOptions";
 import { FormProvider, useForm } from "react-hook-form";
 import Form from "@/components/Shared/Forms/common";
 import * as yup from "yup";
@@ -331,7 +331,7 @@ function UpdateUserRole({ userData }: UpdateUserRoleProps) {
                 />
               </Box>
               <ControlledRadioGroup name="role_name">
-                <FormOptions error={Boolean(errors["role_name"])} />
+                <UserRoleOptions error={Boolean(errors["role_name"])} />
               </ControlledRadioGroup>
 
               <When

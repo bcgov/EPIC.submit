@@ -24,6 +24,7 @@ type CreateInvitationToExistingProject = {
   role_name: string;
   email: string;
   account_project_ids?: number[];
+  project_ids?: number[];
   original_package_ids?: number[];
 };
 
@@ -31,6 +32,7 @@ const createInvitationToExistingProject = ({
   account_id,
   proponent_id,
   account_project_ids,
+  project_ids,
   original_package_ids,
   email,
   role_name,
@@ -44,6 +46,7 @@ const createInvitationToExistingProject = ({
       role_name,
       email,
       account_project_ids,
+      project_ids,
       original_package_ids,
     },
   });
