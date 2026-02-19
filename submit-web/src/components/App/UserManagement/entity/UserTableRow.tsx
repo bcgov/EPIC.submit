@@ -70,7 +70,7 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   };
 
   return (
-    <TableRow>
+    <TableRow key={user.id}>
       <PlainTableCell align="left" width={"10%"}>
         <Typography
           variant="body1"
