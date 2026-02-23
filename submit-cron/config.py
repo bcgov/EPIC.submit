@@ -95,6 +95,11 @@ class _Config():  # pylint: disable=too-few-public-methods
     # TODO API client wont need user management roles in keycloak.
     KEYCLOAK_ADMIN_USERNAME = os.getenv('KEYCLOAK_ADMIN_USERNAME')
     KEYCLOAK_ADMIN_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
+    # Keycloak client/secret for emailer (EAO_MANAGER group lookup, pending access reminder user lookup)
+    KEYCLOAK_EMAILER_CLIENT = os.getenv('KEYCLOAK_EMAILER_CLIENT')
+    KEYCLOAK_EMAILER_SECRET = os.getenv('KEYCLOAK_EMAILER_SECRET')
+
+    CONNECT_TIMEOUT = int(os.getenv('CONNECT_TIMEOUT', 60))
 
     CHES_TOKEN_ENDPOINT = os.getenv('CHES_TOKEN_ENDPOINT')
     CHES_CLIENT_ID = os.getenv('CHES_CLIENT_ID')
@@ -105,6 +110,11 @@ class _Config():  # pylint: disable=too-few-public-methods
     SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH', '/proponent/registration')
 
     STAFF_SUPPORT_MAIL_ID = os.getenv('STAFF_SUPPORT_MAIL_ID', '')
+
+    # Pending access request reminder (Centre)
+    PENDING_ACCESS_REMINDER_HOURS = int(os.getenv('PENDING_ACCESS_REMINDER_HOURS', '48'))
+    PENDING_ACCESS_REMINDER_EMAIL = os.getenv('PENDING_ACCESS_REMINDER_EMAIL', '')
+    REQUEST_ACCESS_BASE_URL = os.getenv('REQUEST_ACCESS_BASE_URL', 'http://localhost:5173')
 
     CONDITION_API_BASE_URL = os.getenv('CONDITION_API_BASE_URL')
 

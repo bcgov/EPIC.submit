@@ -89,6 +89,10 @@ def run(job_name, target_system=''):
         elif job_name == 'SYNC_CONDITION':
             SyncApprovedCondition.sync_approved_condition()
             application.logger.info(f'<<<< Completed Sync Approved Condition >>>>')
+        elif job_name == 'PENDING_ACCESS_REMINDER':
+            from tasks.pending_access_reminder import PendingAccessReminder
+            PendingAccessReminder.run()
+            application.logger.info(f'<<<< Completed Pending Access Reminder >>>>')
 
 
 if __name__ == "__main__":
