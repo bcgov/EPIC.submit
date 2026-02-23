@@ -38,13 +38,18 @@ def _build_user_links(
     requests: List[PendingAccessRequest], base_url: str
 ) -> List[dict]:
     """
-    Build list of {name, url} for template.
-    Fetches user name and @idir id from Keycloak when KEYCLOAK_EMAILER_* is configured.
+    Build list of {name, url} for template (one entry per user).
+    If a user has multiple pending requests, include them only once.
+    Fetches user name from Keycloak when KEYCLOAK_EMAILER_* is configured.
     """
     base_url = (base_url or "").rstrip("/")
     request_access_base = f"{base_url}{REQUEST_ACCESS_PATH}" if base_url else ""
     result = []
+    seen_user_ids = set()
     for r in requests:
+        if r.user_id in seen_user_ids:
+            continue
+        seen_user_ids.add(r.user_id)
         display_name = r.name
         try:
             user = KeycloakService.get_user_by_guid(r.user_id)
