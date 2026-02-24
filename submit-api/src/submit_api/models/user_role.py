@@ -22,7 +22,7 @@ class UserRole(BaseModel):
     active = Column(db.Boolean, nullable=False, default=True)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
     role = db.relationship("Role", lazy="joined")
-    account_user = db.relationship("AccountUser", back_populates="role", lazy="select")
+    account_user = db.relationship("AccountUser", back_populates="roles", lazy="select")
 
     @property
     def permissions(self):

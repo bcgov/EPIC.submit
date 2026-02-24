@@ -62,6 +62,7 @@ class Invitations(BaseModel):
             "expiry_date": self.expiry_date,
             "role_id": self.role_id,
             "role": self.role.to_dict() if self.role else None,
+            "is_expired": self.is_expired,
         }
 
     @classmethod

@@ -21,6 +21,7 @@ class CreateInvitationToExistingAccountProjectSchema(Schema):
     proponent_id = fields.Int(required=True, description="Proponent ID")
     account_id = fields.Int(required=False, description="Account ID")
     account_project_ids = fields.List(fields.Int(), required=False, description="List of Account Project IDs")
+    project_ids = fields.List(fields.Int(), required=False, allow_none=True, description="Project IDs")
     role_name = fields.Str(required=True, description="Role Name")
     original_package_ids = fields.List(fields.Int(),
                                        required=False, allow_none=True, description="Original Package IDs")

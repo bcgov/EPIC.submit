@@ -14,7 +14,6 @@ from submit_api.models import Role as RoleModel
 from submit_api.models import TermsOfService as TermsOfServiceModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
-from submit_api.models.user_status import UserStatusEnum
 from submit_api.models.db import db
 from submit_api.models.invitations import InvitationStatus
 from submit_api.services.keycloak import KeycloakService
@@ -33,8 +32,8 @@ class AccountUserService:
             current_app.logger.warning("Unauthorized access attempt to account users.")
             raise PermissionDeniedError("Unauthorized access to account users.")
         account_project_ids = None
-        if account_user.role and account_user.role.account_project_id:
-            account_project_ids = [account_user.role.account_project_id]
+        if account_user.roles:
+            account_project_ids = [role.account_project_id for role in account_user.roles if role.account_project_id]
         return cls.get_users_by_account(
             account_id,
             include_roles=include_roles,
@@ -46,30 +45,12 @@ class AccountUserService:
     def get_users_by_account(cls, account_id, include_roles=False, include_invitees=False, account_project_ids=None):
         """Get all users associated with an account, optionally including roles & invitees."""
         users = cls._fetch_users(account_id, account_project_ids)
-        # roles_map = cls._fetch_roles(users) if include_roles else {}
 
-        # Collect all unique package IDs first
-        all_package_ids = set()
-        for user in users:
-            role = getattr(user, "role", None)
-            if role and role.original_package_ids:
-                all_package_ids.update(role.original_package_ids)
+        # Collect all unique package IDs and fetch their names
+        package_name_map = cls._collect_and_fetch_package_names(users)
 
-        # Fetch names for all package_ids at once
-        package_name_map = cls._fetch_package_names(list(all_package_ids))
-
-        user_list = []
-        for user in users:
-            user_data = user.to_dict()
-            user_data["status"] = cls._fetch_user_status_name(user_data.get("user_id"))
-            # Add package_name to active role if applicable
-            role = user_data.get("role")
-            user_data["role"] = role if role.get("active") else []
-            if role and role.get("active") and (pkg_ids := role.get("original_package_ids")):
-                role["package_names"] = [
-                    package_name_map[pkg_id] for pkg_id in pkg_ids if pkg_id in package_name_map]
-
-            user_list.append(user_data)
+        # Process users and build user list
+        user_list = [cls._process_user_data(user, package_name_map) for user in users]
 
         if include_invitees:
             # we are fetching invitees as well since we are not creating users on invitations
@@ -78,6 +59,41 @@ class AccountUserService:
             user_list.extend(invitees)
 
         return user_list
+
+    @classmethod
+    def _collect_and_fetch_package_names(cls, users):
+        """Collect all unique package IDs from users and fetch their names."""
+        all_package_ids = set()
+        for user in users:
+            roles = getattr(user, "roles", [])
+            for role in roles:
+                if role.original_package_ids:
+                    all_package_ids.update(role.original_package_ids)
+        return cls._fetch_package_names(list(all_package_ids))
+
+    @classmethod
+    def _process_user_data(cls, user, package_name_map):
+        """Process a single user and return user data dict with roles."""
+        user_data = user.to_dict()
+        user_data["status"] = cls._fetch_user_status_name(user_data.get("user_id"))
+
+        # Map roles
+        roles_data = []
+        if user.roles:
+            for role in user.roles:
+                role_dict = role.to_dict()
+                if role.active and role.original_package_ids:
+                    role_dict["package_names"] = [
+                        package_name_map[pkg_id] for pkg_id in role.original_package_ids if pkg_id in package_name_map
+                    ]
+                if role.active:
+                    roles_data.append(role_dict)
+
+        user_data["roles"] = roles_data
+        # For backward compatibility, set "role" to the first active one or None
+        user_data["role"] = roles_data[0] if roles_data else None
+
+        return user_data
 
     @staticmethod
     def _fetch_package_names(original_package_ids: list[int]) -> dict[int, str]:
@@ -226,6 +242,10 @@ class AccountUserService:
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         if not account_user:
             raise ValueError(f"Invalid account user ID: {account_user_id}")
+
+        # If user already has roles, try to find one?
+        # But this method is usually called when assigning a NEW role without explicit project ID.
+        # Fallback to the first project of the account for now, but really this should be explicit.
         account_project = AccountProjectModel.get_by_account_id(account_user.account_id)
         return account_project.id
 
@@ -302,18 +322,21 @@ class AccountUserService:
         """Ensure a user is not updating their own role and restrict PROJECT_ADMIN from editing roles."""
         # TODO: Move this to common authorization
         user = UserModel.get_by_guid(user_guid)
-        user_role = user.account_user.role
-        role_name = user_role.role.role_name
 
-        if not user or not user.account_user:
-            current_app.logger.warning("Only account admins are allowed to edit roles.")
-            raise PermissionDeniedError("Only account admins are allowed to edit roles.")
+        # Prevent users from updating their own role
+        if user.account_user and user.account_user.id == account_user_id:
+            current_app.logger.warning("Users cannot update their own role.")
+            raise PermissionDeniedError("Users cannot update their own role.")
 
-        if user.account_user.id == account_user_id:
-            current_app.logger.warning(f"User {user.id} attempted to update their own role.")
-            raise PermissionDeniedError("You are not allowed to update your own role.")
+        # Check if user has ANY role that allows editing (e.g., PROJECT_ADMIN)
+        is_admin = False
+        if user.account_user and user.account_user.roles:
+            for role in user.account_user.roles:
+                if role.role.role_name == RoleEnum.PROJECT_ADMIN.value:
+                    is_admin = True
+                    break
 
-        if role_name != RoleEnum.PROJECT_ADMIN.value:
+        if not is_admin:
             current_app.logger.warning("Only account admins are allowed to edit roles.")
             raise PermissionDeniedError("Only account admins are allowed to edit roles.")
 
@@ -332,10 +355,9 @@ class AccountUserService:
 
         # Update user and role status
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
-        account_user.user.status_id = (
-            UserStatusEnum.ACTIVE.value if active else UserStatusEnum.INACTIVE.value
-        )
-        account_user.role.active = active
+        # Iterate over all roles and set active status
+        for role in account_user.roles:
+            role.active = active
         db.session.commit()
 
         # Update Keycloak login access
@@ -348,13 +370,27 @@ class AccountUserService:
         user_dict = updated_user.to_dict()
         user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
 
-        role = user_dict.get("role")
-        if not role.get("active"):
+        role = user_dict.get("role")  # Compatibility
+        roles = user_dict.get("roles", [])
+
+        if not roles:
             user_dict["role"] = []
+            user_dict["roles"] = []
         else:
-            original_package_ids = role.get("original_package_ids", [])
-            package_name_map = cls._fetch_package_names(original_package_ids)
-            role["package_names"] = [package_name_map[pid] for pid in original_package_ids if pid in package_name_map]
+            # Process package names for all roles
+            all_original_package_ids = set()
+            for r in roles:
+                if r.get("original_package_ids"):
+                    all_original_package_ids.update(r.get("original_package_ids"))
+
+            package_name_map = cls._fetch_package_names(list(all_original_package_ids))
+
+            for r in roles:
+                ids = r.get("original_package_ids", [])
+                r["package_names"] = [package_name_map[pid] for pid in ids if pid in package_name_map]
+
+            # Re assign role for compatibility
+            user_dict["role"] = roles[0] if roles else []
 
         return user_dict
 

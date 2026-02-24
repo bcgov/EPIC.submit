@@ -95,6 +95,11 @@ class _Config():  # pylint: disable=too-few-public-methods
     # TODO API client wont need user management roles in keycloak.
     KEYCLOAK_ADMIN_USERNAME = os.getenv('KEYCLOAK_ADMIN_USERNAME')
     KEYCLOAK_ADMIN_SECRET = os.getenv('MET_ADMIN_CLIENT_SECRET')
+    # Keycloak client/secret for emailer only (EAO_MANAGER group lookup)
+    KEYCLOAK_EMAILER_CLIENT = os.getenv('KEYCLOAK_EMAILER_CLIENT')
+    KEYCLOAK_EMAILER_SECRET = os.getenv('KEYCLOAK_EMAILER_SECRET')
+
+    CONNECT_TIMEOUT = int(os.getenv('CONNECT_TIMEOUT', 60))
 
     CHES_TOKEN_ENDPOINT = os.getenv('CHES_TOKEN_ENDPOINT')
     CHES_CLIENT_ID = os.getenv('CHES_CLIENT_ID')

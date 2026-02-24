@@ -65,7 +65,7 @@ class InvitationService:
         # assume one project for now, can be extended for multiple projects
         authorization.check_has_permissions_on_project(
             permissions=permissions or [ProponentPermissionsEnum.INVITE_USERS.value],
-            account_project_id=account_project_ids[0] if account_project_ids else None
+            account_project_ids=account_project_ids
         )
 
     @staticmethod
@@ -444,3 +444,17 @@ class InvitationService:
 
             session.add(invitation)
             return True
+
+    @staticmethod
+    def renew_invitation(invitation_id):
+        """Renew an invitation by ID."""
+        invitation = InvitationsModel.find_by_id(invitation_id)
+        if invitation:
+            # TODO: Check invitation is PENDING or REVOKED once cron job is finalized
+            InvitationService._check_action_authorized(invitation.project_ids)
+            invitation.status = InvitationStatus.PENDING.value
+            expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
+            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days)
+            InvitationsModel.commit()
+            return True
+        return False
