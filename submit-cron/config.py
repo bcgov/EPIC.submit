@@ -111,8 +111,7 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     STAFF_SUPPORT_MAIL_ID = os.getenv('STAFF_SUPPORT_MAIL_ID', '')
 
-    # Pending access request reminder (Centre)
-    PENDING_ACCESS_REMINDER_HOURS = int(os.getenv('PENDING_ACCESS_REMINDER_HOURS', '48'))
+    PENDING_ACCESS_REMINDER_HOURS = float(os.getenv('PENDING_ACCESS_REMINDER_HOURS', '48'))
     PENDING_ACCESS_REMINDER_EMAIL = os.getenv('PENDING_ACCESS_REMINDER_EMAIL', '')
     REQUEST_ACCESS_BASE_URL = os.getenv('REQUEST_ACCESS_BASE_URL', 'http://localhost:5173')
 
