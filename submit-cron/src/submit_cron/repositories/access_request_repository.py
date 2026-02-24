@@ -40,7 +40,7 @@ class AccessRequestRepository:
     def __init__(self, session: Session):
         self.session = session
 
-    def find_pending_older_than_hours(self, hours: int) -> List[PendingAccessRequest]:
+    def find_pending_older_than_hours(self, hours: float) -> List[PendingAccessRequest]:
         """
         Find access requests in pending status older than the given number of hours.
 
