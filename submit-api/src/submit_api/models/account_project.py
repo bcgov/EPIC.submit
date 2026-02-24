@@ -28,6 +28,12 @@ class AccountProject(BaseModel):
         lazy='select',
         cascade='all, delete',
         passive_deletes=True)
+    account_project_works = db.relationship(
+        'AccountProjectWork',
+        primaryjoin='AccountProjectWork.account_project_id==AccountProject.id',
+        lazy='select',
+        cascade='all, delete',
+        passive_deletes=True)
 
     @property
     def latest_packages(self):
