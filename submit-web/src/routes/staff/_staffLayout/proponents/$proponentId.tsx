@@ -1,5 +1,6 @@
 import { EnableProjectsButton } from "@/components/App/Proponents/EnableProjectsButton/EnableProjectsButton";
 import { EligibleProjectsTable, OnboardedProjectsTable } from "@/components/App/Proponents/ProjectsTable";
+import { ContactsSection } from "@/components/App/Proponents/Contacts";
 import { RegistrationUrl } from "@/components/App/Proponents/RegistrationUrl/RegistrationUrl";
 import { ProponentStatusChip } from "@/components/App/ProponentStatusChip";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
@@ -25,6 +26,7 @@ export const Route = createFileRoute(
       getProponentOptions(Number(proponentId), {
         includeProjects: true,
         includeInvitations: true,
+        includeAdministrators: true,
       }),
     ),
   onError: (error) => {
@@ -68,6 +70,7 @@ function ProponentPage() {
     getProponentOptions(proponentId, {
       includeProjects: true,
       includeInvitations: true,
+      includeAdministrators: true,
     }),
   );
 
@@ -105,7 +108,7 @@ function ProponentPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ alignSelf: "flex-start" }}>
         <ContentBox
           mainLabel={proponent?.name}
           statusChip={<ProponentStatusChip status={proponent?.status} />}
@@ -137,6 +140,10 @@ function ProponentPage() {
           {proponent?.status != "ONBOARDED" && eligibleProjects.length > 0 && (
             <RegistrationUrl onInvitationCreated={refetch} />
           )}
+          <ContactsSection
+            entityName={proponent?.name}
+            administrators={proponent?.administrators}
+          />
         </ContentBox>
       </Grid>
     </PageGrid>
