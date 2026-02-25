@@ -27,10 +27,14 @@ export const Route = createFileRoute(
       return;
     }
 
-    if (
-      account.userManagementRole?.role_name !==
-      USER_MANAGEMENT_ROLE.PROJECT_ADMIN
-    ) {
+    const allowedRoles = [
+      USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
+      USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+    ];
+
+    const roleName = account.userManagementRole?.role_name;
+
+    if (!roleName || !allowedRoles.includes(roleName)) {
       return redirect({
         to: "/unauthorized",
       });
