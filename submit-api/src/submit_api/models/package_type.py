@@ -4,7 +4,7 @@ Manages the package types
 """
 from __future__ import annotations
 
-from sqlalchemy import Column
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
@@ -18,6 +18,8 @@ class PackageType(BaseModel):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     name = Column(db.String(255), nullable=False)
+    phase_id = Column(db.Integer, ForeignKey('track_phases.id'), nullable=True)
+    phase = relationship('TrackPhase', foreign_keys=[phase_id], lazy='joined')
     item_types = relationship('ItemType', secondary='package_item_types', back_populates='package_types')
 
     __table_args__ = (db.Index('idx_package_types_name', 'name'),)
