@@ -11,12 +11,19 @@ class ProponentService:
     """Proponent management service."""
 
     @classmethod
-    def get_proponent(cls, proponent_id, include_invitations=False, include_projects=False):
+    def get_proponent(
+        cls,
+        proponent_id,
+        include_invitations=False,
+        include_projects=False,
+        include_administrators=False,
+    ):
         """Get proponent by id."""
         return Proponent.get_proponent_by_id(
             proponent_id,
             include_invitations=include_invitations,
-            include_projects=include_projects
+            include_projects=include_projects,
+            include_administrators=include_administrators,
         )
 
     @classmethod

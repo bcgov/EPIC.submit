@@ -80,6 +80,10 @@ class Package(BaseModel):
         'package_types.id'), nullable=False)
     type = db.relationship('PackageType', foreign_keys=[
                            type_id], lazy='joined')
+    account_project_work_id = Column(db.Integer, ForeignKey(
+        'account_project_works.id', ondelete='SET NULL'), nullable=True)
+    account_project_work = db.relationship('AccountProjectWork', foreign_keys=[
+                           account_project_work_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String, ForeignKey(
         'users.auth_guid', name='packages_submitted_by_fkey'), nullable=True)
