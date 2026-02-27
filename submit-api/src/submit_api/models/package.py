@@ -102,6 +102,12 @@ class Package(BaseModel):
     version = db.relationship('PackageVersion', foreign_keys=[
                               version_id], lazy='joined')
 
+    __table_args__ = (
+        db.Index('idx_packages_account_project_id', 'account_project_id'),
+        db.Index('idx_packages_account_project_work_id', 'account_project_work_id',
+                 postgresql_where=db.text('account_project_work_id IS NOT NULL')),
+    )
+
     _update_requests = db.relationship(
         'UpdateRequest',
         backref='package',
