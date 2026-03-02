@@ -12,6 +12,7 @@ class PackageTypeEnum(enum.Enum):
 
     MANAGEMENT_PLAN = 'Management Plan'
     IEM = 'IEM'
+    IPD = 'IPD'
 
 
 class PackageTypeId(enum.Enum):
@@ -19,3 +20,4 @@ class PackageTypeId(enum.Enum):
 
     MANAGEMENT_PLAN = 1
     IEM = 2
+    IPD = 3
