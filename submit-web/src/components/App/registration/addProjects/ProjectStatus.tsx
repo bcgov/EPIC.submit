@@ -1,32 +1,45 @@
 import { Caption2 } from "@/components/Shared/Typographies";
-import { Case, Default, Switch } from "react-if";
 import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
 import { Stack } from "@mui/material";
-import { PROJECT_STATUS } from "./ProjectCard/constants";
 import { EAOColors } from "epic.theme";
+
+type StyleProps = {
+  color: string;
+  label: string;
+};
+
+const statusStyles: Record<string, StyleProps> = {
+  POST_DECISION: {
+    color: EAOColors.DecisionDark,
+    label: "Post-Decision",
+  },
+  EARLY_ENGAGEMENT: {
+    color: "#5583B5",
+    label: "Early Engagement",
+  },
+};
 
 type ProjectStatusProps = {
   status: string;
 };
 export const ProjectStatus = ({ status }: ProjectStatusProps) => {
+  const style = statusStyles[status];
+
+  if (!style) {
+    return null;
+  }
+
   return (
-    <Switch>
-      <Case condition={status === PROJECT_STATUS.POST_DECISION}>
-        <Stack
-          spacing={1}
-          direction="row"
-          alignItems={"center"}
-          color={EAOColors.DecisionDark}
-        >
-          <ModeStandbyIcon />
-          <Caption2 color={EAOColors.DecisionDark} bold>
-            Post-Decision
-          </Caption2>
-        </Stack>
-      </Case>
-      <Default>
-        <Caption2>{status}</Caption2>
-      </Default>
-    </Switch>
+    <Stack
+      spacing={1}
+      direction="row"
+      alignItems={"center"}
+      color={style.color}
+    >
+      <ModeStandbyIcon />
+      <Caption2 color={style.color} bold>
+        {style.label}
+      </Caption2>
+    </Stack>
   );
 };
