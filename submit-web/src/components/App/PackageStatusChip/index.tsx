@@ -232,10 +232,10 @@ const statusStyles: Record<
   REQUESTED_BY_EAO: {
     sx: {
       borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
-      background: BCDesignTokens.themeBlue20,
+      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+      background: BCDesignTokens.supportSurfaceColorWarning,
       height: "24px",
-      width: "104px",
+      width: "139px",
     },
     label: "Requested by EAO",
   },
