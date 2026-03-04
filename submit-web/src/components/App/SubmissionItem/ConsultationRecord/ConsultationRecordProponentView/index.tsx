@@ -7,7 +7,6 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
   SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
@@ -32,6 +31,11 @@ import { SubmissionPackage } from "@/models/Package";
 import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
+import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import {
+  GenericDocumentUploadSection,
+  UploadSectionConfig,
+} from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
 
 export const ConsultationRecordProponentView = () => {
   const {
@@ -60,6 +64,15 @@ export const ConsultationRecordProponentView = () => {
       packageId: Number(submissionPackageId),
     }).queryKey,
   );
+
+  const sections: UploadSectionConfig[] = [
+    {
+      name: "consultationRecords",
+      label: "Consultation Record(s)",
+      folder: S3_FOLDER.CONSULTATION_RECORDS.value,
+      description: "Including Comment Tracker",
+    },
+  ];
 
   const partiesList = useMemo(() => {
     const parties =
@@ -223,7 +236,7 @@ export const ConsultationRecordProponentView = () => {
               partiesList={partiesList}
             />
             <Grid item xs={12}>
-              <DocumentUploadSection />
+              <GenericDocumentUploadSection sections={sections} />
             </Grid>
             {submissionPackage &&
               submissionPackage?.update_requests?.length > 0 && (
