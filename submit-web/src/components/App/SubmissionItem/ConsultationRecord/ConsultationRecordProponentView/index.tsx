@@ -17,7 +17,6 @@ import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import FormFieldSection from "./FormFieldSection";
-import ActionButtons from "./ActionButtons";
 import {
   consultationRecordSchema,
   ConsultationRecordForm,
@@ -36,6 +35,7 @@ import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
+import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
 
 export const ConsultationRecordProponentView = () => {
   const {
@@ -244,7 +244,7 @@ export const ConsultationRecordProponentView = () => {
                   <UpdateRequestWidget submissionPackage={submissionPackage} />
                 </Grid>
               )}
-            <ActionButtons
+            <SubmissionActionButtons
               onSubmit={handleSubmit(handleCompleteForm)}
               saveAndClose={saveAndClose}
             />

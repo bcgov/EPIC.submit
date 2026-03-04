@@ -19,7 +19,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import FormFieldSection from "./FormFieldSection";
-import ActionButtons from "./ActionButtons";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
@@ -30,6 +29,7 @@ import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
+import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
 
 export const IemSubmissionProponentView = () => {
   const {
@@ -208,7 +208,7 @@ export const IemSubmissionProponentView = () => {
               <FormFieldSection errors={errors} />
               <GenericDocumentUploadSection sections={documentUploadSections} />
             </Grid>
-            <ActionButtons saveAndClose={saveAndClose} />
+            <SubmissionActionButtons saveAndClose={saveAndClose} />
           </Grid>
         </Form>
       </FormProvider>
