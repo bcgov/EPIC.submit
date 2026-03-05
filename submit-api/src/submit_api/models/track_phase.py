@@ -18,10 +18,15 @@ class TrackPhase(BaseModel):
     id = Column(db.Integer, primary_key=True, autoincrement=False, comment='Phase ID from EPIC.track')
     name = Column(db.String(255), nullable=False, comment='Phase name')
     ea_act_id = Column(db.Integer, nullable=True, comment='Environmental Assessment Act ID')
+    ea_act_name = Column(db.String(255), nullable=True, comment='Environmental Assessment Act name')
     work_type_id = Column(db.Integer, nullable=False, comment='Work type ID from EPIC.track')
     work_type_name = Column(db.String(255), nullable=True, comment='Work type name for display')
     sort_order = Column(db.Integer, nullable=True, comment='Order of phase in workflow')
     number_of_days = Column(db.Integer, nullable=True, comment='Number of days allocated for this phase')
+    display_name = Column(
+        db.String(255), nullable=True,
+        comment='Submit-specific phase name override; defaults to name field if not set'
+    )
     legislated = Column(
         db.Boolean, nullable=False, default=False,
         comment='Whether this phase has legislated time requirements'
@@ -49,3 +54,35 @@ class TrackPhase(BaseModel):
     def find_active_phases(cls):
         """Return all active phases."""
         return cls.query.filter_by(is_active=True, is_deleted=False).order_by(cls.work_type_id, cls.sort_order).all()
+
+    @classmethod
+    def find_by_identifiers(cls, ea_act_name: str, work_type_name: str, phase_name: str):
+        """Find phase by EA Act name, Work Type name, and Phase name.
+
+        Args:
+            ea_act_name: Environmental Assessment Act name
+            work_type_name: Work type name
+            phase_name: Phase name (can be display_name or name)
+
+        Returns:
+            TrackPhase: The matching phase or None
+        """
+        # Try to find by display_name first, then fall back to name
+        phase = cls.query.filter(
+            cls.ea_act_name == ea_act_name,
+            cls.work_type_name == work_type_name,
+            cls.display_name == phase_name,
+            cls.is_active.is_(True),
+            cls.is_deleted.is_(False)
+        ).first()
+
+        if not phase:
+            phase = cls.query.filter(
+                cls.ea_act_name == ea_act_name,
+                cls.work_type_name == work_type_name,
+                cls.name == phase_name,
+                cls.is_active.is_(True),
+                cls.is_deleted.is_(False)
+            ).first()
+
+        return phase
