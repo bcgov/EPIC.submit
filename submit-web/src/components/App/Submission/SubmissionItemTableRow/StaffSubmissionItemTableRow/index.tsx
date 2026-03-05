@@ -23,6 +23,7 @@ import DocumentRow from "@/components/App/Submission/DocumentRow";
 import StaffStatusCell from "./StaffStatusCell";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
+import { SubmissionPackageType } from "@/components/Shared/types";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -51,6 +52,11 @@ export default function StaffSubmissionItemTableRow({
     item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD;
 
   const actionLabel = hasDocument ? "Review" : "View";
+
+  const isNoDetailedViewType = [
+    SubmissionPackageType.IPD,
+    SubmissionPackageType.ENGAGEMENT_PLAN,
+  ].includes(submissionPackage.type.name);
 
   const handleClick = () => {
     navigate({
@@ -92,7 +98,7 @@ export default function StaffSubmissionItemTableRow({
           </Box>
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"}>
-          <When condition={submitted_on}>
+          <When condition={submitted_on && !isNoDetailedViewType}>
             <SubmissionItemReviewConfirmation
               submissionItem={item}
               onClick={handleClick}
