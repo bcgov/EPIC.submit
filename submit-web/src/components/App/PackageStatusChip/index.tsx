@@ -229,6 +229,16 @@ const statusStyles: Record<
     },
     label: "Resubmitted",
   },
+  REQUESTED_BY_EAO: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+      background: BCDesignTokens.supportSurfaceColorWarning,
+      height: "24px",
+      width: "139px",
+    },
+    label: "Requested by EAO",
+  },
 };
 
 type PackageStatusChipProps = Readonly<{

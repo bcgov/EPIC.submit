@@ -40,7 +40,7 @@ export const RegistrationUrl = ({
   const url = `${AppConfig.appUrl}/proponent/account-registration?token=${pendingInvitation?.token}`;
   const helperText = pendingInvitation
     ? pendingInvitation.is_expired
-      ? "This link has expired, You can renew the link by clicking the 'Renew Link' button"
+      ? "This link has expired, you can renew the link by clicking the 'Renew Link' button"
       : pendingInvitation.expiry_date
         ? "This link will expire on " +
           new Date(pendingInvitation.expiry_date).toISOString().split("T")[0]
