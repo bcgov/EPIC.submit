@@ -44,7 +44,8 @@ export type PackageStatus =
   | "PASSED_CONSULTATION_CHECK"
   | "AWAITING_MANAGER_APPROVAL"
   | "FAILED_CONSULTATION_CHECK"
-  | "CREATED";
+  | "CREATED"
+  | "REQUESTED_BY_EAO";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -117,6 +118,10 @@ export const PACKAGE_STATUS: Record<
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
+  },
+  REQUESTED_BY_EAO: {
+    value: "REQUESTED_BY_EAO",
+    label: "Requested by EAO",
   },
 };
 

@@ -40,7 +40,12 @@ class AccountProjectWork(BaseModel):
         comment='Whether this association is currently active'
     )
 
-    account_project = db.relationship('AccountProject', foreign_keys=[account_project_id], lazy='joined')
+    account_project = db.relationship(
+        'AccountProject',
+        foreign_keys=[account_project_id],
+        lazy='joined',
+        back_populates='account_project_works')
+
     work = db.relationship('TrackWork', foreign_keys=[work_id], lazy='joined')
 
     packages = db.relationship(
@@ -48,8 +53,8 @@ class AccountProjectWork(BaseModel):
         primaryjoin='Package.account_project_work_id==AccountProjectWork.id',
         lazy='select',
         cascade='all, delete',
-        passive_deletes=True
-    )
+        passive_deletes=True,
+        back_populates='account_project_work')
 
     @classmethod
     def find_by_account_project_id(cls, account_project_id: int):

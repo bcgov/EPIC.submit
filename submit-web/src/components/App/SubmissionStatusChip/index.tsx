@@ -228,6 +228,16 @@ const statusStyles: Record<string, StyleProps> = {
       width: "128px",
     },
   },
+  REQUESTED_BY_EAO: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+      width: "104px",
+    },
+    label: "Requested by EAO",
+  },
 };
 
 type SubmissionStatusChipProps = Readonly<{

@@ -57,6 +57,7 @@ class PackageStatus(enum.Enum):
     REVISION_REQUIRED = 'REVISION_REQUIRED'
     NO_REVISION_REQUIRED = 'NO_REVISION_REQUIRED'
     RESUBMITTED = 'RESUBMITTED'
+    REQUESTED_BY_EAO = 'REQUESTED_BY_EAO'
 
     @classmethod
     def check_value(cls, value):
@@ -83,7 +84,7 @@ class Package(BaseModel):
     account_project_work_id = Column(db.Integer, ForeignKey(
         'account_project_works.id', ondelete='SET NULL'), nullable=True)
     account_project_work = db.relationship('AccountProjectWork', foreign_keys=[
-                           account_project_work_id], lazy='joined')
+                           account_project_work_id], lazy='joined', back_populates='packages')
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String, ForeignKey(
         'users.auth_guid', name='packages_submitted_by_fkey'), nullable=True)
