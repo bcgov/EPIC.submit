@@ -35,7 +35,7 @@ export default function ProponentSubmissionItemTableRow({
 }: SubmissionItemTableRowProps) {
   const navigate = useNavigate();
   const { projectId, submissionPackageId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
   });
 
   const { id, submissions, status, type_id } = item;
@@ -53,9 +53,8 @@ export default function ProponentSubmissionItemTableRow({
   const queryClient = useQueryClient();
 
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
-    getSubmissionPackageQueryOptions({
-      packageId: Number(submissionPackageId),
-    }).queryKey,
+    getSubmissionPackageQueryOptions({ packageId: Number(submissionPackageId) })
+      .queryKey,
   );
 
   const isUpdated = useMemo(() => {
@@ -142,10 +141,7 @@ export default function ProponentSubmissionItemTableRow({
               data-testid={`submission-item-action-${name}`}
               sx={{
                 color: BCDesignTokens.typographyColorLink,
-                "&:hover": {
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                },
+                "&:hover": { cursor: "pointer", textDecoration: "underline" },
               }}
               onClick={onActionClick}
             >
@@ -168,17 +164,11 @@ export default function ProponentSubmissionItemTableRow({
         <TableRow key={`row-${name}-divider`}>
           <TableCell
             width={"100%"}
-            sx={{
-              py: BCDesignTokens.layoutPaddingXsmall,
-              px: 0,
-              border: 0,
-            }}
+            sx={{ py: BCDesignTokens.layoutPaddingXsmall, px: 0, border: 0 }}
           >
             <Typography
               variant="body2"
-              sx={{
-                color: BCDesignTokens.typographyColorDanger,
-              }}
+              sx={{ color: BCDesignTokens.typographyColorDanger }}
             >
               Please complete the {name} section.
             </Typography>
