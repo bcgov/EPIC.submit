@@ -10,6 +10,7 @@ import { ContactInformationEntityView } from "@/components/App/SubmissionItem/Co
 import { IemSubmissionProponentView } from "@/components/App/SubmissionItem/IEMSubmission/IEMProponentView";
 import { IEMUpdateForm } from "@/components/App/SubmissionItem/IEMSubmission/IEMUpdateForm";
 import { IPDSubmissionProponentView } from "@/components/App/SubmissionItem/IPDSubmission/IPDProponentView";
+import { EngagementPlanProponentView } from "@/components/App/SubmissionItem/EPSubmission/EPProponentView";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
@@ -21,7 +22,7 @@ const createFormMap = {
   [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: ConsultationRecordProponentView,
   [SUBMISSION_ITEM_TYPE.IEM]: IemSubmissionProponentView,
   [SUBMISSION_ITEM_TYPE.IPD]: IPDSubmissionProponentView,
-  [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: ContactInformationEntityView, // TODO: Replace with actual component
+  [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanProponentView,
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: ContactInformationEntityView, // TODO: Replace with actual component
 };
 
@@ -36,7 +37,7 @@ const updateFormMap = {
   [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: ContactInformationEntityView,
   [SUBMISSION_ITEM_TYPE.IEM]: IEMUpdateForm,
   [SUBMISSION_ITEM_TYPE.IPD]: IPDSubmissionProponentView,
-  [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: ContactInformationEntityView, // TODO: Replace with actual component
+  [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanProponentView,
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: ContactInformationEntityView, // TODO: Replace with actual component
 };
 

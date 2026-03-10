@@ -23,6 +23,11 @@ export const S3_FOLDER = {
     value: "ipd_supporting_documents",
     label: "IPD Supporting Documents",
   },
+  ENGAGEMENT_PLANS: { value: "engagement_plans", label: "Engagement Plans" },
+  ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS: {
+    value: "engagement_plan_supporting_documents",
+    label: "Engagement Plan Supporting Documents",
+  },
 };
 
 export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
