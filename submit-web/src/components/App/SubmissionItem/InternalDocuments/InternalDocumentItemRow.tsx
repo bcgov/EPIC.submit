@@ -54,6 +54,7 @@ export default function InternalDocumentItemRow({
           <Typography
             variant="body1"
             color="inherit"
+            component="div"
             sx={{
               overflow: "hidden",
               textOverflow: "ellipsis",

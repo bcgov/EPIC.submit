@@ -91,6 +91,7 @@ export default function Row({ internalStaffDocument }: RowProps) {
           <Typography
             variant="body1"
             color="inherit"
+            component="div"
             sx={{
               overflow: "clip",
               textOverflow: "ellipsis",
