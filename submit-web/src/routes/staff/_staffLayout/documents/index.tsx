@@ -9,7 +9,7 @@ import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute("/staff/_staffLayout/documents/")({
   component: DocumentsPage,
-  meta: () => [{ title: "All Documents" }],
+  head: () => ({ meta: [{ title: "All Documents" }] }),
 });
 
 function DocumentsPage() {

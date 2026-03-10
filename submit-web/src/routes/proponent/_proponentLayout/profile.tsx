@@ -11,7 +11,7 @@ import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/proponent/_proponentLayout/profile")({
   component: Profile,
-  meta: () => [{ title: "Admin" }],
+  head: () => ({ meta: [{ title: "Admin" }] }),
 });
 
 function Profile() {

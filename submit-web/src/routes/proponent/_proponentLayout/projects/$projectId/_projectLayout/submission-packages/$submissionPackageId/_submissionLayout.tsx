@@ -67,9 +67,9 @@ export const Route = createFileRoute(
       to: "/proponent/projects",
     });
   },
-  meta: ({ loaderData: submissionPackage }) => [
-    { title: submissionPackage?.name },
-  ],
+  head: ({ loaderData: submissionPackage }) => ({
+    meta: [{ title: submissionPackage?.name }],
+  }),
 });
 
 export default function SubmissionLayout() {

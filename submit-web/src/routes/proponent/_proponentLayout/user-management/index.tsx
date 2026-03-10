@@ -17,7 +17,7 @@ export const Route = createFileRoute(
   "/proponent/_proponentLayout/user-management/",
 )({
   component: UsersPage,
-  meta: () => [{ title: "User Management" }],
+  head: () => ({ meta: [{ title: "User Management" }] }),
   beforeLoad: async ({ context: { account } }) => {
     if (
       !account.isLoading &&

@@ -8,12 +8,9 @@ import ProponentStatusFilter from "@/components/App/Filters/ProponentStatusFilte
 
 export const Route = createFileRoute("/staff/_staffLayout/proponents/")({
   component: ProponentsHolders,
-  meta: () => [
-    {
-      title: "Proponents/Holders",
-      path: "/staff/proponents",
-    },
-  ],
+  head: () => ({
+    meta: [{ title: "Proponents/Holders", path: "/staff/proponents" }],
+  }),
 });
 
 function ProponentsHolders() {

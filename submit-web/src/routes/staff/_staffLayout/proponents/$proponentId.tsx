@@ -1,5 +1,8 @@
 import { EnableProjectsButton } from "@/components/App/Proponents/EnableProjectsButton/EnableProjectsButton";
-import { EligibleProjectsTable, OnboardedProjectsTable } from "@/components/App/Proponents/ProjectsTable";
+import {
+  EligibleProjectsTable,
+  OnboardedProjectsTable,
+} from "@/components/App/Proponents/ProjectsTable";
 import { ContactsSection } from "@/components/App/Proponents/Contacts";
 import { RegistrationUrl } from "@/components/App/Proponents/RegistrationUrl/RegistrationUrl";
 import { ProponentStatusChip } from "@/components/App/ProponentStatusChip";
@@ -39,13 +42,15 @@ export const Route = createFileRoute(
     notify.error("Failed to load proponent data");
     throw error;
   },
-  meta: ({ loaderData, params }) => [
-    { title: "Proponents/Holders", path: "/staff/proponents" },
-    {
-      title: loaderData?.name,
-      path: `/staff/proponents/${params.proponentId}`,
-    },
-  ],
+  head: ({ loaderData, params }) => ({
+    meta: [
+      { title: "Proponents/Holders", path: "/staff/proponents" },
+      {
+        title: loaderData?.name,
+        path: `/staff/proponents/${params.proponentId}`,
+      },
+    ],
+  }),
   pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>
@@ -60,7 +65,7 @@ function ProponentPage() {
   const { proponentId } = useParams({
     from: "/staff/_staffLayout/proponents/$proponentId",
   });
-  
+
   const {
     data: proponent,
     isPending,
@@ -75,13 +80,8 @@ function ProponentPage() {
   );
 
   // Zustand store actions
-  const { 
-    eligibleProjects,
-    setProponent, 
-    setIsLoading, 
-    setIsError,
-    reset 
-  } = useProponentStore();
+  const { eligibleProjects, setProponent, setIsLoading, setIsError, reset } =
+    useProponentStore();
 
   // Sync query data to store
   useEffect(() => {

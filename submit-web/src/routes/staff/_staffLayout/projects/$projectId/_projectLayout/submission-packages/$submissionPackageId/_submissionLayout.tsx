@@ -45,9 +45,9 @@ export const Route = createFileRoute(
   },
   pendingComponent: PendingComponent,
   pendingMs: 0,
-  meta: ({ loaderData: submissionPackage }) => [
-    { title: submissionPackage?.name },
-  ],
+  head: ({ loaderData: submissionPackage }) => ({
+    meta: [{ title: submissionPackage?.name }],
+  }),
 });
 
 export default function SubmissionLayout() {
