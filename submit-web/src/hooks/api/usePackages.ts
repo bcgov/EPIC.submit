@@ -188,17 +188,23 @@ const getPackageVersionsByOriginalPackageId = ({
 };
 
 const addIsLatestFlag = (versions: PackageVersion[]): PackageVersion[] => {
-  const seenApprovalStatus = new Set<boolean>();
-  
-  return versions.map((pv) => {
-    const isLatest = !seenApprovalStatus.has(pv.is_approved);
-    seenApprovalStatus.add(pv.is_approved);
-    
-    return {
-      ...pv,
-      is_latest: isLatest,
-    };
-  });
+  // Find the latest approved version
+  const latestApprovedVersion = versions.find((pv) => pv.is_approved);
+
+  // Find the latest unapproved version that's newer than latest approved
+  let latestUnapprovedNewerThanApproved: PackageVersion | undefined;
+  if (latestApprovedVersion) {
+    latestUnapprovedNewerThanApproved = versions.find(
+      (pv) => !pv.is_approved && pv.version > latestApprovedVersion.version,
+    );
+  }
+
+  return versions.map((pv) => ({
+    ...pv,
+    is_latest:
+      pv.id === latestApprovedVersion?.id ||
+      pv.id === latestUnapprovedNewerThanApproved?.id,
+  }));
 };
 
 type UseGetPackageVersionsByOriginalPackageIdParams = {
