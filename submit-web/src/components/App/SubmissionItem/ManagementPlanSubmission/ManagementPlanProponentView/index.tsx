@@ -12,7 +12,6 @@ import {
   SubmissionItemStatus,
 } from "@/models/Submission";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { DocumentUploadSection } from "./DocumentUploadSection";
 import {
   ManagementPlanSubmissionForm,
   managementPlanSubmissionSchema,
@@ -23,13 +22,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import FormFieldSection from "./FormFieldSection";
-import ActionButtons from "./ActionButtons";
+import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
+import {
+  GenericDocumentUploadSection,
+  UploadSectionConfig,
+} from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
 
 export const ManagementPlanSubmissionProponentView = () => {
   const {
@@ -53,6 +56,23 @@ export const ManagementPlanSubmissionProponentView = () => {
     QUERY_KEY.SUBMISSION_ITEM,
     Number(submissionItemId),
   ]);
+
+  const documentUploadSections: UploadSectionConfig[] = [
+    {
+      name: "managementPlans",
+      label: "Management Plan/IEM Terms of Engagement",
+      folder: S3_FOLDER.MANAGEMENT_PLANS.value,
+      maxFiles: 1,
+      maxFilesErrorMessage:
+        "You can only submit one Management Plan/IEM Terms of Engagement per submission. Please add supporting documents in the section below.",
+    },
+    {
+      name: "supportingDocuments",
+      label: "Supporting Documents",
+      folder: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
+      description: "e.g. table of proposed changes, table of concordance",
+    },
+  ];
 
   const formSubmission = submissionItem?.submissions.find(
     (submission) => submission.type === SUBMISSION_TYPE.FORM,
@@ -192,9 +212,9 @@ export const ManagementPlanSubmissionProponentView = () => {
             </Grid>
             <Grid item xs={12}>
               <FormFieldSection errors={errors} />
-              <DocumentUploadSection />
+              <GenericDocumentUploadSection sections={documentUploadSections} />
             </Grid>
-            <ActionButtons
+            <SubmissionActionButtons
               onSubmit={handleSubmit(handleCompleteForm)}
               saveAndClose={saveAndClose}
             />

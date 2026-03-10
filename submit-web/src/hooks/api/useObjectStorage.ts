@@ -18,6 +18,11 @@ export const S3_FOLDER = {
   },
   SUBMISSIONS: { value: "submissions", label: "Submissions" },
   IEMS: { value: "iems", label: "IEM" },
+  IPDS: { value: "ipds", label: "Initial Project Description" },
+  IPD_SUPPORTING_DOCUMENTS: {
+    value: "ipd_supporting_documents",
+    label: "IPD Supporting Documents",
+  },
 };
 
 export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
