@@ -48,13 +48,15 @@ export const Route = createFileRoute(
     throw error;
   },
   component: ProjectLayout,
-  meta: ({ loaderData, params }) => [
-    { title: "All Projects", path: "/proponent/projects/" },
-    {
-      title: loaderData?.project.name ?? "",
-      path: `/proponent/projects/${params.projectId}`,
-    },
-  ],
+  head: ({ loaderData, params }) => ({
+    meta: [
+      { title: "All Projects", path: "/proponent/projects/" },
+      {
+        title: loaderData?.project.name ?? "",
+        path: `/proponent/projects/${params.projectId}`,
+      },
+    ],
+  }),
   pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>

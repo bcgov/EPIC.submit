@@ -32,9 +32,9 @@ export const Route = createFileRoute(
       <ContentBoxSkeleton />
     </PageGrid>
   ),
-  meta: ({ loaderData: submissionItem }) => [
-    { title: getSubmissionItemLabel(submissionItem?.type.name) },
-  ],
+  head: ({ loaderData: submissionItem }) => ({
+    meta: [{ title: getSubmissionItemLabel(submissionItem?.type.name) }],
+  }),
 });
 
 export function Submission() {

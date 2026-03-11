@@ -21,7 +21,7 @@ export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
 )({
   component: NewManagementPlan,
-  meta: () => [{ title: "New Submission Package" }],
+  head: () => ({ meta: [{ title: "New Submission Package" }] }),
   beforeLoad: ({ context: { account } }) => {
     if (!account || account.isLoading) {
       return;

@@ -13,7 +13,7 @@ import { USER_TYPE } from "@/models/User";
 
 export const Route = createFileRoute("/proponent/_proponentLayout/projects/")({
   component: ProjectsPage,
-  meta: () => [{ title: "All Projects" }],
+  head: () => ({ meta: [{ title: "All Projects" }] }),
 });
 
 export function ProjectsPage() {

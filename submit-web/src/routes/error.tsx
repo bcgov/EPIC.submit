@@ -14,7 +14,7 @@ import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/error")({
   component: ErrorPage,
-  meta: () => [{ title: "Error" }],
+  head: () => ({ meta: [{ title: "Error" }] }),
 });
 
 function ErrorPage() {
