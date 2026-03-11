@@ -7,6 +7,8 @@ interface CreateAccountFormState {
   setInvitation: (invitation: Invitation) => void;
   entityName?: string;
   setEntityName: (entityName: string) => void;
+  completed: boolean;
+  setCompleted: (completed: boolean) => void;
 }
 
 type CreateAccountFormPersist = PersistOptions<CreateAccountFormState>;
@@ -18,6 +20,8 @@ export const useCreateAccountFormStore = create<CreateAccountFormState>()(
       setInvitation: (invitation) => set({ invitation }),
       entityName: undefined,
       setEntityName: (entityName) => set({ entityName }),
+      completed: false,
+      setCompleted: (completed) => set({ completed }),
     }),
     {
       name: 'create-account-form',
@@ -36,6 +40,7 @@ export const useCreateAccountFormStore = create<CreateAccountFormState>()(
       partialize: (state) => ({
         invitation: state.invitation,
         entityName: state.entityName,
+        completed: state.completed,
       }),
     } as CreateAccountFormPersist
   )
