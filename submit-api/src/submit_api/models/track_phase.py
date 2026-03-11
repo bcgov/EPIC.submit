@@ -43,6 +43,20 @@ class TrackPhase(BaseModel):
         db.Index('idx_track_phases_name', 'name'),
     )
 
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "ea_act_id": self.ea_act_id,
+            "work_type_id": self.work_type_id,
+            "work_type_name": self.work_type_name,
+            "sort_order": self.sort_order,
+            "number_of_days": self.number_of_days,
+            "display_name": self.display_name,
+            "legislated": self.legislated,
+        }
+
     @classmethod
     def find_by_work_type(cls, work_type_id: int):
         """Return phases by work type id."""

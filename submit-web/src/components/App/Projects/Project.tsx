@@ -38,7 +38,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
       topLabel={accountProject.project.proponent?.name || ""}
       bottomLabel={ea_certificate ? `EAC # ${ea_certificate}` : ""}
     >
-      {currentPhase?.work_type_name == "ASSESSMENT" ? (
+      {currentPhase?.work_type_name == "Assessment" ? (
         <ProjectSubmissionsCard
           title={`${name} - Assessment`}
           status={PROJECT_STATUS.EARLY_ENGAGEMENT}

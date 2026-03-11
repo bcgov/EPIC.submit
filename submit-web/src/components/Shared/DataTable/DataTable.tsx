@@ -1,5 +1,10 @@
 import { OutlinedCheckbox } from "@/components/Shared/Icons/OutlinedCheckbox";
-import { PlainCheckboxTableCell, PlainTableCell, SubmitCheckboxTableHeadCell, SubmitTableHeadCell } from "@/components/Shared/Table/common";
+import {
+  PlainCheckboxTableCell,
+  PlainTableCell,
+  SubmitCheckboxTableHeadCell,
+  SubmitTableHeadCell,
+} from "@/components/Shared/Table/common";
 import {
   Box,
   LinearProgress,
@@ -109,7 +114,7 @@ export function DataTable<T>({
   // Pagination
   const paginatedData = useMemo(() => {
     if (sortedData.length === 0) return [];
-    if (!paginated) return sortedData
+    if (!paginated) return sortedData;
 
     const startIndex = page * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
@@ -188,22 +193,26 @@ export function DataTable<T>({
 
   const emptyRows = Math.max(0, rowsPerPage - paginatedData.length);
   const numSelected = selected.filter((id) => !isSuccessful(id)).length;
-  const selectableRowCount = sortedData.filter((row) => !isSuccessful(getRowId(row))).length;
+  const selectableRowCount = sortedData.filter(
+    (row) => !isSuccessful(getRowId(row)),
+  ).length;
 
   return (
     <Box>
       <TableContainer>
-        <Table
-          {...tableProps}
-          sx={{ tableLayout: "fixed", ...tableProps?.sx }}
-        >
+        <Table {...tableProps} sx={{ tableLayout: "fixed", ...tableProps?.sx }}>
           <TableHead>
             <TableRow>
               {selectable && (
                 <SubmitCheckboxTableHeadCell padding="checkbox">
                   <OutlinedCheckbox
-                    indeterminate={numSelected > 0 && numSelected < selectableRowCount}
-                    checked={selectableRowCount > 0 && numSelected === selectableRowCount}
+                    indeterminate={
+                      numSelected > 0 && numSelected < selectableRowCount
+                    }
+                    checked={
+                      selectableRowCount > 0 &&
+                      numSelected === selectableRowCount
+                    }
                     onChange={handleSelectAllClick}
                     inputProps={{
                       "aria-label": "select all",
@@ -235,7 +244,10 @@ export function DataTable<T>({
           <TableBody key={`table-body-${page}-${rowsPerPage}`}>
             {isError && (
               <TableRow>
-                <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center">
+                <TableCell
+                  colSpan={columns.length + (selectable ? 1 : 0)}
+                  align="center"
+                >
                   {errorMessage}
                 </TableCell>
               </TableRow>
@@ -264,7 +276,10 @@ export function DataTable<T>({
 
             {!isLoading && !isError && paginatedData.length === 0 && (
               <TableRow>
-                <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center">
+                <TableCell
+                  colSpan={columns.length + (selectable ? 1 : 0)}
+                  align="center"
+                >
                   {emptyMessage}
                 </TableCell>
               </TableRow>
@@ -285,13 +300,18 @@ export function DataTable<T>({
                     role={selectable ? "checkbox" : undefined}
                     aria-checked={selectable ? isItemSuccessful : undefined}
                     selected={isItemSuccessful}
-                    sx={{ 
-                      cursor: selectable && !isItemSuccessful ? "pointer" : "default",
+                    sx={{
+                      cursor:
+                        selectable && !isItemSuccessful ? "pointer" : "default",
                       "&.Mui-selected": {
-                        backgroundColor: isItemSuccessful ? BCDesignTokens.supportSurfaceColorSuccess : "transparent",
+                        backgroundColor: isItemSuccessful
+                          ? BCDesignTokens.supportSurfaceColorSuccess
+                          : "transparent",
                       },
                       "&.Mui-selected:hover": {
-                        backgroundColor: isItemSuccessful ? BCDesignTokens.supportSurfaceColorSuccess : "rgba(0, 0, 0, 0.04)",
+                        backgroundColor: isItemSuccessful
+                          ? BCDesignTokens.supportSurfaceColorSuccess
+                          : "rgba(0, 0, 0, 0.04)",
                       },
                     }}
                   >
@@ -308,10 +328,12 @@ export function DataTable<T>({
                     )}
                     {columns.map((column) => {
                       const cellContent =
-                        column.renderCell?.(row) ?? column.getValue?.(row) ?? null;
+                        column.renderCell?.(row) ??
+                        column.getValue?.(row) ??
+                        null;
                       return (
                         <PlainTableCell key={column.id}>
-                          {cellContent}
+                          {cellContent ?? "-"}
                         </PlainTableCell>
                       );
                     })}
@@ -321,7 +343,10 @@ export function DataTable<T>({
 
             {paginated && !isLoading && !isError && emptyRows > 0 && (
               <TableRow style={{ height: ROW_HEIGHT * emptyRows }}>
-                <TableCell colSpan={columns.length + (selectable ? 1 : 0)} sx={{ border: "none" }} />
+                <TableCell
+                  colSpan={columns.length + (selectable ? 1 : 0)}
+                  sx={{ border: "none" }}
+                />
               </TableRow>
             )}
           </TableBody>

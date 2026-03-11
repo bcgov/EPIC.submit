@@ -7,6 +7,7 @@ export type Project = {
   name: string;
   proponent_id: number;
   proponent?: Proponent;
+  works?: TrackWork[];
   ea_certificate?: string;
   epic_guid: string;
 };
