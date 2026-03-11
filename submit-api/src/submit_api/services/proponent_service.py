@@ -1,10 +1,16 @@
 """Service for proponent management."""
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.enums.proponent_status import ProponentStatus
+from submit_api.models.account_project_work import AccountProjectWork
 from submit_api.models.account_project import AccountProject
+from submit_api.models.account_user import AccountUser
 from submit_api.models.account import Account
 from submit_api.models.db import session_scope
 from submit_api.models.proponent import Proponent
+from submit_api.models.track_work import TrackWork
+from submit_api.services.invitation_service import InvitationService
+from submit_api.services.account_user_service import AccountUserService
+from submit_api.enums.role import RoleEnum
 
 
 class ProponentService:
@@ -47,8 +53,35 @@ class ProponentService:
             raise BadRequestError("Can only enable projects for onboarded proponents.")
 
         account = Account.get_by_proponent_id(proponent_id)
+        account_users = AccountUser.get_users_by_account_id(account.id)
 
         with session_scope() as session:
-            for pid in project_ids:
-                AccountProject.create_account_project(account_id=account.id, project_id=pid)
+            # Create account projects if they don't exist
+            InvitationService.create_account_projects(
+                account.id, project_ids, session)
+
+            account_projects = AccountProject.get_all_in_project_ids(project_ids)
+
+            for account_project in account_projects:
+                # Assign user role(s)
+                for account_user in account_users:
+                    user_role = getattr(account_user, "role", None)
+                    if (
+                        user_role and
+                        user_role.role.role_name in [
+                            RoleEnum.ACCOUNT_PRIMARY_ADMIN.value,
+                            RoleEnum.PROJECT_ADMIN.value
+                        ] and
+                        user_role.active
+                    ):
+                        AccountUserService.assign_role({
+                            "account_user_id": account_user.id,
+                            "role_id": user_role.role.id,
+                            "account_project_id": account_project.id,
+                        }, session)
+
+                # Create account_project_works
+                works = TrackWork.find_by_project_id(account_project.project_id)
+                for work in works:
+                    AccountProjectWork.create_or_get(account_project.id, work.id)
             session.flush()

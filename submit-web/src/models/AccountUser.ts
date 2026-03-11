@@ -25,6 +25,7 @@ export type AccountUser = {
   company_name: string;
   account: Account;
   role: Role;
+  roles: Role[];
   has_agreed_to_terms: boolean;
 };
 

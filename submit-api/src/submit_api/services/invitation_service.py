@@ -24,6 +24,8 @@ from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
 from submit_api.models.user_role import UserRole as UserRoleModel
+from submit_api.models.track_work import TrackWork
+from submit_api.models.account_project_work import AccountProjectWork
 
 
 class InvitationService:
@@ -200,15 +202,22 @@ class InvitationService:
                 user.id, invitation.account_id, payload, session)
 
             # Create account projects if they don't exist (handles concurrent invitations gracefully)
-            InvitationService._create_account_projects(
+            InvitationService.create_account_projects(
                 invitation.account_id, invitation.project_ids, session)
 
             account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
             roles = []
             for account_project in account_projects:
+                # Assign user role
                 role = InvitationService._assign_user_role(
                     account_user.id, account_project.id, invitation, session)
                 roles.append(role)
+
+                # Create account_project_works
+                works = TrackWork.find_by_project_id(account_project.project_id)
+                for work in works:
+                    AccountProjectWork.create_or_get(account_project.id, work.id)
+
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
             # Update proponent status
@@ -296,7 +305,7 @@ class InvitationService:
         return account
 
     @staticmethod
-    def _create_account_projects(account_id, project_ids, session):
+    def create_account_projects(account_id, project_ids, session):
         """Create account projects."""
         for project_id in project_ids:
             AccountProjectModel.create_account_project(

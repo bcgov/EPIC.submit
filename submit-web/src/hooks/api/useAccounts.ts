@@ -122,6 +122,7 @@ export const getAccount = async (
         accountId: user.account_user.account.id,
         userType: USER_TYPE.PROPONENT,
         userManagementRole: user.account_user.role,
+        userManagementRoles: user.account_user.roles,
         roles: user.account_user.role.permissions,
         hasAgreedToTerms: user.account_user.has_agreed_to_terms,
       };

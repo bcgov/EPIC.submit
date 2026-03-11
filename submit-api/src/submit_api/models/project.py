@@ -22,6 +22,7 @@ class Project(db.Model):
     has_approved_condition = Column(db.Boolean, nullable=True, default=False)
 
     proponent = db.relationship('Proponent', foreign_keys=[proponent_id], lazy='joined')
+    works = db.relationship('TrackWork', back_populates='project', viewonly=True, lazy='select')
 
     __table_args__ = (
         db.Index('ix_projects_proponent_id', 'proponent_id'),
@@ -35,6 +36,7 @@ class Project(db.Model):
             "name": self.name,
             "proponent_id": self.proponent_id,
             "proponent": self.proponent.to_dict() if self.proponent else None,
+            "works": [work.to_dict() for work in self.works],
             "ea_certificate": self.ea_certificate,
             "epic_guid": self.epic_guid,
         }

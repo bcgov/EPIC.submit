@@ -26,8 +26,9 @@ export const Route = createFileRoute(
     }
 
     if (
-      String(account.userManagementRole?.account_project_id) !==
-      accountProjectId
+      !account.userManagementRoles?.some(
+        (role) => String(role.account_project_id) === accountProjectId,
+      )
     ) {
       return redirect({
         to: "/unauthorized",
@@ -71,11 +72,15 @@ function ProjectLayout() {
   const { data: accountProject } = useSuspenseQuery(
     getAccountProjectQueryOptions(accountProjectId),
   );
-  const { userManagementRole } = useAccount();
+  const { userManagementRoles } = useAccount();
 
   if (!accountProject) return <Navigate to="/error" />;
 
-  if (userManagementRole?.account_project_id !== accountProjectId) {
+  if (
+    !userManagementRoles?.some(
+      (role) => role.account_project_id === accountProjectId,
+    )
+  ) {
     return <Navigate to="/unauthorized" />;
   }
 
