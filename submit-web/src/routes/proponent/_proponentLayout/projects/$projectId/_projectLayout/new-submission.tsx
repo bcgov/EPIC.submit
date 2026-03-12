@@ -1,4 +1,5 @@
-import { NewManagementPlan } from "@/components/App/NewManagementPlan";
+import { NewAssessmentSubmission } from "@/components/App/NewSubmission/NewAssessmentSubmission";
+import { NewManagementPlan } from "@/components/App/NewSubmission/NewManagementPlan";
 import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { PageGrid } from "@/components/Shared/PageGrid";
@@ -6,23 +7,32 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useCreateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionPackage } from "@/models/Package";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
+import { WORK_TYPE_NAMES } from "@/models/TrackWork";
+import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 import { Grid } from "@mui/material";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
 )({
   component: NewSubmission,
   head: () => ({ meta: [{ title: "New Submission" }] }),
-  beforeLoad: ({ context: { account } }) => {
+  beforeLoad: ({
+    context: { account },
+    params: { projectId: accountProjectId },
+  }) => {
     if (!account || account.isLoading) {
       return;
     }
 
     if (
-      account.userManagementRole?.role_name !==
-      USER_MANAGEMENT_ROLE.PROJECT_ADMIN
+      !account.userManagementRoles?.some(
+        (role) =>
+          String(role.account_project_id) === accountProjectId &&
+          role.permissions?.includes(ACCOUNT_USER_PERMISSIONS.CREATE_PACKAGE),
+      )
     ) {
       return redirect({
         to: "/unauthorized",
@@ -33,12 +43,14 @@ export const Route = createFileRoute(
 
 export function NewSubmission() {
   const { projectId } = Route.useParams();
+  const navigate = useNavigate();
 
   const { data: accountProject, isPending: isProjectPending } =
     useGetAccountProject({
       accountProjectId: Number(projectId),
     });
-  const navigate = useNavigate();
+
+  const { setAccountProject, currentPhase, reset } = useNewSubmissionStore();
 
   const {
     mutate: createSubmissionPackage,
@@ -53,8 +65,19 @@ export function NewSubmission() {
     },
   });
 
-  const currentPhase =
-    accountProject?.account_project_works?.at(-1)?.work?.current_phase ?? null;
+  const handleSubmit = (data: any) =>
+    createSubmissionPackage({
+      accountProjectId: Number(projectId),
+      data,
+    });
+
+  // Sync query data to store
+  useEffect(() => {
+    setAccountProject(accountProject ?? null);
+  }, [accountProject, setAccountProject]);
+
+  // Reset store on unmount
+  useEffect(() => () => reset(), [reset]);
 
   if (isProjectPending)
     return (
@@ -68,18 +91,11 @@ export function NewSubmission() {
   return (
     <PageGrid>
       <SubmitLoaderBackdrop isOpen={isCreatingSubmissionPackagePending} />
-      {currentPhase?.work_type_name == "ASSESSMENT" ? (
-        <p></p>
+      {currentPhase?.work_type_name?.toUpperCase() ==
+      WORK_TYPE_NAMES.ASSESSMENT ? (
+        <NewAssessmentSubmission onSubmit={handleSubmit} />
       ) : (
-        <NewManagementPlan
-          accountProject={accountProject}
-          onSubmit={(data) =>
-            createSubmissionPackage({
-              accountProjectId: Number(projectId),
-              data,
-            })
-          }
-        />
+        <NewManagementPlan onSubmit={handleSubmit} />
       )}
     </PageGrid>
   );
