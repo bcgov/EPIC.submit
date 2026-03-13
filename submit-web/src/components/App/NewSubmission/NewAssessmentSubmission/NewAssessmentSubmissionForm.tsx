@@ -17,27 +17,49 @@ export const NewAssessmentSubmissionForm = () => {
   });
   const navigate = useNavigate();
 
-  const { submissionType, setSubmissionType } = useNewSubmissionStore();
-
-  const packages = [
-    {
-      value: SubmissionPackageType.IPD,
-      label: "Initial Project Description & Engagement Plan",
-    },
-    {
-      value: SubmissionPackageType.ADDITIONAL_INFORMATION,
-      label: "Additional Information Submission",
-    },
-  ];
+  const {
+    submissionPackageType,
+    setSubmissionPackageType,
+    mappedPackages,
+    existingIPD,
+  } = useNewSubmissionStore();
 
   const [errorText, setErrorText] = useState<string | null>(null);
 
+  const packages = [
+    ...(!existingIPD
+      ? [
+          {
+            value: SubmissionPackageType.IPD,
+            label: "Initial Project Description & Engagement Plan",
+            id: null,
+          },
+        ]
+      : []),
+    ...mappedPackages,
+    {
+      value: SubmissionPackageType.ADDITIONAL_INFORMATION,
+      label: "Additional Information Submission",
+      id: null,
+    },
+  ];
+
   const handleContinue = () => {
-    if (!submissionType) {
+    if (!submissionPackageType) {
       setErrorText("Please select a submission.");
       return;
     }
-    // Submit to api and navigate
+
+    const selectedPackage = packages.find(
+      (pkg) => pkg.value === submissionPackageType,
+    );
+    if (selectedPackage?.id) {
+      navigate({
+        to: `/proponent/projects/${projectId}/submission-packages/${selectedPackage.id}`,
+      });
+      return;
+    }
+    // TODO: Navigate to Additional Information Submission form (SUBMIT-761 & SUBMIT-762)
   };
 
   const handleCancel = () => {
@@ -46,7 +68,7 @@ export const NewAssessmentSubmissionForm = () => {
 
   useEffect(() => {
     setErrorText(null);
-  }, [submissionType]);
+  }, [submissionPackageType]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
@@ -62,10 +84,10 @@ export const NewAssessmentSubmissionForm = () => {
             fullWidth
             sx={{ marginBottom: "10px", minWidth: "400px" }}
             onChange={(e) =>
-              setSubmissionType(e.target.value as SubmissionPackageType)
+              setSubmissionPackageType(e.target.value as SubmissionPackageType)
             }
-            value={submissionType || ""}
-            error={!submissionType && Boolean(errorText)}
+            value={submissionPackageType || ""}
+            error={!submissionPackageType && Boolean(errorText)}
             SelectProps={{
               displayEmpty: true,
               renderValue: (value) =>
@@ -77,7 +99,7 @@ export const NewAssessmentSubmissionForm = () => {
             }}
           >
             {packages.map((pkg) => (
-              <MenuItem key={pkg.value} value={pkg.value}>
+              <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value}>
                 {pkg.label}
               </MenuItem>
             ))}

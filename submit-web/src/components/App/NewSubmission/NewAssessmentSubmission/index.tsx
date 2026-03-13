@@ -3,26 +3,8 @@ import { NewSubmissionCard } from "../NewSubmissionCard";
 import { NewAssessmentSubmissionForm } from "./NewAssessmentSubmissionForm";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 
-type NewAssessmentSubmissionProps = {
-  onSubmit: (data: Record<string, unknown>) => void;
-};
-
-export function NewAssessmentSubmission({
-  onSubmit,
-}: NewAssessmentSubmissionProps) {
+export function NewAssessmentSubmission() {
   const { accountProject } = useNewSubmissionStore();
-
-  // const handleSubmit = ({
-  //   name,
-  //   type,
-  //   ...restMetadata
-  // }: Partial<NewAssessmentSubmissionForm>) => {
-  //   onSubmit({
-  //     name: name?.value ?? SubmissionPackageType.IPD,
-  //     metadata: restMetadata,
-  //     type,
-  //   });
-  // };
 
   return (
     <Grid item xs={12}>

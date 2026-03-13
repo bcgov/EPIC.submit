@@ -65,11 +65,12 @@ export function NewSubmission() {
     },
   });
 
-  const handleSubmit = (data: any) =>
+  const handleSubmit = (data: any) => {
     createSubmissionPackage({
       accountProjectId: Number(projectId),
       data,
     });
+  };
 
   // Sync query data to store
   useEffect(() => {
@@ -93,7 +94,7 @@ export function NewSubmission() {
       <SubmitLoaderBackdrop isOpen={isCreatingSubmissionPackagePending} />
       {currentPhase?.work_type_name?.toUpperCase() ==
       WORK_TYPE_NAMES.ASSESSMENT ? (
-        <NewAssessmentSubmission onSubmit={handleSubmit} />
+        <NewAssessmentSubmission />
       ) : (
         <NewManagementPlan onSubmit={handleSubmit} />
       )}
