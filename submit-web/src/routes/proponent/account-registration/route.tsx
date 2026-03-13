@@ -3,7 +3,7 @@ import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/
 // import SaveLaterFooter from "@/components/App/AccountRegistration/SaveLaterFooter";
 import { useGetProponent } from "@/hooks/api/useProponents";
 import { Box } from "@mui/material";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 
 export const Route = createFileRoute("/proponent/account-registration")({
@@ -11,8 +11,15 @@ export const Route = createFileRoute("/proponent/account-registration")({
 });
 
 function AccountRegistration() {
-  const { invitation, setEntityName } = useCreateAccountFormStore();
+  const { invitation, setEntityName, completed } = useCreateAccountFormStore();
   const { data: proponent } = useGetProponent(invitation?.proponent_id ?? 0);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (completed) {
+      navigate({ to: "/proponent/projects", replace: true });
+    }
+  }, [completed, navigate]);
 
   useEffect(() => {
     if (proponent) {
