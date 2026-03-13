@@ -37,7 +37,6 @@ const initialState = {
 export const useNewSubmissionStore = create<NewSubmissionState>((set) => ({
   ...initialState,
   setAccountProject: (accountProject) => {
-    console.log(accountProject);
     const currentPhase =
       accountProject?.account_project_works?.at(-1)?.work?.current_phase ??
       null;
