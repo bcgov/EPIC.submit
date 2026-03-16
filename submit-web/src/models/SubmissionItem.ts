@@ -22,6 +22,7 @@ export enum SUBMISSION_ITEM_TYPE {
   IPD = "Initial Project Description",
   ENGAGEMENT_PLAN = "Engagement Plan",
   GEOSPATIAL_INFORMATION = "Geospatial Information",
+  ADDITIONAL_INFORMATION = "Additional Information",
 }
 
 export const SubmissionItemTypeLabelMap = {
@@ -33,6 +34,7 @@ export const SubmissionItemTypeLabelMap = {
   [SUBMISSION_ITEM_TYPE.IPD]: "Initial Project Description",
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: "Engagement Plan",
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: "Geospatial Information",
+  [SUBMISSION_ITEM_TYPE.ADDITIONAL_INFORMATION]: "Additional Information",
 };
 
 export const SUBMISSION_ITEM_MODAL_CONTENT: Record<

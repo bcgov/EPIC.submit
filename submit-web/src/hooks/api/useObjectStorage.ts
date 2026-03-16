@@ -1,4 +1,4 @@
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
 
