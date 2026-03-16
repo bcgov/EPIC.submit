@@ -72,16 +72,15 @@ export default function SubmissionPage() {
   });
 
   const currentPackageVersion = packageVersions?.find(
-    (pv) => pv.package_id === submissionPackageId
+    (pv) => pv.package_id === submissionPackageId,
   );
 
-  const isLatestApprovedPackageVersion = 
-    currentPackageVersion?.is_latest && 
-    currentPackageVersion?.is_approved;
+  const hasAnyApprovedPackageVersion = packageVersions?.some(
+    (pv) => pv.is_approved,
+  );
 
-  const isNewerThanLastApprovedButNotApproved = 
-    currentPackageVersion?.is_latest && 
-    !currentPackageVersion?.is_approved;
+  const isLatestApprovedPackageVersion =
+    currentPackageVersion?.is_latest && currentPackageVersion?.is_approved;
 
   const {
     mutate: updateStateSubmissionPackage,
@@ -212,11 +211,9 @@ export default function SubmissionPage() {
                   alignItems: "center",
                   justifyContent: "space-between",
 
-                  mb:
-                    isLatestApprovedPackageVersion ||
-                    isNewerThanLastApprovedButNotApproved
-                      ? 0
-                      : BCDesignTokens.layoutMarginXlarge,
+                  mb: hasAnyApprovedPackageVersion
+                    ? 0
+                    : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={managementPlanName} />
@@ -255,7 +252,12 @@ export default function SubmissionPage() {
                   </Typography>
                 </SuccessBox>
               </When>
-              <When condition={isNewerThanLastApprovedButNotApproved}>
+              <When
+                condition={
+                  !isLatestApprovedPackageVersion &&
+                  hasAnyApprovedPackageVersion
+                }
+              >
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
@@ -266,8 +268,13 @@ export default function SubmissionPage() {
                     variant="body2"
                     color={BCDesignTokens.typographyColorPrimary}
                   >
-                    Please Note: This submission is still pending EAO review.
-                    Until finalized, it is not considered enforceable.
+                    Please Note: This submission is not considered enforceable.
+                    Please refer to the Submission Package with this icon
+                    <GppGoodOutlinedIcon
+                      fontSize="small"
+                      sx={{ verticalAlign: "middle" }}
+                    />
+                    for the enforceable version.
                   </Typography>
                 </WarningBox>
               </When>
