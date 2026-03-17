@@ -18,10 +18,12 @@ export default function DocumentSubRow({
   const [pendingGetObject, setPendingGetObject] = useState(false);
 
   const {
-    submitted_document: { name, url },
+    submitted_document,
     version,
     submitted_by,
   } = documentSubmission;
+
+  const { name, url } = submitted_document || { name: "", url: "" };
 
   const downloadDocument = async () => {
     try {
@@ -48,6 +50,7 @@ export default function DocumentSubRow({
         <Typography
           variant="body1"
           color="inherit"
+          component="div"
           sx={{
             overflow: "clip",
             textOverflow: "ellipsis",

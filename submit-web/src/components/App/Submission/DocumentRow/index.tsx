@@ -64,6 +64,7 @@ export default function DocumentRow({
           <Typography
             variant="body1"
             color="inherit"
+            component="div"
             sx={{
               overflow: "clip",
               textOverflow: "ellipsis",
