@@ -28,6 +28,10 @@ export const S3_FOLDER = {
     value: "engagement_plan_supporting_documents",
     label: "Engagement Plan Supporting Documents",
   },
+  GEOSPATIAL: {
+    value: "geospatial",
+    label: "Geospatial Information",
+  },
 };
 
 export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
