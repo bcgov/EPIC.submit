@@ -23,7 +23,7 @@ import DocumentRow from "@/components/App/Submission/DocumentRow";
 import StaffStatusCell from "./StaffStatusCell";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 
 export default function StaffSubmissionItemTableRow({
   item,

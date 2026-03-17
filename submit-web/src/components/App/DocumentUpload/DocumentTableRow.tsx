@@ -17,8 +17,9 @@ import { useFormContext } from "react-hook-form";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 
-export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
-  ({ error }) => ({
+export const StyledHeadTableCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(({ error }) => ({
     borderTop: error
       ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
       : `1px solid ${BCDesignTokens.themeBlue20}`,
@@ -43,8 +44,9 @@ export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
   }),
 );
 
-export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
-  ({ error }) => ({
+export const DocumentHeadTableRow = styled(TableRow, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(({ error }) => ({
     backgroundColor: error
       ? BCDesignTokens.supportSurfaceColorDanger
       : BCDesignTokens.themeBlue10,
@@ -54,7 +56,9 @@ export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
   }),
 );
 
-export const DocumentTableCell = styled(TableCell)(() => ({
+export const DocumentTableCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(() => ({
   borderTop: `1px solid ${BCDesignTokens.themeBlue20}`,
   borderBottom: `1px solid ${BCDesignTokens.themeBlue20}`,
   padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
@@ -162,6 +166,7 @@ export default function DocumentTableRow({
         <Typography
           variant="body1"
           color="inherit"
+          component="div"
           sx={{
             overflow: "clip",
             textOverflow: "ellipsis",

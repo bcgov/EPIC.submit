@@ -1,40 +1,39 @@
-import { Form } from "@/components/App/NewManagementPlan/Form";
-import { NewManagementPlanForm } from "@/components/App/NewManagementPlan/types";
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
-import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
+import { NewAssessmentSubmission } from "@/components/App/NewSubmission/NewAssessmentSubmission";
+import { NewManagementPlan } from "@/components/App/NewSubmission/NewManagementPlan";
 import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import BarTitle from "@/components/Shared/Text/BarTitle";
-import { SubmissionPackageType } from "@/components/Shared/types";
 import { useCreateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionPackage } from "@/models/Package";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
-import { Box, Grid, Typography } from "@mui/material";
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
+import { WORK_TYPE_NAMES } from "@/models/TrackWork";
+import { useNewSubmissionStore } from "@/store/newSubmissionStore";
+import { Grid } from "@mui/material";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { BCDesignTokens } from "epic.theme";
+import { useEffect } from "react";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
 )({
-  component: NewManagementPlan,
-  head: () => ({ meta: [{ title: "New Submission Package" }] }),
-  beforeLoad: ({ context: { account } }) => {
+  component: NewSubmission,
+  head: () => ({ meta: [{ title: "New Submission" }] }),
+  beforeLoad: ({
+    context: { account },
+    params: { projectId: accountProjectId },
+  }) => {
     if (!account || account.isLoading) {
       return;
     }
 
-    const allowedRoles = [
-      USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
-      USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
-    ];
-
-    const roleName = account.userManagementRole?.role_name;
-
-    if (!roleName || !allowedRoles.includes(roleName)) {
+    if (
+      !account.userManagementRoles?.some(
+        (role) =>
+          String(role.account_project_id) === accountProjectId &&
+          role.permissions?.includes(ACCOUNT_USER_PERMISSIONS.CREATE_PACKAGE),
+      )
+    ) {
       return redirect({
         to: "/unauthorized",
       });
@@ -42,49 +41,44 @@ export const Route = createFileRoute(
   },
 });
 
-export function NewManagementPlan() {
-  // get the projectId from the route
+export function NewSubmission() {
   const { projectId } = Route.useParams();
+  const navigate = useNavigate();
 
   const { data: accountProject, isPending: isProjectPending } =
     useGetAccountProject({
       accountProjectId: Number(projectId),
     });
-  const navigate = useNavigate();
 
-  const onCreateFailure = () => {
-    notify.error("Failed to create submission package");
-  };
+  const { setAccountProject, currentPhase, reset } = useNewSubmissionStore();
 
-  const onCreateSuccess = (createdSubmissionPackage: SubmissionPackage) => {
-    notify.success("Submission package created successfully");
-    navigate({
-      to: `/proponent/projects/${projectId}/submission-packages/${createdSubmissionPackage.id}`,
-    });
-  };
   const {
     mutate: createSubmissionPackage,
     isPending: isCreatingSubmissionPackagePending,
   } = useCreateSubmissionPackage({
-    onError: onCreateFailure,
-    onSuccess: onCreateSuccess,
+    onError: () => notify.error("Failed to create submission package"),
+    onSuccess: (createdSubmissionPackage: SubmissionPackage) => {
+      notify.success("Submission package created successfully");
+      navigate({
+        to: `/proponent/projects/${projectId}/submission-packages/${createdSubmissionPackage.id}`,
+      });
+    },
   });
 
-  const onCreateSubmissionPackage = (
-    metadata: Partial<NewManagementPlanForm>,
-  ) => {
-    const { name, type, ...restMetadata } = metadata;
-    const newSubmissionPackageRequest = {
-      name: name?.value ?? SubmissionPackageType.MANAGEMENT_PLAN,
-      metadata: restMetadata,
-      type: type,
-    };
+  const handleSubmit = (data: any) => {
     createSubmissionPackage({
       accountProjectId: Number(projectId),
-      data: newSubmissionPackageRequest,
+      data,
     });
-    return newSubmissionPackageRequest;
   };
+
+  // Sync query data to store
+  useEffect(() => {
+    setAccountProject(accountProject ?? null);
+  }, [accountProject, setAccountProject]);
+
+  // Reset store on unmount
+  useEffect(() => () => reset(), [reset]);
 
   if (isProjectPending)
     return (
@@ -98,47 +92,12 @@ export function NewManagementPlan() {
   return (
     <PageGrid>
       <SubmitLoaderBackdrop isOpen={isCreatingSubmissionPackagePending} />
-      <Grid item xs={12}>
-        <ContentBox
-          mainLabel={accountProject?.project.name}
-          topLabel={accountProject?.project?.proponent?.name || ""}
-          bottomLabel={
-            accountProject?.project.ea_certificate
-              ? `EAC # ${accountProject?.project.ea_certificate}`
-              : ""
-          }
-        >
-          <Box
-            sx={{
-              padding: "16px",
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: "4px",
-              border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              gap: BCDesignTokens.layoutPaddingSmall,
-            }}
-          >
-            <Typography variant="h4" fontWeight={400}>
-              Management Plans & Related Documents
-            </Typography>
-            <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
-            <Box
-              sx={{
-                padding: "8px 16px 16px 16px",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                borderRadius: "4px",
-                border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-                gap: BCDesignTokens.layoutPaddingSmall,
-              }}
-            >
-              <BarTitle title="New Submission" />
-              <Form onSubmit={onCreateSubmissionPackage} />
-            </Box>
-          </Box>
-        </ContentBox>
-      </Grid>
+      {currentPhase?.work_type_name?.toUpperCase() ==
+      WORK_TYPE_NAMES.ASSESSMENT ? (
+        <NewAssessmentSubmission />
+      ) : (
+        <NewManagementPlan onSubmit={handleSubmit} />
+      )}
     </PageGrid>
   );
 }

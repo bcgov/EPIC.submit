@@ -1,4 +1,4 @@
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
 
@@ -22,6 +22,11 @@ export const S3_FOLDER = {
   IPD_SUPPORTING_DOCUMENTS: {
     value: "ipd_supporting_documents",
     label: "IPD Supporting Documents",
+  },
+  ENGAGEMENT_PLANS: { value: "engagement_plans", label: "Engagement Plans" },
+  ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS: {
+    value: "engagement_plan_supporting_documents",
+    label: "Engagement Plan Supporting Documents",
   },
   GEOSPATIAL: {
     value: "geospatial",

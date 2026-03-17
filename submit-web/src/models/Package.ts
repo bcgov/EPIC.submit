@@ -1,6 +1,12 @@
-import { SubmissionPackageType } from "@/components/Shared/types";
 import { InternalStaffDocument, SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
+
+export enum SubmissionPackageType {
+  MANAGEMENT_PLAN = "Management Plan",
+  IEM = "IEM",
+  IPD = "IPD",
+  ADDITIONAL_INFORMATION = "Additional Information",
+}
 
 export type PackageType = {
   id: number;

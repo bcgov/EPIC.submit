@@ -10,7 +10,7 @@ import { When } from "react-if";
 import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { ConsultationRecordForm } from "@/components/App/SubmissionItem/ConsultationRecord/constants";
 import { useFormVisibilityStore } from "@/store/hideFormStore";
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 import { useMemo } from "react";
 
 const defaultFormData = {

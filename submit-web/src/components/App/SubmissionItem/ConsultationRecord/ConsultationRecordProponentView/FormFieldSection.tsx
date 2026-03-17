@@ -16,7 +16,7 @@ import { YesNoRadioOptions } from "@/components/Shared/YesNoRadioOptions";
 import { FieldErrors, useFieldArray, UseFormReturn } from "react-hook-form";
 import { ConsultationRecordForm } from "@/components/App/SubmissionItem/ConsultationRecord/constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 
 type FormFieldSectionProps = Readonly<{
   methods: UseFormReturn<ConsultationRecordForm>; // Replace FormValues with your actual form schema interface
