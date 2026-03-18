@@ -1,16 +1,14 @@
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { Box, Grid, Skeleton, Typography } from "@mui/material";
+import { Box, Grid, Skeleton } from "@mui/material";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { BCDesignTokens } from "epic.theme";
-import { CardInnerBox } from "@/components/App/Projects/Project";
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { SubmissionPackage } from "@/models/Package";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
+import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 
 type SubmissionFormContainerProps = {
   children: React.ReactNode;
@@ -56,12 +54,10 @@ export const SubmissionFormContainer = ({
             border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
           }}
         >
-          <CardInnerBox sx={{ pl: 0, pb: BCDesignTokens.layoutPaddingMedium }}>
-            <Typography variant="h4" fontWeight={400}>
-              Management Plans & Related Documents
-            </Typography>
-            <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
-          </CardInnerBox>
+          <SubmissionTitle
+            sx={{ pb: BCDesignTokens.layoutPaddingSmall }}
+            submissionPackage={submissionPackage}
+          />
           <Box
             sx={{
               pl: BCDesignTokens.layoutPaddingMedium,
