@@ -40,7 +40,7 @@ export const SubmissionTitle = ({
         ? `${proponentName} - Assessment`
         : `Management Plans & Related Documents`)
     );
-  }, [submissionPackage, proponentName]);
+  }, [submissionPackage, proponentName, customTitle]);
 
   const status = useMemo(() => {
     return (
@@ -49,7 +49,7 @@ export const SubmissionTitle = ({
         ? PROJECT_STATUS.EARLY_ENGAGEMENT
         : PROJECT_STATUS.POST_DECISION)
     );
-  }, [submissionPackage]);
+  }, [submissionPackage, customStatus]);
 
   return (
     <CardInnerBox sx={{ ...(sx || {}) }}>
