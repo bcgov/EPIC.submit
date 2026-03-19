@@ -1,18 +1,8 @@
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { AccountProject } from "@/models/Project";
-import { Box, styled } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
 import { ProjectSubmissionsCard } from "./ProjectSubmissionsCard";
 import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
-
-export const CardInnerBox = styled(Box)({
-  display: "flex",
-  alignItems: "flex-start",
-  justifyContent: "center",
-  flexDirection: "column",
-  height: "100%",
-  padding: "0 12px",
-});
 
 type ProjectParam = {
   accountProject: AccountProject;

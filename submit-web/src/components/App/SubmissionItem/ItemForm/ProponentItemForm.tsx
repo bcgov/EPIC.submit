@@ -25,6 +25,7 @@ const createFormMap = {
   [SUBMISSION_ITEM_TYPE.IPD]: IPDSubmissionProponentView,
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanProponentView,
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: GeoSpatialProponentView,
+  [SUBMISSION_ITEM_TYPE.ADDITIONAL_INFORMATION]: "", // TODO: Implement Later
 };
 
 export const ProponentItemForm = ({ submissionItem }: ItemFormProps) => {
@@ -40,6 +41,7 @@ const updateFormMap = {
   [SUBMISSION_ITEM_TYPE.IPD]: IPDSubmissionProponentView,
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanProponentView,
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: GeoSpatialProponentView,
+  [SUBMISSION_ITEM_TYPE.ADDITIONAL_INFORMATION]: "", // TODO: Implement Later
 };
 
 export const ProponentItemUpdateForm = ({ submissionItem }: ItemFormProps) => {

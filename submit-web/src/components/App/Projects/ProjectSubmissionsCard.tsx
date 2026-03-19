@@ -1,5 +1,4 @@
 import ProjectTable from "@/components/App/Projects/ProjectTable";
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { SubmissionPackage } from "@/models/Package";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
@@ -9,7 +8,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, Divider, styled, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
-import { PROJECT_STATUS } from "../registration/addProjects/ProjectCard/constants";
+import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 
 export const CardInnerBox = styled(Box)({
   display: "flex",
@@ -58,12 +58,7 @@ export const ProjectSubmissionsCard = ({
           pb: BCDesignTokens.layoutPaddingXlarge,
         }}
       >
-        <CardInnerBox>
-          <Typography variant="h4" fontWeight={400}>
-            {title}
-          </Typography>
-          <ProjectStatus status={status} />
-        </CardInnerBox>
+        <SubmissionTitle customTitle={title} customStatus={status} />
         <When condition={userType === USER_TYPE.PROPONENT}>
           <CardInnerBox>
             <PermissionsGate scopes={[ACCOUNT_USER_PERMISSIONS.CREATE_PACKAGE]}>
