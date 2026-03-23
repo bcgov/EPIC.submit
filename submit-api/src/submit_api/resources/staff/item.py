@@ -22,8 +22,8 @@ from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.item import StaffItemSchema
 from submit_api.schemas.submission_review import SaveSubmissionReviewRequestSchema, SubmissionReviewSchema
-from submit_api.services.item import ItemService
-from submit_api.services.submission_review import SubmissionReviewService
+from submit_api.services.item_service import ItemService
+from submit_api.services.submission_review_service import SubmissionReviewService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 

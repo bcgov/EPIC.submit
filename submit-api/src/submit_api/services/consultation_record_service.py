@@ -12,7 +12,7 @@ from submit_api.models.submission_review import SubmissionReview
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.services.package import PackageService
+from submit_api.services.package_service import PackageService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType

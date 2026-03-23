@@ -8,7 +8,7 @@ from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package_type_create import PackageTypeCreateSchema
 from submit_api.schemas.package_type_response import PackageTypeResponseSchema
-from submit_api.services.package_type import PackageTypeService
+from submit_api.services.package_type_service import PackageTypeService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import cors_preflight
 
