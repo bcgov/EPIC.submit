@@ -86,10 +86,7 @@ class AccountProjectWork(BaseModel):
         if existing:
             if not existing.is_active:
                 existing.is_active = True
-                if session:
-                    session.add(existing)
-                else:
-                    existing.save()
+                existing.persist(session)
             return existing
 
         new_instance = cls(
@@ -98,9 +95,4 @@ class AccountProjectWork(BaseModel):
             is_active=True
         )
 
-        if session:
-            session.add(new_instance)
-        else:
-            new_instance.save()
-
-        return new_instance
+        return new_instance.persist(session)

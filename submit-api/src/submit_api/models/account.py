@@ -32,8 +32,5 @@ class Account(BaseModel):
         account = Account(
             proponent_id=account_data.get('proponent_id', None),
         )
-        if session:
-            account.flush()
-        else:
-            account.save()
-        return account
+        return account.persist(session)
+

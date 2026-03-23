@@ -96,11 +96,7 @@ class AccountProject(BaseModel):
             account_id=account_id,
             project_id=project_id
         )
-        if session:
-            session.add(account_project)
-        else:
-            account_project.save()
-        return account_project
+        return account_project.persist(session)
 
     @classmethod
     def get_project_ids_by_ids(cls, account_project_ids: list) -> list[int]:
