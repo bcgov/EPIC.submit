@@ -196,9 +196,7 @@ class PackageService:
     def _create_items(session, package_id, package_type):
         """Create items for the package."""
         current_app.logger.info(f"Creating items for package {package_id}")
-        package_item_types = session.query(PackageItemTypeModel).filter_by(
-            package_type_id=package_type.id,
-        ).all()
+        package_item_types = PackageItemTypeModel.get_by_package_type_id(package_type.id)
 
         item_type_to_package_item_type = {
             pit.item_type_id: pit for pit in package_item_types

@@ -1,12 +1,11 @@
 """Service for proponent management."""
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.enums.invitation_status import InvitationStatus
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import RoleEnum
+from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
 from submit_api.models.account_project_work import AccountProjectWork
 from submit_api.models.account_user import AccountUser
-from submit_api.models.account import Account
 from submit_api.models.db import session_scope
 from submit_api.models.invitations import Invitations
 from submit_api.models.project import Project
@@ -37,10 +36,7 @@ class ProponentService:
         if not include_invitations and not include_projects and not include_administrators:
             return proponent_dict
 
-        account_ids = account_ids = [
-            account_id
-            for account_id, in Account.query.with_entities(Account.id).filter_by(proponent_id=proponent_id).all()
-        ]
+        account_ids = Account.get_ids_by_proponent_id(proponent_id)
 
         if include_invitations and account_ids:
             proponent_dict["invitations"] = cls._get_invitations(account_ids)
@@ -56,19 +52,14 @@ class ProponentService:
     @classmethod
     def _get_invitations(cls, account_ids) -> list:
         """Fetch pending and used invitations for the given account IDs."""
-        invitations = Invitations.query.filter(
-            Invitations.account_id.in_(account_ids),
-            Invitations.status.in_([InvitationStatus.PENDING.value, InvitationStatus.USED.value])
-        ).all()
+        invitations = Invitations.get_all_in_account_ids(account_ids)
         return [invitation.to_dict() for invitation in invitations]
 
     @classmethod
     def _get_projects(cls, proponent_id, account_ids) -> dict:
         """Fetch projects and account projects for a proponent."""
-        projects = Project.query.filter_by(proponent_id=proponent_id).order_by(Project.name).all()
-        account_projects = AccountProject.query.filter(
-            AccountProject.account_id.in_(account_ids)
-        ).all()
+        projects = Project.get_all_by_proponent_id(proponent_id)
+        account_projects = AccountProject.get_all_in_account_ids(account_ids)
         return {
             "projects": [project.to_dict() for project in projects],
             "account_projects": [
@@ -84,9 +75,7 @@ class ProponentService:
     @classmethod
     def _get_administrators(cls, account_ids) -> list:
         """Fetch primary administrators for the given account IDs."""
-        account_users = AccountUser.query.filter(
-            AccountUser.account_id.in_(account_ids)
-        ).all()
+        account_users = AccountUser.get_all_in_account_ids(account_ids)
         return cls._build_administrators(account_users)
 
     @classmethod

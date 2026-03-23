@@ -74,6 +74,11 @@ class AccountProject(BaseModel):
         return cls.query.filter(cls.project_id.in_(ids)).all()
 
     @classmethod
+    def get_all_in_account_ids(cls, account_ids: list[int]):
+        """Get all projects for the given account ids."""
+        return cls.query.filter(cls.account_id.in_(account_ids)).all()
+
+    @classmethod
     def get_by_account_id(cls, account_id: int) -> AccountProject | None:
         """Return the AccountProject object for the given account_id."""
         return cls.query.filter_by(account_id=account_id).first()

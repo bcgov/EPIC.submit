@@ -7,7 +7,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone, UTC
 
-from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean, func
+from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean, func, and_
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
 
@@ -100,3 +100,26 @@ class Invitations(BaseModel):
     def find_pending_by_token(cls, token: str):
         """Find a pending invitation by token."""
         return cls.query.filter_by(token=token, status=InvitationStatus.PENDING.value).first()
+
+    @classmethod
+    def get_active_by_account_id(cls, account_id: int, project_ids: list = None):
+        """Get pending and revoked (non-expired) invitations for an account,
+        optionally filtered by project ids."""
+        query = cls.query.filter(
+            cls.account_id == account_id,
+            # The list should excluded expired and revoked invitations
+            # pylint: disable=invalid-unary-operand-type
+            ~(and_(cls.is_expired, cls.status == InvitationStatus.REVOKED.value)),
+            cls.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
+        )
+        if project_ids:
+            query = query.filter(cls.project_ids.op('@>')(project_ids))
+        return query.all()
+    
+    @classmethod
+    def get_all_in_account_ids(cls, account_ids: list[int]):
+        """Get pending and used invitations for the given account ids."""
+        return cls.query.filter(
+            cls.account_id.in_(account_ids),
+            cls.status.in_([InvitationStatus.PENDING.value, InvitationStatus.USED.value])
+        ).all()

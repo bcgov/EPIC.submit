@@ -77,6 +77,11 @@ class UserRole(BaseModel):
         return user_role.persist(session)
 
     @classmethod
+    def get_all_in_user_ids(cls, account_user_ids: list) -> list:
+        """Get all user roles for the given account user ids."""
+        return cls.query.filter(cls.account_user_id.in_(account_user_ids)).all()
+
+    @classmethod
     def get_role_by_account_user_id(cls, account_user_id):
         """Get the user for a given account."""
         return cls.query.filter(cls.account_user_id == account_user_id).first()

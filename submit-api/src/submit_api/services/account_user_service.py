@@ -1,6 +1,5 @@
 """Service for account user management."""
 from datetime import datetime
-from sqlalchemy import and_
 
 from flask import current_app
 
@@ -14,7 +13,7 @@ from submit_api.models import Role as RoleModel
 from submit_api.models import TermsOfService as TermsOfServiceModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
-from submit_api.models.db import db
+from submit_api.models.db import db, session_scope
 from submit_api.models.invitations import InvitationStatus
 from submit_api.services.keycloak import KeycloakService
 from submit_api.utils.token_info import TokenInfo
@@ -120,11 +119,7 @@ class AccountUserService:
         else:
             user_ids = [users.id]  # For a single user, create a list with the user id
 
-        user_roles = (
-            UserRoleModel.query
-            .filter(UserRoleModel.account_user_id.in_(user_ids))
-            .all()
-        )
+        user_roles = UserRoleModel.get_all_in_user_ids(user_ids)
 
         roles_map = {}
         for role in user_roles:
@@ -146,16 +141,7 @@ class AccountUserService:
         if account_project_ids:
             project_ids = AccountProjectModel.get_project_ids_by_ids(account_project_ids)
 
-        invitees_query = InvitationsModel.query.filter(
-            InvitationsModel.account_id == account_id,
-            # The list should excluded expired and revoked invitations
-            # pylint: disable=invalid-unary-operand-type
-            ~(and_(InvitationsModel.is_expired, InvitationsModel.status == InvitationStatus.REVOKED.value)),
-            InvitationsModel.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
-        )
-        if project_ids:
-            invitees_query = invitees_query.filter(InvitationsModel.project_ids.op('@>')(project_ids))
-        invitees = invitees_query.all()
+        invitees = InvitationsModel.get_active_by_account_id(account_id, project_ids)
 
         invited_users = []
         for invite in invitees:
@@ -274,9 +260,10 @@ class AccountUserService:
             raise ResourceNotFoundError(f"Item with id {guid} not found.")
 
         cls._apply_update_data(account_user, update_data)
-        db.session.add(account_user)
-        db.session.flush()
-        db.session.commit()
+        with session_scope as session:
+            session.add(account_user)
+            session.flush()
+            db.session.commit()
 
         current_app.logger.info(f"Account user {account_user.id} updated successfully.")
         return account_user

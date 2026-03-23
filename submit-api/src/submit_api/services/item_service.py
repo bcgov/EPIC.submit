@@ -21,10 +21,10 @@ class ItemService:
     def get_item_by_id(cls, item_id) -> ItemModel:
         """Get item by id."""
         item = ItemModel.find_by_id(item_id)
-        authorization.has_access_to_package(item.package_id)
         if not item:
             current_app.logger.warning(f"Item with id {item_id} not found.")
             raise ResourceNotFoundError(f"Item with id {item_id} not found.")
+        authorization.has_access_to_package(item.package_id)
         return item
 
     @classmethod

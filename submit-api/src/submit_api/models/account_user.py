@@ -100,6 +100,11 @@ class AccountUser(BaseModel):
         return cls.query.filter(cls.account_id == account_id).all()
 
     @classmethod
+    def get_all_in_account_ids(cls, account_ids: list[int]):
+        """Get all users for the given account ids."""
+        return cls.query.filter(cls.account_id.in_(account_ids)).all()
+
+    @classmethod
     def get_users_by_account_user_id(cls, account_user_id):
         """Get the user for a given account."""
         return cls.query.filter(cls.id == account_user_id).first()
