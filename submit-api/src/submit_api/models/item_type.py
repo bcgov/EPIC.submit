@@ -48,3 +48,8 @@ class ItemType(BaseModel):
     name = Column(db.String(255), nullable=False, unique=True)
     submission_method = Column(Enum(SubmissionMethod), nullable=False)
     package_types = relationship('PackageType', secondary='package_item_types', back_populates='item_types')
+
+    @classmethod
+    def find_by_name(cls, name: str):
+        """Find an item type by name."""
+        return cls.query.filter_by(name=name).first()

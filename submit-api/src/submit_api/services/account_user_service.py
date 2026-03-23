@@ -104,18 +104,12 @@ class AccountUserService:
     @staticmethod
     def _fetch_users(account_id, account_project_ids=None):
         """Fetch active users from the `account_users` table."""
-        query = AccountUserModel.query.filter(AccountUserModel.account_id == account_id)
-        if account_project_ids:
-            query = query.join(UserRoleModel).filter(
-                UserRoleModel.account_project_id.in_(account_project_ids)
-            )
-        return query.all()
+        return AccountUserModel.get_filtered_by_account_id(account_id, account_project_ids)
 
     @staticmethod
     def _fetch_user_status_name(user_id):
         """Fetch only the user's status name."""
-        user = UserModel.query.filter(UserModel.id == user_id).first()
-        return user.user_status.status_name if user else None
+        return UserModel.get_status_name_by_id(user_id)
 
     @staticmethod
     def _fetch_roles(users):
@@ -150,10 +144,7 @@ class AccountUserService:
         """Fetch invited users from the `invitations` table"""
         project_ids = None
         if account_project_ids:
-            project_ids = AccountProjectModel.query.filter(
-                AccountProjectModel.id.in_(account_project_ids)
-            ).with_entities(AccountProjectModel.project_id).all()
-            project_ids = [pid[0] for pid in project_ids]
+            project_ids = AccountProjectModel.get_project_ids_by_ids(account_project_ids)
 
         invitees_query = InvitationsModel.query.filter(
             InvitationsModel.account_id == account_id,

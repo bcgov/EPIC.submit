@@ -51,3 +51,9 @@ class User(BaseModel):
     def get_by_guid(cls, _guid):
         """Get user by guid."""
         return cls.query.filter(cls.auth_guid == _guid).first()
+
+    @classmethod
+    def get_status_name_by_id(cls, user_id: int) -> str | None:
+        """Get the status name for a given user id."""
+        user = cls.find_by_id(user_id)
+        return user.user_status.status_name if user else None

@@ -101,3 +101,11 @@ class AccountProject(BaseModel):
         else:
             account_project.save()
         return account_project
+
+    @classmethod
+    def get_project_ids_by_ids(cls, account_project_ids: list) -> list[int]:
+        """Get project ids for the given account project ids."""
+        results = cls.query.filter(
+            cls.id.in_(account_project_ids)
+        ).with_entities(cls.project_id).all()
+        return [pid for (pid,) in results]

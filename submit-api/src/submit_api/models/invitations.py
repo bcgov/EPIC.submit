@@ -90,3 +90,13 @@ class Invitations(BaseModel):
     def generate_token():
         """Generate a random secure token."""
         return str(uuid.uuid4())
+
+    @classmethod
+    def find_by_token(cls, token: str):
+        """Find an invitation by token."""
+        return cls.query.filter_by(token=token).first()
+
+    @classmethod
+    def find_pending_by_token(cls, token: str):
+        """Find a pending invitation by token."""
+        return cls.query.filter_by(token=token, status=InvitationStatus.PENDING.value).first()

@@ -37,7 +37,7 @@ class PackageTypeService:
             if 'id' in item_type_def and item_type_def['id'] is not None:
                 # Existing item type - validate it exists
                 item_type_id = item_type_def['id']
-                item_type = ItemType.query.get(item_type_id)
+                item_type = ItemType.find_by_id(item_type_id)
                 if not item_type:
                     raise ValueError(f"Item type with ID {item_type_id} not found")
                 processed_item_type_ids.append(item_type_id)
@@ -68,7 +68,7 @@ class PackageTypeService:
             Tuple of (item_type_id, created_info_dict or None)
         """
         # Check if item type with this name already exists
-        existing_item_type = ItemType.query.filter_by(name=name).first()
+        existing_item_type = ItemType.find_by_name(name)
         if existing_item_type:
             return existing_item_type.id, None
 
@@ -155,7 +155,7 @@ class PackageTypeService:
             package_type.updated_by = 'system'  # TODO: Get from auth context
 
             # Remove existing item type associations
-            PackageItemType.query.filter_by(package_type_id=package_type.id).delete()
+            PackageItemType.delete_by_package_type_id(package_type.id)
         else:
             # Create new package type
             package_type = PackageType(

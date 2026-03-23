@@ -103,3 +103,14 @@ class AccountUser(BaseModel):
     def get_users_by_account_user_id(cls, account_user_id):
         """Get the user for a given account."""
         return cls.query.filter(cls.id == account_user_id).first()
+
+    @classmethod
+    def get_filtered_by_account_id(cls, account_id: int, account_project_ids: list = None):
+        """Get account users by account id, optionally filtered by project ids."""
+        query = cls.query.filter(cls.account_id == account_id)
+        if account_project_ids:
+            from .user_role import UserRole
+            query = query.join(UserRole).filter(
+                UserRole.account_project_id.in_(account_project_ids)
+            )
+        return query.all()

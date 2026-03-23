@@ -417,7 +417,7 @@ class InvitationService:
     @staticmethod
     def get_valid_invitation(token):
         """Retrieve and validate an invitation by token, checking both status and expiry."""
-        invitation = InvitationsModel.query.filter_by(token=token).first()
+        invitation = InvitationsModel.find_by_token(token)
 
         if not invitation:
             return {"error": "Invalid invitation"}, False
@@ -442,8 +442,7 @@ class InvitationService:
     @staticmethod
     def revoke_invitation(token):
         """Revoke an invitation by updating its status."""
-        invitation = InvitationsModel.query.filter_by(
-            token=token, status=InvitationStatus.PENDING.value).first()
+        invitation = InvitationsModel.find_pending_by_token(token)
         if invitation:
             InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.REVOKED.value
@@ -455,7 +454,7 @@ class InvitationService:
     def resend_invitation(token):
         """Resend an invitation and extend its expiry date by a week."""
         with session_scope() as session:
-            invitation = InvitationsModel.query.filter_by(token=token).first()
+            invitation = InvitationsModel.find_by_token(token)
 
             if not invitation or invitation.status != InvitationStatus.PENDING.value:
                 return False
