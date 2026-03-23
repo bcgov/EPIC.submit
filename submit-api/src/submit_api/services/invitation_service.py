@@ -205,7 +205,7 @@ class InvitationService:
                 user.id, invitation.account_id, payload, session)
 
             # Create account projects if they don't exist (handles concurrent invitations gracefully)
-            InvitationService.create_account_projects(
+            InvitationService.get_or_create_account_projects(
                 invitation.account_id, invitation.project_ids, session)
 
             account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
@@ -220,7 +220,7 @@ class InvitationService:
                 works = TrackWork.find_by_project_id(account_project.project_id)
                 account_project_works = []
                 for work in works:
-                    account_project_work = AccountProjectWork.create_or_get(account_project.id, work.id)
+                    account_project_work = AccountProjectWork.get_or_create(account_project.id, work.id)
                     account_project_works.append(account_project_work)
 
                 # Create default submission package (if required by EAO)
@@ -322,10 +322,10 @@ class InvitationService:
         return account
 
     @staticmethod
-    def create_account_projects(account_id, project_ids, session):
-        """Create account projects."""
+    def get_or_create_account_projects(account_id, project_ids, session):
+        """Get or create account projects."""
         for project_id in project_ids:
-            AccountProjectModel.create_account_project(
+            AccountProjectModel.get_or_create(
                 account_id, project_id, session)
         session.flush()
 

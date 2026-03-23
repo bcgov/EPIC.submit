@@ -83,6 +83,15 @@ class BaseModel(db.Model):
         db.session.flush()
         db.session.commit()
 
+    def persist(self, session=None):
+        """Add to session and flush, or save and commit if no session provided."""
+        if session:
+            session.add(self)
+            session.flush()
+        else:
+            self.save()
+        return self
+
     @staticmethod
     def rollback():
         """RollBack."""

@@ -29,10 +29,7 @@ class ConsultationRecordService:
         item.status = ItemStatus.PASSED_CONSULTATION_CHECK.value
         reviewed_on = datetime.now(UTC)
         item.reviewed_on = reviewed_on
-        package_metadata = PackageMetadata.get_by_package_id(item.package_id)
-        if not package_metadata:
-            package_metadata = PackageMetadata(
-                package_id=item.package_id, json={})
+        package_metadata = PackageMetadata.get_or_create(item.package_id)
         existing_json = package_metadata.json if package_metadata.json else {}
         package_metadata.json = {
             **existing_json,

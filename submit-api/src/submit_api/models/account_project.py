@@ -84,8 +84,8 @@ class AccountProject(BaseModel):
         return cls.query.filter_by(project_id=project_id).first()
 
     @classmethod
-    def create_account_project(cls, account_id, project_id, session=None) -> AccountProject:
-        """Create account project."""
+    def get_or_create(cls, account_id, project_id, session=None) -> AccountProject:
+        """Get or create account project."""
         existing_account_project = cls.query.filter_by(
             account_id=account_id,
             project_id=project_id

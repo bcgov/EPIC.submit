@@ -35,12 +35,7 @@ class TermsOfService(BaseModel):
             rich_content=data.get("rich_content"),
             active=True if active is None else active,
         )
-        if session:
-            session.add(terms_of_service)
-            session.flush()
-        else:
-            terms_of_service.save()
-        return terms_of_service
+        return terms_of_service.persist(session)
 
     @classmethod
     def get_active_terms_of_service(cls) -> TermsOfService | None:

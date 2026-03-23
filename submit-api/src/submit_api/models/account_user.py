@@ -86,12 +86,7 @@ class AccountUser(BaseModel):
             extension_number=data.get('extension_number', None),
             terms_of_service_version_id=data.get('terms_of_service_version_id')
         )
-        if session:
-            session.add(account_user)
-            session.flush()
-        else:
-            account_user.save()
-        return account_user
+        return account_user.persist(session)
 
     @classmethod
     def get_by_guid(cls, _guid):

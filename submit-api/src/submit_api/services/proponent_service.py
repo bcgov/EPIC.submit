@@ -57,7 +57,7 @@ class ProponentService:
 
         with session_scope() as session:
             # Create account projects if they don't exist
-            InvitationService.create_account_projects(
+            InvitationService.get_or_create_account_projects(
                 account.id, project_ids, session)
 
             account_projects = AccountProject.get_all_in_project_ids(project_ids)
@@ -83,5 +83,5 @@ class ProponentService:
                 # Create account_project_works
                 works = TrackWork.find_by_project_id(account_project.project_id)
                 for work in works:
-                    AccountProjectWork.create_or_get(account_project.id, work.id)
+                    AccountProjectWork.get_or_create(account_project.id, work.id)
             session.flush()

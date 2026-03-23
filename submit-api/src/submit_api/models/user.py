@@ -45,12 +45,7 @@ class User(BaseModel):
             auth_guid=data.get('auth_guid', None),
             type=data.get('type', None)
         )
-        if session:
-            session.add(account_user)
-            session.flush()
-        else:
-            account_user.save()
-        return account_user
+        return account_user.persist(session)
 
     @classmethod
     def get_by_guid(cls, _guid):

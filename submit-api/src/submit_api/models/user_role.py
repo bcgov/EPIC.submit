@@ -74,12 +74,7 @@ class UserRole(BaseModel):
             original_package_ids=data.get("original_package_ids") or None,
             role_id=data.get("role_id"),
         )
-        if session:
-            session.add(user_role)
-            session.flush()
-        else:
-            user_role.save()
-        return user_role
+        return user_role.persist(session)
 
     @classmethod
     def get_role_by_account_user_id(cls, account_user_id):

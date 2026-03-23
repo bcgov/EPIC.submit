@@ -67,7 +67,7 @@ class AccountProjectWork(BaseModel):
         return cls.query.filter_by(work_id=work_id, is_active=True).all()
 
     @classmethod
-    def create_or_get(cls, account_project_id: int, work_id: int, session=None):
+    def get_or_create(cls, account_project_id: int, work_id: int, session=None):
         """Create or get account project work.
 
         Args:

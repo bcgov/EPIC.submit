@@ -86,8 +86,7 @@ class ManagementPlanService:
         """Update package metadata with review completion date for rejection."""
         current_app.logger.info(
             f"Updating package metadata for package {item.package_id}.")
-        package_metadata = cls._get_or_create_package_metadata_mp_rejection(
-            item.package_id)
+        package_metadata = PackageMetadata.get_or_create(item.package_id)
         reviewed_on = item.reviewed_on
         existing_json = package_metadata.json if package_metadata.json else {}
         package_metadata.json = {
@@ -100,18 +99,6 @@ class ManagementPlanService:
         session.flush()
         current_app.logger.info(
             f"Package metadata updated for package {item.package_id}.")
-
-    @classmethod
-    def _get_or_create_package_metadata_mp_rejection(cls, package_id):
-        """Retrieve or create package metadata for rejection."""
-        current_app.logger.info(
-            f"Retrieving package metadata for package {package_id}.")
-        package_metadata = PackageMetadata.get_by_package_id(package_id)
-        if not package_metadata:
-            current_app.logger.info(
-                f"Creating package metadata for package {package_id}.")
-            package_metadata = PackageMetadata(package_id=package_id, json={})
-        return package_metadata
 
     @classmethod
     def create_new_package_version(cls, item, session):
