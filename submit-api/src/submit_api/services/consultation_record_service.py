@@ -1,5 +1,5 @@
 """Consultation record review service."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -27,7 +27,7 @@ class ConsultationRecordService:
     def approve_consultation_record(cls, item, session):
         """Approve consultation record."""
         item.status = ItemStatus.PASSED_CONSULTATION_CHECK.value
-        reviewed_on = datetime.utcnow()
+        reviewed_on = datetime.now(UTC)
         item.reviewed_on = reviewed_on
         package_metadata = PackageMetadata.get_by_package_id(item.package_id)
         if not package_metadata:

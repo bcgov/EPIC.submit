@@ -1,6 +1,6 @@
 """Service for package management."""
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -286,7 +286,7 @@ class PackageService:
     def _update_package_submission_details(package, session):
         """Update package submission details."""
         current_app.logger.info(f"Updating submission details for package {package.id}")
-        package.submitted_on = datetime.utcnow()
+        package.submitted_on = datetime.now(UTC)
         package.submitted_by = TokenInfo.get_username()
 
         session.add(package)
@@ -472,7 +472,7 @@ class PackageService:
             return
         item_data = {
             'status': ItemStatus.UNDER_REVIEW.value,
-            'review_start_date': datetime.utcnow().isoformat()
+            'review_start_date': datetime.now(UTC).isoformat()
         }
         cls._update_review_item(review_item, item_data, session)
         cls._update_package_status(package_id, session, package)
@@ -516,7 +516,7 @@ class PackageService:
         package = cls._get_and_validate_package_for_starting_review(package_id)
         item_data = {
             'status': ItemStatus.UNDER_CONSULTATION_CHECK.value,
-            'review_start_date': datetime.utcnow().isoformat()
+            'review_start_date': datetime.now(datetime.UTC)().isoformat()
         }
         with session_scope() as session:
             cls._update_cr_status(

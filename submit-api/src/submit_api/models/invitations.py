@@ -5,7 +5,7 @@ Manages the invitation tokens for project onboarding.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean, func
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -28,7 +28,7 @@ class Invitations(BaseModel):
     token = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), nullable=True)  # Optional email for client
     status = Column(String(50), default=InvitationStatus.PENDING.value, nullable=False)
-    expiry_date = Column(TIMESTAMP, default=datetime.utcnow)
+    expiry_date = Column(TIMESTAMP, default=datetime.now(UTC))
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     is_first_time = Column(Boolean, default=False)
     is_deleted = Column(Boolean, default=False)

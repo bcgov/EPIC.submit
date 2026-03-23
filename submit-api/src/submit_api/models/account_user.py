@@ -4,7 +4,7 @@ Manages the account user
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -39,7 +39,7 @@ class AccountUser(BaseModel):
         """Return the first role for backward compatibility."""
         return self.roles[0] if self.roles else None
     terms_of_service_version_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.version'), nullable=True)
-    terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
+    terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.now(UTC), nullable=True)
     company_name = Column(db.String(255), nullable=True)
 
     terms_of_service = db.relationship(

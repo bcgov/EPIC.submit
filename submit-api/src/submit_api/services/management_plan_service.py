@@ -1,5 +1,5 @@
 """management plan review service."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -76,7 +76,7 @@ class ManagementPlanService:
         current_app.logger.info(
             f"Rejecting management plan form for item {item.id}.")
         item.status = ItemStatus.REVIEW_REJECTED.value
-        reviewed_on = datetime.utcnow()
+        reviewed_on = datetime.now(UTC)
         item.reviewed_on = reviewed_on
         current_app.logger.info(
             f"Management plan form rejected for item {item.id}.")
@@ -222,7 +222,7 @@ class ManagementPlanService:
         """Update package for completion."""
         current_app.logger.info(
             f"Updating package for completion for item {item.id}.")
-        package.completed_on = datetime.utcnow()
+        package.completed_on = datetime.now(UTC)
         session.add(package)
         session.flush()
         current_app.logger.info(

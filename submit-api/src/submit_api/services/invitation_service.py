@@ -480,7 +480,7 @@ class InvitationService:
             InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.PENDING.value
             expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
-            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days)
+            invitation.expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=expiry_days)
             InvitationsModel.commit()
             return True
         return False

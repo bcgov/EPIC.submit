@@ -19,8 +19,8 @@ class ProponentSchema(Schema):
     name = fields.Str(data_key="name", allow_none=False)
     status = fields.Enum(enum=ProponentStatus, data_key="status", allow_none=True, required=False)
     is_deleted = fields.Bool(data_key="is_deleted", allow_none=False)
-    invitations = fields.List(fields.Int(), data_key="invitations", required=False, default=[])
-    projects = fields.List(fields.Int(), data_key="projects", required=False, default=[])
+    invitations = fields.List(fields.Int(), data_key="invitations", required=False, dump_default=[])
+    projects = fields.List(fields.Int(), data_key="projects", required=False, dump_default=[])
 
 
 class EnableProponentProjectsSchema(Schema):

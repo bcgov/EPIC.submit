@@ -414,7 +414,7 @@ class AccountUserService:
             raise ResourceNotFoundError(f"Terms of service with ID {terms_of_service_version_id} not found")
 
         account_user.terms_of_service_version_id = terms_of_service_version_id
-        account_user.terms_of_service_accepted_date = datetime.utcnow()
+        account_user.terms_of_service_accepted_date = datetime.now(datetime.UTC)()
         db.session.commit()
 
         return AccountUserModel.get_users_by_account_user_id(account_user_id)

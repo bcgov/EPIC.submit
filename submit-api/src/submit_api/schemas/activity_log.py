@@ -73,14 +73,14 @@ def get_activity_action(action: str, user_type: str) -> str:
 class ActivityLogSchema(Schema):
     """Schema for serializing Activity Log records."""
 
-    action = fields.String(required=True, description="Action performed (e.g., 'SUBMITTED', 'APPROVED').")
-    activity_at = fields.DateTime(format="%Y-%m-%dT%H:%M:%S+00:00", description="Timestamp of the activity.")
-    entity_type = fields.String(required=True, description="Type of entity (e.g., 'SUBMISSION').")
-    entity_id = fields.Integer(required=True, description="ID of the related entity.")
-    entity_version = fields.Integer(required=True, description="Version number of the entity.")
-    actor_id = fields.String(required=True, description="ID of the actor who performed the action.")
-    actor_type = fields.String(required=True, description="Actor type (e.g., 'USER', 'STAFF').")
-    visibility = fields.String(required=True, description="Who can see this entry ('PUBLIC' or 'STAFF_ONLY').")
+    action = fields.String(required=True, metadata={"description": "Action performed (e.g., 'SUBMITTED', 'APPROVED')."})
+    activity_at = fields.DateTime(format="%Y-%m-%dT%H:%M:%S+00:00", metadata={"description": "Timestamp of the activity."})
+    entity_type = fields.String(required=True, metadata={"description": "Type of entity (e.g., 'SUBMISSION')."})
+    entity_id = fields.Integer(required=True, metadata={"description": "ID of the related entity."})
+    entity_version = fields.Integer(required=True, metadata={"description": "Version number of the entity."})
+    actor_id = fields.String(required=True, metadata={"description": "ID of the actor who performed the action."})
+    actor_type = fields.String(required=True, metadata={"description": "Actor type (e.g., 'USER', 'STAFF')."})
+    visibility = fields.String(required=True, metadata={"description": "Who can see this entry ('PUBLIC' or 'STAFF_ONLY')."})
 
     @post_dump
     def apply_action_mapping(self, data, many, **kwargs):
