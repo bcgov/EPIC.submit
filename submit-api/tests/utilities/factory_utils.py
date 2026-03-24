@@ -429,7 +429,6 @@ def create_contact_info_submission(item_id, auth_guid):
 
 def factory_track_phase(
     session,
-    *,
     work_type_id=None,
     ea_act_name='EA Act (2018)',
     work_type_name='Assessment',
@@ -457,7 +456,6 @@ def factory_track_phase(
 def factory_track_work(
     session,
     project_id,
-    *,
     phase_id=None,
     work_state='IN_PROGRESS',
     title=None,
