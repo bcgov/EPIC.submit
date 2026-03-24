@@ -3,12 +3,15 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionMethod
-from submit_api.models.submission import Submission as SubmissionModel
-from submit_api.models.submission import SubmissionType
+from submit_api.models.submission import Submission as SubmissionModel, SubmissionType
 from submit_api.services import authorization
 from submit_api.services.item import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
+from submit_api.models.geo_data_upload import GeoDataUpload
+from submit_api.models.db import db
+from submit_api.services.geo_processor import GeoService
+from flask import current_app
 
 
 class SubmissionService:
@@ -180,3 +183,48 @@ class SubmissionService:
         if submission_package.completed_on:
             raise ValueError("Package is already completed.")
         return submission_package
+
+    @classmethod
+    def trigger_geo_process(cls, item_id):
+        """Trigger geospatial processing for newly uploaded files related to an item."""
+        submissions = SubmissionModel.query.filter_by(
+            item_id=item_id,
+            type=SubmissionType.DOCUMENT
+        ).all()
+
+        triggered_uploads = []
+        app = current_app._get_current_object()  # noqa: SLF001
+
+        for sub in submissions:
+            if not sub.submitted_document:
+                continue
+
+            doc = sub.submitted_document
+            if doc.folder != 'geospatial':
+                continue
+
+            ext = doc.name.split('.')[-1].lower() if '.' in doc.name else ''
+            if ext not in ('shp', 'zip'):
+                continue
+
+            # Skip if already being tracked
+            existing = GeoDataUpload.query.filter_by(raw_s3_key=doc.url).first()
+            if existing:
+                continue
+
+            upload = GeoDataUpload(
+                filename=doc.name,
+                file_type=ext,
+                file_size_mb=0.0,
+                raw_s3_key=doc.url,
+                status='processing',
+            )
+            db.session.add(upload)
+            db.session.flush()
+
+            GeoService._spawn_processing_thread(app, upload.id)  # noqa: SLF001
+
+            triggered_uploads.append({'id': upload.id, 'filename': upload.filename})
+
+        db.session.commit()
+        return triggered_uploads

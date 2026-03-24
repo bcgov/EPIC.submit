@@ -15,6 +15,7 @@
 
 from http import HTTPStatus
 
+from flask import current_app, jsonify
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
@@ -153,3 +154,30 @@ class DocumentSubmissionMove(Resource):
         move_submission_data = CreateSubmissionRequestSchema().load(API.payload)
         created_submission = SubmissionService.move_submission(submission_id, move_submission_data)
         return SubmissionSchema().dump(created_submission), HTTPStatus.CREATED
+
+
+@cors_preflight("OPTIONS, POST")
+@API.route("/items/<int:submission_item_id>/geo-process", methods=["POST", "OPTIONS"])
+class SubmissionItemGeoProcess(Resource):
+    """Resource to trigger geospatial processing for a submission item."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Trigger geospatial processing")
+    @API.response(HTTPStatus.ACCEPTED, "Processing triggered")
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cross_origin(origins=allowedorigins())
+    @auth.require
+    def post(submission_item_id):
+        """Trigger geospatial processing for newly uploaded files."""
+        
+
+        try:
+            triggered_uploads = SubmissionService.trigger_geo_process(submission_item_id)
+            return jsonify({
+                'message': f'Triggered {len(triggered_uploads)} geo-processes',
+                'uploads': triggered_uploads
+            }), HTTPStatus.ACCEPTED
+        except Exception as e:
+            current_app.logger.exception(f"Error triggering geo process: {e}")
+            return jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+
