@@ -1,6 +1,6 @@
 import { CircularProgress, Link as MuiLink, Typography } from "@mui/material";
 import { PackageTableRow, DocumentTableCell } from "./DocumentTableRow";
-import { createSubmission } from "@/hooks/api/useSubmissions";
+import { createSubmission, useTriggerGeoProcess } from "@/hooks/api/useSubmissions";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -12,20 +12,23 @@ import { useMounted } from "@/hooks/common";
 import { useFileStore } from "@/store/fileStore";
 import { isAxiosError } from "axios";
 
-
 type DocumentTableRowProps = Readonly<{
   documentItem: any;
   error?: boolean;
   folder?: string;
+  isGeoSpatial?: boolean;
 }>;
 export default function PendingDocumentRow({
   documentItem,
   error = false,
   folder: s3Folder,
+  isGeoSpatial,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
+
+  const { mutateAsync: triggerGeoProcessAsync } = useTriggerGeoProcess();
 
   const [isPending, setIsPending] = useState(false);
 
@@ -73,6 +76,21 @@ export default function PendingDocumentRow({
         data: documentData,
       });
 
+      if (isGeoSpatial) {
+        const ext = documentItem.file.name.split(".").pop()?.toLowerCase();
+        if (ext === "shp" || ext === "zip") {
+          try {
+            await triggerGeoProcessAsync({ itemId: Number(subItemId) });
+            // Force React Query to immediately fetch the new row so polling starts
+            queryClient.invalidateQueries({
+              queryKey: [QUERY_KEY.GEO_UPLOADS],
+            });
+          } catch (e) {
+            console.error("Failed to auto-trigger geo processing", e);
+          }
+        }
+      }
+
       completeFileUpload(documentItem.id, documentSubmission);
 
       queryClient.invalidateQueries({
@@ -111,6 +129,13 @@ export default function PendingDocumentRow({
       <DocumentTableCell align="center" colSpan={2}>
         <CircularProgress size={"16px"} />
       </DocumentTableCell>
+      {isGeoSpatial && (
+        <DocumentTableCell align="center">
+          <Typography variant="body2" color="textSecondary">
+            Uploading...
+          </Typography>
+        </DocumentTableCell>
+      )}
       <DocumentTableCell align="center"></DocumentTableCell>
     </PackageTableRow>
   );

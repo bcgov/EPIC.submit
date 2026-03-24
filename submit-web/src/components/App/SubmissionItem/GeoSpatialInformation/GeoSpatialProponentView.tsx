@@ -3,18 +3,12 @@ import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BCDesignTokens } from "epic.theme";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
-import {
-  Grid,
-  Link,
-  List,
-  ListItem,
-  Typography,
-} from "@mui/material";
+import { Grid, Link, List, ListItem, Typography } from "@mui/material";
 import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
-import { useMemo, useState, useEffect, lazy, Suspense } from "react";
+import { useMemo, useState, lazy, Suspense } from "react";
 import Form from "@/components/Shared/Forms/common";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -40,14 +34,13 @@ import { isAxiosError } from "axios";
 import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
 import { styled } from "@mui/material/styles";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
-import { useUploadStatus } from "@/hooks/api/useUploadStatus";
 // Lazy-load the map modal so maplibre-gl is not downloaded until first use
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
     default: m.MapPreviewModal,
-  }))
+  })),
 );
-import { submitRequest } from "@/utils/axiosUtils";
+
 
 const StyledListItem = styled(ListItem)({
   padding: 2,
@@ -80,33 +73,10 @@ export const GeoSpatialProponentView = () => {
 
   const [isBackdropOpen, setIsBackdropOpen] = useState(false);
   const [previewId, setPreviewId] = useState<number | null>(null);
-  const [trackingId, setTrackingId] = useState<number | null>(null);
-
-  const { data: geoUploads, refetch: refetchGeoUploads } = useGetGeoUploads();
-  const uploads = geoUploads as unknown as GeoUpload[];
-
-  // Track the status of the latest upload
-  useUploadStatus(trackingId, {
-    onReady: (id) => {
-      setPreviewId(id);
-      setTrackingId(null);
-      refetchGeoUploads();
-    },
-    onFailed: () => {
-      setTrackingId(null);
-      refetchGeoUploads();
-    },
+  const { data: geoUploads } = useGetGeoUploads({
+    itemId: Number(submissionItemId),
   });
-
-  // Automatically start tracking if a new 'processing' upload appears
-  useEffect(() => {
-    if (uploads && uploads.length > 0) {
-      const latest = uploads[0];
-      if (latest.status === "processing" && latest.id !== trackingId) {
-        setTrackingId(latest.id);
-      }
-    }
-  }, [uploads, trackingId]);
+  const uploads = geoUploads as unknown as GeoUpload[];
 
   const documentSubmissions = submissionItem?.submissions?.filter(
     (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
@@ -152,17 +122,6 @@ export const GeoSpatialProponentView = () => {
     saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value);
   };
 
-  const triggerGeoProcess = async () => {
-    try {
-      await submitRequest({
-        url: `/submissions/items/${submissionItemId}/geo-process`,
-        method: "post",
-      });
-    } catch (e) {
-      console.error("Failed to trigger geo processing on submission item", e);
-    }
-  };
-
   const saveSubmission = async (
     _formData: GeoSpatialSubmissionForm,
     status: SubmissionItemStatus,
@@ -177,11 +136,6 @@ export const GeoSpatialProponentView = () => {
           data: {},
         },
       });
-
-      // Trigger geospatial processing for this submission item
-      await triggerGeoProcess();
-      // Refresh local state to capture new processing tags
-      refetchGeoUploads();
 
       await refetch();
       notify.success("Submission saved successfully");
@@ -200,9 +154,6 @@ export const GeoSpatialProponentView = () => {
   };
 
   const saveAndClose = async () => {
-    // Guaranteed to capture background uploaded files that didn't trigger dirtyFields
-    await triggerGeoProcess();
-
     if (!Object.keys(dirtyFields).length) {
       navigate({
         to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
@@ -228,12 +179,12 @@ export const GeoSpatialProponentView = () => {
           const url = documentItem.submitted_document?.url;
           if (!url) return;
           const upload = uploads?.find((u) => u.raw_s3_key === url);
-          
+
           if (!upload) {
             notify.error("Preview is not available for this file.");
             return;
           }
-          
+
           if (upload.status === "ready") {
             setPreviewId(upload.id);
           } else if (upload.status === "processing") {
@@ -323,8 +274,6 @@ export const GeoSpatialProponentView = () => {
                 title="Geospatial File(s) Upload"
               />
             </Grid>
-
-
 
             {/* Map Preview Modal — lazy loaded, only downloads maplibre-gl on first open */}
             <Suspense fallback={null}>

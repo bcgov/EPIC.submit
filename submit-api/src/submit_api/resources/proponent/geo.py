@@ -62,8 +62,9 @@ class GeoUploads(Resource):
     @cross_origin(origins=allowedorigins())
     @auth.require
     def get():
-        """Return the 100 most-recent GeoDataUpload records."""
-        uploads = GeoService.list_uploads()
+        """Return the GeoDataUpload records for the specified item."""
+        item_id = request.args.get("item_id", type=int)
+        uploads = GeoService.list_uploads(item_id=item_id)
         return [u.to_dict() for u in uploads], HTTPStatus.OK
 
 

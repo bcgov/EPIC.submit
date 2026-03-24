@@ -302,3 +302,23 @@ export const useMoveSubmission = ({
     ...restOptions,
   });
 };
+
+export const triggerGeoProcess = (itemId: number) => {
+  return submitRequest({
+    url: `/submissions/items/${itemId}/geo-process`,
+    method: "post",
+  });
+};
+
+export const useTriggerGeoProcess = (options?: Options) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options || {};
+  return useMutation({
+    mutationFn: ({ itemId }: { itemId: number }) => triggerGeoProcess(itemId),
+    onSuccess: (data) => {
+      if (_onSuccess) {
+        _onSuccess(data);
+      }
+    },
+    ...restOptions,
+  });
+};

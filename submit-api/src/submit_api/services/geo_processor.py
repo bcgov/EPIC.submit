@@ -233,10 +233,25 @@ class GeoService:
         return upload
 
     @classmethod
-    def list_uploads(cls) -> list[GeoDataUpload]:
-        """Return the 100 most-recent uploads."""
+    def list_uploads(cls, item_id: int | None = None) -> list[GeoDataUpload]:
+        """Return the most-recent uploads, optionally filtered by item_id."""
+        query = db.session.query(GeoDataUpload)
+        
+        if item_id:
+            from submit_api.models.submission import Submission as SubmissionModel, SubmissionType
+            submissions = db.session.query(SubmissionModel).filter_by(
+                item_id=item_id,
+                type=SubmissionType.DOCUMENT
+            ).all()
+            
+            urls = [sub.submitted_document.url for sub in submissions if sub.submitted_document and sub.submitted_document.url]
+            if not urls:
+                return []
+                
+            query = query.filter(GeoDataUpload.raw_s3_key.in_(urls))
+
         return (
-            db.session.query(GeoDataUpload)
+            query
             .order_by(GeoDataUpload.created_at.desc())
             .limit(100)
             .all()

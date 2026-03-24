@@ -15,7 +15,10 @@ import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
-import { DEFAULT_ACCEPTED_FILE_TYPES, EXTENSION_TO_MIME_TYPE_MAP } from "@/utils/constants";
+import {
+  DEFAULT_ACCEPTED_FILE_TYPES,
+  EXTENSION_TO_MIME_TYPE_MAP,
+} from "@/utils/constants";
 import { Accept } from "react-dropzone";
 
 export interface UploadSectionConfig {
@@ -84,20 +87,23 @@ export const GenericDocumentUploadSection: React.FC<
   );
 
   const acceptedFileTypes = useMemo(() => {
-    return (
-      sections.map((section) => section.acceptedFileTypes || []).flat()
-    ).length > 0 
-      ? sections.map((section) => section.acceptedFileTypes || []).flat() 
+    const acceptedFileTypes = sections
+      .map((section) => section.acceptedFileTypes || [])
+      .flat();
+    return acceptedFileTypes.length > 0
+      ? acceptedFileTypes
       : DEFAULT_ACCEPTED_FILE_TYPES;
   }, [sections]);
 
   const fileUploadAccept = useMemo(() => {
     const acceptObj: Accept = {};
-    
+
     acceptedFileTypes.forEach((ext) => {
-      const cleanExt = ext.replace(/^\./, '').toLowerCase(); // remove leading dot if any
-      const mimeTypes = EXTENSION_TO_MIME_TYPE_MAP[cleanExt] || ["application/octet-stream"]; // fallback
-      
+      const cleanExt = ext.replace(/^\./, "").toLowerCase(); // remove leading dot if any
+      const mimeTypes = EXTENSION_TO_MIME_TYPE_MAP[cleanExt] || [
+        "application/octet-stream",
+      ]; // fallback
+
       mimeTypes.forEach((mime) => {
         if (!acceptObj[mime]) {
           acceptObj[mime] = [];
@@ -206,6 +212,7 @@ export const GenericDocumentUploadSection: React.FC<
                   projectName: projectName,
                   sectionName: section.folder,
                 })}
+                isGeoSpatial={section.name === "geospatial"}
                 formFieldName={section.name}
                 onDocumentClick={section.onDocumentClick}
               />

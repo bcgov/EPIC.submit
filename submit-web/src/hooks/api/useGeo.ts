@@ -26,19 +26,25 @@ export interface CreateGeoUploadParams {
 /**
  * Hook to fetch the latest geospatial uploads.
  */
-export const useGetGeoUploads = (options?: any) => {
+export const useGetGeoUploads = (params?: { itemId?: number }, options?: any) => {
   return useQuery({
-    queryKey: [QUERY_KEY.GEO_UPLOADS],
-    queryFn: () => getGeoUploads(),
+    queryKey: [QUERY_KEY.GEO_UPLOADS, params?.itemId],
+    queryFn: () => getGeoUploads(params?.itemId),
+    refetchInterval: (query: any) => {
+      const data = query.state?.data as GeoUpload[] | undefined;
+      const hasProcessing = data?.some((u) => u.status === "processing");
+      return hasProcessing ? 3000 : false;
+    },
     ...defaultUseQueryOptions,
     ...options,
   });
 };
 
-const getGeoUploads = () => {
+const getGeoUploads = (itemId?: number) => {
   return submitRequest<GeoUpload[]>({
     url: "/geo/uploads",
     method: "get",
+    params: { item_id: itemId }
   });
 };
 
