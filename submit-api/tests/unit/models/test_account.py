@@ -1,0 +1,24 @@
+from submit_api.models.account import Account
+from tests.utilities.factory_utils import factory_account_model, factory_proponent_model
+
+
+def test_get_by_proponent_id(session):
+    account = factory_account_model()
+    result = Account.get_by_proponent_id(account.proponent_id)
+    assert result.id == account.id
+
+def test_get_by_proponent_id_not_found(session):
+    assert Account.get_by_proponent_id(999999) is None
+
+def test_get_ids_by_proponent_id(session):
+    account = factory_account_model()
+    ids = Account.get_ids_by_proponent_id(account.proponent_id)
+    assert account.id in ids
+
+def test_get_ids_by_proponent_id_empty(session):
+    assert Account.get_ids_by_proponent_id(999999) == []
+
+def test_create_account(session):
+    proponent = factory_proponent_model()
+    account = Account.create_account({'proponent_id': proponent.id}, session)
+    assert account.proponent_id == proponent.id
