@@ -18,4 +18,14 @@ export default defineConfig({
       "@": "/src",
     },
   },
+  // maplibre-gl v5 uses ES2022 class fields internally.
+  // esbuild (Vite's pre-bundler) transforms these into __publicField() helpers.
+  // MapLibre's GeoJSON Web Worker runs in a separate context and cannot access
+  // those helpers, causing "__publicField is not defined" crashes.
+  // Fix: set target to esnext so esbuild leaves class fields as native syntax.
+  optimizeDeps: {
+    esbuildOptions: {
+      target: "esnext",
+    },
+  },
 });

@@ -96,11 +96,13 @@ type DocumentTableRowProps = Readonly<{
   documentItem: Submission;
   error?: boolean;
   formFieldName?: string;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 export default function DocumentTableRow({
   documentItem,
   error = false,
   formFieldName,
+  onDocumentClick,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
   const [pendingGetObject, setPendingGetObject] = useState(false);
@@ -177,7 +179,11 @@ export default function DocumentTableRow({
         >
           <DocumentLink
             name={submitted_document?.name ?? ""}
-            onClick={downloadDocument}
+            onClick={
+              onDocumentClick
+                ? () => onDocumentClick(documentItem)
+                : downloadDocument
+            }
             loading={pendingGetObject}
           />
         </Typography>

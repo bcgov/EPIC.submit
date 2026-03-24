@@ -22,6 +22,7 @@ type DocumentTableProps = Readonly<{
   pendingDocuments: Array<any>;
   folder?: string;
   formFieldName?: string;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 
 export default function DocumentTable({
@@ -30,6 +31,7 @@ export default function DocumentTable({
   pendingDocuments = [],
   formFieldName,
   folder: s3Folder,
+  onDocumentClick,
 }: DocumentTableProps) {
   if (documents.length === 0 && pendingDocuments.length === 0) {
     return null;
@@ -81,6 +83,7 @@ export default function DocumentTable({
               key={`custom-row-${document.id}`}
               documentItem={document}
               formFieldName={formFieldName}
+              onDocumentClick={onDocumentClick}
             />
           ))}
           {pendingDocuments?.map((document) => (

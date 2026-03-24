@@ -3,7 +3,7 @@ import { Box, Grid, Typography } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE, Submission } from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/ControlledFormFields/ControlledFileUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
@@ -27,6 +27,7 @@ export interface UploadSectionConfig {
   description?: string;
   acceptedFileTypes?: string[];
   acceptedFileTypesCriteria?: string;
+  onDocumentClick?: (documentItem: Submission) => void;
 }
 
 interface GenericDocumentUploadSectionProps {
@@ -206,6 +207,7 @@ export const GenericDocumentUploadSection: React.FC<
                   sectionName: section.folder,
                 })}
                 formFieldName={section.name}
+                onDocumentClick={section.onDocumentClick}
               />
             </Box>
           </Grid>

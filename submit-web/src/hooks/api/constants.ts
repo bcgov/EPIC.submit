@@ -26,4 +26,5 @@ export const QUERY_KEY = Object.freeze({
   TERMS_OF_SERVICE: "terms-of-service",
   PACKAGE_DOCUMENT_SUBMISSIONS: "package-document-submissions",
   ACCOUNT_SUBMISSION_PACKAGES: "account-submission-packages",
+  GEO_UPLOADS: "geo/uploads",
 });
