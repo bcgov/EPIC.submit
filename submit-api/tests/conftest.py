@@ -154,12 +154,8 @@ def session(app, db):  # db is your _db from submit_api.models
         yield scoped_sess
 
         scoped_sess.remove()
-        try:
-            transaction.rollback()
-        except Exception:
-            pass
-        finally:
-            connection.close()
+        transaction.rollback()
+        connection.close()
 
 
 @pytest.fixture(scope="session", autouse=True)

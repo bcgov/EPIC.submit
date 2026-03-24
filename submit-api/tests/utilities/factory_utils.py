@@ -16,6 +16,7 @@
 
 Test Utility for creating model factory.
 """
+
 from datetime import datetime, timedelta, timezone
 import random
 import string
@@ -27,17 +28,28 @@ from src.submit_api.config import get_named_config
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.role import RoleEnum
 from submit_api.models import (
-    AccountUser, Item, ItemType, PackageVersion, Role, Submission, SubmittedForm, User, UserRole, db)
+    AccountUser,
+    Item,
+    ItemType,
+    PackageVersion,
+    Role,
+    Submission,
+    SubmittedForm,
+    User,
+    UserRole,
+    db,
+)
 from submit_api.models.account import Account
 from submit_api.models.account_project import AccountProject
 from submit_api.models.invitations import Invitations, InvitationStatus
 from submit_api.models.project import Project
 from submit_api.models.proponent import Proponent
 from submit_api.models.submission import SubmissionStatus, SubmissionType
+from submit_api.models.track_phase import TrackPhase
+from submit_api.models.track_work import TrackWork
 from submit_api.models.user import UserType
 
 from tests.utilities.factory_scenarios import TestJwtClaims
-
 
 CONFIG = get_named_config("testing")
 fake = Faker()
@@ -73,18 +85,13 @@ def factory_project_model(name="Test Project", proponent_id=1234):
     existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
     if not existing_proponent:
         proponent = Proponent(
-            id=proponent_id,
-            name=f"Test Proponent {proponent_id}",
-            is_deleted=False
+            id=proponent_id, name=f"Test Proponent {proponent_id}", is_deleted=False
         )
         db.session.add(proponent)
         db.session.flush()
 
     project = Project(
-        name=name,
-        proponent_id=proponent_id,
-        ea_certificate=None,
-        epic_guid=None
+        name=name, proponent_id=proponent_id, ea_certificate=None, epic_guid=None
     )
     db.session.add(project)
     db.session.commit()
@@ -96,9 +103,7 @@ def factory_account_model(proponent_id=1234):
     existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
     if not existing_proponent:
         proponent = Proponent(
-            id=proponent_id,
-            name=f"Test Proponent {proponent_id}",
-            is_deleted=False
+            id=proponent_id, name=f"Test Proponent {proponent_id}", is_deleted=False
         )
         db.session.add(proponent)
         db.session.flush()
@@ -109,7 +114,9 @@ def factory_account_model(proponent_id=1234):
     return account
 
 
-def factory_proponent_model(id=None, name="Test Proponent", status=None, is_deleted=False):
+def factory_proponent_model(
+    id=None, name="Test Proponent", status=None, is_deleted=False
+):
     """Create a proponent model."""
     if id is None:
         id = fake.random_int(min=1000, max=999999)
@@ -122,12 +129,7 @@ def factory_proponent_model(id=None, name="Test Proponent", status=None, is_dele
         existing_proponent.is_deleted = is_deleted
         db.session.commit()
         return existing_proponent
-    proponent = Proponent(
-        id=id,
-        name=name,
-        status=status,
-        is_deleted=is_deleted
-    )
+    proponent = Proponent(id=id, name=name, status=status, is_deleted=is_deleted)
     db.session.add(proponent)
     db.session.commit()
     return proponent
@@ -137,11 +139,7 @@ def factory_user_model(auth_guid=None, user_type=UserType.STAFF, session=None):
     """Create a user model."""
     from submit_api.models.user import User
 
-    user = User(
-        auth_guid=auth_guid or fake.uuid4(),
-        type=user_type,
-        status_id=1
-    )
+    user = User(auth_guid=auth_guid or fake.uuid4(), type=user_type, status_id=1)
     if session:
         session.add(user)
         session.flush()
@@ -164,9 +162,7 @@ def factory_project_with_proponent(**kwargs):
     existing_proponent = Proponent.query.filter_by(id=proponent_id).first()
     if not existing_proponent:
         proponent = Proponent(
-            id=proponent_id,
-            name=f"Test Proponent {proponent_id}",
-            is_deleted=False
+            id=proponent_id, name=f"Test Proponent {proponent_id}", is_deleted=False
         )
         db.session.add(proponent)
         db.session.flush()
@@ -192,7 +188,7 @@ def factory_invitation_model(
     status=InvitationStatus.PENDING.value,
     expiry_date=datetime.now(timezone.utc) + timedelta(days=7),
     role_id=None,
-    is_first_time=False
+    is_first_time=False,
 ):
     """Create and return a mock invitation entry."""
     if role_id is None:
@@ -208,7 +204,7 @@ def factory_invitation_model(
         status=status,
         expiry_date=expiry_date,
         role_id=role_id,
-        is_first_time=is_first_time
+        is_first_time=is_first_time,
     )
     db.session.add(invitation)
     db.session.commit()
@@ -218,8 +214,7 @@ def factory_invitation_model(
 def factory_item_type_model(name=None, code=None):
     """Create an item type model."""
     item_type = ItemType(
-        name=name or fake.word().capitalize(),
-        code=code or fake.lexify(text="???")
+        name=name or fake.word().capitalize(), code=code or fake.lexify(text="???")
     )
     db.session.add(item_type)
     db.session.commit()
@@ -234,15 +229,22 @@ def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=
         package_id=package.id,
         type_id=item_type_id,  # e.g., 1 = Contact Information Form
         status=ItemStatus[status],
-        submitted_by=submitted_by or fake.email()
+        submitted_by=submitted_by or fake.email(),
     )
     db.session.add(item)
     db.session.commit()
     return item
 
 
-def factory_package_model(account_project=None, name=None, status=None, package_type_id=1,
-                          original_package_id=None, version=1, submitted_to_eao_for=None):
+def factory_package_model(
+    account_project=None,
+    name=None,
+    status=None,
+    package_type_id=1,
+    original_package_id=None,
+    version=1,
+    submitted_to_eao_for=None,
+):
     """Create a package model using hardcoded package_type_id."""
     from submit_api.models.package import Package, PackageStatus
 
@@ -255,7 +257,7 @@ def factory_package_model(account_project=None, name=None, status=None, package_
         account_project_id=account_project.id,
         name=name or fake.sentence(nb_words=3),
         type_id=package_type_id,  # Hardcoded ID from seeded data (e.g., 1 = "Management Plan")
-        status=status or [PackageStatus.NEW.value]
+        status=status or [PackageStatus.NEW.value],
     )
     db.session.add(package)
     db.session.flush()
@@ -264,14 +266,18 @@ def factory_package_model(account_project=None, name=None, status=None, package_
     package.version_id = package_version.id
     db.session.add(package)
 
-    factory_package_metadata_model(package.id, submitted_to_eao_for=submitted_to_eao_for)
+    factory_package_metadata_model(
+        package.id, submitted_to_eao_for=submitted_to_eao_for
+    )
 
     db.session.flush()
     db.session.commit()
     return package
 
 
-def factory_package_metadata_model(package_id, metadata: dict = None, submitted_to_eao_for=None):
+def factory_package_metadata_model(
+    package_id, metadata: dict = None, submitted_to_eao_for=None
+):
     """Create a package metadata model."""
     from submit_api.models.package_metadata import PackageMetadata
 
@@ -288,7 +294,11 @@ def factory_package_metadata_model(package_id, metadata: dict = None, submitted_
                     "milestone_related_to_plan_submission": "Construction",
                     "milestones_related_to_plan_implementation": ["Operations"],
                     "parties_required_to_be_consulted": [
-                        "Participating Indigenous Nations", "EMLI", "ENV", "NHA", "MOF"
+                        "Participating Indigenous Nations",
+                        "EMLI",
+                        "ENV",
+                        "NHA",
+                        "MOF",
                     ],
                     "requires_consultation": "true",
                     "requires_iem_terms_of_engagement": "true",
@@ -305,7 +315,7 @@ def factory_package_metadata_model(package_id, metadata: dict = None, submitted_
         package_id=package_id,
         json={
             **metadata,
-        }
+        },
     )
     db.session.add(package_metadata)
     db.session.flush()
@@ -315,40 +325,50 @@ def factory_package_metadata_model(package_id, metadata: dict = None, submitted_
 def create_package_version(package, original_package_id=None, version=1):
     """Create and return a package version."""
     package_version = PackageVersion(
-        version=version,
-        original_package_id=original_package_id or package.id
+        version=version, original_package_id=original_package_id or package.id
     )
     db.session.add(package_version)
     db.session.flush()
     return package_version
 
 
-def create_proponent_with_role(session, *, auth_guid: str, account_id: int,
-                               role_name: str = RoleEnum.PROJECT_ADMIN.value, account_project_id: int = None):
+def create_proponent_with_role(
+    session,
+    *,
+    auth_guid: str,
+    account_id: int,
+    role_name: str = RoleEnum.PROJECT_ADMIN.value,
+    account_project_id: int = None,
+):
     """Create a test proponent user with account and role."""
-    user = User.create_user({
-        "auth_guid": auth_guid,
-        "type": UserType.PROPONENT
-    }, session=session)
+    user = User.create_user(
+        {"auth_guid": auth_guid, "type": UserType.PROPONENT}, session=session
+    )
 
-    account_user = AccountUser.create_account_user({
-        "account_id": account_id,
-        "first_name": fake.first_name(),
-        "last_name": fake.last_name(),
-        "position": fake.job(),
-        "work_email_address": fake.email(),
-        "work_contact_number": fake.phone_number(),
-        "user_id": user.id,
-    }, session=session)
+    account_user = AccountUser.create_account_user(
+        {
+            "account_id": account_id,
+            "first_name": fake.first_name(),
+            "last_name": fake.last_name(),
+            "position": fake.job(),
+            "work_email_address": fake.email(),
+            "work_contact_number": fake.phone_number(),
+            "user_id": user.id,
+        },
+        session=session,
+    )
 
     role = Role.get_by_name(role_name)
 
-    user_role = UserRole.create_user_role({
-        "account_user_id": account_user.id,
-        "role_id": role.id,
-        "package_ids": None,
-        "account_project_id": account_project_id,
-    }, session=session)
+    user_role = UserRole.create_user_role(
+        {
+            "account_user_id": account_user.id,
+            "role_id": role.id,
+            "package_ids": None,
+            "account_project_id": account_project_id,
+        },
+        session=session,
+    )
 
     return user, account_user, user_role
 
@@ -364,7 +384,7 @@ def setup_authenticated_proponent(session, jwt, role=RoleEnum.PROJECT_ADMIN.valu
         auth_guid=auth_guid,
         account_id=account.id,
         role_name=role,
-        account_project_id=account_project.id
+        account_project_id=account_project.id,
     )
 
     session.flush()
@@ -377,15 +397,12 @@ def setup_authenticated_proponent(session, jwt, role=RoleEnum.PROJECT_ADMIN.valu
     return headers, account_project
 
 
-def create_contact_info_submission(
-    item_id,
-    auth_guid
-):
+def create_contact_info_submission(item_id, auth_guid):
     """Create a contact information submission."""
     submitted_form = SubmittedForm(
         submission_json={
             'q_1': 'John Doe',  # Replace with actual JSON data
-            'q_2': 'Fake'
+            'q_2': 'Fake',
         },  # Replace with actual JSON data
     )
     db.session.add(submitted_form)
@@ -402,9 +419,61 @@ def create_contact_info_submission(
         active=True,
         deleted=False,
         status=SubmissionStatus.SUBMITTED,  # Replace with the appropriate status
-        root_submission_id=None  # Replace with the root submission ID or None
+        root_submission_id=None,  # Replace with the root submission ID or None
     )
     db.session.add(submission)
     db.session.flush()
     db.session.commit()
     return submission
+
+
+def factory_track_phase(
+    session,
+    *,
+    work_type_id=None,
+    ea_act_name='EA Act (2018)',
+    work_type_name='Assessment',
+    name=None,
+    display_name=None,
+    is_active=True,
+    is_deleted=False,
+):
+    """Create and persist a TrackPhase for use in tests."""
+    phase = TrackPhase(
+        id=fake.random_int(min=10000, max=99999),
+        name=name or fake.word().capitalize(),
+        ea_act_name=ea_act_name,
+        work_type_id=work_type_id or fake.random_int(min=1, max=100),
+        work_type_name=work_type_name,
+        display_name=display_name,
+        is_active=is_active,
+        is_deleted=is_deleted,
+    )
+    session.add(phase)
+    session.flush()
+    return phase
+
+
+def factory_track_work(
+    session,
+    project_id,
+    *,
+    phase_id=None,
+    work_state='IN_PROGRESS',
+    title=None,
+    is_active=True,
+    is_deleted=False,
+):
+    """Create and persist a TrackWork for use in tests."""
+    work = TrackWork(
+        id=fake.random_int(min=10000, max=99999),
+        project_id=project_id,
+        current_phase_id=phase_id,
+        work_state=work_state,
+        title=title or fake.sentence(nb_words=4),
+        is_active=is_active,
+        is_deleted=is_deleted,
+    )
+    session.add(work)
+    session.flush()
+    return work

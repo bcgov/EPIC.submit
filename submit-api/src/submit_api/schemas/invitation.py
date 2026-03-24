@@ -12,7 +12,9 @@ class CreateNewAccountInvitationSchema(Schema):
 
     proponent_id = fields.Int(required=True, metadata={"description": "Proponent ID"})
     role_name = fields.Str(required=True, metadata={"description": "Role Name"})
-    project_ids = fields.List(fields.Int(), required=False, metadata={"description": "List of Project IDs"})
+    project_ids = fields.List(
+        fields.Int(), required=False, metadata={"description": "List of Project IDs"}
+    )
 
 
 class CreateInvitationToExistingAccountProjectSchema(Schema):
@@ -20,11 +22,27 @@ class CreateInvitationToExistingAccountProjectSchema(Schema):
 
     proponent_id = fields.Int(required=True, metadata={"description": "Proponent ID"})
     account_id = fields.Int(required=False, metadata={"description": "Account ID"})
-    account_project_ids = fields.List(fields.Int(), required=False, metadata={"description": "List of Account Project IDs"})
-    project_ids = fields.List(fields.Int(), required=False, allow_none=True, metadata={"description": "Project IDs"})
+    account_project_ids = fields.List(
+        fields.Int(),
+        required=False,
+        metadata={"description": "List of Account Project IDs"},
+    )
+    project_ids = fields.List(
+        fields.Int(),
+        required=False,
+        allow_none=True,
+        metadata={"description": "Project IDs"},
+    )
     role_name = fields.Str(required=True, metadata={"description": "Role Name"})
-    original_package_ids = fields.List(fields.Int(), required=False, allow_none=True, metadata={"description": "Original Package IDs"})
-    email = fields.Email(required=False, metadata={"description": "Optional email for client"})
+    original_package_ids = fields.List(
+        fields.Int(),
+        required=False,
+        allow_none=True,
+        metadata={"description": "Original Package IDs"},
+    )
+    email = fields.Email(
+        required=False, metadata={"description": "Optional email for client"}
+    )
 
 
 class InvitationSchema(Schema):

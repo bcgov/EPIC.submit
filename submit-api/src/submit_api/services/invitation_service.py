@@ -8,27 +8,29 @@ from flask import current_app
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.enums.work_type import WorkTypeName
-from submit_api.exceptions import ResourceNotFoundError, BadRequestError
-from submit_api.models import AccountProject as AccountProjectModel, User
+from submit_api.exceptions import BadRequestError, ResourceNotFoundError
+from submit_api.models import AccountProject as AccountProjectModel
+from submit_api.models import User
 from submit_api.models.account import Account as AccountModel
+from submit_api.models.account_project_work import AccountProjectWork
+from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
-from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
+from submit_api.models.invitations import Invitations as InvitationsModel
+from submit_api.models.invitations import InvitationStatus
 from submit_api.models.package import PackageStatus
 from submit_api.models.proponent import Proponent as ProponentModel
 from submit_api.models.role import Role as RoleModel
-from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
+from submit_api.models.track_work import TrackWork
 from submit_api.models.user import UserType
+from submit_api.models.user_role import UserRole as UserRoleModel
 from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.package import PackageService
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
-from submit_api.models.user_role import UserRole as UserRoleModel
-from submit_api.models.track_work import TrackWork
-from submit_api.models.account_project_work import AccountProjectWork
 
 
 class InvitationService:

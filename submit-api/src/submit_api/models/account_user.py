@@ -13,6 +13,7 @@ from sqlalchemy.orm import column_property
 from .base_model import BaseModel
 from .db import db
 from .user import User as UserModel
+from .user_role import UserRole
 
 
 class AccountUser(BaseModel):
@@ -114,7 +115,6 @@ class AccountUser(BaseModel):
         """Get account users by account id, optionally filtered by project ids."""
         query = cls.query.filter(cls.account_id == account_id)
         if account_project_ids:
-            from .user_role import UserRole
             query = query.join(UserRole).filter(
                 UserRole.account_project_id.in_(account_project_ids)
             )

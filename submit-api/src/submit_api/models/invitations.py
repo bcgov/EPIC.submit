@@ -103,8 +103,7 @@ class Invitations(BaseModel):
 
     @classmethod
     def get_active_by_account_id(cls, account_id: int, project_ids: list = None):
-        """Get pending and revoked (non-expired) invitations for an account,
-        optionally filtered by project ids."""
+        """Get pending and revoked (non-expired) invitations for an account, optionally filtered by project ids."""
         query = cls.query.filter(
             cls.account_id == account_id,
             # The list should excluded expired and revoked invitations
@@ -115,7 +114,7 @@ class Invitations(BaseModel):
         if project_ids:
             query = query.filter(cls.project_ids.op('@>')(project_ids))
         return query.all()
-    
+
     @classmethod
     def get_all_in_account_ids(cls, account_ids: list[int]):
         """Get pending and used invitations for the given account ids."""

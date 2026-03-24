@@ -514,7 +514,7 @@ class PackageService:
         package = cls._get_and_validate_package_for_starting_review(package_id)
         item_data = {
             'status': ItemStatus.UNDER_CONSULTATION_CHECK.value,
-            'review_start_date': datetime.now(datetime.UTC)().isoformat()
+            'review_start_date': datetime.now(UTC).isoformat()
         }
         with session_scope() as session:
             cls._update_cr_status(

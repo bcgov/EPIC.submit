@@ -1,5 +1,5 @@
 """Service for account user management."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -13,8 +13,7 @@ from submit_api.models import Role as RoleModel
 from submit_api.models import TermsOfService as TermsOfServiceModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
-from submit_api.models.db import db, session_scope
-from submit_api.models.invitations import InvitationStatus
+from submit_api.models.db import db
 from submit_api.services.keycloak import KeycloakService
 from submit_api.utils.token_info import TokenInfo
 
@@ -260,10 +259,9 @@ class AccountUserService:
             raise ResourceNotFoundError(f"Item with id {guid} not found.")
 
         cls._apply_update_data(account_user, update_data)
-        with session_scope as session:
-            session.add(account_user)
-            session.flush()
-            db.session.commit()
+        db.session.add(account_user)
+        db.session.flush()
+        db.session.commit()
 
         current_app.logger.info(f"Account user {account_user.id} updated successfully.")
         return account_user
@@ -392,7 +390,7 @@ class AccountUserService:
             raise ResourceNotFoundError(f"Terms of service with ID {terms_of_service_version_id} not found")
 
         account_user.terms_of_service_version_id = terms_of_service_version_id
-        account_user.terms_of_service_accepted_date = datetime.now(datetime.UTC)()
+        account_user.terms_of_service_accepted_date = datetime.now(UTC)
         db.session.commit()
 
         return AccountUserModel.get_users_by_account_user_id(account_user_id)
