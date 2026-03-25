@@ -128,8 +128,46 @@ class SubmissionService:
         cls._validate_package_is_open(submission.id)
         if not submission:
             raise ValueError("Submission not found.")
+            
+        url_to_delete = None
+        if submission.type == SubmissionType.DOCUMENT and submission.submitted_document:
+            if submission.submitted_document.folder == 'geospatial':
+                url_to_delete = submission.submitted_document.url
+            
         submission.delete()
+        
+        if url_to_delete:
+            cls._cleanup_document_artifacts(url_to_delete)
+            
         return submission
+
+    @classmethod
+    def _cleanup_document_artifacts(cls, url_to_delete):
+        """Clean up S3 artifacts and GeoDataUpload records associated with a document URL."""
+        from submit_api.services.document_service_client import DocumentServiceClient
+        
+        geo_upload = GeoDataUpload.query.filter_by(raw_s3_key=url_to_delete).first()
+        
+        try:
+            current_app.logger.info(f"Requesting S3 deletion for {url_to_delete}")
+            presigned_url = DocumentServiceClient.get_presigned_delete_url(url_to_delete)
+            DocumentServiceClient.delete_via_presigned_url(presigned_url)
+        except Exception as e:
+            current_app.logger.warning(f"Failed to delete document from S3 {url_to_delete}: {e}")
+
+        if geo_upload:
+            for s3_key in [geo_upload.preview_s3_key, geo_upload.standard_s3_key]:
+                if s3_key:
+                    try:
+                        current_app.logger.info(f"Requesting S3 deletion for processed layer {s3_key}")
+                        del_url = DocumentServiceClient.get_presigned_delete_url(s3_key)
+                        DocumentServiceClient.delete_via_presigned_url(del_url)
+                    except Exception as e:
+                        current_app.logger.warning(f"Failed to delete processed layer from S3 {s3_key}: {e}")
+                        
+            current_app.logger.info(f"Deleting associated GeoDataUpload record for {url_to_delete}")
+            db.session.delete(geo_upload)
+            db.session.commit()
 
     @classmethod
     def soft_delete_submission(cls, submission_id):

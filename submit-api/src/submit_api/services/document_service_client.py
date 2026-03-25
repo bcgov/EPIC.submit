@@ -76,6 +76,11 @@ class DocumentServiceClient:
     def get_presigned_write_url(cls, s3_key: str) -> tuple[str, str]:
         """Get a presigned URL for writing a file to S3, returning (presigned_url, actual_s3_key)."""
         return cls._get_presigned_url_with_key(s3_key, "PUT")
+        
+    @classmethod
+    def get_presigned_delete_url(cls, s3_key: str) -> str:
+        """Get a presigned URL for deleting a file from S3."""
+        return cls._get_presigned_url(s3_key, "DELETE")
 
     @staticmethod
     def upload_via_presigned_url(presigned_url: str, file_data: bytes):
@@ -107,3 +112,14 @@ class DocumentServiceClient:
                 
         current_app.logger.info(f"Successfully downloaded file to {local_path}")
         return local_path
+
+    @staticmethod
+    def delete_via_presigned_url(presigned_url: str):
+        """Delete file directly from S3 via a presigned URL."""
+        current_app.logger.info("Deleting file data via presigned URL")
+        response = requests.delete(
+            presigned_url,
+            timeout=30
+        )
+        response.raise_for_status()
+        current_app.logger.info("Successfully deleted file via presigned URL")
