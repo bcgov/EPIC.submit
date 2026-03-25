@@ -248,6 +248,12 @@ class GeoService:
                         local_path = os.path.join(tmpdir, os.path.basename(upload.raw_s3_key))
                         DocumentServiceClient.download_via_presigned_url(read_url, local_path)
 
+                        # Update file size in KB if it's currently 0.0 (or unknown)
+                        if not upload.file_size_kb or upload.file_size_kb == 0.0:
+                            file_size_bytes = os.path.getsize(local_path)
+                            upload.file_size_kb = round(file_size_bytes / 1024, 2)
+                            db.session.commit()
+
                         result = process_geo_file(local_path)
 
                         for tier in ("preview", "standard"):
@@ -287,7 +293,7 @@ class GeoService:
     # -- CRUD ----------------------------------------------------------------
 
     @classmethod
-    def create_upload(cls, app, filename: str, file_type: str, file_size_mb: float, s3_key: str) -> GeoDataUpload:
+    def create_upload(cls, app, filename: str, file_type: str, file_size_kb: float, s3_key: str) -> GeoDataUpload:
         """Create a GeoDataUpload record and kick off background processing."""
         if file_type not in ("shp", "zip"):
             raise ValueError("file_type must be 'shp' or 'zip'")
@@ -295,7 +301,7 @@ class GeoService:
         upload = GeoDataUpload(
             filename=filename,
             file_type=file_type,
-            file_size_mb=file_size_mb,
+            file_size_kb=file_size_kb,
             raw_s3_key=s3_key,
             status="processing",
         )

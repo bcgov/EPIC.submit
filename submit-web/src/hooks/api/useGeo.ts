@@ -7,7 +7,7 @@ export interface GeoUpload {
   id: number;
   filename: string;
   file_type: string;
-  file_size_mb: number;
+  file_size_kb: number;
   status: string;
   feature_count?: number;
   geometry_type?: string;
@@ -19,7 +19,7 @@ export interface GeoUpload {
 export interface CreateGeoUploadParams {
   filename: string;
   file_type: string;
-  file_size_mb: number;
+  file_size_kb: number;
   s3_key: string;
 }
 

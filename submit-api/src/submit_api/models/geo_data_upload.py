@@ -33,7 +33,7 @@ class GeoDataUpload(BaseModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     filename = Column(String(255), nullable=False)
     file_type = Column(String(10), nullable=True)  # 'shp' or 'zip'
-    file_size_mb = Column(Float, nullable=True)
+    file_size_kb = Column(Float, nullable=True)
     raw_s3_key = Column(String(512), nullable=True)
     preview_s3_key = Column(String(512), nullable=True)
     standard_s3_key = Column(String(512), nullable=True)
@@ -52,7 +52,7 @@ class GeoDataUpload(BaseModel):
             'id': self.id,
             'filename': self.filename,
             'file_type': self.file_type,
-            'file_size_mb': self.file_size_mb,
+            'file_size_kb': self.file_size_kb,
             'raw_s3_key': self.raw_s3_key,
             'preview_s3_key': self.preview_s3_key,
             'standard_s3_key': self.standard_s3_key,

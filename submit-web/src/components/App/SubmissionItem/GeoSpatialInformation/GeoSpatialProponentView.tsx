@@ -294,7 +294,7 @@ export const GeoSpatialProponentView = () => {
               <MapPreviewModal
                 uploadId={previewUpload?.id ?? null}
                 documentItem={previewDocument}
-                fileSizeMb={previewUpload?.file_size_mb}
+                fileSizeKb={previewUpload?.file_size_kb}
                 fileIndex={previewIndex}
                 totalFiles={totalGeoFiles}
                 onClose={() => {

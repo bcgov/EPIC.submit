@@ -253,7 +253,7 @@ class SubmissionService:
             upload = GeoDataUpload(
                 filename=doc.name,
                 file_type=ext,
-                file_size_mb=0.0,
+                file_size_kb=0.0,
                 raw_s3_key=doc.url,
                 status='processing',
             )

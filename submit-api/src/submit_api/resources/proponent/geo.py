@@ -50,7 +50,7 @@ class GeoUploads(Resource):
                 app=current_app._get_current_object(),  # noqa: SLF001
                 filename=data.get("filename"),
                 file_type=data.get("file_type"),
-                file_size_mb=data.get("file_size_mb"),
+                file_size_kb=data.get("file_size_kb"),
                 s3_key=data.get("s3_key"),
             )
         except ValueError as exc:

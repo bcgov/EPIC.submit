@@ -32,7 +32,7 @@ import { BCDesignTokens } from "epic.theme";
 interface MapPreviewModalProps {
   uploadId: number | null;
   documentItem: Submission | null;
-  fileSizeMb?: number;
+  fileSizeKb?: number;
   fileIndex: number;
   totalFiles: number;
   onClose: () => void;
@@ -41,7 +41,7 @@ interface MapPreviewModalProps {
 export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   uploadId,
   documentItem,
-  fileSizeMb,
+  fileSizeKb,
   fileIndex,
   totalFiles,
   onClose,
@@ -201,8 +201,8 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>
                   File Size:{" "}
                   <Typography component="span" variant="body2" fontWeight={400}>
-                    {fileSizeMb
-                      ? `${(fileSizeMb * 1024).toFixed(0)} KB`
+                    {fileSizeKb !== undefined && fileSizeKb !== null
+                      ? `${fileSizeKb.toFixed(1)} KB`
                       : "Unknown"}
                   </Typography>
                 </Typography>

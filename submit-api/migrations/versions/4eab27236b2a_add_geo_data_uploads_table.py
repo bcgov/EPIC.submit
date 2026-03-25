@@ -22,7 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('filename', sa.String(length=255), nullable=False),
     sa.Column('file_type', sa.String(length=10), nullable=True),
-    sa.Column('file_size_mb', sa.Float(), nullable=True),
+    sa.Column('file_size_kb', sa.Float(), nullable=True),
     sa.Column('raw_s3_key', sa.String(length=512), nullable=True),
     sa.Column('preview_s3_key', sa.String(length=512), nullable=True),
     sa.Column('standard_s3_key', sa.String(length=512), nullable=True),
