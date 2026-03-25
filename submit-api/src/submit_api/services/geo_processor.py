@@ -26,6 +26,10 @@ import os
 import tempfile
 import threading
 from typing import Any, Dict
+import tempfile
+import zipfile
+import glob
+import pandas as pd
 
 import geopandas as gpd
 
@@ -86,7 +90,76 @@ def process_geo_file(local_path: str) -> Dict[str, Any]:
         os.environ["SHAPE_RESTORE_SHX"] = "YES"
         
     try:
-        gdf = gpd.read_file(local_path, engine=read_engine)
+        color_palette = [
+            ("#FF00FF", "#8B008B"),  # Neon Magenta
+            ("#00FFFF", "#008B8B"),  # Neon Cyan
+            ("#FF1493", "#C71585"),  # Deep Pink
+            ("#39FF14", "#008000"),  # Neon Green
+            ("#FF4500", "#B22222"),  # Orange Red
+            ("#9400D3", "#4B0082"),  # Dark Violet
+            ("#FFFF00", "#B8860B"),  # Bright Yellow
+            ("#FF007F", "#80003F"),  # Rose
+            ("#00FF00", "#006400"),  # Lime
+            ("#8A2BE2", "#483D8B"),  # Blue Violet
+        ]
+        
+        if is_zip:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                with zipfile.ZipFile(local_path, 'r') as zip_ref:
+                    zip_ref.extractall(temp_dir)
+                
+                # Recursively find all .shp files
+                shp_files = glob.glob(os.path.join(temp_dir, "**", "*.shp"), recursive=True)
+                
+                if not shp_files:
+                    raise ValueError("No .shp files found inside the zip archive.")
+                    
+                gdfs = []
+                # Sort to ensure consistent coloring order
+                shp_files.sort()
+                for i, shp_file in enumerate(shp_files):
+                    try:
+                        g = gpd.read_file(shp_file)
+                        
+                        # Assign distinct color per feature rather than per layer
+                        fill_colors, stroke_colors = [], []
+                        for idx in range(len(g)):
+                            f_col, s_col = color_palette[(idx + i) % len(color_palette)]
+                            fill_colors.append(f_col)
+                            stroke_colors.append(s_col)
+                            
+                        g["layer_color"] = fill_colors
+                        g["stroke_color"] = stroke_colors
+                        g["layer_name"] = os.path.basename(shp_file)
+                        gdfs.append(g)
+                    except Exception as e:
+                        logger.warning(f"Failed to read shapefile {shp_file}: {e}")
+                        
+                if not gdfs:
+                    raise ValueError("Failed to read any geospatial layers from the zip file.")
+                    
+                if len(gdfs) == 1:
+                    gdf = gdfs[0]
+                else:
+                    base_crs = gdfs[0].crs
+                    aligned_gdfs = []
+                    for g in gdfs:
+                        if g.crs != base_crs and base_crs is not None and g.crs is not None:
+                            aligned_gdfs.append(g.to_crs(base_crs))
+                        else:
+                            aligned_gdfs.append(g)
+                    gdf = gpd.GeoDataFrame(pd.concat(aligned_gdfs, ignore_index=True), crs=base_crs)
+        else:
+            gdf = gpd.read_file(local_path)
+            fill_colors, stroke_colors = [], []
+            for idx in range(len(gdf)):
+                f_col, s_col = color_palette[idx % len(color_palette)]
+                fill_colors.append(f_col)
+                stroke_colors.append(s_col)
+                
+            gdf["layer_color"] = fill_colors
+            gdf["stroke_color"] = stroke_colors
+            gdf["layer_name"] = os.path.basename(local_path)
     finally:
         if is_shp:
             if _prev is None:

@@ -280,7 +280,10 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                     type="fill"
                     source="preview"
                     filter={["==", ["geometry-type"], "Polygon"]}
-                    paint={{ "fill-color": "#3b82f6", "fill-opacity": 0.3 }}
+                    paint={{ 
+                      "fill-color": ["coalesce", ["get", "layer_color"], "#3b82f6"], 
+                      "fill-opacity": 0.3 
+                    }}
                   />
                   {/* Polygon and line outlines */}
                   <Layer
@@ -294,7 +297,10 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       ["==", ["geometry-type"], "LineString"],
                       ["==", ["geometry-type"], "MultiLineString"],
                     ]}
-                    paint={{ "line-color": "#1d4ed8", "line-width": 1.5 }}
+                    paint={{ 
+                      "line-color": ["coalesce", ["get", "stroke_color"], "#1d4ed8"], 
+                      "line-width": 1.5 
+                    }}
                   />
                   {/* Point features */}
                   <Layer
@@ -304,9 +310,9 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                     filter={["==", ["geometry-type"], "Point"]}
                     paint={{
                       "circle-radius": 5,
-                      "circle-color": "#3b82f6",
+                      "circle-color": ["coalesce", ["get", "layer_color"], "#3b82f6"],
                       "circle-stroke-width": 1.5,
-                      "circle-stroke-color": "#1d4ed8",
+                      "circle-stroke-color": ["coalesce", ["get", "stroke_color"], "#1d4ed8"],
                     }}
                   />
                 </Source>
