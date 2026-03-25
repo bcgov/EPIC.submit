@@ -23,6 +23,14 @@ export interface CreateGeoUploadParams {
   s3_key: string;
 }
 
+export interface GeoUploadUrlResponse {
+  url: string;
+  bbox: number[];
+  feature_count: number;
+  geometry_type: string;
+  crs_original: string;
+}
+
 /**
  * Hook to fetch the latest geospatial uploads.
  */
@@ -94,5 +102,22 @@ export const createGeoUpload = (data: CreateGeoUploadParams) => {
     url: "/geo/uploads",
     method: "post",
     data,
+  });
+};
+
+export const useGetGeoUploadUrl = (uploadId: number | null, options?: any) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.GEO_UPLOADS, uploadId, "url"],
+    queryFn: () => getGeoUploadUrl(uploadId!),
+    enabled: Boolean(uploadId),
+    ...defaultUseQueryOptions,
+    ...options,
+  });
+};
+
+export const getGeoUploadUrl = (uploadId: number) => {
+  return submitRequest<GeoUploadUrlResponse>({
+    url: `/geo/uploads/${uploadId}/url`,
+    method: "get",
   });
 };

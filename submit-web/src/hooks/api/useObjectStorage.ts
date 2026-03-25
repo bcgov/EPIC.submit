@@ -124,6 +124,14 @@ const getObject = (presignedUrl: string) => {
   });
 };
 
+export const getJsonObject = async (presignedUrl: string) => {
+  const response = await fetch(presignedUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch JSON data: ${response.status}`);
+  }
+  return response.json();
+};
+
 // Download an object from S3
 export const downloadObject = async (file: AuthHeaderRequestData) => {
   const presignedUrlData = await fetchPresignedUrl({

@@ -6,7 +6,8 @@ import Map, {
   MapRef,
 } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { submitRequest } from "@/utils/axiosUtils";
+import { getJsonObject } from "@/hooks/api/useObjectStorage";
+import { useGetGeoUploadUrl, GeoUploadUrlResponse } from "@/hooks/api/useGeo";
 import {
   Dialog,
   DialogTitle,
@@ -17,38 +18,48 @@ import {
   CircularProgress,
   Divider,
   Fade,
+  Grid,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import type { GeoJSON } from "geojson";
+import { Submission } from "@/models/Submission";
+import { BCDesignTokens } from "epic.theme";
 
 interface MapPreviewModalProps {
   uploadId: number | null;
+  documentItem: Submission | null;
+  fileSizeMb?: number;
+  fileIndex: number;
+  totalFiles: number;
   onClose: () => void;
-}
-
-interface MetaData {
-  url: string;
-  bbox: number[];
-  feature_count: number;
-  geometry_type: string;
-  crs_original: string;
 }
 
 export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   uploadId,
+  documentItem,
+  fileSizeMb,
+  fileIndex,
+  totalFiles,
   onClose,
 }) => {
   const mapRef = useRef<MapRef>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [meta, setMeta] = useState<MetaData | null>(null);
   const [geoJson, setGeoJson] = useState<GeoJSON | null>(null);
 
-  // Reset state and fetch new GeoJSON whenever uploadId changes
+  const {
+    data,
+    isFetching: metaLoading,
+    error: metaError,
+  } = useGetGeoUploadUrl(uploadId, {
+    enabled: Boolean(uploadId),
+  });
+  const metaData = data as GeoUploadUrlResponse | undefined;
+
+  // Fetch GeoJSON whenever metaData.url changes
   useEffect(() => {
-    if (!uploadId) {
+    if (!metaData?.url) {
       setGeoJson(null);
-      setMeta(null);
       setError(null);
       return;
     }
@@ -57,30 +68,13 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
       setLoading(true);
       setError(null);
       setGeoJson(null);
-      setMeta(null);
 
       try {
-        // 1. Get signed URL + metadata from backend
-        const data = await submitRequest<MetaData>({
-          url: `/geo/uploads/${uploadId}/url`,
-          method: "get",
-        });
-
-        if (!data || !data.url)
-          throw new Error("Failed to fetch preview details.");
-
-        // 2. Fetch GeoJSON from S3
-        const geoResponse = await fetch(data.url);
-        if (!geoResponse.ok)
-          throw new Error(
-            `Failed to fetch GeoJSON data: ${geoResponse.status}`,
-          );
-        const json = (await geoResponse.json()) as GeoJSON;
-
-        setMeta(data);
-        setGeoJson(json);
+        const json = await getJsonObject(metaData.url);
+        setGeoJson(json as GeoJSON);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "Failed to load map data";
+        const message =
+          err instanceof Error ? err.message : "Failed to load map data";
         console.error("Map Preview error:", err);
         setError(message);
       } finally {
@@ -89,20 +83,20 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
     };
 
     fetchGeoJson();
-  }, [uploadId]);
+  }, [metaData?.url]);
 
-  // Fly to the data's bounding box once loaded
+  // Fly to the data's bounding box once both metadata and geoJson are fully loaded
   useEffect(() => {
-    if (meta?.bbox?.length === 4 && mapRef.current) {
+    if (metaData?.bbox?.length === 4 && mapRef.current && geoJson) {
       mapRef.current.fitBounds(
         [
-          [meta.bbox[0], meta.bbox[1]],
-          [meta.bbox[2], meta.bbox[3]],
+          [metaData.bbox[0], metaData.bbox[1]],
+          [metaData.bbox[2], metaData.bbox[3]],
         ],
         { padding: 60, duration: 600, maxZoom: 14 },
       );
     }
-  }, [meta]);
+  }, [metaData, geoJson]);
 
   return (
     <Dialog
@@ -124,139 +118,256 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
           display: "flex",
           justifyContent: "space-between",
           alignItems: "flex-start",
-          pr: 1,
-          pt: 1,
+          px: 2,
+          py: 2,
         }}
       >
-        <DialogTitle sx={{ p: 2, pb: 1 }}>
-          <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
-            Map preview
+        <DialogTitle sx={{ p: 0 }}>
+          <Typography
+            variant="h5"
+            component="div"
+            sx={{
+              fontWeight: 700,
+              color: BCDesignTokens.typographyColorPrimary,
+            }}
+          >
+            Review Geospatial File
           </Typography>
-          {meta && (
-            <Typography
-              variant="caption"
-              sx={{ color: "text.secondary", display: "flex", gap: 1, mt: 0.5 }}
-            >
-              <span>{meta.feature_count} features</span>
-              <span>•</span>
-              <span>{meta.geometry_type}</span>
-              <span>•</span>
-              <span>Original CRS: {meta.crs_original}</span>
-            </Typography>
-          )}
+          <Typography
+            variant="body2"
+            sx={{ color: BCDesignTokens.typographyColorPlaceholder, mt: 0.5 }}
+          >
+            File {fileIndex} of {totalFiles}
+          </Typography>
         </DialogTitle>
         <IconButton onClick={onClose} aria-label="close">
           <CloseIcon />
         </IconButton>
       </Box>
       <Divider />
-      <DialogContent sx={{ p: 0, flex: 1, position: "relative", overflow: "hidden" }}>
-        {/* The Map — always mounted inside the Dialog so there's no DOM timing issue */}
-        <Map
-          ref={mapRef}
-          mapStyle="https://tiles.openfreemap.org/styles/liberty"
-          initialViewState={{
-            longitude: -122.5,
-            latitude: 54.5,
-            zoom: 4,
-          }}
-          style={{ width: "100%", height: "100%" }}
-        >
-          <NavigationControl position="top-right" />
-
-          {/* Render GeoJSON layers once data is fetched */}
-          {geoJson && (
-            <Source id="preview" type="geojson" data={geoJson} tolerance={0}>
-              {/* Filled polygons */}
-              <Layer
-                id="preview-fill"
-                type="fill"
-                source="preview"
-                filter={["==", ["geometry-type"], "Polygon"]}
-                paint={{ "fill-color": "#3b82f6", "fill-opacity": 0.3 }}
-              />
-              {/* Polygon and line outlines */}
-              <Layer
-                id="preview-line"
-                type="line"
-                source="preview"
-                filter={[
-                  "any",
-                  ["==", ["geometry-type"], "Polygon"],
-                  ["==", ["geometry-type"], "MultiPolygon"],
-                  ["==", ["geometry-type"], "LineString"],
-                  ["==", ["geometry-type"], "MultiLineString"],
-                ]}
-                paint={{ "line-color": "#1d4ed8", "line-width": 1.5 }}
-              />
-              {/* Point features */}
-              <Layer
-                id="preview-circle"
-                type="circle"
-                source="preview"
-                filter={["==", ["geometry-type"], "Point"]}
-                paint={{
-                  "circle-radius": 5,
-                  "circle-color": "#3b82f6",
-                  "circle-stroke-width": 1.5,
-                  "circle-stroke-color": "#1d4ed8",
-                }}
-              />
-            </Source>
-          )}
-        </Map>
-
-        {/* Loading Overlay */}
-        <Fade in={loading}>
+      <DialogContent
+        sx={{ p: 2, display: "flex", flexDirection: "column", gap: 3 }}
+      >
+        {/* Info Card */}
+        {documentItem && (
           <Box
             sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              backgroundColor: "rgba(255, 255, 255, 0.7)",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 10,
+              backgroundColor: BCDesignTokens.themeBlue10,
+              borderRadius: "8px",
+              p: 2,
             }}
           >
-            <CircularProgress size={48} sx={{ mb: 2 }} />
-            <Typography
-              variant="subtitle1"
-              sx={{ fontWeight: 600, color: "primary.main" }}
-            >
-              Fetching geospatial data...
-            </Typography>
-          </Box>
-        </Fade>
-
-        {/* Error Message */}
-        {error && (
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "error.light",
-              color: "error.contrastText",
-              p: 3,
-              borderRadius: 2,
-              boxShadow: 3,
-              textAlign: "center",
-              zIndex: 11,
-              maxWidth: "80%",
-            }}
-          >
-            <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
-              Map Load Error
-            </Typography>
-            <Typography variant="body2">{error}</Typography>
+            <Grid container spacing={1}>
+              <Grid item xs={8}>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  File Name:{" "}
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    color={BCDesignTokens.themeBlue100}
+                  >
+                    {documentItem.submitted_document?.name}
+                  </Typography>
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  File Size:{" "}
+                  <Typography component="span" variant="body2" fontWeight={400}>
+                    {fileSizeMb
+                      ? `${(fileSizeMb * 1024).toFixed(0)} KB`
+                      : "Unknown"}
+                  </Typography>
+                </Typography>
+              </Grid>
+              <Grid item xs={8}>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  Uploaded By:{" "}
+                  <Typography component="span" variant="body2" fontWeight={400}>
+                    {documentItem.submitted_by}
+                  </Typography>
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                  Version:{" "}
+                  <Typography component="span" variant="body2" fontWeight={400}>
+                    {documentItem.version}.0
+                  </Typography>
+                </Typography>
+              </Grid>
+            </Grid>
           </Box>
         )}
+
+        {/* Map Preview Container */}
+        <Box
+          sx={{
+            backgroundColor: BCDesignTokens.themeBlue10,
+            border: `1px solid ${BCDesignTokens.themeGray40}`,
+            borderRadius: "8px",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
+            flex: 1,
+            minHeight: "500px",
+          }}
+        >
+          {/* Header of Map Card */}
+          <Box sx={{ pt: 2, px: 2, pb: 1 }}>
+            <Typography variant="subtitle1" fontWeight={700}>
+              Map Preview
+            </Typography>
+          </Box>
+
+          {/* Alert Banner */}
+          <Box sx={{ px: 2, pb: 2 }}>
+            <Box
+              sx={{
+                backgroundColor: "#FFF8E1",
+                border: "1px solid #FFC107",
+                borderRadius: "8px",
+                p: 2,
+              }}
+            >
+              <Typography
+                variant="body2"
+                sx={{
+                  color: BCDesignTokens.typographyColorPrimary,
+                  fontWeight: 700,
+                  mb: 0.5,
+                }}
+              >
+                Please verify this geospatial file
+              </Typography>
+              <Typography
+                variant="body2"
+                sx={{ color: BCDesignTokens.typographyColorPlaceholder }}
+              >
+                Review the map preview and file information to ensure this is
+                the correct data (correct location, using the BC Albers
+                Projection). You must manually approve or reject each file
+                before proceeding.
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Dynamic Map Container */}
+          <Box sx={{ flex: 1, position: "relative", minHeight: "350px" }}>
+            <Map
+              ref={mapRef}
+              mapStyle="https://tiles.openfreemap.org/styles/liberty"
+              initialViewState={{
+                longitude: -122.5,
+                latitude: 54.5,
+                zoom: 4,
+              }}
+              style={{ width: "100%", height: "100%" }}
+            >
+              <NavigationControl position="top-right" />
+
+              {/* Render GeoJSON layers once data is fetched */}
+              {geoJson && (
+                <Source
+                  id="preview"
+                  type="geojson"
+                  data={geoJson}
+                  tolerance={0}
+                >
+                  {/* Filled polygons */}
+                  <Layer
+                    id="preview-fill"
+                    type="fill"
+                    source="preview"
+                    filter={["==", ["geometry-type"], "Polygon"]}
+                    paint={{ "fill-color": "#3b82f6", "fill-opacity": 0.3 }}
+                  />
+                  {/* Polygon and line outlines */}
+                  <Layer
+                    id="preview-line"
+                    type="line"
+                    source="preview"
+                    filter={[
+                      "any",
+                      ["==", ["geometry-type"], "Polygon"],
+                      ["==", ["geometry-type"], "MultiPolygon"],
+                      ["==", ["geometry-type"], "LineString"],
+                      ["==", ["geometry-type"], "MultiLineString"],
+                    ]}
+                    paint={{ "line-color": "#1d4ed8", "line-width": 1.5 }}
+                  />
+                  {/* Point features */}
+                  <Layer
+                    id="preview-circle"
+                    type="circle"
+                    source="preview"
+                    filter={["==", ["geometry-type"], "Point"]}
+                    paint={{
+                      "circle-radius": 5,
+                      "circle-color": "#3b82f6",
+                      "circle-stroke-width": 1.5,
+                      "circle-stroke-color": "#1d4ed8",
+                    }}
+                  />
+                </Source>
+              )}
+            </Map>
+
+            {/* Loading Overlay */}
+            <Fade in={loading || metaLoading}>
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(255, 255, 255, 0.7)",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 10,
+                }}
+              >
+                <CircularProgress size={48} sx={{ mb: 2 }} />
+                <Typography
+                  variant="subtitle1"
+                  sx={{ fontWeight: 600, color: "primary.main" }}
+                >
+                  Fetching geospatial data...
+                </Typography>
+              </Box>
+            </Fade>
+
+            {/* Error Message */}
+            {(error || metaError) && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  bgcolor: "error.light",
+                  color: "error.contrastText",
+                  p: 3,
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  textAlign: "center",
+                  zIndex: 11,
+                  maxWidth: "80%",
+                }}
+              >
+                <Typography variant="h6" sx={{ mb: 1, fontWeight: 700 }}>
+                  Map Load Error
+                </Typography>
+                <Typography variant="body2">
+                  {error || (metaError as Error)?.message || "Failed to load"}
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
       </DialogContent>
     </Dialog>
   );

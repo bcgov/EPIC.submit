@@ -11,6 +11,7 @@ import {
 import { useMemo, useState, lazy, Suspense } from "react";
 import Form from "@/components/Shared/Forms/common";
 import { FormProvider, useForm } from "react-hook-form";
+import { Submission } from "@/models/Submission";
 import {
   GEO_DOC_LABELS,
   GEO_DOC_LINKS,
@@ -72,7 +73,8 @@ export const GeoSpatialProponentView = () => {
   const navigate = useNavigate();
 
   const [isBackdropOpen, setIsBackdropOpen] = useState(false);
-  const [previewId, setPreviewId] = useState<number | null>(null);
+  const [previewUpload, setPreviewUpload] = useState<GeoUpload | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<Submission | null>(null);
   const { data: geoUploads } = useGetGeoUploads({
     itemId: Number(submissionItemId),
   });
@@ -81,6 +83,17 @@ export const GeoSpatialProponentView = () => {
   const documentSubmissions = submissionItem?.submissions?.filter(
     (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
+
+  const geoSubmissions =
+    documentSubmissions?.filter(
+      (submission) =>
+        submission.submitted_document?.folder === S3_FOLDER.GEOSPATIAL.value,
+    ) || [];
+
+  const previewIndex = previewDocument
+    ? geoSubmissions.findIndex((s) => s.id === previewDocument.id) + 1
+    : 0;
+  const totalGeoFiles = geoSubmissions.length;
 
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
@@ -186,7 +199,8 @@ export const GeoSpatialProponentView = () => {
           }
 
           if (upload.status === "ready") {
-            setPreviewId(upload.id);
+            setPreviewUpload(upload);
+            setPreviewDocument(documentItem);
           } else if (upload.status === "processing") {
             notify.info("Geospatial processing is in progress. Please wait.");
           } else {
@@ -278,8 +292,15 @@ export const GeoSpatialProponentView = () => {
             {/* Map Preview Modal — lazy loaded, only downloads maplibre-gl on first open */}
             <Suspense fallback={null}>
               <MapPreviewModal
-                uploadId={previewId}
-                onClose={() => setPreviewId(null)}
+                uploadId={previewUpload?.id ?? null}
+                documentItem={previewDocument}
+                fileSizeMb={previewUpload?.file_size_mb}
+                fileIndex={previewIndex}
+                totalFiles={totalGeoFiles}
+                onClose={() => {
+                  setPreviewUpload(null);
+                  setPreviewDocument(null);
+                }}
               />
             </Suspense>
 
