@@ -12,15 +12,19 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  IconButton,
-  Typography,
   Box,
   CircularProgress,
   Divider,
   Fade,
   Grid,
+  ToggleButtonGroup,
+  ToggleButton,
+  Typography,
+  IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import SatelliteIcon from "@mui/icons-material/Satellite";
+import MapIcon from "@mui/icons-material/Map";
 import type { GeoJSON } from "geojson";
 import { Submission } from "@/models/Submission";
 import { BCDesignTokens } from "epic.theme";
@@ -46,6 +50,29 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [geoJson, setGeoJson] = useState<GeoJSON | null>(null);
+  const [mapStyleUri, setMapStyleUri] = useState<string>("https://tiles.openfreemap.org/styles/liberty");
+
+  const SATELLITE_STYLE: any = {
+    version: 8,
+    sources: {
+      "esri-satellite": {
+        type: "raster",
+        tiles: [
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+        ],
+        tileSize: 256,
+        attribution: "Tiles &copy; Esri",
+      },
+    },
+    layers: [
+      {
+        id: "satellite",
+        type: "raster",
+        source: "esri-satellite",
+        minzoom: 0,
+      },
+    ],
+  };
 
   const {
     data,
@@ -254,9 +281,27 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
           {/* Dynamic Map Container */}
           <Box sx={{ flex: 1, position: "relative", minHeight: "350px" }}>
+            <Box sx={{ position: "absolute", top: 10, left: 10, zIndex: 2, bgcolor: "background.paper", borderRadius: 1, boxShadow: 1 }}>
+              <ToggleButtonGroup
+                value={mapStyleUri}
+                exclusive
+                onChange={(_, newStyle) => {
+                  if (newStyle) setMapStyleUri(newStyle);
+                }}
+                size="small"
+              >
+                <ToggleButton value="https://tiles.openfreemap.org/styles/liberty" aria-label="street map" sx={{ textTransform: 'none', fontWeight: 600 }}>
+                  <MapIcon sx={{ mr: 1, fontSize: 20 }} /> Street
+                </ToggleButton>
+                <ToggleButton value="satellite" aria-label="satellite map" sx={{ textTransform: 'none', fontWeight: 600 }}>
+                  <SatelliteIcon sx={{ mr: 1, fontSize: 20 }} /> Satellite
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+
             <Map
               ref={mapRef}
-              mapStyle="https://tiles.openfreemap.org/styles/liberty"
+              mapStyle={mapStyleUri === "satellite" ? SATELLITE_STYLE : mapStyleUri}
               initialViewState={{
                 longitude: -122.5,
                 latitude: 54.5,
