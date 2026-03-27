@@ -25,10 +25,9 @@ import logging
 import os
 import tempfile
 import threading
-from typing import Any, Dict
-import tempfile
 import zipfile
 import glob
+from typing import Any, Dict
 import pandas as pd
 
 import geopandas as gpd
@@ -150,7 +149,16 @@ def process_geo_file(local_path: str) -> Dict[str, Any]:
                             aligned_gdfs.append(g)
                     gdf = gpd.GeoDataFrame(pd.concat(aligned_gdfs, ignore_index=True), crs=base_crs)
         else:
-            gdf = gpd.read_file(local_path)
+            try:
+                gdf = gpd.read_file(local_path)
+            except Exception as e:
+                if is_shp:
+                    raise ValueError(
+                        "Failed to read .shp file. Please ensure all sidecar files (.shx, .dbf, .prj) "
+                        "are included by uploading them together in a .zip archive."
+                    ) from e
+                raise e
+
             fill_colors, stroke_colors = [], []
             for idx in range(len(gdf)):
                 f_col, s_col = color_palette[idx % len(color_palette)]
@@ -185,7 +193,20 @@ def process_geo_file(local_path: str) -> Dict[str, Any]:
 
     feature_count = len(gdf)
     geometry_type = gdf.geom_type.mode().iloc[0] if not gdf.empty else "Unknown"
-    bbox = [float(x) for x in gdf.total_bounds] if not gdf.empty else [0.0, 0.0, 0.0, 0.0]
+    
+    if not gdf.empty:
+        bounds = gdf.total_bounds # [minx, miny, maxx, maxy]
+        # Bbox is used for fitBounds [ [minx, miny], [maxx, maxy] ]
+        # If any value is out of bounds for WGS84, MapLibre will crash.
+        # We ensure latitudes are within [-90, 90]
+        bbox = [
+            float(max(-180, min(180, bounds[0]))),
+            float(max(-90, min(90, bounds[1]))),
+            float(max(-180, min(180, bounds[2]))),
+            float(max(-90, min(90, bounds[3])))
+        ]
+    else:
+        bbox = [0.0, 0.0, 0.0, 0.0]
 
     # Drop columns that cannot be serialised to JSON (dates, bytes, etc.)
     cols_to_drop = []

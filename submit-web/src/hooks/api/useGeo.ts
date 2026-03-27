@@ -12,6 +12,7 @@ export interface GeoUpload {
   feature_count?: number;
   geometry_type?: string;
   crs_original?: string;
+  error_message?: string;
   created_at: string;
   raw_s3_key?: string;
 }

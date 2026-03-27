@@ -35,6 +35,8 @@ interface MapPreviewModalProps {
   fileSizeKb?: number;
   fileIndex: number;
   totalFiles: number;
+  status?: string;
+  errorMessage?: string;
   onClose: () => void;
 }
 
@@ -44,13 +46,17 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   fileSizeKb,
   fileIndex,
   totalFiles,
+  status,
+  errorMessage,
   onClose,
 }) => {
   const mapRef = useRef<MapRef>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [geoJson, setGeoJson] = useState<GeoJSON | null>(null);
-  const [mapStyleUri, setMapStyleUri] = useState<string>("https://tiles.openfreemap.org/styles/liberty");
+  const [mapStyleUri, setMapStyleUri] = useState<string>(
+    "https://tiles.openfreemap.org/styles/liberty",
+  );
 
   const SATELLITE_STYLE: any = {
     version: 8,
@@ -58,7 +64,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
       "esri-satellite": {
         type: "raster",
         tiles: [
-          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         ],
         tileSize: 256,
         attribution: "Tiles &copy; Esri",
@@ -79,7 +85,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
     isFetching: metaLoading,
     error: metaError,
   } = useGetGeoUploadUrl(uploadId, {
-    enabled: Boolean(uploadId),
+    enabled: Boolean(uploadId) && status !== "failed",
   });
   const metaData = data as GeoUploadUrlResponse | undefined;
 
@@ -115,13 +121,32 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   // Fly to the data's bounding box once both metadata and geoJson are fully loaded
   useEffect(() => {
     if (metaData?.bbox?.length === 4 && mapRef.current && geoJson) {
-      mapRef.current.fitBounds(
-        [
-          [metaData.bbox[0], metaData.bbox[1]],
-          [metaData.bbox[2], metaData.bbox[3]],
-        ],
-        { padding: 60, duration: 600, maxZoom: 14 },
-      );
+      const [minX, minY, maxX, maxY] = metaData.bbox;
+
+      // Validate coordinates are finite numbers and latitudes are within [-90, 90]
+      const isValid =
+        [minX, minY, maxX, maxY].every(
+          (coord) => typeof coord === "number" && Number.isFinite(coord),
+        ) &&
+        minY >= -90 &&
+        minY <= 90 &&
+        maxY >= -90 &&
+        maxY <= 90;
+
+      if (isValid) {
+        mapRef.current.fitBounds(
+          [
+            [minX, minY],
+            [maxX, maxY],
+          ],
+          { padding: 60, duration: 600, maxZoom: 14 },
+        );
+      } else {
+        console.warn(
+          "Invalid bounding box coordinates for fitBounds:",
+          metaData.bbox,
+        );
+      }
     }
   }, [metaData, geoJson]);
 
@@ -281,88 +306,157 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
           {/* Dynamic Map Container */}
           <Box sx={{ flex: 1, position: "relative", minHeight: "350px" }}>
-            <Box sx={{ position: "absolute", top: 10, left: 10, zIndex: 2, bgcolor: "background.paper", borderRadius: 1, boxShadow: 1 }}>
-              <ToggleButtonGroup
-                value={mapStyleUri}
-                exclusive
-                onChange={(_, newStyle) => {
-                  if (newStyle) setMapStyleUri(newStyle);
+            {status === "failed" ? (
+              <Box
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  bgcolor: "#FEF2F2", // Very light red
+                  p: 4,
+                  textAlign: "center",
                 }}
-                size="small"
               >
-                <ToggleButton value="https://tiles.openfreemap.org/styles/liberty" aria-label="street map" sx={{ textTransform: 'none', fontWeight: 600 }}>
-                  <MapIcon sx={{ mr: 1, fontSize: 20 }} /> Street
-                </ToggleButton>
-                <ToggleButton value="satellite" aria-label="satellite map" sx={{ textTransform: 'none', fontWeight: 600 }}>
-                  <SatelliteIcon sx={{ mr: 1, fontSize: 20 }} /> Satellite
-                </ToggleButton>
-              </ToggleButtonGroup>
-            </Box>
-
-            <Map
-              ref={mapRef}
-              mapStyle={mapStyleUri === "satellite" ? SATELLITE_STYLE : mapStyleUri}
-              initialViewState={{
-                longitude: -122.5,
-                latitude: 54.5,
-                zoom: 4,
-              }}
-              style={{ width: "100%", height: "100%" }}
-            >
-              <NavigationControl position="top-right" />
-
-              {/* Render GeoJSON layers once data is fetched */}
-              {geoJson && (
-                <Source
-                  id="preview"
-                  type="geojson"
-                  data={geoJson}
-                  tolerance={0}
+                <Typography
+                  variant="h6"
+                  color="error.main"
+                  fontWeight={700}
+                  sx={{ mb: 2 }}
                 >
-                  {/* Filled polygons */}
-                  <Layer
-                    id="preview-fill"
-                    type="fill"
-                    source="preview"
-                    filter={["==", ["geometry-type"], "Polygon"]}
-                    paint={{ 
-                      "fill-color": ["coalesce", ["get", "layer_color"], "#3b82f6"], 
-                      "fill-opacity": 0.3 
+                  Processing Failed
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{
+                    maxWidth: "500px",
+                    color: BCDesignTokens.typographyColorPrimary,
+                  }}
+                >
+                  {errorMessage ||
+                    "An unexpected error occurred while processing the geospatial file."}
+                </Typography>
+              </Box>
+            ) : (
+              <Map
+                ref={mapRef}
+                mapStyle={
+                  mapStyleUri === "satellite" ? SATELLITE_STYLE : mapStyleUri
+                }
+                initialViewState={{
+                  longitude: -122.5,
+                  latitude: 54.5,
+                  zoom: 4,
+                }}
+                style={{ width: "100%", height: "100%" }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 10,
+                    left: 10,
+                    zIndex: 2,
+                    bgcolor: "background.paper",
+                    borderRadius: 1,
+                    boxShadow: 1,
+                  }}
+                >
+                  <ToggleButtonGroup
+                    value={mapStyleUri}
+                    exclusive
+                    onChange={(_, newStyle) => {
+                      if (newStyle) setMapStyleUri(newStyle);
                     }}
-                  />
-                  {/* Polygon and line outlines */}
-                  <Layer
-                    id="preview-line"
-                    type="line"
-                    source="preview"
-                    filter={[
-                      "any",
-                      ["==", ["geometry-type"], "Polygon"],
-                      ["==", ["geometry-type"], "MultiPolygon"],
-                      ["==", ["geometry-type"], "LineString"],
-                      ["==", ["geometry-type"], "MultiLineString"],
-                    ]}
-                    paint={{ 
-                      "line-color": ["coalesce", ["get", "stroke_color"], "#1d4ed8"], 
-                      "line-width": 1.5 
-                    }}
-                  />
-                  {/* Point features */}
-                  <Layer
-                    id="preview-circle"
-                    type="circle"
-                    source="preview"
-                    filter={["==", ["geometry-type"], "Point"]}
-                    paint={{
-                      "circle-radius": 5,
-                      "circle-color": ["coalesce", ["get", "layer_color"], "#3b82f6"],
-                      "circle-stroke-width": 1.5,
-                      "circle-stroke-color": ["coalesce", ["get", "stroke_color"], "#1d4ed8"],
-                    }}
-                  />
-                </Source>
-              )}
-            </Map>
+                    size="small"
+                  >
+                    <ToggleButton
+                      value="https://tiles.openfreemap.org/styles/liberty"
+                      aria-label="street map"
+                      sx={{ textTransform: "none", fontWeight: 600 }}
+                    >
+                      <MapIcon sx={{ mr: 1, fontSize: 20 }} /> Street
+                    </ToggleButton>
+                    <ToggleButton
+                      value="satellite"
+                      aria-label="satellite map"
+                      sx={{ textTransform: "none", fontWeight: 600 }}
+                    >
+                      <SatelliteIcon sx={{ mr: 1, fontSize: 20 }} /> Satellite
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+                <NavigationControl position="top-right" />
+
+                {/* Render GeoJSON layers once data is fetched */}
+                {geoJson && (
+                  <Source
+                    id="preview"
+                    type="geojson"
+                    data={geoJson}
+                    tolerance={0}
+                  >
+                    {/* Filled polygons */}
+                    <Layer
+                      id="preview-fill"
+                      type="fill"
+                      source="preview"
+                      filter={["==", ["geometry-type"], "Polygon"]}
+                      paint={{
+                        "fill-color": [
+                          "coalesce",
+                          ["get", "layer_color"],
+                          "#3b82f6",
+                        ],
+                        "fill-opacity": 0.3,
+                      }}
+                    />
+                    {/* Polygon and line outlines */}
+                    <Layer
+                      id="preview-line"
+                      type="line"
+                      source="preview"
+                      filter={[
+                        "any",
+                        ["==", ["geometry-type"], "Polygon"],
+                        ["==", ["geometry-type"], "MultiPolygon"],
+                        ["==", ["geometry-type"], "LineString"],
+                        ["==", ["geometry-type"], "MultiLineString"],
+                      ]}
+                      paint={{
+                        "line-color": [
+                          "coalesce",
+                          ["get", "stroke_color"],
+                          "#1d4ed8",
+                        ],
+                        "line-width": 1.5,
+                      }}
+                    />
+                    {/* Point features */}
+                    <Layer
+                      id="preview-circle"
+                      type="circle"
+                      source="preview"
+                      filter={["==", ["geometry-type"], "Point"]}
+                      paint={{
+                        "circle-radius": 5,
+                        "circle-color": [
+                          "coalesce",
+                          ["get", "layer_color"],
+                          "#3b82f6",
+                        ],
+                        "circle-stroke-width": 1.5,
+                        "circle-stroke-color": [
+                          "coalesce",
+                          ["get", "stroke_color"],
+                          "#1d4ed8",
+                        ],
+                      }}
+                    />
+                  </Source>
+                )}
+              </Map>
+            )}
 
             {/* Loading Overlay */}
             <Fade in={loading || metaLoading}>
@@ -392,7 +486,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
             </Fade>
 
             {/* Error Message */}
-            {(error || metaError) && (
+            {status !== "failed" && (error || metaError) && (
               <Box
                 sx={{
                   position: "absolute",

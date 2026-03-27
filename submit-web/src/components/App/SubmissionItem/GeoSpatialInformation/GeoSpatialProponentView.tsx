@@ -198,13 +198,13 @@ export const GeoSpatialProponentView = () => {
             return;
           }
 
-          if (upload.status === "ready") {
+          if (upload.status === "ready" || upload.status === "failed") {
             setPreviewUpload(upload);
             setPreviewDocument(documentItem);
           } else if (upload.status === "processing") {
             notify.info("Geospatial processing is in progress. Please wait.");
           } else {
-            notify.error("Processing failed for this file.");
+            notify.error(upload.error_message || "Processing failed for this file.");
           }
         },
       },
@@ -295,6 +295,8 @@ export const GeoSpatialProponentView = () => {
                 uploadId={previewUpload?.id ?? null}
                 documentItem={previewDocument}
                 fileSizeKb={previewUpload?.file_size_kb}
+                status={previewUpload?.status}
+                errorMessage={previewUpload?.error_message}
                 fileIndex={previewIndex}
                 totalFiles={totalGeoFiles}
                 onClose={() => {
