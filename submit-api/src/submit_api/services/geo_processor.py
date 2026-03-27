@@ -350,7 +350,7 @@ class GeoService:
                 item_id=item_id,
                 type=SubmissionType.DOCUMENT
             ).all()
-            
+
             urls = [
                 sub.submitted_document.url
                 for sub in submissions
