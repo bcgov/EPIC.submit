@@ -1,6 +1,9 @@
 import { CircularProgress, Link as MuiLink, Typography } from "@mui/material";
 import { PackageTableRow, DocumentTableCell } from "./DocumentTableRow";
-import { createSubmission, useTriggerGeoProcess } from "@/hooks/api/useSubmissions";
+import {
+  createSubmission,
+  useTriggerGeoProcess,
+} from "@/hooks/api/useSubmissions";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -86,6 +89,7 @@ export default function PendingDocumentRow({
               queryKey: [QUERY_KEY.GEO_UPLOADS],
             });
           } catch (e) {
+            // eslint-disable-next-line no-console
             console.error("Failed to auto-trigger geo processing", e);
           }
         }

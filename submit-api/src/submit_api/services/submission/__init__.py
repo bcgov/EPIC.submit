@@ -1,17 +1,18 @@
 """Service for submission management."""
+from flask import current_app
+
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models import Item as ItemModel, Package as PackageModel
-from submit_api.models.db import session_scope
+from submit_api.models.db import db, session_scope
+from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionType
 from submit_api.services import authorization
+from submit_api.services.document_service_client import DocumentServiceClient
+from submit_api.services.geo_processor import GeoService
 from submit_api.services.item import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
-from submit_api.models.geo_data_upload import GeoDataUpload
-from submit_api.models.db import db
-from submit_api.services.geo_processor import GeoService
-from flask import current_app
 
 
 class SubmissionService:
@@ -128,32 +129,30 @@ class SubmissionService:
         cls._validate_package_is_open(submission.id)
         if not submission:
             raise ValueError("Submission not found.")
-            
+
         url_to_delete = None
         if submission.type == SubmissionType.DOCUMENT and submission.submitted_document:
             if submission.submitted_document.folder == 'geospatial':
                 url_to_delete = submission.submitted_document.url
-            
+
         submission.delete()
-        
+
         if url_to_delete:
             cls._cleanup_document_artifacts(url_to_delete)
-            
+
         return submission
 
     @classmethod
     def _cleanup_document_artifacts(cls, url_to_delete):
         """Clean up S3 artifacts and GeoDataUpload records associated with a document URL."""
-        from submit_api.services.document_service_client import DocumentServiceClient
-        
         geo_upload = GeoDataUpload.query.filter_by(raw_s3_key=url_to_delete).first()
-        
+
         try:
             current_app.logger.info(f"Requesting S3 deletion for {url_to_delete}")
             presigned_url = DocumentServiceClient.get_presigned_delete_url(url_to_delete)
             DocumentServiceClient.delete_via_presigned_url(presigned_url)
-        except Exception as e:
-            current_app.logger.warning(f"Failed to delete document from S3 {url_to_delete}: {e}")
+        except Exception as exc:  # pylint: disable=broad-except
+            current_app.logger.warning("Failed to delete document from S3 %s: %s", url_to_delete, exc)
 
         if geo_upload:
             for s3_key in [geo_upload.preview_s3_key, geo_upload.standard_s3_key]:
@@ -162,10 +161,10 @@ class SubmissionService:
                         current_app.logger.info(f"Requesting S3 deletion for processed layer {s3_key}")
                         del_url = DocumentServiceClient.get_presigned_delete_url(s3_key)
                         DocumentServiceClient.delete_via_presigned_url(del_url)
-                    except Exception as e:
-                        current_app.logger.warning(f"Failed to delete processed layer from S3 {s3_key}: {e}")
-                        
-            current_app.logger.info(f"Deleting associated GeoDataUpload record for {url_to_delete}")
+                    except Exception as exc:  # pylint: disable=broad-except
+                        current_app.logger.warning("Failed to delete processed layer from S3 %s: %s", s3_key, exc)
+
+            current_app.logger.info("Deleting associated GeoDataUpload record for %s", url_to_delete)
             db.session.delete(geo_upload)
             db.session.commit()
 
@@ -231,7 +230,8 @@ class SubmissionService:
         ).all()
 
         triggered_uploads = []
-        app = current_app._get_current_object()  # noqa: SLF001
+        # pylint: disable=protected-access
+        app = current_app._get_current_object()
 
         for sub in submissions:
             if not sub.submitted_document:
@@ -260,7 +260,8 @@ class SubmissionService:
             db.session.add(upload)
             db.session.flush()
 
-            GeoService._spawn_processing_thread(app, upload.id)  # noqa: SLF001
+            # pylint: disable=protected-access
+            GeoService._spawn_processing_thread(app, upload.id)
 
             triggered_uploads.append({'id': upload.id, 'filename': upload.filename})
 

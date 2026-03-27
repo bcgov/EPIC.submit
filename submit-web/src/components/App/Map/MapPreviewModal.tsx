@@ -108,6 +108,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
       } catch (err: unknown) {
         const message =
           err instanceof Error ? err.message : "Failed to load map data";
+        // eslint-disable-next-line no-console
         console.error("Map Preview error:", err);
         setError(message);
       } finally {
@@ -140,11 +141,6 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
             [maxX, maxY],
           ],
           { padding: 60, duration: 600, maxZoom: 14 },
-        );
-      } else {
-        console.warn(
-          "Invalid bounding box coordinates for fitBounds:",
-          metaData.bbox,
         );
       }
     }

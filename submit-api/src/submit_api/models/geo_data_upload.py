@@ -22,7 +22,6 @@ from datetime import datetime, UTC
 from sqlalchemy import Column, DateTime, Float, Integer, JSON, String, Text
 
 from .base_model import BaseModel
-from .db import db
 
 
 class GeoDataUpload(BaseModel):

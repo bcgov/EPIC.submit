@@ -85,6 +85,7 @@ export const useUploadStatus = (
           eventSource.close();
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error("Error parsing SSE data:", err);
       }
     };
