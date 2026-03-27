@@ -29,6 +29,7 @@ export type SubmissionItemStatus =
   | "PARTIALLY_COMPLETED"
   | "SUBMITTED"
   | "REVIEW_REJECTED"
+  | "REVIEW_NOT_COMPLETED"
   | "FAILED_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
   | "REVISION_REQUIRED"
@@ -76,9 +77,13 @@ export const SUBMISSION_ITEM_STATUS: Record<
     value: "REVIEW_REJECTED",
     label: "Review Rejected",
   },
+  REVIEW_NOT_COMPLETED: {
+    value: "REVIEW_REJECTED",
+    label: "Review Rejected",
+  },
   FAILED_CONSULTATION_CHECK: {
-    value: "FAILED_CONSULTATION_CHECK",
-    label: "Failed Consultation Check",
+    value: "REVIEW_NOT_COMPLETED",
+    label: "Review Not Completed",
   },
   APPROVED: {
     value: "APPROVED",
