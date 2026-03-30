@@ -169,15 +169,12 @@ class SubmissionItemGeoProcess(Resource):
     @auth.require
     def post(submission_item_id):
         """Trigger geospatial processing for newly uploaded files."""
-        
-
         try:
             triggered_uploads = SubmissionService.trigger_geo_process(submission_item_id)
             return jsonify({
                 'message': f'Triggered {len(triggered_uploads)} geo-processes',
                 'uploads': triggered_uploads
             }), HTTPStatus.ACCEPTED
-        except Exception as e:
+        except Exception as e:  # noqa: B902
             current_app.logger.exception(f"Error triggering geo process: {e}")
             return jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
-

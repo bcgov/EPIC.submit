@@ -16,7 +16,7 @@ class DocumentServiceClient:
             token = UserContext().bearer_token
             if token:
                 return token
-        except Exception:  # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except # noqa: B902
             # Likely outside of request context
             pass
 

@@ -151,17 +151,17 @@ class SubmissionService:
             current_app.logger.info(f"Requesting S3 deletion for {url_to_delete}")
             presigned_url = DocumentServiceClient.get_presigned_delete_url(url_to_delete)
             DocumentServiceClient.delete_via_presigned_url(presigned_url)
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:  # pylint: disable=broad-except # noqa: B902
             current_app.logger.warning("Failed to delete document from S3 %s: %s", url_to_delete, exc)
 
         if geo_upload:
             for s3_key in [geo_upload.preview_s3_key, geo_upload.standard_s3_key]:
                 if s3_key:
                     try:
-                        current_app.logger.info(f"Requesting S3 deletion for processed layer {s3_key}")
+                        current_app.logger.info("Requesting S3 deletion for processed layer %s", s3_key)
                         del_url = DocumentServiceClient.get_presigned_delete_url(s3_key)
                         DocumentServiceClient.delete_via_presigned_url(del_url)
-                    except Exception as exc:  # pylint: disable=broad-except
+                    except Exception as exc:  # pylint: disable=broad-except # noqa: B902
                         current_app.logger.warning("Failed to delete processed layer from S3 %s: %s", s3_key, exc)
 
             current_app.logger.info("Deleting associated GeoDataUpload record for %s", url_to_delete)

@@ -300,7 +300,7 @@ class GeoService:
                     db.session.commit()
                     logger.info("Successfully processed GeoDataUpload %s", upload_id)
 
-                except Exception as exc:  # pylint: disable=broad-except
+                except Exception as exc:  # pylint: disable=broad-except # noqa: B902
                     logger.exception("Error processing GeoDataUpload %s: %s", upload_id, exc)
                     upload.status = "failed"
                     upload.error_message = str(exc)

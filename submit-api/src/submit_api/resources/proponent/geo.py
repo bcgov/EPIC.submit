@@ -133,7 +133,7 @@ class GeoUploadUrl(Resource):
             return {"error": str(exc)}, HTTPStatus.NOT_FOUND
         except ValueError as exc:
             return {"error": str(exc)}, HTTPStatus.BAD_REQUEST
-        except Exception as exc:  # pylint: disable=broad-except
+        except Exception as exc:  # pylint: disable=broad-except # noqa: B902
             logger.exception("Unexpected error fetching presigned URL: %s", exc)
             return {"error": str(exc)}, HTTPStatus.INTERNAL_SERVER_ERROR
 
