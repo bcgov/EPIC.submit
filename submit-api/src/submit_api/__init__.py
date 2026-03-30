@@ -44,7 +44,7 @@ secure_headers = secure.Secure(
 def create_app(run_mode=os.getenv('FLASK_ENV', 'development')):
     """Create flask app."""
     from submit_api.resources import (  # pylint: disable=import-outside-toplevel
-        API_BLUEPRINT, OPS_BLUEPRINT, STAFF_API_BLUEPRINT)
+        API_BLUEPRINT, GEO_API_BLUEPRINT, OPS_BLUEPRINT, STAFF_API_BLUEPRINT)
 
     # Flask app initialize
     app = Flask(__name__)
@@ -54,7 +54,7 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'development')):
 
     CORS(app, origins=allowedorigins(), supports_credentials=True)
 
-    # Register blueprints
+    app.register_blueprint(GEO_API_BLUEPRINT)
     app.register_blueprint(API_BLUEPRINT)
     app.register_blueprint(OPS_BLUEPRINT)
     app.register_blueprint(STAFF_API_BLUEPRINT)
