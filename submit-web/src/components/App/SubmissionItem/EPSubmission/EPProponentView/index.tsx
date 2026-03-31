@@ -88,10 +88,7 @@ export const EngagementPlanProponentView = () => {
     },
   });
 
-  const {
-    handleSubmit,
-    formState: { dirtyFields },
-  } = methods;
+  const { handleSubmit } = methods;
 
   const { refetch } = useGetSubmissionPackage({
     packageId: Number(submissionPackageId),
@@ -136,20 +133,6 @@ export const EngagementPlanProponentView = () => {
     }
   };
 
-  const saveAndClose = () => {
-    if (!Object.keys(dirtyFields).length) {
-      navigate({
-        to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
-      });
-      return;
-    }
-    const formData = {
-      ...methods.getValues(),
-    };
-
-    saveSubmission(formData, SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value);
-  };
-
   const documentUploadSections: UploadSectionConfig[] = useMemo(
     () => [
       {
@@ -180,7 +163,7 @@ export const EngagementPlanProponentView = () => {
             </Grid>
             <SubmissionActionButtons
               onSubmit={handleSubmit(handleCompleteForm)}
-              saveAndClose={saveAndClose}
+              submitButtonText="Save & Exit"
             />
           </Grid>
         </Form>

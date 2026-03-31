@@ -42,7 +42,6 @@ const MapPreviewModal = lazy(() =>
   })),
 );
 
-
 const StyledListItem = styled(ListItem)({
   padding: 2,
   display: "list-item",
@@ -74,7 +73,9 @@ export const GeoSpatialProponentView = () => {
 
   const [isBackdropOpen, setIsBackdropOpen] = useState(false);
   const [previewUpload, setPreviewUpload] = useState<GeoUpload | null>(null);
-  const [previewDocument, setPreviewDocument] = useState<Submission | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<Submission | null>(
+    null,
+  );
   const { data: geoUploads } = useGetGeoUploads({
     itemId: Number(submissionItemId),
   });
@@ -117,10 +118,7 @@ export const GeoSpatialProponentView = () => {
     },
   });
 
-  const {
-    handleSubmit,
-    formState: { dirtyFields },
-  } = methods;
+  const { handleSubmit } = methods;
 
   const { refetch } = useGetSubmissionPackage({
     packageId: Number(submissionPackageId),
@@ -166,20 +164,6 @@ export const GeoSpatialProponentView = () => {
     }
   };
 
-  const saveAndClose = async () => {
-    if (!Object.keys(dirtyFields).length) {
-      navigate({
-        to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
-      });
-      return;
-    }
-    const formData = {
-      ...methods.getValues(),
-    };
-
-    saveSubmission(formData, SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value);
-  };
-
   const documentUploadSections: UploadSectionConfig[] = useMemo(
     () => [
       {
@@ -204,7 +188,9 @@ export const GeoSpatialProponentView = () => {
           } else if (upload.status === "processing") {
             notify.info("Geospatial processing is in progress. Please wait.");
           } else {
-            notify.error(upload.error_message || "Processing failed for this file.");
+            notify.error(
+              upload.error_message || "Processing failed for this file.",
+            );
           }
         },
       },
@@ -308,7 +294,7 @@ export const GeoSpatialProponentView = () => {
 
             <SubmissionActionButtons
               onSubmit={handleSubmit(handleCompleteForm)}
-              saveAndClose={saveAndClose}
+              submitButtonText="Save & Exit"
             />
           </Grid>
         </Form>
