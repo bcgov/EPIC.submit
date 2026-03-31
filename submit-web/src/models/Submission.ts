@@ -82,7 +82,7 @@ export const SUBMISSION_ITEM_STATUS: Record<
     label: "Review Rejected",
   },
   FAILED_CONSULTATION_CHECK: {
-    value: "REVIEW_NOT_COMPLETED",
+    value: "FAILED_CONSULTATION_CHECK",
     label: "Review Not Completed",
   },
   APPROVED: {
