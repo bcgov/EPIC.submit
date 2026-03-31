@@ -48,6 +48,13 @@ class TrackWork(BaseModel):
             "title": self.title,
         }
 
+    def is_in_specific_phase(self, phase_name: str, work_type_name: str):
+        """Determines if work is in specific phase."""
+        return (
+            self.current_phase.name == phase_name and
+            self.current_phase.work_type_name == work_type_name
+        )
+
     @classmethod
     def find_by_project_id(cls, project_id: int):
         """Return works by project id."""

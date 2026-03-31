@@ -60,6 +60,12 @@ class PackageQueries:
             aggregated_statuses.add(PackageStatus.REVIEW_REJECTED.value)
 
     @classmethod
+    def _add_review_not_completed(cls, aggregated_statuses: set, statuses: list[str]):
+        """Find packages that have not been completed during review"""
+        if any(status == ItemStatus.REVIEW_NOT_COMPLETED.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.REVIEW_NOT_COMPLETED.value)
+
+    @classmethod
     def _add_under_review(cls, aggregated_statuses: set, statuses: list[str]):
         """Find packages that have been rejected during review"""
         if any(status == ItemStatus.UNDER_REVIEW.value for status in statuses):
@@ -127,6 +133,7 @@ class PackageQueries:
         cls._add_submitted_status(aggregated_statuses, statuses)
         cls._add_passed_consultation_check(aggregated_statuses, statuses)
         cls._add_review_rejected(aggregated_statuses, statuses)
+        cls._add_review_not_completed(aggregated_statuses, statuses)
         cls._add_under_review(aggregated_statuses, statuses)
         cls._add_under_cc_check(aggregated_statuses, statuses)
         cls.add_awaiting_manager_review(aggregated_statuses, statuses)

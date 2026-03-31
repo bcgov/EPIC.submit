@@ -40,6 +40,7 @@ export type PackageStatus =
   | "ACCEPTED"
   | "SATISFIED"
   | "REVIEW_REJECTED"
+  | "REVIEW_NOT_COMPLETED"
   | "REVIEWED"
   | "COMPLETED"
   | "SUBMITTED"
@@ -72,6 +73,10 @@ export const PACKAGE_STATUS: Record<
   REVIEW_REJECTED: {
     value: "REVIEW_REJECTED",
     label: "Rejected",
+  },
+  REVIEW_NOT_COMPLETED: {
+    value: "REVIEW_NOT_COMPLETED",
+    label: "Review Not Completed",
   },
   COMPLETED: {
     value: "COMPLETED",

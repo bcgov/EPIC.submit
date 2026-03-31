@@ -54,10 +54,6 @@ class PackageService:
     @classmethod
     def create_first_package(cls, account_project_id, request_data):
         """Create a new package."""
-        authorization.check_has_permissions_on_project(
-            [ProponentPermissionsEnum.CREATE_PACKAGE.value],
-            [account_project_id]
-        )
         with session_scope() as session:
             package_type = PackageTypeModel.find_by_name(
                 request_data.get("type"))
@@ -86,6 +82,9 @@ class PackageService:
             "name": request_data.get("name"),
             "type_id": package_type.id,
         }
+        if status := request_data.get("status"):
+            package_data["status"] = status
+
         package = PackageModel(**package_data)
         session.add(package)
         session.flush()
@@ -118,6 +117,12 @@ class PackageService:
                 user = User.get_by_guid(original_package.submitted_by)
                 if user:
                     new_package.submitted_by = user.auth_guid
+
+            # Update item and package statuses
+            statuses_to_update = [ItemStatus.UNDER_REVIEW, ItemStatus.UNDER_CONSULTATION_CHECK]
+            items_to_update = [i for i in original_package.items if i.status in statuses_to_update]
+            cls._update_items_status(items_to_update, ItemStatus.REVIEW_NOT_COMPLETED.value, session)
+            cls._update_package_status(original_package.id, session, original_package)
 
             ActivityLogService.log_activity(
                 entity_id=original_package.version.original_package_id,
