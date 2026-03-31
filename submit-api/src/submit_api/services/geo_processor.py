@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 import os
 import tempfile
 import threading
@@ -120,12 +121,18 @@ def _generate_tier(
 ) -> bytes:
     """Simplify and down-sample a GeoDataFrame, returning UTF-8 GeoJSON bytes."""
     work_df = df.copy()
+
+    # Ensure we start with valid geometries
+    work_df = work_df[work_df.geometry.notnull() & ~work_df.geometry.is_empty]
+
     if max_features and len(work_df) > max_features:
         work_df = work_df.sample(n=max_features, random_state=42)
 
     # Only simplify if a non-zero factor is provided
     if simplification and simplification > 0:
         work_df.geometry = work_df.geometry.simplify(simplification, preserve_topology=True)
+        # Re-drop any geometries that became empty after simplification
+        work_df = work_df[work_df.geometry.notnull() & ~work_df.geometry.is_empty]
 
     return work_df.to_json().encode("utf-8")
 
@@ -134,11 +141,16 @@ def _ensure_wgs84(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     """Ensure the GeoDataFrame is in WGS-84 (EPSG:4326)."""
     if gdf.crs is None:
         logger.warning("No CRS found in file (missing .prj?). Assuming EPSG:4326.")
-        return gdf.set_crs("EPSG:4326")
-
-    if not gdf.crs.equals("EPSG:4326"):
+        gdf = gdf.set_crs("EPSG:4326")
+    elif not gdf.crs.equals("EPSG:4326"):
         logger.info("Reprojecting from %s to EPSG:4326", gdf.crs)
-        return gdf.to_crs("EPSG:4326")
+        gdf = gdf.to_crs("EPSG:4326")
+
+    # Drop any geometries that failed to reproject (can happen if coords are out of range)
+    original_count = len(gdf)
+    gdf = gdf[gdf.geometry.notnull() & ~gdf.geometry.is_empty]
+    if len(gdf) < original_count:
+        logger.info("Dropped %d null/empty geometries after reprojection", original_count - len(gdf))
 
     return gdf
 
@@ -149,12 +161,19 @@ def _get_bbox(gdf: gpd.GeoDataFrame) -> list[float]:
         return [0.0, 0.0, 0.0, 0.0]
 
     bounds = gdf.total_bounds  # [minx, miny, maxx, maxy]
-    return [
-        float(max(-180, min(180, bounds[0]))),
-        float(max(-90, min(90, bounds[1]))),
-        float(max(-180, min(180, bounds[2]))),
-        float(max(-90, min(90, bounds[3]))),
-    ]
+    # Handle NaN in bounds
+    bbox = []
+    for i, val in enumerate(bounds):
+        if not math.isfinite(val):
+            # fallback to a sensible default if any coordinate is NaN
+            logger.warning("Invalid coordinate detected in bounds: %s. Using default bbox.", val)
+            return [-180.0, -90.0, 180.0, 90.0]
+
+        if i % 2 == 0:  # X (longitude)
+            bbox.append(float(max(-180, min(180, val))))
+        else:  # Y (latitude)
+            bbox.append(float(max(-90, min(90, val))))
+    return bbox
 
 
 def _load_gdf(local_path: str) -> gpd.GeoDataFrame:
