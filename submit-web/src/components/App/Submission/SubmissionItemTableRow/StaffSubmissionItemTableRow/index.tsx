@@ -53,10 +53,9 @@ export default function StaffSubmissionItemTableRow({
 
   const actionLabel = hasDocument ? "Review" : "View";
 
-  const isNoDetailedViewType = [
-    SubmissionPackageType.IPD,
-    SubmissionPackageType.ENGAGEMENT_PLAN,
-  ].includes(submissionPackage.type.name);
+  const isNoDetailedViewType = [SubmissionPackageType.IPD].includes(
+    submissionPackage.type.name,
+  );
 
   const handleClick = () => {
     navigate({

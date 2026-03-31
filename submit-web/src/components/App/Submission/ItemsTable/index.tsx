@@ -16,7 +16,7 @@ type ItemsTableProps = Readonly<{
 }>;
 export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   const { initializeFiles } = useFileStore();
-  const { items: submissionItems } = submissionPackage;
+  const { items: submissionItems, type: packageType } = submissionPackage;
 
   const { userType } = useAccount();
 
@@ -29,12 +29,13 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table sx={{ tableLayout: "fixed" }}>
-        <ItemsTableHead />
+        <ItemsTableHead packageType={packageType} />
         <TableBody>
           {submissionItems?.map((subItem) => (
             <SubmissionItemTableRow
               key={`custom-row-${subItem.type.name}`}
               item={subItem}
+              packageType={packageType}
               error={
                 isValidating &&
                 !isSubmissionItemReadyToSubmit({
