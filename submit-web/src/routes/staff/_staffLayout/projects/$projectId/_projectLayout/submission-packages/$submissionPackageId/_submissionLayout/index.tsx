@@ -1,5 +1,3 @@
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { Box, Grid, Typography } from "@mui/material";
 import {
@@ -30,6 +28,7 @@ import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
+import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -79,7 +78,7 @@ export default function SubmissionPage() {
     (latestApprovedVersion > 0 &&
       !submissionPackage?.version?.is_approved &&
       submissionPackage?.version?.version) ??
-      0 > latestApprovedVersion,
+    0 > latestApprovedVersion,
   );
 
   const navigate = useNavigate();
@@ -119,12 +118,10 @@ export default function SubmissionPage() {
               gap: BCDesignTokens.layoutPaddingSmall,
             }}
           >
-            <Box sx={{ pb: BCDesignTokens.layoutPaddingSmall }}>
-              <Typography variant="h4" fontWeight={400}>
-                Management Plans & Related Documents
-              </Typography>
-              <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
-            </Box>
+            <SubmissionTitle
+              sx={{ pb: BCDesignTokens.layoutPaddingSmall }}
+              submissionPackage={submissionPackage}
+            />
             <Box
               sx={{
                 pt: BCDesignTokens.layoutPaddingSmall,

@@ -24,8 +24,6 @@ import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
 import { Box, Grid, Link, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import ItemsTable from "@/components/App/Submission/ItemsTable";
 import {
   UPDATE_REQUEST_STATUS,
@@ -42,6 +40,7 @@ import { AppConfig } from "@/utils/config";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
+import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -186,12 +185,10 @@ export default function SubmissionPage() {
               gap: BCDesignTokens.layoutPaddingSmall,
             }}
           >
-            <Box sx={{ pb: BCDesignTokens.layoutPaddingSmall }}>
-              <Typography variant="h4" fontWeight={400}>
-                Management Plans & Related Documents
-              </Typography>
-              <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
-            </Box>
+            <SubmissionTitle
+              sx={{ pb: BCDesignTokens.layoutPaddingSmall }}
+              submissionPackage={submissionPackage}
+            />
             <Box
               sx={{
                 pt: BCDesignTokens.layoutPaddingSmall,
