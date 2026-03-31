@@ -1,11 +1,7 @@
 import * as yup from "yup";
 
 export const engagementPlanSubmissionSchema = yup.object().shape({
-  engagementPlan: yup
-    .array()
-    .of(yup.string())
-    .required("Please upload at least one document.")
-    .min(1, "Please upload at least one document."),
+  engagementPlan: yup.array().of(yup.string()),
   supportingEngagementPlan: yup.array().of(yup.string()),
 });
 

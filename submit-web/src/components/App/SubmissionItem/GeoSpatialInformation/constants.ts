@@ -2,11 +2,7 @@ import * as yup from "yup";
 import { AppConfig } from "@/utils/config";
 
 export const geospatialSubmissionSchema = yup.object().shape({
-  geospatial: yup
-    .array()
-    .of(yup.string())
-    .required("Please upload at least one document.")
-    .min(1, "Please upload at least one document."),
+  geospatial: yup.array().of(yup.string()),
 });
 
 export type GeoSpatialSubmissionForm = yup.InferType<
