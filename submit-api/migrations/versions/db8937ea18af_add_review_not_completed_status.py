@@ -18,6 +18,7 @@ depends_on = None
 
 def upgrade():
     op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'REVIEW_NOT_COMPLETED';")
+    op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'REVIEW_NOT_COMPLETED';")
 
 
 def downgrade():

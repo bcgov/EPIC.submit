@@ -49,7 +49,7 @@ const statusStyles: Record<string, StyleProps> = {
       border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
       background: BCDesignTokens.supportSurfaceColorWarning,
       height: "24px",
-      width: "139px",
+      width: "168px",
     },
     label: "Review Not Completed",
   },

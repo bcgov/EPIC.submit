@@ -19,6 +19,7 @@ from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
+from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import PackageSchema, PostPackageRequestSchema, PostPackageState, \
     CreateUpdateRequestNoteSchema
@@ -83,6 +84,10 @@ class PackageByAccountProject(Resource):
     @cross_origin(origins=allowedorigins())
     def post(account_project_id):
         """Create a submission package."""
+        authorization.check_has_permissions_on_project(
+            [ProponentPermissionsEnum.CREATE_PACKAGE.value],
+            [account_project_id]
+        )
         create_package_data = PostPackageRequestSchema().load(API.payload)
         created_package = PackageService.create_first_package(account_project_id, create_package_data)
         return PackageSchema().dump(created_package), HTTPStatus.CREATED
