@@ -182,7 +182,7 @@ class InvitationService:
         session.commit()
 
     @staticmethod
-    def accept_invitation(token, payload):
+    def accept_invitation(token, payload):  # pylint: disable=too-many-locals
         """Accept an invitation and assign access to an account."""
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
@@ -222,16 +222,18 @@ class InvitationService:
                 for work in works:
                     account_project_work = AccountProjectWork.create_or_get(account_project.id, work.id)
                     account_project_works.append(account_project_work)
-                
+
                 # Create default submission package (if required by EAO)
-                if any(apw.work.is_in_specific_phase('Early Engagement', WorkTypeName.ASSESSMENT) for apw in account_project_works):
+                if any(
+                    apw.work.is_in_specific_phase('Early Engagement', WorkTypeName.ASSESSMENT)
+                    for apw in account_project_works
+                ):
                     PackageService.create_first_package(account_project.id, {
                         "type": "IPD",
                         "name": "Initial Project Description & Engagement Plan",
                         "status": [PackageStatus.REQUESTED_BY_EAO.value],
                         "metadata": {}
                     })
-
 
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
