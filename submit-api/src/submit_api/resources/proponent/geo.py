@@ -62,9 +62,10 @@ class GeoUploads(Resource):
     @cross_origin(origins=allowedorigins())
     @auth.require
     def get():
-        """Return the GeoDataUpload records for the specified item."""
+        """Return the GeoDataUpload records for the specified item or package."""
         item_id = request.args.get("item_id", type=int)
-        uploads = GeoService.list_uploads(item_id=item_id)
+        package_id = request.args.get("package_id", type=int)
+        uploads = GeoService.list_uploads(item_id=item_id, package_id=package_id)
         return [u.to_dict() for u in uploads], HTTPStatus.OK
 
 

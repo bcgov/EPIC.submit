@@ -78,6 +78,7 @@ export const GeoSpatialProponentView = () => {
   );
   const { data: geoUploads } = useGetGeoUploads({
     itemId: Number(submissionItemId),
+    autoRefetch: true,
   });
   const uploads = geoUploads as unknown as GeoUpload[];
 

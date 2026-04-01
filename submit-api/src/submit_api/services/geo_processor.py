@@ -28,11 +28,13 @@ import tempfile
 import threading
 import zipfile
 import glob
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 import pandas as pd
 import geopandas as gpd
 
-from submit_api.models import GeoDataUpload, db
+from submit_api.models import GeoDataUpload, Item as ItemModel, Submission as SubmissionModel, db
+from submit_api.models.submission import SubmissionType
 from submit_api.services.document_service_client import DocumentServiceClient
 
 
@@ -321,9 +323,26 @@ class GeoService:
 
                 except Exception as exc:  # pylint: disable=broad-except # noqa: B902
                     logger.exception("Error processing GeoDataUpload %s: %s", upload_id, exc)
-                    upload.status = "failed"
-                    upload.error_message = str(exc)
-                    db.session.commit()
+
+                    try:
+                        # Rollback any pending or failed transaction state
+                        db.session.rollback()
+
+                        # Re-fetch the upload instance because it may be detached after rollback
+                        upload = db.session.get(GeoDataUpload, upload_id)
+                        if upload:
+                            upload.status = "failed"
+                            upload.error_message = str(exc)
+                            db.session.commit()
+                            logger.info("Successfully marked GeoDataUpload %s as failed.", upload_id)
+                        else:
+                            logger.error("Could not re-fetch GeoDataUpload %s after rollback.", upload_id)
+                    except Exception as fallback_exc:  # pylint: disable=broad-except # noqa: B902
+                        logger.error(
+                            "CRITICAL: Failed to save the error state for upload %s. "
+                            "The database might be unreachable: %s",
+                            upload_id, fallback_exc
+                        )
 
     @classmethod
     def _spawn_processing_thread(cls, app, upload_id: int) -> None:
@@ -358,17 +377,44 @@ class GeoService:
         return upload
 
     @classmethod
-    def list_uploads(cls, item_id: int | None = None) -> list[GeoDataUpload]:
-        """Return the most-recent uploads, optionally filtered by item_id."""
+    def fail_stale_uploads(cls, timeout_minutes: int = 15) -> None:
+        """Find uploads stuck in 'processing' status for too long and mark them as failed."""
+        threshold = datetime.now(timezone.utc) - timedelta(minutes=timeout_minutes)
+
+        stale_uploads = db.session.query(GeoDataUpload).filter(
+            GeoDataUpload.status == "processing",
+            GeoDataUpload.updated_at < threshold
+        ).all()
+
+        if stale_uploads:
+            logger.warning("Found %d stale GeoDataUploads. Marking as failed.", len(stale_uploads))
+            for upload in stale_uploads:
+                upload.status = "failed"
+                upload.error_message = "Processing timed out or was interrupted by a server restart."
+            try:
+                db.session.commit()
+            except Exception as exc:  # pylint: disable=broad-except # noqa: B902
+                logger.error("Failed to commit stale uploads cleanup: %s", exc)
+                db.session.rollback()
+
+    @classmethod
+    def list_uploads(cls, item_id: int | None = None, package_id: int | None = None) -> list[GeoDataUpload]:
+        """Return the most-recent uploads, optionally filtered by item_id or package_id."""
+        cls.fail_stale_uploads(timeout_minutes=15)
+
         query = db.session.query(GeoDataUpload)
 
-        if item_id:
-            # pylint: disable=import-outside-toplevel
-            from submit_api.models.submission import Submission as SubmissionModel, SubmissionType
-            submissions = db.session.query(SubmissionModel).filter_by(
-                item_id=item_id,
-                type=SubmissionType.DOCUMENT
-            ).all()
+        if item_id or package_id:
+            sub_query = db.session.query(SubmissionModel).filter(
+                SubmissionModel.type == SubmissionType.DOCUMENT
+            )
+
+            if item_id:
+                sub_query = sub_query.filter_by(item_id=item_id)
+            elif package_id:
+                sub_query = sub_query.join(ItemModel).filter(ItemModel.package_id == package_id)
+
+            submissions = sub_query.all()
 
             urls = [
                 sub.submitted_document.url
