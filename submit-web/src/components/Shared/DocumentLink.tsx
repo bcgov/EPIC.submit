@@ -16,6 +16,7 @@ export const DocumentLink = ({
       <Typography
         variant="body2"
         color="inherit"
+        component="span"
         sx={{ mx: 0.5, color: BCDesignTokens.iconsColorLink }}
       >
         Preparing your file..

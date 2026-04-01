@@ -7,6 +7,7 @@ from flask import current_app
 
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
+from submit_api.enums.work_type import WorkTypeName
 from submit_api.exceptions import ResourceNotFoundError, BadRequestError
 from submit_api.models import AccountProject as AccountProjectModel, User
 from submit_api.models.account import Account as AccountModel
@@ -14,16 +15,20 @@ from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
 from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
+from submit_api.models.package import PackageStatus
 from submit_api.models.proponent import Proponent as ProponentModel
 from submit_api.models.role import Role as RoleModel
 from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.user import UserType
 from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
+from submit_api.services.package import PackageService
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
 from submit_api.models.user_role import UserRole as UserRoleModel
+from submit_api.models.track_work import TrackWork
+from submit_api.models.account_project_work import AccountProjectWork
 
 
 class InvitationService:
@@ -177,7 +182,7 @@ class InvitationService:
         session.commit()
 
     @staticmethod
-    def accept_invitation(token, payload):
+    def accept_invitation(token, payload):  # pylint: disable=too-many-locals
         """Accept an invitation and assign access to an account."""
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
@@ -200,15 +205,36 @@ class InvitationService:
                 user.id, invitation.account_id, payload, session)
 
             # Create account projects if they don't exist (handles concurrent invitations gracefully)
-            InvitationService._create_account_projects(
+            InvitationService.create_account_projects(
                 invitation.account_id, invitation.project_ids, session)
 
             account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
             roles = []
             for account_project in account_projects:
+                # Assign user role
                 role = InvitationService._assign_user_role(
                     account_user.id, account_project.id, invitation, session)
                 roles.append(role)
+
+                # Create account_project_works
+                works = TrackWork.find_by_project_id(account_project.project_id)
+                account_project_works = []
+                for work in works:
+                    account_project_work = AccountProjectWork.create_or_get(account_project.id, work.id)
+                    account_project_works.append(account_project_work)
+
+                # Create default submission package (if required by EAO)
+                if any(
+                    apw.work.is_in_specific_phase('Early Engagement', WorkTypeName.ASSESSMENT)
+                    for apw in account_project_works
+                ):
+                    PackageService.create_first_package(account_project.id, {
+                        "type": "IPD",
+                        "name": "Initial Project Description & Engagement Plan",
+                        "status": [PackageStatus.REQUESTED_BY_EAO.value],
+                        "metadata": {}
+                    })
+
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
             # Update proponent status
@@ -296,7 +322,7 @@ class InvitationService:
         return account
 
     @staticmethod
-    def _create_account_projects(account_id, project_ids, session):
+    def create_account_projects(account_id, project_ids, session):
         """Create account projects."""
         for project_id in project_ids:
             AccountProjectModel.create_account_project(

@@ -19,7 +19,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { NewManagementPlanForm } from "./types";
 import { get } from "lodash";
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 import { AppConfig } from "@/utils/config";
 
 const YES = "yes";

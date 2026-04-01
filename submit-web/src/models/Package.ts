@@ -1,6 +1,12 @@
-import { SubmissionPackageType } from "@/components/Shared/types";
 import { InternalStaffDocument, SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
+
+export enum SubmissionPackageType {
+  MANAGEMENT_PLAN = "Management Plan",
+  IEM = "IEM",
+  IPD = "IPD",
+  ADDITIONAL_INFORMATION = "Additional Information",
+}
 
 export type PackageType = {
   id: number;
@@ -34,6 +40,7 @@ export type PackageStatus =
   | "ACCEPTED"
   | "SATISFIED"
   | "REVIEW_REJECTED"
+  | "REVIEW_NOT_COMPLETED"
   | "REVIEWED"
   | "COMPLETED"
   | "SUBMITTED"
@@ -44,7 +51,8 @@ export type PackageStatus =
   | "PASSED_CONSULTATION_CHECK"
   | "AWAITING_MANAGER_APPROVAL"
   | "FAILED_CONSULTATION_CHECK"
-  | "CREATED";
+  | "CREATED"
+  | "REQUESTED_BY_EAO";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -65,6 +73,10 @@ export const PACKAGE_STATUS: Record<
   REVIEW_REJECTED: {
     value: "REVIEW_REJECTED",
     label: "Rejected",
+  },
+  REVIEW_NOT_COMPLETED: {
+    value: "REVIEW_NOT_COMPLETED",
+    label: "Review Not Completed",
   },
   COMPLETED: {
     value: "COMPLETED",
@@ -117,6 +129,10 @@ export const PACKAGE_STATUS: Record<
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
+  },
+  REQUESTED_BY_EAO: {
+    value: "REQUESTED_BY_EAO",
+    label: "Requested by EAO",
   },
 };
 

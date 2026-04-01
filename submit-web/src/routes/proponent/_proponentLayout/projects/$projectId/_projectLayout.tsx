@@ -26,8 +26,9 @@ export const Route = createFileRoute(
     }
 
     if (
-      String(account.userManagementRole?.account_project_id) !==
-      accountProjectId
+      !account.userManagementRoles?.some(
+        (role) => String(role.account_project_id) === accountProjectId,
+      )
     ) {
       return redirect({
         to: "/unauthorized",
@@ -48,13 +49,15 @@ export const Route = createFileRoute(
     throw error;
   },
   component: ProjectLayout,
-  meta: ({ loaderData, params }) => [
-    { title: "All Projects", path: "/proponent/projects/" },
-    {
-      title: loaderData?.project.name ?? "",
-      path: `/proponent/projects/${params.projectId}`,
-    },
-  ],
+  head: ({ loaderData, params }) => ({
+    meta: [
+      { title: "All Projects", path: "/proponent/projects/" },
+      {
+        title: loaderData?.project.name ?? "",
+        path: `/proponent/projects/${params.projectId}`,
+      },
+    ],
+  }),
   pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>
@@ -69,11 +72,15 @@ function ProjectLayout() {
   const { data: accountProject } = useSuspenseQuery(
     getAccountProjectQueryOptions(accountProjectId),
   );
-  const { userManagementRole } = useAccount();
+  const { userManagementRoles } = useAccount();
 
   if (!accountProject) return <Navigate to="/error" />;
 
-  if (userManagementRole?.account_project_id !== accountProjectId) {
+  if (
+    !userManagementRoles?.some(
+      (role) => role.account_project_id === accountProjectId,
+    )
+  ) {
     return <Navigate to="/unauthorized" />;
   }
 

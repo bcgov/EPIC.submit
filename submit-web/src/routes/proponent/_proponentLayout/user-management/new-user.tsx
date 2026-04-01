@@ -6,10 +6,12 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/user-management/new-user",
 )({
-  meta: () => [
-    { title: "User Management", path: "/proponent/user-management" },
-    { title: "Add New User", path: "/proponent/user-management/new-user" },
-  ],
+  head: () => ({
+    meta: [
+      { title: "User Management", path: "/proponent/user-management" },
+      { title: "Add New User", path: "/proponent/user-management/new-user" },
+    ],
+  }),
   component: () => (
     <PageGrid>
       <Grid item xs={12}>

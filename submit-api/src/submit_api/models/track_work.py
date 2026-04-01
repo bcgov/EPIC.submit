@@ -37,6 +37,24 @@ class TrackWork(BaseModel):
         db.Index('idx_track_works_work_state', 'work_state'),
     )
 
+    def to_dict(self):
+        """Convert object to dictionary."""
+        return {
+            "id": self.id,
+            "project_id": self.project_id,
+            "current_phase_id": self.current_phase_id,
+            "current_phase": self.current_phase.to_dict() if self.current_phase else None,
+            "work_state": self.work_state,
+            "title": self.title,
+        }
+
+    def is_in_specific_phase(self, phase_name: str, work_type_name: str):
+        """Determines if work is in specific phase."""
+        return (
+            self.current_phase.name == phase_name and
+            self.current_phase.work_type_name == work_type_name
+        )
+
     @classmethod
     def find_by_project_id(cls, project_id: int):
         """Return works by project id."""

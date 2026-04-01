@@ -130,42 +130,50 @@ export const Conditions = () => {
           </Typography>
         </Grid>
         <Grid item xs md={6} lg={4}>
-          <TextField
-            data-testid="main-condition"
-            select
-            fullWidth
-            sx={{ marginBottom: "10px" }}
-            onChange={(e) => {
-              setMainCondition(
-                conditions?.find((c) => c.plan_name === e.target.value) || null,
-              );
-              if (errorText) {
-                setErrorText(null);
-              }
-            }}
-            value={mainCondition?.plan_name || ""}
-            error={!mainCondition && Boolean(errorText)}
-          >
-            {conditions
-              ?.filter(
-                (condition) =>
-                  condition.condition_number !== null && // Ensure condition_number is not null
-                  !supportingConditions.includes(condition.condition_number),
-              )
-              .map((condition) => {
-                const conditionLabel = `Condition ${condition.condition_number} - ${condition.plan_name}`;
-
-                return (
-                  <MenuItem
-                    key={condition.plan_name || ""}
-                    value={condition.plan_name || ""}
-                  >
-                    {conditionLabel}
-                  </MenuItem>
+          {isLoading && !conditions ? (
+            <Box width={300}>
+              <Skeleton animation="wave" />
+            </Box>
+          ) : (
+            <TextField
+              data-testid="main-condition"
+              select
+              fullWidth
+              sx={{ marginBottom: "10px" }}
+              onChange={(e) => {
+                setMainCondition(
+                  conditions?.find((c) => c.plan_name === e.target.value) ||
+                    null,
                 );
-              })}
-          </TextField>
+                if (errorText) {
+                  setErrorText(null);
+                }
+              }}
+              value={mainCondition?.plan_name || ""}
+              error={!mainCondition && Boolean(errorText)}
+            >
+              {conditions
+                ?.filter(
+                  (condition) =>
+                    condition.condition_number !== null &&
+                    !supportingConditions.includes(condition.condition_number),
+                )
+                .map((condition) => {
+                  const conditionLabel = `Condition ${condition.condition_number} - ${condition.plan_name}`;
+
+                  return (
+                    <MenuItem
+                      key={condition.plan_name || ""}
+                      value={condition.plan_name || ""}
+                    >
+                      {conditionLabel}
+                    </MenuItem>
+                  );
+                })}
+            </TextField>
+          )}
         </Grid>
+
         {errorText && (
           <Grid item xs={12} mb={"15px"}>
             <Typography color="error" variant="body2">

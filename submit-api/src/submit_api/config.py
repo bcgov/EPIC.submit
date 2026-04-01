@@ -92,6 +92,8 @@ class _Config():  # pylint: disable=too-few-public-methods
     KEYCLOAK_ADMIN_SECRET = _get_config("KEYCLOAK_ADMIN_SECRET")
     CONNECT_TIMEOUT = _get_config("CONNECT_TIMEOUT", default=60)
 
+    DOCUMENT_SERVICE_URL = _get_config("DOCUMENT_SERVICE_URL")
+
     BASE_APP_URL = os.getenv('BASE_APP_URL')
     SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH')
 

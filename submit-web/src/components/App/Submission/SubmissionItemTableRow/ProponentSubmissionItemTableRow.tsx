@@ -14,7 +14,7 @@ import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "@/components/App/Submission/SubmissionItemTableRow";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
@@ -31,14 +31,17 @@ import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export default function ProponentSubmissionItemTableRow({
   item,
+  packageType,
   error = false,
 }: SubmissionItemTableRowProps) {
   const navigate = useNavigate();
   const { projectId, submissionPackageId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId",
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
   });
 
   const { id, submissions, status, type_id } = item;
+
+  const isIPD = packageType.name === SubmissionPackageType.IPD;
 
   const isFormSubmission =
     item.type.submission_method === SubmissionItemMethod.FORM_SUBMISSION;
@@ -53,9 +56,8 @@ export default function ProponentSubmissionItemTableRow({
   const queryClient = useQueryClient();
 
   const submissionPackage = queryClient.getQueryData<SubmissionPackage>(
-    getSubmissionPackageQueryOptions({
-      packageId: Number(submissionPackageId),
-    }).queryKey,
+    getSubmissionPackageQueryOptions({ packageId: Number(submissionPackageId) })
+      .queryKey,
   );
 
   const isUpdated = useMemo(() => {
@@ -116,17 +118,25 @@ export default function ProponentSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
-        <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-          <Box mr={2}>
-            <SubmissionStatusChipStack
-              status={status}
-              isUpdateRequested={isUpdateRequest}
-              isUpdated={isUpdated}
-              packageStatus={submissionPackage?.status}
-            />
-          </Box>
-        </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="left" width={"10%"}>
+        {!isIPD && (
+          <SubmitPrimaryRowTableCell align="right" width={"20%"}>
+            <Box mr={2}>
+              <SubmissionStatusChipStack
+                status={status}
+                isUpdateRequested={isUpdateRequest}
+                isUpdated={isUpdated}
+                packageStatus={submissionPackage?.status}
+              />
+            </Box>
+          </SubmitPrimaryRowTableCell>
+        )}
+        <SubmitPrimaryRowTableCell
+          align="right"
+          width={isIPD ? "30%" : "10%"}
+          sx={{
+            paddingRight: "2% !important",
+          }}
+        >
           <When
             condition={
               isFormSubmission ||
@@ -142,10 +152,7 @@ export default function ProponentSubmissionItemTableRow({
               data-testid={`submission-item-action-${name}`}
               sx={{
                 color: BCDesignTokens.typographyColorLink,
-                "&:hover": {
-                  cursor: "pointer",
-                  textDecoration: "underline",
-                },
+                "&:hover": { cursor: "pointer", textDecoration: "underline" },
               }}
               onClick={onActionClick}
             >
@@ -168,17 +175,11 @@ export default function ProponentSubmissionItemTableRow({
         <TableRow key={`row-${name}-divider`}>
           <TableCell
             width={"100%"}
-            sx={{
-              py: BCDesignTokens.layoutPaddingXsmall,
-              px: 0,
-              border: 0,
-            }}
+            sx={{ py: BCDesignTokens.layoutPaddingXsmall, px: 0, border: 0 }}
           >
             <Typography
               variant="body2"
-              sx={{
-                color: BCDesignTokens.typographyColorDanger,
-              }}
+              sx={{ color: BCDesignTokens.typographyColorDanger }}
             >
               Please complete the {name} section.
             </Typography>

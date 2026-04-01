@@ -33,7 +33,8 @@ class AccountProject(BaseModel):
         primaryjoin='AccountProjectWork.account_project_id==AccountProject.id',
         lazy='select',
         cascade='all, delete',
-        passive_deletes=True)
+        passive_deletes=True,
+        back_populates='account_project')
 
     @property
     def latest_packages(self):

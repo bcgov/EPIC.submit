@@ -16,16 +16,15 @@ export const Route = createFileRoute(
     }
     return { selectedUser };
   },
-  meta: ({ loaderData }) => [
-    {
-      title: "User Management",
-      path: "/proponent/user-management",
-    },
-    {
-      title: `${loaderData.selectedUser.first_name} ${loaderData.selectedUser.last_name}`,
-      path: "/proponent/user-management/user-details",
-    },
-  ],
+  head: ({ loaderData }) => ({
+    meta: [
+      { title: "User Management", path: "/proponent/user-management" },
+      {
+        title: `${loaderData?.selectedUser.first_name} ${loaderData?.selectedUser.last_name}`,
+        path: "/proponent/user-management/user-details",
+      },
+    ],
+  }),
 });
 
 function ProfileEditPage() {

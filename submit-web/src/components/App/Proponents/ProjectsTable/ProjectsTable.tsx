@@ -24,10 +24,15 @@ export const ProjectsTable = ({
   ...tableProps
 }: ProjectsTableProps) => {
   // Use store for selection unless explicitly overridden (for read-only tables like OnboardedProjectsTable)
-  const storeSelectedProjectsIds = useProponentStore((state) => state.selectedProjectsIds);
-  const setSelectedProjectsIds = useProponentStore((state) => state.setSelectedProjectsIds);
-  
-  const selectedProjectsIds = externalSelectedProjectsIds ?? storeSelectedProjectsIds;
+  const storeSelectedProjectsIds = useProponentStore(
+    (state) => state.selectedProjectsIds,
+  );
+  const setSelectedProjectsIds = useProponentStore(
+    (state) => state.setSelectedProjectsIds,
+  );
+
+  const selectedProjectsIds =
+    externalSelectedProjectsIds ?? storeSelectedProjectsIds;
   const onSelectionChange = readonly ? undefined : setSelectedProjectsIds;
 
   useEffect(() => {
@@ -47,15 +52,15 @@ export const ProjectsTable = ({
       id: "current_work",
       label: "Current Work",
       sortable: true,
-      getValue: () => "not_mapped",
+      getValue: (row) => row.works?.at(-1)?.current_phase?.work_type_name,
     },
     {
       id: "phase",
       label: "Phase",
       sortable: true,
-      getValue: () => "not_mapped",
+      getValue: (row) => row.works?.at(-1)?.current_phase?.display_name,
     },
-  ]
+  ];
 
   return (
     <DataTable

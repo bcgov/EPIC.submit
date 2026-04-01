@@ -49,6 +49,7 @@ class PackageStatus(enum.Enum):
     UNDER_REVIEW = 'UNDER_REVIEW'
     UNDER_CONSULTATION_CHECK = 'UNDER_CONSULTATION_CHECK'
     REVIEW_REJECTED = 'REVIEW_REJECTED'
+    REVIEW_NOT_COMPLETED = 'REVIEW_NOT_COMPLETED'
     CREATED = 'CREATED'
     AWAITING_MANAGER_APPROVAL = 'AWAITING_MANAGER_APPROVAL'
     CC_AWAITING_MANAGER_APPROVAL = 'CC_AWAITING_MANAGER_APPROVAL'
@@ -57,6 +58,7 @@ class PackageStatus(enum.Enum):
     REVISION_REQUIRED = 'REVISION_REQUIRED'
     NO_REVISION_REQUIRED = 'NO_REVISION_REQUIRED'
     RESUBMITTED = 'RESUBMITTED'
+    REQUESTED_BY_EAO = 'REQUESTED_BY_EAO'
 
     @classmethod
     def check_value(cls, value):
@@ -83,7 +85,7 @@ class Package(BaseModel):
     account_project_work_id = Column(db.Integer, ForeignKey(
         'account_project_works.id', ondelete='SET NULL'), nullable=True)
     account_project_work = db.relationship('AccountProjectWork', foreign_keys=[
-                           account_project_work_id], lazy='joined')
+                           account_project_work_id], lazy='joined', back_populates='packages')
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String, ForeignKey(
         'users.auth_guid', name='packages_submitted_by_fkey'), nullable=True)
@@ -101,6 +103,12 @@ class Package(BaseModel):
         'package_versions.id'), nullable=True)
     version = db.relationship('PackageVersion', foreign_keys=[
                               version_id], lazy='joined')
+
+    __table_args__ = (
+        db.Index('idx_packages_account_project_id', 'account_project_id'),
+        db.Index('idx_packages_account_project_work_id', 'account_project_work_id',
+                 postgresql_where=db.text('account_project_work_id IS NOT NULL')),
+    )
 
     _update_requests = db.relationship(
         'UpdateRequest',

@@ -13,7 +13,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 
 export const Route = createFileRoute("/staff/_staffLayout/projects/")({
   component: ProjectsPage,
-  meta: () => [{ title: "All Projects" }],
+  head: () => ({ meta: [{ title: "All Projects" }] }),
 });
 
 const initialPageParam = 1;

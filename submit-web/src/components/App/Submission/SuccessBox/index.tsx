@@ -1,4 +1,4 @@
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 import { PackageType } from "@/models/Package";
 import { Box, Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";

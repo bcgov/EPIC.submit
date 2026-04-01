@@ -69,6 +69,16 @@ const statusStyles: Record<
       width: "125px",
     },
   },
+  REVIEW_NOT_COMPLETED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+      background: BCDesignTokens.supportSurfaceColorWarning,
+      height: "24px",
+      width: "168px",
+    },
+    label: "Review Not Completed",
+  },
   SUBMITTED: {
     sx: {
       borderRadius: 1,
@@ -228,6 +238,16 @@ const statusStyles: Record<
       width: "104px",
     },
     label: "Resubmitted",
+  },
+  REQUESTED_BY_EAO: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+      background: BCDesignTokens.supportSurfaceColorWarning,
+      height: "24px",
+      width: "139px",
+    },
+    label: "Requested by EAO",
   },
 };
 

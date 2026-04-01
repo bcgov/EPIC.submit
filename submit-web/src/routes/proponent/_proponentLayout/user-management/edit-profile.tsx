@@ -23,9 +23,9 @@ export const Route = createFileRoute(
       isAdmin,
     };
   },
-  meta: ({ loaderData }) =>
-    [
-      loaderData.isAdmin && {
+  head: ({ loaderData }) => ({
+    meta: [
+      loaderData?.isAdmin && {
         title: "User Management",
         path: "/proponent/user-management",
       },
@@ -34,6 +34,7 @@ export const Route = createFileRoute(
         path: "/proponent/user-management/edit-profile",
       },
     ].filter(Boolean) as any,
+  }),
 });
 
 function ProfileEditPage() {
@@ -63,7 +64,10 @@ function ProfileEditPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProfileEditForm user={account_user} guid={user.profile.preferred_username} />
+        <ProfileEditForm
+          user={account_user}
+          guid={user.profile.preferred_username || ""}
+        />
       </Grid>
     </PageGrid>
   );

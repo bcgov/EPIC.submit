@@ -22,23 +22,17 @@ export const Route = createFileRoute("/staff/_staffLayout")({
       if (!authentication?.isAuthenticated) {
         authentication.signinRedirect({
           redirect_uri: `${OidcConfig.redirect_uri}?path=${window.location.pathname}`,
-          extraQueryParams: {
-            kc_idp_hint: OidcConfig.kc_idp_hint,
-          },
+          extraQueryParams: { kc_idp_hint: OidcConfig.kc_idp_hint },
         });
         return;
       }
     }
     if (!account.isLoading) {
       if (account?.userType !== USER_TYPE.STAFF) {
-        return redirect({
-          to: "/unauthorized",
-        });
+        return redirect({ to: "/unauthorized" });
       }
       if (!account?.roles?.includes(EPIC_SUBMIT_ROLE.eao_view)) {
-        return redirect({
-          to: "/staff/no-roles",
-        });
+        return redirect({ to: "/staff/no-roles" });
       }
     }
   },

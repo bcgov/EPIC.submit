@@ -24,8 +24,6 @@ import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
 import { Box, Grid, Link, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import ItemsTable from "@/components/App/Submission/ItemsTable";
 import {
   UPDATE_REQUEST_STATUS,
@@ -42,6 +40,8 @@ import { AppConfig } from "@/utils/config";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
+import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
+import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -71,17 +71,21 @@ export default function SubmissionPage() {
     enabled: Boolean(submissionPackage?.version?.original_package_id),
   });
 
-  const currentPackageVersion = packageVersions?.find(
-    (pv) => pv.package_id === submissionPackageId
+  const { data: geoUploads } = useGetGeoUploads(
+    { packageId: submissionPackageId, autoRefetch: false },
+    { enabled: Boolean(submissionPackageId) },
   );
 
-  const isLatestApprovedPackageVersion = 
-    currentPackageVersion?.is_latest && 
-    currentPackageVersion?.is_approved;
+  const currentPackageVersion = packageVersions?.find(
+    (pv) => pv.package_id === submissionPackageId,
+  );
 
-  const isNewerThanLastApprovedButNotApproved = 
-    currentPackageVersion?.is_latest && 
-    !currentPackageVersion?.is_approved;
+  const hasAnyApprovedPackageVersion = packageVersions?.some(
+    (pv) => pv.is_approved,
+  );
+
+  const isLatestApprovedPackageVersion =
+    currentPackageVersion?.is_latest && currentPackageVersion?.is_approved;
 
   const {
     mutate: updateStateSubmissionPackage,
@@ -115,6 +119,17 @@ export default function SubmissionPage() {
       )
     ) {
       setIsValidating(true);
+      return;
+    }
+
+    const hasProcessingGeoFiles = (geoUploads as GeoUpload[] | undefined)?.some(
+      (u: GeoUpload) => u.status === "processing",
+    );
+    if (hasProcessingGeoFiles) {
+      setIsValidating(true);
+      notify.warning(
+        "One or more geospatial files are still processing. Please check the status and try again later.",
+      );
       return;
     }
 
@@ -187,12 +202,10 @@ export default function SubmissionPage() {
               gap: BCDesignTokens.layoutPaddingSmall,
             }}
           >
-            <Box sx={{ pb: BCDesignTokens.layoutPaddingSmall }}>
-              <Typography variant="h4" fontWeight={400}>
-                Management Plans & Related Documents
-              </Typography>
-              <ProjectStatus status={PROJECT_STATUS.POST_DECISION} />
-            </Box>
+            <SubmissionTitle
+              sx={{ pb: BCDesignTokens.layoutPaddingSmall }}
+              submissionPackage={submissionPackage}
+            />
             <Box
               sx={{
                 pt: BCDesignTokens.layoutPaddingSmall,
@@ -212,11 +225,9 @@ export default function SubmissionPage() {
                   alignItems: "center",
                   justifyContent: "space-between",
 
-                  mb:
-                    isLatestApprovedPackageVersion ||
-                    isNewerThanLastApprovedButNotApproved
-                      ? 0
-                      : BCDesignTokens.layoutMarginXlarge,
+                  mb: hasAnyApprovedPackageVersion
+                    ? 0
+                    : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={managementPlanName} />
@@ -255,7 +266,12 @@ export default function SubmissionPage() {
                   </Typography>
                 </SuccessBox>
               </When>
-              <When condition={isNewerThanLastApprovedButNotApproved}>
+              <When
+                condition={
+                  !isLatestApprovedPackageVersion &&
+                  hasAnyApprovedPackageVersion
+                }
+              >
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
@@ -266,8 +282,13 @@ export default function SubmissionPage() {
                     variant="body2"
                     color={BCDesignTokens.typographyColorPrimary}
                   >
-                    Please Note: This submission is still pending EAO review.
-                    Until finalized, it is not considered enforceable.
+                    Please Note: This submission is not considered enforceable.
+                    Please refer to the Submission Package with this icon
+                    <GppGoodOutlinedIcon
+                      fontSize="small"
+                      sx={{ verticalAlign: "middle" }}
+                    />
+                    for the enforceable version.
                   </Typography>
                 </WarningBox>
               </When>

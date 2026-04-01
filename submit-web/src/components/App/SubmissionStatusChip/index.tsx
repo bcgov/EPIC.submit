@@ -43,6 +43,16 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Under Review",
   },
+  REVIEW_NOT_COMPLETED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+      background: BCDesignTokens.supportSurfaceColorWarning,
+      height: "24px",
+      width: "168px",
+    },
+    label: "Review Not Completed",
+  },
   UNDER_CONSULTATION_CHECK: {
     sx: {
       borderRadius: 1,
@@ -227,6 +237,16 @@ const statusStyles: Record<string, StyleProps> = {
       height: "24px",
       width: "128px",
     },
+  },
+  REQUESTED_BY_EAO: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+      width: "104px",
+    },
+    label: "Requested by EAO",
   },
 };
 

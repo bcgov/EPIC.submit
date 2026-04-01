@@ -25,3 +25,7 @@ requests
 flask_cors
 pyhumps
 importlib-resources
+geopandas
+fiona
+pyproj
+shapely

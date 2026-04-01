@@ -37,21 +37,20 @@ class ProjectQueries:
             account_project_ids = db.session.query(AccountProject.id).all()
             return [ap_id for (ap_id,) in account_project_ids]
 
-        if not user.account_user or not user.account_user.role:
+        if not user.account_user or not user.account_user.roles:
             return []
 
-        # User roles may be single or multiple, but here we assume one role per user (adjust if needed)
-        user_role = user.account_user.role
-
-        if not user_role.active:
+        active_roles = [role for role in user.account_user.roles if role.active]
+        if not active_roles:
             return []
 
-        # If user has no assigned account_project_id, allow no projects
-        if not user_role.account_project_id:
-            return []
+        account_project_ids = [
+            role.account_project_id
+            for role in active_roles
+            if role.account_project_id
+        ]
 
-        # Assuming a single account project for each account now
-        return [user_role.account_project_id]
+        return account_project_ids
 
     @classmethod
     def get_projects_by_proponent_id(cls, proponent_id: int):

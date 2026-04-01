@@ -55,6 +55,7 @@ export const Route = createFileRoute(
 
     if (
       [
+        USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
         USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
         USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
         USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
@@ -66,9 +67,9 @@ export const Route = createFileRoute(
       to: "/proponent/projects",
     });
   },
-  meta: ({ loaderData: submissionPackage }) => [
-    { title: submissionPackage?.name },
-  ],
+  head: ({ loaderData: submissionPackage }) => ({
+    meta: [{ title: submissionPackage?.name }],
+  }),
 });
 
 export default function SubmissionLayout() {

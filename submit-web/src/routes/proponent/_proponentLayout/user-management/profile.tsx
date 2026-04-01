@@ -10,10 +10,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute(
-  "/proponent/_proponentLayout/user-management/profile"
+  "/proponent/_proponentLayout/user-management/profile",
 )({
   component: Profile,
-  meta: () => [{ title: "Admin" }],
+  head: () => ({ meta: [{ title: "Admin" }] }),
 });
 
 function Profile() {
