@@ -41,6 +41,7 @@ import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
+import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -69,6 +70,11 @@ export default function SubmissionPage() {
     originalPackageId: submissionPackage?.version?.original_package_id,
     enabled: Boolean(submissionPackage?.version?.original_package_id),
   });
+
+  const { data: geoUploads } = useGetGeoUploads(
+    { packageId: submissionPackageId, autoRefetch: false },
+    { enabled: Boolean(submissionPackageId) },
+  );
 
   const currentPackageVersion = packageVersions?.find(
     (pv) => pv.package_id === submissionPackageId,
@@ -113,6 +119,17 @@ export default function SubmissionPage() {
       )
     ) {
       setIsValidating(true);
+      return;
+    }
+
+    const hasProcessingGeoFiles = (geoUploads as GeoUpload[] | undefined)?.some(
+      (u: GeoUpload) => u.status === "processing",
+    );
+    if (hasProcessingGeoFiles) {
+      setIsValidating(true);
+      notify.warning(
+        "One or more geospatial files are still processing. Please check the status and try again later.",
+      );
       return;
     }
 
