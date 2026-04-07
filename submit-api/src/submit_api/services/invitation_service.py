@@ -27,7 +27,7 @@ from submit_api.models.user import UserType
 from submit_api.models.user_role import UserRole as UserRoleModel
 from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
-from submit_api.services.package import PackageService
+from submit_api.services.package_service import PackageService
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
