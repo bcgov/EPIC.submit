@@ -12,6 +12,7 @@ from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
     factory_account_model, factory_account_project_model, factory_auth_header, setup_authenticated_proponent,
     factory_project_model, factory_proponent_model, factory_user_model)
+from submit_api.models.user import UserType
 
 fake = Faker()
 
@@ -54,14 +55,12 @@ def test_get_project_by_id(client, session, jwt):
     assert data["project"]["proponent"]["name"] == proponent_name
 
 
-def test_get_project_by_id_no_roles(client, session, jwt):
-    """Test project access with valid JWT but no roles."""
-    claims = copy.deepcopy(TestJwtClaims.staff_admin_role.value)
-    claims["realm_access"]["roles"] = []
-    claims["resource_access"][CONFIG.JWT_OIDC_TEST_AUDIENCE]["roles"] = []
+def test_get_project_by_id_no_access(client, session, jwt):
+    """Test project access with valid JWT but proponent does not have access."""
+    claims = copy.deepcopy(TestJwtClaims.proponent_role.value)
 
     auth_guid = claims['preferred_username']
-    factory_user_model(auth_guid=auth_guid)
+    factory_user_model(auth_guid=auth_guid, user_type=UserType.PROPONENT)
 
     account = factory_account_model()
     project = factory_project_model(name="TestProjectNoRoles", proponent_id=111222)
