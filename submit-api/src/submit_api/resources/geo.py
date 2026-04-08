@@ -30,6 +30,7 @@ from submit_api.models import GeoDataUpload, db
 from submit_api.services.geo_processor import GeoService
 from submit_api.utils.util import allowedorigins, cors_preflight
 
+
 API = Namespace("uploads", description="Endpoints for Geospatial Uploads")
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class GeoUploads(Resource):
         data = request.get_json()
         try:
             upload = GeoService.create_upload(
-                app=current_app._get_current_object(),  # noqa: SLF001
+                app=current_app._get_current_object(),  # pylint:disable=protected-access  # noqa: SLF001
                 filename=data.get("filename"),
                 file_type=data.get("file_type"),
                 file_size_kb=data.get("file_size_kb"),
@@ -79,7 +80,7 @@ class GeoUploadStatus(Resource):
     @auth.require
     def get(upload_id):
         """SSE stream that polls the processing status of a single upload."""
-        app = current_app._get_current_object()  # noqa: SLF001
+        app = current_app._get_current_object()  # pylint:disable=protected-access  # noqa: SLF001
 
         def generate():
             with app.app_context():
@@ -153,7 +154,7 @@ class GeoUploadRetry(Resource):
         """Re-trigger background processing for a failed upload."""
         try:
             upload = GeoService.retry_upload(
-                app=current_app._get_current_object(),  # noqa: SLF001
+                app=current_app._get_current_object(),  # pylint:disable=protected-access. # noqa: SLF001
                 upload_id=upload_id,
             )
         except LookupError as exc:

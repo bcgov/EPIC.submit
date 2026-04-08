@@ -23,7 +23,9 @@ from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema
 from submit_api.services.submission import SubmissionService
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
+
 
 API = Namespace("submissions", description="Endpoints for Submission Management")
 """Custom exception messages
@@ -135,6 +137,25 @@ class DocumentSubmission(Resource):
         return SubmissionSchema().dump(deleted_submission), HTTPStatus.OK
 
 
+@cors_preflight("OPTIONS, DELETE")
+@API.route("/<int:submission_id>/document/soft-delete", methods=["OPTIONS", "DELETE"])
+class DocumentSubmissionSoftDelete(Resource):
+    """Resource for managing a document submission."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Soft delete a document submission")
+    @API.response(
+        code=HTTPStatus.OK, model=submission_model, description="Submission"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_EDIT.value])
+    def delete(submission_id):
+        """Soft delete a submission document."""
+        deleted_submission = SubmissionService.soft_delete_submission(submission_id)
+        return SubmissionSchema().dump(deleted_submission), HTTPStatus.OK
+
+
 @cors_preflight("OPTIONS, POST")
 @API.route("/<int:submission_id>/document/move", methods=["POST", "OPTIONS"])
 class DocumentSubmissionMove(Resource):
@@ -175,6 +196,6 @@ class SubmissionItemGeoProcess(Resource):
                 'message': f'Triggered {len(triggered_uploads)} geo-processes',
                 'uploads': triggered_uploads
             }), HTTPStatus.ACCEPTED
-        except Exception as e:  # noqa: B902
+        except Exception as e:  # pylint:disable=broad-exception-caught. # noqa: B902
             current_app.logger.exception(f"Error triggering geo process: {e}")
             return jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
