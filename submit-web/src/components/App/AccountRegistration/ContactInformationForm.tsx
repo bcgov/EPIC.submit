@@ -64,7 +64,7 @@ const StyledControlledTextField = styled(ControlledTextField)({
 function ContactInformationForm() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const { invitation, entityName } = useCreateAccountFormStore();
+  const { invitation, entityName, setNewlyCreatedAccount } = useCreateAccountFormStore();
   const { setAccount, userId } = useAccount();
   const navigate = useNavigate();
 
@@ -92,6 +92,7 @@ function ContactInformationForm() {
   }, [userId, navigateToNextStep]);
 
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
+    setNewlyCreatedAccount(true);
     setAccount({
       userId: data.user_id,
       userManagementRole: data.roles[0],

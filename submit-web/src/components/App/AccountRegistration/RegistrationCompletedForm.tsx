@@ -17,18 +17,7 @@ export default function RegistrationCompletedForm() {
   const { setCompleted } = useCreateAccountFormStore();
 
   const navigateToNextStep = useCallback(() => {
-    setCompleted(true);
-    if (isCompleted === "home") {
-      navigate({
-        to: "/proponent/projects",
-        replace: true,
-      });
-    } else {
-      navigate({
-        to: "/proponent/user-management",
-        replace: true,
-      });
-    }
+    setCompleted(isCompleted);
   }, [isCompleted, navigate, setCompleted]);
 
   return (
