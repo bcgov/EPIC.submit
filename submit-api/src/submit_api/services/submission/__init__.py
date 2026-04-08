@@ -10,7 +10,7 @@ from submit_api.models.submission import Submission as SubmissionModel, Submissi
 from submit_api.services import authorization
 from submit_api.services.document_service_client import DocumentServiceClient
 from submit_api.services.geo_processor import GeoService
-from submit_api.services.item import ItemService
+from submit_api.services.item_service import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
 

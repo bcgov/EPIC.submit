@@ -19,6 +19,8 @@ from tests.utilities.factory_utils import (
     factory_auth_header,
     factory_invitation_model,
     factory_project_model,
+    factory_track_phase,
+    factory_track_work,
     factory_user_model,
     setup_authenticated_proponent
 )
@@ -164,6 +166,9 @@ def test_accept_invitation(client, session, jwt):
         project_ids=[account_project.project_id]
     )
 
+    track_phase = factory_track_phase(session)
+    track_work = factory_track_work(session, account_project.project_id, track_phase.id)
+
     payload = {
         "auth_guid": fake.uuid4(),
         "email": fake.email(),
@@ -180,7 +185,6 @@ def test_accept_invitation(client, session, jwt):
 
     assert response.status_code == HTTPStatus.CREATED
     data = response.get_json()
-    print(data)
     assert "user_id" in data
 
     # Verify that account_projects were created during acceptance
@@ -188,6 +192,14 @@ def test_accept_invitation(client, session, jwt):
     account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
     assert len(account_projects) > 0
     assert any(ap.account_id == invitation.account_id for ap in account_projects)
+
+    # Verify that account_project_works were created during acceptance
+    from submit_api.models import AccountProjectWork as AccountProjectWorkModel
+    account_project_works = AccountProjectWorkModel.find_by_account_project_id(account_project.id)
+    assert len(account_project_works) > 0
+    for apw in account_project_works:
+        assert any(ap.id == apw.account_project_id for ap in account_projects)
+        assert apw.work_id == track_work.id
 
 
 def test_accept_invitation_invalid_token(client, session):
@@ -356,7 +368,7 @@ def test_renew_invitation(client, session, jwt):
     assert response.status_code == HTTPStatus.NO_CONTENT
 
     # Verify expiry date is updated
-    assert invitation.expiry_date > datetime.utcnow()
+    assert invitation.expiry_date > datetime.now()
     assert invitation.status == InvitationStatus.PENDING.value
 
 

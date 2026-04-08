@@ -23,7 +23,7 @@ from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import PackageSchema, PostPackageRequestSchema, PostPackageState, \
     CreateUpdateRequestNoteSchema
-from submit_api.services.package import PackageService
+from submit_api.services.package_service import PackageService
 from submit_api.services import authorization
 from submit_api.utils.util import allowedorigins, cors_preflight
 

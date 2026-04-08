@@ -41,3 +41,11 @@ class PackageMetadata(BaseModel):
     def get_by_package_id(cls, package_id: int):
         """Return model by package id."""
         return cls.query.filter_by(package_id=package_id).first()
+
+    @classmethod
+    def get_or_create(cls, package_id: int) -> PackageMetadata:
+        """Get existing package metadata or create a new empty instance."""
+        package_metadata = cls.get_by_package_id(package_id)
+        if not package_metadata:
+            package_metadata = cls(package_id=package_id, json={})
+        return package_metadata

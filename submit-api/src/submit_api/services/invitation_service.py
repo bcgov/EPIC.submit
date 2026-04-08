@@ -8,27 +8,29 @@ from flask import current_app
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.enums.work_type import WorkTypeName
-from submit_api.exceptions import ResourceNotFoundError, BadRequestError
-from submit_api.models import AccountProject as AccountProjectModel, User
+from submit_api.exceptions import BadRequestError, ResourceNotFoundError
+from submit_api.models import AccountProject as AccountProjectModel
+from submit_api.models import User
 from submit_api.models.account import Account as AccountModel
+from submit_api.models.account_project_work import AccountProjectWork
+from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
-from submit_api.models.invitations import Invitations as InvitationsModel, InvitationStatus
+from submit_api.models.invitations import Invitations as InvitationsModel
+from submit_api.models.invitations import InvitationStatus
 from submit_api.models.package import PackageStatus
 from submit_api.models.proponent import Proponent as ProponentModel
 from submit_api.models.role import Role as RoleModel
-from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
+from submit_api.models.track_work import TrackWork
 from submit_api.models.user import UserType
+from submit_api.models.user_role import UserRole as UserRoleModel
 from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
-from submit_api.services.package import PackageService
+from submit_api.services.package_service import PackageService
 from submit_api.services.user_service import UserService
 from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
-from submit_api.models.user_role import UserRole as UserRoleModel
-from submit_api.models.track_work import TrackWork
-from submit_api.models.account_project_work import AccountProjectWork
 
 
 class InvitationService:
@@ -205,7 +207,7 @@ class InvitationService:
                 user.id, invitation.account_id, payload, session)
 
             # Create account projects if they don't exist (handles concurrent invitations gracefully)
-            InvitationService.create_account_projects(
+            InvitationService.get_or_create_account_projects(
                 invitation.account_id, invitation.project_ids, session)
 
             account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
@@ -220,7 +222,7 @@ class InvitationService:
                 works = TrackWork.find_by_project_id(account_project.project_id)
                 account_project_works = []
                 for work in works:
-                    account_project_work = AccountProjectWork.create_or_get(account_project.id, work.id)
+                    account_project_work = AccountProjectWork.get_or_create(account_project.id, work.id)
                     account_project_works.append(account_project_work)
 
                 # Create default submission package (if required by EAO)
@@ -322,10 +324,10 @@ class InvitationService:
         return account
 
     @staticmethod
-    def create_account_projects(account_id, project_ids, session):
-        """Create account projects."""
+    def get_or_create_account_projects(account_id, project_ids, session):
+        """Get or create account projects."""
         for project_id in project_ids:
-            AccountProjectModel.create_account_project(
+            AccountProjectModel.get_or_create(
                 account_id, project_id, session)
         session.flush()
 
@@ -417,7 +419,7 @@ class InvitationService:
     @staticmethod
     def get_valid_invitation(token):
         """Retrieve and validate an invitation by token, checking both status and expiry."""
-        invitation = InvitationsModel.query.filter_by(token=token).first()
+        invitation = InvitationsModel.find_by_token(token)
 
         if not invitation:
             return {"error": "Invalid invitation"}, False
@@ -442,8 +444,7 @@ class InvitationService:
     @staticmethod
     def revoke_invitation(token):
         """Revoke an invitation by updating its status."""
-        invitation = InvitationsModel.query.filter_by(
-            token=token, status=InvitationStatus.PENDING.value).first()
+        invitation = InvitationsModel.find_pending_by_token(token)
         if invitation:
             InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.REVOKED.value
@@ -455,7 +456,7 @@ class InvitationService:
     def resend_invitation(token):
         """Resend an invitation and extend its expiry date by a week."""
         with session_scope() as session:
-            invitation = InvitationsModel.query.filter_by(token=token).first()
+            invitation = InvitationsModel.find_by_token(token)
 
             if not invitation or invitation.status != InvitationStatus.PENDING.value:
                 return False
@@ -480,7 +481,7 @@ class InvitationService:
             InvitationService._check_action_authorized(invitation.project_ids)
             invitation.status = InvitationStatus.PENDING.value
             expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
-            invitation.expiry_date = datetime.datetime.utcnow() + datetime.timedelta(days=expiry_days)
+            invitation.expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=expiry_days)
             InvitationsModel.commit()
             return True
         return False

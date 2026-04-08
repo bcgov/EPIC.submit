@@ -7,7 +7,7 @@ Create Date: 2025-05-09 16:17:06.676534
 """
 import os
 from alembic import op
-from datetime import datetime
+from datetime import datetime, UTC
 import sqlalchemy as sa
 from sqlalchemy import text
 from sqlalchemy.dialects import postgresql
@@ -58,7 +58,7 @@ def upgrade():
             version=1,
             content=html_content,
             active=True,
-            created_date=datetime.utcnow()
+            created_date=datetime.now(UTC)
         )
     )
     # ### end Alembic commands ###

@@ -4,7 +4,7 @@ Manages the account user
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -13,6 +13,7 @@ from sqlalchemy.orm import column_property
 from .base_model import BaseModel
 from .db import db
 from .user import User as UserModel
+from .user_role import UserRole
 
 
 class AccountUser(BaseModel):
@@ -39,7 +40,7 @@ class AccountUser(BaseModel):
         """Return the first role for backward compatibility."""
         return self.roles[0] if self.roles else None
     terms_of_service_version_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.version'), nullable=True)
-    terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=True)
+    terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.now(UTC), nullable=True)
     company_name = Column(db.String(255), nullable=True)
 
     terms_of_service = db.relationship(
@@ -86,12 +87,7 @@ class AccountUser(BaseModel):
             extension_number=data.get('extension_number', None),
             terms_of_service_version_id=data.get('terms_of_service_version_id')
         )
-        if session:
-            session.add(account_user)
-            session.flush()
-        else:
-            account_user.save()
-        return account_user
+        return account_user.persist(session)
 
     @classmethod
     def get_by_guid(cls, _guid):
@@ -105,6 +101,21 @@ class AccountUser(BaseModel):
         return cls.query.filter(cls.account_id == account_id).all()
 
     @classmethod
+    def get_all_in_account_ids(cls, account_ids: list[int]):
+        """Get all users for the given account ids."""
+        return cls.query.filter(cls.account_id.in_(account_ids)).all()
+
+    @classmethod
     def get_users_by_account_user_id(cls, account_user_id):
         """Get the user for a given account."""
         return cls.query.filter(cls.id == account_user_id).first()
+
+    @classmethod
+    def get_filtered_by_account_id(cls, account_id: int, account_project_ids: list = None):
+        """Get account users by account id, optionally filtered by project ids."""
+        query = cls.query.filter(cls.account_id == account_id)
+        if account_project_ids:
+            query = query.join(UserRole).filter(
+                UserRole.account_project_id.in_(account_project_ids)
+            )
+        return query.all()

@@ -1,5 +1,5 @@
 """Consultation record review service."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -12,7 +12,7 @@ from submit_api.models.submission_review import SubmissionReview
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.services.package import PackageService
+from submit_api.services.package_service import PackageService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
@@ -27,12 +27,9 @@ class ConsultationRecordService:
     def approve_consultation_record(cls, item, session):
         """Approve consultation record."""
         item.status = ItemStatus.PASSED_CONSULTATION_CHECK.value
-        reviewed_on = datetime.utcnow()
+        reviewed_on = datetime.now(UTC)
         item.reviewed_on = reviewed_on
-        package_metadata = PackageMetadata.get_by_package_id(item.package_id)
-        if not package_metadata:
-            package_metadata = PackageMetadata(
-                package_id=item.package_id, json={})
+        package_metadata = PackageMetadata.get_or_create(item.package_id)
         existing_json = package_metadata.json if package_metadata.json else {}
         package_metadata.json = {
             **existing_json,

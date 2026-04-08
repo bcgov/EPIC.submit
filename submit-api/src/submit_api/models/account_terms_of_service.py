@@ -21,12 +21,11 @@ class TermsOfService(BaseModel):
     @classmethod
     def create_terms_of_service(cls, data, session=None) -> TermsOfService:
         """Create a new Terms of service record."""
-        # Deactivate all existing records
-        if session:
-            session.query(cls).filter_by(active=True).update({"active": False})
-        else:
-            cls.query.filter_by(active=True).update({"active": False})
-            db.session.flush()
+        _session = session or db.session
+
+        # Deactivate all existing active records
+        _session.query(cls).filter_by(active=True).update({"active": False})
+        _session.flush()
 
         active = data.get("active")
         terms_of_service = TermsOfService(
@@ -35,12 +34,7 @@ class TermsOfService(BaseModel):
             rich_content=data.get("rich_content"),
             active=True if active is None else active,
         )
-        if session:
-            session.add(terms_of_service)
-            session.flush()
-        else:
-            terms_of_service.save()
-        return terms_of_service
+        return terms_of_service.persist(session)
 
     @classmethod
     def get_active_terms_of_service(cls) -> TermsOfService | None:

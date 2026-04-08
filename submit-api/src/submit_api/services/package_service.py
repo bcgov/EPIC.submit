@@ -1,6 +1,6 @@
 """Service for package management."""
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -196,9 +196,7 @@ class PackageService:
     def _create_items(session, package_id, package_type):
         """Create items for the package."""
         current_app.logger.info(f"Creating items for package {package_id}")
-        package_item_types = session.query(PackageItemTypeModel).filter_by(
-            package_type_id=package_type.id,
-        ).all()
+        package_item_types = PackageItemTypeModel.get_by_package_type_id(package_type.id)
 
         item_type_to_package_item_type = {
             pit.item_type_id: pit for pit in package_item_types
@@ -286,7 +284,7 @@ class PackageService:
     def _update_package_submission_details(package, session):
         """Update package submission details."""
         current_app.logger.info(f"Updating submission details for package {package.id}")
-        package.submitted_on = datetime.utcnow()
+        package.submitted_on = datetime.now(UTC)
         package.submitted_by = TokenInfo.get_username()
 
         session.add(package)
@@ -472,7 +470,7 @@ class PackageService:
             return
         item_data = {
             'status': ItemStatus.UNDER_REVIEW.value,
-            'review_start_date': datetime.utcnow().isoformat()
+            'review_start_date': datetime.now(UTC).isoformat()
         }
         cls._update_review_item(review_item, item_data, session)
         cls._update_package_status(package_id, session, package)
@@ -516,7 +514,7 @@ class PackageService:
         package = cls._get_and_validate_package_for_starting_review(package_id)
         item_data = {
             'status': ItemStatus.UNDER_CONSULTATION_CHECK.value,
-            'review_start_date': datetime.utcnow().isoformat()
+            'review_start_date': datetime.now(UTC).isoformat()
         }
         with session_scope() as session:
             cls._update_cr_status(

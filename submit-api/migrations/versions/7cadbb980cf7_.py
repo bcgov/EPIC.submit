@@ -7,8 +7,7 @@ Create Date: 2025-07-14 09:03:38.061983
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.orm import Session
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import Session, declarative_base
 
 from submit_api.models import Package, PackageVersion, UserRole
 

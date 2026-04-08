@@ -1,6 +1,5 @@
 """Service for account user management."""
-from datetime import datetime
-from sqlalchemy import and_
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -15,7 +14,6 @@ from submit_api.models import TermsOfService as TermsOfServiceModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.db import db
-from submit_api.models.invitations import InvitationStatus
 from submit_api.services.keycloak import KeycloakService
 from submit_api.utils.token_info import TokenInfo
 
@@ -104,18 +102,12 @@ class AccountUserService:
     @staticmethod
     def _fetch_users(account_id, account_project_ids=None):
         """Fetch active users from the `account_users` table."""
-        query = AccountUserModel.query.filter(AccountUserModel.account_id == account_id)
-        if account_project_ids:
-            query = query.join(UserRoleModel).filter(
-                UserRoleModel.account_project_id.in_(account_project_ids)
-            )
-        return query.all()
+        return AccountUserModel.get_filtered_by_account_id(account_id, account_project_ids)
 
     @staticmethod
     def _fetch_user_status_name(user_id):
         """Fetch only the user's status name."""
-        user = UserModel.query.filter(UserModel.id == user_id).first()
-        return user.user_status.status_name if user else None
+        return UserModel.get_status_name_by_id(user_id)
 
     @staticmethod
     def _fetch_roles(users):
@@ -126,11 +118,7 @@ class AccountUserService:
         else:
             user_ids = [users.id]  # For a single user, create a list with the user id
 
-        user_roles = (
-            UserRoleModel.query
-            .filter(UserRoleModel.account_user_id.in_(user_ids))
-            .all()
-        )
+        user_roles = UserRoleModel.get_all_in_user_ids(user_ids)
 
         roles_map = {}
         for role in user_roles:
@@ -150,21 +138,9 @@ class AccountUserService:
         """Fetch invited users from the `invitations` table"""
         project_ids = None
         if account_project_ids:
-            project_ids = AccountProjectModel.query.filter(
-                AccountProjectModel.id.in_(account_project_ids)
-            ).with_entities(AccountProjectModel.project_id).all()
-            project_ids = [pid[0] for pid in project_ids]
+            project_ids = AccountProjectModel.get_project_ids_by_ids(account_project_ids)
 
-        invitees_query = InvitationsModel.query.filter(
-            InvitationsModel.account_id == account_id,
-            # The list should excluded expired and revoked invitations
-            # pylint: disable=invalid-unary-operand-type
-            ~(and_(InvitationsModel.is_expired, InvitationsModel.status == InvitationStatus.REVOKED.value)),
-            InvitationsModel.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
-        )
-        if project_ids:
-            invitees_query = invitees_query.filter(InvitationsModel.project_ids.op('@>')(project_ids))
-        invitees = invitees_query.all()
+        invitees = InvitationsModel.get_active_by_account_id(account_id, project_ids)
 
         invited_users = []
         for invite in invitees:
@@ -414,7 +390,7 @@ class AccountUserService:
             raise ResourceNotFoundError(f"Terms of service with ID {terms_of_service_version_id} not found")
 
         account_user.terms_of_service_version_id = terms_of_service_version_id
-        account_user.terms_of_service_accepted_date = datetime.utcnow()
+        account_user.terms_of_service_accepted_date = datetime.now(UTC)
         db.session.commit()
 
         return AccountUserModel.get_users_by_account_user_id(account_user_id)
