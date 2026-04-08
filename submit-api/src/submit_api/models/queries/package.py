@@ -132,7 +132,6 @@ class PackageQueries:
         cls._add_completed_status(aggregated_statuses, statuses)
         cls._add_submitted_status(aggregated_statuses, statuses)
         cls._add_passed_consultation_check(aggregated_statuses, statuses)
-        cls._add_review_rejected(aggregated_statuses, statuses)
         cls._add_review_not_completed(aggregated_statuses, statuses)
         cls._add_under_review(aggregated_statuses, statuses)
         cls._add_under_cc_check(aggregated_statuses, statuses)

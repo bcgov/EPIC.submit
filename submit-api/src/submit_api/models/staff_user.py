@@ -34,12 +34,7 @@ class StaffUser(BaseModel):
             work_email_address=data.get('work_email_address', None),
             user_id=data.get('user_id', None)
         )
-        if session:
-            session.add(staff_user)
-            session.flush()
-        else:
-            staff_user.save()
-        return staff_user
+        return staff_user.persist(session)
 
     @classmethod
     def get_by_guid(cls, _guid):

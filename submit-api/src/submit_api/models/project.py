@@ -47,6 +47,11 @@ class Project(db.Model):
         return cls.query.filter(cls.id.in_(project_ids)).all()
 
     @classmethod
+    def get_all_by_proponent_id(cls, proponent_id: int):
+        """Get all projects for a given proponent id, ordered by name."""
+        return cls.query.filter_by(proponent_id=proponent_id).order_by(cls.name).all()
+
+    @classmethod
     def get_one_by_proponent_id(cls, proponent_id):
         """Fetch project by proponent id."""
         return cls.query.filter_by(proponent_id=proponent_id).first()

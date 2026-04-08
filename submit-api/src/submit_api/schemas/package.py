@@ -138,8 +138,7 @@ class PackageSchema(Schema):
     name = fields.Str(data_key="name")
     type = fields.Nested(PackageTypeSchema, data_key="type")
     type_id = fields.Int(data_key="type_id")
-    status = fields.List(fields.Enum(enum=PackageStatus),
-                         enum=PackageStatus, data_key="status")
+    status = fields.List(fields.Enum(enum=PackageStatus), data_key="status", metadata={"enum": PackageStatus})
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Method('get_submitted_by')
     completed_on = fields.DateTime(data_key="completed_on")

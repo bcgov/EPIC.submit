@@ -5,7 +5,7 @@ Provides utility functions for logging user and staff actions in the system.
 Handles creation and retrieval of activity logs.
 """
 
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Optional
 
 from submit_api.enums.activity_type import ActivityTypeEnum, VisibilityTypeEnum, ActorTypeEnum
@@ -81,5 +81,5 @@ class ActivityLogService:
             actor_id=actor_id or TokenInfo.get_username(),
             actor_type=actor_type,
             visibility=visibility,
-            activity_at=datetime.utcnow()
+            activity_at=datetime.now(UTC)
         )

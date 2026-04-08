@@ -1,7 +1,7 @@
 """Email queue model."""
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from typing import List
 
@@ -36,7 +36,7 @@ class EmailQueue(BaseModel):
     entity_type = Column(db.String(50), nullable=False)
     template_name = Column(db.String(100), nullable=False)
     status = Column(db.String(50), nullable=False, default=EmailStatus.PENDING.value)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=datetime.now(UTC))
     sent_at = Column(DateTime, nullable=True)
     error_message = Column(db.String(500), nullable=True)
 

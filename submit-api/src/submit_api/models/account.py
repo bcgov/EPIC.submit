@@ -32,8 +32,10 @@ class Account(BaseModel):
         account = Account(
             proponent_id=account_data.get('proponent_id', None),
         )
-        if session:
-            account.flush()
-        else:
-            account.save()
-        return account
+        return account.persist(session)
+
+    @classmethod
+    def get_ids_by_proponent_id(cls, proponent_id: int) -> list[int]:
+        """Get account ids for a given proponent id."""
+        results = cls.query.with_entities(cls.id).filter_by(proponent_id=proponent_id).all()
+        return [account_id for (account_id,) in results]

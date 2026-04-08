@@ -5,7 +5,7 @@ Revises: 6dfc3501adbb
 Create Date: 2024-07-30 10:49:57.735159
 
 """
-from datetime import datetime
+from datetime import datetime, UTC
 
 import sqlalchemy as sa
 from alembic import op
@@ -22,7 +22,7 @@ roles_table = sa.Table('roles', metadata,
                        sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
                        sa.Column('role_name', sa.String(50), nullable=False),
                        sa.Column('description', sa.Text, nullable=False),
-                       sa.Column('created_date', sa.DateTime, nullable=False, default=datetime.utcnow),
+                       sa.Column('created_date', sa.DateTime, nullable=False, default=datetime.now(UTC)),
                        sa.Column('updated_date', sa.DateTime, nullable=True),
                        sa.Column('created_by', sa.String(50), nullable=True),
                        sa.Column('updated_by', sa.String(50), nullable=True)
@@ -37,7 +37,7 @@ def upgrade():
             {
                 'role_name': 'ACCOUNT_PRIMARY_ADMIN',
                 'description': 'Administrator role',
-                'created_date': datetime.utcnow(),
+                'created_date': datetime.now(UTC),
                 'created_by': 'system'  # Or replace with the actual creator
             }
         ]
