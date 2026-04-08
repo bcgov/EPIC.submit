@@ -19,7 +19,7 @@ from flask import abort, request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.auth import auth
+from submit_api.auth import auth, jwt
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import NonCanonicalPackageStatus, PackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
@@ -97,30 +97,6 @@ class AccountProjects(Resource):
             "next_cursor": next_cursor,
             "total": total_projects,
         }, HTTPStatus.OK
-
-
-@cors_preflight("GET, OPTIONS, POST")
-@API.route(
-    "/<int:account_project_id>",
-    methods=["POST", "GET", "OPTIONS"],
-)
-class AccountProject(Resource):
-    """Resource for managing projects."""
-
-    @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Get project by project_id")
-    @API.response(
-        code=HTTPStatus.CREATED, model=project_list_model, description="Get project"
-    )
-    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @cross_origin(origins=allowedorigins())
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
-    def get(account_project_id):
-        """Get project by id."""
-        account_project = ProjectService.get_account_project_by_id(account_project_id, is_staff=True)
-        if not account_project:
-            return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND
-        return account_project, HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS, POST")
@@ -217,7 +193,8 @@ class Projects(Resource):
     @auth.require
     def get(account_project_id):
         """Get account project by account_project_id."""
-        account_project = ProjectService.get_account_project_by_id(account_project_id, is_staff=False)
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        account_project = ProjectService.get_account_project_by_id(account_project_id, is_staff=is_staff)
         if not account_project:
             return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND
         return account_project, HTTPStatus.OK
