@@ -14,6 +14,7 @@ from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
 from submit_api.models import PackageVersion as PackageVersionModel
 from submit_api.models import UpdateRequest as UpdateRequestModel
+from submit_api.models.account_project_work import AccountProjectWork as AccountProjectWorkModel
 from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
@@ -63,10 +64,17 @@ class PackageService:
 
             package = cls._create_package(
                 session, account_project_id, request_data, package_type)
-            package_version = cls._create_package_version(
-                session, original_package_id=package.id, version=1)
-            package.version_id = package_version.id
-            session.add(package)
+
+            # Skip package version creation for Additional Information packages
+            # Additional Information packages are simple document uploads that don't require versioning
+            # They can be associated with any phase and don't follow the review/approval workflow
+            # that requires version tracking
+            if package_type.name != PackageTypeEnum.ADDITIONAL_INFORMATION.value:
+                package_version = cls._create_package_version(
+                    session, original_package_id=package.id, version=1)
+                package.version_id = package_version.id
+                session.add(package)
+
             cls._create_package_metadata(
                 session, package.id, request_data.get("metadata"))
             cls._create_items(session, package.id, package_type)
@@ -80,10 +88,29 @@ class PackageService:
         package_data = {
             "account_project_id": account_project_id,
             "name": request_data.get("name"),
+            "description": request_data.get("description"),
             "type_id": package_type.id,
         }
         if status := request_data.get("status"):
             package_data["status"] = status
+
+        # Use account_project_work_id from request if provided
+        if request_data.get("account_project_work_id"):
+            package_data["account_project_work_id"] = request_data.get("account_project_work_id")
+            current_app.logger.info(
+                f"Using account_project_work_id from request: {request_data.get('account_project_work_id')}"
+            )
+        # Otherwise, try to find it automatically if package type has a phase
+        elif package_type.phase_id:
+            # Find the account_project_work that matches this phase
+            account_project_works = AccountProjectWorkModel.find_by_account_project_id(account_project_id)
+            for apw in account_project_works:
+                if apw.work and apw.work.current_phase_id == package_type.phase_id:
+                    package_data["account_project_work_id"] = apw.id
+                    current_app.logger.info(
+                        f"Auto-associating package with work {apw.work_id} (phase: {package_type.phase_id})"
+                    )
+                    break
 
         package = PackageModel(**package_data)
         session.add(package)

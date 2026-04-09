@@ -3,7 +3,11 @@ import { NewSubmissionCard } from "../NewSubmissionCard";
 import { NewAssessmentSubmissionForm } from "./NewAssessmentSubmissionForm";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 
-export function NewAssessmentSubmission() {
+type NewAssessmentSubmissionProps = {
+  onSubmit: (data: any) => void;
+};
+
+export function NewAssessmentSubmission({ onSubmit }: NewAssessmentSubmissionProps) {
   const { accountProject } = useNewSubmissionStore();
 
   return (
@@ -17,7 +21,7 @@ export function NewAssessmentSubmission() {
         }
         barTitle="Select Submission"
       >
-        <NewAssessmentSubmissionForm />
+        <NewAssessmentSubmissionForm onSubmit={onSubmit} />
       </NewSubmissionCard>
     </Grid>
   );

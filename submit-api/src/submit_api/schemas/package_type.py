@@ -16,3 +16,4 @@ class PackageTypeSchema(Schema):
 
     id = fields.Int(data_key="id")
     name = fields.Str(data_key="name")
+    title = fields.Str(data_key="title", required=False)

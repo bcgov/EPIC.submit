@@ -6,7 +6,7 @@ Flask-Moment
 Flask-SQLAlchemy
 SQLAlchemy-Continuum
 flask-restx
-flask-marshmallow>=1.2.2
+flask-marshmallow==1.4.0
 flask-jwt-oidc
 python-dotenv
 psycopg2-binary

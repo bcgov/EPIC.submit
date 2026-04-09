@@ -94,7 +94,7 @@ export function NewSubmission() {
       <SubmitLoaderBackdrop isOpen={isCreatingSubmissionPackagePending} />
       {currentPhase?.work_type_name?.toUpperCase() ==
       WORK_TYPE_NAMES.ASSESSMENT ? (
-        <NewAssessmentSubmission />
+        <NewAssessmentSubmission onSubmit={handleSubmit} />
       ) : (
         <NewManagementPlan onSubmit={handleSubmit} />
       )}

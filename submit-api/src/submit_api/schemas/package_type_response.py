@@ -44,6 +44,10 @@ class PackageTypeResponseSchema(Schema):
         required=True,
         metadata={"description": "Package type name"}
     )
+    title = fields.Str(
+        required=False,
+        metadata={"description": "Display title for the package type"}
+    )
     phase_id = fields.Int(
         required=True,
         metadata={"description": "Associated phase ID from track_phases table"}

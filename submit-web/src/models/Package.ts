@@ -1,5 +1,6 @@
 import { InternalStaffDocument, SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
+import { AccountProjectWork } from "./AccountProjectWork";
 
 export enum SubmissionPackageType {
   MANAGEMENT_PLAN = "Management Plan",
@@ -11,6 +12,7 @@ export enum SubmissionPackageType {
 export type PackageType = {
   id: number;
   name: SubmissionPackageType;
+  title?: string;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus
@@ -150,6 +152,7 @@ export type PackageVersion = {
 export type SubmissionPackage = {
   id: number;
   name: string;
+  description?: string;
   status: PackageStatus[];
   submitted_on?: string;
   completed_on?: string;
@@ -158,6 +161,7 @@ export type SubmissionPackage = {
   type: PackageType;
   items: Array<SubmissionItem>;
   account_project_id: number;
+  account_project_work?: AccountProjectWork;
   meta?: SubmissionPackageMeta;
   days_since_submission?: number;
   internal_staff_documents?: InternalStaffDocument[];

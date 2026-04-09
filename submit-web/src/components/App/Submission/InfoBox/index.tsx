@@ -14,7 +14,6 @@ type InfoBoxProps = {
 
 export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
   const { version } = submissionPackage;
-
   const condition = useMemo(() => {
     if (!submissionPackage.meta) return "";
     const mainCondition = get(submissionPackage, "meta.main_condition");
@@ -41,33 +40,8 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
         p: "16px",
       }}
     >
-      <If condition={submissionPackage.type.name === SubmissionPackageType.IPD}>
+      <If condition={submissionPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN}>
         <Then>
-          <Grid item xs={12} md={6} container direction={"column"}>
-            <Grid item xs={12}>
-              <Stack direction={"row"} spacing={2}>
-                <Typography color={BCDesignTokens.themeGray70}>
-                  Submitted on:
-                </Typography>
-                <Typography color={"inherit"}>
-                  {dateUtils.formatDate(submissionPackage.submitted_on) || "-"}
-                </Typography>
-              </Stack>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Stack direction={"row"} spacing={2}>
-                <Typography color={BCDesignTokens.themeGray70}>
-                  Submitted by:
-                </Typography>
-                <Typography color={"inherit"}>
-                  {submissionPackage.submitted_by || "-"}
-                </Typography>
-              </Stack>
-            </Grid>
-          </Grid>
-        </Then>
-        <Else>
           <Grid item xs={12} md={6} container>
             <Grid item xs={12}>
               <Stack direction={"row"} spacing={2}>
@@ -89,24 +63,52 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
               </Stack>
             </Grid>
           </Grid>
+        </Then>
+        <Else>
+          <Grid item xs={12} md={6} container direction={"column"}>
+            <Grid item xs={12}>
+              <Stack direction={"row"} spacing={2}>
+                <Typography color={BCDesignTokens.themeGray70}>
+                  Submitted on:
+                </Typography>
+                <Typography color={"inherit"}>
+                  {dateUtils.formatDate(submissionPackage.submitted_on) || "-"}
+                </Typography>
+              </Stack>
+            </Grid>
+            <Grid item xs={12}>
+              <Stack direction={"row"} spacing={2}>
+                <Typography color={BCDesignTokens.themeGray70}>
+                  Submitted by:
+                </Typography>
+                <Typography color={"inherit"}>
+                  {submissionPackage.submitted_by || "-"}
+                </Typography>
+              </Stack>
+            </Grid>
+          </Grid>
         </Else>
       </If>
 
-      <Grid
-        item
-        md={6}
-        xs={12}
-        container
-        alignContent={{ xs: "flex-start" }}
-        justifyContent={{ xs: "flex-end" }}
-      >
-        <VersionGroup currentPackageVersion={version} />
-      </Grid>
-      <Grid item xs={12} container mt={"16px"}>
-        <SubmissionHistory
-          submissionPackageId={String(version.original_package_id)}
-        />
-      </Grid>
+      {version && (
+        <>
+          <Grid
+            item
+            md={6}
+            xs={12}
+            container
+            alignContent={{ xs: "flex-start" }}
+            justifyContent={{ xs: "flex-end" }}
+          >
+            <VersionGroup currentPackageVersion={version} />
+          </Grid>
+          <Grid item xs={12} container mt={"16px"}>
+            <SubmissionHistory
+              submissionPackageId={String(version.original_package_id)}
+            />
+          </Grid>
+        </>
+      )}
     </Grid>
   );
 };

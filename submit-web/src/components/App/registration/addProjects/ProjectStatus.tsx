@@ -19,15 +19,24 @@ const statusStyles: Record<string, StyleProps> = {
   },
 };
 
+const DEFAULT_STYLE: StyleProps = {
+  color: "#5583B5",
+  label: "",
+};
+
 type ProjectStatusProps = {
   status: string;
 };
 export const ProjectStatus = ({ status }: ProjectStatusProps) => {
-  const style = statusStyles[status];
-
-  if (!style) {
+  if (!status) {
     return null;
   }
+
+  // Use predefined style if available, otherwise use default with the status as label
+  const style = statusStyles[status] || {
+    ...DEFAULT_STYLE,
+    label: status,
+  };
 
   return (
     <Stack
