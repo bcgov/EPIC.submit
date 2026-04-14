@@ -1,5 +1,6 @@
-import { FiberManualRecordTwoTone } from "@mui/icons-material";
-import { Box, Typography, Stack, Divider } from "@mui/material";
+import { Box, Typography, Divider } from "@mui/material";
+import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
+import { getProjectStatus } from "@/components/App/registration/addProjects/ProjectCard/constants";
 import { BCDesignTokens } from "epic.theme";
 import { Project } from "@/models/Project";
 
@@ -8,6 +9,10 @@ type ProjectCardProps = {
 };
 
 export const ProjectCard = ({ project }: ProjectCardProps) => {
+  const work = project.works?.at(-1)?.current_phase?.work_type_name;
+  const phase = project.works?.at(-1)?.current_phase?.name;
+  const status = phase ? getProjectStatus(phase) : undefined;
+
   return (
     <Box
       sx={{
@@ -47,20 +52,9 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
           }}
         >
           <Typography variant="h4" fontWeight={400} px={1.5} py={1}>
-            EAC Assessment
+            {work}
           </Typography>
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={0.5}
-            px={1.5}
-            mb={1.5}
-          >
-            <FiberManualRecordTwoTone fontSize="small" />
-            <Typography variant="body2" color={BCDesignTokens.themeGray110}>
-              Early Engagement
-            </Typography>
-          </Stack>
+          {status && <ProjectStatus status={status} />}
           <Divider sx={{ borderColor: BCDesignTokens.themeGray40 }} />
           <Typography variant="body1" px={1.5} py={1.5}>
             Submit your Initial Project Description &amp; Engagement Plan, and
