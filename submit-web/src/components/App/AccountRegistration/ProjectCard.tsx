@@ -51,10 +51,14 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
             boxShadow: "0 0px 6px 1px rgba(0, 0, 0, 0.10)",
           }}
         >
-          <Typography variant="h4" fontWeight={400} px={1.5} py={1}>
+          <Typography variant="h4" fontWeight={400} px={1.5} pt={1}>
             {work}
           </Typography>
-          {status && <ProjectStatus status={status} />}
+          {status && (
+            <Box px={1} pb={1}>
+              <ProjectStatus status={status} />
+            </Box>
+          )}
           <Divider sx={{ borderColor: BCDesignTokens.themeGray40 }} />
           <Typography variant="body1" px={1.5} py={1.5}>
             Submit your Initial Project Description &amp; Engagement Plan, and
