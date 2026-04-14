@@ -106,6 +106,7 @@ function CreateAccountForm() {
     setAccount({
       userId: data.user_id,
       userManagementRole: data.roles[0],
+      userManagementRoles: data.roles,
       roles: data.roles[0].permissions,
       userType: USER_TYPE.PROPONENT,
       accountId: data.account_id,

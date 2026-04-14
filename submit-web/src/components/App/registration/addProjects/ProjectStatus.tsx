@@ -1,5 +1,5 @@
 import { Caption2 } from "@/components/Shared/Typographies";
-import ModeStandbyIcon from "@mui/icons-material/ModeStandby";
+import { ModeStandby } from "@mui/icons-material";
 import { Stack } from "@mui/material";
 import { EAOColors } from "epic.theme";
 
@@ -36,7 +36,7 @@ export const ProjectStatus = ({ status }: ProjectStatusProps) => {
       alignItems={"center"}
       color={style.color}
     >
-      <ModeStandbyIcon />
+      <ModeStandby />
       <Caption2 color={style.color} bold>
         {style.label}
       </Caption2>

@@ -1,4 +1,4 @@
-import { FiberManualRecordTwoTone } from "@mui/icons-material";
+import { ModeStandby } from "@mui/icons-material";
 import { Box, Typography, Stack, Divider } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { Project } from "@/models/Project";
@@ -8,6 +8,7 @@ type ProjectCardProps = {
 };
 
 export const ProjectCard = ({ project }: ProjectCardProps) => {
+  // TODO: Map projects and its details once API is done
   return (
     <Box
       sx={{
@@ -56,7 +57,7 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
             px={1.5}
             mb={1.5}
           >
-            <FiberManualRecordTwoTone fontSize="small" />
+            <ModeStandby />
             <Typography variant="body2" color={BCDesignTokens.themeGray110}>
               Early Engagement
             </Typography>
