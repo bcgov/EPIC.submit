@@ -2,7 +2,6 @@ import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import { Box, styled, SxProps, Typography } from "@mui/material";
 import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useMemo } from "react";
 
 type SubmissionTitleProps = {
@@ -26,18 +25,9 @@ export const SubmissionTitle = ({
   customTitle,
   customStatus,
 }: SubmissionTitleProps) => {
-  const { data: accountProject } = useGetAccountProject({
-    accountProjectId: submissionPackage?.account_project_id || 0,
-  });
-  const proponentName = accountProject?.project?.proponent?.name || "";
   const title = useMemo(() => {
     if (customTitle) {
       return customTitle;
-    }
-
-    // Specific title rules for certain package types
-    if (submissionPackage?.type.name === SubmissionPackageType.IPD) {
-      return `${proponentName} - Assessment`;
     }
 
     if (submissionPackage?.type.name === SubmissionPackageType.MANAGEMENT_PLAN || 
@@ -45,14 +35,9 @@ export const SubmissionTitle = ({
       return `Management Plans & Related Documents`;
     }
 
-    // Default fallback: use package type title and package name
-    if (submissionPackage?.type.title && submissionPackage?.name) {
-      return `${submissionPackage.type.title} - ${submissionPackage.name}`;
-    }
-
     // Final fallback
-    return submissionPackage?.name || "";
-  }, [submissionPackage, proponentName, customTitle]);
+    return submissionPackage?.account_project_work?.work?.title || "";
+  }, [submissionPackage, customTitle]);
 
   const status = useMemo(() => {
     if (customStatus) {

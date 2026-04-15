@@ -9,6 +9,7 @@ from marshmallow import EXCLUDE, Schema, fields
 from submit_api.schemas.package import PackageSchema, StaffPackageSchema
 from submit_api.schemas.proponent import ProponentSchema
 from submit_api.schemas.account_project_work import AccountProjectWorkSchema
+from submit_api.schemas.track_work import TrackWorkSchema
 
 
 class ProjectSchema(Schema):

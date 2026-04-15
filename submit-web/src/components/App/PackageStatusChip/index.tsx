@@ -115,6 +115,15 @@ const statusStyles: Record<
     },
     label: "New",
   },
+  IN_PROGRESS: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.themeBlue100}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+    },
+    label: "In Progress",
+  },
   NEW_SUBMISSION: {
     sx: {
       borderRadius: 1,

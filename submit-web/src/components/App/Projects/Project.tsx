@@ -10,10 +10,10 @@ type ProjectParam = {
 
 export const Project = ({ accountProject }: ProjectParam) => {
   const navigate = useNavigate();
-
   const { name, ea_certificate } = accountProject.project;
-  const currentPhase =
-    accountProject.account_project_works?.at(-1)?.work?.current_phase ?? null;
+  const currentWork =
+    accountProject.account_project_works?.at(-1)?.work ?? null;
+  const currentPhase = currentWork?.current_phase ?? null;
 
   const handleNewSubmission = () => {
     navigate({
@@ -30,8 +30,8 @@ export const Project = ({ accountProject }: ProjectParam) => {
     >
       {currentPhase?.work_type_name?.toUpperCase() == "ASSESSMENT" ? (
         <ProjectSubmissionsCard
-          title={`${name} - Assessment`}
-          status={PROJECT_STATUS.EARLY_ENGAGEMENT}
+          title={`${currentWork?.title}`}
+          status={currentPhase.name}
           packages={accountProject.packages}
           onNewSubmission={handleNewSubmission}
         />

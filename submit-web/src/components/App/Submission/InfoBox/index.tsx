@@ -32,15 +32,51 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
   }, [submissionPackage]);
 
   return (
-    <Grid
-      container
-      sx={{
-        borderRadius: "4px",
-        border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-        p: "16px",
-      }}
-    >
-      <If condition={submissionPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN}>
+    <>
+      {submissionPackage.description && (
+        <Grid
+          container
+          sx={{
+            borderRadius: "4px",
+            border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+            p: "16px",
+            backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
+            mb: "16px",
+          }}
+        >
+          <Typography
+            component="span"
+            sx={{
+              fontWeight: 700,
+              fontSize: "16px",
+              lineHeight: "27.008px",
+              color: BCDesignTokens.typographyColorPrimary,
+            }}
+          >
+            Description: &nbsp;<br />
+          </Typography>
+          <Typography
+            component="span"
+            sx={{
+              fontWeight: 400,
+              fontSize: "16px",
+              lineHeight: "27.008px",
+              color: BCDesignTokens.typographyColorPrimary,
+            }}
+          >
+            {submissionPackage.description}
+          </Typography>
+        </Grid>
+      )}
+      <Grid
+        container
+        sx={{
+          borderRadius: "4px",
+          border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+          p: "16px",
+        }}
+      >
+        <If condition={submissionPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN}>
         <Then>
           <Grid item xs={12} md={6} container>
             <Grid item xs={12}>
@@ -109,6 +145,7 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
           </Grid>
         </>
       )}
-    </Grid>
+      </Grid>
+    </>
   );
 };

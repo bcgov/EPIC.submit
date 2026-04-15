@@ -267,6 +267,10 @@ def get_package_status(status, user_type, version_obj):
             UserType.PROPONENT: PackageStatus.REVIEWED.value,
             UserType.STAFF: PackageStatus.REVIEWED.value
         },
+        PackageStatus.IN_PROGRESS.value: {
+            UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
+            UserType.STAFF: PackageStatus.IN_PROGRESS.value
+        },
     }
 
     if status in package_status_mapping:
