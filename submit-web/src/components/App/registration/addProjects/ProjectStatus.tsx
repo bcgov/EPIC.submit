@@ -8,6 +8,11 @@ type StyleProps = {
   label: string;
 };
 
+// const DEFAULT_STYLE: StyleProps = {
+//   color: EAOColors.ProponentDark,
+//   label: "Unknown Status",
+// };
+
 const statusStyles: Record<string, StyleProps> = {
   POST_DECISION: {
     color: EAOColors.DecisionDark,

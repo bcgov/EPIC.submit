@@ -29,6 +29,7 @@ import { Route as ProponentAccountRegistrationIndexRouteImport } from './routes/
 import { Route as ProponentRegistrationCreateAccountRouteImport } from './routes/proponent/registration/create-account'
 import { Route as ProponentRegistrationCompleteRouteImport } from './routes/proponent/registration/complete'
 import { Route as ProponentAccountRegistrationSecondAdminRouteImport } from './routes/proponent/account-registration/second-admin'
+import { Route as ProponentAccountRegistrationRegistrationErrorRouteImport } from './routes/proponent/account-registration/registration-error'
 import { Route as ProponentAccountRegistrationCreateAccountRouteImport } from './routes/proponent/account-registration/create-account'
 import { Route as ProponentAccountRegistrationConfirmProjectsRouteImport } from './routes/proponent/account-registration/confirm-projects'
 import { Route as ProponentAccountRegistrationCompletedRouteImport } from './routes/proponent/account-registration/completed'
@@ -166,6 +167,12 @@ const ProponentAccountRegistrationSecondAdminRoute =
   ProponentAccountRegistrationSecondAdminRouteImport.update({
     id: '/second-admin',
     path: '/second-admin',
+    getParentRoute: () => ProponentAccountRegistrationRouteRoute,
+  } as any)
+const ProponentAccountRegistrationRegistrationErrorRoute =
+  ProponentAccountRegistrationRegistrationErrorRouteImport.update({
+    id: '/registration-error',
+    path: '/registration-error',
     getParentRoute: () => ProponentAccountRegistrationRouteRoute,
   } as any)
 const ProponentAccountRegistrationCreateAccountRoute =
@@ -375,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/proponent/account-registration/completed': typeof ProponentAccountRegistrationCompletedRoute
   '/proponent/account-registration/confirm-projects': typeof ProponentAccountRegistrationConfirmProjectsRoute
   '/proponent/account-registration/create-account': typeof ProponentAccountRegistrationCreateAccountRoute
+  '/proponent/account-registration/registration-error': typeof ProponentAccountRegistrationRegistrationErrorRoute
   '/proponent/account-registration/second-admin': typeof ProponentAccountRegistrationSecondAdminRoute
   '/proponent/registration/complete': typeof ProponentRegistrationCompleteRoute
   '/proponent/registration/create-account': typeof ProponentRegistrationCreateAccountRoute
@@ -420,6 +428,7 @@ export interface FileRoutesByTo {
   '/proponent/account-registration/completed': typeof ProponentAccountRegistrationCompletedRoute
   '/proponent/account-registration/confirm-projects': typeof ProponentAccountRegistrationConfirmProjectsRoute
   '/proponent/account-registration/create-account': typeof ProponentAccountRegistrationCreateAccountRoute
+  '/proponent/account-registration/registration-error': typeof ProponentAccountRegistrationRegistrationErrorRoute
   '/proponent/account-registration/second-admin': typeof ProponentAccountRegistrationSecondAdminRoute
   '/proponent/registration/complete': typeof ProponentRegistrationCompleteRoute
   '/proponent/registration/create-account': typeof ProponentRegistrationCreateAccountRoute
@@ -465,6 +474,7 @@ export interface FileRoutesById {
   '/proponent/account-registration/completed': typeof ProponentAccountRegistrationCompletedRoute
   '/proponent/account-registration/confirm-projects': typeof ProponentAccountRegistrationConfirmProjectsRoute
   '/proponent/account-registration/create-account': typeof ProponentAccountRegistrationCreateAccountRoute
+  '/proponent/account-registration/registration-error': typeof ProponentAccountRegistrationRegistrationErrorRoute
   '/proponent/account-registration/second-admin': typeof ProponentAccountRegistrationSecondAdminRoute
   '/proponent/registration/complete': typeof ProponentRegistrationCompleteRoute
   '/proponent/registration/create-account': typeof ProponentRegistrationCreateAccountRoute
@@ -515,6 +525,7 @@ export interface FileRouteTypes {
     | '/proponent/account-registration/completed'
     | '/proponent/account-registration/confirm-projects'
     | '/proponent/account-registration/create-account'
+    | '/proponent/account-registration/registration-error'
     | '/proponent/account-registration/second-admin'
     | '/proponent/registration/complete'
     | '/proponent/registration/create-account'
@@ -560,6 +571,7 @@ export interface FileRouteTypes {
     | '/proponent/account-registration/completed'
     | '/proponent/account-registration/confirm-projects'
     | '/proponent/account-registration/create-account'
+    | '/proponent/account-registration/registration-error'
     | '/proponent/account-registration/second-admin'
     | '/proponent/registration/complete'
     | '/proponent/registration/create-account'
@@ -604,6 +616,7 @@ export interface FileRouteTypes {
     | '/proponent/account-registration/completed'
     | '/proponent/account-registration/confirm-projects'
     | '/proponent/account-registration/create-account'
+    | '/proponent/account-registration/registration-error'
     | '/proponent/account-registration/second-admin'
     | '/proponent/registration/complete'
     | '/proponent/registration/create-account'
@@ -787,6 +800,13 @@ declare module '@tanstack/react-router' {
       path: '/second-admin'
       fullPath: '/proponent/account-registration/second-admin'
       preLoaderRoute: typeof ProponentAccountRegistrationSecondAdminRouteImport
+      parentRoute: typeof ProponentAccountRegistrationRouteRoute
+    }
+    '/proponent/account-registration/registration-error': {
+      id: '/proponent/account-registration/registration-error'
+      path: '/registration-error'
+      fullPath: '/proponent/account-registration/registration-error'
+      preLoaderRoute: typeof ProponentAccountRegistrationRegistrationErrorRouteImport
       parentRoute: typeof ProponentAccountRegistrationRouteRoute
     }
     '/proponent/account-registration/create-account': {
@@ -985,6 +1005,7 @@ interface ProponentAccountRegistrationRouteRouteChildren {
   ProponentAccountRegistrationCompletedRoute: typeof ProponentAccountRegistrationCompletedRoute
   ProponentAccountRegistrationConfirmProjectsRoute: typeof ProponentAccountRegistrationConfirmProjectsRoute
   ProponentAccountRegistrationCreateAccountRoute: typeof ProponentAccountRegistrationCreateAccountRoute
+  ProponentAccountRegistrationRegistrationErrorRoute: typeof ProponentAccountRegistrationRegistrationErrorRoute
   ProponentAccountRegistrationSecondAdminRoute: typeof ProponentAccountRegistrationSecondAdminRoute
   ProponentAccountRegistrationIndexRoute: typeof ProponentAccountRegistrationIndexRoute
 }
@@ -997,6 +1018,8 @@ const ProponentAccountRegistrationRouteRouteChildren: ProponentAccountRegistrati
       ProponentAccountRegistrationConfirmProjectsRoute,
     ProponentAccountRegistrationCreateAccountRoute:
       ProponentAccountRegistrationCreateAccountRoute,
+    ProponentAccountRegistrationRegistrationErrorRoute:
+      ProponentAccountRegistrationRegistrationErrorRoute,
     ProponentAccountRegistrationSecondAdminRoute:
       ProponentAccountRegistrationSecondAdminRoute,
     ProponentAccountRegistrationIndexRoute:
