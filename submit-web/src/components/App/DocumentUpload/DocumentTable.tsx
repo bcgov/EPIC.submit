@@ -39,7 +39,7 @@ export default function DocumentTable({
     return null;
   }
   return (
-    <TableContainer component={Box} sx={{ height: "100%" }}>
+    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden" }}>
       <Table sx={{ tableLayout: "fixed" }}>
         <TableHead
           sx={{
