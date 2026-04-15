@@ -8,10 +8,6 @@ type StyleProps = {
   label: string;
 };
 
-// const DEFAULT_STYLE: StyleProps = {
-//   color: EAOColors.ProponentDark,
-//   label: "Unknown Status",
-// };
 
 const statusStyles: Record<string, StyleProps> = {
   POST_DECISION: {
@@ -33,9 +29,7 @@ type ProjectStatusProps = {
   status: string;
 };
 export const ProjectStatus = ({ status }: ProjectStatusProps) => {
-  if (!status) {
-    return null;
-  }
+
 
   // Use predefined style if available, otherwise use default with the status as label
   const style = statusStyles[status] || {
