@@ -27,7 +27,7 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   }, [submissionPackage.internal_staff_documents, initializeFiles]);
 
   return (
-    <TableContainer component={Box} sx={{ height: "100%" }}>
+    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden" }}>
       <Table sx={{ tableLayout: "fixed" }}>
         <ItemsTableHead packageType={packageType} />
         <TableBody>

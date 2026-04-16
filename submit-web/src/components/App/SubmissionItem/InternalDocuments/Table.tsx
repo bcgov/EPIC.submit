@@ -15,7 +15,9 @@ type TableProps = Readonly<{
 }>;
 export default function Table({ hideManageDocuments = false }: TableProps) {
   return (
-    <TableContainer sx={{ height: "100%", cursor: "pointer" }}>
+    <TableContainer
+      sx={{ height: "100%", cursor: "pointer", overflow: "hidden" }}
+    >
       <MuiTable sx={{ tableLayout: "fixed" }}>
         <TableHead
           sx={{
