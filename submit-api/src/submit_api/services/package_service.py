@@ -100,8 +100,9 @@ class PackageService:
             # Set IN_PROGRESS status for work-related packages
             if not package_data.get("status"):
                 package_data["status"] = [PackageStatus.IN_PROGRESS.value]
+                work_id = request_data.get('account_project_work_id')
                 current_app.logger.info(
-                    f"Setting IN_PROGRESS status for work-related package with work_id: {request_data.get('account_project_work_id')}"
+                    f"Setting IN_PROGRESS status for work-related package with work_id: {work_id}"
                 )
             current_app.logger.info(
                 f"Using account_project_work_id from request: {request_data.get('account_project_work_id')}"
@@ -407,7 +408,7 @@ class PackageService:
             current_app.logger.info(
                 f"Changed status from IN_PROGRESS to SUBMITTED for work-related package {package.id}"
             )
-        
+
         cls._update_items_status(
             package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_package_status(package.id, session, package)
