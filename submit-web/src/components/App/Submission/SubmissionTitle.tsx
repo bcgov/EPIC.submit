@@ -2,7 +2,6 @@ import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import { Box, styled, SxProps, Typography } from "@mui/material";
 import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useMemo } from "react";
 
 type SubmissionTitleProps = {
@@ -18,7 +17,6 @@ export const CardInnerBox = styled(Box)({
   justifyContent: "center",
   flexDirection: "column",
   height: "100%",
-  padding: "0 12px",
 });
 
 export const SubmissionTitle = ({
@@ -27,28 +25,32 @@ export const SubmissionTitle = ({
   customTitle,
   customStatus,
 }: SubmissionTitleProps) => {
-  const { data: accountProject } = useGetAccountProject({
-    accountProjectId: submissionPackage?.account_project_id || 0,
-  });
-
-  const proponentName = accountProject?.project?.proponent?.name || "";
-
   const title = useMemo(() => {
-    return (
-      customTitle ||
-      (submissionPackage?.type.name === SubmissionPackageType.IPD
-        ? `${proponentName} - Assessment`
-        : `Management Plans & Related Documents`)
-    );
-  }, [submissionPackage, proponentName, customTitle]);
+    if (customTitle) {
+      return customTitle;
+    }
+
+    if (submissionPackage?.type.name === SubmissionPackageType.MANAGEMENT_PLAN || 
+        submissionPackage?.type.name === SubmissionPackageType.IEM) {
+      return `Management Plans & Related Documents`;
+    }
+
+    // Final fallback
+    return submissionPackage?.account_project_work?.work?.title || "";
+  }, [submissionPackage, customTitle]);
 
   const status = useMemo(() => {
-    return (
-      customStatus ||
-      (submissionPackage?.type.name === SubmissionPackageType.IPD
-        ? PROJECT_STATUS.EARLY_ENGAGEMENT
-        : PROJECT_STATUS.POST_DECISION)
-    );
+    if (customStatus) {
+      return customStatus;
+    }
+
+    // If package is associated with a work, show the current phase name
+    if (submissionPackage?.account_project_work?.work?.current_phase?.name) {
+      return submissionPackage.account_project_work.work.current_phase.name;
+    }
+
+    // Fallback to POST_DECISION for packages without work association
+    return PROJECT_STATUS.POST_DECISION;
   }, [submissionPackage, customStatus]);
 
   return (

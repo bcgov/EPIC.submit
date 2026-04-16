@@ -40,8 +40,14 @@ class AccountProject(BaseModel):
     def latest_packages(self):
         """Get the latest packages by versions for the account project."""
         version_by_package = {}
+        packages_without_versions = []
 
         for package in self.packages:
+            # Handle packages without versions (e.g., Additional Information)
+            if not package.version:
+                packages_without_versions.append(package)
+                continue
+
             original_package_id = package.version.original_package_id
             if original_package_id not in version_by_package:
                 version_by_package[original_package_id] = package
@@ -49,7 +55,8 @@ class AccountProject(BaseModel):
                 if package.version.version > version_by_package[original_package_id].version.version:
                     version_by_package[original_package_id] = package
 
-        return list(version_by_package.values())
+        # Return both versioned packages (latest only) and packages without versions (all)
+        return list(version_by_package.values()) + packages_without_versions
 
     @classmethod
     def add_projects_bulk(cls, projects):

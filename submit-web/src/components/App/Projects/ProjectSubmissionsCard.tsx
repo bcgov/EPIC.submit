@@ -35,10 +35,10 @@ export const ProjectSubmissionsCard = ({
 }: ProjectSubmissionsCardProps) => {
   const { userType } = useAccount();
 
-  const activeSubmissionPackages = packages.filter(
+  const activeSubmissionPackages = packages?.filter(
     (subPackage) => !subPackage.completed_on,
   );
-  const pastSubmissionPackages = packages.filter((subPackage) =>
+  const pastSubmissionPackages = packages?.filter((subPackage) =>
     Boolean(subPackage.completed_on),
   );
 

@@ -5,7 +5,9 @@ from flask import request
 from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
+from submit_api.models.package_type import PackageType
 from submit_api.resources.apihelper import Api as ApiHelper
+from submit_api.schemas.package_type import PackageTypeSchema
 from submit_api.schemas.package_type_create import PackageTypeCreateSchema
 from submit_api.schemas.package_type_response import PackageTypeResponseSchema
 from submit_api.services.package_type_service import PackageTypeService
@@ -25,6 +27,25 @@ package_type_create_model = ApiHelper.convert_ma_schema_to_restx_model(
 package_type_response_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, PackageTypeResponseSchema(), "PackageTypeResponse"
 )
+
+
+@cors_preflight('GET,OPTIONS')
+@API.route('/phase/<int:phase_id>', methods=['GET', 'OPTIONS'])
+class PackageTypeByPhaseResource(Resource):
+    """Resource for fetching package types by phase."""
+
+    @API.doc('get_package_types_by_phase')
+    @API.response(
+        code=HTTPStatus.OK,
+        model=[package_type_response_model],
+        description='Package types retrieved successfully'
+    )
+    @auth.require
+    def get(self, phase_id):
+        """Get all package types for a given phase."""
+        package_types = PackageType.find_by_phase_id(phase_id)
+        schema = PackageTypeSchema(many=True)
+        return schema.dump(package_types), HTTPStatus.OK
 
 
 @cors_preflight('POST,OPTIONS')
@@ -63,12 +84,6 @@ class PackageTypeResource(Resource):
         data = schema.load(request.get_json())
 
         # Create or update package type
-        result = PackageTypeService.create_or_update_package_type(
-            ea_act_name=data['ea_act_name'],
-            work_type_name=data['work_type_name'],
-            phase_name=data['phase_name'],
-            package_type_name=data['package_type_name'],
-            item_types=data['item_types']
-        )
+        result = PackageTypeService.create_or_update_package_type(data)
 
         return result, HTTPStatus.OK

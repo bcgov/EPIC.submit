@@ -226,6 +226,7 @@ class InvitationService:
                     account_project_works.append(account_project_work)
 
                 # Create default submission package (if required by EAO)
+                # This portion needs to be revisited to work for any phase, not just Early Engagement
                 if any(
                     apw.work.is_in_specific_phase('Early Engagement', WorkTypeName.ASSESSMENT)
                     for apw in account_project_works

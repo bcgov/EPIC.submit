@@ -78,6 +78,7 @@ class Package(BaseModel):
     account_project_id = Column(db.Integer, ForeignKey(
         'account_projects.id', ondelete='CASCADE'), nullable=False)
     name = Column(db.String(255), nullable=False)
+    description = Column(db.String(500), nullable=True, comment="Description of the package")
     type_id = Column(db.Integer, ForeignKey(
         'package_types.id'), nullable=False)
     type = db.relationship('PackageType', foreign_keys=[

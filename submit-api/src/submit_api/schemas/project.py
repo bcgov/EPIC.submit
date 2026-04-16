@@ -8,6 +8,7 @@ from marshmallow import EXCLUDE, Schema, fields
 
 from submit_api.schemas.package import PackageSchema, StaffPackageSchema
 from submit_api.schemas.proponent import ProponentSchema
+from submit_api.schemas.account_project_work import AccountProjectWorkSchema
 from submit_api.schemas.track_work import TrackWorkSchema
 
 
@@ -48,19 +49,6 @@ class AccountProjectPackageSchema(PackageSchema):
         unknown = EXCLUDE
 
     items = fields.Function(lambda obj: [])
-
-
-class AccountProjectWorkSchema(Schema):
-    """Account project work schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    id = fields.Int(data_key="id")
-    work_id = fields.Int(data_key="work_id")
-    work = fields.Nested(TrackWorkSchema, data_key="work")
 
 
 class AccountProjectSchema(Schema):

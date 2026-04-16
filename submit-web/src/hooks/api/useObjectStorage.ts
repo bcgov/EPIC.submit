@@ -32,6 +32,10 @@ export const S3_FOLDER = {
     value: "geospatial",
     label: "Geospatial Information",
   },
+  UPLOAD_DOCUMENTS: {
+    value: "upload_documents",
+    label: "Upload Documents",
+  },
 };
 
 export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
