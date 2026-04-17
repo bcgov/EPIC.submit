@@ -20,9 +20,9 @@ from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
-from submit_api.models.account_project_search_options import DocumentSearchOptions
+from submit_api.models.account_project_search_options import DocumentSearchOptions, ProjectDocumentSearchOptions
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.submission import SubmissionSchema, SubmittedDocumentByProjectSchema
+from submit_api.schemas.submission import SubmissionSchema, SubmittedDocumentByProjectSchema, PaginatedProjectDocumentItemSchema
 from submit_api.services.submitted_document_service import DocumentService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -56,6 +56,26 @@ class AccountDocuments(Resource):
     def get():
         """Get all submitted documents."""
         args = request.args
+        project_id = args.get('project_id', type=int)
+
+        if project_id:
+            page = args.get('page', 1, type=int)
+            size = args.get('size', 10, type=int)
+
+            paginated_search_options = ProjectDocumentSearchOptions(
+                project_id=project_id,
+                page=page,
+                size=size,
+            )
+            paginated_result = DocumentService.get_project_documents_paginated(paginated_search_options)
+
+            return {
+                "items": PaginatedProjectDocumentItemSchema(many=True).dump(paginated_result.items),
+                "total": paginated_result.total,
+                "page": paginated_result.page,
+                "size": paginated_result.per_page,
+            }, HTTPStatus.OK
+
         search_text = args.get('search_text')
         search_options = DocumentSearchOptions(
             search_text=search_text,
