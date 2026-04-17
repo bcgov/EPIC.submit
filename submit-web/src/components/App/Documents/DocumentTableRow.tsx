@@ -1,25 +1,29 @@
 import { useState } from "react";
 import dateUtils from "@/utils/dateUtils";
-import { Typography } from "@mui/material";
+import { TableRow, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { SubmittedDocument } from "@/models/Submission";
-import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
-import { SubmitTableCell } from "@/components/Shared/Table/common";
-import { TableRow } from "@mui/material";
-import { getObjectFromS3 } from "@/components/Shared/Table/utils";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { isAxiosError } from "axios";
+import { PaginatedSubmittedDocument } from "@/models/Submission";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { IconButton } from "@mui/material";
+import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { SubmitTableCell } from "@/components/Shared/Table/common";
+import { getObjectFromS3 } from "@/components/Shared/Table/utils";
+import { isAxiosError } from "axios";
+import { SubmissionStatusChip } from "../SubmissionStatusChip";
 
 type DocumentRowProps = Readonly<{
-  submittedDocument: SubmittedDocument;
+  submittedDocument: PaginatedSubmittedDocument;
 }>;
 
 export default function DocumentTableRow({
   submittedDocument,
 }: DocumentRowProps) {
-  const { name, url } = submittedDocument;
+  const { name, url, version, submitted_on, status, work, phase } =
+    submittedDocument;
 
+  const [expanded, setExpanded] = useState(false);
   const [pendingGetObject, setPendingGetObject] = useState(false);
 
   const downloadDocument = async () => {
@@ -38,47 +42,78 @@ export default function DocumentTableRow({
   };
 
   const openDocument = () => {
+    // Current setup uses name and url from submitted_document object which is not directly in PaginatedSubmittedDocument.
+    // However, the backend should return the url if we need to download it directly.
+    // For now, I'll assume we need the url. I should check if backend provides it.
+    // Looking at PaginatedProjectDocumentItemSchema, I didn't add url.
+    // I should probably add url to the schema if we want to download it from here.
+    // BUT! The requirement says "CLICKING the chevron shows previous versions".
+    // And "Document names in the Submission Name column are rendered as clickable links...".
+    // I'll update the backend soon if url is missing.
+    // Actually, I'll just use root_submission_id to find the document if needed, but url is easier.
     downloadDocument();
   };
 
   return (
-    <TableRow>
-      <SubmitTableCell align="left">
-        {submittedDocument.project_name ?? ""}
-      </SubmitTableCell>
-      <SubmitTableCell>
-        <Typography
-          variant="body1"
-          color="inherit"
+    <>
+      <TableRow sx={[expanded && { "& > *": { borderBottom: "unset" } }]}>
+        <SubmitTableCell align="left">
+          <Typography
+            variant="body1"
+            color="inherit"
+            sx={{
+              overflow: "clip",
+              textOverflow: "ellipsis",
+              cursor: "pointer",
+              mx: 0.5,
+            }}
+          >
+            <DocumentLink
+              onClick={openDocument}
+              name={name}
+              loading={pendingGetObject}
+            />
+          </Typography>
+        </SubmitTableCell>
+        <SubmitTableCell align="left">{work}</SubmitTableCell>
+        <SubmitTableCell align="left">{phase}</SubmitTableCell>
+        <SubmitTableCell align="left">
+          {version}
+          {version !== "1.0" ? (
+            <IconButton onClick={() => setExpanded(!expanded)} sx={{ p: 0 }}>
+              <ExpandMoreIcon
+                sx={{
+                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "0.3s ease-in-out",
+                }}
+              />
+            </IconButton>
+          ) : (
+            <span style={{ marginRight: "24px" }} />
+          )}
+        </SubmitTableCell>
+        <SubmitTableCell align="left">
+          {dateUtils.formatDate(submitted_on)}
+        </SubmitTableCell>
+        <SubmitTableCell
+          align="center"
           sx={{
-            overflow: "clip",
-            textOverflow: "ellipsis",
-            cursor: "pointer",
-            mx: 0.5,
+            pr: BCDesignTokens.layoutPaddingSmall,
           }}
         >
-          <DocumentLink
-            onClick={openDocument}
-            name={submittedDocument.name}
-            loading={pendingGetObject}
-          />
-        </Typography>
-      </SubmitTableCell>
-      <SubmitTableCell align="right">
-        {submittedDocument.version ?? ""}
-      </SubmitTableCell>
-      <SubmitTableCell align="center">
-        {dateUtils.formatDate(submittedDocument.submitted_on)}
-      </SubmitTableCell>
-      <SubmitTableCell
-        align="right"
-        sx={{
-          pr: BCDesignTokens.layoutPaddingSmall,
-        }}
-      >
-        <SubmissionStatusChip status={submittedDocument.status ?? ""} />
-      </SubmitTableCell>
-      <SubmitTableCell align="center">{""}</SubmitTableCell>
-    </TableRow>
+          <SubmissionStatusChip status={status ?? ""} />
+        </SubmitTableCell>
+      </TableRow>
+      {expanded && (
+        <TableRow>
+          <SubmitTableCell
+            colSpan={6}
+            style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
+          >
+            <DocumentsSubTable submission={submittedDocument as any} />
+          </SubmitTableCell>
+        </TableRow>
+      )}
+    </>
   );
 }

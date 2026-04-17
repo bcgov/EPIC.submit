@@ -305,3 +305,24 @@ export type SubmittedDocument = {
   submitted_on: string;
   version: string;
 };
+
+export type PaginatedSubmittedDocument = {
+  id: number;
+  name: string;
+  url: string;
+  work: string;
+  phase: string;
+  version: string;
+  submitted_on: string;
+  status: string;
+  root_submission_id: number;
+};
+
+
+export type PaginatedDocumentsResponse = {
+  items: PaginatedSubmittedDocument[];
+  total: number;
+  page: number;
+  size: number;
+};
+
