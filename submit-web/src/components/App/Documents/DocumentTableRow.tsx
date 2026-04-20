@@ -79,7 +79,7 @@ export default function DocumentTableRow({
         <SubmitTableCell align="left">{phase}</SubmitTableCell>
         <SubmitTableCell align="left">
           {version}
-          {version !== "1.0" ? (
+          {version !== "1.1" ? (
             <IconButton onClick={() => setExpanded(!expanded)} sx={{ p: 0 }}>
               <ExpandMoreIcon
                 sx={{
@@ -110,7 +110,10 @@ export default function DocumentTableRow({
             colSpan={6}
             style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
           >
-            <DocumentsSubTable submission={submittedDocument as any} />
+            <DocumentsSubTable
+              submissionId={submittedDocument.root_submission_id}
+              currentDocumentId={submittedDocument.id}
+            />
           </SubmitTableCell>
         </TableRow>
       )}

@@ -83,8 +83,10 @@ function DocumentsPage() {
                 Select a Project:
               </Typography>
               <Select
+                id="project-select"
                 value={selectedProjectId}
                 displayEmpty
+                size="small"
                 onChange={(e) => handleProjectChange(e.target.value as number)}
                 sx={{
                   width: "50%",

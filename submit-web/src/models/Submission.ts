@@ -290,6 +290,7 @@ export type Submission = {
   major_version: number;
   type: SubmissionType;
   submitted_document?: DocumentSubmission;
+  submitted_document_id?: number;
   submitted_form?: SubmittedForm;
   created_date: string;
   submitted_by: string;
