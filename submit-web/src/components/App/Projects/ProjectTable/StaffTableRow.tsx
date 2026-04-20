@@ -71,7 +71,7 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
               }}
               onClick={onSubmissionClick}
               disabled={
-                version.version === 1 &&
+                version?.version === 1 &&
                 status.includes(PACKAGE_STATUS.CREATED.value)
               }
             >

@@ -38,13 +38,14 @@ class ConsultationRecordService:
         session.add(item)
         session.add(package_metadata)
         package = Package.find_by_id(item.package_id)
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
-            entity_version=package.version.version,
-            actor_id=TokenInfo.get_username(),
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
+                entity_version=package.version.version,
+                actor_id=TokenInfo.get_username(),
+                session=session
+            )
         current_app.logger.info(
             f"Consultation record approved for item {item.id}.")
 
@@ -62,13 +63,14 @@ class ConsultationRecordService:
         update_request_data = cls._prepare_update_request_data(item)
         cls._create_update_request(update_request_data, session)
         package = Package.find_by_id(item.package_id)
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
-            entity_version=package.version.version,
-            actor_id=TokenInfo.get_username(),
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
+                entity_version=package.version.version,
+                actor_id=TokenInfo.get_username(),
+                session=session
+            )
         cls._create_rejection_email_queue(
             item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
         item.status = ItemStatus.UNDER_CONSULTATION_CHECK.value
