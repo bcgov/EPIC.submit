@@ -61,12 +61,13 @@ class ManagementPlanService:
         current_app.logger.info(
             f"Logging activity for management plan rejection for package {item.package_id}.")
         package = PackageModel.find_by_id(item.package_id)
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.MP_REVIEW_FAILED.value,
-            entity_version=package.version.version,
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.MP_REVIEW_FAILED.value,
+                entity_version=package.version.version,
+                session=session
+            )
         current_app.logger.info(
             f"Activity logged for management plan rejection for package {package.id}.")
 
@@ -231,12 +232,13 @@ class ManagementPlanService:
         if not action_type:
             raise ResourceNotFoundError(
                 f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=action_type,
-            entity_version=package.version.version,
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=action_type,
+                entity_version=package.version.version,
+                session=session
+            )
         current_app.logger.info(
             f"Activity logged for management plan approval for package {package.id}.")
 

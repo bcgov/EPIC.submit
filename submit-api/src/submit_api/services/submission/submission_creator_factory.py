@@ -368,7 +368,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         submission_item = ItemModel.find_by_id(item_id)
         submission_package = PackageModel.find_by_id(submission_item.package_id)
         package_version = submission_package.version
-        major_version = package_version.version
+        major_version = package_version.version if package_version else 1
 
         if not original_submission_id or not submission_package.submitted_on:
             minor_version = 1
