@@ -28,6 +28,7 @@ import { SubmissionPackageType } from "@/models/Package";
 export default function StaffSubmissionItemTableRow({
   item,
   error = false,
+  packageType,
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
 
@@ -128,6 +129,7 @@ export default function StaffSubmissionItemTableRow({
               documentSubmission={submission}
               staff
               submissionPackage={submissionPackage}
+              packageType={packageType}
             />
           ))}
       </When>

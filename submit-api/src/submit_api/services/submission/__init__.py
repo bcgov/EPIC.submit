@@ -185,9 +185,11 @@ class SubmissionService:
         with session_scope():
             submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
             if not submission:
+                current_app.logger.error("Submission with id %s not found for get_all_versions.", submission_id)
                 return None
 
             root_submission_id = submission.root_submission_id or submission.id
+            current_app.logger.debug("Fetching all versions for root_submission_id: %s.", root_submission_id)
             return SubmissionModel.find_all_versions(root_submission_id)
 
     @classmethod

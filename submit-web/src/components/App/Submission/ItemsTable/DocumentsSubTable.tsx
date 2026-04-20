@@ -12,14 +12,17 @@ import { Submission } from "@/models/Submission";
 import { useGetSubmissionVersions } from "@/hooks/api/useSubmissions";
 import DocumentSubRow from "./DocumentSubRow";
 import { useMemo, useState } from "react";
+import { PackageType } from "@/models/Package";
 import ItemsTableHead from "./ItemsTableHead";
 import { useMounted } from "@/hooks/common";
 
 type DocumentsSubTableProps = Readonly<{
   submission: Submission;
+  packageType?: PackageType;
 }>;
 export default function DocumentsSubTable({
   submission,
+  packageType,
 }: DocumentsSubTableProps) {
   const { data: submissions, isPending: isSubmissionsLoading } =
     useGetSubmissionVersions(submission.id);
@@ -73,7 +76,7 @@ export default function DocumentsSubTable({
           Previous Submitted Versions
         </Typography>
         <Table sx={{ tableLayout: "fixed" }}>
-          <ItemsTableHead />
+          <ItemsTableHead packageType={packageType} />
           <TableBody>
             {filteredSubmissions?.map((submission) => (
               <DocumentSubRow
