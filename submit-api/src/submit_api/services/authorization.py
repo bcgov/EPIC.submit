@@ -84,7 +84,8 @@ def has_access_to_package(package_id):
                 return
 
         if user_role.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
-            if package.version.original_package_id in user_role.original_package_ids:
+            original_package_id = package.version.original_package_id if package.version else package.id
+            if original_package_id in user_role.original_package_ids:
                 return
 
     abort(HTTPStatus.FORBIDDEN)
