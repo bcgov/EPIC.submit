@@ -118,7 +118,6 @@ class PaginatedProjectDocumentItemSchema(Schema):
     url = fields.Str(data_key="url")
     root_submission_id = fields.Int(data_key="root_submission_id")
 
-
     def get_phase(self, obj):
         """Get the phase name."""
         return obj.phase_display_name if obj.phase_display_name else obj.phase_name
@@ -128,4 +127,3 @@ class PaginatedProjectDocumentItemSchema(Schema):
         if obj.major_version is not None and obj.minor_version is not None:
             return f"{obj.major_version}.{obj.minor_version}"
         return None
-
