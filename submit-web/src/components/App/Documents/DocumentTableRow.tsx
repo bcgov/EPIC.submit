@@ -42,15 +42,6 @@ export default function DocumentTableRow({
   };
 
   const openDocument = () => {
-    // Current setup uses name and url from submitted_document object which is not directly in PaginatedSubmittedDocument.
-    // However, the backend should return the url if we need to download it directly.
-    // For now, I'll assume we need the url. I should check if backend provides it.
-    // Looking at PaginatedProjectDocumentItemSchema, I didn't add url.
-    // I should probably add url to the schema if we want to download it from here.
-    // BUT! The requirement says "CLICKING the chevron shows previous versions".
-    // And "Document names in the Submission Name column are rendered as clickable links...".
-    // I'll update the backend soon if url is missing.
-    // Actually, I'll just use root_submission_id to find the document if needed, but url is easier.
     downloadDocument();
   };
 

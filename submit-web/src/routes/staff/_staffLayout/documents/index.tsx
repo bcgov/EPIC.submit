@@ -12,7 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BCDesignTokens } from "epic.theme";
 import { PaginatedDocumentsResponse } from "@/models/Submission";
 import { When } from "react-if";
@@ -31,7 +31,7 @@ function DocumentsPage() {
   const { data: projectsData, isPending: isProjectsLoading } =
     useGetAccountProjectsForStaff({ searchOptions: {}, pageSize: 1000 });
 
-  const projects = projectsData?.projects ?? [];
+  const projects = useMemo(() => projectsData?.projects ?? [], [projectsData]);
 
   useEffect(() => {
     if (projects.length === 1 && !selectedProjectId) {

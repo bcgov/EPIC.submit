@@ -26,4 +26,3 @@ class DocumentService:
     def get_project_documents_paginated(cls, search_options: ProjectDocumentSearchOptions):
         """Get paginated documents for a project."""
         return DocumentQueries.get_project_documents_paginated(search_options)
-
