@@ -10,6 +10,7 @@ export type Project = {
   works?: TrackWork[];
   ea_certificate?: string;
   epic_guid: string;
+  is_eligible?: boolean;
 };
 
 export const getProjectProponentId = (project: Project): number => {

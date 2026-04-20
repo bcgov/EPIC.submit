@@ -29,6 +29,15 @@ class Project(db.Model):
         db.UniqueConstraint('name', 'proponent_id', name='uq_projects_name_proponent'),
     )
 
+    @property
+    def is_eligible(self):
+        """Determines if the current project is eligible in submit."""
+        try:
+            phase_is_enabled = self.works.current_phase.enable_submit
+        except AttributeError:
+            phase_is_enabled = None
+        return bool(phase_is_enabled or self.has_approved_condition)
+
     def to_dict(self):
         """Convert object to dictionary."""
         return {
@@ -39,6 +48,7 @@ class Project(db.Model):
             "works": [work.to_dict() for work in self.works],
             "ea_certificate": self.ea_certificate,
             "epic_guid": self.epic_guid,
+            "is_eligible": self.is_eligible
         }
 
     @classmethod
