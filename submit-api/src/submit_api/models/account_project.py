@@ -37,6 +37,11 @@ class AccountProject(BaseModel):
         back_populates='account_project')
 
     @property
+    def is_work_related(self):
+        """Determines if the account_project is tied to an eligible work."""
+        return self.project.is_current_phase_enabled
+    
+    @property
     def latest_packages(self):
         """Get the latest packages by versions for the account project."""
         version_by_package = {}

@@ -30,7 +30,10 @@ import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
-import { PendingRequest, SentRequest } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
+import {
+  PendingRequest,
+  SentRequest,
+} from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useState, useMemo, useCallback } from "react";
@@ -110,12 +113,12 @@ export default function SubmissionPage() {
     return submissionPackage.update_requests
       .filter(
         (req) =>
-          req.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value && req.active
+          req.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value && req.active,
       )
       .flatMap((req) =>
         req.submission_item_types.map((itemTypeId) => {
           const item = submissionPackage.items.find(
-            (i) => i.type_id === itemTypeId
+            (i) => i.type_id === itemTypeId,
           );
           return {
             updateRequestId: req.id,
@@ -126,25 +129,25 @@ export default function SubmissionPage() {
             createdDate: req.created_date || "",
             status: req.status || "",
           };
-        })
+        }),
       );
   }, [submissionPackage]);
 
   const handleRequestUpdate = useCallback(
     (itemTypeId: number, itemTypeName: string) => {
       const alreadyPending = pendingRequests.some(
-        (req) => req.itemTypeId === itemTypeId
+        (req) => req.itemTypeId === itemTypeId,
       );
-      
+
       const alreadySent = sentUpdateRequests.some(
-        (req) => req.itemTypeId === itemTypeId
+        (req) => req.itemTypeId === itemTypeId,
       );
 
       if (alreadyPending) {
         notify.warning("Update request already pending for this section");
         return;
       }
-      
+
       if (alreadySent) {
         notify.warning("Update request already exists for this section");
         return;
@@ -159,20 +162,20 @@ export default function SubmissionPage() {
         },
       ]);
     },
-    [pendingRequests, sentUpdateRequests]
+    [pendingRequests, sentUpdateRequests],
   );
 
   const handleRemoveRequest = useCallback((itemTypeId: number) => {
     setPendingRequests((prev) =>
-      prev.filter((req) => req.itemTypeId !== itemTypeId)
+      prev.filter((req) => req.itemTypeId !== itemTypeId),
     );
   }, []);
 
   const handleUpdateNote = useCallback((itemTypeId: number, reason: string) => {
     setPendingRequests((prev) =>
       prev.map((req) =>
-        req.itemTypeId === itemTypeId ? { ...req, reason } : req
-      )
+        req.itemTypeId === itemTypeId ? { ...req, reason } : req,
+      ),
     );
   }, []);
 
@@ -199,7 +202,12 @@ export default function SubmissionPage() {
     } catch (error) {
       notify.error("Failed to send update request(s)");
     }
-  }, [pendingRequests, submissionPackageId, createUpdateRequestMutation, queryClient]);
+  }, [
+    pendingRequests,
+    submissionPackageId,
+    createUpdateRequestMutation,
+    queryClient,
+  ]);
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
@@ -310,8 +318,20 @@ export default function SubmissionPage() {
                 </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
+              <When condition={!accountProject.is_work_related}>
+                <Box
+                  sx={{
+                    pt: BCDesignTokens.layoutMarginXlarge,
+                    mb: BCDesignTokens.layoutMarginLarge,
+                    width: "100%",
+                  }}
+                >
+                  <UpdateRequestWidget submissionPackage={submissionPackage} />
+                </Box>
+              </When>
               <Box
                 sx={{
+                  mt: accountProject.is_work_related ? "36px" : "0px",
                   mb: BCDesignTokens.layoutMarginXlarge,
                   pt: BCDesignTokens.layoutPaddingXsmall,
                 }}
@@ -319,8 +339,12 @@ export default function SubmissionPage() {
                 <ItemsTable
                   submissionPackage={submissionPackage}
                   onRequestUpdate={handleRequestUpdate}
-                  pendingRequestItemTypeIds={pendingRequests.map(r => r.itemTypeId)}
-                  sentRequestItemTypeIds={sentUpdateRequests.map(r => r.itemTypeId)}
+                  pendingRequestItemTypeIds={pendingRequests.map(
+                    (r) => r.itemTypeId,
+                  )}
+                  sentRequestItemTypeIds={sentUpdateRequests.map(
+                    (r) => r.itemTypeId,
+                  )}
                 />
               </Box>
               <Box

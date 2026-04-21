@@ -8,8 +8,10 @@ export type Project = {
   proponent_id: number;
   proponent?: Proponent;
   works?: TrackWork[];
+  current_work?: TrackWork;
   ea_certificate?: string;
   epic_guid: string;
+  has_approved_condition?: boolean;
   is_eligible?: boolean;
 };
 
@@ -30,6 +32,7 @@ export type AccountProject = {
   project: Project;
   packages: SubmissionPackage[];
   account_project_works?: AccountProjectWork[];
+  is_work_related?: boolean;
 };
 
 export const createDefaultAccountProject = (): AccountProject => ({
