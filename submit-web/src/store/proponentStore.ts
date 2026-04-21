@@ -63,9 +63,10 @@ export const useProponentStore = create<ProponentState>((set) => ({
 
       const eligibleProjects =
         proponent.status != "ONBOARDED"
-          ? proponent.projects
+          ? (proponent.projects || []).filter((project) => project.is_eligible)
           : (proponent.projects || [])
               .filter((project) => !accountProjectIds.has(project.id))
+              .filter((project) => project.is_eligible)
               .sort((a, b) => a.name.localeCompare(b.name));
 
       set({ pendingInvitation, onboardedProjects, eligibleProjects });
