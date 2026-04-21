@@ -12,17 +12,25 @@ import { Submission } from "@/models/Submission";
 import { useGetSubmissionVersions } from "@/hooks/api/useSubmissions";
 import DocumentSubRow from "./DocumentSubRow";
 import { useMemo, useState } from "react";
+import { PackageType } from "@/models/Package";
 import ItemsTableHead from "./ItemsTableHead";
 import { useMounted } from "@/hooks/common";
 
 type DocumentsSubTableProps = Readonly<{
-  submission: Submission;
+  submission?: Submission;
+  packageType?: PackageType;
+  submissionId?: number;
+  currentDocumentId?: number;
 }>;
 export default function DocumentsSubTable({
   submission,
+  packageType,
+  submissionId,
+  currentDocumentId,
 }: DocumentsSubTableProps) {
+  const currentSubmissionId = submissionId ?? submission?.id;
   const { data: submissions, isPending: isSubmissionsLoading } =
-    useGetSubmissionVersions(submission.id);
+    useGetSubmissionVersions(currentSubmissionId ?? 0);
   const [expanded, setExpanded] = useState(false);
 
   useMounted(() => {
@@ -31,8 +39,16 @@ export default function DocumentsSubTable({
 
   const filteredSubmissions = useMemo(() => {
     if (!submissions) return [];
-    return submissions.filter((sub) => sub.id !== submission.id);
-  }, [submissions, submission.id]);
+    /*   If currentDocumentId is present, it means we are viewing a specific document version
+        So we need to filter out the current document version to show in All Documents Listing View
+        Otherwise, we are viewing the latest version in the Submission View, 
+        so we need to filter out the current submission */
+    return currentDocumentId
+      ? submissions.filter(
+          (sub) => sub.submitted_document_id !== currentDocumentId,
+        )
+      : submissions.filter((sub) => sub.id !== currentSubmissionId);
+  }, [submissions, currentSubmissionId, currentDocumentId]);
 
   if (isSubmissionsLoading) {
     return (
@@ -73,7 +89,7 @@ export default function DocumentsSubTable({
           Previous Submitted Versions
         </Typography>
         <Table sx={{ tableLayout: "fixed" }}>
-          <ItemsTableHead />
+          <ItemsTableHead packageType={packageType} />
           <TableBody>
             {filteredSubmissions?.map((submission) => (
               <DocumentSubRow

@@ -216,24 +216,35 @@ export const getAccountProjectsForStaff = ({
 
 type UseGetProjectsForStaffParams = {
   searchOptions?: Record<string, string | number | string[]>;
-  // queryOptions?: Record<string, unknown>;
+  page?: number;
+  pageSize?: number;
 };
+
 
 export const getAccountProjectsForStaffQueryOptions = ({
   searchOptions,
+  page,
+  pageSize,
 }: UseGetProjectsForStaffParams) =>
   queryOptions({
-    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions],
-    queryFn: () => getAccountProjectsForStaff({ searchOptions }),
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions, page, pageSize],
+    queryFn: () => getAccountProjectsForStaff({ searchOptions, page, pageSize }),
     ...defaultUseQueryOptions,
   });
 
 export const useGetAccountProjectsForStaff = ({
   searchOptions,
+  page,
+  pageSize,
 }: UseGetProjectsForStaffParams) => {
-  const options = getAccountProjectsForStaffQueryOptions({ searchOptions });
+  const options = getAccountProjectsForStaffQueryOptions({
+    searchOptions,
+    page,
+    pageSize,
+  });
   return useQuery(options);
 };
+
 
 export const getAccountPackagesByAccountIdQueryOptions = ({
   accountId,

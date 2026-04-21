@@ -15,13 +15,16 @@
 
 from sqlalchemy import cast, or_, String
 from submit_api.models.account_project import AccountProject
-from submit_api.models.account_project_search_options import DocumentSearchOptions
+from submit_api.models.account_project_search_options import DocumentSearchOptions, ProjectDocumentSearchOptions
 from submit_api.models.db import db
 from submit_api.models.item import Item
 from submit_api.models.package import Package
 from submit_api.models.project import Project
 from submit_api.models.submission import Submission, SubmissionType, SubmissionStatus
 from submit_api.models.submitted_document import SubmittedDocument
+from submit_api.models.account_project_work import AccountProjectWork
+from submit_api.models.track_work import TrackWork
+from submit_api.models.track_phase import TrackPhase
 
 
 class DocumentQueries:
@@ -109,3 +112,47 @@ class DocumentQueries:
                          Submission.status != SubmissionStatus.PENDING))
 
         return query.all()
+
+    @classmethod
+    def get_project_documents_paginated(cls, search_options: ProjectDocumentSearchOptions):
+        """Get paginated documents for a project."""
+        session = db.session
+
+        query = session.query(
+            SubmittedDocument.id.label("id"),
+            SubmittedDocument.name.label("name"),
+            SubmittedDocument.url.label("url"),
+            TrackWork.title.label("work"),
+
+            TrackPhase.display_name.label("phase_display_name"),
+            TrackPhase.name.label("phase_name"),
+            Submission.major_version,
+            Submission.minor_version,
+            Package.submitted_on,
+            Item.status,
+            Submission.root_submission_id
+        )
+
+        query = query.join(Item, Item.id == Submission.item_id)
+        query = query.join(Package, Package.id == Item.package_id)
+        query = query.join(AccountProject, AccountProject.id == Package.account_project_id)
+        query = query.join(SubmittedDocument, SubmittedDocument.id == Submission.submitted_document_id)
+
+        query = query.outerjoin(AccountProjectWork, AccountProjectWork.id == Package.account_project_work_id)
+        query = query.outerjoin(TrackWork, TrackWork.id == AccountProjectWork.work_id)
+        query = query.outerjoin(TrackPhase, TrackPhase.id == TrackWork.current_phase_id)
+
+        query = query.filter(
+            Submission.type == SubmissionType.DOCUMENT,
+            AccountProject.project_id == search_options.project_id,
+            Submission.active.is_(True),
+            Submission.deleted.is_(False),
+            Submission.status != SubmissionStatus.PENDING
+        )
+
+        query = query.order_by(Package.submitted_on.desc())
+
+        # Pagination
+        paginated_result = query.paginate(page=search_options.page, per_page=search_options.size, error_out=False)
+
+        return paginated_result

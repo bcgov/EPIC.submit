@@ -169,6 +169,7 @@ export default function ProponentSubmissionItemTableRow({
             documentSubmission={submission}
             submissionItem={item}
             submissionPackage={submissionPackage}
+            packageType={packageType}
           />
         ))}
       <When condition={error}>

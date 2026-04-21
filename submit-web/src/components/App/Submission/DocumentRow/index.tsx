@@ -16,7 +16,7 @@ import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { Unless } from "react-if";
-import { SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage, PackageType } from "@/models/Package";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 
@@ -25,6 +25,7 @@ type DocumentRowProps = Readonly<{
   submissionItem: SubmissionItem;
   staff?: boolean;
   submissionPackage?: SubmissionPackage;
+  packageType?: PackageType;
 }>;
 
 export default function DocumentRow({
@@ -32,7 +33,9 @@ export default function DocumentRow({
   submissionItem,
   staff = false,
   submissionPackage,
+  packageType: propsPackageType,
 }: DocumentRowProps) {
+  const packageType = propsPackageType || submissionPackage?.type;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [expanded, setExpanded] = useState(false);
 
@@ -125,7 +128,10 @@ export default function DocumentRow({
             colSpan={6}
             style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
           >
-            <DocumentsSubTable submission={documentSubmission} />
+            <DocumentsSubTable
+              submission={documentSubmission}
+              packageType={packageType}
+            />
           </SubmitTableCell>
         </TableRow>
       )}
