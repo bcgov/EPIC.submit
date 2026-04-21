@@ -200,17 +200,20 @@ export default function SubmissionPage() {
                 </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
+              <When condition={!accountProject.is_work_related}>
+                <Box
+                  sx={{
+                    pt: BCDesignTokens.layoutMarginXlarge,
+                    mb: BCDesignTokens.layoutMarginLarge,
+                    width: "100%",
+                  }}
+                >
+                  <UpdateRequestWidget submissionPackage={submissionPackage} />
+                </Box>
+              </When>
               <Box
                 sx={{
-                  pt: BCDesignTokens.layoutMarginXlarge,
-                  mb: BCDesignTokens.layoutMarginLarge,
-                  width: "100%",
-                }}
-              >
-                <UpdateRequestWidget submissionPackage={submissionPackage} />
-              </Box>
-              <Box
-                sx={{
+                  mt: accountProject.is_work_related ? "36px" : "0px",
                   mb: BCDesignTokens.layoutMarginXlarge,
                   pt: BCDesignTokens.layoutPaddingXsmall,
                 }}

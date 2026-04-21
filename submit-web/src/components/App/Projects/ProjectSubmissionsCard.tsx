@@ -8,7 +8,6 @@ import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, Divider, styled, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 
 export const CardInnerBox = styled(Box)({
@@ -24,6 +23,7 @@ type ProjectSubmissionsCardProps = {
   title: string;
   status: string;
   packages: SubmissionPackage[];
+  isWorkRelated?: boolean;
   onNewSubmission: () => void;
 };
 
@@ -31,6 +31,7 @@ export const ProjectSubmissionsCard = ({
   title,
   status,
   packages,
+  isWorkRelated = false,
   onNewSubmission,
 }: ProjectSubmissionsCardProps) => {
   const { userType } = useAccount();
@@ -55,6 +56,7 @@ export const ProjectSubmissionsCard = ({
         justifyContent={"space-between"}
         sx={{
           pt: BCDesignTokens.layoutPaddingMedium,
+          pl: "0.75rem",
           pb: BCDesignTokens.layoutPaddingXlarge,
         }}
       >
@@ -71,7 +73,7 @@ export const ProjectSubmissionsCard = ({
         </When>
       </Box>
       <Box height={"100%"} px={BCDesignTokens.layoutPaddingXsmall}>
-        <When condition={status != PROJECT_STATUS.EARLY_ENGAGEMENT}>
+        <When condition={!isWorkRelated}>
           <Divider
             sx={{
               ml: BCDesignTokens.layoutPaddingSmall,
@@ -94,7 +96,7 @@ export const ProjectSubmissionsCard = ({
         >
           <ProjectTable submissionPackages={activeSubmissionPackages} />
         </CardInnerBox>
-        <When condition={status != PROJECT_STATUS.EARLY_ENGAGEMENT}>
+        <When condition={!isWorkRelated}>
           <Divider
             sx={{
               mb: BCDesignTokens.layoutPaddingXsmall,
