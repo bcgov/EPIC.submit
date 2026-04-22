@@ -21,8 +21,19 @@ class PackageType(BaseModel):
 
     id = Column(db.Integer, primary_key=True, autoincrement=True)
     name = Column(db.String(255), nullable=False)
-    title = Column(db.String(255), nullable=True, comment="Display title for the package type")
+    title = Column(
+        db.String(255), nullable=True,
+        comment="Display title for the package type"
+    )
     phase_id = Column(db.Integer, ForeignKey('track_phases.id'), nullable=True)
+    versioning_enabled = Column(
+        db.Boolean, nullable=False, default=True,
+        comment="Whether this package type supports versioning"
+    )
+    mandatory = Column(
+        db.Boolean, nullable=False, default=False,
+        comment="Whether this package type must be created by the system"
+    )
     phase = relationship('TrackPhase', foreign_keys=[phase_id], lazy='joined')
     item_types = relationship('ItemType', secondary='package_item_types', back_populates='package_types')
 

@@ -7,6 +7,9 @@ import { ManagementPlanSubmissionStaffView } from "@/components/App/SubmissionIt
 import { ConsultationRecordStaffView } from "@/components/App/SubmissionItem/ConsultationRecord/ConsultationRecordStaffView";
 import { ContactInformationStaffView } from "@/components/App/SubmissionItem/ContactInformation/ContactInformationStaffView";
 import { IEMStaffView } from "@/components/App/SubmissionItem/IEMSubmission/IEMStaffView";
+import { IPDStaffView } from "@/components/App/SubmissionItem/IPDSubmission/IPDStaffView";
+import { EngagementPlanStaffView } from "@/components/App/SubmissionItem/EPSubmission/EPStaffView";
+import { GeoSpatialStaffView } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialStaffView";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
@@ -37,6 +40,15 @@ export const StaffItemForm = ({ submissionItem }: ItemFormProps) => {
       </Case>
       <Case condition={submissionItem.type.name === SUBMISSION_ITEM_TYPE.IEM}>
         <IEMStaffView />
+      </Case>
+      <Case condition={submissionItem.type.name === SUBMISSION_ITEM_TYPE.IPD}>
+        <IPDStaffView />
+      </Case>
+      <Case condition={submissionItem.type.name === SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN}>
+        <EngagementPlanStaffView />
+      </Case>
+      <Case condition={submissionItem.type.name === SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION}>
+        <GeoSpatialStaffView />
       </Case>
     </Switch>
   );

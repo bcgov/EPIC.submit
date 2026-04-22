@@ -20,6 +20,10 @@ class PackageItemType(BaseModel):
     item_type_id = Column(db.Integer, ForeignKey(
         'item_types.id'), nullable=False)
     sort_order = Column(db.Integer, nullable=True, default=0)
+    is_required = Column(
+        db.Boolean, nullable=False, default=True,
+        comment="Whether this item type is required for the package type"
+    )
 
     __table_args__ = (
         PrimaryKeyConstraint('package_type_id', 'item_type_id'),

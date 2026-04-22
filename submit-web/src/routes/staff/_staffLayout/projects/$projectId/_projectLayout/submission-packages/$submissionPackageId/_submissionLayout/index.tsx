@@ -12,6 +12,7 @@ import { InfoBox } from "@/components/App/Submission/InfoBox";
 import {
   useGetPackageVersionsByOriginalPackageId,
   useGetStaffSubmissionPackage,
+  useCreatePackageUpdateRequest,
 } from "@/hooks/api/usePackages";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
@@ -20,7 +21,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import ItemsTable from "@/components/App/Submission/ItemsTable";
 import { useMounted } from "@/hooks/common";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
-import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
 import { When } from "react-if";
@@ -29,6 +29,11 @@ import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
+import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
+import { PendingRequest, SentRequest } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
+import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { useState, useMemo, useCallback } from "react";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -51,6 +56,14 @@ export default function SubmissionPage() {
   );
 
   const submissionPackageId = Number(submissionPackageIdParam);
+  const accountProjectId = Number(accountProjectIdParam);
+
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+
+  const createUpdateRequestMutation = useCreatePackageUpdateRequest({
+    packageId: submissionPackageId,
+    accountProjectId,
+  });
 
   const { data: submissionPackage, isFetching } = useGetStaffSubmissionPackage({
     packageId: submissionPackageId,
@@ -90,6 +103,103 @@ export default function SubmissionPage() {
   });
 
   const managementPlanName = useManagementPlanName(submissionPackage);
+
+  const sentUpdateRequests = useMemo<SentRequest[]>(() => {
+    if (!submissionPackage?.update_requests) return [];
+
+    return submissionPackage.update_requests
+      .filter(
+        (req) =>
+          req.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value && req.active
+      )
+      .flatMap((req) =>
+        req.submission_item_types.map((itemTypeId) => {
+          const item = submissionPackage.items.find(
+            (i) => i.type_id === itemTypeId
+          );
+          return {
+            updateRequestId: req.id,
+            itemTypeId,
+            itemTypeName: item?.type.name || "",
+            reason: req.reason || "",
+            createdBy: req.created_by || "",
+            createdDate: req.created_date || "",
+            status: req.status || "",
+          };
+        })
+      );
+  }, [submissionPackage]);
+
+  const handleRequestUpdate = useCallback(
+    (itemTypeId: number, itemTypeName: string) => {
+      const alreadyPending = pendingRequests.some(
+        (req) => req.itemTypeId === itemTypeId
+      );
+      
+      const alreadySent = sentUpdateRequests.some(
+        (req) => req.itemTypeId === itemTypeId
+      );
+
+      if (alreadyPending) {
+        notify.warning("Update request already pending for this section");
+        return;
+      }
+      
+      if (alreadySent) {
+        notify.warning("Update request already exists for this section");
+        return;
+      }
+
+      setPendingRequests((prev) => [
+        ...prev,
+        {
+          itemTypeId,
+          itemTypeName,
+          reason: "",
+        },
+      ]);
+    },
+    [pendingRequests, sentUpdateRequests]
+  );
+
+  const handleRemoveRequest = useCallback((itemTypeId: number) => {
+    setPendingRequests((prev) =>
+      prev.filter((req) => req.itemTypeId !== itemTypeId)
+    );
+  }, []);
+
+  const handleUpdateNote = useCallback((itemTypeId: number, reason: string) => {
+    setPendingRequests((prev) =>
+      prev.map((req) =>
+        req.itemTypeId === itemTypeId ? { ...req, reason } : req
+      )
+    );
+  }, []);
+
+  const handleSendRequests = useCallback(async () => {
+    if (pendingRequests.length === 0) return;
+
+    try {
+      for (const request of pendingRequests) {
+        await createUpdateRequestMutation.mutateAsync({
+          packageId: submissionPackageId,
+          data: {
+            submission_item_types: [request.itemTypeId],
+            reason: request.reason,
+          },
+        });
+      }
+
+      setPendingRequests([]);
+      notify.success("Update request(s) sent successfully");
+
+      queryClient.invalidateQueries({
+        queryKey: ["packages", submissionPackageId],
+      });
+    } catch (error) {
+      notify.error("Failed to send update request(s)");
+    }
+  }, [pendingRequests, submissionPackageId, createUpdateRequestMutation, queryClient]);
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
@@ -202,20 +312,30 @@ export default function SubmissionPage() {
               <InfoBox submissionPackage={submissionPackage} />
               <Box
                 sx={{
-                  pt: BCDesignTokens.layoutMarginXlarge,
-                  mb: BCDesignTokens.layoutMarginLarge,
-                  width: "100%",
-                }}
-              >
-                <UpdateRequestWidget submissionPackage={submissionPackage} />
-              </Box>
-              <Box
-                sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,
                   pt: BCDesignTokens.layoutPaddingXsmall,
                 }}
               >
-                <ItemsTable submissionPackage={submissionPackage} />
+                <ItemsTable
+                  submissionPackage={submissionPackage}
+                  onRequestUpdate={handleRequestUpdate}
+                  pendingRequestItemTypeIds={pendingRequests.map(r => r.itemTypeId)}
+                  sentRequestItemTypeIds={sentUpdateRequests.map(r => r.itemTypeId)}
+                />
+              </Box>
+              <Box
+                sx={{
+                  mb: BCDesignTokens.layoutMarginLarge,
+                  width: "100%",
+                }}
+              >
+                <SectionUpdateRequestPanel
+                  pendingRequests={pendingRequests}
+                  sentRequests={sentUpdateRequests}
+                  onRemoveFlag={handleRemoveRequest}
+                  onUpdateNote={handleUpdateNote}
+                  onSendRequests={handleSendRequests}
+                />
               </Box>
 
               <Box

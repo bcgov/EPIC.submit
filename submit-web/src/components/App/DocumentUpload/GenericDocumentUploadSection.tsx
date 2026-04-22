@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, Link } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -36,11 +37,14 @@ export interface UploadSectionConfig {
 interface GenericDocumentUploadSectionProps {
   sections: UploadSectionConfig[];
   title?: string;
+  onRequestUpdate?: (itemTypeId: number, itemTypeName: string) => void;
+  itemTypeId?: number;
+  itemTypeName?: string;
 }
 
 export const GenericDocumentUploadSection: React.FC<
   GenericDocumentUploadSectionProps
-> = ({ sections, title = "Document(s) Upload" }) => {
+> = ({ sections, title = "Document(s) Upload", onRequestUpdate, itemTypeId, itemTypeName }) => {
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -144,14 +148,33 @@ export const GenericDocumentUploadSection: React.FC<
         return (
           <Grid item xs={12} key={section.name}>
             <Box sx={{ flexDirection: "column", display: "flex" }}>
-              <Typography
-                variant="body1"
-                color={BCDesignTokens.typographyColorPrimary}
-                fontWeight={700}
-                mt={BCDesignTokens.layoutMarginMedium}
-              >
-                Upload {section.label}
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: BCDesignTokens.layoutMarginMedium }}>
+                <Typography
+                  variant="body1"
+                  color={BCDesignTokens.typographyColorPrimary}
+                  fontWeight={700}
+                >
+                  Upload {section.label}
+                </Typography>
+                {onRequestUpdate && itemTypeId && itemTypeName && (
+                  <Link
+                    component="button"
+                    onClick={() => onRequestUpdate(itemTypeId, itemTypeName)}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      color: BCDesignTokens.themeBlue90,
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                    }}
+                  >
+                    <RefreshIcon sx={{ fontSize: "16px" }} />
+                    Request Update
+                  </Link>
+                )}
+              </Box>
               {section.description ? (
                 <Typography
                   variant="body2"

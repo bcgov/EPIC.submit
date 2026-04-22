@@ -13,6 +13,8 @@ export type PackageType = {
   id: number;
   name: SubmissionPackageType;
   title?: string;
+  versioning_enabled: boolean;
+  mandatory: boolean;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus

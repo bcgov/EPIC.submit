@@ -4,8 +4,10 @@ import {
   TableCell,
   TableRow,
   Typography,
+  Chip,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { When } from "react-if";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
@@ -28,6 +30,9 @@ import { SubmissionPackageType } from "@/models/Package";
 export default function StaffSubmissionItemTableRow({
   item,
   error = false,
+  onRequestUpdate,
+  hasPendingRequest,
+  hasSentRequest,
   packageType,
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
@@ -44,14 +49,12 @@ export default function StaffSubmissionItemTableRow({
   const { submissions, id } = item;
 
   const { submitted_on } = submissionPackage;
-
   const name = useMemo(() => {
     return getSubmissionItemLabel(item.type.name);
   }, [item.type.name]);
 
   const hasDocument =
-    item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD;
-
+    item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD; 
   const actionLabel = hasDocument ? "Review" : "View";
 
   const isNoDetailedViewType = [SubmissionPackageType.IPD].includes(
@@ -92,31 +95,89 @@ export default function StaffSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
-        <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-          <Box mr={2}>
-            <StaffStatusCell submissionItem={item} />
+        {!isNoDetailedViewType && (
+          <SubmitPrimaryRowTableCell align="right" width={"20%"}>
+            <Box mr={2}>
+              <StaffStatusCell submissionItem={item} />
+            </Box>
+          </SubmitPrimaryRowTableCell>
+        )}
+        <SubmitPrimaryRowTableCell align="center" width={"15%"}>
+          <Box display="flex" justifyContent="center">
+            <When condition={hasPendingRequest}>
+              <Chip
+                label="Flagged for Update"
+                size="small"
+                sx={{
+                  backgroundColor: BCDesignTokens.supportSurfaceColorWarning,
+                  border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+                  color: BCDesignTokens.typographyColorPrimary,
+                  fontSize: "12px",
+                  height: "24px",
+                  fontWeight: 400,
+                }}
+              />
+            </When>
+            <When condition={hasSentRequest && !hasPendingRequest}>
+              <Chip
+                label="Update Requested"
+                size="small"
+                sx={{
+                  backgroundColor: "#ffdeb8",
+                  border: "1px solid #f18a15",
+                  color: BCDesignTokens.typographyColorPrimary,
+                  fontSize: "12px",
+                  height: "24px",
+                  fontWeight: 400,
+                }}
+              />
+            </When>
           </Box>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="left" width={"10%"}>
-          <When condition={submitted_on && !isNoDetailedViewType}>
-            <SubmissionItemReviewConfirmation
-              submissionItem={item}
-              onClick={handleClick}
-            >
-              <Typography
-                variant="body2"
+        <SubmitPrimaryRowTableCell align="left" width={isNoDetailedViewType ? "30%" : "10%"}>
+          <Box display="flex" flexDirection="column" gap={0.5} alignItems={"flex-end"}>
+            <When condition={submitted_on && !isNoDetailedViewType}>
+              <SubmissionItemReviewConfirmation
+                submissionItem={item}
+                onClick={handleClick}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: BCDesignTokens.typographyColorLink,
+                    "&:hover": {
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                    },
+                  }}
+                >
+                  {actionLabel}
+                </Typography>
+              </SubmissionItemReviewConfirmation>
+            </When>
+            <When condition={Boolean(hasDocument && submitted_on && onRequestUpdate)}>
+            <MuiLink
+                component="button"
+                onClick={() => onRequestUpdate?.(item.type_id, item.type.name)}
                 sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
                   color: BCDesignTokens.typographyColorLink,
+                  fontSize: "14px",
+                  textDecoration: "none",
+                  textAlign: "left",
                   "&:hover": {
-                    cursor: "pointer",
                     textDecoration: "underline",
+                    cursor: "pointer",
                   },
                 }}
               >
-                {actionLabel}
-              </Typography>
-            </SubmissionItemReviewConfirmation>
-          </When>
+                <RefreshIcon sx={{ fontSize: "16px", color: BCDesignTokens.typographyColorLink }} />
+                Request Update
+              </MuiLink>
+            </When>
+          </Box>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       <When condition={submitted_on}>
