@@ -58,32 +58,34 @@ class AccountDocuments(Resource):
         """Get all submitted documents."""
         args = request.args
         project_id = args.get('project_id', type=int)
+        page = args.get('page', 1, type=int)
+        size = args.get('size', 10, type=int)
+        name = args.get('name') or args.get('search_text')
+        work_phase = args.getlist('work_phase')
+        submission_type = args.getlist('submission_type')
+        status = args.getlist('status')
+        submitted_on_start = args.get('submitted_on_start')
+        submitted_on_end = args.get('submitted_on_end')
 
-        if project_id:
-            page = args.get('page', 1, type=int)
-            size = args.get('size', 10, type=int)
-
-            paginated_search_options = ProjectDocumentSearchOptions(
-                project_id=project_id,
-                page=page,
-                size=size,
-            )
-            paginated_result = DocumentService.get_project_documents_paginated(paginated_search_options)
-
-            return {
-                "items": PaginatedProjectDocumentItemSchema(many=True).dump(paginated_result.items),
-                "total": paginated_result.total,
-                "page": paginated_result.page,
-                "size": paginated_result.per_page,
-            }, HTTPStatus.OK
-
-        search_text = args.get('search_text')
-        search_options = DocumentSearchOptions(
-            search_text=search_text,
+        search_options = ProjectDocumentSearchOptions(
+            project_id=project_id,
+            page=page,
+            size=size,
+            name=name,
+            work_phase=work_phase,
+            submission_type=submission_type,
+            status=status,
+            submitted_on_start=submitted_on_start,
+            submitted_on_end=submitted_on_end,
         )
+        paginated_result = DocumentService.get_documents_paginated(search_options)
 
-        documents = DocumentService.get_all_documents(search_options)
-        return SubmittedDocumentByProjectSchema(many=True).dump(documents), HTTPStatus.OK
+        return {
+            "items": PaginatedProjectDocumentItemSchema(many=True).dump(paginated_result.items),
+            "total": paginated_result.total,
+            "page": paginated_result.page,
+            "size": paginated_result.per_page,
+        }, HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")

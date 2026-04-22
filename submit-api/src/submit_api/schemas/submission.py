@@ -110,6 +110,7 @@ class PaginatedProjectDocumentItemSchema(Schema):
 
     id = fields.Int(data_key="id")
     name = fields.Str(data_key="name")
+    project_name = fields.Str(data_key="project_name")
     work = fields.Str(data_key="work")
     phase = fields.Method("get_phase")
     version = fields.Method("get_version")

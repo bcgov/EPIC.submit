@@ -7,21 +7,37 @@ import { useProjectFilters } from "./projectFilterStore";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { BCDesignTokens } from "epic.theme";
 
-export default function DateSubmittedToFilter() {
+type DateSubmittedToFilterProps = {
+  value?: string;
+  onChange?: (value: string) => void;
+  minDate?: string;
+  error?: boolean;
+  onFocus?: () => void;
+};
+
+export default function DateSubmittedToFilter({
+    value: controlledValue,
+    onChange,
+    minDate: controlledMinDate,
+    error,
+    onFocus,
+}: DateSubmittedToFilterProps) {
   const { filters, setFilters } = useProjectFilters();
 
   const handleDateChange = (date: Dayjs | null) => {
     const formattedDate = date ? date.format("YYYY-MM-DD") : "";
-    setFilters({ submitted_on_end: formattedDate });
+    if (onChange) {
+      onChange(formattedDate);
+    } else {
+      setFilters({ submitted_on_end: formattedDate });
+    }
   };
 
-  const date = filters.submitted_on_end
-    ? dayjs(filters.submitted_on_end)
-    : null;
+  const internalValue = controlledValue !== undefined ? controlledValue : filters.submitted_on_end;
+  const date = internalValue ? dayjs(internalValue) : null;
 
-  const minDate = filters.submitted_on_start
-    ? dayjs(filters.submitted_on_start)
-    : undefined;
+  const internalMinDate = controlledMinDate !== undefined ? controlledMinDate : filters.submitted_on_start;
+  const minDate = internalMinDate ? dayjs(internalMinDate) : undefined;
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -34,6 +50,8 @@ export default function DateSubmittedToFilter() {
             <TextField
               fullWidth
               {...params}
+              onFocus={onFocus}
+              error={error}
               placeholder="Date Submitted - To"
               inputProps={{
                 ...params.inputProps,
