@@ -8,7 +8,7 @@ export interface SentRequest {
   updateRequestId: number;
   itemTypeId: number;
   itemTypeName: string;
-  note: string;
+  reason: string;
   createdDate: string;
   createdBy: string;
   status: string;

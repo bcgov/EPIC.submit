@@ -33,6 +33,7 @@ export default function StaffSubmissionItemTableRow({
   onRequestUpdate,
   hasPendingRequest,
   hasSentRequest,
+  packageType,
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
 
@@ -189,6 +190,7 @@ export default function StaffSubmissionItemTableRow({
               documentSubmission={submission}
               staff
               submissionPackage={submissionPackage}
+              packageType={packageType}
             />
           ))}
       </When>

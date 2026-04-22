@@ -6,9 +6,9 @@ import { PackageType, SubmissionPackageType } from "@/models/Package";
 export default function ItemsTableHead({
   packageType,
 }: {
-  packageType: PackageType;
+  packageType?: PackageType;
 }) {
-  const isIPD = packageType.name === SubmissionPackageType.IPD;
+  const isIPD = packageType?.name === SubmissionPackageType.IPD;
   return (
     <TableHead
       sx={{

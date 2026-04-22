@@ -121,7 +121,7 @@ export default function SubmissionPage() {
             updateRequestId: req.id,
             itemTypeId,
             itemTypeName: item?.type.name || "",
-            note: req.note || "",
+            reason: req.reason || "",
             createdBy: req.created_by || "",
             createdDate: req.created_date || "",
             status: req.status || "",

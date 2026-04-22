@@ -90,7 +90,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
               mb: 0.5,
             }}
           >
-            Request Note
+            Request Reason
           </Typography>
           <Typography
             variant="body2"
@@ -112,7 +112,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
               border: "1px solid #e0e0e0",
             }}
           >
-            {request.note || "No note provided"}
+            {request.reason || "No reason provided"}
           </Typography>
         </Box>
       </AccordionDetails>

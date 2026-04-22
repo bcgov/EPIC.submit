@@ -157,12 +157,13 @@ class PackageService:
             cls._update_items_status(items_to_update, ItemStatus.REVIEW_NOT_COMPLETED.value, session)
             cls._update_package_status(original_package.id, session, original_package)
 
-            ActivityLogService.log_activity(
-                entity_id=original_package.version.original_package_id,
-                action=ActivityActionType.RESUBMISSION_INVITATION.value,
-                entity_version=original_package.version.version,
-                session=session
-            )
+            if original_package.version:
+                ActivityLogService.log_activity(
+                    entity_id=original_package.version.original_package_id,
+                    action=ActivityActionType.RESUBMISSION_INVITATION.value,
+                    entity_version=original_package.version.version,
+                    session=session
+                )
 
             session.add(new_package)
             session.flush()
@@ -486,13 +487,14 @@ class PackageService:
     @staticmethod
     def _log_activity_submission(package, action, session):
         """Log activity for package submission."""
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=action,
-            actor_type=ActorTypeEnum.ENTITY.value,
-            entity_version=package.version.version,
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=action,
+                actor_type=ActorTypeEnum.ENTITY.value,
+                entity_version=package.version.version,
+                session=session
+            )
 
     @classmethod
     def _deactivate_fail_reviews(cls, package, session):
@@ -560,12 +562,13 @@ class PackageService:
         action = review_action_map.get(package.type.name)
         if not action:
             raise BadRequestError("Unsupported package type for review")
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=action,
-            entity_version=package.version.version,
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=action,
+                entity_version=package.version.version,
+                session=session
+            )
 
     @classmethod
     def start_cr_check(cls, package_id):
@@ -591,12 +594,13 @@ class PackageService:
     @staticmethod
     def _log_activity_start_consultation_check(package, session):
         """Log activity for starting consultation check."""
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.START_CONSULTATION_CHECK.value,
-            entity_version=package.version.version,
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.START_CONSULTATION_CHECK.value,
+                entity_version=package.version.version,
+                session=session
+            )
 
     @staticmethod
     def _unsupported_status(*args, **kwargs):
@@ -679,11 +683,12 @@ class PackageService:
     @staticmethod
     def _log_activity_update_request(package):
         """Log activity for update request creation."""
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.UPDATE_REQUESTED.value,
-            entity_version=package.version.version,
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.UPDATE_REQUESTED.value,
+                entity_version=package.version.version,
+            )
 
     @classmethod
     def _get_and_validate_package_for_update_request(cls, package_id):

@@ -15,26 +15,26 @@ export default function DocumentTableHead() {
       <TableRow>
         <SubmitTableHeadCell
           sx={{
-            width: "20%",
+            width: "35%",
           }}
         >
-          Project
+          Submission Name
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "45%",
+            width: "15%",
           }}
         >
-          Document Name
+          Work
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
           sx={{
-            width: "5%",
+            width: "15%",
           }}
         >
-          Version
+          Phase
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
@@ -42,25 +42,26 @@ export default function DocumentTableHead() {
             width: "10%",
           }}
         >
+          Version
+        </SubmitTableHeadCell>
+        <SubmitTableHeadCell
+          align="left"
+          sx={{
+            width: "15%",
+          }}
+        >
           Submission Date
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="center"
           sx={{
-            width: "15%",
+            width: "10%",
           }}
         >
           Status
         </SubmitTableHeadCell>
-        <SubmitTableHeadCell
-          align="left"
-          sx={{
-            width: "5%",
-          }}
-        >
-          Actions
-        </SubmitTableHeadCell>
       </TableRow>
+
     </TableHead>
   );
 }

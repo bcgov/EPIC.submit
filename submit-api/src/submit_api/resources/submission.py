@@ -99,6 +99,8 @@ class SubmissionVersions(Resource):
     def get(submission_id):
         """Fetch all versions of a submission based on its root submission ID."""
         submissions = SubmissionService.get_all_versions(submission_id)
+        if submissions is None:
+            return {"message": "Submission not found"}, HTTPStatus.NOT_FOUND
         return SubmissionSchema(many=True).dump(submissions), HTTPStatus.OK
 
 
