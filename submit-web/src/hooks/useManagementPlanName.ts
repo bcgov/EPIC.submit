@@ -26,7 +26,7 @@ export const useManagementPlanName = (
     if (needsConditionNumber && conditionNumber) {
       return conditionNumber + " - " + submissionPackage.name;
     }
-    if (submissionPackage.type.name === SubmissionPackageType.ADDITIONAL_INFORMATION) {
+    if (!submissionPackage.type.versioning_enabled) {
       return `${submissionPackage.type.title} - ${submissionPackage.name}`;
     }
     return submissionPackage.name;

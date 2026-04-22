@@ -65,11 +65,10 @@ class PackageService:
             package = cls._create_package(
                 session, account_project_id, request_data, package_type)
 
-            # Skip package version creation for Additional Information packages
-            # Additional Information packages are simple document uploads that don't require versioning
-            # They can be associated with any phase and don't follow the review/approval workflow
-            # that requires version tracking
-            if package_type.name != PackageTypeEnum.ADDITIONAL_INFORMATION.value:
+            # Create package version only if versioning is enabled for this package type
+            # Some package types (e.g., Additional Information) don't require versioning
+            # as they are simple document uploads that don't follow the review/approval workflow
+            if package_type.versioning_enabled:
                 package_version = cls._create_package_version(
                     session, original_package_id=package.id, version=1)
                 package.version_id = package_version.id
@@ -253,15 +252,33 @@ class PackageService:
         session.flush()
 
     @classmethod
+    def _get_required_items(cls, package):
+        """Get required items for a package based on package_item_types configuration."""
+        package_item_types = PackageItemTypeModel.get_by_package_type_id(package.type_id)
+        required_item_type_ids = {
+            pit.item_type_id for pit in package_item_types if pit.is_required
+        }
+        return [item for item in package.items if item.type_id in required_item_type_ids]
+
+    @classmethod
     def _get_and_validate_complete_package(cls, package_id) -> PackageModel:
-        """Retrieve and validate that all items in the package are completed."""
+        """Retrieve and validate that all required items in the package are completed."""
         package = PackageModel.find_by_id(package_id)
         if package.submitted_on:
             return cls._validate_package_for_resubmit(package)
 
-        if any(item.status.value != ItemStatus.COMPLETED.value for item in package.items):
-            current_app.logger.info(f"Package {package_id} has incomplete items")
-            raise BadRequestError("All items must be completed before completing the package")
+        required_items = cls._get_required_items(package)
+        incomplete_required_items = [
+            item for item in required_items
+            if item.status.value != ItemStatus.COMPLETED.value
+        ]
+
+        if incomplete_required_items:
+            current_app.logger.info(
+                f"Package {package_id} has incomplete required items: "
+                f"{[item.type.name for item in incomplete_required_items]}"
+            )
+            raise BadRequestError("All required items must be completed before completing the package")
 
         current_app.logger.info(f"Package {package_id} is ready to submit")
         return package

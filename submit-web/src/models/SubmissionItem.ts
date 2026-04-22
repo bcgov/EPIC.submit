@@ -12,6 +12,7 @@ export type SubmissionItemType = {
   id: number;
   name: SUBMISSION_ITEM_TYPE;
   submission_method: SubmissionItemMethod;
+  is_required?: boolean;
 };
 
 export enum SUBMISSION_ITEM_TYPE {
@@ -68,6 +69,7 @@ export interface SubmissionItem {
   review?: SubmissionReview;
   notes?: Note[];
   review_start_date?: string;
+  is_required?: boolean;
 }
 
 export type InternalStaffDocumentType = "S3" | "LINK";

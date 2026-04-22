@@ -42,6 +42,9 @@ export default function ItemsTableHead({
             Status
           </SubmitTableHeadCell>
         )}
+        <SubmitTableHeadCell width={"15%"} align="center">
+          Update Status
+        </SubmitTableHeadCell>
         <SubmitTableHeadCell
           width={isIPD ? "30%" : "10%"}
           align="right"

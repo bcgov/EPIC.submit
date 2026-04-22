@@ -13,8 +13,16 @@ import ItemsTableHead from "@/components/App/Submission/ItemsTable/ItemsTableHea
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
+  onRequestUpdate?: (itemTypeId: number, itemTypeName: string) => void;
+  pendingRequestItemTypeIds?: number[];
+  sentRequestItemTypeIds?: number[];
 }>;
-export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
+export default function ItemsTable({ 
+  submissionPackage, 
+  onRequestUpdate,
+  pendingRequestItemTypeIds = [],
+  sentRequestItemTypeIds = [],
+}: ItemsTableProps) {
   const { initializeFiles } = useFileStore();
   const { items: submissionItems, type: packageType } = submissionPackage;
 
@@ -43,6 +51,9 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
                   submissionPackage: submissionPackage,
                 })
               }
+              onRequestUpdate={onRequestUpdate}
+              hasPendingRequest={pendingRequestItemTypeIds.includes(subItem.type_id)}
+              hasSentRequest={sentRequestItemTypeIds.includes(subItem.type_id)}
             />
           ))}
           <When condition={userType === USER_TYPE.STAFF}>

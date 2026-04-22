@@ -69,6 +69,7 @@ class ItemSchema(Schema):
     submitted_by = fields.Str(data_key="submitted_by")
     submissions = fields.Method('filter_submissions_by_status')
     sort_order = fields.Int(data_key="sort_order")
+    is_required = fields.Method('get_is_required')
 
     @post_dump
     def map_status(self, data, many, **kwargs):
@@ -101,6 +102,24 @@ class ItemSchema(Schema):
             if sub.id not in replaced_submissions
         ]
         return result
+
+    def get_is_required(self, obj):
+        """Get is_required from package_item_types junction table."""
+        from submit_api.models.package_item_type import PackageItemType
+        from submit_api.models.package import Package
+
+        # Get the package to find the package_type_id
+        package = Package.find_by_id(obj.package_id)
+        if not package:
+            return True  # Default to required if package not found
+
+        # Query the package_item_types junction table
+        package_item_type = PackageItemType.query.filter_by(
+            package_type_id=package.type_id,
+            item_type_id=obj.type_id
+        ).first()
+
+        return package_item_type.is_required if package_item_type else True
 
 
 def get_item_status(status, user_type):

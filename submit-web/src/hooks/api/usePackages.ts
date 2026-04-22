@@ -96,20 +96,24 @@ export const useCreateNewPackageVersion = (options?: Options) => {
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
 
-      queryClient.invalidateQueries({
-        queryKey: [
-          QUERY_KEY.PACKAGE_VERSIONS,
-          submissionPackage.version.original_package_id,
-        ],
-      });
+      // Only invalidate version-related queries if the package has a version
+      // Additional Information packages don't have versions
+      if (submissionPackage.version) {
+        queryClient.invalidateQueries({
+          queryKey: [
+            QUERY_KEY.PACKAGE_VERSIONS,
+            submissionPackage.version.original_package_id,
+          ],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: [
-          QUERY_KEY.ACTIVITY_LOGS,
-          submissionPackage.version.original_package_id,
-          ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
-        ],
-      });
+        queryClient.invalidateQueries({
+          queryKey: [
+            QUERY_KEY.ACTIVITY_LOGS,
+            submissionPackage.version.original_package_id,
+            ACTIVITY_LOG_ENTITY_TYPE.PACKAGE,
+          ],
+        });
+      }
     },
   });
 };

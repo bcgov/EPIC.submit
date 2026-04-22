@@ -10,12 +10,18 @@ export type SubmissionItemTableRowProps = Readonly<{
   item: SubmissionItem;
   error?: boolean;
   packageType: PackageType;
+  onRequestUpdate?: (itemTypeId: number, itemTypeName: string) => void;
+  hasPendingRequest?: boolean;
+  hasSentRequest?: boolean;
 }>;
 
 export default function SubmissionItemTableRow({
   item,
   error = false,
   packageType,
+  onRequestUpdate,
+  hasPendingRequest,
+  hasSentRequest,
 }: SubmissionItemTableRowProps) {
   const { userType } = useAccount();
 
@@ -33,6 +39,9 @@ export default function SubmissionItemTableRow({
           item={item}
           packageType={packageType}
           error={error}
+          onRequestUpdate={onRequestUpdate}
+          hasPendingRequest={hasPendingRequest}
+          hasSentRequest={hasSentRequest}
         />
       </Case>
     </Switch>
