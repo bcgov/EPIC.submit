@@ -40,7 +40,7 @@ class Project(db.Model):
         """Determines if the current active phase is enabled in submit"""
         if not self.current_work or not self.current_work.current_phase:
             return False
-        return self.current_work.current_phase.enable_submit    
+        return self.current_work.current_phase.enable_submit
 
     @property
     def is_eligible(self):
