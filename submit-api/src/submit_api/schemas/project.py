@@ -67,7 +67,6 @@ class AccountProjectSchema(Schema):
     project = fields.Nested(ProjectSchema, data_key="project")
     latest_packages = fields.List(fields.Nested(AccountProjectPackageSchema), data_key="packages")
     account_project_works = fields.List(fields.Nested(AccountProjectWorkSchema, data_key="account_project_works"))
-    is_work_related = fields.Boolean(data_key="is_work_related")
 
 
 class StaffAccountProjectPackageSchema(StaffPackageSchema):

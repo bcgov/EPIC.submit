@@ -35,11 +35,6 @@ class AccountProject(BaseModel):
         cascade='all, delete',
         passive_deletes=True,
         back_populates='account_project')
-
-    @property
-    def is_work_related(self):
-        """Determines if the account_project is tied to an eligible work."""
-        return self.project.is_current_phase_enabled
     
     @property
     def latest_packages(self):

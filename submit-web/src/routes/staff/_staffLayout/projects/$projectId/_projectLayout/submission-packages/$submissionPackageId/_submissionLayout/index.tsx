@@ -318,7 +318,9 @@ export default function SubmissionPage() {
                 </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
-              <When condition={!accountProject.is_work_related}>
+              <When
+                condition={accountProject.account_project_works?.length === 0}
+              >
                 <Box
                   sx={{
                     pt: BCDesignTokens.layoutMarginXlarge,
@@ -331,7 +333,10 @@ export default function SubmissionPage() {
               </When>
               <Box
                 sx={{
-                  mt: accountProject.is_work_related ? "36px" : "0px",
+                  mt:
+                    accountProject.account_project_works?.length === 0
+                      ? "36px"
+                      : "0px",
                   mb: BCDesignTokens.layoutMarginXlarge,
                   pt: BCDesignTokens.layoutPaddingXsmall,
                 }}

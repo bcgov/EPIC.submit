@@ -31,7 +31,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
       <ProjectSubmissionsCard
         title={title}
         status={status}
-        isWorkRelated={accountProject.is_work_related}
+        isWorkRelated={accountProject.account_project_works?.length !== 0}
         packages={accountProject.packages}
         onNewSubmission={handleNewSubmission}
       />

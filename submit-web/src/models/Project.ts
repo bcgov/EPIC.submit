@@ -32,7 +32,6 @@ export type AccountProject = {
   project: Project;
   packages: SubmissionPackage[];
   account_project_works?: AccountProjectWork[];
-  is_work_related?: boolean;
 };
 
 export const createDefaultAccountProject = (): AccountProject => ({
