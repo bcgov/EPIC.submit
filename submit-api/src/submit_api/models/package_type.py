@@ -4,11 +4,12 @@ Manages the package types
 """
 from __future__ import annotations
 
-from sqlalchemy import Column, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, Enum, ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from .base_model import BaseModel
 from .db import db
+from ..enums.package_type import PackageApprovalType
 
 
 class PackageType(BaseModel):
@@ -26,6 +27,7 @@ class PackageType(BaseModel):
         comment="Display title for the package type"
     )
     phase_id = Column(db.Integer, ForeignKey('track_phases.id'), nullable=True)
+    approval_type = Column(Enum(PackageApprovalType), nullable=True)
     versioning_enabled = Column(
         db.Boolean, nullable=False, default=True,
         comment="Whether this package type supports versioning"

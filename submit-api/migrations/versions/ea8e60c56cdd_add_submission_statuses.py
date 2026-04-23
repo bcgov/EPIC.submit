@@ -19,7 +19,14 @@ depends_on = None
 def upgrade():
     op.execute("ALTER TYPE submissiontypestatus ADD VALUE IF NOT EXISTS 'VERIFIED';")
     op.execute("ALTER TYPE submissiontypestatus ADD VALUE IF NOT EXISTS 'ACKNOWLEDGED';")
+    op.execute("CREATE TYPE packageapprovaltype AS ENUM ('A', 'B', 'C')")
+
+    with op.batch_alter_table('package_types', schema=None) as batch_op:
+        batch_op.add_column(sa.Column('approval_type', sa.Enum('A', 'B', 'C', name='packageapprovaltype')))
 
 
 def downgrade():
-    pass
+    with op.batch_alter_table('package_types', schema=None) as batch_op:
+        batch_op.drop_column('approval_type')
+
+    op.execute("DROP TYPE packageapprovaltype")

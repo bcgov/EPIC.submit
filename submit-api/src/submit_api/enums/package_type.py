@@ -20,3 +20,11 @@ class PackageTypeId(enum.Enum):
 
     MANAGEMENT_PLAN = 1
     IEM = 2
+
+
+class PackageApprovalType(enum.Enum):
+    """Enum for package approval types."""
+
+    A = 'A'
+    B = 'B'
+    C = 'C'
