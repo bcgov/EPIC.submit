@@ -4,23 +4,27 @@ import { Button, Grid } from "@mui/material";
 export default function SubmissionActionButtons({
   saveAndClose,
   onSubmit,
+  submitButtonText = "Save Completed Form",
 }: Readonly<{
-  saveAndClose: () => void;
+  saveAndClose?: () => void;
   onSubmit?: () => void;
+  submitButtonText?: string;
 }>) {
   return (
     <Grid item xs={12} container spacing={2}>
-      <Grid item xs={12} sm="auto">
-        <UnfinishedUploadsCheck>
-          <Button color="secondary" onClick={saveAndClose}>
-            Save & Continue Later
-          </Button>
-        </UnfinishedUploadsCheck>
-      </Grid>
+      {saveAndClose && (
+        <Grid item xs={12} sm="auto">
+          <UnfinishedUploadsCheck>
+            <Button color="secondary" onClick={saveAndClose}>
+              Save & Continue Later
+            </Button>
+          </UnfinishedUploadsCheck>
+        </Grid>
+      )}
       {onSubmit && (
         <Grid item xs={12} sm="auto">
           <UnfinishedUploadsCheck>
-            <Button onClick={onSubmit}>Save Completed Form</Button>
+            <Button onClick={onSubmit}>{submitButtonText}</Button>
           </UnfinishedUploadsCheck>
         </Grid>
       )}

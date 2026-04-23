@@ -73,7 +73,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
 
         # Update the email queue status to SENT
         email_entry.status = EmailStatus.SENT.value
-        email_entry.sent_at = datetime.utcnow()
+        email_entry.sent_at = datetime.now(datetime.UTC)()
         db.session.commit()
 
     @staticmethod
@@ -91,7 +91,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
 
         # Update the email queue status to SENT
         email_entry.status = EmailStatus.SENT.value
-        email_entry.sent_at = datetime.utcnow()
+        email_entry.sent_at = datetime.now(datetime.UTC)()
         db.session.commit()
 
     @staticmethod
@@ -113,7 +113,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         
         # Update the original email queue status to SENT
         email_entry.status = EmailStatus.SENT.value
-        email_entry.sent_at = datetime.utcnow()
+        email_entry.sent_at = datetime.now(datetime.UTC)()
         db.session.commit()
 
     @staticmethod
@@ -134,7 +134,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
         )
         EmailService.send_email(email_details)
         email_entry.status = EmailStatus.SENT.value
-        email_entry.sent_at = datetime.utcnow()
+        email_entry.sent_at = datetime.now(datetime.UTC)()
         db.session.commit()
 
     @staticmethod
@@ -152,7 +152,7 @@ class EmailService:  # pylint: disable=too-few-public-methods
 
         # Update the email queue status to SENT
         email_entry.status = EmailStatus.SENT.value
-        email_entry.sent_at = datetime.utcnow()
+        email_entry.sent_at = datetime.now(datetime.UTC)()
         db.session.commit()
 
     @staticmethod

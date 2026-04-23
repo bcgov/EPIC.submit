@@ -67,7 +67,7 @@ class AccountProjectWork(BaseModel):
         return cls.query.filter_by(work_id=work_id, is_active=True).all()
 
     @classmethod
-    def create_or_get(cls, account_project_id: int, work_id: int, session=None):
+    def get_or_create(cls, account_project_id: int, work_id: int, session=None):
         """Create or get account project work.
 
         Args:
@@ -86,10 +86,7 @@ class AccountProjectWork(BaseModel):
         if existing:
             if not existing.is_active:
                 existing.is_active = True
-                if session:
-                    session.add(existing)
-                else:
-                    existing.save()
+                existing.persist(session)
             return existing
 
         new_instance = cls(
@@ -98,9 +95,4 @@ class AccountProjectWork(BaseModel):
             is_active=True
         )
 
-        if session:
-            session.add(new_instance)
-        else:
-            new_instance.save()
-
-        return new_instance
+        return new_instance.persist(session)

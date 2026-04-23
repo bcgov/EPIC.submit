@@ -210,7 +210,7 @@ export const useSoftDeleteSubmission = ({
 
 export const softDeleteSubmission = (submissionId: number) => {
   return submitRequest<Submission>({
-    url: `/staff/submissions/${submissionId}/document`,
+    url: `/submissions/${submissionId}/document/soft-delete`,
     method: "delete",
   });
 };
@@ -232,7 +232,7 @@ export const getSubmissionVersions = (submissionId: number) => {
 
 export const getFailedSubmissionsByItemId = (submissionItemId: number) => {
   return submitRequest<Submission[]>({
-    url: `/staff/documents/failed/items/${submissionItemId}`,
+    url: `/documents/failed/items/${submissionItemId}`,
   });
 };
 
@@ -297,6 +297,26 @@ export const useMoveSubmission = ({
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         });
+      }
+    },
+    ...restOptions,
+  });
+};
+
+export const triggerGeoProcess = (itemId: number) => {
+  return submitRequest({
+    url: `/submissions/items/${itemId}/geo-process`,
+    method: "post",
+  });
+};
+
+export const useTriggerGeoProcess = (options?: Options) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options || {};
+  return useMutation({
+    mutationFn: ({ itemId }: { itemId: number }) => triggerGeoProcess(itemId),
+    onSuccess: (data) => {
+      if (_onSuccess) {
+        _onSuccess(data);
       }
     },
     ...restOptions,

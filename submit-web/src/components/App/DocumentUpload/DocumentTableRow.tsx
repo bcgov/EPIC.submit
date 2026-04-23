@@ -5,6 +5,7 @@ import {
   TableRow,
   TableRowProps,
   Typography,
+  Chip,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
@@ -14,47 +15,51 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
 import { useFileStore } from "@/store/fileStore";
 import { useFormContext } from "react-hook-form";
+import { useParams } from "@tanstack/react-router";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { useGetGeoUploads } from "@/hooks/api/useGeo";
 
-export const StyledHeadTableCell = styled(TableCell)<{ error?: boolean }>(
-  ({ error }) => ({
-    borderTop: error
+export const StyledHeadTableCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(({ error }) => ({
+  borderTop: error
+    ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
+    : `1px solid ${BCDesignTokens.themeBlue20}`,
+  borderBottom: error
+    ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
+    : `1px solid ${BCDesignTokens.themeBlue20}`,
+  padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
+  "&:first-of-type": {
+    borderLeft: error
       ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
       : `1px solid ${BCDesignTokens.themeBlue20}`,
-    borderBottom: error
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
+  },
+  "&:last-of-type": {
+    borderRight: error
       ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
       : `1px solid ${BCDesignTokens.themeBlue20}`,
-    padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
-    "&:first-of-type": {
-      borderLeft: error
-        ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
-        : `1px solid ${BCDesignTokens.themeBlue20}`,
-      borderTopLeftRadius: 5,
-      borderBottomLeftRadius: 5,
-    },
-    "&:last-of-type": {
-      borderRight: error
-        ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
-        : `1px solid ${BCDesignTokens.themeBlue20}`,
-      borderTopRightRadius: 5,
-      borderBottomRightRadius: 5,
-    },
-  }),
-);
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+}));
 
-export const DocumentHeadTableRow = styled(TableRow)<{ error?: boolean }>(
-  ({ error }) => ({
-    backgroundColor: error
-      ? BCDesignTokens.supportSurfaceColorDanger
-      : BCDesignTokens.themeBlue10,
-    "&:hover": {
-      backgroundColor: BCDesignTokens.themeBlue40,
-    },
-  }),
-);
+export const DocumentHeadTableRow = styled(TableRow, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(({ error }) => ({
+  backgroundColor: error
+    ? BCDesignTokens.supportSurfaceColorDanger
+    : BCDesignTokens.themeBlue10,
+  "&:hover": {
+    backgroundColor: BCDesignTokens.themeBlue40,
+  },
+}));
 
-export const DocumentTableCell = styled(TableCell)(() => ({
+export const DocumentTableCell = styled(TableCell, {
+  shouldForwardProp: (prop) => prop !== "error",
+})<{ error?: boolean }>(() => ({
   borderTop: `1px solid ${BCDesignTokens.themeBlue20}`,
   borderBottom: `1px solid ${BCDesignTokens.themeBlue20}`,
   padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
@@ -92,17 +97,30 @@ type DocumentTableRowProps = Readonly<{
   documentItem: Submission;
   error?: boolean;
   formFieldName?: string;
+  folder?: string;
+  isGeoSpatial?: boolean;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 export default function DocumentTableRow({
   documentItem,
   error = false,
   formFieldName,
+  isGeoSpatial,
+  onDocumentClick,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
   const { setValue, trigger, getValues } = useFormContext(); // Get form context directly
   const { removeFile } = useFileStore();
+  const { submissionId: subItemId } = useParams({
+    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
+  });
+  const { data: geoUploads } = useGetGeoUploads({ itemId: Number(subItemId) });
+
+  const geoUpload = (geoUploads as any[])?.find(
+    (u: any) => u.raw_s3_key === submitted_document?.url,
+  );
 
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
     submissionItemId: documentItem.item_id,
@@ -162,6 +180,7 @@ export default function DocumentTableRow({
         <Typography
           variant="body1"
           color="inherit"
+          component="div"
           sx={{
             overflow: "clip",
             textOverflow: "ellipsis",
@@ -172,13 +191,39 @@ export default function DocumentTableRow({
         >
           <DocumentLink
             name={submitted_document?.name ?? ""}
-            onClick={downloadDocument}
+            onClick={
+              onDocumentClick
+                ? () => onDocumentClick(documentItem)
+                : downloadDocument
+            }
             loading={pendingGetObject}
           />
         </Typography>
       </DocumentTableCell>
       <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>
       <DocumentTableCell align="right">{version}</DocumentTableCell>
+      {isGeoSpatial && (
+        <DocumentTableCell align="center">
+          {geoUpload ? (
+            <Chip
+              label={geoUpload.status.toUpperCase()}
+              color={
+                geoUpload.status === "ready"
+                  ? "success"
+                  : geoUpload.status === "processing"
+                    ? "warning"
+                    : "error"
+              }
+              variant="outlined"
+              size="small"
+            />
+          ) : (
+            <Typography variant="body2" color="textSecondary">
+              N/A
+            </Typography>
+          )}
+        </DocumentTableCell>
+      )}
       <DocumentTableCell align="center">
         <LoadingButton
           onClick={onRemoveClick}

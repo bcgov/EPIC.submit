@@ -6,7 +6,7 @@ This model is used for auditing and history tracking.
 """
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, UTC
 
 from .base_model import BaseModel
 from .db import db
@@ -25,7 +25,7 @@ class ActivityLog(BaseModel):
     action = db.Column(db.String(100), nullable=False)
     actor_id = db.Column(db.String(), nullable=False)
     actor_type = db.Column(db.String(20), nullable=False)  # 'staff' or 'user'
-    activity_at = db.Column(db.DateTime, default=datetime.utcnow)  # When it was logged
+    activity_at = db.Column(db.DateTime, default=datetime.now(UTC))  # When it was logged
     visibility = db.Column(db.String(20), nullable=False,
                            default='staff')  # can public see this entry ? 'staff' or 'public'
 

@@ -14,7 +14,8 @@ export const QUERY_KEY = Object.freeze({
   SUBMISSIONS: "submissions",
   USERS: "users",
   PACKAGE_VERSIONS: "package-versions",
-  STAFF_USER: "staff/staff-user",
+  PACKAGE_TYPES: "package-types",
+  STAFF_USER: "staff-user",
   ACTIVITY_LOGS: "activity-logs",
   SUBMISSION_VERSIONS: "submission-versions",
   INVITATION: "invitation",
@@ -26,4 +27,5 @@ export const QUERY_KEY = Object.freeze({
   TERMS_OF_SERVICE: "terms-of-service",
   PACKAGE_DOCUMENT_SUBMISSIONS: "package-document-submissions",
   ACCOUNT_SUBMISSION_PACKAGES: "account-submission-packages",
+  GEO_UPLOADS: "geo/uploads",
 });

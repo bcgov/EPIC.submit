@@ -29,6 +29,15 @@ class Project(db.Model):
         db.UniqueConstraint('name', 'proponent_id', name='uq_projects_name_proponent'),
     )
 
+    @property
+    def is_eligible(self):
+        """Determines if the current project is eligible in submit."""
+        try:
+            phase_is_enabled = self.works.current_phase.enable_submit
+        except AttributeError:
+            phase_is_enabled = None
+        return bool(phase_is_enabled or self.has_approved_condition)
+
     def to_dict(self):
         """Convert object to dictionary."""
         return {
@@ -39,12 +48,18 @@ class Project(db.Model):
             "works": [work.to_dict() for work in self.works],
             "ea_certificate": self.ea_certificate,
             "epic_guid": self.epic_guid,
+            "is_eligible": self.is_eligible
         }
 
     @classmethod
     def get_all_projects_in_ids(cls, project_ids):
         """Get all projects in the given project ids."""
         return cls.query.filter(cls.id.in_(project_ids)).all()
+
+    @classmethod
+    def get_all_by_proponent_id(cls, proponent_id: int):
+        """Get all projects for a given proponent id, ordered by name."""
+        return cls.query.filter_by(proponent_id=proponent_id).order_by(cls.name).all()
 
     @classmethod
     def get_one_by_proponent_id(cls, proponent_id):

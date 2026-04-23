@@ -18,6 +18,7 @@ from submit_api.models import AccountProject, db
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.package import PackageStatus
 from submit_api.models.package_version import PackageVersion
+from submit_api.models.package_item_type import PackageItemType
 
 
 # pylint: disable=too-few-public-methods
@@ -25,22 +26,43 @@ class PackageQueries:
     """Query module for complex package queries"""
 
     @classmethod
+    def _get_required_item_statuses(cls, items: list) -> list[str]:
+        """Get statuses of only required items based on package_item_types configuration."""
+        if not items:
+            return []
+
+        # Get the package from the first item to determine package_type_id
+        package = PackageModel.find_by_id(items[0].package_id)
+        if not package:
+            # If package not found, treat all items as required (backward compatible)
+            return [item.status.value if isinstance(item.status, ItemStatus) else item.status for item in items]
+
+        # Get required item type IDs from package_item_types
+        package_item_types = PackageItemType.get_by_package_type_id(package.type_id)
+        required_item_type_ids = {pit.item_type_id for pit in package_item_types if pit.is_required}
+
+        # Filter for required items only
+        required_items = [item for item in items if item.type_id in required_item_type_ids]
+
+        return [item.status.value if isinstance(item.status, ItemStatus) else item.status for item in required_items]
+
+    @classmethod
     def _add_partially_completed_status(cls, aggregated_statuses: set, statuses: list[str]):
-        """Find partially completed packages"""
+        """Find partially completed packages (based on required items only)"""
         if (ItemStatus.PARTIALLY_COMPLETED.value
                 in statuses or len(statuses) > statuses.count(ItemStatus.COMPLETED.value) > 0):
             aggregated_statuses.add(PackageStatus.PARTIALLY_COMPLETED.value)
 
     @classmethod
     def _add_completed_status(cls, aggregated_statuses: set, statuses: list[str]):
-        """Find completed packages"""
-        if all(status == ItemStatus.COMPLETED.value for status in statuses):
+        """Find completed packages (based on required items only)"""
+        if statuses and all(status == ItemStatus.COMPLETED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.COMPLETED.value)
 
     @classmethod
     def _add_submitted_status(cls, aggregated_statuses: set, statuses: list[str]):
-        """Find submitted packages"""
-        if all(status == ItemStatus.SUBMITTED.value for status in statuses):
+        """Find submitted packages (based on required items only)"""
+        if statuses and all(status == ItemStatus.SUBMITTED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.SUBMITTED.value)
 
     @classmethod
@@ -58,6 +80,12 @@ class PackageQueries:
         """Find packages that have been rejected during review"""
         if any(status == ItemStatus.REVIEW_REJECTED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.REVIEW_REJECTED.value)
+
+    @classmethod
+    def _add_review_not_completed(cls, aggregated_statuses: set, statuses: list[str]):
+        """Find packages that have not been completed during review"""
+        if any(status == ItemStatus.REVIEW_NOT_COMPLETED.value for status in statuses):
+            aggregated_statuses.add(PackageStatus.REVIEW_NOT_COMPLETED.value)
 
     @classmethod
     def _add_under_review(cls, aggregated_statuses: set, statuses: list[str]):
@@ -113,23 +141,35 @@ class PackageQueries:
 
     @classmethod
     def aggregate_item_statuses(cls, items: list):
-        """Aggregate item statuses"""
-        statuses = [item.status.value if isinstance(item.status, ItemStatus)
-                    else item.status
-                    for item in items]
+        """Aggregate item statuses (considers only required items for completion/submission status)"""
+        # Get all item statuses for review-related statuses (these apply to all items)
+        all_statuses = [item.status.value if isinstance(item.status, ItemStatus)
+                        else item.status
+                        for item in items]
+
+        # Get required item statuses for completion/submission checks
+        required_statuses = cls._get_required_item_statuses(items)
+
         aggregated_statuses = set()
-        cls._add_mp_approved(aggregated_statuses, statuses)
-        cls._add_review_rejected(aggregated_statuses, statuses)
+
+        # Review-related statuses check all items
+        cls._add_mp_approved(aggregated_statuses, all_statuses)
+        cls._add_review_rejected(aggregated_statuses, all_statuses)
         if aggregated_statuses:
             return list(aggregated_statuses)
-        cls._add_partially_completed_status(aggregated_statuses, statuses)
-        cls._add_completed_status(aggregated_statuses, statuses)
-        cls._add_submitted_status(aggregated_statuses, statuses)
-        cls._add_passed_consultation_check(aggregated_statuses, statuses)
-        cls._add_review_rejected(aggregated_statuses, statuses)
-        cls._add_under_review(aggregated_statuses, statuses)
-        cls._add_under_cc_check(aggregated_statuses, statuses)
-        cls.add_awaiting_manager_review(aggregated_statuses, statuses)
+
+        # Completion/submission statuses check only required items
+        cls._add_partially_completed_status(aggregated_statuses, required_statuses)
+        cls._add_completed_status(aggregated_statuses, required_statuses)
+        cls._add_submitted_status(aggregated_statuses, required_statuses)
+
+        # Other statuses check all items
+        cls._add_passed_consultation_check(aggregated_statuses, all_statuses)
+        cls._add_review_not_completed(aggregated_statuses, all_statuses)
+        cls._add_under_review(aggregated_statuses, all_statuses)
+        cls._add_under_cc_check(aggregated_statuses, all_statuses)
+        cls.add_awaiting_manager_review(aggregated_statuses, all_statuses)
+
         aggregated_statuses_list = list(aggregated_statuses)
         return aggregated_statuses_list
 

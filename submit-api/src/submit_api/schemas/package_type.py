@@ -16,3 +16,6 @@ class PackageTypeSchema(Schema):
 
     id = fields.Int(data_key="id")
     name = fields.Str(data_key="name")
+    title = fields.Str(data_key="title", required=False)
+    versioning_enabled = fields.Bool(data_key="versioning_enabled")
+    mandatory = fields.Bool(data_key="mandatory")

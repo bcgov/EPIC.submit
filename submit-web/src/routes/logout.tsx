@@ -6,12 +6,18 @@ import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/logout")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      redirect: search.redirect as string | undefined,
+    };
+  },
   component: Logout,
 });
 
 function Logout() {
   const { signoutSilent, isAuthenticated } = useAuth();
   const { reset } = useAccount();
+  const search = Route.useSearch();
 
   const navigate = useNavigate();
 
@@ -22,11 +28,15 @@ function Logout() {
   useEffect(() => {
     if (!isAuthenticated) {
       reset();
-      navigate({
-        to: "/",
-      });
+      if (search.redirect) {
+        navigate({ to: search.redirect as any });
+      } else {
+        navigate({
+          to: "/",
+        });
+      }
     }
-  }, [isAuthenticated, navigate, reset]);
+  }, [isAuthenticated, navigate, reset, search.redirect]);
 
   return <PageLoader />;
 }

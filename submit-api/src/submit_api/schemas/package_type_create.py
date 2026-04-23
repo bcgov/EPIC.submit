@@ -24,6 +24,11 @@ class ItemTypeSchema(Schema):
         data_key="name",
         metadata={"description": "Name for new item type"}
     )
+    description = fields.Str(
+        required=False,
+        data_key="description",
+        metadata={"description": "Description for new item type"}
+    )
     submission_method = fields.Str(
         required=False,
         data_key="submission_method",
@@ -72,6 +77,11 @@ class PackageTypeCreateSchema(Schema):
         required=True,
         data_key="package_type_name",
         metadata={"description": "Name of the package type to create"}
+    )
+    package_type_title = fields.Str(
+        required=True,
+        data_key="package_type_title",
+        metadata={"description": "Display title for the package type"}
     )
     item_types = fields.List(
         fields.Nested(ItemTypeSchema),

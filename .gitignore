@@ -168,3 +168,4 @@ deployment/charts/submit-web/values.prod.yaml
 deployment/charts/submit-api/values.prod.yaml
 deployment/charts/submit-api/values.dev.yaml
 deployment/charts/submit-web/values.dev.yaml
+.windsurf/

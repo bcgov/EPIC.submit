@@ -1,5 +1,5 @@
 """management plan review service."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -61,12 +61,13 @@ class ManagementPlanService:
         current_app.logger.info(
             f"Logging activity for management plan rejection for package {item.package_id}.")
         package = PackageModel.find_by_id(item.package_id)
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.MP_REVIEW_FAILED.value,
-            entity_version=package.version.version,
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.MP_REVIEW_FAILED.value,
+                entity_version=package.version.version,
+                session=session
+            )
         current_app.logger.info(
             f"Activity logged for management plan rejection for package {package.id}.")
 
@@ -76,7 +77,7 @@ class ManagementPlanService:
         current_app.logger.info(
             f"Rejecting management plan form for item {item.id}.")
         item.status = ItemStatus.REVIEW_REJECTED.value
-        reviewed_on = datetime.utcnow()
+        reviewed_on = datetime.now(UTC)
         item.reviewed_on = reviewed_on
         current_app.logger.info(
             f"Management plan form rejected for item {item.id}.")
@@ -86,8 +87,7 @@ class ManagementPlanService:
         """Update package metadata with review completion date for rejection."""
         current_app.logger.info(
             f"Updating package metadata for package {item.package_id}.")
-        package_metadata = cls._get_or_create_package_metadata_mp_rejection(
-            item.package_id)
+        package_metadata = PackageMetadata.get_or_create(item.package_id)
         reviewed_on = item.reviewed_on
         existing_json = package_metadata.json if package_metadata.json else {}
         package_metadata.json = {
@@ -100,18 +100,6 @@ class ManagementPlanService:
         session.flush()
         current_app.logger.info(
             f"Package metadata updated for package {item.package_id}.")
-
-    @classmethod
-    def _get_or_create_package_metadata_mp_rejection(cls, package_id):
-        """Retrieve or create package metadata for rejection."""
-        current_app.logger.info(
-            f"Retrieving package metadata for package {package_id}.")
-        package_metadata = PackageMetadata.get_by_package_id(package_id)
-        if not package_metadata:
-            current_app.logger.info(
-                f"Creating package metadata for package {package_id}.")
-            package_metadata = PackageMetadata(package_id=package_id, json={})
-        return package_metadata
 
     @classmethod
     def create_new_package_version(cls, item, session):
@@ -222,7 +210,7 @@ class ManagementPlanService:
         """Update package for completion."""
         current_app.logger.info(
             f"Updating package for completion for item {item.id}.")
-        package.completed_on = datetime.utcnow()
+        package.completed_on = datetime.now(UTC)
         session.add(package)
         session.flush()
         current_app.logger.info(
@@ -244,12 +232,13 @@ class ManagementPlanService:
         if not action_type:
             raise ResourceNotFoundError(
                 f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=action_type,
-            entity_version=package.version.version,
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=action_type,
+                entity_version=package.version.version,
+                session=session
+            )
         current_app.logger.info(
             f"Activity logged for management plan approval for package {package.id}.")
 

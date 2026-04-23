@@ -13,10 +13,18 @@ import ItemsTableHead from "@/components/App/Submission/ItemsTable/ItemsTableHea
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
+  onRequestUpdate?: (itemTypeId: number, itemTypeName: string) => void;
+  pendingRequestItemTypeIds?: number[];
+  sentRequestItemTypeIds?: number[];
 }>;
-export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
+export default function ItemsTable({ 
+  submissionPackage, 
+  onRequestUpdate,
+  pendingRequestItemTypeIds = [],
+  sentRequestItemTypeIds = [],
+}: ItemsTableProps) {
   const { initializeFiles } = useFileStore();
-  const { items: submissionItems } = submissionPackage;
+  const { items: submissionItems, type: packageType } = submissionPackage;
 
   const { userType } = useAccount();
 
@@ -27,14 +35,15 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
   }, [submissionPackage.internal_staff_documents, initializeFiles]);
 
   return (
-    <TableContainer component={Box} sx={{ height: "100%" }}>
+    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden" }}>
       <Table sx={{ tableLayout: "fixed" }}>
-        <ItemsTableHead />
+        <ItemsTableHead packageType={packageType} />
         <TableBody>
           {submissionItems?.map((subItem) => (
             <SubmissionItemTableRow
               key={`custom-row-${subItem.type.name}`}
               item={subItem}
+              packageType={packageType}
               error={
                 isValidating &&
                 !isSubmissionItemReadyToSubmit({
@@ -42,6 +51,9 @@ export default function ItemsTable({ submissionPackage }: ItemsTableProps) {
                   submissionPackage: submissionPackage,
                 })
               }
+              onRequestUpdate={onRequestUpdate}
+              hasPendingRequest={pendingRequestItemTypeIds.includes(subItem.type_id)}
+              hasSentRequest={sentRequestItemTypeIds.includes(subItem.type_id)}
             />
           ))}
           <When condition={userType === USER_TYPE.STAFF}>

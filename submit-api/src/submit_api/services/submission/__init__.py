@@ -1,12 +1,16 @@
 """Service for submission management."""
+from flask import current_app
+
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models import Item as ItemModel, Package as PackageModel
-from submit_api.models.db import session_scope
+from submit_api.models.db import db, session_scope
+from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
-from submit_api.models.submission import Submission as SubmissionModel
-from submit_api.models.submission import SubmissionType
+from submit_api.models.submission import Submission as SubmissionModel, SubmissionType
 from submit_api.services import authorization
-from submit_api.services.item import ItemService
+from submit_api.services.document_service_client import DocumentServiceClient
+from submit_api.services.geo_processor import GeoService
+from submit_api.services.item_service import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
 
@@ -125,8 +129,44 @@ class SubmissionService:
         cls._validate_package_is_open(submission.id)
         if not submission:
             raise ValueError("Submission not found.")
+
+        url_to_delete = None
+        if submission.type == SubmissionType.DOCUMENT and submission.submitted_document:
+            if submission.submitted_document.folder == 'geospatial':
+                url_to_delete = submission.submitted_document.url
+
         submission.delete()
+
+        if url_to_delete:
+            cls._cleanup_document_artifacts(url_to_delete)
+
         return submission
+
+    @classmethod
+    def _cleanup_document_artifacts(cls, url_to_delete):
+        """Clean up S3 artifacts and GeoDataUpload records associated with a document URL."""
+        geo_upload = GeoDataUpload.query.filter_by(raw_s3_key=url_to_delete).first()
+
+        try:
+            current_app.logger.info(f"Requesting S3 deletion for {url_to_delete}")
+            presigned_url = DocumentServiceClient.get_presigned_delete_url(url_to_delete)
+            DocumentServiceClient.delete_via_presigned_url(presigned_url)
+        except Exception as exc:  # pylint: disable=broad-except # noqa: B902
+            current_app.logger.warning("Failed to delete document from S3 %s: %s", url_to_delete, exc)
+
+        if geo_upload:
+            for s3_key in [geo_upload.preview_s3_key, geo_upload.standard_s3_key]:
+                if s3_key:
+                    try:
+                        current_app.logger.info("Requesting S3 deletion for processed layer %s", s3_key)
+                        del_url = DocumentServiceClient.get_presigned_delete_url(s3_key)
+                        DocumentServiceClient.delete_via_presigned_url(del_url)
+                    except Exception as exc:  # pylint: disable=broad-except # noqa: B902
+                        current_app.logger.warning("Failed to delete processed layer from S3 %s: %s", s3_key, exc)
+
+            current_app.logger.info("Deleting associated GeoDataUpload record for %s", url_to_delete)
+            db.session.delete(geo_upload)
+            db.session.commit()
 
     @classmethod
     def soft_delete_submission(cls, submission_id):
@@ -145,9 +185,11 @@ class SubmissionService:
         with session_scope():
             submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
             if not submission:
+                current_app.logger.error("Submission with id %s not found for get_all_versions.", submission_id)
                 return None
 
             root_submission_id = submission.root_submission_id or submission.id
+            current_app.logger.debug("Fetching all versions for root_submission_id: %s.", root_submission_id)
             return SubmissionModel.find_all_versions(root_submission_id)
 
     @classmethod
@@ -180,3 +222,50 @@ class SubmissionService:
         if submission_package.completed_on:
             raise ValueError("Package is already completed.")
         return submission_package
+
+    @classmethod
+    def trigger_geo_process(cls, item_id):
+        """Trigger geospatial processing for newly uploaded files related to an item."""
+        submissions = SubmissionModel.query.filter_by(
+            item_id=item_id,
+            type=SubmissionType.DOCUMENT
+        ).all()
+
+        triggered_uploads = []
+        # pylint: disable=protected-access
+        app = current_app._get_current_object()
+
+        for sub in submissions:
+            if not sub.submitted_document:
+                continue
+
+            doc = sub.submitted_document
+            if doc.folder != 'geospatial':
+                continue
+
+            ext = doc.name.split('.')[-1].lower() if '.' in doc.name else ''
+            if ext not in ('shp', 'zip'):
+                continue
+
+            # Skip if already being tracked
+            existing = GeoDataUpload.query.filter_by(raw_s3_key=doc.url).first()
+            if existing:
+                continue
+
+            upload = GeoDataUpload(
+                filename=doc.name,
+                file_type=ext,
+                file_size_kb=0.0,
+                raw_s3_key=doc.url,
+                status='processing',
+            )
+            db.session.add(upload)
+            db.session.flush()
+
+            # pylint: disable=protected-access
+            GeoService._spawn_processing_thread(app, upload.id)
+
+            triggered_uploads.append({'id': upload.id, 'filename': upload.filename})
+
+        db.session.commit()
+        return triggered_uploads

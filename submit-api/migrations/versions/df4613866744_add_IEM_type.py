@@ -5,7 +5,7 @@ Revises: dfd81c02e843
 Create Date: 2025-04-30 12:41:23.463283
 
 """
-from datetime import datetime
+from datetime import datetime, UTC
 from sqlalchemy.sql import bindparam
 
 from alembic import op
@@ -32,7 +32,7 @@ def upgrade():
         sa.MetaData(),
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String),
-        sa.Column('created_date', sa.DateTime, default=datetime.utcnow),
+        sa.Column('created_date', sa.DateTime, default=datetime.now(UTC)),
         sa.Column('created_by', sa.String, default='system'),
     )
     item_types = sa.Table(
@@ -40,7 +40,7 @@ def upgrade():
         sa.MetaData(),
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String),
-        sa.Column('created_date', sa.DateTime, default=datetime.utcnow),
+        sa.Column('created_date', sa.DateTime, default=datetime.now(UTC)),
         sa.Column('submission_method', sa.Enum('FORM_SUBMISSION', 'DOCUMENT_UPLOAD', name='submissionmethod')),
         sa.Column('created_by', sa.String, default='system'),
     )
@@ -49,14 +49,14 @@ def upgrade():
         sa.MetaData(),
         sa.Column('package_type_id', sa.Integer),
         sa.Column('item_type_id', sa.Integer),
-        sa.Column('created_date', sa.DateTime, default=datetime.utcnow),
+        sa.Column('created_date', sa.DateTime, default=datetime.now(UTC)),
         sa.Column('created_by', sa.String, default='system'),
         sa.Column("sort_order", sa.Integer(), nullable=True, server_default="0"),
     )
 
     # Insert new package type
     op.bulk_insert(package_types, [
-        {'name': PACKAGE_TYPE_IEM, 'created_date': datetime.utcnow()},
+        {'name': PACKAGE_TYPE_IEM, 'created_date': datetime.now(UTC)},
     ])
     conn = op.get_bind()
 
@@ -68,7 +68,7 @@ def upgrade():
 
     # Insert new item types
     op.bulk_insert(item_types, [
-        {'name': ITEM_TYPE_IEM_TERMS, 'created_date': datetime.utcnow(), 'submission_method': DOCUMENT_UPLOAD},
+        {'name': ITEM_TYPE_IEM_TERMS, 'created_date': datetime.now(UTC), 'submission_method': DOCUMENT_UPLOAD},
     ])
 
     # Retrieve item type IDs using parameterized query
@@ -83,11 +83,11 @@ def upgrade():
     # Insert package item types
     op.bulk_insert(package_item_types, [
         {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_IEM_TERMS], 'sort_order': 2,
-         'created_date': datetime.utcnow()},
+         'created_date': datetime.now(UTC)},
         {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_CONSULTATION_RECORDS], 'sort_order': 1,
-         'created_date': datetime.utcnow()},
+         'created_date': datetime.now(UTC)},
         {'package_type_id': iem_package_type_id, 'item_type_id': item_type_ids[ITEM_TYPE_CONTACT_INFORMATION_FORM], 'sort_order': 0,
-         'created_date': datetime.utcnow()},
+         'created_date': datetime.now(UTC)},
     ])
 
 

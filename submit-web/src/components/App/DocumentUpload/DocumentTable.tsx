@@ -21,7 +21,9 @@ type DocumentTableProps = Readonly<{
   documents?: Array<Submission>;
   pendingDocuments: Array<any>;
   folder?: string;
+  isGeoSpatial?: boolean;
   formFieldName?: string;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 
 export default function DocumentTable({
@@ -30,12 +32,14 @@ export default function DocumentTable({
   pendingDocuments = [],
   formFieldName,
   folder: s3Folder,
+  isGeoSpatial,
+  onDocumentClick,
 }: DocumentTableProps) {
   if (documents.length === 0 && pendingDocuments.length === 0) {
     return null;
   }
   return (
-    <TableContainer component={Box} sx={{ height: "100%" }}>
+    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden" }}>
       <Table sx={{ tableLayout: "fixed" }}>
         <TableHead
           sx={{
@@ -60,12 +64,15 @@ export default function DocumentTable({
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
+            {isGeoSpatial && (
+              <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
+            )}
             <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
           <DocumentHeadTableRow>
-            <StyledHeadTableCell colSpan={5}>
+            <StyledHeadTableCell colSpan={isGeoSpatial ? 6 : 5}>
               <Typography
                 variant="h6"
                 color="inherit"
@@ -81,6 +88,9 @@ export default function DocumentTable({
               key={`custom-row-${document.id}`}
               documentItem={document}
               formFieldName={formFieldName}
+              folder={s3Folder}
+              isGeoSpatial={isGeoSpatial}
+              onDocumentClick={onDocumentClick}
             />
           ))}
           {pendingDocuments?.map((document) => (
@@ -88,6 +98,7 @@ export default function DocumentTable({
               key={`pending-row-${document.file.name}`}
               documentItem={document}
               folder={s3Folder}
+              isGeoSpatial={isGeoSpatial}
             />
           ))}
         </TableBody>

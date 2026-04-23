@@ -1,10 +1,20 @@
-import { SubmissionPackageType } from "@/components/Shared/types";
 import { InternalStaffDocument, SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
+import { AccountProjectWork } from "./AccountProjectWork";
+
+export enum SubmissionPackageType {
+  MANAGEMENT_PLAN = "Management Plan",
+  IEM = "IEM",
+  IPD = "IPD",
+  ADDITIONAL_INFORMATION = "Additional Information",
+}
 
 export type PackageType = {
   id: number;
   name: SubmissionPackageType;
+  title?: string;
+  versioning_enabled: boolean;
+  mandatory: boolean;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus
@@ -34,12 +44,14 @@ export type PackageStatus =
   | "ACCEPTED"
   | "SATISFIED"
   | "REVIEW_REJECTED"
+  | "REVIEW_NOT_COMPLETED"
   | "REVIEWED"
   | "COMPLETED"
   | "SUBMITTED"
   | "PARTIALLY_COMPLETED"
   | "NEW_SUBMISSION"
   | "NEW"
+  | "IN_PROGRESS"
   | "UNDER_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
   | "AWAITING_MANAGER_APPROVAL"
@@ -67,6 +79,10 @@ export const PACKAGE_STATUS: Record<
     value: "REVIEW_REJECTED",
     label: "Rejected",
   },
+  REVIEW_NOT_COMPLETED: {
+    value: "REVIEW_NOT_COMPLETED",
+    label: "Review Not Completed",
+  },
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
@@ -82,6 +98,10 @@ export const PACKAGE_STATUS: Record<
   NEW: {
     value: "NEW",
     label: "New",
+  },
+  IN_PROGRESS: {
+    value: "IN_PROGRESS",
+    label: "In Progress",
   },
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
@@ -139,6 +159,7 @@ export type PackageVersion = {
 export type SubmissionPackage = {
   id: number;
   name: string;
+  description?: string;
   status: PackageStatus[];
   submitted_on?: string;
   completed_on?: string;
@@ -147,6 +168,7 @@ export type SubmissionPackage = {
   type: PackageType;
   items: Array<SubmissionItem>;
   account_project_id: number;
+  account_project_work?: AccountProjectWork;
   meta?: SubmissionPackageMeta;
   days_since_submission?: number;
   internal_staff_documents?: InternalStaffDocument[];

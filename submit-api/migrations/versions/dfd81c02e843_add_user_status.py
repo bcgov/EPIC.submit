@@ -6,7 +6,7 @@ Create Date: 2025-04-29 12:54:37.170409
 
 """
 from alembic import op
-from datetime import datetime
+from datetime import datetime, UTC
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
@@ -38,10 +38,10 @@ def upgrade():
                            sa.column('updated_date', sa.DateTime))
 
     op.bulk_insert(user_status, [
-        {'id': 1, 'status_name': 'ACTIVE', 'description': 'Active User', 'created_date': datetime.utcnow(),
-         'updated_date': datetime.utcnow()},
-        {'id': 2, 'status_name': 'INACTIVE', 'description': 'Inactive User', 'created_date': datetime.utcnow(),
-         'updated_date': datetime.utcnow()}
+        {'id': 1, 'status_name': 'ACTIVE', 'description': 'Active User', 'created_date': datetime.now(UTC),
+         'updated_date': datetime.now(UTC)},
+        {'id': 2, 'status_name': 'INACTIVE', 'description': 'Inactive User', 'created_date': datetime.now(UTC),
+         'updated_date': datetime.now(UTC)}
     ])
 
     with op.batch_alter_table('user_roles', schema=None) as batch_op:

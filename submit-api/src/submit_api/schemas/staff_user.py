@@ -30,5 +30,5 @@ class CreateStaffUserRequest(Schema):
 
         unknown = EXCLUDE
 
-    email = fields.Email(required=True, description="Email of the staff user")
-    group_name = fields.Str(required=True, description="Group to assign (Keycloak Group)")
+    email = fields.Email(required=True, metadata={"description": "Email of the staff user"})
+    group_name = fields.Str(required=True, metadata={"description": "Group to assign (Keycloak Group)"})

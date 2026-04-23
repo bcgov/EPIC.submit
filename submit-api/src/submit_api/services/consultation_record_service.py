@@ -1,5 +1,5 @@
 """Consultation record review service."""
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import current_app
 
@@ -12,7 +12,7 @@ from submit_api.models.submission_review import SubmissionReview
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.services.package import PackageService
+from submit_api.services.package_service import PackageService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
@@ -27,12 +27,9 @@ class ConsultationRecordService:
     def approve_consultation_record(cls, item, session):
         """Approve consultation record."""
         item.status = ItemStatus.PASSED_CONSULTATION_CHECK.value
-        reviewed_on = datetime.utcnow()
+        reviewed_on = datetime.now(UTC)
         item.reviewed_on = reviewed_on
-        package_metadata = PackageMetadata.get_by_package_id(item.package_id)
-        if not package_metadata:
-            package_metadata = PackageMetadata(
-                package_id=item.package_id, json={})
+        package_metadata = PackageMetadata.get_or_create(item.package_id)
         existing_json = package_metadata.json if package_metadata.json else {}
         package_metadata.json = {
             **existing_json,
@@ -41,13 +38,14 @@ class ConsultationRecordService:
         session.add(item)
         session.add(package_metadata)
         package = Package.find_by_id(item.package_id)
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
-            entity_version=package.version.version,
-            actor_id=TokenInfo.get_username(),
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
+                entity_version=package.version.version,
+                actor_id=TokenInfo.get_username(),
+                session=session
+            )
         current_app.logger.info(
             f"Consultation record approved for item {item.id}.")
 
@@ -65,13 +63,14 @@ class ConsultationRecordService:
         update_request_data = cls._prepare_update_request_data(item)
         cls._create_update_request(update_request_data, session)
         package = Package.find_by_id(item.package_id)
-        ActivityLogService.log_activity(
-            entity_id=package.version.original_package_id,
-            action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
-            entity_version=package.version.version,
-            actor_id=TokenInfo.get_username(),
-            session=session
-        )
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
+                entity_version=package.version.version,
+                actor_id=TokenInfo.get_username(),
+                session=session
+            )
         cls._create_rejection_email_queue(
             item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
         item.status = ItemStatus.UNDER_CONSULTATION_CHECK.value

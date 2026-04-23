@@ -40,8 +40,14 @@ class AccountProject(BaseModel):
     def latest_packages(self):
         """Get the latest packages by versions for the account project."""
         version_by_package = {}
+        packages_without_versions = []
 
         for package in self.packages:
+            # Handle packages without versions (e.g., Additional Information)
+            if not package.version:
+                packages_without_versions.append(package)
+                continue
+
             original_package_id = package.version.original_package_id
             if original_package_id not in version_by_package:
                 version_by_package[original_package_id] = package
@@ -49,7 +55,8 @@ class AccountProject(BaseModel):
                 if package.version.version > version_by_package[original_package_id].version.version:
                     version_by_package[original_package_id] = package
 
-        return list(version_by_package.values())
+        # Return both versioned packages (latest only) and packages without versions (all)
+        return list(version_by_package.values()) + packages_without_versions
 
     @classmethod
     def add_projects_bulk(cls, projects):
@@ -74,6 +81,11 @@ class AccountProject(BaseModel):
         return cls.query.filter(cls.project_id.in_(ids)).all()
 
     @classmethod
+    def get_all_in_account_ids(cls, account_ids: list[int]):
+        """Get all projects for the given account ids."""
+        return cls.query.filter(cls.account_id.in_(account_ids)).all()
+
+    @classmethod
     def get_by_account_id(cls, account_id: int) -> AccountProject | None:
         """Return the AccountProject object for the given account_id."""
         return cls.query.filter_by(account_id=account_id).first()
@@ -84,8 +96,8 @@ class AccountProject(BaseModel):
         return cls.query.filter_by(project_id=project_id).first()
 
     @classmethod
-    def create_account_project(cls, account_id, project_id, session=None) -> AccountProject:
-        """Create account project."""
+    def get_or_create(cls, account_id, project_id, session=None) -> AccountProject:
+        """Get or create account project."""
         existing_account_project = cls.query.filter_by(
             account_id=account_id,
             project_id=project_id
@@ -96,8 +108,12 @@ class AccountProject(BaseModel):
             account_id=account_id,
             project_id=project_id
         )
-        if session:
-            session.add(account_project)
-        else:
-            account_project.save()
-        return account_project
+        return account_project.persist(session)
+
+    @classmethod
+    def get_project_ids_by_ids(cls, account_project_ids: list) -> list[int]:
+        """Get project ids for the given account project ids."""
+        results = cls.query.filter(
+            cls.id.in_(account_project_ids)
+        ).with_entities(cls.project_id).all()
+        return [pid for (pid,) in results]

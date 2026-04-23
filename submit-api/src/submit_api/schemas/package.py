@@ -11,6 +11,7 @@ from submit_api.models.update_request import UpdateRequestType
 from submit_api.models.user import UserType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
+from submit_api.schemas.account_project_work import AccountProjectWorkSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema
@@ -59,8 +60,10 @@ class PostPackageRequestSchema(Schema):
         unknown = EXCLUDE
 
     name = fields.Str(data_key="name")
+    description = fields.Str(data_key="description", required=False)
     metadata = fields.Dict(data_key="metadata")
     type = fields.Str(data_key="type")
+    account_project_work_id = fields.Int(data_key="account_project_work_id", required=False, allow_none=True)
 
 
 class PostPackageState(Schema):
@@ -136,10 +139,10 @@ class PackageSchema(Schema):
     id = fields.Int(data_key="id")
     account_project_id = fields.Int(data_key="account_project_id")
     name = fields.Str(data_key="name")
+    description = fields.Str(data_key="description")
     type = fields.Nested(PackageTypeSchema, data_key="type")
     type_id = fields.Int(data_key="type_id")
-    status = fields.List(fields.Enum(enum=PackageStatus),
-                         enum=PackageStatus, data_key="status")
+    status = fields.List(fields.Enum(enum=PackageStatus), data_key="status", metadata={"enum": PackageStatus})
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Method('get_submitted_by')
     completed_on = fields.DateTime(data_key="completed_on")
@@ -149,6 +152,8 @@ class PackageSchema(Schema):
         PackageUpdateRequestSchema, data_key="update_requests", many=True)
     version = fields.Nested(PackageVersionSchema,
                             data_key="version", exclude=["package_id"])
+    account_project_work = fields.Nested(
+        AccountProjectWorkSchema, data_key="account_project_work", allow_none=True)
 
     def get_submitted_by(self, obj):
         """Get submitted by."""
@@ -261,6 +266,10 @@ def get_package_status(status, user_type, version_obj):
         PackageStatus.REVIEWED.value: {
             UserType.PROPONENT: PackageStatus.REVIEWED.value,
             UserType.STAFF: PackageStatus.REVIEWED.value
+        },
+        PackageStatus.IN_PROGRESS.value: {
+            UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
+            UserType.STAFF: PackageStatus.IN_PROGRESS.value
         },
     }
 

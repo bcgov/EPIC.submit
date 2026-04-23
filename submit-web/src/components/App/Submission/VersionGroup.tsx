@@ -71,6 +71,12 @@ export default function VersionGroup({
   const { mutate: createNewPackageVersion } = useCreateNewPackageVersion({
     onSuccess: (newPackage) => {
       notify.success("New package created successfully");
+
+      // Invalidate the old package so it's refetched when revisited
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+
       loadNewPackage(newPackage.id);
     },
     onError: () => {

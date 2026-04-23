@@ -44,11 +44,13 @@ class PackageStatus(enum.Enum):
     COMPLETED = 'COMPLETED'
     NEW_SUBMISSION = 'NEW_SUBMISSION'
     NEW = 'NEW'
+    IN_PROGRESS = 'IN_PROGRESS'
     PASSED_CONSULTATION_CHECK = 'PASSED_CONSULTATION_CHECK'
     FAILED_CONSULTATION_CHECK = 'FAILED_CONSULTATION_CHECK'
     UNDER_REVIEW = 'UNDER_REVIEW'
     UNDER_CONSULTATION_CHECK = 'UNDER_CONSULTATION_CHECK'
     REVIEW_REJECTED = 'REVIEW_REJECTED'
+    REVIEW_NOT_COMPLETED = 'REVIEW_NOT_COMPLETED'
     CREATED = 'CREATED'
     AWAITING_MANAGER_APPROVAL = 'AWAITING_MANAGER_APPROVAL'
     CC_AWAITING_MANAGER_APPROVAL = 'CC_AWAITING_MANAGER_APPROVAL'
@@ -77,6 +79,7 @@ class Package(BaseModel):
     account_project_id = Column(db.Integer, ForeignKey(
         'account_projects.id', ondelete='CASCADE'), nullable=False)
     name = Column(db.String(255), nullable=False)
+    description = Column(db.String(500), nullable=True, comment="Description of the package")
     type_id = Column(db.Integer, ForeignKey(
         'package_types.id'), nullable=False)
     type = db.relationship('PackageType', foreign_keys=[

@@ -12,6 +12,12 @@ export const isSubmissionItemReadyToSubmit = ({
   submissionItem: {
     id: number;
     status: SubmissionItemStatus;
+    type: {
+      id: number;
+      name: string;
+      submission_method: string;
+    };
+    is_required?: boolean;
   };
 }) => {
   if (
@@ -20,6 +26,13 @@ export const isSubmissionItemReadyToSubmit = ({
   ) {
     return true;
   }
+  
+  // If item is optional (not required), it's always ready
+  if (submissionItem.is_required === false) {
+    return true;
+  }
+  
+  // Required items must be completed
   const isSubmissionItemCompleted =
     submissionItem.status === SUBMISSION_ITEM_STATUS.COMPLETED.value;
   return isSubmissionItemCompleted;

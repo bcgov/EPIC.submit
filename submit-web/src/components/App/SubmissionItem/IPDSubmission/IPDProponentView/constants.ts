@@ -1,11 +1,7 @@
 import * as yup from "yup";
 
 export const ipdSubmissionSchema = yup.object().shape({
-  ipd: yup
-    .array()
-    .of(yup.string())
-    .required("Please upload at least one document.")
-    .min(1, "Please upload at least one document."),
+  ipd: yup.array().of(yup.string()),
   supportingIpd: yup.array().of(yup.string()),
 });
 

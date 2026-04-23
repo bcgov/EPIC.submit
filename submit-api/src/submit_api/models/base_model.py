@@ -54,7 +54,7 @@ class BaseModel(db.Model):
     @classmethod
     def find_by_id(cls, identifier: int):
         """Return model by id."""
-        return cls.query.get(identifier)
+        return db.session.get(cls, identifier)
 
     @staticmethod
     def commit():
@@ -82,6 +82,15 @@ class BaseModel(db.Model):
         db.session.delete(self)
         db.session.flush()
         db.session.commit()
+
+    def persist(self, session=None):
+        """Add to session and flush, or save and commit if no session provided."""
+        if session:
+            session.add(self)
+            session.flush()
+        else:
+            self.save()
+        return self
 
     @staticmethod
     def rollback():

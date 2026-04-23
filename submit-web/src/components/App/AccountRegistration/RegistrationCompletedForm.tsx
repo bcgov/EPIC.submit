@@ -8,28 +8,15 @@ import {
   FormLabel,
   Button,
 } from "@mui/material";
-import { useNavigate } from "@tanstack/react-router";
 import { useCreateAccountFormStore } from "./formStore";
 
 export default function RegistrationCompletedForm() {
   const [isCompleted, setIsCompleted] = useState<string>("");
-  const navigate = useNavigate();
   const { setCompleted } = useCreateAccountFormStore();
 
   const navigateToNextStep = useCallback(() => {
-    setCompleted(true);
-    if (isCompleted === "home") {
-      navigate({
-        to: "/proponent/projects",
-        replace: true,
-      });
-    } else {
-      navigate({
-        to: "/proponent/user-management",
-        replace: true,
-      });
-    }
-  }, [isCompleted, navigate, setCompleted]);
+    setCompleted(isCompleted);
+  }, [isCompleted, setCompleted]);
 
   return (
     <Box

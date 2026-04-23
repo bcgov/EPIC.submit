@@ -5,7 +5,7 @@ Revises: b573a1a7347f
 Create Date: 2024-08-22 12:20:35.863982
 
 """
-from datetime import datetime
+from datetime import datetime, UTC
 
 import sqlalchemy as sa
 from alembic import op
@@ -30,7 +30,7 @@ def upgrade():
         sa.MetaData(),
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String),
-        sa.Column('created_date', sa.DateTime, default=datetime.utcnow),
+        sa.Column('created_date', sa.DateTime, default=datetime.now(UTC)),
         sa.Column('created_by', sa.String, default='system'),
     )
     item_types = sa.Table(
@@ -38,7 +38,7 @@ def upgrade():
         sa.MetaData(),
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String),
-        sa.Column('created_date', sa.DateTime, default=datetime.utcnow),
+        sa.Column('created_date', sa.DateTime, default=datetime.now(UTC)),
         sa.Column('created_by', sa.String, default='system'),
     )
     package_item_types = sa.Table(
@@ -46,13 +46,13 @@ def upgrade():
         sa.MetaData(),
         sa.Column('package_type_id', sa.Integer),
         sa.Column('item_type_id', sa.Integer),
-        sa.Column('created_date', sa.DateTime, default=datetime.utcnow),
+        sa.Column('created_date', sa.DateTime, default=datetime.now(UTC)),
         sa.Column('created_by', sa.String, default='system'),
     )
 
     # Insert package types and retrieve IDs
     op.bulk_insert(package_types, [
-        {'name': 'Management Plan', 'created_date': datetime.utcnow()},
+        {'name': 'Management Plan', 'created_date': datetime.now(UTC)},
     ])
     conn = op.get_bind()
 
@@ -60,18 +60,18 @@ def upgrade():
 
     # Insert item types and retrieve IDs
     op.bulk_insert(item_types, [
-        {'name': management_plan_form, 'created_date': datetime.utcnow()},
-        {'name': consultation_records, 'created_date': datetime.utcnow()},
-        {'name': management_plan_submission, 'created_date': datetime.utcnow()},
+        {'name': management_plan_form, 'created_date': datetime.now(UTC)},
+        {'name': consultation_records, 'created_date': datetime.now(UTC)},
+        {'name': management_plan_submission, 'created_date': datetime.now(UTC)},
     ])
 
     item_type_ids = conn.execute(item_types.select().where(item_types.c.name.in_([management_plan_form, consultation_records, management_plan_submission]))).fetchall()
 
     # Insert package item types using retrieved IDs
     op.bulk_insert(package_item_types, [
-        {'package_type_id': package_type_id, 'item_type_id': item_type_ids[0][0], 'created_date': datetime.utcnow()},
-        {'package_type_id': package_type_id, 'item_type_id': item_type_ids[1][0], 'created_date': datetime.utcnow()},
-        {'package_type_id': package_type_id, 'item_type_id': item_type_ids[2][0], 'created_date': datetime.utcnow()},
+        {'package_type_id': package_type_id, 'item_type_id': item_type_ids[0][0], 'created_date': datetime.now(UTC)},
+        {'package_type_id': package_type_id, 'item_type_id': item_type_ids[1][0], 'created_date': datetime.now(UTC)},
+        {'package_type_id': package_type_id, 'item_type_id': item_type_ids[2][0], 'created_date': datetime.now(UTC)},
     ])
     # ### end Alembic commands ###
 

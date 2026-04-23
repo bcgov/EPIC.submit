@@ -1,41 +1,82 @@
-import { Submission, SubmittedDocument } from "@/models/Submission";
+import { PaginatedDocumentsResponse, Submission, SubmittedDocument } from "@/models/Submission";
 import { submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
 type GetProjectsByParamsForStaff = {
   searchOptions?: Record<string, string | number | string[]>;
+  projectId?: number;
+  page?: number;
+  size?: number;
 };
 const getDocumentsForStaff = ({
   searchOptions,
+  projectId,
+  page,
+  size,
 }: GetProjectsByParamsForStaff) => {
-  const url = "/staff/documents";
+  const url = "/documents";
 
-  return submitRequest<SubmittedDocument[]>({
+  return submitRequest<SubmittedDocument[] | PaginatedDocumentsResponse>({
     url,
-    params: searchOptions,
+    params: {
+      ...searchOptions,
+      project_id: projectId,
+      page,
+      size,
+    },
+    paramsSerializer: (params: Record<string, any>) => {
+      const searchParams = new URLSearchParams();
+      Object.keys(params).forEach((key) => {
+        const value = params[key];
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            value.forEach((v) => searchParams.append(key, v));
+          } else {
+            searchParams.append(key, value.toString());
+          }
+        }
+      });
+      return searchParams.toString();
+    },
   });
 };
 
+
 type UseGetDocumentsForStaffParams = {
   searchOptions?: Record<string, string | number | string[]>;
+  projectId?: number;
+  page?: number;
+  size?: number;
 };
 
 export const getSubmittedDocumentsForStaffQueryOptions = ({
   searchOptions,
+  projectId,
+  page,
+  size,
 }: UseGetDocumentsForStaffParams) =>
   queryOptions({
-    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions],
-    queryFn: () => getDocumentsForStaff({ searchOptions }),
+    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions, projectId, page, size],
+    queryFn: () => getDocumentsForStaff({ searchOptions, projectId, page, size }),
     ...defaultUseQueryOptions,
   });
 
 export const useGetSubmittedDocumentsForStaff = ({
   searchOptions,
+  projectId,
+  page,
+  size,
 }: UseGetDocumentsForStaffParams) => {
-  const options = getSubmittedDocumentsForStaffQueryOptions({ searchOptions });
+  const options = getSubmittedDocumentsForStaffQueryOptions({
+    searchOptions,
+    projectId,
+    page,
+    size,
+  });
   return useQuery(options);
 };
+
 
 export const getSubmittedDocumentsByPackageIdForStaffQueryOptions = ({
   packageId,
@@ -46,7 +87,7 @@ export const getSubmittedDocumentsByPackageIdForStaffQueryOptions = ({
     queryKey: [QUERY_KEY.PACKAGE_DOCUMENT_SUBMISSIONS, packageId],
     queryFn: () =>
       submitRequest<Submission[]>({
-        url: `/staff/documents/submissions/packages/${packageId}`,
+        url: `/documents/submissions/packages/${packageId}`,
       }),
     staleTime: 0,
   });

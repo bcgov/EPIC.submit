@@ -14,6 +14,8 @@ declare global {
       VITE_CONDITIONS_LIBRARY_URL: string;
       VITE_CENTRE_API_URL: string;
       VITE_USER_GUIDE: string;
+      VITE_GEO_DOC_URL: string;
+      VITE_GEO_DOC_FILES: string;
     };
   }
 }
@@ -44,6 +46,10 @@ const CLIENT_ID =
   window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID;
 const USER_GUIDE =
   window._env_?.VITE_USER_GUIDE || import.meta.env.VITE_USER_GUIDE || "";
+const GEO_DOC_URL =
+  window._env_?.VITE_GEO_DOC_URL || import.meta.env.VITE_GEO_DOC_URL || "";
+const GEO_DOC_FILES =
+  window._env_?.VITE_GEO_DOC_FILES || import.meta.env.VITE_GEO_DOC_FILES || "";
 
 const SUPPORT_EMAIL = "EAO.ManagementPlanSupport@gov.bc.ca";
 
@@ -59,6 +65,8 @@ export const AppConfig = {
   clientId: CLIENT_ID,
   supportEmail: SUPPORT_EMAIL,
   userGuide: USER_GUIDE,
+  geoDocUrl: GEO_DOC_URL,
+  geoDocFiles: GEO_DOC_FILES,
 };
 
 const trimmedAppUrl = APP_URL?.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;

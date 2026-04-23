@@ -12,6 +12,7 @@ export type SubmissionItemType = {
   id: number;
   name: SUBMISSION_ITEM_TYPE;
   submission_method: SubmissionItemMethod;
+  is_required?: boolean;
 };
 
 export enum SUBMISSION_ITEM_TYPE {
@@ -22,6 +23,7 @@ export enum SUBMISSION_ITEM_TYPE {
   IPD = "Initial Project Description",
   ENGAGEMENT_PLAN = "Engagement Plan",
   GEOSPATIAL_INFORMATION = "Geospatial Information",
+  UPLOAD_DOCUMENT = "Upload Files/Documents",
 }
 
 export const SubmissionItemTypeLabelMap = {
@@ -33,6 +35,7 @@ export const SubmissionItemTypeLabelMap = {
   [SUBMISSION_ITEM_TYPE.IPD]: "Initial Project Description",
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: "Engagement Plan",
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: "Geospatial Information",
+  [SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT]: "Upload Files/Documents",
 };
 
 export const SUBMISSION_ITEM_MODAL_CONTENT: Record<
@@ -66,6 +69,7 @@ export interface SubmissionItem {
   review?: SubmissionReview;
   notes?: Note[];
   review_start_date?: string;
+  is_required?: boolean;
 }
 
 export type InternalStaffDocumentType = "S3" | "LINK";

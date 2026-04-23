@@ -20,7 +20,7 @@ export const SubmitTableHeadCell = styled(TableCell)(() => ({
 }));
 
 export const SubmitCheckboxTableHeadCell = styled(SubmitTableHeadCell)(() => ({
-  textAlign: 'center'
+  textAlign: "center",
 }));
 
 export const SubmitTableCell = styled(TableCell)(() => ({
@@ -62,7 +62,7 @@ export const PlainTableCell = styled(TableCell)(() => ({
 export const PlainCheckboxTableCell = styled(PlainTableCell)(() => ({
   padding: 0,
   borderRight: `1px solid ${BCDesignTokens.themeGray40}`,
-  textAlign: 'center'
+  textAlign: "center",
 }));
 
 export const SubmitTableHead = styled(TableHead)(() => ({}));
@@ -70,6 +70,7 @@ export const SubmitTableHead = styled(TableHead)(() => ({}));
 export const SubmitTableContainer = styled(TableContainer)(() => ({
   height: "100%",
   cursor: "pointer",
+  overflow: "hidden",
 }));
 
 const StyledTableRow = styled(TableRow, {
@@ -105,31 +106,29 @@ export const SubmitTablePrimaryRow = ({
 
 export const SubmitPrimaryRowTableCell = styled(TableCell, {
   shouldForwardProp: (prop) => prop !== "error",
-})<{ error?: boolean }>(
-  ({ error }) => ({
-    borderTop: error
+})<{ error?: boolean }>(({ error }) => ({
+  borderTop: error
+    ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
+    : `1px solid ${BCDesignTokens.themeBlue20}`,
+  borderBottom: error
+    ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
+    : `1px solid ${BCDesignTokens.themeBlue20}`,
+  padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
+  "&:first-of-type": {
+    borderLeft: error
       ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
       : `1px solid ${BCDesignTokens.themeBlue20}`,
-    borderBottom: error
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
+  },
+  "&:last-of-type": {
+    borderRight: error
       ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
       : `1px solid ${BCDesignTokens.themeBlue20}`,
-    padding: `${BCDesignTokens.layoutPaddingXsmall} !important`,
-    "&:first-of-type": {
-      borderLeft: error
-        ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
-        : `1px solid ${BCDesignTokens.themeBlue20}`,
-      borderTopLeftRadius: 5,
-      borderBottomLeftRadius: 5,
-    },
-    "&:last-of-type": {
-      borderRight: error
-        ? `1px solid ${BCDesignTokens.supportBorderColorDanger}`
-        : `1px solid ${BCDesignTokens.themeBlue20}`,
-      borderTopRightRadius: 5,
-      borderBottomRightRadius: 5,
-    },
-  }),
-);
+    borderTopRightRadius: 5,
+    borderBottomRightRadius: 5,
+  },
+}));
 
 export const SubmitSubTableCell = styled(TableCell)(() => ({
   borderTop: `none`,

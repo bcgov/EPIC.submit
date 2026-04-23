@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { SubmissionPackage } from "@/models/Package";
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 
 /**
  * Custom hook to generate the display name for a submission package
@@ -9,7 +9,7 @@ import { SubmissionPackageType } from "@/components/Shared/types";
  * Returns empty string if submissionPackage is null/undefined
  */
 export const useManagementPlanName = (
-  submissionPackage: SubmissionPackage | null | undefined
+  submissionPackage: SubmissionPackage | null | undefined,
 ): string => {
   return useMemo(() => {
     if (!submissionPackage) {
@@ -25,6 +25,9 @@ export const useManagementPlanName = (
 
     if (needsConditionNumber && conditionNumber) {
       return conditionNumber + " - " + submissionPackage.name;
+    }
+    if (submissionPackage.type.name === SubmissionPackageType.ADDITIONAL_INFORMATION) {
+      return `${submissionPackage.type.title} - ${submissionPackage.name}`;
     }
     return submissionPackage.name;
   }, [submissionPackage]);

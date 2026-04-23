@@ -20,14 +20,14 @@ from flask import current_app
 
 def local_datetime():
     """Get the local (Pacific Timezone) datetime."""
-    utcmoment = datetime.utcnow().replace(tzinfo=pytz.utc)
+    utcmoment = datetime.now(datetime.UTC)().replace(tzinfo=pytz.utc)
     now = utcmoment.astimezone(pytz.timezone('US/Pacific'))
     return now
 
 
 def utc_datetime():
     """Get the UTC datetime."""
-    utcmoment = datetime.utcnow().replace(tzinfo=pytz.utc)
+    utcmoment = datetime.now(datetime.UTC)().replace(tzinfo=pytz.utc)
     now = utcmoment.astimezone(pytz.timezone('UTC'))
     return now
 

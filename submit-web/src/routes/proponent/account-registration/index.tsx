@@ -9,6 +9,11 @@ import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/
 import { LandingPageComponent } from "@/components/App/LandingPageComponent";
 
 export const Route = createFileRoute("/proponent/account-registration/")({
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      token: search.token as string,
+    };
+  },
   loader: ({ location }) => {
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
@@ -20,7 +25,7 @@ export const Route = createFileRoute("/proponent/account-registration/")({
 });
 
 function AccountRegistration() {
-  const { token } = Route.useSearch<{ token: string }>();
+  const { token } = Route.useSearch();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const { setInvitation, invitation } = useCreateAccountFormStore();
 

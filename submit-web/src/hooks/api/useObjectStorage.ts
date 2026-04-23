@@ -1,4 +1,4 @@
-import { SubmissionPackageType } from "@/components/Shared/types";
+import { SubmissionPackageType } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
 
@@ -22,6 +22,19 @@ export const S3_FOLDER = {
   IPD_SUPPORTING_DOCUMENTS: {
     value: "ipd_supporting_documents",
     label: "IPD Supporting Documents",
+  },
+  ENGAGEMENT_PLANS: { value: "engagement_plans", label: "Engagement Plans" },
+  ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS: {
+    value: "engagement_plan_supporting_documents",
+    label: "Engagement Plan Supporting Documents",
+  },
+  GEOSPATIAL: {
+    value: "geospatial",
+    label: "Geospatial Information",
+  },
+  UPLOAD_DOCUMENTS: {
+    value: "upload_documents",
+    label: "Upload Documents",
   },
 };
 
@@ -113,6 +126,14 @@ const getObject = (presignedUrl: string) => {
     method: "get",
     responseType: "blob",
   });
+};
+
+export const getJsonObject = async (presignedUrl: string) => {
+  const response = await fetch(presignedUrl);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch JSON data: ${response.status}`);
+  }
+  return response.json();
 };
 
 // Download an object from S3

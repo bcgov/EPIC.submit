@@ -29,6 +29,7 @@ export type SubmissionItemStatus =
   | "PARTIALLY_COMPLETED"
   | "SUBMITTED"
   | "REVIEW_REJECTED"
+  | "REVIEW_NOT_COMPLETED"
   | "FAILED_CONSULTATION_CHECK"
   | "PASSED_CONSULTATION_CHECK"
   | "REVISION_REQUIRED"
@@ -76,9 +77,13 @@ export const SUBMISSION_ITEM_STATUS: Record<
     value: "REVIEW_REJECTED",
     label: "Review Rejected",
   },
+  REVIEW_NOT_COMPLETED: {
+    value: "REVIEW_REJECTED",
+    label: "Review Rejected",
+  },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
-    label: "Failed Consultation Check",
+    label: "Review Not Completed",
   },
   APPROVED: {
     value: "APPROVED",
@@ -285,6 +290,7 @@ export type Submission = {
   major_version: number;
   type: SubmissionType;
   submitted_document?: DocumentSubmission;
+  submitted_document_id?: number;
   submitted_form?: SubmittedForm;
   created_date: string;
   submitted_by: string;
@@ -300,3 +306,24 @@ export type SubmittedDocument = {
   submitted_on: string;
   version: string;
 };
+
+export type PaginatedSubmittedDocument = {
+  id: number;
+  name: string;
+  url: string;
+  work: string;
+  phase: string;
+  version: string;
+  submitted_on: string;
+  status: string;
+  root_submission_id: number;
+};
+
+
+export type PaginatedDocumentsResponse = {
+  items: PaginatedSubmittedDocument[];
+  total: number;
+  page: number;
+  size: number;
+};
+

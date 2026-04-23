@@ -98,3 +98,33 @@ class SubmittedDocumentByProjectSchema(Schema):
     status = fields.Enum(data_key="status", enum=ItemStatus)
     submitted_on = fields.DateTime(data_key="submitted_on")
     version = fields.Str(data_key="version")
+
+
+class PaginatedProjectDocumentItemSchema(Schema):
+    """Paginated project document item schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    id = fields.Int(data_key="id")
+    name = fields.Str(data_key="name")
+    project_name = fields.Str(data_key="project_name")
+    work = fields.Str(data_key="work")
+    phase = fields.Method("get_phase")
+    version = fields.Method("get_version")
+    submitted_on = fields.DateTime(data_key="submitted_on")
+    status = fields.Enum(data_key="status", enum=ItemStatus)
+    url = fields.Str(data_key="url")
+    root_submission_id = fields.Int(data_key="root_submission_id")
+
+    def get_phase(self, obj):
+        """Get the phase name."""
+        return obj.phase_display_name if obj.phase_display_name else obj.phase_name
+
+    def get_version(self, obj):
+        """Get the version."""
+        if obj.major_version is not None and obj.minor_version is not None:
+            return f"{obj.major_version}.{obj.minor_version}"
+        return None

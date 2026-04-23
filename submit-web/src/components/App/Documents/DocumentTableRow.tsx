@@ -1,25 +1,29 @@
 import { useState } from "react";
 import dateUtils from "@/utils/dateUtils";
-import { Typography } from "@mui/material";
+import { TableRow, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { SubmittedDocument } from "@/models/Submission";
-import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
-import { SubmitTableCell } from "@/components/Shared/Table/common";
-import { TableRow } from "@mui/material";
-import { getObjectFromS3 } from "@/components/Shared/Table/utils";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { isAxiosError } from "axios";
+import { PaginatedSubmittedDocument } from "@/models/Submission";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { IconButton } from "@mui/material";
+import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { SubmitTableCell } from "@/components/Shared/Table/common";
+import { getObjectFromS3 } from "@/components/Shared/Table/utils";
+import { isAxiosError } from "axios";
+import { SubmissionStatusChip } from "../SubmissionStatusChip";
 
 type DocumentRowProps = Readonly<{
-  submittedDocument: SubmittedDocument;
+  submittedDocument: PaginatedSubmittedDocument;
 }>;
 
 export default function DocumentTableRow({
   submittedDocument,
 }: DocumentRowProps) {
-  const { name, url } = submittedDocument;
+  const { name, url, version, submitted_on, status, work, phase } =
+    submittedDocument;
 
+  const [expanded, setExpanded] = useState(false);
   const [pendingGetObject, setPendingGetObject] = useState(false);
 
   const downloadDocument = async () => {
@@ -42,43 +46,68 @@ export default function DocumentTableRow({
   };
 
   return (
-    <TableRow>
-      <SubmitTableCell align="left">
-        {submittedDocument.project_name ?? ""}
-      </SubmitTableCell>
-      <SubmitTableCell>
-        <Typography
-          variant="body1"
-          color="inherit"
+    <>
+      <TableRow sx={[expanded && { "& > *": { borderBottom: "unset" } }]}>
+        <SubmitTableCell align="left">
+          <Typography
+            variant="body1"
+            color="inherit"
+            sx={{
+              overflow: "clip",
+              textOverflow: "ellipsis",
+              cursor: "pointer",
+              mx: 0.5,
+            }}
+          >
+            <DocumentLink
+              onClick={openDocument}
+              name={name}
+              loading={pendingGetObject}
+            />
+          </Typography>
+        </SubmitTableCell>
+        <SubmitTableCell align="left">{work}</SubmitTableCell>
+        <SubmitTableCell align="left">{phase}</SubmitTableCell>
+        <SubmitTableCell align="left">
+          {version}
+          {version !== "1.1" ? (
+            <IconButton onClick={() => setExpanded(!expanded)} sx={{ p: 0 }}>
+              <ExpandMoreIcon
+                sx={{
+                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "0.3s ease-in-out",
+                }}
+              />
+            </IconButton>
+          ) : (
+            <span style={{ marginRight: "24px" }} />
+          )}
+        </SubmitTableCell>
+        <SubmitTableCell align="left">
+          {dateUtils.formatDate(submitted_on)}
+        </SubmitTableCell>
+        <SubmitTableCell
+          align="center"
           sx={{
-            overflow: "clip",
-            textOverflow: "ellipsis",
-            cursor: "pointer",
-            mx: 0.5,
+            pr: BCDesignTokens.layoutPaddingSmall,
           }}
         >
-          <DocumentLink
-            onClick={openDocument}
-            name={submittedDocument.name}
-            loading={pendingGetObject}
-          />
-        </Typography>
-      </SubmitTableCell>
-      <SubmitTableCell align="right">
-        {submittedDocument.version ?? ""}
-      </SubmitTableCell>
-      <SubmitTableCell align="center">
-        {dateUtils.formatDate(submittedDocument.submitted_on)}
-      </SubmitTableCell>
-      <SubmitTableCell
-        align="right"
-        sx={{
-          pr: BCDesignTokens.layoutPaddingSmall,
-        }}
-      >
-        <SubmissionStatusChip status={submittedDocument.status ?? ""} />
-      </SubmitTableCell>
-      <SubmitTableCell align="center">{""}</SubmitTableCell>
-    </TableRow>
+          <SubmissionStatusChip status={status ?? ""} />
+        </SubmitTableCell>
+      </TableRow>
+      {expanded && (
+        <TableRow>
+          <SubmitTableCell
+            colSpan={6}
+            style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
+          >
+            <DocumentsSubTable
+              submissionId={submittedDocument.root_submission_id}
+              currentDocumentId={submittedDocument.id}
+            />
+          </SubmitTableCell>
+        </TableRow>
+      )}
+    </>
   );
 }

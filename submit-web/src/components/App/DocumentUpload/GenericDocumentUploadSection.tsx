@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo } from "react";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, Link } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE, Submission } from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/ControlledFormFields/ControlledFileUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
@@ -15,6 +16,11 @@ import { camelCase } from "lodash";
 import { useFileStore } from "@/store/fileStore";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
+import {
+  DEFAULT_ACCEPTED_FILE_TYPES,
+  EXTENSION_TO_MIME_TYPE_MAP,
+} from "@/utils/constants";
+import { Accept } from "react-dropzone";
 
 export interface UploadSectionConfig {
   name: string;
@@ -23,17 +29,22 @@ export interface UploadSectionConfig {
   maxFiles?: number;
   maxFilesErrorMessage?: string;
   description?: string;
-  acceptedFileTypes?: string;
+  acceptedFileTypes?: string[];
+  acceptedFileTypesCriteria?: string;
+  onDocumentClick?: (documentItem: Submission) => void;
 }
 
 interface GenericDocumentUploadSectionProps {
   sections: UploadSectionConfig[];
   title?: string;
+  onRequestUpdate?: (itemTypeId: number, itemTypeName: string) => void;
+  itemTypeId?: number;
+  itemTypeName?: string;
 }
 
 export const GenericDocumentUploadSection: React.FC<
   GenericDocumentUploadSectionProps
-> = ({ sections, title = "Document(s) Upload" }) => {
+> = ({ sections, title = "Document(s) Upload", onRequestUpdate, itemTypeId, itemTypeName }) => {
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -79,6 +90,37 @@ export const GenericDocumentUploadSection: React.FC<
     [accountProject],
   );
 
+  const acceptedFileTypes = useMemo(() => {
+    const acceptedFileTypes = sections
+      .map((section) => section.acceptedFileTypes || [])
+      .flat();
+    return acceptedFileTypes.length > 0
+      ? acceptedFileTypes
+      : DEFAULT_ACCEPTED_FILE_TYPES;
+  }, [sections]);
+
+  const fileUploadAccept = useMemo(() => {
+    const acceptObj: Accept = {};
+
+    acceptedFileTypes.forEach((ext) => {
+      const cleanExt = ext.replace(/^\./, "").toLowerCase(); // remove leading dot if any
+      const mimeTypes = EXTENSION_TO_MIME_TYPE_MAP[cleanExt] || [
+        "application/octet-stream",
+      ]; // fallback
+
+      mimeTypes.forEach((mime) => {
+        if (!acceptObj[mime]) {
+          acceptObj[mime] = [];
+        }
+        if (!acceptObj[mime].includes(`.${cleanExt}`)) {
+          acceptObj[mime].push(`.${cleanExt}`);
+        }
+      });
+    });
+
+    return acceptObj;
+  }, [acceptedFileTypes]);
+
   if (!submissionItemId) {
     notify.error("Failed to load submission item");
     return <Navigate to="/error" />;
@@ -106,14 +148,33 @@ export const GenericDocumentUploadSection: React.FC<
         return (
           <Grid item xs={12} key={section.name}>
             <Box sx={{ flexDirection: "column", display: "flex" }}>
-              <Typography
-                variant="body1"
-                color={BCDesignTokens.typographyColorPrimary}
-                fontWeight={700}
-                mt={BCDesignTokens.layoutMarginMedium}
-              >
-                Upload {section.label}
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: BCDesignTokens.layoutMarginMedium }}>
+                <Typography
+                  variant="body1"
+                  color={BCDesignTokens.typographyColorPrimary}
+                  fontWeight={700}
+                >
+                  Upload {section.label}
+                </Typography>
+                {onRequestUpdate && itemTypeId && itemTypeName && (
+                  <Link
+                    component="button"
+                    onClick={() => onRequestUpdate(itemTypeId, itemTypeName)}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 0.5,
+                      color: BCDesignTokens.themeBlue90,
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                      fontSize: "14px",
+                    }}
+                  >
+                    <RefreshIcon sx={{ fontSize: "16px" }} />
+                    Request Update
+                  </Link>
+                )}
+              </Box>
               {section.description ? (
                 <Typography
                   variant="body2"
@@ -131,8 +192,8 @@ export const GenericDocumentUploadSection: React.FC<
                       color: BCDesignTokens.typographyColorPlaceholder,
                     }}
                   >
-                    Must be unlocked PDF document (i.e., not password
-                    protected).
+                    {section.acceptedFileTypesCriteria ||
+                      "Must be unlocked PDF document (i.e., not password protected)."}
                   </Typography>
                   <Typography
                     variant="body2"
@@ -153,6 +214,7 @@ export const GenericDocumentUploadSection: React.FC<
               }
               maxFiles={section.maxFiles}
               maxFilesErrorMessage={section.maxFilesErrorMessage}
+              accept={fileUploadAccept}
             />
             <Typography
               variant="body2"
@@ -160,8 +222,7 @@ export const GenericDocumentUploadSection: React.FC<
                 color: EAOColors.ProponentDark,
               }}
             >
-              Accepted file types:{" "}
-              {section.acceptedFileTypes || "pdf, doc, docx, xlsx"}. Max. file
+              Accepted file types: {acceptedFileTypes.join(", ")}. Max file
               size: 500 MB.
             </Typography>
 
@@ -174,7 +235,9 @@ export const GenericDocumentUploadSection: React.FC<
                   projectName: projectName,
                   sectionName: section.folder,
                 })}
+                isGeoSpatial={section.name === "geospatial"}
                 formFieldName={section.name}
+                onDocumentClick={section.onDocumentClick}
               />
             </Box>
           </Grid>

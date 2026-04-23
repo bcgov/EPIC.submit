@@ -54,7 +54,6 @@ export function Submission() {
   const { data: submissionItem, isLoading: isItemLoading } = useSuspenseQuery(
     getSubmissionItemQueryOptions({ itemId: Number(subItemId) }),
   );
-
   const { data: submissionPackage, isLoading: isPackageLoading } =
     useSuspenseQuery(
       getSubmissionPackageQueryOptions({
