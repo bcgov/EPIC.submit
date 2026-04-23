@@ -21,7 +21,7 @@ from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema
+from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema, UpdateSubmissionStatusSchema
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -37,7 +37,9 @@ create_submission_model = ApiHelper.convert_ma_schema_to_restx_model(
 submission_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, SubmissionSchema(), "Submission"
 )
-
+update_submission_status_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, UpdateSubmissionStatusSchema(), "Update a submission status"
+)
 
 @cors_preflight("GET, OPTIONS, POST")
 @API.route("/items/<int:submission_item_id>", methods=["POST", "GET", "OPTIONS"])
@@ -201,3 +203,24 @@ class SubmissionItemGeoProcess(Resource):
         except Exception as e:  # pylint:disable=broad-exception-caught. # noqa: B902
             current_app.logger.exception(f"Error triggering geo process: {e}")
             return jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
+
+@cors_preflight("OPTIONS, PATCH")
+@API.route("/<int:submission_id>/status", methods=["PATCH", "OPTIONS"])
+class SubmissionItemGeoProcess(Resource):
+    """Resource to update submission status."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Edit a submission")
+    @API.expect(update_submission_status_model)
+    @API.response(
+        code=HTTPStatus.OK, model=submission_model, description="Submission"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cross_origin(origins=allowedorigins())
+    @auth.require
+    def patch(submission_id):
+        """Edit a submission status."""
+        edit_submission_data = UpdateSubmissionStatusSchema().load(API.payload)
+        status = edit_submission_data.get("status")
+        edited_submission = SubmissionService.update_submission_status(submission_id, status)
+        return SubmissionSchema().dump(edited_submission), HTTPStatus.OK

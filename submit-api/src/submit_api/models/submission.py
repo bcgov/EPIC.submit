@@ -27,6 +27,8 @@ class SubmissionStatus(enum.Enum):
     REJECTED = 'REJECTED'
     APPROVED = 'APPROVED'
     PENDING = 'PENDING'
+    VERIFIED = 'VERIFIED'
+    ACKNOWLEDGED = 'ACKNOWLEDGED'
 
 
 class Submission(BaseModel):

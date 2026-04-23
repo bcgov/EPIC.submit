@@ -4,6 +4,7 @@ import { Options } from "./types";
 import {
   Submission,
   SUBMISSION_TYPE,
+  SubmissionStatus,
   SubmissionType,
 } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
@@ -306,7 +307,7 @@ export const useMoveSubmission = ({
 export const triggerGeoProcess = (itemId: number) => {
   return submitRequest({
     url: `/submissions/items/${itemId}/geo-process`,
-    method: "post",
+    method: "PATCH",
   });
 };
 
@@ -314,6 +315,46 @@ export const useTriggerGeoProcess = (options?: Options) => {
   const { onSuccess: _onSuccess, ...restOptions } = options || {};
   return useMutation({
     mutationFn: ({ itemId }: { itemId: number }) => triggerGeoProcess(itemId),
+    onSuccess: (data) => {
+      if (_onSuccess) {
+        _onSuccess(data);
+      }
+    },
+    ...restOptions,
+  });
+};
+
+export const updateSubmissionStatus = (
+  submissionId: number,
+  status: SubmissionStatus,
+) => {
+  return submitRequest({
+    url: `/submissions/${submissionId}/status`,
+    method: "PATCH",
+    data: {
+      status: status,
+    },
+  });
+};
+
+type UseUpdateSubmissionStatus = {
+  submissionId: number;
+  status: SubmissionStatus;
+} & Options;
+export const useUpdateSubmissionStatus = ({
+  submissionId,
+  status,
+  ...options
+}: UseUpdateSubmissionStatus) => {
+  const { onSuccess: _onSuccess, ...restOptions } = options || {};
+  return useMutation({
+    mutationFn: ({
+      submissionId,
+      status,
+    }: {
+      submissionId: number;
+      status: SubmissionStatus;
+    }) => updateSubmissionStatus(submissionId, status),
     onSuccess: (data) => {
       if (_onSuccess) {
         _onSuccess(data);
