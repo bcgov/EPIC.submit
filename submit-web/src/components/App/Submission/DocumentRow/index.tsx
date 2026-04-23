@@ -12,6 +12,9 @@ import { StatusCell } from "./StatusCell";
 import SubmissionItemReviewConfirmation from "@/components/App/Submission/SubmissionItemReviewConfirmation";
 import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CheckIcon from "@mui/icons-material/Check";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import UndoIcon from "@mui/icons-material/Undo";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
@@ -19,8 +22,11 @@ import { Switch, Case } from "react-if";
 import { SubmissionPackage, PackageType } from "@/models/Package";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
-import ActionSplitButton, { VerifyMode } from "./ActionSplitButton";
+import ActionSplitButton, {
+  SplitButtonAction,
+} from "@/components/Shared/ActionSplitButton/ActionSplitButton";
 import { useUpdateSubmissionStatus } from "@/hooks/api/useSubmissions";
+import { BCDesignTokens } from "epic.theme";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -46,40 +52,10 @@ export default function DocumentRow({
   const name = submitted_document?.name || "";
   const url = submitted_document?.url || "";
 
-  const { mutateAsync: verifySubmission } = useUpdateSubmissionStatus();
-
-  // const { mutateAsync: acknowledgeSubmission } = useUpdateSubmissionStatus({
-  //   submissionId: Number(documentSubmission.id),
-  //   status: SUBMISSION_STATUS.ACKNOWLEDGED,
-  // });
-
-  // const { mutateAsync: undoVerify } = useUpdateSubmissionStatus({
-  //   submissionId: Number(documentSubmission.id),
-  //   status: SUBMISSION_STATUS.SUBMITTED,
-  // });
-
-  // const { mutateAsync: undoAcknowledge } = useUpdateSubmissionStatus({
-  //   submissionId: Number(documentSubmission.id),
-  //   status: SUBMISSION_STATUS.VERIFIED,
-  // });
-
-  const getVerifyMode = (): VerifyMode | null => {
-    const status = documentSubmission.status;
-    if (status === SUBMISSION_STATUS.SUBMITTED) {
-      return "verify";
-    }
-    if (status === SUBMISSION_STATUS.VERIFIED) {
-      return "acknowledge";
-    }
-    return null;
-  };
-
-  const verifyMode = submissionPackage?.account_project_work
-    ? getVerifyMode()
-    : null;
+  const { mutateAsync: updateSubmissionStatus } = useUpdateSubmissionStatus();
 
   const handleVerify = () => {
-    verifySubmission({
+    updateSubmissionStatus({
       submissionId: documentSubmission.id,
       status: SUBMISSION_STATUS.VERIFIED,
     });
@@ -118,6 +94,64 @@ export default function DocumentRow({
   //     onError: () => notify.error("Failed to undo acknowledgement"),
   //   });
   // };
+
+  const getVerifyModeSplitButton = (): {
+    primary: SplitButtonAction;
+    secondary: SplitButtonAction[];
+  } | null => {
+    const status = documentSubmission.status;
+    const smallIcon = { width: 16, height: 16 };
+
+    if (status === SUBMISSION_STATUS.SUBMITTED) {
+      return {
+        primary: {
+          label: "Verify",
+          icon: <CheckIcon sx={smallIcon} />,
+          onClick: handleVerify,
+        },
+        secondary: [
+          {
+            label: "Verify & Acknowledge",
+            icon: (
+              <DoneAllIcon
+                fontSize="small"
+                sx={{ color: BCDesignTokens.themeGray70 }}
+              />
+            ),
+            onClick: () => {}, // TODO: handleVerifyAndAcknowledge
+          },
+        ],
+      };
+    }
+
+    if (status === SUBMISSION_STATUS.VERIFIED) {
+      return {
+        primary: {
+          label: "Acknowledge",
+          icon: <CheckIcon sx={smallIcon} />,
+          onClick: () => {}, // TODO: handleAcknowledge
+        },
+        secondary: [
+          {
+            label: "Undo Verification",
+            icon: (
+              <UndoIcon
+                fontSize="small"
+                sx={{ color: BCDesignTokens.themeGray70 }}
+              />
+            ),
+            onClick: () => {}, // TODO: handleUndoVerification
+          },
+        ],
+      };
+    }
+
+    return null;
+  };
+
+  const splitButtonConfig = submissionPackage?.account_project_work
+    ? getVerifyModeSplitButton()
+    : null;
 
   const openDocument = async () => {
     try {
@@ -198,14 +232,11 @@ export default function DocumentRow({
             }}
           >
             <Switch>
-              <Case condition={verifyMode !== null}>
+              <Case condition={splitButtonConfig !== null}>
                 <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
                   <ActionSplitButton
-                    mode={verifyMode!}
-                    onVerify={handleVerify}
-                    onVerifyAndAcknowledge={() => {}}
-                    onAcknowledge={() => {}}
-                    onUndoVerification={() => {}}
+                    primaryAction={splitButtonConfig!.primary}
+                    secondaryActions={splitButtonConfig!.secondary}
                   />
                 </PermissionsGate>
               </Case>

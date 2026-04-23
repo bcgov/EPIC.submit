@@ -8,28 +8,23 @@ import {
   ListItemText,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import CheckIcon from "@mui/icons-material/Check";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
-import UndoIcon from "@mui/icons-material/Undo";
 import { BCDesignTokens } from "epic.theme";
-import { useState, useRef } from "react";
+import { useState, useRef, ReactNode } from "react";
 
-export type VerifyMode = "verify" | "acknowledge";
+export type SplitButtonAction = {
+  label: string;
+  icon?: ReactNode;
+  onClick: () => void;
+};
 
 type ActionSplitButtonProps = Readonly<{
-  mode: VerifyMode;
-  onVerify: () => void;
-  onVerifyAndAcknowledge: () => void;
-  onAcknowledge: () => void;
-  onUndoVerification: () => void;
+  primaryAction: SplitButtonAction;
+  secondaryActions: SplitButtonAction[];
 }>;
 
 export default function ActionSplitButton({
-  mode,
-  onVerify,
-  onVerifyAndAcknowledge,
-  onAcknowledge,
-  onUndoVerification,
+  primaryAction,
+  secondaryActions,
 }: ActionSplitButtonProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -40,11 +35,6 @@ export default function ActionSplitButton({
   };
 
   const handleClose = () => setMenuOpen(false);
-
-  const isVerifyMode = mode === "verify";
-
-  const primaryLabel = isVerifyMode ? "Verify" : "Acknowledge";
-  const primaryAction = isVerifyMode ? onVerify : onAcknowledge;
 
   return (
     <Box sx={{ display: "inline-flex", alignItems: "center" }}>
@@ -62,8 +52,8 @@ export default function ActionSplitButton({
       >
         {/* Primary action button */}
         <Button
-          onClick={primaryAction}
-          startIcon={<CheckIcon sx={{ width: 13, height: 13 }} />}
+          onClick={primaryAction.onClick}
+          startIcon={primaryAction.icon}
           sx={{
             fontSize: BCDesignTokens.typographyFontSizeSmallBody,
             fontWeight: 400,
@@ -76,7 +66,7 @@ export default function ActionSplitButton({
             },
           }}
         >
-          {primaryLabel}
+          {primaryAction.label}
         </Button>
 
         {/* Dropdown toggle */}
@@ -119,51 +109,37 @@ export default function ActionSplitButton({
           },
         }}
       >
-        {isVerifyMode ? (
+        {secondaryActions.map((action) => (
           <MenuItem
+            key={action.label}
             onClick={() => {
               handleClose();
-              onVerifyAndAcknowledge();
+              action.onClick();
             }}
             dense
             sx={{ py: 1, px: 2 }}
           >
-            <ListItemIcon sx={{ minWidth: 28 }}>
-              <DoneAllIcon
-                fontSize="small"
-                sx={{ color: BCDesignTokens.themeGray70 }}
-              />
-            </ListItemIcon>
+            {action.icon && (
+              <ListItemIcon sx={{ minWidth: 28 }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    fontSize: "small",
+                    color: BCDesignTokens.themeGray70,
+                  }}
+                >
+                  {action.icon}
+                </Box>
+              </ListItemIcon>
+            )}
             <ListItemText
-              primary="Verify & Acknowledge"
+              primary={action.label}
               primaryTypographyProps={{
                 fontSize: BCDesignTokens.typographyFontSizeSmallBody,
               }}
             />
           </MenuItem>
-        ) : (
-          <MenuItem
-            onClick={() => {
-              handleClose();
-              onUndoVerification();
-            }}
-            dense
-            sx={{ py: 1, px: 2 }}
-          >
-            <ListItemIcon sx={{ minWidth: 28 }}>
-              <UndoIcon
-                fontSize="small"
-                sx={{ color: BCDesignTokens.themeGray70 }}
-              />
-            </ListItemIcon>
-            <ListItemText
-              primary="Undo Verification"
-              primaryTypographyProps={{
-                fontSize: BCDesignTokens.typographyFontSizeSmallBody,
-              }}
-            />
-          </MenuItem>
-        )}
+        ))}
       </Menu>
     </Box>
   );
