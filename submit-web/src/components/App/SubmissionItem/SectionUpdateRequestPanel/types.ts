@@ -12,6 +12,10 @@ export interface SentRequest {
   createdDate: string;
   createdBy: string;
   status: string;
+  accountAdministrator?: string;
+  note?: string;
+  proponentName?: string;
+  noteDate?: string;
 }
 
 export interface SectionUpdateRequestPanelProps {
@@ -20,5 +24,7 @@ export interface SectionUpdateRequestPanelProps {
   onRemoveFlag: (itemTypeId: number) => void;
   onSendRequests: () => void;
   onUpdateNote: (itemTypeId: number, note: string) => void;
+  onAcceptUpdate?: (updateRequestId: number) => void;
+  onWithdrawUpdate?: (updateRequestId: number) => void;
   isLoading?: boolean;
 }

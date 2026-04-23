@@ -188,10 +188,10 @@ class PackageUpdateRequests(Resource):
         return StaffPackageSchema().dump(package_with_created_update_request), HTTPStatus.CREATED
 
 
-@cors_preflight("POST, PATCH, OPTIONS")
+@cors_preflight("POST, PATCH, DELETE, OPTIONS")
 @API.route(
     "/<int:package_id>/update-request/<int:update_request_id>",
-    methods=["POST", "PATCH", "OPTIONS"],
+    methods=["POST", "PATCH", "DELETE", "OPTIONS"],
 )
 class PackageUpdateRequest(Resource):
     """Resource for managing a package's update request."""
@@ -210,6 +210,20 @@ class PackageUpdateRequest(Resource):
         """Accept an update request."""
         accept_update_request = PackageService.accept_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(accept_update_request), HTTPStatus.OK
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Withdraw an update request for a package")
+    @API.response(
+        code=HTTPStatus.OK, model=package_model, description="Update Request Withdrawn"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @cross_origin(origins=allowedorigins())
+    def delete(package_id, update_request_id):
+        """Withdraw an update request."""
+        withdraw_update_request = PackageService.withdraw_update_request(package_id, update_request_id)
+        return StaffPackageSchema().dump(withdraw_update_request), HTTPStatus.OK
 
 
 @cors_preflight("POST, OPTIONS")

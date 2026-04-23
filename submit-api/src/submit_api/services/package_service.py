@@ -472,6 +472,20 @@ class PackageService:
             return package
 
     @classmethod
+    def withdraw_update_request(cls, package_id, update_request_id):
+        """Withdraw an update request by setting its status to CLOSED."""
+        with session_scope() as session:
+            package = cls.get_package_by_id(package_id)
+            update_request = UpdateRequestModel.find_by_id(update_request_id)
+            cls._validate_withdraw_update_request(package, update_request)
+            update_request = UpdateRequestModel.find_by_id(update_request_id)
+            update_request.status = UpdateRequestStatus.CLOSED.value
+            update_request.active = False
+            session.add(update_request)
+            session.flush()
+            return package
+
+    @classmethod
     def _validate_accept_update_request(cls, package, update_request):
         """Validate the accept update request."""
         if not package:
@@ -483,6 +497,21 @@ class PackageService:
             raise BadRequestError("Update request does not belong to the specified package")
         if update_request.status != UpdateRequestStatus.PENDING_REVIEW.value:
             raise BadRequestError("Update request is not pending review")
+
+    @classmethod
+    def _validate_withdraw_update_request(cls, package, update_request):
+        """Validate the withdraw update request."""
+        if not package:
+            raise BadRequestError("Package not found")
+
+        if not update_request:
+            raise BadRequestError("Update request not found")
+        if update_request.submission_package_id != package.id:
+            raise BadRequestError("Update request does not belong to the specified package")
+        if update_request.status == UpdateRequestStatus.ACCEPTED.value:
+            raise BadRequestError("Cannot withdraw an already accepted update request")
+        if update_request.status == UpdateRequestStatus.CLOSED.value:
+            raise BadRequestError("Update request is already withdrawn")
 
     @staticmethod
     def _log_activity_submission(package, action, session):

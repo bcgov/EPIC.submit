@@ -14,6 +14,8 @@ export const SectionUpdateRequestPanel: React.FC<
   onRemoveFlag,
   onSendRequests,
   onUpdateNote,
+  onAcceptUpdate,
+  onWithdrawUpdate,
   isLoading = false,
 }) => {
   const [expandedPending, setExpandedPending] = useState<Set<number>>(
@@ -26,14 +28,14 @@ export const SectionUpdateRequestPanel: React.FC<
   }, [pendingRequests]);
 
   const totalCount = pendingRequests.length + sentRequests.length;
-  const hasPendingRequests = pendingRequests.length > 0;
+  const hasAnyRequests = totalCount > 0;
   
-  const panelBorderColor = hasPendingRequests 
-    ? BCDesignTokens.supportBorderColorWarning 
+  const panelBorderColor = hasAnyRequests 
+    ? "#F5A623" 
     : "#e0e0e0";
-  const panelBackground = hasPendingRequests 
-    ? BCDesignTokens.themeGold10 
-    : "#fafafa";
+  const panelBackground = hasAnyRequests 
+    ? "#FCF8E3" 
+    : "#F5F5F5";
 
   const handleTogglePending = (itemTypeId: number) => {
     setExpandedPending((prev) => {
@@ -111,6 +113,7 @@ export const SectionUpdateRequestPanel: React.FC<
             p: 2.5,
             textAlign: "center",
             borderTop: `1px solid ${panelBorderColor}`,
+            backgroundColor: "white",
           }}
         >
           <Typography
@@ -124,7 +127,7 @@ export const SectionUpdateRequestPanel: React.FC<
           </Typography>
         </Box>
       ) : (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: 2, backgroundColor: "white" }}>
           {pendingRequests.map((request) => (
             <PendingRequestCollapsible
               key={request.itemTypeId}
@@ -142,6 +145,8 @@ export const SectionUpdateRequestPanel: React.FC<
               request={request}
               expanded={expandedSent.has(request.updateRequestId)}
               onToggle={() => handleToggleSent(request.updateRequestId)}
+              onAcceptUpdate={onAcceptUpdate}
+              onWithdrawUpdate={onWithdrawUpdate}
             />
           ))}
 

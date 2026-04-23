@@ -13,6 +13,8 @@ import {
   useGetPackageVersionsByOriginalPackageId,
   useGetStaffSubmissionPackage,
   useCreatePackageUpdateRequest,
+  useAcceptUpdateRequest,
+  useWithdrawUpdateRequest,
 } from "@/hooks/api/usePackages";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
@@ -34,6 +36,8 @@ import { PendingRequest, SentRequest } from "@/components/App/SubmissionItem/Sec
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useState, useMemo, useCallback } from "react";
+import { useGetAccountUsers } from "@/hooks/api/useAccountUsers";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -65,9 +69,43 @@ export default function SubmissionPage() {
     accountProjectId,
   });
 
+  const acceptUpdateRequestMutation = useAcceptUpdateRequest({
+    packageId: submissionPackageId,
+    options: {
+      onSuccess: () => {
+        notify.success("Update request accepted successfully");
+        queryClient.invalidateQueries({
+          queryKey: ["packages", submissionPackageId],
+        });
+      },
+      onError: () => {
+        notify.error("Failed to accept update request");
+      },
+    },
+  });
+
+  const withdrawUpdateRequestMutation = useWithdrawUpdateRequest({
+    packageId: submissionPackageId,
+    options: {
+      onSuccess: () => {
+        notify.success("Update request withdrawn successfully");
+        queryClient.invalidateQueries({
+          queryKey: ["packages", submissionPackageId],
+        });
+      },
+      onError: () => {
+        notify.error("Failed to withdraw update request");
+      },
+    },
+  });
+
   const { data: submissionPackage, isFetching } = useGetStaffSubmissionPackage({
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
+  });
+
+  const { data: accountUsers } = useGetAccountUsers({
+    accountId: accountProject?.account_id,
   });
 
   const { data: packageVersions } = useGetPackageVersionsByOriginalPackageId({
@@ -104,6 +142,14 @@ export default function SubmissionPage() {
 
   const managementPlanName = useManagementPlanName(submissionPackage);
 
+  const accountAdministrator = useMemo(() => {
+    if (!accountUsers) return null;
+    const primaryAdmin = accountUsers.find(
+      (user) => user.role?.role_name === USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN
+    );
+    return primaryAdmin?.full_name || null;
+  }, [accountUsers]);
+
   const sentUpdateRequests = useMemo<SentRequest[]>(() => {
     if (!submissionPackage?.update_requests) return [];
 
@@ -125,10 +171,12 @@ export default function SubmissionPage() {
             createdBy: req.created_by || "",
             createdDate: req.created_date || "",
             status: req.status || "",
+            accountAdministrator: accountAdministrator || undefined,
+            note: req.note || undefined,
           };
         })
       );
-  }, [submissionPackage]);
+  }, [submissionPackage, accountAdministrator]);
 
   const handleRequestUpdate = useCallback(
     (itemTypeId: number, itemTypeName: string) => {
@@ -200,6 +248,28 @@ export default function SubmissionPage() {
       notify.error("Failed to send update request(s)");
     }
   }, [pendingRequests, submissionPackageId, createUpdateRequestMutation, queryClient]);
+
+  const handleAcceptUpdate = useCallback(async (updateRequestId: number) => {
+    try {
+      await acceptUpdateRequestMutation.mutateAsync({
+        packageId: submissionPackageId,
+        updateRequestId,
+      });
+    } catch (error) {
+      // Error handling is done in the mutation's onError callback
+    }
+  }, [submissionPackageId, acceptUpdateRequestMutation]);
+
+  const handleWithdrawUpdate = useCallback(async (updateRequestId: number) => {
+    try {
+      await withdrawUpdateRequestMutation.mutateAsync({
+        packageId: submissionPackageId,
+        updateRequestId,
+      });
+    } catch (error) {
+      // Error handling is done in the mutation's onError callback
+    }
+  }, [submissionPackageId, withdrawUpdateRequestMutation]);
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
@@ -335,6 +405,8 @@ export default function SubmissionPage() {
                   onRemoveFlag={handleRemoveRequest}
                   onUpdateNote={handleUpdateNote}
                   onSendRequests={handleSendRequests}
+                  onAcceptUpdate={handleAcceptUpdate}
+                  onWithdrawUpdate={handleWithdrawUpdate}
                 />
               </Box>
 
