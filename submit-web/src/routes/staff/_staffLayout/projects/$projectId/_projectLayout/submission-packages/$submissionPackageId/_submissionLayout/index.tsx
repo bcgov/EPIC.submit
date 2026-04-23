@@ -37,6 +37,7 @@ import {
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useState, useMemo, useCallback } from "react";
+import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -343,6 +344,7 @@ export default function SubmissionPage() {
               >
                 <ItemsTable
                   submissionPackage={submissionPackage}
+                  accountProject={accountProject}
                   onRequestUpdate={handleRequestUpdate}
                   pendingRequestItemTypeIds={pendingRequests.map(
                     (r) => r.itemTypeId,
