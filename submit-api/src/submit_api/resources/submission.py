@@ -41,6 +41,7 @@ update_submission_status_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, UpdateSubmissionStatusSchema(), "Update a submission status"
 )
 
+
 @cors_preflight("GET, OPTIONS, POST")
 @API.route("/items/<int:submission_item_id>", methods=["POST", "GET", "OPTIONS"])
 class SubmissionByItem(Resource):
@@ -204,9 +205,10 @@ class SubmissionItemGeoProcess(Resource):
             current_app.logger.exception(f"Error triggering geo process: {e}")
             return jsonify({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
 
+
 @cors_preflight("OPTIONS, PATCH")
 @API.route("/<int:submission_id>/status", methods=["PATCH", "OPTIONS"])
-class SubmissionItemGeoProcess(Resource):
+class SubmissionUpdateStatus(Resource):
     """Resource to update submission status."""
 
     @staticmethod

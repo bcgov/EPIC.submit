@@ -46,10 +46,7 @@ export default function DocumentRow({
   const name = submitted_document?.name || "";
   const url = submitted_document?.url || "";
 
-  const { mutateAsync: verifySubmission } = useUpdateSubmissionStatus({
-    submissionId: Number(documentSubmission.id),
-    status: SUBMISSION_STATUS.VERIFIED,
-  });
+  const { mutateAsync: verifySubmission } = useUpdateSubmissionStatus();
 
   // const { mutateAsync: acknowledgeSubmission } = useUpdateSubmissionStatus({
   //   submissionId: Number(documentSubmission.id),

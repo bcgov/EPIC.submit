@@ -307,7 +307,7 @@ export const useMoveSubmission = ({
 export const triggerGeoProcess = (itemId: number) => {
   return submitRequest({
     url: `/submissions/items/${itemId}/geo-process`,
-    method: "PATCH",
+    method: "post",
   });
 };
 
@@ -337,15 +337,7 @@ export const updateSubmissionStatus = (
   });
 };
 
-type UseUpdateSubmissionStatus = {
-  submissionId: number;
-  status: SubmissionStatus;
-} & Options;
-export const useUpdateSubmissionStatus = ({
-  submissionId,
-  status,
-  ...options
-}: UseUpdateSubmissionStatus) => {
+export const useUpdateSubmissionStatus = (options?: Options) => {
   const { onSuccess: _onSuccess, ...restOptions } = options || {};
   return useMutation({
     mutationFn: ({
