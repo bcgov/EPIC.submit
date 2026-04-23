@@ -1,4 +1,5 @@
 import { Documents } from "@/components/App/Documents";
+import { DocumentFilter, DocumentFilters } from "@/components/App/Documents/DocumentFilter";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useGetSubmittedDocumentsForStaff } from "@/hooks/api/useSubmittedDocuments";
@@ -27,17 +28,45 @@ function DocumentsPage() {
   const [selectedProjectId, setSelectedProjectId] = useState<number | "">("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  
+  const [filters, setFilters] = useState<DocumentFilters>({
+    name: "",
+    workPhase: [],
+    submissionType: [],
+    status: [],
+    submittedOnStart: "",
+    submittedOnEnd: "",
+  });
 
   const { data: projectsData, isPending: isProjectsLoading } =
     useGetAccountProjectsForStaff({ searchOptions: {}, pageSize: 1000 });
 
   const projects = useMemo(() => projectsData?.projects ?? [], [projectsData]);
 
+  const selectedProject = useMemo(() => {
+    return projects.find((p) => p.project_id === selectedProjectId);
+  }, [projects, selectedProjectId]);
+
   useEffect(() => {
     if (projects.length === 1 && !selectedProjectId) {
       setSelectedProjectId(projects[0].project_id);
     }
   }, [projects, selectedProjectId]);
+
+  const searchOptions = useMemo(() => ({
+    ...(filters.name && { name: filters.name }),
+    ...(filters.workPhase.length > 0 && { work_phase: filters.workPhase }),
+    ...(filters.submissionType.length > 0 && {
+      submission_type: filters.submissionType,
+    }),
+    ...(filters.status.length > 0 && { status: filters.status }),
+    ...(filters.submittedOnStart && {
+      submitted_on_start: filters.submittedOnStart,
+    }),
+    ...(filters.submittedOnEnd && {
+      submitted_on_end: filters.submittedOnEnd,
+    }),
+  }), [filters]);
 
   const {
     data: documentsData,
@@ -47,6 +76,7 @@ function DocumentsPage() {
     projectId: selectedProjectId === "" ? undefined : selectedProjectId,
     page: currentPage,
     size: pageSize,
+    searchOptions: searchOptions as any,
   });
 
   useEffect(() => {
@@ -64,6 +94,11 @@ function DocumentsPage() {
     setCurrentPage(1);
   };
 
+  const handleFilterChange = (newFilters: DocumentFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -76,6 +111,12 @@ function DocumentsPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
+        <DocumentFilter
+            filters={filters}
+            setFilters={handleFilterChange}
+            selectedProject={selectedProject}
+            projectSelected={selectedProjectId !== ""}
+        />
         <ContentBox mainLabel={"Documents"} contentBoxVariant="secondary">
           {!isProjectsLoading ? (
             <Box sx={{ mb: 4, display: "flex", alignItems: "center" }}>
@@ -95,13 +136,7 @@ function DocumentsPage() {
                     py: 1.5,
                   },
                   "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#D1CFCD",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#D1CFCD",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#D1CFCD",
+                    borderColor: selectedProjectId === "" && (filters.name || filters.workPhase || filters.submissionType || filters.status || filters.submittedOnStart || filters.submittedOnEnd) ? "error.main" : "#D1CFCD",
                   },
                 }}
               >
