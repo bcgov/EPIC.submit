@@ -16,8 +16,22 @@ import { BCDesignTokens } from "epic.theme";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 
-function StatusFilter() {
-  const { filters, setFilters } = useProjectFilters();
+type StatusFilterProps = {
+  value?: string | string[];
+  onChange?: (value: string | string[]) => void;
+  multiple?: boolean;
+  error?: boolean;
+  onFocus?: () => void;
+};
+
+function StatusFilter({
+    value: controlledValue,
+    onChange,
+    multiple = true,
+    error,
+    onFocus,
+}: StatusFilterProps) {
+  const store = useProjectFilters();
   const { userType } = useAccount();
   const isProponent = userType === USER_TYPE.PROPONENT;
 
@@ -25,27 +39,55 @@ function StatusFilter() {
     ? PROPONENT_SUBMISSION_ITEM_FILTERS
     : EAO_SUBMISSION_ITEM_FILTERS;
 
-  const handleChange = (event: SelectChangeEvent<string[]>) => {
-    const value = event.target.value as string[];
-    if (value.includes("all")) {
-      setFilters({
-        status: Object.values(statusFilters).map((status) => status.value),
-      });
-    } else if (value.length <= 3) {
-      setFilters({ status: value });
+  const internalValue = controlledValue !== undefined ? controlledValue : store.filters.status;
+
+  const handleChange = (event: SelectChangeEvent<string | string[]>) => {
+    const value = event.target.value;
+
+    if (onChange) {
+      onChange(value);
+      return;
+    }
+
+    if (multiple && Array.isArray(value)) {
+      if (value.includes("all")) {
+        store.setFilters({
+          status: Object.values(statusFilters).map((status) => status.value),
+        });
+      } else if (value.length <= 3) {
+        store.setFilters({ status: value });
+      }
+    } else if (!multiple && typeof value === "string") {
+      store.setFilters({ status: value ? [value] : [] });
+    }
+  };
+
+  const handleMenuItemClick = (statusValue: string) => {
+    if (multiple) return; // MUI handles multi-select toggling via onChange
+
+    let newValue = statusValue;
+    if (newValue === internalValue) {
+      newValue = "";
+    }
+
+    if (onChange) {
+      onChange(newValue);
+    } else {
+      store.setFilters({ status: newValue ? [newValue] : [] });
     }
   };
 
   return (
-    <FormControl fullWidth>
+    <FormControl fullWidth error={error}>
       <Select
         labelId="status-select-label"
         id="status-select"
         placeholder="Status"
-        value={filters.status}
-        multiple
+        value={internalValue}
+        multiple={multiple}
         displayEmpty
         onChange={handleChange}
+        onFocus={onFocus}
         sx={{
           "& .MuiInputBase-input": {
             p: BCDesignTokens.layoutPaddingSmall,
@@ -55,7 +97,7 @@ function StatusFilter() {
           },
         }}
         renderValue={(selected) => {
-          if (selected.length === 0) {
+          if (!selected || (Array.isArray(selected) && selected.length === 0)) {
             return (
               <Typography
                 variant="body2"
@@ -69,19 +111,27 @@ function StatusFilter() {
             );
           }
 
-          return (
-            <div style={{ display: "flex", flexWrap: "wrap" }}>
-              {(selected as string[]).map((value) => (
-                <Box key={value} mr={1}>
-                  <SubmissionStatusChip status={value} />
-                </Box>
-              ))}
-            </div>
-          );
+          if (Array.isArray(selected)) {
+            return (
+              <div style={{ display: "flex", flexWrap: "wrap" }}>
+                {selected.map((value) => (
+                  <Box key={value} mr={1}>
+                    <SubmissionStatusChip status={value} />
+                  </Box>
+                ))}
+              </div>
+            );
+          }
+
+          return <SubmissionStatusChip status={selected} />;
         }}
       >
         {Object.values(statusFilters).map((status) => (
-          <MenuItem key={status.value} value={status.value}>
+          <MenuItem
+            key={status.value}
+            value={status.value}
+            onClick={() => handleMenuItemClick(status.value)}
+          >
             <SubmissionStatusChip status={status.value} />
           </MenuItem>
         ))}

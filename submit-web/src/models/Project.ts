@@ -8,8 +8,10 @@ export type Project = {
   proponent_id: number;
   proponent?: Proponent;
   works?: TrackWork[];
+  current_work?: TrackWork;
   ea_certificate?: string;
   epic_guid: string;
+  has_approved_condition?: boolean;
   is_eligible?: boolean;
 };
 

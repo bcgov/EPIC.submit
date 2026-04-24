@@ -115,6 +115,20 @@ class SubmissionService:
             return submission
 
     @classmethod
+    def update_submission_status(cls, submission_id, status):
+        """Update the status of the submission."""
+        with session_scope() as session:
+            submission = cls.get_submission_by_id(submission_id)
+            existing_status = submission.status
+            if existing_status != status:
+                submission.status = status
+                session.add(submission)
+                session.flush()
+                # TODO update the package status
+                current_app.logger.info(f"Submission {submission_id} status updated to {status}.")
+            return submission
+
+    @classmethod
     def update_submission_item_status(cls, item_id, status, session):
         """Update the status of the submission item."""
         if not status:

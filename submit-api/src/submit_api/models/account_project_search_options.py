@@ -25,6 +25,12 @@ class DocumentSearchOptions:  # pylint: disable=too-many-instance-attributes
 class ProjectDocumentSearchOptions:  # pylint: disable=too-many-instance-attributes
     """Used to store paginated document search options."""
 
-    project_id: int
     page: int
     size: int
+    project_id: int = None
+    name: str = None
+    work_phase: List[str] = None
+    submission_type: List[str] = None
+    status: List[str] = None
+    submitted_on_start: str = None
+    submitted_on_end: str = None

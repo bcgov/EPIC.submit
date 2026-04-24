@@ -120,12 +120,20 @@ class PackageUpdateRequestSchema(Schema):
     created_by = fields.Method('get_created_by')
     type = fields.Enum(data_key="type", enum=UpdateRequestType)
     note = fields.Str(data_key="note")
+    note_updated_by = fields.Method('get_note_updated_by')
+    note_updated_at = fields.DateTime(data_key="note_updated_at")
     status = fields.Str(data_key="status")
 
     def get_created_by(self, obj):
         """Get created by user."""
         return obj.created_by_user.staff_user.full_name \
             if obj.created_by_user and obj.created_by_user.staff_user else None
+
+    def get_note_updated_by(self, obj):
+        """Get note updated by user (proponent)."""
+        if obj.note_updated_by_user and obj.note_updated_by_user.account_user:
+            return obj.note_updated_by_user.account_user.full_name
+        return None
 
 
 class PackageSchema(Schema):

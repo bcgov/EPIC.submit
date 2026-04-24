@@ -12,10 +12,9 @@ export interface SentRequest {
   createdDate: string;
   createdBy: string;
   status: string;
-  accountAdministrator?: string;
   note?: string;
-  proponentName?: string;
-  noteDate?: string;
+  noteUpdatedBy?: string;
+  noteUpdatedAt?: string;
 }
 
 export interface SectionUpdateRequestPanelProps {

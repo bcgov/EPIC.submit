@@ -26,7 +26,9 @@ class ProjectSchema(Schema):
     proponent = fields.Nested(ProponentSchema, data_key="proponent", allow_none=True)
     ea_certificate = fields.Str(data_key="ea_certificate")
     epic_guid = fields.Str(data_key="epic_guid")
+    has_approved_condition = fields.Boolean(data_key="has_approved_condition")
     works = fields.List(fields.Nested(TrackWorkSchema, data_key="works"))
+    current_work = fields.Nested(TrackWorkSchema, data_key="current_work")
 
 
 class AddProjectSchema(Schema):

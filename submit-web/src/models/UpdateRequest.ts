@@ -54,5 +54,7 @@ export type UpdateRequest = {
   active: boolean;
   type: UpdateRequestType;
   note: string;
+  note_updated_by?: string;
+  note_updated_at?: string;
   status: UpdateRequestStatus;
 };

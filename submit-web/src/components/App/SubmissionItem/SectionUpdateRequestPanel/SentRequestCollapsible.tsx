@@ -136,7 +136,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                   color: "#003366",
                 }}
               >
-                EAO Staff — {request.accountAdministrator || request.createdBy}
+                EAO Staff — {request.createdBy}
               </Typography>
               <Typography
                 variant="body2"
@@ -184,7 +184,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                     fontFamily: "BCSans, sans-serif",
                   }}
                 >
-                  Proponent — {request.proponentName || request.accountAdministrator || "Unknown"}
+                  Proponent — {request.noteUpdatedBy || "Unknown"}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -193,7 +193,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                     color: BCDesignTokens.typographyColorSecondary,
                   }}
                 >
-                  {request.noteDate ? new Date(request.noteDate).toLocaleDateString() : new Date(request.createdDate).toLocaleDateString()}
+                  {request.noteUpdatedAt ? new Date(request.noteUpdatedAt).toLocaleDateString() : new Date(request.createdDate).toLocaleDateString()}
                 </Typography>
               </Box>
               <Typography
