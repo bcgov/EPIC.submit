@@ -83,6 +83,17 @@ class CreateSubmissionRequestSchema(Schema):
     created_by = fields.Str(data_key="created_by", required=False)
 
 
+class UpdateSubmissionStatusSchema(Schema):
+    """Update submission status schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    status = fields.Str(data_key="status")
+
+
 class SubmittedDocumentByProjectSchema(Schema):
     """Submitted document schema."""
 

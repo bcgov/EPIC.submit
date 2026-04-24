@@ -218,12 +218,13 @@ class InvitationService:
                     account_user.id, account_project.id, invitation, session)
                 roles.append(role)
 
-                # Create account_project_works
+                # Create account_project_work
                 works = TrackWork.find_by_project_id(account_project.project_id)
                 account_project_works = []
                 for work in works:
-                    account_project_work = AccountProjectWork.get_or_create(account_project.id, work.id)
-                    account_project_works.append(account_project_work)
+                    if work.current_phase.enable_submit:
+                        account_project_work = AccountProjectWork.get_or_create(account_project.id, work.id)
+                        account_project_works.append(account_project_work)
 
                 # Create default submission package (if required by EAO)
                 # This portion needs to be revisited to work for any phase, not just Early Engagement
