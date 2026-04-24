@@ -25,7 +25,6 @@ import DocumentRow from "@/components/App/Submission/DocumentRow";
 import StaffStatusCell from "./StaffStatusCell";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
-import { SubmissionPackageType } from "@/models/Package";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -57,9 +56,7 @@ export default function StaffSubmissionItemTableRow({
     item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD; 
   const actionLabel = hasDocument ? "Review" : "View";
 
-  const isNoDetailedViewType = [SubmissionPackageType.IPD].includes(
-    submissionPackage.type.name,
-  );
+  const hasAccountProjectWork = Boolean(submissionPackage.account_project_work?.id);
 
   const handleClick = () => {
     navigate({
@@ -95,15 +92,13 @@ export default function StaffSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
-        {!isNoDetailedViewType && (
-          <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-            <Box mr={2}>
-              <StaffStatusCell submissionItem={item} />
-            </Box>
-          </SubmitPrimaryRowTableCell>
-        )}
-        <SubmitPrimaryRowTableCell align="center" width={"15%"}>
-          <Box display="flex" justifyContent="center">
+        <SubmitPrimaryRowTableCell align="center" width={"20%"}>
+          <Box display="flex" flexDirection="column" gap={0.5} alignItems="center">
+            <When condition={!hasAccountProjectWork}>
+              <Box mr={2}>
+                <StaffStatusCell submissionItem={item} />
+              </Box>
+            </When>
             <When condition={hasPendingRequest}>
               <Chip
                 label="Flagged for Update"
@@ -134,9 +129,9 @@ export default function StaffSubmissionItemTableRow({
             </When>
           </Box>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="left" width={isNoDetailedViewType ? "30%" : "10%"}>
+        <SubmitPrimaryRowTableCell align="left" width={hasAccountProjectWork ? "30%" : "10%"}>
           <Box display="flex" flexDirection="column" gap={0.5} alignItems={"flex-end"}>
-            <When condition={submitted_on && !isNoDetailedViewType}>
+            <When condition={submitted_on && !hasAccountProjectWork}>
               <SubmissionItemReviewConfirmation
                 submissionItem={item}
                 onClick={handleClick}

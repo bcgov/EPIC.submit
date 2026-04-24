@@ -20,7 +20,7 @@ from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
-from submit_api.models.account_project_search_options import DocumentSearchOptions, ProjectDocumentSearchOptions
+from submit_api.models.account_project_search_options import ProjectDocumentSearchOptions
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import (
     SubmissionSchema, SubmittedDocumentByProjectSchema, PaginatedProjectDocumentItemSchema)

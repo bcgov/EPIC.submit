@@ -306,6 +306,19 @@ const acceptUpdateRequest = ({
   });
 };
 
+const withdrawUpdateRequest = ({
+  packageId,
+  updateRequestId,
+}: {
+  packageId: number;
+  updateRequestId: number;
+}) => {
+  return submitRequest<SubmissionPackage>({
+    url: `/packages/${packageId}/update-request/${updateRequestId}`,
+    method: "delete",
+  });
+};
+
 type UseCreatePackageUpdateRequestParams = {
   packageId: number;
   accountProjectId: number;
@@ -366,6 +379,31 @@ export const useAcceptUpdateRequest = ({
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: acceptUpdateRequest,
+    ...options,
+    onSuccess: (submissionPackage) => {
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        submissionPackage,
+      );
+    },
+  });
+};
+
+type UseWithdrawUpdateRequestParams = {
+  packageId: number;
+  options?: Options;
+};
+export const useWithdrawUpdateRequest = ({
+  packageId,
+  options = {},
+}: UseWithdrawUpdateRequestParams) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: withdrawUpdateRequest,
     ...options,
     onSuccess: (submissionPackage) => {
       if (options?.onSuccess) {

@@ -165,7 +165,11 @@ class DocumentQueries:
             query = query.filter(cast(Item.status, String).in_(search_options.status))
 
         if search_options.work_phase:
-            query = query.filter((cast(TrackWork.title, String) + " - " + cast(TrackPhase.name, String)).in_(search_options.work_phase))
+            work_phase_concat = (
+                cast(TrackWork.title, String) + " - " +
+                cast(TrackPhase.name, String)
+            )
+            query = query.filter(work_phase_concat.in_(search_options.work_phase))
 
         if search_options.submitted_on_start:
             query = query.filter(Package.submitted_on >= search_options.submitted_on_start)

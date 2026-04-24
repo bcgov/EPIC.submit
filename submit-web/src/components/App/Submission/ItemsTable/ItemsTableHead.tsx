@@ -37,13 +37,8 @@ export default function ItemsTableHead({
         <SubmitTableHeadCell width={"10%"} align="right">
           Version
         </SubmitTableHeadCell>
-        {!isIPD && (
-          <SubmitTableHeadCell width={"20%"} align="center">
-            Status
-          </SubmitTableHeadCell>
-        )}
-        <SubmitTableHeadCell width={"15%"} align="center">
-          Update Status
+        <SubmitTableHeadCell width={"20%"} align="center">
+          Status
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           width={isIPD ? "30%" : "10%"}
