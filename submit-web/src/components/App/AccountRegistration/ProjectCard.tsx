@@ -1,6 +1,9 @@
 import { Box, Typography, Divider } from "@mui/material";
 import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
-import { getProjectStatus } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import {
+  getProjectStatus,
+  PROJECT_STATUS,
+} from "@/components/App/registration/addProjects/ProjectCard/constants";
 import { BCDesignTokens } from "epic.theme";
 import { Project } from "@/models/Project";
 
@@ -11,7 +14,7 @@ type ProjectCardProps = {
 export const ProjectCard = ({ project }: ProjectCardProps) => {
   const work = project.works?.at(-1)?.current_phase?.work_type_name;
   const phase = project.works?.at(-1)?.current_phase?.name;
-  const status = phase ? getProjectStatus(phase) : undefined;
+  const status = phase ? getProjectStatus(phase) : PROJECT_STATUS.POST_DECISION;
 
   return (
     <Box
@@ -54,11 +57,9 @@ export const ProjectCard = ({ project }: ProjectCardProps) => {
           <Typography variant="h4" fontWeight={400} px={1.5} pt={1}>
             {work}
           </Typography>
-          {status && (
-            <Box px={1} pb={1}>
-              <ProjectStatus status={status} />
-            </Box>
-          )}
+          <Box px={1} pb={1}>
+            <ProjectStatus status={status} />
+          </Box>
           <Divider sx={{ borderColor: BCDesignTokens.themeGray40 }} />
           <Typography variant="body1" px={1.5} py={1.5}>
             Submit your Initial Project Description &amp; Engagement Plan, and

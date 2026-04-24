@@ -23,6 +23,11 @@ class DocumentService:
         return DocumentQueries.get_document_submissions_by_package_id(package_id)
 
     @classmethod
+    def get_documents_paginated(cls, search_options: ProjectDocumentSearchOptions):
+        """Get paginated documents (global or project-specific)."""
+        return DocumentQueries.get_documents_paginated(search_options)
+
+    @classmethod
     def get_project_documents_paginated(cls, search_options: ProjectDocumentSearchOptions):
-        """Get paginated documents for a project."""
-        return DocumentQueries.get_project_documents_paginated(search_options)
+        """Get paginated documents for a project (LEGACY)."""
+        return cls.get_documents_paginated(search_options)

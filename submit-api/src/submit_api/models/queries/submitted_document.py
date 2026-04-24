@@ -114,16 +114,16 @@ class DocumentQueries:
         return query.all()
 
     @classmethod
-    def get_project_documents_paginated(cls, search_options: ProjectDocumentSearchOptions):
-        """Get paginated documents for a project."""
+    def get_documents_paginated(cls, search_options: ProjectDocumentSearchOptions):
+        """Get paginated documents (global or project-specific)."""
         session = db.session
 
         query = session.query(
             SubmittedDocument.id.label("id"),
             SubmittedDocument.name.label("name"),
             SubmittedDocument.url.label("url"),
+            Project.name.label("project_name"),
             TrackWork.title.label("work"),
-
             TrackPhase.display_name.label("phase_display_name"),
             TrackPhase.name.label("phase_name"),
             Submission.major_version,
@@ -136,6 +136,7 @@ class DocumentQueries:
         query = query.join(Item, Item.id == Submission.item_id)
         query = query.join(Package, Package.id == Item.package_id)
         query = query.join(AccountProject, AccountProject.id == Package.account_project_id)
+        query = query.join(Project, Project.id == AccountProject.project_id)
         query = query.join(SubmittedDocument, SubmittedDocument.id == Submission.submitted_document_id)
 
         query = query.outerjoin(AccountProjectWork, AccountProjectWork.id == Package.account_project_work_id)
@@ -144,11 +145,37 @@ class DocumentQueries:
 
         query = query.filter(
             Submission.type == SubmissionType.DOCUMENT,
-            AccountProject.project_id == search_options.project_id,
             Submission.active.is_(True),
             Submission.deleted.is_(False),
             Submission.status != SubmissionStatus.PENDING
         )
+
+        if search_options.project_id:
+            query = query.filter(AccountProject.project_id == search_options.project_id)
+
+        if search_options.name:
+            query = query.filter(SubmittedDocument.name.ilike(f"%{search_options.name}%"))
+
+        if search_options.submission_type:
+            from submit_api.models.package_type import PackageType
+            query = query.join(PackageType, PackageType.id == Package.type_id)
+            query = query.filter(PackageType.name.in_(search_options.submission_type))
+
+        if search_options.status:
+            query = query.filter(cast(Item.status, String).in_(search_options.status))
+
+        if search_options.work_phase:
+            work_phase_concat = (
+                cast(TrackWork.title, String) + " - " +
+                cast(TrackPhase.name, String)
+            )
+            query = query.filter(work_phase_concat.in_(search_options.work_phase))
+
+        if search_options.submitted_on_start:
+            query = query.filter(Package.submitted_on >= search_options.submitted_on_start)
+
+        if search_options.submitted_on_end:
+            query = query.filter(Package.submitted_on <= search_options.submitted_on_end)
 
         query = query.order_by(Package.submitted_on.desc())
 

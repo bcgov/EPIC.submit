@@ -10,15 +10,18 @@ import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils
 import InternalDocumentsRows from "@/components/App/SubmissionItem/InternalDocuments/Rows";
 import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
 import ItemsTableHead from "@/components/App/Submission/ItemsTable/ItemsTableHead";
+import { AccountProject } from "@/models/Project";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
+  accountProject: AccountProject;
   onRequestUpdate?: (itemTypeId: number, itemTypeName: string) => void;
   pendingRequestItemTypeIds?: number[];
   sentRequestItemTypeIds?: number[];
 }>;
-export default function ItemsTable({ 
-  submissionPackage, 
+export default function ItemsTable({
+  submissionPackage,
+  accountProject,
   onRequestUpdate,
   pendingRequestItemTypeIds = [],
   sentRequestItemTypeIds = [],
@@ -52,11 +55,18 @@ export default function ItemsTable({
                 })
               }
               onRequestUpdate={onRequestUpdate}
-              hasPendingRequest={pendingRequestItemTypeIds.includes(subItem.type_id)}
+              hasPendingRequest={pendingRequestItemTypeIds.includes(
+                subItem.type_id,
+              )}
               hasSentRequest={sentRequestItemTypeIds.includes(subItem.type_id)}
             />
           ))}
-          <When condition={userType === USER_TYPE.STAFF}>
+          <When
+            condition={
+              userType === USER_TYPE.STAFF &&
+              accountProject.account_project_works?.length === 0
+            }
+          >
             <InternalDocumentsRows layout="compact" />
           </When>
         </TableBody>

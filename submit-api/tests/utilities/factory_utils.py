@@ -436,6 +436,7 @@ def factory_track_phase(
     display_name=None,
     is_active=True,
     is_deleted=False,
+    enable_submit=True
 ):
     """Create and persist a TrackPhase for use in tests."""
     phase = TrackPhase(
@@ -447,6 +448,7 @@ def factory_track_phase(
         display_name=display_name,
         is_active=is_active,
         is_deleted=is_deleted,
+        enable_submit=enable_submit,
     )
     session.add(phase)
     session.flush()

@@ -11,7 +11,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { SentRequest } from "./types";
 import { BCDesignTokens } from "epic.theme";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
-import { SplitButton } from "@/components/Shared/SplitButton";
+import ActionSplitButton from "@/components/Shared/ActionSplitButton/ActionSplitButton";
 
 interface SentRequestCollapsibleProps {
   request: SentRequest;
@@ -92,18 +92,17 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                   fontWeight: 400,
                 }}
               />
-              <SplitButton
-                primaryLabel="Accept Update"
-                onPrimaryClick={handleAcceptUpdate}
-                options={[
+              <ActionSplitButton
+                primaryAction={{
+                  label: "Accept Update",
+                  onClick: handleAcceptUpdate,
+                }}
+                secondaryActions={[
                   {
                     label: "Withdraw Request",
                     onClick: handleWithdrawUpdate,
-                    disabled: false,
                   },
                 ]}
-                size="small"
-                variant="contained"
               />
             </>
           )}

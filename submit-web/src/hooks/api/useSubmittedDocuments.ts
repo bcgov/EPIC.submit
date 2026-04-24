@@ -25,6 +25,20 @@ const getDocumentsForStaff = ({
       page,
       size,
     },
+    paramsSerializer: (params: Record<string, any>) => {
+      const searchParams = new URLSearchParams();
+      Object.keys(params).forEach((key) => {
+        const value = params[key];
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            value.forEach((v) => searchParams.append(key, v));
+          } else {
+            searchParams.append(key, value.toString());
+          }
+        }
+      });
+      return searchParams.toString();
+    },
   });
 };
 

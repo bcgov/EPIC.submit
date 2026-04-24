@@ -271,7 +271,9 @@ export type SubmissionStatus =
   | "SUBMITTED"
   | "REJECTED"
   | "APPROVED"
-  | "PENDING";
+  | "PENDING"
+  | "VERIFIED"
+  | "ACKNOWLEDGED";
 
 export const SUBMISSION_STATUS = Object.freeze<
   Record<SubmissionStatus, SubmissionStatus>
@@ -280,6 +282,8 @@ export const SUBMISSION_STATUS = Object.freeze<
   REJECTED: "REJECTED",
   APPROVED: "APPROVED",
   PENDING: "PENDING",
+  VERIFIED: "VERIFIED",
+  ACKNOWLEDGED: "ACKNOWLEDGED",
 });
 
 export type Submission = {
@@ -319,11 +323,9 @@ export type PaginatedSubmittedDocument = {
   root_submission_id: number;
 };
 
-
 export type PaginatedDocumentsResponse = {
   items: PaginatedSubmittedDocument[];
   total: number;
   page: number;
   size: number;
 };
-
