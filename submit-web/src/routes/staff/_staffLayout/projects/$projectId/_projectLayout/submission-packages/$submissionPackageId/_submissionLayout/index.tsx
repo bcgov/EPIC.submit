@@ -35,6 +35,7 @@ import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/Secti
 import {
   PendingRequest,
   SentRequest,
+  PreviousRequest,
 } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -169,6 +170,36 @@ export default function SubmissionPage() {
       );
   }, [submissionPackage]);
 
+  const previousUpdateRequests = useMemo<PreviousRequest[]>(() => {
+    if (!submissionPackage?.all_update_requests) return [];
+
+    return submissionPackage.all_update_requests
+      .filter(
+        (req) =>
+          !req.active &&
+          (req.status === UPDATE_REQUEST_STATUS.ACCEPTED.value ||
+            req.status === UPDATE_REQUEST_STATUS.CLOSED.value),
+      )
+      .map((req) => {
+        // Get the first item type name for display
+        const firstItemTypeId = req.submission_item_types[0];
+        const item = firstItemTypeId
+          ? submissionPackage.items.find((i) => i.type_id === firstItemTypeId)
+          : undefined;
+        return {
+          updateRequestId: req.id,
+          itemTypeId: firstItemTypeId || 0,
+          itemTypeName: item?.type.name || "Update Request",
+          reason: req.reason || "",
+          createdBy: req.created_by || "",
+          createdDate: req.created_date || "",
+          status: req.status || "",
+          note: req.note || undefined,
+          noteUpdatedBy: req.note_updated_by || undefined,
+          noteUpdatedAt: req.note_updated_at || undefined,
+        };
+      });
+  }, [submissionPackage]);
   const handleRequestUpdate = useCallback(
     (itemTypeId: number, itemTypeName: string) => {
       const alreadyPending = pendingRequests.some(
@@ -420,6 +451,7 @@ export default function SubmissionPage() {
                 <SectionUpdateRequestPanel
                   pendingRequests={pendingRequests}
                   sentRequests={sentUpdateRequests}
+                  previousRequests={previousUpdateRequests}
                   onRemoveFlag={handleRemoveRequest}
                   onUpdateNote={handleUpdateNote}
                   onSendRequests={handleSendRequests}

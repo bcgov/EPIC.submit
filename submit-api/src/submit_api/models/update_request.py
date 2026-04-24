@@ -42,7 +42,9 @@ class UpdateRequest(BaseModel):
     reason = Column(db.String, nullable=True)
     type = Column(Enum(UpdateRequestType), nullable=False, default=UpdateRequestType.UPDATE)
     note = Column(db.String, nullable=True)
-    note_updated_by = Column(db.String, ForeignKey('users.auth_guid'), nullable=True, comment='Proponent user who last updated the note')
+    note_updated_by = Column(db.String, ForeignKey('users.auth_guid'),
+                             nullable=True,
+                             comment='Proponent user who last updated the note')
     note_updated_by_user = db.relationship('User', foreign_keys=[note_updated_by], lazy='joined')
     note_updated_at = Column(db.DateTime, nullable=True, comment='Timestamp when the note was last updated')
     status = Column(db.String, nullable=False, default=UpdateRequestStatus.OPEN.value)

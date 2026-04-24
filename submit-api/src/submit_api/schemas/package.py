@@ -158,6 +158,7 @@ class PackageSchema(Schema):
     items = fields.Nested(ItemSchema, data_key="items", many=True)
     update_requests = fields.Nested(
         PackageUpdateRequestSchema, data_key="update_requests", many=True)
+    all_update_requests = fields.Method('get_all_update_requests')
     version = fields.Nested(PackageVersionSchema,
                             data_key="version", exclude=["package_id"])
     account_project_work = fields.Nested(
@@ -172,6 +173,10 @@ class PackageSchema(Schema):
     def get_meta(self, obj):
         """Get meta."""
         return obj.meta.json if obj.meta else None
+
+    def get_all_update_requests(self, obj):
+        """Get all update requests (active and inactive)."""
+        return PackageUpdateRequestSchema(many=True).dump(obj.all_update_requests)
 
     @post_dump
     def map_status(self, data, many, **kwargs):
