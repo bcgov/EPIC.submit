@@ -17,11 +17,7 @@ export default function DocumentSubRow({
 }: DocumentRowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
 
-  const {
-    submitted_document,
-    version,
-    submitted_by,
-  } = documentSubmission;
+  const { submitted_document, version, submitted_by } = documentSubmission;
 
   const { name, url } = submitted_document || { name: "", url: "" };
 

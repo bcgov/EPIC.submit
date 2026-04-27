@@ -18,7 +18,6 @@ import UndoIcon from "@mui/icons-material/Undo";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { Switch, Case } from "react-if";
 import { SubmissionPackage, PackageType } from "@/models/Package";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
@@ -231,41 +230,33 @@ export default function DocumentRow({
               gap: 1,
             }}
           >
-            <Switch>
-              <Case condition={splitButtonConfig !== null}>
-                <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
-                  <ActionSplitButton
-                    primaryAction={splitButtonConfig!.primary}
-                    secondaryActions={splitButtonConfig!.secondary}
-                  />
-                </PermissionsGate>
-              </Case>
-              <Case
-                condition={
-                  documentSubmission.status === SUBMISSION_STATUS.ACKNOWLEDGED
-                }
-              >
-                <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
-                  <Typography
-                    variant="body2"
-                    onClick={() => {}}
-                    sx={{
-                      cursor: "pointer",
-                      color: "primary.main",
-                      textDecoration: "underline",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Undo Acknowledgement
-                  </Typography>
-                </PermissionsGate>
-              </Case>
-              <Case condition={!submissionPackage?.completed_on}>
-                <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
-                  <ActionButton submission={documentSubmission} />
-                </PermissionsGate>
-              </Case>
-            </Switch>
+            {splitButtonConfig ? (
+              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+                <ActionSplitButton
+                  primaryAction={splitButtonConfig.primary}
+                  secondaryActions={splitButtonConfig.secondary}
+                />
+              </PermissionsGate>
+            ) : documentSubmission.status === SUBMISSION_STATUS.ACKNOWLEDGED ? (
+              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+                <Typography
+                  variant="body2"
+                  onClick={() => {}}
+                  sx={{
+                    cursor: "pointer",
+                    color: "primary.main",
+                    textDecoration: "underline",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Undo Acknowledgement
+                </Typography>
+              </PermissionsGate>
+            ) : !submissionPackage?.completed_on ? (
+              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+                <ActionButton submission={documentSubmission} />
+              </PermissionsGate>
+            ) : null}
           </Box>
         </SubmitTableCell>
       </SubmitTableRow>
