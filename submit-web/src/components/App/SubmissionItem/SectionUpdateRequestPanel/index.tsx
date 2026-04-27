@@ -1,3 +1,18 @@
+/**
+ * SectionUpdateRequestPanel - Shared component for displaying update requests
+ * 
+ * USAGE:
+ * - STAFF VIEW: Shows pending requests (draft), sent requests (active), and previous requests
+ *   - Can create new requests (pendingRequests)
+ *   - Can send requests to proponent (onSendRequests)
+ *   - Can accept/withdraw sent requests
+ * 
+ * - PROPONENT VIEW: Shows open requests from EAO and previous accepted requests
+ *   - pendingRequests should be empty []
+ *   - sentRequests contains open requests from EAO
+ *   - Can add notes to open requests (onUpdateNote)
+ *   - Cannot send requests (onSendRequests is no-op)
+ */
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, Link } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -10,14 +25,14 @@ import { BCDesignTokens } from "epic.theme";
 export const SectionUpdateRequestPanel: React.FC<
   SectionUpdateRequestPanelProps
 > = ({
-  pendingRequests,
-  sentRequests,
-  previousRequests,
-  onRemoveFlag,
-  onSendRequests,
-  onUpdateNote,
-  onAcceptUpdate,
-  onWithdrawUpdate,
+  pendingRequests, // STAFF: Draft requests not yet sent | PROPONENT: Always empty []
+  sentRequests,    // STAFF: Sent requests awaiting response | PROPONENT: Open requests from EAO
+  previousRequests, // BOTH: Accepted/closed requests for reference
+  onRemoveFlag,    // STAFF: Remove draft request | PROPONENT: No-op
+  onSendRequests,  // STAFF: Send pending requests | PROPONENT: No-op
+  onUpdateNote,    // STAFF: Update draft note | PROPONENT: Add response note
+  onAcceptUpdate,  // STAFF: Accept proponent update | PROPONENT: Not used
+  onWithdrawUpdate, // STAFF: Withdraw request | PROPONENT: Not used
   isLoading = false,
 }) => {
   const [expandedPending, setExpandedPending] = useState<Set<number>>(
@@ -77,10 +92,14 @@ export const SectionUpdateRequestPanel: React.FC<
     });
   };
 
+  // Determine if this is proponent view (no action buttons provided)
+  const isProponentView = !onAcceptUpdate && !onWithdrawUpdate;
+
   return (
     <Box
       sx={{
         mt: 3,
+        width: "100%",
         border: `1px solid ${panelBorderColor}`,
         borderRadius: "4px",
       }}
@@ -145,6 +164,7 @@ export const SectionUpdateRequestPanel: React.FC<
         </Box>
       ) : (
         <Box sx={{ pt: 2, pl: 2, pr: 2, backgroundColor: "white" }}>
+          {/* STAFF ONLY: Draft requests not yet sent to proponent */}
           {pendingRequests.map((request) => (
             <PendingRequestCollapsible
               key={request.itemTypeId}
@@ -156,6 +176,7 @@ export const SectionUpdateRequestPanel: React.FC<
             />
           ))}
 
+          {/* STAFF: Sent requests | PROPONENT: Open requests from EAO */}
           {sentRequests.map((request) => (
             <SentRequestCollapsible
               key={request.updateRequestId}
@@ -164,9 +185,12 @@ export const SectionUpdateRequestPanel: React.FC<
               onToggle={() => handleToggleSent(request.updateRequestId)}
               onAcceptUpdate={onAcceptUpdate}
               onWithdrawUpdate={onWithdrawUpdate}
+              onUpdateNote={isProponentView ? onUpdateNote : undefined}
+              isLoading={isLoading}
             />
           ))}
 
+          {/* STAFF ONLY: Button to send pending requests to proponent */}
           {pendingRequests.length > 0 && (
             <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
               <Button
@@ -186,8 +210,8 @@ export const SectionUpdateRequestPanel: React.FC<
           )}
         </Box>
       )}
-<Box sx={{ pb: 2, px: 2.5 }}>
-      {/* View Previous Requests Link - Always visible */}
+<Box sx={{ pb: 2, px: 2.5, backgroundColor: "white" }}>
+      {/* BOTH: View Previous Requests Link - Always visible */}
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Link
               component="button"
@@ -205,7 +229,7 @@ export const SectionUpdateRequestPanel: React.FC<
             </Link>
           </Box>
 
-      {/* Previous Requests Section - Only show when expanded */}
+      {/* BOTH: Previous Requests Section - Shows accepted/closed requests */}
       {showPreviousRequests && (
         <>
           <Box sx={{ borderTop: `1px solid #D8D8D8`, pt: 2.125, mb: 1 }}>

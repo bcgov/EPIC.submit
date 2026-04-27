@@ -36,7 +36,7 @@ export interface SectionUpdateRequestPanelProps {
   previousRequests: PreviousRequest[];
   onRemoveFlag: (itemTypeId: number) => void;
   onSendRequests: () => void;
-  onUpdateNote: (itemTypeId: number, note: string) => void;
+  onUpdateNote: (itemTypeIdOrUpdateRequestId: number, note: string) => void; // STAFF: itemTypeId | PROPONENT: updateRequestId
   onAcceptUpdate?: (updateRequestId: number) => void;
   onWithdrawUpdate?: (updateRequestId: number) => void;
   isLoading?: boolean;

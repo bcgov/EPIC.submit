@@ -41,12 +41,13 @@ import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
-import { ProponentUpdateRequestPanel } from "@/components/App/Submission/ProponentUpdateRequestPanel";
+import { ProponentUpdateRequestPanel } from "@/components/App/SubmissionItem/ProponentUpdateRequestPanel";
+import type { SentRequest, PreviousRequest } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
 import { UnaddressedSectionsModal } from "@/components/App/Submission/UnaddressedSectionsModal";
 import { useDocumentChangeTracking } from "@/hooks/useDocumentChangeTracking";
 import { getUnaddressedUpdateRequestSections } from "@/utils/updateRequestHelpers";
 import { useSaveProponentNote } from "@/hooks/api/useUpdateRequests";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -201,6 +202,66 @@ export default function SubmissionPage() {
 
   const managementPlanName = useManagementPlanName(submissionPackage);
 
+  // Transform update requests for ProponentUpdateRequestPanel
+  // PROPONENT VIEW: Open requests from EAO become "sentRequests"
+  const sentRequests: SentRequest[] = useMemo(() => {
+    if (!submissionPackage) return [];
+    
+    const openRequests = submissionPackage.update_requests.filter(
+      (updateRequest) =>
+        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+        updateRequest.active,
+    );
+
+    return openRequests.map((req) => {
+      const item = submissionPackage.items.find((i) =>
+        req.submission_item_types.includes(i.type_id)
+      );
+      return {
+        updateRequestId: req.id,
+        itemTypeId: req.submission_item_types[0] || 0,
+        itemTypeName: item?.type.name || "Unknown Section",
+        reason: req.reason,
+        createdDate: req.created_date,
+        createdBy: req.created_by,
+        status: req.status,
+        note: req.note,
+        noteUpdatedBy: req.note_updated_by,
+        noteUpdatedAt: req.note_updated_at,
+      };
+    });
+  }, [submissionPackage]);
+
+  // PROPONENT VIEW: Accepted requests become "previousRequests"
+  const previousRequestsData: PreviousRequest[] = useMemo(() => {
+    if (!submissionPackage?.all_update_requests) return [];
+
+    return submissionPackage.all_update_requests
+      .filter(
+        (req) =>
+          !req.active &&
+          (req.status === UPDATE_REQUEST_STATUS.ACCEPTED.value ||
+            req.status === UPDATE_REQUEST_STATUS.CLOSED.value)
+      )
+      .map((req) => {
+        const item = submissionPackage.items.find((i) =>
+          req.submission_item_types.includes(i.type_id)
+        );
+        return {
+          updateRequestId: req.id,
+          itemTypeId: req.submission_item_types[0] || 0,
+          itemTypeName: item?.type.name || "Unknown Section",
+          reason: req.reason,
+          createdDate: req.created_date,
+          createdBy: req.created_by,
+          status: req.status,
+          note: req.note,
+          noteUpdatedBy: req.note_updated_by,
+          noteUpdatedAt: req.note_updated_at,
+        };
+      });
+  }, [submissionPackage]);
+
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
   }
@@ -349,25 +410,20 @@ export default function SubmissionPage() {
                 </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
-              {openRequests.length > 0 && (
-                <ProponentUpdateRequestPanel
-                  openRequests={openRequests}
-                  previousRequests={submissionPackage.update_requests.filter(
-                    (req) =>
-                      req.status === UPDATE_REQUEST_STATUS.ACCEPTED.value &&
-                      !req.active
-                  )}
-                  onSaveNote={handleSaveNote}
-                  isLoading={isSavingNote}
-                />
-              )}
+              {/* PROPONENT VIEW: Update Requests Panel with Figma design */}
+              <ProponentUpdateRequestPanel
+                sentRequests={sentRequests}
+                previousRequests={previousRequestsData}
+                onUpdateNote={handleSaveNote}
+                isLoading={isSavingNote}
+              />
               <Box
                 sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable submissionPackage={submissionPackage} />
+                <ItemsTable submissionPackage={submissionPackage} accountProject={accountProject} />
               </Box>
               <Switch>
                 <Case

@@ -4,6 +4,7 @@ import {
   TableCell,
   TableRow,
   Typography,
+  Chip,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
@@ -21,12 +22,8 @@ import {
 } from "@/components/Shared/Table/common";
 import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { useMemo } from "react";
-import { filterOpenUpdateRequests, getSubmissionItemLabel } from "@/utils";
-import dayjs from "dayjs";
-import {
-  UPDATE_REQUEST_STATUS,
-  UPDATE_REQUEST_TYPE,
-} from "@/models/UpdateRequest";
+import { getSubmissionItemLabel } from "@/utils";
+import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export default function ProponentSubmissionItemTableRow({
@@ -60,31 +57,17 @@ export default function ProponentSubmissionItemTableRow({
       .queryKey,
   );
 
-  const isUpdated = useMemo(() => {
+  const hasOpenUpdateRequest = useMemo(() => {
     if (!submissionPackage) return false;
-    const last_update_request = submissionPackage.update_requests
-      .filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value,
-      )
-      .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
-
-    if (!last_update_request) return false;
-    return Boolean(
-      item.submissions.find((submission) =>
-        dayjs(submission.created_date).isAfter(
-          last_update_request?.created_date,
-        ),
-      ),
+    return submissionPackage.update_requests.some(
+      (updateRequest) =>
+        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+        updateRequest.active &&
+        updateRequest.submission_item_types.includes(type_id)
     );
-  }, [item, submissionPackage]);
+  }, [submissionPackage, type_id]);
 
-  const isUpdateRequest = useMemo(() => {
-    if (!submissionPackage || isUpdated) return false;
-    return filterOpenUpdateRequests(submissionPackage.update_requests)
-      .flatMap((updateRequest) => updateRequest.submission_item_types)
-      .includes(type_id);
-  }, [submissionPackage, type_id, isUpdated]);
+  const hasAccountProjectWork = Boolean(submissionPackage?.account_project_work?.id);
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
@@ -104,6 +87,7 @@ export default function ProponentSubmissionItemTableRow({
               textDecoration: "none",
               display: "flex",
               alignItems: "center",
+              gap: 1,
             }}
           >
             <Typography
@@ -118,18 +102,33 @@ export default function ProponentSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
-        {!isIPD && (
-          <SubmitPrimaryRowTableCell align="right" width={"20%"}>
+        <SubmitPrimaryRowTableCell align="right" width={"20%"}>
+          <When condition={!hasAccountProjectWork}>
             <Box mr={2}>
               <SubmissionStatusChipStack
                 status={status}
-                isUpdateRequested={isUpdateRequest}
-                isUpdated={isUpdated}
+                isUpdateRequested={hasOpenUpdateRequest}
+                isUpdated={false}
                 packageStatus={submissionPackage?.status}
               />
             </Box>
-          </SubmitPrimaryRowTableCell>
-        )}
+          </When>
+          <When condition={hasAccountProjectWork && hasOpenUpdateRequest}>
+            <Chip
+              label="Update Requested"
+              size="small"
+              sx={{
+                backgroundColor: "#ffdeb8",
+                border: "1px solid #f18a15",
+                color: BCDesignTokens.typographyColorPrimary,
+                fontSize: "12px",
+                height: "24px",
+                fontWeight: 400,
+              }}
+            />
+          </When>
+        </SubmitPrimaryRowTableCell>
+      
         <SubmitPrimaryRowTableCell
           align="right"
           width={isIPD ? "30%" : "10%"}
