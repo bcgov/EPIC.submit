@@ -174,5 +174,6 @@ export type SubmissionPackage = {
   internal_staff_documents?: InternalStaffDocument[];
   review_status?: NonCanonicalPackageStatus;
   update_requests: Array<UpdateRequest>;
+  all_update_requests: Array<UpdateRequest>;
   version: PackageVersion;
 };

@@ -12,15 +12,28 @@ export interface SentRequest {
   createdDate: string;
   createdBy: string;
   status: string;
-  accountAdministrator?: string;
   note?: string;
-  proponentName?: string;
-  noteDate?: string;
+  noteUpdatedBy?: string;
+  noteUpdatedAt?: string;
+}
+
+export interface PreviousRequest {
+  updateRequestId: number;
+  itemTypeId: number;
+  itemTypeName: string;
+  reason: string;
+  createdDate: string;
+  createdBy: string;
+  status: string;
+  note?: string;
+  noteUpdatedBy?: string;
+  noteUpdatedAt?: string;
 }
 
 export interface SectionUpdateRequestPanelProps {
   pendingRequests: PendingRequest[];
   sentRequests: SentRequest[];
+  previousRequests: PreviousRequest[];
   onRemoveFlag: (itemTypeId: number) => void;
   onSendRequests: () => void;
   onUpdateNote: (itemTypeId: number, note: string) => void;

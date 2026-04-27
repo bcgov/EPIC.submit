@@ -756,7 +756,10 @@ class PackageService:
         authorization.has_access_to_package(package_id)
         update_request = UpdateRequestModel.find_by_id(update_request_id)
         cls._validate_create_update_request_note(package_id, update_request)
+        auth_guid = TokenInfo.get_username()
         update_request.note = request_data.get("note")
+        update_request.note_updated_by = auth_guid
+        update_request.note_updated_at = datetime.now(UTC)
         update_request.save()
         package = cls.get_package_by_id(package_id)
         return package

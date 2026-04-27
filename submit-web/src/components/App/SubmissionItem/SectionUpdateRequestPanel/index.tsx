@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography, Button, Link } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { PendingRequestCollapsible } from "./PendingRequestCollapsible";
 import { SentRequestCollapsible } from "./SentRequestCollapsible";
+import { PreviousRequestCollapsible } from "./PreviousRequestCollapsible";
 import { SectionUpdateRequestPanelProps } from "./types";
 import { BCDesignTokens } from "epic.theme";
 
@@ -11,6 +12,7 @@ export const SectionUpdateRequestPanel: React.FC<
 > = ({
   pendingRequests,
   sentRequests,
+  previousRequests,
   onRemoveFlag,
   onSendRequests,
   onUpdateNote,
@@ -22,6 +24,8 @@ export const SectionUpdateRequestPanel: React.FC<
     new Set(pendingRequests.map((r) => r.itemTypeId))
   );
   const [expandedSent, setExpandedSent] = useState<Set<number>>(new Set());
+  const [showPreviousRequests, setShowPreviousRequests] = useState(false);
+  const [expandedPrevious, setExpandedPrevious] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     setExpandedPending(new Set(pendingRequests.map((r) => r.itemTypeId)));
@@ -61,13 +65,24 @@ export const SectionUpdateRequestPanel: React.FC<
     });
   };
 
+  const handleTogglePrevious = (updateRequestId: number) => {
+    setExpandedPrevious((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(updateRequestId)) {
+        newSet.delete(updateRequestId);
+      } else {
+        newSet.add(updateRequestId);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <Box
       sx={{
         mt: 3,
         border: `1px solid ${panelBorderColor}`,
         borderRadius: "4px",
-        background: panelBackground,
       }}
     >
       <Box
@@ -75,6 +90,8 @@ export const SectionUpdateRequestPanel: React.FC<
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          borderRadius: "4px",
+          backgroundColor: panelBackground,
           p: 2,
           borderBottom:
             totalCount > 0
@@ -127,7 +144,7 @@ export const SectionUpdateRequestPanel: React.FC<
           </Typography>
         </Box>
       ) : (
-        <Box sx={{ p: 2, backgroundColor: "white" }}>
+        <Box sx={{ pt: 2, pl: 2, pr: 2, backgroundColor: "white" }}>
           {pendingRequests.map((request) => (
             <PendingRequestCollapsible
               key={request.itemTypeId}
@@ -169,6 +186,67 @@ export const SectionUpdateRequestPanel: React.FC<
           )}
         </Box>
       )}
+<Box sx={{ pb: 2, px: 2.5 }}>
+      {/* View Previous Requests Link - Always visible */}
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Link
+              component="button"
+              onClick={() => setShowPreviousRequests(!showPreviousRequests)}
+              sx={{
+                color: "#255A90",
+                fontSize: "13px",
+                fontWeight: 400,
+                textDecoration: "none",
+                cursor: "pointer",
+                p: 0.75,
+              }}
+            >
+              {showPreviousRequests ? "Hide Previous Requests" : "View Previous Requests"}
+            </Link>
+          </Box>
+
+      {/* Previous Requests Section - Only show when expanded */}
+      {showPreviousRequests && (
+        <>
+          <Box sx={{ borderTop: `1px solid #D8D8D8`, pt: 2.125, mb: 1 }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontSize: "18px",
+                fontWeight: 400,
+                color: "#2D2D2D",
+              }}
+            >
+              Previous Requests
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {previousRequests.length === 0 ? (
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: "14px",
+                  color: "#606060",
+                  py: 2,
+                  textAlign: "center",
+                }}
+              >
+                No previous update requests
+              </Typography>
+            ) : (
+              previousRequests.map((request) => (
+                <PreviousRequestCollapsible
+                  key={request.updateRequestId}
+                  request={request}
+                  expanded={expandedPrevious.has(request.updateRequestId)}
+                  onToggle={() => handleTogglePrevious(request.updateRequestId)}
+                />
+              ))
+            )}
+          </Box>
+        </>
+      )}
+        </Box>
     </Box>
   );
 };

@@ -120,12 +120,20 @@ class PackageUpdateRequestSchema(Schema):
     created_by = fields.Method('get_created_by')
     type = fields.Enum(data_key="type", enum=UpdateRequestType)
     note = fields.Str(data_key="note")
+    note_updated_by = fields.Method('get_note_updated_by')
+    note_updated_at = fields.DateTime(data_key="note_updated_at")
     status = fields.Str(data_key="status")
 
     def get_created_by(self, obj):
         """Get created by user."""
         return obj.created_by_user.staff_user.full_name \
             if obj.created_by_user and obj.created_by_user.staff_user else None
+
+    def get_note_updated_by(self, obj):
+        """Get note updated by user (proponent)."""
+        if obj.note_updated_by_user and obj.note_updated_by_user.account_user:
+            return obj.note_updated_by_user.account_user.full_name
+        return None
 
 
 class PackageSchema(Schema):
@@ -150,6 +158,7 @@ class PackageSchema(Schema):
     items = fields.Nested(ItemSchema, data_key="items", many=True)
     update_requests = fields.Nested(
         PackageUpdateRequestSchema, data_key="update_requests", many=True)
+    all_update_requests = fields.Method('get_all_update_requests')
     version = fields.Nested(PackageVersionSchema,
                             data_key="version", exclude=["package_id"])
     account_project_work = fields.Nested(
@@ -164,6 +173,10 @@ class PackageSchema(Schema):
     def get_meta(self, obj):
         """Get meta."""
         return obj.meta.json if obj.meta else None
+
+    def get_all_update_requests(self, obj):
+        """Get all update requests (active and inactive)."""
+        return PackageUpdateRequestSchema(many=True).dump(obj.all_update_requests)
 
     @post_dump
     def map_status(self, data, many, **kwargs):

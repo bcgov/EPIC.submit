@@ -35,12 +35,11 @@ import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/Secti
 import {
   PendingRequest,
   SentRequest,
+  PreviousRequest,
 } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useState, useMemo, useCallback } from "react";
-import { useGetAccountUsers } from "@/hooks/api/useAccountUsers";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 
 export const Route = createFileRoute(
@@ -108,10 +107,6 @@ export default function SubmissionPage() {
     enabled: Boolean(accountProject?.id),
   });
 
-  const { data: accountUsers } = useGetAccountUsers({
-    accountId: accountProject?.account_id,
-  });
-
   const { data: packageVersions } = useGetPackageVersionsByOriginalPackageId({
     originalPackageId: submissionPackage?.version?.original_package_id,
     enabled: Boolean(submissionPackage?.version?.original_package_id),
@@ -146,14 +141,6 @@ export default function SubmissionPage() {
 
   const managementPlanName = useManagementPlanName(submissionPackage);
 
-  const accountAdministrator = useMemo(() => {
-    if (!accountUsers) return null;
-    const primaryAdmin = accountUsers.find(
-      (user) => user.role?.role_name === USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN
-    );
-    return primaryAdmin?.full_name || null;
-  }, [accountUsers]);
-
   const sentUpdateRequests = useMemo<SentRequest[]>(() => {
     if (!submissionPackage?.update_requests) return [];
 
@@ -175,13 +162,44 @@ export default function SubmissionPage() {
             createdBy: req.created_by || "",
             createdDate: req.created_date || "",
             status: req.status || "",
-            accountAdministrator: accountAdministrator || undefined,
             note: req.note || undefined,
+            noteUpdatedBy: req.note_updated_by || undefined,
+            noteUpdatedAt: req.note_updated_at || undefined,
           };
         }),
       );
-  }, [submissionPackage, accountAdministrator]);
+  }, [submissionPackage]);
 
+  const previousUpdateRequests = useMemo<PreviousRequest[]>(() => {
+    if (!submissionPackage?.all_update_requests) return [];
+
+    return submissionPackage.all_update_requests
+      .filter(
+        (req) =>
+          !req.active &&
+          (req.status === UPDATE_REQUEST_STATUS.ACCEPTED.value ||
+            req.status === UPDATE_REQUEST_STATUS.CLOSED.value),
+      )
+      .map((req) => {
+        // Get the first item type name for display
+        const firstItemTypeId = req.submission_item_types[0];
+        const item = firstItemTypeId
+          ? submissionPackage.items.find((i) => i.type_id === firstItemTypeId)
+          : undefined;
+        return {
+          updateRequestId: req.id,
+          itemTypeId: firstItemTypeId || 0,
+          itemTypeName: item?.type.name || "Update Request",
+          reason: req.reason || "",
+          createdBy: req.created_by || "",
+          createdDate: req.created_date || "",
+          status: req.status || "",
+          note: req.note || undefined,
+          noteUpdatedBy: req.note_updated_by || undefined,
+          noteUpdatedAt: req.note_updated_at || undefined,
+        };
+      });
+  }, [submissionPackage]);
   const handleRequestUpdate = useCallback(
     (itemTypeId: number, itemTypeName: string) => {
       const alreadyPending = pendingRequests.some(
@@ -433,6 +451,7 @@ export default function SubmissionPage() {
                 <SectionUpdateRequestPanel
                   pendingRequests={pendingRequests}
                   sentRequests={sentUpdateRequests}
+                  previousRequests={previousUpdateRequests}
                   onRemoveFlag={handleRemoveRequest}
                   onUpdateNote={handleUpdateNote}
                   onSendRequests={handleSendRequests}
