@@ -19,7 +19,6 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Case, Switch, Unless, When } from "react-if";
 import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
-import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
 import { Box, Grid, Link, Typography } from "@mui/material";
@@ -42,6 +41,12 @@ import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
+import { ProponentUpdateRequestPanel } from "@/components/App/Submission/ProponentUpdateRequestPanel";
+import { UnaddressedSectionsModal } from "@/components/App/Submission/UnaddressedSectionsModal";
+import { useDocumentChangeTracking } from "@/hooks/useDocumentChangeTracking";
+import { getUnaddressedUpdateRequestSections } from "@/utils/updateRequestHelpers";
+import { useSaveProponentNote } from "@/hooks/api/useUpdateRequests";
+import { useState } from "react";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -51,6 +56,10 @@ export const Route = createFileRoute(
 
 export default function SubmissionPage() {
   const { setIsValidating, reset } = usePackageTableStore();
+  const [showUnaddressedModal, setShowUnaddressedModal] = useState(false);
+  const [unaddressedSections, setUnaddressedSections] = useState<
+    ReturnType<typeof getUnaddressedUpdateRequestSections>
+  >([]);
 
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const accountProjectId = Number(accountProjectIdParam);
@@ -65,6 +74,14 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
+
+  const documentChanges = useDocumentChangeTracking({
+    submissionPackage,
+    enabled: Boolean(submissionPackage),
+  });
+
+  const { mutate: saveProponentNote, isPending: isSavingNote } =
+    useSaveProponentNote();
 
   const { data: packageVersions } = useGetPackageVersionsByOriginalPackageId({
     originalPackageId: submissionPackage?.version?.original_package_id,
@@ -104,6 +121,40 @@ export default function SubmissionPage() {
     };
   });
 
+  const handleSaveNote = (updateRequestId: number, note: string) => {
+    if (!submissionPackage) return;
+
+    saveProponentNote(
+      {
+        packageId: submissionPackage.id,
+        updateRequestId,
+        note,
+      },
+      {
+        onSuccess: () => {
+          notify.success("Note saved successfully");
+        },
+        onError: () => {
+          notify.error("Failed to save note");
+        },
+      }
+    );
+  };
+
+  const proceedWithSubmission = () => {
+    if (!submissionPackage) return;
+
+    setIsValidating(false);
+    setShowUnaddressedModal(false);
+    updateStateSubmissionPackage({
+      packageId: submissionPackage.id,
+      data: {
+        status: PACKAGE_STATUS.SUBMITTED.value,
+      },
+    });
+    notify.success("Management plan submitted successfully");
+  };
+
   const submitPackage = () => {
     if (!submissionPackage) {
       return;
@@ -133,14 +184,19 @@ export default function SubmissionPage() {
       return;
     }
 
-    setIsValidating(false);
-    updateStateSubmissionPackage({
-      packageId: submissionPackage.id,
-      data: {
-        status: PACKAGE_STATUS.SUBMITTED.value,
-      },
-    });
-    notify.success("Management plan submitted successfully");
+    // Check for unaddressed update request sections
+    const unaddressed = getUnaddressedUpdateRequestSections(
+      submissionPackage,
+      documentChanges
+    );
+
+    if (unaddressed.length > 0) {
+      setUnaddressedSections(unaddressed);
+      setShowUnaddressedModal(true);
+      return;
+    }
+
+    proceedWithSubmission();
   };
 
   const managementPlanName = useManagementPlanName(submissionPackage);
@@ -293,13 +349,17 @@ export default function SubmissionPage() {
                 </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
-              {submissionPackage?.update_requests.length > 0 && (
-                <Box mt="1em" width="100%">
-                  <UpdateRequestWidget
-                    submissionPackage={submissionPackage}
-                    summaryBackgroundColor="#FEF8E8"
-                  />
-                </Box>
+              {openRequests.length > 0 && (
+                <ProponentUpdateRequestPanel
+                  openRequests={openRequests}
+                  previousRequests={submissionPackage.update_requests.filter(
+                    (req) =>
+                      req.status === UPDATE_REQUEST_STATUS.ACCEPTED.value &&
+                      !req.active
+                  )}
+                  onSaveNote={handleSaveNote}
+                  isLoading={isSavingNote}
+                />
               )}
               <Box
                 sx={{
@@ -382,6 +442,12 @@ export default function SubmissionPage() {
           </Box>
         </ContentBox>
       </Grid>
+      <UnaddressedSectionsModal
+        open={showUnaddressedModal}
+        sections={unaddressedSections}
+        onConfirm={proceedWithSubmission}
+        onCancel={() => setShowUnaddressedModal(false)}
+      />
     </PageGrid>
   );
 }
