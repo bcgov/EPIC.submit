@@ -182,7 +182,10 @@ export default function ProponentSubmissionItemTableRow({
               variant="body2"
               sx={{ color: BCDesignTokens.typographyColorDanger }}
             >
-              Please complete the {name} section.
+              {packageType.name ===
+              SubmissionPackageType.ADDITIONAL_INFORMATION
+                ? "At least one file is required across all sections."
+                : `Please complete the ${name} section.`}
             </Typography>
           </TableCell>
         </TableRow>

@@ -113,20 +113,6 @@ export default function StaffSubmissionItemTableRow({
                 }}
               />
             </When>
-            <When condition={hasSentRequest && !hasPendingRequest}>
-              <Chip
-                label="Update Requested"
-                size="small"
-                sx={{
-                  backgroundColor: "#ffdeb8",
-                  border: "1px solid #f18a15",
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                }}
-              />
-            </When>
           </Box>
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={hasAccountProjectWork ? "30%" : "10%"}>

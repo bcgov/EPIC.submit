@@ -20,6 +20,7 @@ class NonCanonicalPackageStatus(enum.Enum):
     UPDATED = "UPDATED"
     UPDATE_REQUESTED = "UPDATE_REQUESTED"
     REVISION_REQUESTED = "REVISION_REQUESTED"
+    REVISION_REQUIRED = "REVISION_REQUIRED"
 
     @classmethod
     def check_value(cls, value):

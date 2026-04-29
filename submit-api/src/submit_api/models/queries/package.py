@@ -44,6 +44,10 @@ class PackageQueries:
         # Filter for required items only
         required_items = [item for item in items if item.type_id in required_item_type_ids]
 
+        # If no items are marked as required, treat all items as required
+        if not required_items:
+            required_items = items
+
         return [item.status.value if isinstance(item.status, ItemStatus) else item.status for item in required_items]
 
     @classmethod
@@ -56,13 +60,17 @@ class PackageQueries:
     @classmethod
     def _add_completed_status(cls, aggregated_statuses: set, statuses: list[str]):
         """Find completed packages (based on required items only)"""
+        # Only add COMPLETED if nothing is already SUBMITTED
+        if PackageStatus.SUBMITTED.value in aggregated_statuses:
+            return
         if statuses and all(status == ItemStatus.COMPLETED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.COMPLETED.value)
 
     @classmethod
     def _add_submitted_status(cls, aggregated_statuses: set, statuses: list[str]):
         """Find submitted packages (based on required items only)"""
-        if statuses and all(status == ItemStatus.SUBMITTED.value for status in statuses):
+        # Add SUBMITTED if any required item is submitted
+        if statuses and any(status == ItemStatus.SUBMITTED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.SUBMITTED.value)
 
     @classmethod
@@ -159,9 +167,9 @@ class PackageQueries:
             return list(aggregated_statuses)
 
         # Completion/submission statuses check only required items
+        cls._add_submitted_status(aggregated_statuses, required_statuses)
         cls._add_partially_completed_status(aggregated_statuses, required_statuses)
         cls._add_completed_status(aggregated_statuses, required_statuses)
-        cls._add_submitted_status(aggregated_statuses, required_statuses)
 
         # Other statuses check all items
         cls._add_passed_consultation_check(aggregated_statuses, all_statuses)
