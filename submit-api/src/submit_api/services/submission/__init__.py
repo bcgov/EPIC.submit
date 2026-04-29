@@ -6,7 +6,8 @@ from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import db, session_scope
 from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
-from submit_api.models.submission import Submission as SubmissionModel, SubmissionType, SubmissionStatus, ALLOWED_TRANSITIONS
+from submit_api.models.submission import Submission as SubmissionModel, SubmissionType, \
+    SubmissionStatus, ALLOWED_TRANSITIONS
 from submit_api.services import authorization
 from submit_api.services.document_service_client import DocumentServiceClient
 from submit_api.services.geo_processor import GeoService
@@ -130,7 +131,7 @@ class SubmissionService:
                         f"Package type '{package.type.name}' has no approval type configured. "
                         "Cannot validate status transition."
                     )
-                
+
                 # Validate state transition
                 cls._validate_submission_status_transition(approval_type, existing_status, SubmissionStatus[status])
 
@@ -140,14 +141,14 @@ class SubmissionService:
                 # TODO update the package status
                 current_app.logger.info(f"Submission {submission_id} status updated to {status}.")
             return submission
-        
+
     @classmethod
     def _validate_submission_status_transition(cls, approval_type, current_status, next_status):
         """Enforces valid status transitions based on package approval type."""
         transitions = ALLOWED_TRANSITIONS.get(approval_type)
         if transitions is None:
             raise ValueError(f"No transition rules defined for approval type: {approval_type}")
-        
+
         allowed = transitions.get(current_status)
         if not allowed:
             raise ValueError(
@@ -161,7 +162,6 @@ class SubmissionService:
                 f"for {approval_type.value} packages. "
                 f"Valid transitions: {sorted(s.value for s in allowed)}"
             )
-
 
     @classmethod
     def update_submission_item_status(cls, item_id, status, session):

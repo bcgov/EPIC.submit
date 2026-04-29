@@ -37,21 +37,22 @@ class SubmissionStatus(enum.Enum):
 # and what the only allowed "next" status is from each state.
 ALLOWED_TRANSITIONS: dict[PackageApprovalType, dict[SubmissionStatus, set[SubmissionStatus]]] = {
     PackageApprovalType.A: {
-        SubmissionStatus.SUBMITTED:  {SubmissionStatus.VERIFIED},
+        SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED},
         SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED},
     },
     PackageApprovalType.B: {
-        SubmissionStatus.SUBMITTED:      {SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED},
-        SubmissionStatus.VERIFIED:     {SubmissionStatus.SUBMITTED, SubmissionStatus.ACKNOWLEDGED},
+        SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED},
+        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED, SubmissionStatus.ACKNOWLEDGED},
         SubmissionStatus.ACKNOWLEDGED: {SubmissionStatus.VERIFIED},
     },
     PackageApprovalType.C: {
-        SubmissionStatus.SUBMITTED:      {SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED},
-        SubmissionStatus.VERIFIED:     {SubmissionStatus.SUBMITTED, SubmissionStatus.ACKNOWLEDGED},
+        SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED},
+        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED, SubmissionStatus.ACKNOWLEDGED},
         SubmissionStatus.ACKNOWLEDGED: {SubmissionStatus.VERIFIED, SubmissionStatus.APPROVED},
-        SubmissionStatus.APPROVED:     {SubmissionStatus.ACKNOWLEDGED},
+        SubmissionStatus.APPROVED: {SubmissionStatus.ACKNOWLEDGED},
     },
 }
+
 
 class Submission(BaseModel):
     """Definition of the submission entity."""

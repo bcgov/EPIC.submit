@@ -35,7 +35,6 @@ export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
   }
 
   const displayStatus = STATUS_DISPLAY_MAP[status] ?? status;
-  console.log(displayStatus);
 
   return (
     <SubmissionStatusChip
