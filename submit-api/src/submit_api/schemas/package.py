@@ -192,21 +192,21 @@ class PackageSchema(Schema):
         version = data.get('version')
         package_type_data = data.get('type')
         package_type = package_type_data.get('name') if package_type_data else None
-        
+
         new_status = [get_package_status(status, user_type, version, package_type)
                       for status in data['status']]
 
         # Add non-canonical statuses
         update_requests = data.get('update_requests', [])
         is_update_requested = any(ur.get('active') and ur.get('status') != 'COMPLETED' for ur in update_requests)
-        
+
         # Check if any item has REVISION_REQUIRED
         items = data.get('items', [])
         is_revision_required = any(item.get('status') == 'REVISION_REQUIRED' for item in items)
 
         if is_update_requested:
             new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
-        
+
         if is_revision_required:
             if user_type == UserType.PROPONENT:
                 new_status.append(NonCanonicalPackageStatus.REVISION_REQUIRED.value)

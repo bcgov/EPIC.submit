@@ -51,7 +51,7 @@ export const Route = createFileRoute(
 });
 
 export default function SubmissionPage() {
-  const { setIsValidating, reset } = usePackageTableStore();
+  const { isValidating, setIsValidating, reset } = usePackageTableStore();
 
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const accountProjectId = Number(accountProjectIdParam);
@@ -172,6 +172,10 @@ export default function SubmissionPage() {
   };
 
   const managementPlanName = useManagementPlanName(submissionPackage);
+
+  const hasDocuments = submissionPackage?.items?.some((item) =>
+    item.submissions.some((s) => s.type === SUBMISSION_TYPE.DOCUMENT),
+  );
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
@@ -341,6 +345,22 @@ export default function SubmissionPage() {
                   submissionPackage={submissionPackage}
                   accountProject={accountProject}
                 />
+                <When
+                  condition={
+                    isValidating &&
+                    submissionPackage.type.name ===
+                      SubmissionPackageType.ADDITIONAL_INFORMATION &&
+                    !hasDocuments
+                  }
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ color: BCDesignTokens.typographyColorDanger, mt: 1 }}
+                  >
+                    You must have at least one file uploaded to be able to
+                    submit your package.
+                  </Typography>
+                </When>
               </Box>
               <Switch>
                 <Case

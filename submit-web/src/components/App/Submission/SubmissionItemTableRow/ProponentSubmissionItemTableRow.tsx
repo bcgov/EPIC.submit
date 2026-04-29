@@ -172,7 +172,12 @@ export default function ProponentSubmissionItemTableRow({
             packageType={packageType}
           />
         ))}
-      <When condition={error}>
+      <When
+        condition={
+          error &&
+          packageType.name !== SubmissionPackageType.ADDITIONAL_INFORMATION
+        }
+      >
         <TableRow key={`row-${name}-divider`}>
           <TableCell
             width={"100%"}
@@ -182,10 +187,7 @@ export default function ProponentSubmissionItemTableRow({
               variant="body2"
               sx={{ color: BCDesignTokens.typographyColorDanger }}
             >
-              {packageType.name ===
-              SubmissionPackageType.ADDITIONAL_INFORMATION
-                ? "At least one file is required across all sections."
-                : `Please complete the ${name} section.`}
+              Please complete the {name} section.
             </Typography>
           </TableCell>
         </TableRow>
