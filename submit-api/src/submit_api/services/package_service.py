@@ -454,15 +454,15 @@ class PackageService:
         if package.completed_on:
             raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_package_submission_details(package, session)
-        
-        # Ensure package and item statuses are reset to SUBMITTED for Additional Information packages, 
+
+        # Ensure package and item statuses are reset to SUBMITTED for Additional Information packages,
         # removing any previous flags like PARTIALLY_COMPLETED
         if package.type.name == PackageTypeEnum.ADDITIONAL_INFORMATION.value:
             package.status = [PackageStatus.SUBMITTED.value]
             session.add(package)
             cls._update_items_status(
                 package.items, ItemStatus.SUBMITTED.value, session)
-            
+
         cls._deactivate_replaced_submissions(package, session)
         cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
