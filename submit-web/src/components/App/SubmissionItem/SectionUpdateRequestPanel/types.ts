@@ -40,4 +40,5 @@ export interface SectionUpdateRequestPanelProps {
   onAcceptUpdate?: (updateRequestId: number) => void;
   onWithdrawUpdate?: (updateRequestId: number) => void;
   isLoading?: boolean;
+  packageId: number; // Required for API calls
 }

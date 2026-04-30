@@ -18,6 +18,7 @@ import { BCDesignTokens } from "epic.theme";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import ActionSplitButton from "@/components/Shared/ActionSplitButton/ActionSplitButton";
 import { UpdateRequestAccordion } from "./UpdateRequestAccordion";
+import { useUpdatePackageUpdateRequestNote, useCreatePackageUpdateRequesNote } from "@/hooks/api/usePackages";
 
 interface SentRequestCollapsibleProps {
   request: SentRequest;
@@ -27,6 +28,7 @@ interface SentRequestCollapsibleProps {
   onWithdrawUpdate?: (updateRequestId: number) => void; // STAFF ONLY
   onUpdateNote?: (updateRequestId: number, note: string) => void; // PROPONENT: Save note
   isLoading?: boolean; // Loading state for save operation
+  packageId: number; // Required for API calls
 }
 
 export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
@@ -37,17 +39,34 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   onWithdrawUpdate,
   onUpdateNote,
   isLoading = false,
+  packageId,
 }) => {
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(request.note || "");
   const maxNoteLength = 500;
 
+  // Hooks for note operations
+  const { mutate: createUpdateRequestNote, isPending: isCreatingNote } = 
+    useCreatePackageUpdateRequesNote({
+      packageId,
+    });
+  
+  const { mutate: updateUpdateRequestNote, isPending: isUpdatingNote } = 
+    useUpdatePackageUpdateRequestNote({
+      packageId,
+    });
+
   const handleSaveNote = () => {
-    if (onUpdateNote) {
-      onUpdateNote(request.updateRequestId, noteText);
-      setIsEditingNote(false);
-    }
+    const mutationFn = request.note ? updateUpdateRequestNote : createUpdateRequestNote;
+    mutationFn({
+      updateRequestId: request.updateRequestId,
+      packageId,
+      data: { note: noteText },
+    });
+    setIsEditingNote(false);
   };
+
+  const isSavingNote = isCreatingNote || isUpdatingNote;
 
   const handleEditNote = () => {
     setIsEditingNote(true);
@@ -140,11 +159,11 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                 lineHeight: "24px",
                 height: "40px",
                 borderRadius: "4px",
-                borderColor: "#353433",
-                color: "#2D2D2D",
+                borderColor: BCDesignTokens.surfaceColorBorderDark,
+                color: BCDesignTokens.typographyColorPrimary,
                 padding: "7px 16px",
                 "&:hover": {
-                  borderColor: "#353433",
+                  borderColor: BCDesignTokens.surfaceColorBorderDark,
                   backgroundColor: "rgba(53, 52, 51, 0.04)",
                 },
               }}
@@ -156,10 +175,10 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
             // Editing mode: Show text area with label and Save button (matches Figma)
             <Box
               sx={{
-                backgroundColor: "#F9F9F9",
+                backgroundColor: BCDesignTokens.themeGray10,
                 p: "12px 12px 12px 15px",
                 borderRadius: "4px",
-                borderLeft: "3px solid #FCBA19",
+                borderLeft: `3px solid ${BCDesignTokens.themeGold100}`,
                 display: "flex",
                 flexDirection: "column",
                 gap: "6px",
@@ -172,7 +191,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                     fontWeight: 700,
                     fontSize: "13px",
                     lineHeight: "19.5px",
-                    color: "#2D2D2D",
+                    color: BCDesignTokens.typographyColorPrimary,
                     fontFamily: "BCSans, sans-serif",
                   }}
                 >
@@ -190,6 +209,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                   inputProps={{ maxLength: maxNoteLength }}
                   sx={{
                     backgroundColor: "white",
+                    marginBottom: 0,
                     "& .MuiOutlinedInput-root": {
                       fontSize: "14px",
                       lineHeight: "21px",
@@ -218,7 +238,8 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                   sx={{
                     fontSize: "13px",
                     lineHeight: "19.5px",
-                    color: "#2D2D2D",
+                    marginTop: 1,
+                    color: BCDesignTokens.typographyColorPrimary,
                     fontFamily: "BCSans, sans-serif",
                   }}
                 >
@@ -230,7 +251,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
               <Button
                 variant="contained"
                 onClick={handleSaveNote}
-                disabled={isLoading || noteText.trim().length === 0}
+                disabled={isLoading || isSavingNote || noteText.trim().length === 0}
                 sx={{
                   textTransform: "none",
                   fontSize: "16px",
@@ -239,11 +260,11 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                   height: "40px",
                   width: "108px",
                   borderRadius: "4px",
-                  backgroundColor: "#013366",
+                  backgroundColor: BCDesignTokens.themeBlue100,
                   color: "white",
                   padding: "8px 16px",
                   "&:hover": {
-                    backgroundColor: "#002855",
+                    backgroundColor: BCDesignTokens.themeBlue100,
                   },
                   "&:disabled": {
                     backgroundColor: "#cccccc",

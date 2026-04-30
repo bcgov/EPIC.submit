@@ -64,7 +64,7 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
         variant="body2"
         sx={{
           fontSize: "12px",
-          color: "#606060",
+          color: BCDesignTokens.themeGray80,
           lineHeight: "18px",
         }}
       >

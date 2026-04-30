@@ -416,6 +416,7 @@ export default function SubmissionPage() {
                 previousRequests={previousRequestsData}
                 onUpdateNote={handleSaveNote}
                 isLoading={isSavingNote}
+                packageId={Number(submissionPackageId)}
               />
               <Box
                 sx={{

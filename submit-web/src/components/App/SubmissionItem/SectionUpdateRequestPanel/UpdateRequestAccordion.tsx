@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
+import { BCDesignTokens } from "epic.theme";
 
 interface UpdateRequestAccordionProps {
   itemTypeName: string;
@@ -48,8 +49,8 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
       expanded={expanded}
       onChange={onToggle}
       sx={{
-        border: "1px solid #D8D8D8",
-        background: "#FAFAFA",
+        border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+        background: BCDesignTokens.themeGray10,
         borderRadius: "6px",
         mb: variant === "previous" ? 0 : 2,
         "&:before": {
@@ -59,7 +60,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
       }}
     >
       <AccordionSummary
-        expandIcon={<ExpandMoreIcon sx={{ fontSize: "16px", color: "#606060" }} />}
+        expandIcon={<ExpandMoreIcon sx={{ fontSize: "16px", color: BCDesignTokens.themeGray80 }} />}
         sx={{
           minHeight: "46px",
           height: "46px",
@@ -89,7 +90,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
               sx={{
                 fontWeight: 700,
                 fontSize: "16px",
-                color: "#2D2D2D",
+                color: BCDesignTokens.typographyColorPrimary,
                 lineHeight: "27px",
               }}
             >
@@ -100,16 +101,17 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
         </Box>
       </AccordionSummary>
       <AccordionDetails>
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <Box sx={{ display: "flex", flexDirection: "column" }}>
           {/* EAO Staff Note */}
           <Box
             sx={{
-              backgroundColor: "#F9F9F9",
+              backgroundColor: BCDesignTokens.themeGray10,
               p: "12px 12px 12px 15px",
               borderRadius: "4px",
-              borderLeft: "3px solid #003366",
+              borderLeft: `3px solid ${BCDesignTokens.themeBlue100}`,
               display: "flex",
               flexDirection: "column",
+              marginBottom: "16px",
               gap: "6px",
             }}
           >
@@ -125,7 +127,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                   fontWeight: 700,
                   fontSize: "13px",
                   fontFamily: "BCSans, sans-serif",
-                  color: "#003366",
+                  color: BCDesignTokens.themeBlue100,
                   lineHeight: "19.5px",
                 }}
               >
@@ -134,7 +136,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
               <Typography
                 sx={{
                   fontSize: "12px",
-                  color: "#606060",
+                  color: BCDesignTokens.themeGray80,
                   lineHeight: "18px",
                   fontFamily: "BCSans, sans-serif",
                 }}
@@ -147,7 +149,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                 whiteSpace: "pre-wrap",
                 fontSize: "13px",
                 lineHeight: "19.5px",
-                color: "#2D2D2D",
+                color: BCDesignTokens.typographyColorPrimary,
                 fontFamily: "BCSans, sans-serif",
               }}
             >
@@ -159,10 +161,10 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
           {note && (
             <Box
               sx={{
-                backgroundColor: "#F9F9F9",
+                backgroundColor: BCDesignTokens.themeGray10,
                 p: "12px 12px 12px 15px",
                 borderRadius: "4px",
-                borderLeft: "3px solid #FCBA19",
+                borderLeft: `3px solid ${BCDesignTokens.themeGold100}`,
                 display: "flex",
                 flexDirection: "column",
                 gap: "6px",
@@ -179,7 +181,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                   sx={{
                     fontWeight: 700,
                     fontSize: "13px",
-                    color: "#2D2D2D",
+                    color: BCDesignTokens.typographyColorPrimary,
                     fontFamily: "BCSans, sans-serif",
                     lineHeight: "19.5px",
                   }}
@@ -189,7 +191,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                 <Typography
                   sx={{
                     fontSize: "12px",
-                    color: "#606060",
+                    color: BCDesignTokens.themeGray80,
                     lineHeight: "18px",
                     fontFamily: "BCSans, sans-serif",
                   }}
@@ -213,7 +215,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                     whiteSpace: "pre-wrap",
                     fontSize: "13px",
                     lineHeight: "19.5px",
-                    color: "#2D2D2D",
+                    color: BCDesignTokens.typographyColorPrimary,
                     fontFamily: "BCSans, sans-serif",
                     flex: 1,
                   }}
@@ -229,7 +231,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                     }}
                     sx={{
                       padding: "4px",
-                      color: "#1E5189",
+                      color: BCDesignTokens.themeBlue90,
                       "&:hover": {
                         backgroundColor: "rgba(30, 81, 137, 0.04)",
                       },

@@ -5,4 +5,5 @@ export interface ProponentUpdateRequestPanelProps {
   previousRequests: PreviousRequest[];
   onUpdateNote?: (itemTypeId: number, note: string) => void;
   isLoading?: boolean;
+  packageId: number; // Required for API calls
 }

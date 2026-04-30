@@ -23,6 +23,7 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
   previousRequests,
   onUpdateNote,
   isLoading = false,
+  packageId,
 }) => {
   const [isExpanded, setIsExpanded] = useState(sentRequests.length > 0);
   const [showPreviousRequests, setShowPreviousRequests] = useState(false);
@@ -32,8 +33,8 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
   const hasActiveRequests = sentRequests.length > 0;
 
   // Styling based on Figma designs
-  const panelBorderColor = hasActiveRequests ? "#f8bb47" : "#d8d8d8";
-  const panelBackground = hasActiveRequests ? "#fef8e8" : "#faf9f8";
+  const panelBorderColor = hasActiveRequests ? BCDesignTokens.supportBorderColorWarning : BCDesignTokens.surfaceColorBorderDefault;
+  const panelBackground = hasActiveRequests ? BCDesignTokens.themeGold10 : BCDesignTokens.themeGray10;
 
   const handleToggleSent = (updateRequestId: number) => {
     setExpandedSent((prev) => {
@@ -139,7 +140,7 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
             <Typography
               variant="body2"
               sx={{
-                color: "#606060",
+                color: BCDesignTokens.themeGray80,
                 fontSize: "14px",
               }}
             >
@@ -157,6 +158,7 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
                 onToggle={() => handleToggleSent(request.updateRequestId)}
                 onUpdateNote={onUpdateNote}
                 isLoading={isLoading}
+                packageId={packageId}
               />
             ))}
           </Box>
@@ -172,7 +174,7 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
                 setShowPreviousRequests(!showPreviousRequests);
               }}
               sx={{
-                color: "#255A90",
+                color: BCDesignTokens.typographyColorLink,
                 fontSize: "13px",
                 fontWeight: 400,
                 textDecoration: "none",
@@ -187,13 +189,13 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
           {/* Previous Requests Section */}
           {showPreviousRequests && (
             <>
-              <Box sx={{ borderTop: `1px solid #D8D8D8`, pt: 2.125, mb: 1 }}>
+              <Box sx={{ borderTop: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`, pt: 2.125, mb: 1 }}>
                 <Typography
                   variant="h6"
                   sx={{
                     fontSize: "18px",
                     fontWeight: 400,
-                    color: "#2D2D2D",
+                    color: BCDesignTokens.typographyColorPrimary,
                   }}
                 >
                   Previous Requests
@@ -205,7 +207,7 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
                     variant="body2"
                     sx={{
                       fontSize: "14px",
-                      color: "#606060",
+                      color: BCDesignTokens.themeGray80,
                       py: 2,
                       textAlign: "center",
                     }}
