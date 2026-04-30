@@ -51,7 +51,9 @@ export default function DocumentRow({
   const name = submitted_document?.name || "";
   const url = submitted_document?.url || "";
 
-  const { mutateAsync: updateSubmissionStatus } = useUpdateSubmissionStatus();
+  const { mutateAsync: updateSubmissionStatus } = useUpdateSubmissionStatus({
+    packageId: submissionPackage?.id,
+  });
 
   const handleVerify = () => {
     updateSubmissionStatus({
@@ -60,39 +62,21 @@ export default function DocumentRow({
     });
   };
 
-  // const handleVerifyAndAcknowledge = () => {
-  //   verifySubmission(documentSubmission.id, {
-  //     onSuccess: () => {
-  //       acknowledgeSubmission(documentSubmission.id, {
-  //         onSuccess: () => notify.success("Document verified and acknowledged"),
-  //         onError: () =>
-  //           notify.error("Verified but failed to acknowledge document"),
-  //       });
-  //     },
-  //     onError: () => notify.error("Failed to verify document"),
-  //   });
-  // };
+  const handleAcknowledge = () => {
+    updateSubmissionStatus({
+      submissionId: documentSubmission.id,
+      status: SUBMISSION_STATUS.ACKNOWLEDGED,
+    });
+  };
 
-  // const handleAcknowledge = () => {
-  //   acknowledgeSubmission(documentSubmission.id, {
-  //     onSuccess: () => notify.success("Document acknowledged"),
-  //     onError: () => notify.error("Failed to acknowledge document"),
-  //   });
-  // };
+  const handleUndoVerification = () => {
+    updateSubmissionStatus({
+      submissionId: documentSubmission.id,
+      status: SUBMISSION_STATUS.SUBMITTED,
+    });
+  };
 
-  // const handleUndoVerification = () => {
-  //   undoVerify(documentSubmission.id, {
-  //     onSuccess: () => notify.success("Verification undone"),
-  //     onError: () => notify.error("Failed to undo verification"),
-  //   });
-  // };
-
-  // const handleUndoAcknowledge = () => {
-  //   undoAcknowledge(documentSubmission.id, {
-  //     onSuccess: () => notify.success("Acknowledgement undone"),
-  //     onError: () => notify.error("Failed to undo acknowledgement"),
-  //   });
-  // };
+  const handleUndoAcknowledge = handleVerify;
 
   const getVerifyModeSplitButton = (): {
     primary: SplitButtonAction;
@@ -117,7 +101,7 @@ export default function DocumentRow({
                 sx={{ color: BCDesignTokens.themeGray70 }}
               />
             ),
-            onClick: () => {}, // TODO: handleVerifyAndAcknowledge
+            onClick: handleAcknowledge,
           },
         ],
       };
@@ -128,7 +112,7 @@ export default function DocumentRow({
         primary: {
           label: "Acknowledge",
           icon: <CheckIcon sx={smallIcon} />,
-          onClick: () => {}, // TODO: handleAcknowledge
+          onClick: handleAcknowledge,
         },
         secondary: [
           {
@@ -139,7 +123,7 @@ export default function DocumentRow({
                 sx={{ color: BCDesignTokens.themeGray70 }}
               />
             ),
-            onClick: () => {}, // TODO: handleUndoVerification
+            onClick: handleUndoVerification,
           },
         ],
       };
@@ -241,7 +225,7 @@ export default function DocumentRow({
               <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
                 <Typography
                   variant="body2"
-                  onClick={() => {}}
+                  onClick={handleUndoAcknowledge}
                   sx={{
                     cursor: "pointer",
                     color: "primary.main",

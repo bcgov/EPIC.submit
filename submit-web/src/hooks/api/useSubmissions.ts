@@ -337,8 +337,15 @@ export const updateSubmissionStatus = (
   });
 };
 
-export const useUpdateSubmissionStatus = (options?: Options) => {
+type useUpdateSubmissionStatusParams = {
+  packageId?: number;
+} & Options;
+export const useUpdateSubmissionStatus = ({
+  packageId,
+  ...options
+}: useUpdateSubmissionStatusParams) => {
   const { onSuccess: _onSuccess, ...restOptions } = options || {};
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       submissionId,
@@ -351,6 +358,9 @@ export const useUpdateSubmissionStatus = (options?: Options) => {
       if (_onSuccess) {
         _onSuccess(data);
       }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
     },
     ...restOptions,
   });
