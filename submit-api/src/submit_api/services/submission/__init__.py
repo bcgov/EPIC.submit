@@ -6,7 +6,8 @@ from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import db, session_scope
 from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
-from submit_api.models.submission import Submission as SubmissionModel, SubmissionType
+from submit_api.models.submission import Submission as SubmissionModel, SubmissionType, \
+    SubmissionStatus, ALLOWED_TRANSITIONS
 from submit_api.services import authorization
 from submit_api.services.document_service_client import DocumentServiceClient
 from submit_api.services.geo_processor import GeoService
@@ -121,12 +122,46 @@ class SubmissionService:
             submission = cls.get_submission_by_id(submission_id)
             existing_status = submission.status
             if existing_status != status:
+                # Resolve the approval type from the submission's package
+                package = cls.get_package_by_submission_id(submission_id)
+                approval_type = package.type.approval_type
+
+                if approval_type is None:
+                    raise ValueError(
+                        f"Package type '{package.type.name}' has no approval type configured. "
+                        "Cannot validate status transition."
+                    )
+
+                # Validate state transition
+                cls._validate_submission_status_transition(approval_type, existing_status, SubmissionStatus[status])
+
                 submission.status = status
                 session.add(submission)
                 session.flush()
                 # TODO update the package status
                 current_app.logger.info(f"Submission {submission_id} status updated to {status}.")
             return submission
+
+    @classmethod
+    def _validate_submission_status_transition(cls, approval_type, current_status, next_status):
+        """Enforces valid status transitions based on package approval type."""
+        transitions = ALLOWED_TRANSITIONS.get(approval_type)
+        if transitions is None:
+            raise ValueError(f"No transition rules defined for approval type: {approval_type}")
+
+        allowed = transitions.get(current_status)
+        if not allowed:
+            raise ValueError(
+                f"Status '{current_status.value}' has no valid transitions for "
+                f"{approval_type.value} packages."
+            )
+
+        if next_status not in allowed:
+            raise ValueError(
+                f"Cannot transition from '{current_status.value}' to '{next_status.value}' "
+                f"for {approval_type.value} packages. "
+                f"Valid transitions: {sorted(s.value for s in allowed)}"
+            )
 
     @classmethod
     def update_submission_item_status(cls, item_id, status, session):
@@ -139,10 +174,10 @@ class SubmissionService:
     def delete_submission(cls, submission_id):
         """Delete a submission."""
         submission = SubmissionModel.find_by_id(submission_id)
-        cls._check_assigned_on_package(submission.item_id)
-        cls._validate_package_is_open(submission.id)
         if not submission:
             raise ValueError("Submission not found.")
+        cls._check_assigned_on_package(submission.item_id)
+        cls._validate_package_is_open(submission.id)
 
         url_to_delete = None
         if submission.type == SubmissionType.DOCUMENT and submission.submitted_document:
