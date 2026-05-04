@@ -42,7 +42,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useState, useMemo, useCallback } from "react";
 import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import { SubmissionPackageType, PACKAGE_STATUS } from "@/models/Package";
-import { SUBMISSION_STATUS } from "@/models/Submission";
+import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import AcknowledgeSubmissionModal from "@/components/App/Submission/AcknowledgeSubmissionModal";
@@ -188,13 +188,20 @@ export default function SubmissionPage() {
     ) {
       return false;
     }
-    const documents = submissionPackage.items
-      .filter((item) => item.type.name === SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT)
-      .flatMap((item) => item.submissions);
+    const documentSubmissions = submissionPackage.items
+      .filter(
+        (item) =>
+          item.type.name === SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT ||
+          item.type.name === SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION,
+      )
+      .flatMap((item) => item.submissions)
+      .filter((sub) => sub.type === SUBMISSION_TYPE.DOCUMENT);
 
     return (
-      documents.length > 0 &&
-      documents.every((sub) => sub.status === SUBMISSION_STATUS.VERIFIED)
+      documentSubmissions.length > 0 &&
+      documentSubmissions.every(
+        (sub) => sub.status === SUBMISSION_STATUS.VERIFIED,
+      )
     );
   }, [submissionPackage]);
 

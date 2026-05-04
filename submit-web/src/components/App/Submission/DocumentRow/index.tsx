@@ -124,13 +124,7 @@ export default function DocumentRow({
 
     if (status === SUBMISSION_STATUS.SUBMITTED) {
       const secondary: SplitButtonAction[] = [];
-      if (isAdditionalInfo) {
-        secondary.push({
-          label: "Acknowledge",
-          icon: <CheckIcon sx={smallIcon} />,
-          onClick: handleAcknowledge,
-        });
-      } else {
+      if (!isAdditionalInfo) {
         secondary.push({
           label: "Verify & Acknowledge",
           icon: (
