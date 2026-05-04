@@ -7,12 +7,14 @@ import VersionGroup from "@/components/App/Submission/VersionGroup";
 import { SubmissionHistory } from "@/components/App/Submission/InfoBox/SubmissionHistory";
 import { Else, If, Then } from "react-if";
 import dateUtils from "@/utils/dateUtils";
+import { AccountProject } from "@/models/Project";
 
 type InfoBoxProps = {
   submissionPackage: SubmissionPackage;
+  accountProject?: AccountProject;
 };
 
-export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
+export const InfoBox = ({ submissionPackage, accountProject }: InfoBoxProps) => {
   const { version } = submissionPackage;
   const condition = useMemo(() => {
     if (!submissionPackage.meta) return "";
@@ -105,6 +107,16 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
             <Grid item xs={12}>
               <Stack direction={"row"} spacing={2}>
                 <Typography color={BCDesignTokens.themeGray70}>
+                  Project name:
+                </Typography>
+                <Typography color={"inherit"}>
+                  {accountProject?.project?.name || "-"}
+                </Typography>
+              </Stack>
+            </Grid>
+            <Grid item xs={12}>
+              <Stack direction={"row"} spacing={2}>
+                <Typography color={BCDesignTokens.themeGray70}>
                   Submitted on:
                 </Typography>
                 <Typography color={"inherit"}>
@@ -126,7 +138,7 @@ export const InfoBox = ({ submissionPackage }: InfoBoxProps) => {
         </Else>
       </If>
 
-      {version && (
+      {version && submissionPackage.type.name !== SubmissionPackageType.ADDITIONAL_INFORMATION && (
         <>
           <Grid
             item

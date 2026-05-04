@@ -49,7 +49,15 @@ const statusStyles: Record<
     },
     label: "Reviewed",
   },
-
+  ACKNOWLEDGED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      color: BCDesignTokens.iconsColorSuccess,
+    },
+    label: "Acknowledged",
+  },
   IN_REVIEW: {
     sx: {
       borderRadius: 1,
@@ -247,6 +255,24 @@ const statusStyles: Record<
       width: "104px",
     },
     label: "Resubmitted",
+  },
+  INTERNAL_VERIFICATION: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.themeBlue100}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+    },
+    label: "Internal Verification",
+  },
+  VERIFIED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+    },
+    label: "Verified",
   },
   REQUESTED_BY_EAO: {
     sx: {

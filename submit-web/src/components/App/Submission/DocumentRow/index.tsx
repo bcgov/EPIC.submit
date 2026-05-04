@@ -18,7 +18,12 @@ import UndoIcon from "@mui/icons-material/Undo";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { SubmissionPackage, PackageType } from "@/models/Package";
+import {
+  SubmissionPackage,
+  PackageType,
+  SubmissionPackageType,
+  PACKAGE_STATUS,
+} from "@/models/Package";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 import ActionSplitButton, {
@@ -48,6 +53,10 @@ export default function DocumentRow({
   const { submitted_document, version, minor_version, submitted_by } =
     documentSubmission;
 
+  const isPackageAcknowledged =
+    submissionPackage?.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value) ||
+    documentSubmission.status === SUBMISSION_STATUS.ACKNOWLEDGED;
+
   const name = submitted_document?.name || "";
   const url = submitted_document?.url || "";
 
@@ -55,28 +64,56 @@ export default function DocumentRow({
     packageId: submissionPackage?.id,
   });
 
-  const handleVerify = () => {
-    updateSubmissionStatus({
-      submissionId: documentSubmission.id,
-      status: SUBMISSION_STATUS.VERIFIED,
-    });
+  const handleVerify = async () => {
+    try {
+      await updateSubmissionStatus({
+        submissionId: documentSubmission.id,
+        status: SUBMISSION_STATUS.VERIFIED,
+      });
+      notify.success("Document verified");
+    } catch (e) {
+      notify.error("Failed to verify document");
+    }
   };
 
-  const handleAcknowledge = () => {
-    updateSubmissionStatus({
-      submissionId: documentSubmission.id,
-      status: SUBMISSION_STATUS.ACKNOWLEDGED,
-    });
+  const handleAcknowledge = async () => {
+    try {
+      await updateSubmissionStatus({
+        submissionId: documentSubmission.id,
+        status: SUBMISSION_STATUS.ACKNOWLEDGED,
+      });
+      notify.success("Document acknowledged");
+    } catch (e) {
+      notify.error("Failed to acknowledge document");
+    }
   };
 
-  const handleUndoVerification = () => {
-    updateSubmissionStatus({
-      submissionId: documentSubmission.id,
-      status: SUBMISSION_STATUS.SUBMITTED,
-    });
+  const handleUndoVerification = async () => {
+    try {
+      await updateSubmissionStatus({
+        submissionId: documentSubmission.id,
+        status: SUBMISSION_STATUS.SUBMITTED,
+      });
+      notify.success("Verification undone");
+    } catch (e) {
+      notify.error("Failed to undo verification");
+    }
   };
 
-  const handleUndoAcknowledge = handleVerify;
+  const handleUndoAcknowledge = async () => {
+    try {
+      await updateSubmissionStatus({
+        submissionId: documentSubmission.id,
+        status: SUBMISSION_STATUS.VERIFIED,
+      });
+      notify.success("Acknowledgement undone");
+    } catch (e) {
+      notify.error("Failed to undo acknowledgement");
+    }
+  };
+
+  const isAdditionalInfo =
+    packageType?.name === SubmissionPackageType.ADDITIONAL_INFORMATION;
 
   const getVerifyModeSplitButton = (): {
     primary: SplitButtonAction;
@@ -86,55 +123,68 @@ export default function DocumentRow({
     const smallIcon = { width: 16, height: 16 };
 
     if (status === SUBMISSION_STATUS.SUBMITTED) {
+      const secondary: SplitButtonAction[] = [];
+      if (isAdditionalInfo) {
+        secondary.push({
+          label: "Acknowledge",
+          icon: <CheckIcon sx={smallIcon} />,
+          onClick: handleAcknowledge,
+        });
+      } else {
+        secondary.push({
+          label: "Verify & Acknowledge",
+          icon: (
+            <DoneAllIcon
+              fontSize="small"
+              sx={{ color: BCDesignTokens.themeGray70 }}
+            />
+          ),
+          onClick: () => {}, // TODO: handleVerifyAndAcknowledge
+        });
+      }
+
       return {
         primary: {
           label: "Verify",
           icon: <CheckIcon sx={smallIcon} />,
           onClick: handleVerify,
         },
-        secondary: [
-          {
-            label: "Verify & Acknowledge",
-            icon: (
-              <DoneAllIcon
-                fontSize="small"
-                sx={{ color: BCDesignTokens.themeGray70 }}
-              />
-            ),
-            onClick: handleAcknowledge,
-          },
-        ],
+        secondary: isAdditionalInfo ? [] : secondary,
       };
     }
 
     if (status === SUBMISSION_STATUS.VERIFIED) {
+      if (isAdditionalInfo) return null;
       return {
         primary: {
           label: "Acknowledge",
           icon: <CheckIcon sx={smallIcon} />,
           onClick: handleAcknowledge,
         },
-        secondary: [
-          {
-            label: "Undo Verification",
-            icon: (
-              <UndoIcon
-                fontSize="small"
-                sx={{ color: BCDesignTokens.themeGray70 }}
-              />
-            ),
-            onClick: handleUndoVerification,
-          },
-        ],
+        secondary: isAdditionalInfo
+          ? [] // Link will be shown next to it instead of dropdown
+          : [
+              {
+                label: "Undo Verification",
+                icon: (
+                  <UndoIcon
+                    fontSize="small"
+                    sx={{ color: BCDesignTokens.themeGray70 }}
+                  />
+                ),
+                onClick: handleUndoVerification,
+              },
+            ],
       };
     }
 
     return null;
   };
 
-  const splitButtonConfig = submissionPackage?.account_project_work
-    ? getVerifyModeSplitButton()
-    : null;
+  const splitButtonConfig =
+    submissionPackage?.account_project_work || isAdditionalInfo
+      ? getVerifyModeSplitButton()
+      : null;
 
   const openDocument = async () => {
     try {
@@ -154,7 +204,7 @@ export default function DocumentRow({
   return (
     <>
       <SubmitTableRow sx={[expanded && { "& > *": { borderBottom: "unset" } }]}>
-        <SubmitTableCell width={"50%"}>
+        <SubmitTableCell width={"45%"}>
           <Typography
             variant="body1"
             color="inherit"
@@ -200,20 +250,55 @@ export default function DocumentRow({
             <span style={{ marginRight: "24px" }} />
           )}
         </SubmitTableCell>
-        <SubmitTableCell align="right" width={"20%"}>
+        <SubmitTableCell align="right" width={"15%"}>
           <Box mr={2}>
             <StatusCell submittedDocument={documentSubmission} />
           </Box>
         </SubmitTableCell>
-        <SubmitTableCell align="right" width={"10%"}>
+        <SubmitTableCell align="right" width={"20%"}>
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
               justifyContent: "flex-end",
-              gap: 1,
+              gap: 2,
             }}
           >
+            {isAdditionalInfo &&
+              !isPackageAcknowledged &&
+              documentSubmission.status === SUBMISSION_STATUS.VERIFIED && (
+                <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+                  <Typography
+                    variant="body2"
+                    onClick={handleUndoVerification}
+                    sx={{
+                      cursor: "pointer",
+                      color: "primary.main",
+                      textDecoration: "underline",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Undo Verification
+                  </Typography>
+                </PermissionsGate>
+              )}
+            {!isAdditionalInfo &&
+              documentSubmission.status === SUBMISSION_STATUS.ACKNOWLEDGED && (
+                <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+                  <Typography
+                    variant="body2"
+                    onClick={handleUndoAcknowledge}
+                    sx={{
+                      cursor: "pointer",
+                      color: "primary.main",
+                      textDecoration: "underline",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Undo Acknowledgement
+                  </Typography>
+                </PermissionsGate>
+              )}
             {splitButtonConfig ? (
               <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
                 <ActionSplitButton
@@ -221,22 +306,8 @@ export default function DocumentRow({
                   secondaryActions={splitButtonConfig.secondary}
                 />
               </PermissionsGate>
-            ) : documentSubmission.status === SUBMISSION_STATUS.ACKNOWLEDGED ? (
-              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
-                <Typography
-                  variant="body2"
-                  onClick={handleUndoAcknowledge}
-                  sx={{
-                    cursor: "pointer",
-                    color: "primary.main",
-                    textDecoration: "underline",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Undo Acknowledgement
-                </Typography>
-              </PermissionsGate>
-            ) : !submissionPackage?.completed_on ? (
+            ) : !submissionPackage?.completed_on &&
+              documentSubmission.status !== SUBMISSION_STATUS.ACKNOWLEDGED ? (
               <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
                 <ActionButton submission={documentSubmission} />
               </PermissionsGate>

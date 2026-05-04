@@ -90,7 +90,12 @@ class Submission(BaseModel):
     @classmethod
     def find_latest_by_type_and_item_id(cls, item_id: int, submission_type: SubmissionType):
         """Return model by item id."""
-        return cls.query.filter_by(item_id=item_id, type=submission_type).order_by(cls.created_date.asc()).first()
+        return cls.query.filter_by(
+            item_id=item_id,
+            type=submission_type,
+            active=True,
+            deleted=False
+        ).order_by(cls.created_date.desc()).first()
 
     @classmethod
     def find_all_versions(cls, root_submission_id: int):

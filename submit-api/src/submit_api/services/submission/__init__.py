@@ -127,6 +127,11 @@ class SubmissionService:
                 approval_type = package.type.approval_type
 
                 if approval_type is None:
+                    from submit_api.enums.package_type import PackageApprovalType
+                    if not package.type.versioning_enabled:
+                        approval_type = PackageApprovalType.B
+
+                if approval_type is None:
                     raise ValueError(
                         f"Package type '{package.type.name}' has no approval type configured. "
                         "Cannot validate status transition."
