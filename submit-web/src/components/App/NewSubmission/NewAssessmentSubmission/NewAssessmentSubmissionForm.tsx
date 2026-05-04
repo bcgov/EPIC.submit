@@ -1,11 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import {
-  Button,
-  Grid,
-  MenuItem,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Button, Grid, MenuItem, TextField, Typography } from "@mui/material";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 import { SubmissionPackageType } from "@/models/Package";
@@ -17,7 +11,7 @@ import { useGetPackageTypesByPhaseId } from "@/hooks/api/usePackageTypes";
 
 const additionalInfoSchema = yup.object().shape({
   name: yup.string().required("Please enter the name of your submission"),
-  description: yup.string().required("Please enter a description of your submission"),
+  description: yup.string().optional().nullable(),
 });
 
 type AdditionalInfoForm = yup.InferType<typeof additionalInfoSchema>;
@@ -67,9 +61,9 @@ export const NewAssessmentSubmissionForm = ({
     return package_types.map((pkgType) => {
       // Check if this package type already exists in mappedPackages
       const existingPackage = mappedPackages.find(
-        (pkg) => pkg.value === pkgType.name
+        (pkg) => pkg.value === pkgType.name,
       );
-      
+
       return {
         value: pkgType.name as SubmissionPackageType,
         label: pkgType.title || pkgType.name,
@@ -80,10 +74,9 @@ export const NewAssessmentSubmissionForm = ({
 
   const onSubmitAdditionalInfo = (data: AdditionalInfoForm) => {
     // Get the account_project_work_id from the current phase's work
-    const accountProjectWorkId = 
-      accountProject?.account_project_works?.find(
-        (apw) => apw.work?.current_phase?.id === currentPhase?.id
-      )?.id;
+    const accountProjectWorkId = accountProject?.account_project_works?.find(
+      (apw) => apw.work?.current_phase?.id === currentPhase?.id,
+    )?.id;
 
     // Create new package via API
     onSubmit({
@@ -110,7 +103,7 @@ export const NewAssessmentSubmissionForm = ({
     const selectedPackage = packages.find(
       (pkg) => pkg.value === submissionPackageType,
     );
-    
+
     // If package already exists, navigate to it
     if (selectedPackage?.id) {
       navigate({
@@ -120,22 +113,23 @@ export const NewAssessmentSubmissionForm = ({
     }
 
     // If it's Additional Information, show the form
-    if (submissionPackageType === SubmissionPackageType.ADDITIONAL_INFORMATION) {
+    if (
+      submissionPackageType === SubmissionPackageType.ADDITIONAL_INFORMATION
+    ) {
       // Form will be shown by useEffect
       return;
     }
 
     // For new package types, create the package
     const selectedPackageType = package_types.find(
-      (pkgType) => pkgType.name === submissionPackageType
+      (pkgType) => pkgType.name === submissionPackageType,
     );
 
     if (selectedPackageType) {
       // Get the account_project_work_id from the current phase's work
-      const accountProjectWorkId = 
-        accountProject?.account_project_works?.find(
-          (apw) => apw.work?.current_phase?.id === currentPhase?.id
-        )?.id;
+      const accountProjectWorkId = accountProject?.account_project_works?.find(
+        (apw) => apw.work?.current_phase?.id === currentPhase?.id,
+      )?.id;
 
       // Create new package via API
       onSubmit({
@@ -146,7 +140,6 @@ export const NewAssessmentSubmissionForm = ({
       });
     }
   };
-
 
   const handleCancel = () => {
     if (showAdditionalInfoForm) {
@@ -162,7 +155,9 @@ export const NewAssessmentSubmissionForm = ({
   useEffect(() => {
     setErrorText(null);
     // Show Additional Information form immediately when selected
-    if (submissionPackageType === SubmissionPackageType.ADDITIONAL_INFORMATION) {
+    if (
+      submissionPackageType === SubmissionPackageType.ADDITIONAL_INFORMATION
+    ) {
       setShowAdditionalInfoForm(true);
     } else {
       setShowAdditionalInfoForm(false);
@@ -231,6 +226,6 @@ export const NewAssessmentSubmissionForm = ({
           <Button onClick={handleContinue}>Continue</Button>
         </Grid>
       </Grid>
-      </>
+    </>
   );
 };

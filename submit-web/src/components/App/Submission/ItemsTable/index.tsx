@@ -2,8 +2,9 @@ import { Box, Table, TableBody, TableContainer } from "@mui/material";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import { When } from "react-if";
-import { SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import { useFileStore } from "@/store/fileStore";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useEffect } from "react";
 import SubmissionItemTableRow from "@/components/App/Submission/SubmissionItemTableRow";
 import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
@@ -49,10 +50,18 @@ export default function ItemsTable({
               packageType={packageType}
               error={
                 isValidating &&
-                !isSubmissionItemReadyToSubmit({
-                  submissionItem: subItem,
-                  submissionPackage: submissionPackage,
-                })
+                (packageType.name ===
+                SubmissionPackageType.ADDITIONAL_INFORMATION
+                  ? submissionPackage.items.reduce((acc, item) => {
+                      const documentSubmissions = item.submissions.filter(
+                        (s) => s.type === SUBMISSION_TYPE.DOCUMENT,
+                      );
+                      return acc + documentSubmissions.length;
+                    }, 0) === 0
+                  : !isSubmissionItemReadyToSubmit({
+                      submissionItem: subItem,
+                      submissionPackage: submissionPackage,
+                    }))
               }
               onRequestUpdate={onRequestUpdate}
               hasPendingRequest={pendingRequestItemTypeIds.includes(

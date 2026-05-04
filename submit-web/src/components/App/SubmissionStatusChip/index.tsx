@@ -8,7 +8,7 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Box, Chip, Stack } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 
 type StyleProps = {
   sx: Record<string, string | number>;
@@ -248,13 +248,33 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Requested by EAO",
   },
+  VERIFIED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+    },
+    label: "Verified",
+  },
+  ACKNOWLEDGED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+    },
+    label: "Acknowledged",
+  },
 };
 
 type SubmissionStatusChipProps = Readonly<{
   status?: string;
+  icon?: React.ReactElement;
 }>;
 export function SubmissionStatusChip({
   status = "",
+  icon,
 }: SubmissionStatusChipProps) {
   const style = statusStyles[status];
 
@@ -268,18 +288,21 @@ export function SubmissionStatusChip({
         ...style.sx,
       }}
       label={style.label}
+      icon={icon}
     />
   );
 }
 
 type SubmissionStatusChipStackProps = {
   status?: SubmissionItemStatus;
+  icon?: React.ReactElement;
   isUpdateRequested?: boolean;
   isUpdated?: boolean;
   packageStatus?: PackageStatus[];
 };
 export const SubmissionStatusChipStack = ({
   status,
+  icon,
   isUpdateRequested = false,
   isUpdated = false,
   packageStatus,
@@ -307,15 +330,19 @@ export const SubmissionStatusChipStack = ({
           margin: 0,
         }}
       >
-        {!hideStatus && status && <SubmissionStatusChip status={status} />}
+        {!hideStatus && status && (
+          <SubmissionStatusChip status={status} icon={icon} />
+        )}
         {isUpdateRequested && !isUpdated && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
+            icon={icon}
           />
         )}
         {isUpdated && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATED}
+            icon={icon}
           />
         )}
       </Stack>
