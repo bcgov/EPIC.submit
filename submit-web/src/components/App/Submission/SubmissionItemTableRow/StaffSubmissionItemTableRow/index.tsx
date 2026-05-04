@@ -31,7 +31,6 @@ export default function StaffSubmissionItemTableRow({
   error = false,
   onRequestUpdate,
   hasPendingRequest,
-  hasSentRequest,
   packageType,
 }: SubmissionItemTableRowProps) {
   const { projectId, submissionPackageId } = useParams({ strict: false });
@@ -53,10 +52,12 @@ export default function StaffSubmissionItemTableRow({
   }, [item.type.name]);
 
   const hasDocument =
-    item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD; 
+    item.type.submission_method === SubmissionItemMethod.DOCUMENT_UPLOAD;
   const actionLabel = hasDocument ? "Review" : "View";
 
-  const hasAccountProjectWork = Boolean(submissionPackage.account_project_work?.id);
+  const hasAccountProjectWork = Boolean(
+    submissionPackage.account_project_work?.id,
+  );
 
   const handleClick = () => {
     navigate({
@@ -93,7 +94,12 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="center" width={"20%"}>
-          <Box display="flex" flexDirection="column" gap={0.5} alignItems="center">
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap={0.5}
+            alignItems="center"
+          >
             <When condition={!hasAccountProjectWork}>
               <Box mr={2}>
                 <StaffStatusCell submissionItem={item} />
@@ -113,24 +119,18 @@ export default function StaffSubmissionItemTableRow({
                 }}
               />
             </When>
-            <When condition={hasSentRequest && !hasPendingRequest}>
-              <Chip
-                label="Update Requested"
-                size="small"
-                sx={{
-                  backgroundColor: "#ffdeb8",
-                  border: "1px solid #f18a15",
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                }}
-              />
-            </When>
           </Box>
         </SubmitPrimaryRowTableCell>
-        <SubmitPrimaryRowTableCell align="left" width={hasAccountProjectWork ? "30%" : "10%"}>
-          <Box display="flex" flexDirection="column" gap={0.5} alignItems={"flex-end"}>
+        <SubmitPrimaryRowTableCell
+          align="left"
+          width={hasAccountProjectWork ? "30%" : "10%"}
+        >
+          <Box
+            display="flex"
+            flexDirection="column"
+            gap={0.5}
+            alignItems={"flex-end"}
+          >
             <When condition={submitted_on && !hasAccountProjectWork}>
               <SubmissionItemReviewConfirmation
                 submissionItem={item}
@@ -150,8 +150,12 @@ export default function StaffSubmissionItemTableRow({
                 </Typography>
               </SubmissionItemReviewConfirmation>
             </When>
-            <When condition={Boolean(hasDocument && submitted_on && onRequestUpdate)}>
-            <MuiLink
+            <When
+              condition={Boolean(
+                hasDocument && submitted_on && onRequestUpdate,
+              )}
+            >
+              <MuiLink
                 component="button"
                 onClick={() => onRequestUpdate?.(item.type_id, item.type.name)}
                 sx={{
@@ -168,7 +172,12 @@ export default function StaffSubmissionItemTableRow({
                   },
                 }}
               >
-                <RefreshIcon sx={{ fontSize: "16px", color: BCDesignTokens.typographyColorLink }} />
+                <RefreshIcon
+                  sx={{
+                    fontSize: "16px",
+                    color: BCDesignTokens.typographyColorLink,
+                  }}
+                />
                 Request Update
               </MuiLink>
             </When>

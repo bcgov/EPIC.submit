@@ -172,7 +172,12 @@ export default function ProponentSubmissionItemTableRow({
             packageType={packageType}
           />
         ))}
-      <When condition={error}>
+      <When
+        condition={
+          error &&
+          packageType.name !== SubmissionPackageType.ADDITIONAL_INFORMATION
+        }
+      >
         <TableRow key={`row-${name}-divider`}>
           <TableCell
             width={"100%"}

@@ -13,7 +13,7 @@ import {
   useUpdateStateSubmissionPackage,
 } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
-import { PACKAGE_STATUS } from "@/models/Package";
+import { PACKAGE_STATUS, SubmissionPackageType } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { Case, Switch, Unless, When } from "react-if";
@@ -42,6 +42,7 @@ import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -50,7 +51,7 @@ export const Route = createFileRoute(
 });
 
 export default function SubmissionPage() {
-  const { setIsValidating, reset } = usePackageTableStore();
+  const { isValidating, setIsValidating, reset } = usePackageTableStore();
 
   const { projectId: accountProjectIdParam } = useParams({ strict: false });
   const accountProjectId = Number(accountProjectIdParam);
@@ -109,7 +110,29 @@ export default function SubmissionPage() {
       return;
     }
 
+    const isAdditionalInformation =
+      submissionPackage.type.name ===
+      SubmissionPackageType.ADDITIONAL_INFORMATION;
+
+    if (isAdditionalInformation) {
+      const totalDocuments = submissionPackage.items.reduce((acc, item) => {
+        const documentSubmissions = item.submissions.filter(
+          (s) => s.type === SUBMISSION_TYPE.DOCUMENT,
+        );
+        return acc + documentSubmissions.length;
+      }, 0);
+
+      if (totalDocuments === 0) {
+        setIsValidating(true);
+        notify.error(
+          "You must have at least one file uploaded to be able to submit your package.",
+        );
+        return;
+      }
+    }
+
     if (
+      !isAdditionalInformation &&
       submissionPackage.items.some(
         (item) =>
           !isSubmissionItemReadyToSubmit({
@@ -140,10 +163,19 @@ export default function SubmissionPage() {
         status: PACKAGE_STATUS.SUBMITTED.value,
       },
     });
-    notify.success("Management plan submitted successfully");
+
+    const successMessage = isAdditionalInformation
+      ? "Your Additional Information Submission has been successfully submitted to the EAO."
+      : "Management plan submitted successfully";
+
+    notify.success(successMessage);
   };
 
   const managementPlanName = useManagementPlanName(submissionPackage);
+
+  const hasDocuments = submissionPackage?.items?.some((item) =>
+    item.submissions.some((s) => s.type === SUBMISSION_TYPE.DOCUMENT),
+  );
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to={"/error"} />;
@@ -151,9 +183,9 @@ export default function SubmissionPage() {
 
   const isPackageSubmitted = Boolean(submissionPackage.submitted_on);
 
-  const isFirstSubmission = submissionPackage.status.includes(
-    PACKAGE_STATUS.SUBMITTED.value,
-  );
+  const isFirstSubmission =
+    submissionPackage.status.includes(PACKAGE_STATUS.SUBMITTED.value) ||
+    submissionPackage.status.includes(PACKAGE_STATUS.NEW_SUBMISSION.value);
 
   const isRevisionRequired = submissionPackage.update_requests.some(
     (updateRequest) =>
@@ -175,6 +207,8 @@ export default function SubmissionPage() {
   );
 
   const isSubmitDisabled =
+    submissionPackage.type.name !==
+      SubmissionPackageType.ADDITIONAL_INFORMATION &&
     isPackageSubmitted &&
     pendingRequests.length === 0 &&
     openRequests.length === 0;
@@ -307,7 +341,26 @@ export default function SubmissionPage() {
                   pt: BCDesignTokens.layoutPaddingSmall,
                 }}
               >
-                <ItemsTable submissionPackage={submissionPackage} />
+                <ItemsTable
+                  submissionPackage={submissionPackage}
+                  accountProject={accountProject}
+                />
+                <When
+                  condition={
+                    isValidating &&
+                    submissionPackage.type.name ===
+                      SubmissionPackageType.ADDITIONAL_INFORMATION &&
+                    !hasDocuments
+                  }
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ color: BCDesignTokens.typographyColorDanger, mt: 1 }}
+                  >
+                    You must have at least one file uploaded to be able to
+                    submit your package.
+                  </Typography>
+                </When>
               </Box>
               <Switch>
                 <Case

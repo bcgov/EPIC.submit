@@ -5,7 +5,7 @@ Manages the package
 
 from marshmallow import EXCLUDE, Schema, fields, post_dump, validate
 
-from submit_api.models.package import PackageStatus
+from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.models.user import UserType
@@ -15,6 +15,7 @@ from submit_api.schemas.account_project_work import AccountProjectWorkSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema
+from submit_api.enums.package_type import PackageTypeEnum
 
 
 class PackageVersionSchema(Schema):
@@ -188,9 +189,30 @@ class PackageSchema(Schema):
         user = UserService.get_by_auth_guid(auth_guid)
         user_type = user.type if user else None
 
-        version = data['version']
-        new_status = [get_package_status(status, user_type, version)
+        version = data.get('version')
+        package_type_data = data.get('type')
+        package_type = package_type_data.get('name') if package_type_data else None
+
+        new_status = [get_package_status(status, user_type, version, package_type)
                       for status in data['status']]
+
+        # Add non-canonical statuses
+        update_requests = data.get('update_requests', [])
+        is_update_requested = any(ur.get('active') and ur.get('status') != 'COMPLETED' for ur in update_requests)
+
+        # Check if any item has REVISION_REQUIRED
+        items = data.get('items', [])
+        is_revision_required = any(item.get('status') == 'REVISION_REQUIRED' for item in items)
+
+        if is_update_requested:
+            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+
+        if is_revision_required:
+            if user_type == UserType.PROPONENT:
+                new_status.append(NonCanonicalPackageStatus.REVISION_REQUIRED.value)
+            else:
+                new_status.append(NonCanonicalPackageStatus.REVISION_REQUESTED.value)
+
         new_status = set(status for status in new_status if status)
         data['status'] = list(new_status)
 
@@ -223,14 +245,18 @@ class StaffPackageSchema(PackageSchema):
         return None
 
 
-def get_package_status(status, user_type, version_obj):
+def get_package_status(status, user_type, version_obj, package_type=None):
     """Get the local (Pacific Timezone) datetime."""
     if not status:
         return None
     if user_type not in [UserType.PROPONENT, UserType.STAFF]:
         return status
 
-    version = version_obj.get('version') if version_obj else 1
+    version = 1
+    if version_obj and isinstance(version_obj, dict):
+        version = version_obj.get('version', 1) or 1
+
+    is_additional_info = package_type == PackageTypeEnum.ADDITIONAL_INFORMATION.value
     package_status_mapping = {
         PackageStatus.NEW.value: {
             UserType.PROPONENT: PackageStatus.NEW.value if version == 1 else '',
@@ -246,7 +272,9 @@ def get_package_status(status, user_type, version_obj):
         },
         PackageStatus.SUBMITTED.value: {
             UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: PackageStatus.NEW_SUBMISSION.value if version == 1 else PackageStatus.RESUBMITTED.value
+            UserType.STAFF: (PackageStatus.SUBMITTED.value if is_additional_info
+                             else (PackageStatus.NEW_SUBMISSION.value if version == 1
+                                   else PackageStatus.RESUBMITTED.value))
         },
         PackageStatus.UNDER_REVIEW.value: {
             UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
@@ -282,7 +310,7 @@ def get_package_status(status, user_type, version_obj):
         },
         PackageStatus.IN_PROGRESS.value: {
             UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
-            UserType.STAFF: PackageStatus.IN_PROGRESS.value
+            UserType.STAFF: PackageStatus.CREATED.value if is_additional_info else PackageStatus.IN_PROGRESS.value
         },
     }
 

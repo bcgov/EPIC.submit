@@ -56,14 +56,23 @@ class PackageQueries:
     @classmethod
     def _add_completed_status(cls, aggregated_statuses: set, statuses: list[str]):
         """Find completed packages (based on required items only)"""
+        # Only add COMPLETED if nothing is already SUBMITTED
+        if PackageStatus.SUBMITTED.value in aggregated_statuses:
+            return
         if statuses and all(status == ItemStatus.COMPLETED.value for status in statuses):
             aggregated_statuses.add(PackageStatus.COMPLETED.value)
 
     @classmethod
-    def _add_submitted_status(cls, aggregated_statuses: set, statuses: list[str]):
-        """Find submitted packages (based on required items only)"""
-        if statuses and all(status == ItemStatus.SUBMITTED.value for status in statuses):
-            aggregated_statuses.add(PackageStatus.SUBMITTED.value)
+    def _add_submitted_status(cls, aggregated_statuses: set, required_statuses: list[str], all_statuses: list[str]):
+        """Find submitted packages"""
+        # Add SUBMITTED if all required items are submitted
+        if required_statuses:
+            if all(status == ItemStatus.SUBMITTED.value for status in required_statuses):
+                aggregated_statuses.add(PackageStatus.SUBMITTED.value)
+        # If no items are required, add SUBMITTED if any item is submitted
+        elif all_statuses:
+            if any(status == ItemStatus.SUBMITTED.value for status in all_statuses):
+                aggregated_statuses.add(PackageStatus.SUBMITTED.value)
 
     @classmethod
     def _add_passed_consultation_check(cls, aggregated_statuses: set, statuses: list[str]):
@@ -159,9 +168,9 @@ class PackageQueries:
             return list(aggregated_statuses)
 
         # Completion/submission statuses check only required items
+        cls._add_submitted_status(aggregated_statuses, required_statuses, all_statuses)
         cls._add_partially_completed_status(aggregated_statuses, required_statuses)
         cls._add_completed_status(aggregated_statuses, required_statuses)
-        cls._add_submitted_status(aggregated_statuses, required_statuses)
 
         # Other statuses check all items
         cls._add_passed_consultation_check(aggregated_statuses, all_statuses)
