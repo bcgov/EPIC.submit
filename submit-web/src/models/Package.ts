@@ -57,6 +57,9 @@ export type PackageStatus =
   | "AWAITING_MANAGER_APPROVAL"
   | "FAILED_CONSULTATION_CHECK"
   | "CREATED"
+  | "INTERNAL_VERIFICATION"
+  | "VERIFIED"
+  | "ACKNOWLEDGED"
   | "REQUESTED_BY_EAO";
 
 export const PACKAGE_STATUS: Record<
@@ -139,9 +142,21 @@ export const PACKAGE_STATUS: Record<
     value: "REVIEWED",
     label: "Reviewed",
   },
+  INTERNAL_VERIFICATION: {
+    value: "INTERNAL_VERIFICATION",
+    label: "Internal Verification",
+  },
+  VERIFIED: {
+    value: "VERIFIED",
+    label: "Verified",
+  },
   REQUESTED_BY_EAO: {
     value: "REQUESTED_BY_EAO",
     label: "Requested by EAO",
+  },
+  ACKNOWLEDGED: {
+    value: "ACKNOWLEDGED",
+    label: "Acknowledged",
   },
 };
 

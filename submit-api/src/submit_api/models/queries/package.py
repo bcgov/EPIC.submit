@@ -178,9 +178,47 @@ class PackageQueries:
         cls._add_under_review(aggregated_statuses, all_statuses)
         cls._add_under_cc_check(aggregated_statuses, all_statuses)
         cls.add_awaiting_manager_review(aggregated_statuses, all_statuses)
+        cls._add_additional_info_status(aggregated_statuses, items)
 
         aggregated_statuses_list = list(aggregated_statuses)
         return aggregated_statuses_list
+
+    @classmethod
+    def _add_additional_info_status(cls, aggregated_statuses: set, items: list):
+        """Find Additional Information package status based on document verification."""
+        if not items:
+            return
+
+        from submit_api.enums.package_type import PackageTypeEnum
+        from submit_api.models import Package as PackageModel
+        from submit_api.models.submission import SubmissionStatus, SubmissionType
+
+        package = PackageModel.find_by_id(items[0].package_id)
+        if not package or package.type.versioning_enabled:
+            return
+
+        # If it's Additional Information, we override the normal status logic for verified/internal verification
+        # but keep SUBMITTED if nothing is verified yet.
+        
+        all_submissions = [s for item in items for s in item.submissions if s.type == SubmissionType.DOCUMENT]
+        if not all_submissions:
+            return
+
+        verified_count = sum(1 for s in all_submissions if s.status == SubmissionStatus.VERIFIED)
+        acknowledged_count = sum(1 for s in all_submissions if s.status == SubmissionStatus.ACKNOWLEDGED)
+        
+        total_reviewable = verified_count + acknowledged_count
+        
+        if acknowledged_count == len(all_submissions):
+            aggregated_statuses.clear() # Clear other statuses like SUBMITTED
+            aggregated_statuses.add(PackageStatus.ACKNOWLEDGED.value)
+        elif total_reviewable == len(all_submissions):
+            aggregated_statuses.clear() # Clear other statuses like SUBMITTED
+            aggregated_statuses.add(PackageStatus.VERIFIED.value)
+        elif total_reviewable > 0:
+            aggregated_statuses.clear() # Clear other statuses like SUBMITTED
+            aggregated_statuses.add(PackageStatus.INTERNAL_VERIFICATION.value)
+        # If none verified/acknowledged, it will stay as SUBMITTED (from _add_submitted_status)
 
     @staticmethod
     def update_package_status(package_id, session, package=None):

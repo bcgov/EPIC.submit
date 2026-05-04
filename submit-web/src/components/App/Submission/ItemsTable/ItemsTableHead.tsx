@@ -18,7 +18,7 @@ export default function ItemsTableHead({
       }}
     >
       <TableRow>
-        <SubmitTableHeadCell width={"50%"}>
+        <SubmitTableHeadCell width={"45%"}>
           <Typography
             variant="body2"
             sx={{
@@ -37,11 +37,11 @@ export default function ItemsTableHead({
         <SubmitTableHeadCell width={"10%"} align="right">
           Version
         </SubmitTableHeadCell>
-        <SubmitTableHeadCell width={"20%"} align="center">
+        <SubmitTableHeadCell width={"15%"} align="center">
           Status
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
-          width={isIPD ? "30%" : "10%"}
+          width={isIPD ? "30%" : "20%"}
           align="right"
           sx={{
             paddingRight: "2% !important",

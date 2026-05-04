@@ -3,43 +3,45 @@ import {
   NON_CANONICAL_SUBMISSION_STATUS,
   Submission,
   SUBMISSION_STATUS,
-  SubmissionStatus,
-  NonCanonicalSubmissionStatus,
 } from "@/models/Submission";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import CheckIcon from "@mui/icons-material/Check";
+import { Case, Default, Switch } from "react-if";
+import { useGetSubmissionVersions } from "@/hooks/api/useSubmissions";
+import { useMemo } from "react";
 
 type StatusCellProps = Readonly<{
   submittedDocument: Submission;
 }>;
 
-// Map internal statuses to desired display statuses.
-// If a status isn't in this map, we can fall back to the original.
-const STATUS_DISPLAY_MAP: Partial<
-  Record<SubmissionStatus, NonCanonicalSubmissionStatus>
-> = {
-  [SUBMISSION_STATUS.REJECTED]: NON_CANONICAL_SUBMISSION_STATUS.FAILED,
-};
-
 export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
   const { userType } = useAccount();
-  const { status } = submittedDocument;
+  const entityUser = userType === USER_TYPE.PROPONENT;
+  const { data: versions } = useGetSubmissionVersions(submittedDocument.id);
 
-  if (userType === USER_TYPE.PROPONENT) {
-    return null;
-  }
-
-  if (userType === USER_TYPE.STAFF && status === SUBMISSION_STATUS.SUBMITTED) {
-    return null;
-  }
-
-  const displayStatus = STATUS_DISPLAY_MAP[status] ?? status;
+  const isNewVersion = useMemo(() => {
+    if (!versions || submittedDocument.status !== SUBMISSION_STATUS.SUBMITTED)
+      return false;
+    // Check if any previous version was VERIFIED
+    return versions.some((v) => v.status === SUBMISSION_STATUS.VERIFIED);
+  }, [versions, submittedDocument.status]);
 
   return (
-    <SubmissionStatusChip
-      status={displayStatus}
-      icon={<CheckIcon color="success" fontSize="small" />}
-    />
+    <Switch>
+      <Case condition={entityUser}>{null}</Case>
+      <Case condition={submittedDocument.status === SUBMISSION_STATUS.REJECTED}>
+        <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.FAILED} />
+      </Case>
+      <Case condition={isNewVersion}>
+        <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION} />
+      </Case>
+      <Case condition={submittedDocument.status === SUBMISSION_STATUS.VERIFIED}>
+        <SubmissionStatusChip status={SUBMISSION_STATUS.VERIFIED} />
+      </Case>
+      <Case condition={submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED}>
+        <SubmissionStatusChip status={SUBMISSION_STATUS.ACKNOWLEDGED} />
+      </Case>
+      <Default>{null}</Default>
+    </Switch>
   );
 };

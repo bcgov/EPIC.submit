@@ -92,8 +92,10 @@ export default function SubmissionPage() {
     mutate: updateStateSubmissionPackage,
     isPending: isSubmittingPackage,
   } = useUpdateStateSubmissionPackage({
-    onError: () => {
-      notify.error("Failed to submit management plan");
+    onError: (error: any) => {
+      notify.error(
+        error?.response?.data?.message ?? "Failed to submit the package.",
+      );
     },
   });
 
