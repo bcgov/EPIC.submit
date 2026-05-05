@@ -268,10 +268,10 @@ class PackageService:
         if package.submitted_on:
             return cls._validate_package_for_resubmit(package)
 
-        if package.type.name == PackageTypeEnum.ADDITIONAL_INFORMATION.value:
+        if not package.type.versioning_enabled:
             document_submissions = cls._get_document_submissions_from_package(package)
             if not document_submissions:
-                current_app.logger.info(f"Additional Information package {package_id} has no documents")
+                current_app.logger.info(f"Package {package_id} has no documents")
                 raise BadRequestError("You must have at least one file uploaded to be able to submit your package.")
 
         required_items = cls._get_required_items(package)
@@ -455,9 +455,9 @@ class PackageService:
             raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_package_submission_details(package, session)
 
-        # Ensure package and item statuses are reset to SUBMITTED for Additional Information packages,
+        # Ensure package and item statuses are reset to SUBMITTED for non-versioned packages,
         # removing any previous flags like PARTIALLY_COMPLETED
-        if package.type.name == PackageTypeEnum.ADDITIONAL_INFORMATION.value:
+        if not package.type.versioning_enabled:
             package.status = [PackageStatus.SUBMITTED.value]
             session.add(package)
             cls._update_items_status(
@@ -549,6 +549,26 @@ class PackageService:
         for review in fail_reviews:
             review.active = False
             session.add(review)
+
+    @classmethod
+    def acknowledge_package(cls, package_id):
+        """Acknowledge the package."""
+        with session_scope() as session:
+            package = cls.get_package_by_id(package_id)
+            if not package:
+                raise BadRequestError("Package not found")
+            # For non-versioned packages, we acknowledge all documents
+            if not package.type.versioning_enabled:
+                for item in package.items:
+                    for submission in item.submissions:
+                        if submission.type == SubmissionType.DOCUMENT:
+                            submission.status = SubmissionStatus.ACKNOWLEDGED
+                            session.add(submission)
+
+            package.status = [PackageStatus.ACKNOWLEDGED.value]
+            session.add(package)
+            session.flush()
+            return package
 
     @classmethod
     def start_review(cls, package_id, _session=None):
@@ -683,6 +703,7 @@ class PackageService:
                 PackageStatus.SUBMITTED.value: cls.submit_package,
                 PackageStatus.UNDER_REVIEW.value: cls.start_review,
                 PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
+                PackageStatus.ACKNOWLEDGED.value: cls.acknowledge_package,
             }
         )
         return state_updaters[status]

@@ -36,6 +36,33 @@ export default function ActionSplitButton({
 
   const handleClose = () => setMenuOpen(false);
 
+  if (secondaryActions.length === 0) {
+    return (
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={primaryAction.onClick}
+        startIcon={primaryAction.icon}
+        sx={{
+          height: 34,
+          fontSize: BCDesignTokens.typographyFontSizeSmallBody,
+          fontWeight: 400,
+          color: BCDesignTokens.themeBlue80,
+          borderColor: BCDesignTokens.themeBlue80,
+          backgroundColor: "transparent",
+          textTransform: "none",
+          px: 1.5,
+          "&:hover": {
+            backgroundColor: "rgba(0, 51, 102, 0.06)",
+            borderColor: BCDesignTokens.themeBlue80,
+          },
+        }}
+      >
+        {primaryAction.label}
+      </Button>
+    );
+  }
+
   return (
     <Box sx={{ display: "inline-flex", alignItems: "center" }}>
       <ButtonGroup

@@ -7,12 +7,15 @@ import {
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Box, Chip, Stack } from "@mui/material";
+import CheckIcon from "@mui/icons-material/Check";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { BCDesignTokens, EAOColors } from "epic.theme";
-import React, { useMemo } from "react";
+import React, { ReactNode, useMemo } from "react";
 
 type StyleProps = {
   sx: Record<string, string | number>;
   label: string;
+  icon?: ReactNode;
 };
 
 const statusStyles: Record<string, StyleProps> = {
@@ -234,9 +237,38 @@ const statusStyles: Record<string, StyleProps> = {
       borderRadius: 1,
       border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
       background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
       width: "128px",
     },
+  },
+  VERIFIED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+    },
+    label: "Verified",
+    icon: <CheckIcon sx={{ fontSize: "16px !important", color: BCDesignTokens.supportBorderColorSuccess }} />,
+  },
+  ACKNOWLEDGED: {
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+      background: BCDesignTokens.supportSurfaceColorSuccess,
+      height: "24px",
+    },
+    label: "Acknowledged",
+    icon: <CheckIcon sx={{ fontSize: "16px !important", color: BCDesignTokens.supportBorderColorSuccess }} />,
+  },
+  NEW_VERSION: {
+    label: "New Version",
+    sx: {
+      borderRadius: 1,
+      border: `1px solid ${BCDesignTokens.themeBlue100}`,
+      background: BCDesignTokens.themeBlue20,
+      height: "24px",
+    },
+    icon: <RefreshIcon sx={{ fontSize: "16px", color: BCDesignTokens.themeBlue100 }} />,
   },
   REQUESTED_BY_EAO: {
     sx: {
@@ -248,33 +280,14 @@ const statusStyles: Record<string, StyleProps> = {
     },
     label: "Requested by EAO",
   },
-  VERIFIED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
-    label: "Verified",
-  },
-  ACKNOWLEDGED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
-    label: "Acknowledged",
-  },
 };
+
 
 type SubmissionStatusChipProps = Readonly<{
   status?: string;
-  icon?: React.ReactElement;
 }>;
 export function SubmissionStatusChip({
   status = "",
-  icon,
 }: SubmissionStatusChipProps) {
   const style = statusStyles[status];
 
@@ -288,21 +301,19 @@ export function SubmissionStatusChip({
         ...style.sx,
       }}
       label={style.label}
-      icon={icon}
+      icon={style.icon as React.ReactElement}
     />
   );
 }
 
 type SubmissionStatusChipStackProps = {
   status?: SubmissionItemStatus;
-  icon?: React.ReactElement;
   isUpdateRequested?: boolean;
   isUpdated?: boolean;
   packageStatus?: PackageStatus[];
 };
 export const SubmissionStatusChipStack = ({
   status,
-  icon,
   isUpdateRequested = false,
   isUpdated = false,
   packageStatus,
@@ -330,19 +341,15 @@ export const SubmissionStatusChipStack = ({
           margin: 0,
         }}
       >
-        {!hideStatus && status && (
-          <SubmissionStatusChip status={status} icon={icon} />
-        )}
+        {!hideStatus && status && <SubmissionStatusChip status={status} />}
         {isUpdateRequested && !isUpdated && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
-            icon={icon}
           />
         )}
         {isUpdated && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATED}
-            icon={icon}
           />
         )}
       </Stack>

@@ -35,6 +35,10 @@ export const SubmissionTitle = ({
       return `Management Plans & Related Documents`;
     }
 
+    if (submissionPackage?.type.name === SubmissionPackageType.ADDITIONAL_INFORMATION) {
+      return submissionPackage.name;
+    }
+
     // Final fallback
     return submissionPackage?.account_project_work?.work?.title || "";
   }, [submissionPackage, customTitle]);

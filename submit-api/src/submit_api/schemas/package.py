@@ -15,7 +15,6 @@ from submit_api.schemas.account_project_work import AccountProjectWorkSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema
-from submit_api.enums.package_type import PackageTypeEnum
 
 
 class PackageVersionSchema(Schema):
@@ -191,9 +190,8 @@ class PackageSchema(Schema):
 
         version = data.get('version')
         package_type_data = data.get('type')
-        package_type = package_type_data.get('name') if package_type_data else None
 
-        new_status = [get_package_status(status, user_type, version, package_type)
+        new_status = [get_package_status(status, user_type, version, package_type_data)
                       for status in data['status']]
 
         # Add non-canonical statuses
@@ -256,7 +254,7 @@ def get_package_status(status, user_type, version_obj, package_type=None):
     if version_obj and isinstance(version_obj, dict):
         version = version_obj.get('version', 1) or 1
 
-    is_additional_info = package_type == PackageTypeEnum.ADDITIONAL_INFORMATION.value
+    versioning_enabled = package_type.get('versioning_enabled', True) if isinstance(package_type, dict) else True
     package_status_mapping = {
         PackageStatus.NEW.value: {
             UserType.PROPONENT: PackageStatus.NEW.value if version == 1 else '',
@@ -272,7 +270,7 @@ def get_package_status(status, user_type, version_obj, package_type=None):
         },
         PackageStatus.SUBMITTED.value: {
             UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: (PackageStatus.SUBMITTED.value if is_additional_info
+            UserType.STAFF: (PackageStatus.SUBMITTED.value if not versioning_enabled
                              else (PackageStatus.NEW_SUBMISSION.value if version == 1
                                    else PackageStatus.RESUBMITTED.value))
         },
@@ -310,7 +308,7 @@ def get_package_status(status, user_type, version_obj, package_type=None):
         },
         PackageStatus.IN_PROGRESS.value: {
             UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
-            UserType.STAFF: PackageStatus.CREATED.value if is_additional_info else PackageStatus.IN_PROGRESS.value
+            UserType.STAFF: PackageStatus.CREATED.value if not versioning_enabled else PackageStatus.IN_PROGRESS.value
         },
     }
 

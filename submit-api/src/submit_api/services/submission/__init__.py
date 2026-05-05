@@ -6,6 +6,7 @@ from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import db, session_scope
 from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
+from submit_api.enums.package_type import PackageApprovalType
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionType, \
     SubmissionStatus, ALLOWED_TRANSITIONS
 from submit_api.services import authorization
@@ -125,6 +126,10 @@ class SubmissionService:
                 # Resolve the approval type from the submission's package
                 package = cls.get_package_by_submission_id(submission_id)
                 approval_type = package.type.approval_type
+
+                if approval_type is None:
+                    if not package.type.versioning_enabled:
+                        approval_type = PackageApprovalType.B
 
                 if approval_type is None:
                     raise ValueError(
