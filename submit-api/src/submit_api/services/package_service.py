@@ -558,7 +558,6 @@ class PackageService:
             if not package:
                 raise BadRequestError("Package not found")
             # For non-versioned packages, we acknowledge all documents
-            from submit_api.models.submission import SubmissionStatus, SubmissionType
             if not package.type.versioning_enabled:
                 for item in package.items:
                     for submission in item.submissions:
