@@ -283,6 +283,7 @@ export const GeoSpatialStaffView = () => {
               onSendRequests={handleSendRequests}
               onUpdateNote={handleUpdateNote}
               isLoading={isCreatingRequest}
+              packageId={Number(submissionPackageId)}
             />
           </Grid>
         )}

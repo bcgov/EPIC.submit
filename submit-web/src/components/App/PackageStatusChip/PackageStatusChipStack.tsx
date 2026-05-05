@@ -1,6 +1,4 @@
-import {
-  SubmissionPackage,
-} from "@/models/Package";
+import { SubmissionPackage } from "@/models/Package";
 import { Box, Stack } from "@mui/material";
 import PackageStatusChip from ".";
 

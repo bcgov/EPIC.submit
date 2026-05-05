@@ -226,10 +226,10 @@ class PackageUpdateRequest(Resource):
         return StaffPackageSchema().dump(withdraw_update_request), HTTPStatus.OK
 
 
-@cors_preflight("POST, OPTIONS")
+@cors_preflight("POST, PATCH, OPTIONS")
 @API.route(
     "/<int:package_id>/update-requests/<int:update_request_id>/note",
-    methods=["POST", "OPTIONS"],
+    methods=["POST", "PATCH", "OPTIONS"],
 )
 class PackageUpdateRequestNote(Resource):
     """Resource for managing a package's update request's note."""
@@ -250,3 +250,20 @@ class PackageUpdateRequestNote(Resource):
         package_with_update_request_note = PackageService.create_update_request_note(
             package_id, update_request_id, create_update_request_data)
         return PackageSchema().dump(package_with_update_request_note), HTTPStatus.CREATED
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Update an existing update request note for a package")
+    @API.expect(create_update_request_note_model)
+    @API.response(
+        code=HTTPStatus.OK, model=package_model, description="Update Update Request Note"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @auth.require
+    @cross_origin(origins=allowedorigins())
+    def patch(package_id, update_request_id):
+        """Update an existing update request note."""
+        update_note_data = CreateUpdateRequestNoteSchema().load(API.payload)
+        package_with_updated_note = PackageService.update_update_request_note(
+            package_id, update_request_id, update_note_data)
+        return PackageSchema().dump(package_with_updated_note), HTTPStatus.OK

@@ -1,3 +1,18 @@
+/**
+ * SectionUpdateRequestPanel - Shared component for displaying update requests
+ * 
+ * USAGE:
+ * - STAFF VIEW: Shows pending requests (draft), sent requests (active), and previous requests
+ *   - Can create new requests (pendingRequests)
+ *   - Can send requests to proponent (onSendRequests)
+ *   - Can accept/withdraw sent requests
+ * 
+ * - PROPONENT VIEW: Shows open requests from EAO and previous accepted requests
+ *   - pendingRequests should be empty []
+ *   - sentRequests contains open requests from EAO
+ *   - Can add notes to open requests (onUpdateNote)
+ *   - Cannot send requests (onSendRequests is no-op)
+ */
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, Link } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -10,15 +25,16 @@ import { BCDesignTokens } from "epic.theme";
 export const SectionUpdateRequestPanel: React.FC<
   SectionUpdateRequestPanelProps
 > = ({
-  pendingRequests,
-  sentRequests,
-  previousRequests,
-  onRemoveFlag,
-  onSendRequests,
-  onUpdateNote,
-  onAcceptUpdate,
-  onWithdrawUpdate,
+  pendingRequests, // STAFF: Draft requests not yet sent | PROPONENT: Always empty []
+  sentRequests,    // STAFF: Sent requests awaiting response | PROPONENT: Open requests from EAO
+  previousRequests, // BOTH: Accepted/closed requests for reference
+  onRemoveFlag,    // STAFF: Remove draft request | PROPONENT: No-op
+  onSendRequests,  // STAFF: Send pending requests | PROPONENT: No-op
+  onUpdateNote,    // STAFF: Update draft note | PROPONENT: Add response note
+  onAcceptUpdate,  // STAFF: Accept proponent update | PROPONENT: Not used
+  onWithdrawUpdate, // STAFF: Withdraw request | PROPONENT: Not used
   isLoading = false,
+  packageId,
 }) => {
   const [expandedPending, setExpandedPending] = useState<Set<number>>(
     new Set(pendingRequests.map((r) => r.itemTypeId))
@@ -35,11 +51,11 @@ export const SectionUpdateRequestPanel: React.FC<
   const hasAnyRequests = totalCount > 0;
   
   const panelBorderColor = hasAnyRequests 
-    ? "#F5A623" 
-    : "#e0e0e0";
+    ? BCDesignTokens.supportBorderColorWarning
+    : BCDesignTokens.surfaceColorBorderDefault;
   const panelBackground = hasAnyRequests 
-    ? "#FCF8E3" 
-    : "#F5F5F5";
+    ? BCDesignTokens.themeGold10
+    : BCDesignTokens.themeGray10;
 
   const handleTogglePending = (itemTypeId: number) => {
     setExpandedPending((prev) => {
@@ -77,10 +93,14 @@ export const SectionUpdateRequestPanel: React.FC<
     });
   };
 
+  // Determine if this is proponent view (no action buttons provided)
+  const isProponentView = !onAcceptUpdate && !onWithdrawUpdate;
+
   return (
     <Box
       sx={{
         mt: 3,
+        width: "100%",
         border: `1px solid ${panelBorderColor}`,
         borderRadius: "4px",
       }}
@@ -136,7 +156,7 @@ export const SectionUpdateRequestPanel: React.FC<
           <Typography
             variant="body2"
             sx={{
-              color: "#606060",
+              color: BCDesignTokens.themeGray80,
               fontSize: "14px",
             }}
           >
@@ -145,6 +165,7 @@ export const SectionUpdateRequestPanel: React.FC<
         </Box>
       ) : (
         <Box sx={{ pt: 2, pl: 2, pr: 2, backgroundColor: "white" }}>
+          {/* STAFF ONLY: Draft requests not yet sent to proponent */}
           {pendingRequests.map((request) => (
             <PendingRequestCollapsible
               key={request.itemTypeId}
@@ -156,6 +177,7 @@ export const SectionUpdateRequestPanel: React.FC<
             />
           ))}
 
+          {/* STAFF: Sent requests | PROPONENT: Open requests from EAO */}
           {sentRequests.map((request) => (
             <SentRequestCollapsible
               key={request.updateRequestId}
@@ -164,9 +186,13 @@ export const SectionUpdateRequestPanel: React.FC<
               onToggle={() => handleToggleSent(request.updateRequestId)}
               onAcceptUpdate={onAcceptUpdate}
               onWithdrawUpdate={onWithdrawUpdate}
+              onUpdateNote={isProponentView ? onUpdateNote : undefined}
+              isLoading={isLoading}
+              packageId={packageId}
             />
           ))}
 
+          {/* STAFF ONLY: Button to send pending requests to proponent */}
           {pendingRequests.length > 0 && (
             <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
               <Button
@@ -186,14 +212,14 @@ export const SectionUpdateRequestPanel: React.FC<
           )}
         </Box>
       )}
-<Box sx={{ pb: 2, px: 2.5 }}>
-      {/* View Previous Requests Link - Always visible */}
+<Box sx={{ pb: 2, px: 2.5, backgroundColor: "white" }}>
+      {/* BOTH: View Previous Requests Link - Always visible */}
       <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
             <Link
               component="button"
               onClick={() => setShowPreviousRequests(!showPreviousRequests)}
               sx={{
-                color: "#255A90",
+                color: BCDesignTokens.typographyColorLink,
                 fontSize: "13px",
                 fontWeight: 400,
                 textDecoration: "none",
@@ -205,16 +231,16 @@ export const SectionUpdateRequestPanel: React.FC<
             </Link>
           </Box>
 
-      {/* Previous Requests Section - Only show when expanded */}
+      {/* BOTH: Previous Requests Section - Shows accepted/closed requests */}
       {showPreviousRequests && (
         <>
-          <Box sx={{ borderTop: `1px solid #D8D8D8`, pt: 2.125, mb: 1 }}>
+          <Box sx={{ borderTop: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`, pt: 2.125, mb: 1 }}>
             <Typography
               variant="h6"
               sx={{
                 fontSize: "18px",
                 fontWeight: 400,
-                color: "#2D2D2D",
+                color: BCDesignTokens.typographyColorPrimary,
               }}
             >
               Previous Requests
@@ -226,7 +252,7 @@ export const SectionUpdateRequestPanel: React.FC<
                 variant="body2"
                 sx={{
                   fontSize: "14px",
-                  color: "#606060",
+                  color: BCDesignTokens.themeGray80,
                   py: 2,
                   textAlign: "center",
                 }}

@@ -152,6 +152,7 @@ export const IPDStaffView = () => {
               onSendRequests={handleSendRequests}
               onUpdateNote={handleUpdateNote}
               isLoading={isCreatingRequest}
+              packageId={Number(submissionPackageId)}
             />
           </Grid>
         )}
