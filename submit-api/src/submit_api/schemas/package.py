@@ -15,7 +15,6 @@ from submit_api.schemas.account_project_work import AccountProjectWorkSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema
-from submit_api.enums.package_type import PackageTypeEnum
 
 
 class PackageVersionSchema(Schema):
