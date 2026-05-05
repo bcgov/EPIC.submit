@@ -368,6 +368,22 @@ const createPackageUpdateRequesNote = ({
   });
 };
 
+const updatePackageUpdateRequestNote = ({
+  packageId,
+  updateRequestId,
+  data,
+}: {
+  packageId: number;
+  updateRequestId: number;
+  data: Record<string, unknown>;
+}) => {
+  return submitRequest<SubmissionPackage>({
+    url: `/packages/${packageId}/update-requests/${updateRequestId}/note`,
+    method: "patch",
+    data,
+  });
+};
+
 type UseAcceptUpdateRequestParams = {
   packageId: number;
   options?: Options;
@@ -432,13 +448,38 @@ export const useCreatePackageUpdateRequesNote = ({
     ...options,
     onSuccess: (submissionPackage) => {
       if (options?.onSuccess) {
-        options.onSuccess();
+        options.onSuccess(submissionPackage);
       }
-
       queryClient.setQueryData(
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         submissionPackage,
       );
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+    },
+  });
+};
+
+export const useUpdatePackageUpdateRequestNote = ({
+  packageId,
+  options = {},
+}: UseCreatePackageUpdateRequestNoteParams) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updatePackageUpdateRequestNote,
+    ...options,
+    onSuccess: (submissionPackage) => {
+      if (options?.onSuccess) {
+        options.onSuccess(submissionPackage);
+      }
+      queryClient.setQueryData(
+        [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        submissionPackage,
+      );
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
     },
   });
 };

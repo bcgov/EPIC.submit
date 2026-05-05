@@ -457,6 +457,7 @@ export default function SubmissionPage() {
                   onSendRequests={handleSendRequests}
                   onAcceptUpdate={handleAcceptUpdate}
                   onWithdrawUpdate={handleWithdrawUpdate}
+                  packageId={Number(submissionPackageId)}
                 />
               </Box>
 

@@ -780,6 +780,20 @@ class PackageService:
         return package
 
     @classmethod
+    def update_update_request_note(cls, package_id, update_request_id, request_data):
+        """Update an existing note for an update request."""
+        authorization.has_access_to_package(package_id)
+        update_request = UpdateRequestModel.find_by_id(update_request_id)
+        cls._validate_update_update_request_note(package_id, update_request)
+        auth_guid = TokenInfo.get_username()
+        update_request.note = request_data.get("note")
+        update_request.note_updated_by = auth_guid
+        update_request.note_updated_at = datetime.now(UTC)
+        update_request.save()
+        package = cls.get_package_by_id(package_id)
+        return package
+
+    @classmethod
     def _validate_account_user(cls):
         """Validate the account user."""
         auth_guid = TokenInfo.get_username()
@@ -798,4 +812,18 @@ class PackageService:
             raise BadRequestError("Note already exists for the update request")
         if not update_request.active:
             raise BadRequestError("Update request is not active")
+
+    @classmethod
+    def _validate_update_update_request_note(cls, package_id, update_request):
+        """Validate the update of an update request note."""
+        if not update_request:
+            raise ResourceNotFoundError("Update request not found")
+        if update_request.submission_package_id != package_id:
+            raise BadRequestError("Update request does not belong to the specified package")
+        if not update_request.note:
+            raise BadRequestError("No note exists to update")
+        if not update_request.active:
+            raise BadRequestError("Update request is not active")
+        if update_request.status != UpdateRequestStatus.OPEN.value:
+            raise BadRequestError("Cannot edit note after package resubmission")
         cls._validate_account_user()
