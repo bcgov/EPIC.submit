@@ -21,6 +21,7 @@ from submit_api.models.package_version import PackageVersion
 from submit_api.models.package_item_type import PackageItemType
 from submit_api.models.submission import SubmissionStatus, SubmissionType
 
+
 # pylint: disable=too-few-public-methods
 class PackageQueries:
     """Query module for complex package queries"""
@@ -188,9 +189,6 @@ class PackageQueries:
         """Find Additional Information package status based on document verification."""
         if not items:
             return
-
-        
-
         package = PackageModel.find_by_id(items[0].package_id)
         if not package or package.type.versioning_enabled:
             return
