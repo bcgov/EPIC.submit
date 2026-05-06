@@ -22,7 +22,7 @@ from submit_api.models.package import PackageStatus
 from submit_api.models.package_item_type import PackageItemType as PackageItemTypeModel
 from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
 from submit_api.models.package_metadata import PackageMetadataFields
-from submit_api.models.queries.package import PackageQueries
+from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.submission_review import SubmissionReviewStatus
@@ -308,7 +308,7 @@ class PackageService:
     @staticmethod
     def _update_package_status(package_id, session, package=None):
         """Update the status of the package based on the statuses of its items."""
-        PackageQueries.update_package_status(package_id, session, package)
+        PackageItemQueries.update_package_status(package_id, session, package)
 
     @staticmethod
     def _update_items_status(items, status, session):

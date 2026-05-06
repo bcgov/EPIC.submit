@@ -300,7 +300,21 @@ export default function DocumentRow({
                   secondaryActions={splitButtonConfig.secondary}
                 />
               </PermissionsGate>
-            ) : !submissionPackage?.completed_on &&
+            ) : // ) : documentSubmission.status === SUBMISSION_STATUS.ACKNOWLEDGED ? (
+            //   <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+            //     <Typography
+            //       variant="body2"
+            //       onClick={handleUndoAcknowledge}
+            //       sx={{
+            //         cursor: "pointer",
+            //         color: "primary.main",
+            //         whiteSpace: "nowrap",
+            //       }}
+            //     >
+            //       Undo Acknowledgement
+            //     </Typography>
+            //   </PermissionsGate>
+            !submissionPackage?.completed_on &&
               documentSubmission.status !== SUBMISSION_STATUS.ACKNOWLEDGED ? (
               <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
                 <ActionButton submission={documentSubmission} />

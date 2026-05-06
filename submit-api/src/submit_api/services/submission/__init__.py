@@ -6,7 +6,7 @@ from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import db, session_scope
 from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
-from submit_api.enums.package_type import PackageApprovalType
+from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionType, \
     SubmissionStatus, ALLOWED_TRANSITIONS
 from submit_api.services import authorization
@@ -143,7 +143,8 @@ class SubmissionService:
                 submission.status = status
                 session.add(submission)
                 session.flush()
-                # TODO update the package status
+                
+                PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
                 current_app.logger.info(f"Submission {submission_id} status updated to {status}.")
             return submission
 

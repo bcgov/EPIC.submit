@@ -11,20 +11,77 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Model to handle all complex operations related to User."""
+"""Model to handle all complex operations related to Package."""
 from sqlalchemy import func
 from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.package_type import PackageApprovalType
 from submit_api.models import AccountProject, db
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.package import PackageStatus
 from submit_api.models.package_version import PackageVersion
 from submit_api.models.package_item_type import PackageItemType
 from submit_api.models.submission import SubmissionStatus, SubmissionType
+from submit_api.models.update_request import UpdateRequestStatus
 
 
 # pylint: disable=too-few-public-methods
 class PackageQueries:
     """Query module for complex package queries"""
+
+    @classmethod
+    def get_latest_account_project_packages(cls, account_id: int, account_project_ids: int = None):
+        """Fetch project_id and related packages (id, name) for a given account_id.
+
+        Only includes packages with the latest version_id matching the highest version
+        of the original_package_id from package_versions.
+        """
+        # Subquery to get the latest version_id for each original_package_id
+        latest_versions_subquery = (
+            db.session.query(
+                PackageVersion.original_package_id,
+                func.max(PackageVersion.id).label(
+                    "latest_version_id")  # Get the latest version_id
+            )
+            # Group by original_package_id
+            .group_by(PackageVersion.original_package_id)
+            .subquery()
+        )
+
+        query = (
+            db.session.query(
+                AccountProject.project_id,
+                func.array_agg(
+                    func.json_build_object(
+                        "id", PackageModel.id,
+                        "name", PackageModel.name,
+                        "original_package_id", PackageVersion.original_package_id,
+                    )
+                ).label("packages")  # Aggregate packages as a JSON array
+            )
+            .join(PackageModel, PackageModel.account_project_id == AccountProject.id)
+            .join(PackageVersion,
+                  PackageModel.version_id == PackageVersion.id)  # Join with PackageVersion to filter by version_id
+            .join(latest_versions_subquery,
+                  # Only fetch packages with the latest version_id
+                  PackageModel.version_id == latest_versions_subquery.c.latest_version_id)
+            .filter(AccountProject.account_id == account_id)
+        )
+
+        if account_project_ids:
+            query = query.filter(AccountProject.id.in_(account_project_ids))
+
+        query = query.group_by(AccountProject.project_id)  # Group by project_id
+
+        account_projects = query.all()
+
+        return [
+            {"project_id": project_id, "account_packages": packages}
+            for project_id, packages in account_projects
+        ]
+
+
+class PackageItemQueries:
+    """Query module for complex item status driven aggregation."""
 
     @classmethod
     def _get_required_item_statuses(cls, items: list) -> list[str]:
@@ -223,58 +280,162 @@ class PackageQueries:
             package = session.query(
                 PackageModel).filter_by(id=package_id).one()
         # Determine new package statuses based on item statuses
-        new_statuses = PackageQueries.aggregate_item_statuses(package.items)
+        new_statuses = PackageItemQueries.aggregate_item_statuses(package.items)
         if set(package.status) != set(new_statuses):
             package.status = list(new_statuses)
             session.add(package)
 
+
+class PackageSubmissionQueries:
+    """Query module for complex submission status driven aggregation."""
+
     @classmethod
-    def get_latest_account_project_packages(cls, account_id: int, account_project_ids: int = None):
-        """Fetch project_id and related packages (id, name) for a given account_id.
+    def _add_submission_new(cls, aggregated_statuses: set, statuses: set[SubmissionStatus]):
+        """Add NEW_SUBMISSION when no review actions have been taken yet."""
+        if not statuses or statuses == {SubmissionStatus.SUBMITTED.value}:
+            aggregated_statuses.add(PackageStatus.NEW_SUBMISSION.value)
 
-        Only includes packages with the latest version_id matching the highest version
-        of the original_package_id from package_versions.
+    @classmethod
+    def _add_submission_internal_verification(
+        cls, aggregated_statuses: set, statuses: set[SubmissionStatus]
+    ):
+        """Add INTERNAL_VERIFICATION when at least one doc is verified but not all."""
+        if (
+            SubmissionStatus.VERIFIED.value in statuses
+            and statuses != {SubmissionStatus.VERIFIED.value}
+        ):
+            aggregated_statuses.add(PackageStatus.INTERNAL_VERIFICATION.value)
+
+    @classmethod
+    def _add_submission_verified(
+        cls,
+        aggregated_statuses: set,
+        statuses: set[SubmissionStatus],
+        approval_type: PackageApprovalType,
+    ):
+        """Add VERIFIED + PENDING_ACKNOWLEDGEMENT when all docs are verified (Type B/C)."""
+        if statuses != {SubmissionStatus.VERIFIED.value}:
+            return
+        aggregated_statuses.add(PackageStatus.VERIFIED.value)
+        if approval_type in (PackageApprovalType.B, PackageApprovalType.C):
+            aggregated_statuses.add(PackageStatus.PENDING_ACKNOWLEDGEMENT.value)
+
+    @classmethod
+    def _add_submission_acknowledged(
+        cls,
+        aggregated_statuses: set,
+        statuses: set[SubmissionStatus],
+        approval_type: PackageApprovalType,
+    ):
+        """Add ACKNOWLEDGED (and READY_FOR_APPROVAL for Type C) when all docs are acknowledged."""
+        if statuses != {SubmissionStatus.ACKNOWLEDGED.value}:
+            return
+        aggregated_statuses.add(PackageStatus.ACKNOWLEDGED.value)
+        if approval_type == PackageApprovalType.C:
+            aggregated_statuses.add(PackageStatus.READY_FOR_APPROVAL.value)
+
+    @classmethod
+    def _add_submission_ready_for_acknowledgement(
+        cls, aggregated_statuses: set, statuses: set[SubmissionStatus]
+    ):
+        """Add READY_FOR_ACKNOWLEDGEMENT when all docs are verified but some are acknowledged."""
+        verified_or_acknowledged = {SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value}
+        if (
+            statuses
+            and statuses.issubset(verified_or_acknowledged)
+            and SubmissionStatus.ACKNOWLEDGED.value in statuses
+            and SubmissionStatus.VERIFIED.value in statuses
+        ):
+            aggregated_statuses.add(PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value)
+
+    @classmethod
+    def _add_submission_approved(
+        cls, aggregated_statuses: set, statuses: set[SubmissionStatus]
+    ):
+        """Add APPROVED or NOT_APPROVED once an approval decision has been made."""
+        if SubmissionStatus.APPROVED.value in statuses:
+            aggregated_statuses.add(PackageStatus.APPROVED.value)
+        elif SubmissionStatus.REJECTED.value in statuses:
+            aggregated_statuses.add(PackageStatus.NOT_APPROVED.value)
+
+    @classmethod
+    def _add_update_request_overlay(cls, aggregated_statuses: set, package):
         """
-        # Subquery to get the latest version_id for each original_package_id
-        latest_versions_subquery = (
-            db.session.query(
-                PackageVersion.original_package_id,
-                func.max(PackageVersion.id).label(
-                    "latest_version_id")  # Get the latest version_id
-            )
-            # Group by original_package_id
-            .group_by(PackageVersion.original_package_id)
-            .subquery()
+        Overlay UPDATE_REQUESTED or UPDATED on top of intermediate statuses.
+        Only applies when the package is still in an actionable review state —
+        not once it's been approved/not approved.
+        """
+        terminal = {PackageStatus.APPROVED.value, PackageStatus.NOT_APPROVED.value}
+        if aggregated_statuses & terminal:
+            return
+
+        overlayable = {
+            PackageStatus.INTERNAL_VERIFICATION.value,
+            PackageStatus.VERIFIED.value,
+            PackageStatus.PENDING_ACKNOWLEDGEMENT.value,
+            PackageStatus.ACKNOWLEDGED.value,
+            PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value,
+        }
+        if not aggregated_statuses & overlayable:
+            return
+
+        active_requests = [ur for ur in package.update_requests if ur.active]
+        if not active_requests:
+            return
+
+        all_pending_review = all(
+            ur.status == UpdateRequestStatus.PENDING_REVIEW.value
+            for ur in active_requests
         )
+        overlay = PackageStatus.UPDATED.value if all_pending_review else PackageStatus.UPDATE_REQUESTED.value
+        aggregated_statuses.add(overlay.value)
 
-        query = (
-            db.session.query(
-                AccountProject.project_id,
-                func.array_agg(
-                    func.json_build_object(
-                        "id", PackageModel.id,
-                        "name", PackageModel.name,
-                        "original_package_id", PackageVersion.original_package_id,
-                    )
-                ).label("packages")  # Aggregate packages as a JSON array
-            )
-            .join(PackageModel, PackageModel.account_project_id == AccountProject.id)
-            .join(PackageVersion,
-                  PackageModel.version_id == PackageVersion.id)  # Join with PackageVersion to filter by version_id
-            .join(latest_versions_subquery,
-                  # Only fetch packages with the latest version_id
-                  PackageModel.version_id == latest_versions_subquery.c.latest_version_id)
-            .filter(AccountProject.account_id == account_id)
-        )
-
-        if account_project_ids:
-            query = query.filter(AccountProject.id.in_(account_project_ids))
-
-        query = query.group_by(AccountProject.project_id)  # Group by project_id
-
-        account_projects = query.all()
-
-        return [
-            {"project_id": project_id, "account_packages": packages}
-            for project_id, packages in account_projects
+    @classmethod
+    def aggregate_submission_statuses(cls, package) -> list[str]:
+        """
+        Derive package display status(es) from the aggregate state of its submissions
+        and update requests.
+        """
+        approval_type = package.type.approval_type
+        submissions = [
+            s for item in package.items
+            for s in item.submissions
+            if s.active and not s.deleted and s.type == SubmissionType.DOCUMENT
         ]
+
+        if not submissions:
+            return [PackageStatus.NEW_SUBMISSION.value]
+
+        statuses = {s.status.value if isinstance(s.status, SubmissionStatus)
+                    else s.status
+                    for s in submissions}
+
+        aggregated_statuses = set()
+
+        # Terminal states — check first, short-circuit if found
+        cls._add_submission_approved(aggregated_statuses, statuses)
+        if aggregated_statuses:
+            return list(aggregated_statuses)
+
+        # Progressive verification/acknowledgement states
+        cls._add_submission_new(aggregated_statuses, statuses)
+        cls._add_submission_internal_verification(aggregated_statuses, statuses)
+        cls._add_submission_verified(aggregated_statuses, statuses, approval_type)
+        cls._add_submission_ready_for_acknowledgement(aggregated_statuses, statuses)
+        cls._add_submission_acknowledged(aggregated_statuses, statuses, approval_type)
+
+        # Overlay update request state last — it sits on top of whatever base state we have
+        cls._add_update_request_overlay(aggregated_statuses, package)
+
+        return list(aggregated_statuses)
+
+    @staticmethod
+    def update_package_status_from_submissions(package_id, session, package=None):
+        """Update package status based on submission states."""
+        if not package:
+            package = session.query(PackageModel).filter_by(id=package_id).one()
+
+        new_statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
+        if set(package.status) != set(new_statuses):
+            package.status = new_statuses
+            session.add(package)

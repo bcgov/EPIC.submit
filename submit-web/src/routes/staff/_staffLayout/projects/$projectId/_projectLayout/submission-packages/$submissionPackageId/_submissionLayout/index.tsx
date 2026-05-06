@@ -559,7 +559,9 @@ export default function SubmissionPage() {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => navigate({ to: "/staff/projects" })}
+                  onClick={() =>
+                    navigate({ to: `/staff/projects/${accountProject.id}` })
+                  }
                   sx={{
                     backgroundColor: BCDesignTokens.themeBlue100,
                     color: BCDesignTokens.typographyColorPrimaryInvert,

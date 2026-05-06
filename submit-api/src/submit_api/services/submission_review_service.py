@@ -10,7 +10,7 @@ from submit_api.models import Package as PackageModel
 from submit_api.models import SubmissionReviewEntry
 from submit_api.models.db import session_scope
 from submit_api.models.item_type import SubmissionItemType
-from submit_api.models.queries.package import PackageQueries
+from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.submission import SubmissionStatus
 from submit_api.models.submission_review import SubmissionReview, SubmissionReviewStatus
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
@@ -41,7 +41,7 @@ class SubmissionReviewService:
     @staticmethod
     def _update_package_status(package_id, session):
         """Update the status of the package based on the statuses of its items."""
-        PackageQueries.update_package_status(package_id, session)
+        PackageItemQueries.update_package_status(package_id, session)
         current_app.logger.info(f"Package status updated for package ID: {package_id}")
 
     @staticmethod
