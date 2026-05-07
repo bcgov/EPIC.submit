@@ -211,8 +211,14 @@ class PackageSchema(Schema):
             else:
                 new_status.append(NonCanonicalPackageStatus.REVISION_REQUESTED.value)
 
-        new_status = set(status for status in new_status if status)
-        data['status'] = list(new_status)
+        # Return new status list while preserving insertion order
+        seen = set()
+        deduped_status = []
+        for status in new_status:
+            if status and status not in seen:
+                seen.add(status)
+                deduped_status.append(status)
+        data['status'] = deduped_status
 
         return data
 

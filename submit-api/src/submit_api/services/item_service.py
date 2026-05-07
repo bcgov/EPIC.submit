@@ -3,7 +3,7 @@ from flask import current_app
 
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Item as ItemModel
-from submit_api.models.queries.package import PackageQueries
+from submit_api.models.queries.package import PackageItemQueries
 from submit_api.services import authorization
 
 
@@ -42,5 +42,5 @@ class ItemService:
     @staticmethod
     def _update_package_status(package_id, session):
         """Update the status of the package based on the statuses of its items."""
-        PackageQueries.update_package_status(package_id, session)
+        PackageItemQueries.update_package_status(package_id, session)
         current_app.logger.info(f"Package status updated for package ID: {package_id}")
