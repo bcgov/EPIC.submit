@@ -4,7 +4,7 @@ Manages the package type
 """
 
 from marshmallow import EXCLUDE, Schema, fields
-
+from submit_api.enums.package_type import PackageApprovalType
 
 class PackageTypeSchema(Schema):
     """package type schema."""
@@ -19,3 +19,4 @@ class PackageTypeSchema(Schema):
     title = fields.Str(data_key="title", required=False)
     versioning_enabled = fields.Bool(data_key="versioning_enabled")
     mandatory = fields.Bool(data_key="mandatory")
+    approval_type = fields.Enum(data_key="approval_type", enum=PackageApprovalType, required=False)

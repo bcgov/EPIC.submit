@@ -60,9 +60,9 @@ export default function SubmissionPage() {
     updatingPackageState,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
-    isPackageAcknowledged,
-    isPackageApproved,
     canAcknowledge,
+    showAcknowledgeButton,
+    showApproveButtons,
     setOpenModal,
     setCloseModal,
   } = useStaffSubmissionPage({
@@ -335,7 +335,7 @@ export default function SubmissionPage() {
                 >
                   Save & Exit
                 </Button>
-                {!isPackageAcknowledged && !isPackageApproved && (
+                {showAcknowledgeButton && (
                   <Button
                     variant="outlined"
                     color="primary"
@@ -353,7 +353,7 @@ export default function SubmissionPage() {
                     )}
                   </Button>
                 )}
-                {isPackageAcknowledged && (
+                {showApproveButtons && (
                   <>
                     <Button
                       variant="outlined"

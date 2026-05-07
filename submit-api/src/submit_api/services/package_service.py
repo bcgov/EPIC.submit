@@ -566,7 +566,7 @@ class PackageService:
                             session.add(submission)
 
             if package.type.approval_type == PackageApprovalType.C:
-                package.status = [PackageStatus.READY_FOR_APPROVAL.value, PackageStatus.ACKNOWLEDGED.value]
+                package.status = [PackageStatus.ACKNOWLEDGED.value, PackageStatus.READY_FOR_APPROVAL.value]
             else:
                 package.status = [PackageStatus.ACKNOWLEDGED.value]
             session.add(package)

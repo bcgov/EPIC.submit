@@ -9,12 +9,19 @@ export enum SubmissionPackageType {
   ADDITIONAL_INFORMATION = "Additional Information",
 }
 
+export enum SubmissionPackageApprovalType {
+  A = "A",
+  B = "B",
+  C = "C",
+}
+
 export type PackageType = {
   id: number;
   name: SubmissionPackageType;
   title?: string;
   versioning_enabled: boolean;
   mandatory: boolean;
+  approval_type?: SubmissionPackageApprovalType;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus

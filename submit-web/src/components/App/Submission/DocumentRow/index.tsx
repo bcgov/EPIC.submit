@@ -207,7 +207,7 @@ export default function DocumentRow({
                   onClick={handleUndoVerification}
                   sx={{
                     cursor: "pointer",
-                    color: "primary.main",
+                    color: BCDesignTokens.typographyColorLink,
                     whiteSpace: "nowrap",
                   }}
                 >
@@ -222,7 +222,7 @@ export default function DocumentRow({
                   onClick={handleUndoAcknowledge}
                   sx={{
                     cursor: "pointer",
-                    color: "primary.main",
+                    color: BCDesignTokens.typographyColorLink,
                     whiteSpace: "nowrap",
                   }}
                 >

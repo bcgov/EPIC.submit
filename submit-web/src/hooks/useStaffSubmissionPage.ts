@@ -8,9 +8,14 @@ import {
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { PACKAGE_STATUS, SubmissionPackageType } from "@/models/Package";
+import {
+  PACKAGE_STATUS,
+  SubmissionPackageApprovalType,
+  SubmissionPackageType,
+} from "@/models/Package";
 import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
+import { Submission } from "@/routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId";
 
 interface UseStaffSubmissionPageOptions {
   submissionPackageId: number;
@@ -42,6 +47,8 @@ export function useStaffSubmissionPage({
   });
 
   // ─── Derived State ────────────────────────────────────────────────────────
+
+  const approval_type = submissionPackage?.type.approval_type;
 
   const isLatestApprovedPackageVersion = packageVersions?.find(
     (pv) => pv.is_approved && pv.package_id === submissionPackageId,
@@ -105,6 +112,11 @@ export function useStaffSubmissionPage({
       ? allDocumentsVerified
       : isReadyForAcknowledgement;
 
+  const showAcknowledgeButton =
+    !isPackageAcknowledged && !isPackageApproved && approval_type;
+  const showApproveButtons =
+    isPackageAcknowledged && approval_type == SubmissionPackageApprovalType.C;
+
   // ─── Mutations ────────────────────────────────────────────────────────────
 
   const { mutate: updatePackageState, isPending: updatingPackageState } =
@@ -128,9 +140,9 @@ export function useStaffSubmissionPage({
     updatingPackageState,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
-    isPackageAcknowledged,
-    isPackageApproved,
     canAcknowledge,
+    showAcknowledgeButton,
+    showApproveButtons,
     setOpenModal,
     setCloseModal,
   };

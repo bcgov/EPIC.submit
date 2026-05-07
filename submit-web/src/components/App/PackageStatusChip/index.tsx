@@ -116,7 +116,6 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     UPDATE_REQUESTED: {
       label: "Update Requested",
       theme: "orange",
-      width: "140px",
     },
     REVISION_REQUIRED: {
       label: "Revision Required",
