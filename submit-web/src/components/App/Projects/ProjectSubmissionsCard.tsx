@@ -24,7 +24,8 @@ type ProjectSubmissionsCardProps = {
   status: string;
   packages: SubmissionPackage[];
   isWorkRelated?: boolean;
-  onNewSubmission: () => void;
+  workId?: number;
+  onNewSubmission: (workId?: number, isManagementPlan?: boolean) => void;
 };
 
 export const ProjectSubmissionsCard = ({
@@ -32,6 +33,7 @@ export const ProjectSubmissionsCard = ({
   status,
   packages,
   isWorkRelated = false,
+  workId,
   onNewSubmission,
 }: ProjectSubmissionsCardProps) => {
   const { userType } = useAccount();
@@ -49,6 +51,7 @@ export const ProjectSubmissionsCard = ({
         borderRadius: "3px",
         border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
         boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
+        mb: 2,
       }}
     >
       <Box
@@ -64,7 +67,7 @@ export const ProjectSubmissionsCard = ({
         <When condition={userType === USER_TYPE.PROPONENT}>
           <CardInnerBox>
             <PermissionsGate scopes={[ACCOUNT_USER_PERMISSIONS.CREATE_PACKAGE]}>
-              <Button onClick={onNewSubmission}>
+              <Button onClick={() => onNewSubmission(workId, !isWorkRelated)}>
                 <AddIcon sx={{ p: 0, mr: 0.5 }} />
                 New Submission
               </Button>

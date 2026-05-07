@@ -16,13 +16,13 @@ const additionalInfoSchema = yup.object().shape({
 
 type AdditionalInfoForm = yup.InferType<typeof additionalInfoSchema>;
 
-type NewAssessmentSubmissionFormProps = {
+type NewWorkPackageSubmissionFormProps = {
   onSubmit: (data: any) => void;
 };
 
-export const NewAssessmentSubmissionForm = ({
+export const NewWorkPackageSubmissionForm = ({
   onSubmit,
-}: NewAssessmentSubmissionFormProps) => {
+}: NewWorkPackageSubmissionFormProps) => {
   const { projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
   });
