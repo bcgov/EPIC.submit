@@ -1,4 +1,4 @@
-import { NewAssessmentSubmission } from "@/components/App/NewSubmission/NewAssessmentSubmission";
+import { NewWorkPackageSubmission } from "@/components/App/NewSubmission/NewWorkPackageSubmission";
 import { NewManagementPlan } from "@/components/App/NewSubmission/NewManagementPlan";
 import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
@@ -8,17 +8,23 @@ import { useCreateSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionPackage } from "@/models/Package";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
-import { WORK_TYPE_NAMES } from "@/models/TrackWork";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 import { Grid } from "@mui/material";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { z } from "zod";
+
+const newSubmissionSearchSchema = z.object({
+  workId: z.number().optional(),
+  isManagementPlan: z.boolean().optional(),
+});
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission",
 )({
   component: NewSubmission,
   head: () => ({ meta: [{ title: "New Submission" }] }),
+  validateSearch: newSubmissionSearchSchema,
   beforeLoad: ({
     context: { account },
     params: { projectId: accountProjectId },
@@ -43,6 +49,7 @@ export const Route = createFileRoute(
 
 export function NewSubmission() {
   const { projectId } = Route.useParams();
+  const { workId, isManagementPlan } = Route.useSearch();
   const navigate = useNavigate();
 
   const { data: accountProject, isPending: isProjectPending } =
@@ -50,7 +57,7 @@ export function NewSubmission() {
       accountProjectId: Number(projectId),
     });
 
-  const { setAccountProject, currentPhase, reset } = useNewSubmissionStore();
+  const { setAccountProject, reset } = useNewSubmissionStore();
 
   const {
     mutate: createSubmissionPackage,
@@ -74,8 +81,8 @@ export function NewSubmission() {
 
   // Sync query data to store
   useEffect(() => {
-    setAccountProject(accountProject ?? null);
-  }, [accountProject, setAccountProject]);
+    setAccountProject(accountProject ?? null, workId);
+  }, [accountProject, setAccountProject, workId]);
 
   // Reset store on unmount
   useEffect(() => () => reset(), [reset]);
@@ -92,12 +99,11 @@ export function NewSubmission() {
   return (
     <PageGrid>
       <SubmitLoaderBackdrop isOpen={isCreatingSubmissionPackagePending} />
-      {currentPhase?.work_type_name?.toUpperCase() ==
-      WORK_TYPE_NAMES.ASSESSMENT ? (
-        <NewAssessmentSubmission onSubmit={handleSubmit} />
-      ) : (
+      {workId ? (
+        <NewWorkPackageSubmission onSubmit={handleSubmit} />
+      ) : isManagementPlan ? (
         <NewManagementPlan onSubmit={handleSubmit} />
-      )}
+      ) : null}
     </PageGrid>
   );
 }

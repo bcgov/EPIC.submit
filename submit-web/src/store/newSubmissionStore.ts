@@ -15,9 +15,8 @@ interface NewSubmissionState {
     label: string;
     id: number;
   }[];
-  existingIPD: boolean;
 
-  setAccountProject: (accountProject: AccountProject | null) => void;
+  setAccountProject: (accountProject: AccountProject | null, workId?: number) => void;
   setSubmissionPackageType: (
     submissionPackageType: SubmissionPackageType | null,
   ) => void;
@@ -31,15 +30,15 @@ const initialState = {
   currentPhase: null,
   isLoading: false,
   mappedPackages: [],
-  existingIPD: false,
 };
 
 export const useNewSubmissionStore = create<NewSubmissionState>((set) => ({
   ...initialState,
-  setAccountProject: (accountProject) => {
-    const currentPhase =
-      accountProject?.account_project_works?.at(-1)?.work?.current_phase ??
-      null;
+  setAccountProject: (accountProject, workId) => {
+    // Find the current phase based on workId if provided
+    const currentPhase = workId
+      ? accountProject?.account_project_works?.find((apw) => apw.id === workId)?.work?.current_phase ?? null
+      : accountProject?.account_project_works?.at(-1)?.work?.current_phase ?? null;
 
     const mappedPackages =
       accountProject?.packages
@@ -50,11 +49,7 @@ export const useNewSubmissionStore = create<NewSubmissionState>((set) => ({
         }))
         .sort((a, b) => a.label.localeCompare(b.label)) ?? [];
 
-    const existingIPD = mappedPackages.some(
-      (pkg) => pkg.value === SubmissionPackageType.IPD,
-    );
-
-    set({ accountProject, currentPhase, mappedPackages, existingIPD });
+    set({ accountProject, currentPhase, mappedPackages });
   },
   setSubmissionPackageType: (submissionPackageType) =>
     set({ submissionPackageType }),

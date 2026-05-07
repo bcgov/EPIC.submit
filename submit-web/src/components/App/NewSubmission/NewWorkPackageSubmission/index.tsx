@@ -1,13 +1,13 @@
 import { Grid } from "@mui/material";
 import { NewSubmissionCard } from "../NewSubmissionCard";
-import { NewAssessmentSubmissionForm } from "./NewAssessmentSubmissionForm";
+import { NewWorkPackageSubmissionForm } from "./NewWorkPackageSubmissionForm";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 
-type NewAssessmentSubmissionProps = {
+type NewWorkPackageSubmissionProps = {
   onSubmit: (data: any) => void;
 };
 
-export function NewAssessmentSubmission({ onSubmit }: NewAssessmentSubmissionProps) {
+export function NewWorkPackageSubmission({ onSubmit }: NewWorkPackageSubmissionProps) {
   const { accountProject } = useNewSubmissionStore();
 
   return (
@@ -21,7 +21,7 @@ export function NewAssessmentSubmission({ onSubmit }: NewAssessmentSubmissionPro
         }
         barTitle="Select Submission"
       >
-        <NewAssessmentSubmissionForm onSubmit={onSubmit} />
+        <NewWorkPackageSubmissionForm onSubmit={onSubmit} />
       </NewSubmissionCard>
     </Grid>
   );

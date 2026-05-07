@@ -30,17 +30,13 @@ class Project(db.Model):
     )
 
     @property
-    def current_work(self):
-        """Returns the active in-progress work, preferring the one with the highest id if multiple exist."""
-        matching = [w for w in self.works if w.is_active and not w.is_deleted and w.work_state == 'IN_PROGRESS']
-        return max(matching, key=lambda w: w.id, default=None)
-
-    @property
     def is_current_phase_enabled(self):
-        """Determines if the current active phase is enabled in submit"""
-        if not self.current_work or not self.current_work.current_phase:
+        """Determines if any active in-progress work has a current phase enabled in submit"""
+        matching = [w for w in self.works if w.is_active and not w.is_deleted and w.work_state == 'IN_PROGRESS']
+        if not matching:
             return False
-        return self.current_work.current_phase.enable_submit
+        # Check if any active work has an enabled phase
+        return any(w.current_phase and w.current_phase.enable_submit for w in matching)
 
     @property
     def is_eligible(self):
