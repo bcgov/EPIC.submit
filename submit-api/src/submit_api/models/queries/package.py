@@ -270,7 +270,11 @@ class PackageSubmissionQueries:
         if (
             statuses == {SubmissionStatus.SUBMITTED.value, SubmissionStatus.VERIFIED.value} or
             statuses == {SubmissionStatus.SUBMITTED.value, SubmissionStatus.ACKNOWLEDGED.value} or
-            statuses == {SubmissionStatus.SUBMITTED.value, SubmissionStatus.ACKNOWLEDGED.value, SubmissionStatus.VERIFIED.value}
+            statuses == {
+                SubmissionStatus.SUBMITTED.value,
+                SubmissionStatus.ACKNOWLEDGED.value,
+                SubmissionStatus.VERIFIED.value
+            }
         ):
             aggregated_statuses.append(PackageStatus.INTERNAL_VERIFICATION.value)
 

@@ -6,6 +6,7 @@ Manages the package type
 from marshmallow import EXCLUDE, Schema, fields
 from submit_api.enums.package_type import PackageApprovalType
 
+
 class PackageTypeSchema(Schema):
     """package type schema."""
 
