@@ -1,8 +1,4 @@
-import {
-  NonCanonicalPackageStatus,
-  PACKAGE_STATUS,
-  PackageStatus,
-} from "@/models/Package";
+import { PACKAGE_STATUS, PackageStatus } from "@/models/Package";
 import {
   NON_CANONICAL_SUBMISSION_STATUS,
   SUBMISSION_ITEM_STATUS,

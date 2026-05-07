@@ -15,7 +15,6 @@ import {
 } from "@/models/Package";
 import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
-import { Submission } from "@/routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId";
 
 interface UseStaffSubmissionPageOptions {
   submissionPackageId: number;
