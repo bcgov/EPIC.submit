@@ -11,17 +11,15 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '0a91b52dc3b1'
-down_revision = '9232989dd92d'
+down_revision = '17f6d16b9ec4'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'INTERNAL_VERIFICATION';")
     op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'VERIFIED';")
     op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'PENDING_ACKNOWLEDGEMENT';")
     op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'READY_FOR_ACKNOWLEDGEMENT';")
-    op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'ACKNOWLEDGED';")
     op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UPDATE_REQUESTED';")
     op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'UPDATED';")
     op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'READY_FOR_APPROVAL';")

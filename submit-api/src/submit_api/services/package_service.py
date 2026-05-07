@@ -6,7 +6,7 @@ from flask import current_app
 
 from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
-from submit_api.enums.package_type import PackageTypeEnum
+from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, User
@@ -565,7 +565,30 @@ class PackageService:
                             submission.status = SubmissionStatus.ACKNOWLEDGED
                             session.add(submission)
 
-            package.status = [PackageStatus.ACKNOWLEDGED.value]
+            if package.type.approval_type == PackageApprovalType.C:
+                package.status = [PackageStatus.READY_FOR_APPROVAL.value, PackageStatus.ACKNOWLEDGED.value]
+            else:
+                package.status = [PackageStatus.ACKNOWLEDGED.value]
+            session.add(package)
+            session.flush()
+            return package
+
+    @classmethod
+    def approve_package(cls, package_id):
+        """Approve the package."""
+        with session_scope() as session:
+            package = cls.get_package_by_id(package_id)
+            if not package:
+                raise BadRequestError("Package not found")
+
+            # Approve all documents
+            for item in package.items:
+                for submission in item.submissions:
+                    if submission.type == SubmissionType.DOCUMENT:
+                        submission.status = SubmissionStatus.APPROVED
+                        session.add(submission)
+
+            package.status = [PackageStatus.APPROVED.value]
             session.add(package)
             session.flush()
             return package
@@ -704,6 +727,7 @@ class PackageService:
                 PackageStatus.UNDER_REVIEW.value: cls.start_review,
                 PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
                 PackageStatus.ACKNOWLEDGED.value: cls.acknowledge_package,
+                PackageStatus.APPROVED.value: cls.approve_package,
             }
         )
         return state_updaters[status]

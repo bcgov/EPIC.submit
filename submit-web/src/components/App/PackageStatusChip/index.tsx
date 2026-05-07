@@ -53,7 +53,7 @@ type StyleProps = {
 
 const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
   {
-    APPROVED: { label: "Approved", theme: "success", width: "86px" },
+    APPROVED: { label: "Approved", theme: "success" },
     ACCEPTED: { label: "Accepted", theme: "success", width: "83px" },
     SATISFIED: { label: "Satisfied", theme: "success", width: "78px" },
     REVIEWED: { label: "Reviewed", theme: "success" },
@@ -69,10 +69,6 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
       width: "157px",
     },
     VERIFIED: { label: "Verified", theme: "success" },
-    READY_FOR_ACKNOWLEDGEMENT: {
-      label: "Ready for Acknowledgement",
-      theme: "success",
-    },
     ACKNOWLEDGED: { label: "Acknowledged", theme: "success" },
 
     IN_PROGRESS: { label: "In Progress", theme: "info" },
@@ -136,6 +132,10 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     UPDATED: { label: "Updated", theme: "purple" },
     PENDING_ACKNOWLEDGEMENT: {
       label: "Pending Acknowledgement",
+      theme: "purple",
+    },
+    READY_FOR_ACKNOWLEDGEMENT: {
+      label: "Ready for Acknowledgement",
       theme: "purple",
     },
     READY_FOR_APPROVAL: { label: "Ready for Approval", theme: "purple" },

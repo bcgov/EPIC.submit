@@ -236,42 +236,9 @@ class PackageItemQueries:
         cls._add_under_review(aggregated_statuses, all_statuses)
         cls._add_under_cc_check(aggregated_statuses, all_statuses)
         cls.add_awaiting_manager_review(aggregated_statuses, all_statuses)
-        cls._add_additional_info_status(aggregated_statuses, items)
 
         aggregated_statuses_list = list(aggregated_statuses)
         return aggregated_statuses_list
-
-    @classmethod
-    def _add_additional_info_status(cls, aggregated_statuses: set, items: list):
-        """Find Additional Information package status based on document verification."""
-        if not items:
-            return
-        package = PackageModel.find_by_id(items[0].package_id)
-        if not package or package.type.versioning_enabled:
-            return
-
-        # If it's Additional Information, we override the normal status logic for verified/internal verification
-        # but keep SUBMITTED if nothing is verified yet.
-
-        all_submissions = [s for item in items for s in item.submissions if s.type == SubmissionType.DOCUMENT]
-        if not all_submissions:
-            return
-
-        verified_count = sum(1 for s in all_submissions if s.status == SubmissionStatus.VERIFIED)
-        acknowledged_count = sum(1 for s in all_submissions if s.status == SubmissionStatus.ACKNOWLEDGED)
-
-        total_reviewable = verified_count + acknowledged_count
-
-        if acknowledged_count == len(all_submissions):
-            aggregated_statuses.clear()  # Clear other statuses like SUBMITTED
-            aggregated_statuses.add(PackageStatus.ACKNOWLEDGED.value)
-        elif total_reviewable == len(all_submissions):
-            aggregated_statuses.clear()  # Clear other statuses like SUBMITTED
-            aggregated_statuses.add(PackageStatus.VERIFIED.value)
-        elif total_reviewable > 0:
-            aggregated_statuses.clear()  # Clear other statuses like SUBMITTED
-            aggregated_statuses.add(PackageStatus.INTERNAL_VERIFICATION.value)
-        # If none verified/acknowledged, it will stay as SUBMITTED (from _add_submitted_status)
 
     @staticmethod
     def update_package_status(package_id, session, package=None):
@@ -290,93 +257,60 @@ class PackageSubmissionQueries:
     """Query module for complex submission status driven aggregation."""
 
     @classmethod
-    def _add_submission_new(cls, aggregated_statuses: set, statuses: set[SubmissionStatus]):
-        """Add NEW_SUBMISSION when no review actions have been taken yet."""
+    def _add_new_submission_status(cls, aggregated_statuses: set, statuses: set[SubmissionStatus]):
+        """Add NEW_SUBMISSION status when no review actions have been taken yet."""
         if not statuses or statuses == {SubmissionStatus.SUBMITTED.value}:
             aggregated_statuses.add(PackageStatus.NEW_SUBMISSION.value)
 
     @classmethod
-    def _add_submission_internal_verification(
+    def _add_internal_verification_status(
         cls, aggregated_statuses: set, statuses: set[SubmissionStatus]
     ):
-        """Add INTERNAL_VERIFICATION when at least one doc is verified but not all."""
+        """Add INTERNAL_VERIFICATION status when at least one doc is VERIFIED."""
         if (
-            SubmissionStatus.VERIFIED.value in statuses
-            and statuses != {SubmissionStatus.VERIFIED.value}
+            statuses == {SubmissionStatus.SUBMITTED.value, SubmissionStatus.VERIFIED.value}
         ):
             aggregated_statuses.add(PackageStatus.INTERNAL_VERIFICATION.value)
 
     @classmethod
-    def _add_submission_verified(
+    def _add_verified_status(
         cls,
         aggregated_statuses: set,
-        statuses: set[SubmissionStatus],
-        approval_type: PackageApprovalType,
+        statuses: set[SubmissionStatus]
     ):
-        """Add VERIFIED + PENDING_ACKNOWLEDGEMENT when all docs are verified (Type B/C)."""
-        if statuses != {SubmissionStatus.VERIFIED.value}:
-            return
-        aggregated_statuses.add(PackageStatus.VERIFIED.value)
-        if approval_type in (PackageApprovalType.B, PackageApprovalType.C):
+        """Add VERIFIED when all docs are VERIFIED, or are some combination of VERIFIED and ACKNOWLEDGED."""
+        if statuses == {SubmissionStatus.VERIFIED.value}:
+            aggregated_statuses.add(PackageStatus.VERIFIED.value)
+        if statuses == {SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value}:
+            aggregated_statuses.add(PackageStatus.VERIFIED.value)
+
+    @classmethod
+    def _add_pending_acknowledgement_status(
+        cls,
+        aggregated_statuses: set,
+        statuses: set[SubmissionStatus]
+    ):
+        """Add PENDING_ACKNOWLEDGEMENT when all docs are VERIFIED, or are some combination of VERIFIED/ACKNOWLEDGED."""
+        if statuses == {SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value}:
             aggregated_statuses.add(PackageStatus.PENDING_ACKNOWLEDGEMENT.value)
 
     @classmethod
-    def _add_submission_acknowledged(
-        cls,
-        aggregated_statuses: set,
-        statuses: set[SubmissionStatus],
-        approval_type: PackageApprovalType,
-    ):
-        """Add ACKNOWLEDGED (and READY_FOR_APPROVAL for Type C) when all docs are acknowledged."""
-        if statuses != {SubmissionStatus.ACKNOWLEDGED.value}:
-            return
-        aggregated_statuses.add(PackageStatus.ACKNOWLEDGED.value)
-        if approval_type == PackageApprovalType.C:
-            aggregated_statuses.add(PackageStatus.READY_FOR_APPROVAL.value)
-
-    @classmethod
-    def _add_submission_ready_for_acknowledgement(
+    def _add_ready_for_acknowledgement_status(
         cls, aggregated_statuses: set, statuses: set[SubmissionStatus]
     ):
-        """Add READY_FOR_ACKNOWLEDGEMENT when all docs are verified but some are acknowledged."""
-        verified_or_acknowledged = {SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value}
-        if (
-            statuses
-            and statuses.issubset(verified_or_acknowledged)
-            and SubmissionStatus.ACKNOWLEDGED.value in statuses
-            and SubmissionStatus.VERIFIED.value in statuses
-        ):
+        """Add READY_FOR_ACKNOWLEDGEMENT when all docs are acknowledged."""
+        if statuses == {SubmissionStatus.ACKNOWLEDGED.value}:
             aggregated_statuses.add(PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value)
 
     @classmethod
-    def _add_submission_approved(
-        cls, aggregated_statuses: set, statuses: set[SubmissionStatus]
-    ):
-        """Add APPROVED or NOT_APPROVED once an approval decision has been made."""
-        if SubmissionStatus.APPROVED.value in statuses:
-            aggregated_statuses.add(PackageStatus.APPROVED.value)
-        elif SubmissionStatus.REJECTED.value in statuses:
-            aggregated_statuses.add(PackageStatus.NOT_APPROVED.value)
-
-    @classmethod
     def _add_update_request_overlay(cls, aggregated_statuses: set, package):
-        """
-        Overlay UPDATE_REQUESTED or UPDATED on top of intermediate statuses.
+        """Overlay UPDATE_REQUESTED or UPDATED on top of intermediate statuses.
+
         Only applies when the package is still in an actionable review state —
         not once it's been approved/not approved.
         """
         terminal = {PackageStatus.APPROVED.value, PackageStatus.NOT_APPROVED.value}
         if aggregated_statuses & terminal:
-            return
-
-        overlayable = {
-            PackageStatus.INTERNAL_VERIFICATION.value,
-            PackageStatus.VERIFIED.value,
-            PackageStatus.PENDING_ACKNOWLEDGEMENT.value,
-            PackageStatus.ACKNOWLEDGED.value,
-            PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value,
-        }
-        if not aggregated_statuses & overlayable:
             return
 
         active_requests = [ur for ur in package.update_requests if ur.active]
@@ -392,9 +326,11 @@ class PackageSubmissionQueries:
 
     @classmethod
     def aggregate_submission_statuses(cls, package) -> list[str]:
-        """
-        Derive package display status(es) from the aggregate state of its submissions
-        and update requests.
+        """Derive package display status(es) from the aggregate state of its submissions and update requests.
+
+        This handles the logic for Type A/B/C staged workflows up to
+        READY_FOR_ACKNOWLEDGEMENT status, as further package status changes are done at
+        the package level and do not require aggregated submission statuses.
         """
         approval_type = package.type.approval_type
         submissions = [
@@ -412,17 +348,20 @@ class PackageSubmissionQueries:
 
         aggregated_statuses = set()
 
-        # Terminal states — check first, short-circuit if found
-        cls._add_submission_approved(aggregated_statuses, statuses)
-        if aggregated_statuses:
-            return list(aggregated_statuses)
+        # Ensure NEW_SUBMISSION status when no review actions taken
+        cls._add_new_submission_status(aggregated_statuses, statuses)
 
-        # Progressive verification/acknowledgement states
-        cls._add_submission_new(aggregated_statuses, statuses)
-        cls._add_submission_internal_verification(aggregated_statuses, statuses)
-        cls._add_submission_verified(aggregated_statuses, statuses, approval_type)
-        cls._add_submission_ready_for_acknowledgement(aggregated_statuses, statuses)
-        cls._add_submission_acknowledged(aggregated_statuses, statuses, approval_type)
+        # Type A staged workflow
+        if (approval_type == PackageApprovalType.A):
+            cls._add_internal_verification_status(aggregated_statuses, statuses)
+            cls._add_verified_status(aggregated_statuses, statuses)
+
+        # Type B/C staged workflow
+        if (approval_type in [PackageApprovalType.B, PackageApprovalType.C]):
+            cls._add_internal_verification_status(aggregated_statuses, statuses)
+            cls._add_verified_status(aggregated_statuses, statuses)
+            cls._add_pending_acknowledgement_status(aggregated_statuses, statuses)
+            cls._add_ready_for_acknowledgement_status(aggregated_statuses, statuses)
 
         # Overlay update request state last — it sits on top of whatever base state we have
         cls._add_update_request_overlay(aggregated_statuses, package)

@@ -42,8 +42,11 @@ import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderB
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
 import { ProponentUpdateRequestPanel } from "@/components/App/SubmissionItem/ProponentUpdateRequestPanel";
-import type { SentRequest, PreviousRequest } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
-import { UnaddressedSectionsModal } from "@/components/App/Submission/UnaddressedSectionsModal";
+import type {
+  SentRequest,
+  PreviousRequest,
+} from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
+import { UnaddressedSectionsModal } from "@/components/App/Submission/Modals/UnaddressedSectionsModal";
 import { useDocumentChangeTracking } from "@/hooks/useDocumentChangeTracking";
 import { getUnaddressedUpdateRequestSections } from "@/utils/updateRequestHelpers";
 import { useSaveProponentNote } from "@/hooks/api/useUpdateRequests";
@@ -141,7 +144,7 @@ export default function SubmissionPage() {
         onError: () => {
           notify.error("Failed to save note");
         },
-      }
+      },
     );
   };
 
@@ -213,7 +216,7 @@ export default function SubmissionPage() {
     // Check for unaddressed update request sections
     const unaddressed = getUnaddressedUpdateRequestSections(
       submissionPackage,
-      documentChanges
+      documentChanges,
     );
 
     if (unaddressed.length > 0) {
@@ -244,7 +247,7 @@ export default function SubmissionPage() {
   // PROPONENT VIEW: Open requests from EAO become "sentRequests"
   const sentRequests: SentRequest[] = useMemo(() => {
     if (!submissionPackage) return [];
-    
+
     const openRequests = submissionPackage.update_requests.filter(
       (updateRequest) =>
         updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
@@ -253,7 +256,7 @@ export default function SubmissionPage() {
 
     return openRequests.map((req) => {
       const item = submissionPackage.items.find((i) =>
-        req.submission_item_types.includes(i.type_id)
+        req.submission_item_types.includes(i.type_id),
       );
       return {
         updateRequestId: req.id,
@@ -279,11 +282,11 @@ export default function SubmissionPage() {
         (req) =>
           !req.active &&
           (req.status === UPDATE_REQUEST_STATUS.ACCEPTED.value ||
-            req.status === UPDATE_REQUEST_STATUS.CLOSED.value)
+            req.status === UPDATE_REQUEST_STATUS.CLOSED.value),
       )
       .map((req) => {
         const item = submissionPackage.items.find((i) =>
-          req.submission_item_types.includes(i.type_id)
+          req.submission_item_types.includes(i.type_id),
         );
         return {
           updateRequestId: req.id,
