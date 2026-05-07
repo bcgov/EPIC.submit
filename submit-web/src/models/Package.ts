@@ -9,12 +9,19 @@ export enum SubmissionPackageType {
   ADDITIONAL_INFORMATION = "Additional Information",
 }
 
+export enum SubmissionPackageApprovalType {
+  A = "A",
+  B = "B",
+  C = "C",
+}
+
 export type PackageType = {
   id: number;
   name: SubmissionPackageType;
   title?: string;
   versioning_enabled: boolean;
   mandatory: boolean;
+  approval_type?: SubmissionPackageApprovalType;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus
@@ -57,10 +64,14 @@ export type PackageStatus =
   | "AWAITING_MANAGER_APPROVAL"
   | "FAILED_CONSULTATION_CHECK"
   | "CREATED"
+  | "REQUESTED_BY_EAO"
   | "INTERNAL_VERIFICATION"
   | "VERIFIED"
+  | "PENDING_ACKNOWLEDGEMENT"
+  | "READY_FOR_ACKNOWLEDGEMENT"
+  | "READY_FOR_APPROVAL"
   | "ACKNOWLEDGED"
-  | "REQUESTED_BY_EAO";
+  | "NOT_APPROVED";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -154,9 +165,25 @@ export const PACKAGE_STATUS: Record<
     value: "REQUESTED_BY_EAO",
     label: "Requested by EAO",
   },
+  PENDING_ACKNOWLEDGEMENT: {
+    value: "PENDING_ACKNOWLEDGEMENT",
+    label: "Pending Acknowledgement",
+  },
+  READY_FOR_ACKNOWLEDGEMENT: {
+    value: "READY_FOR_ACKNOWLEDGEMENT",
+    label: "Ready for Acknowledgement",
+  },
   ACKNOWLEDGED: {
     value: "ACKNOWLEDGED",
     label: "Acknowledged",
+  },
+  READY_FOR_APPROVAL: {
+    value: "READY_FOR_APPROVAL",
+    label: "Ready for Approval",
+  },
+  NOT_APPROVED: {
+    value: "NOT_APPROVED",
+    label: "Not Approved",
   },
 };
 

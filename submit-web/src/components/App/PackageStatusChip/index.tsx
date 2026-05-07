@@ -1,307 +1,163 @@
 import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
-import { Chip } from "@mui/material";
+import { Chip, SxProps, Theme } from "@mui/material";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 
-type StyleProps = {
-  sx: Record<string, string | number>;
-  label: string;
+// 1. Define reusable base styles/themes
+const baseSx: SxProps<Theme> = {
+  borderRadius: 1,
+  height: "24px",
+  px: 1,
 };
-const statusStyles: Record<
-  PackageStatus | NonCanonicalPackageStatus,
-  StyleProps
-> = {
-  APPROVED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "86px",
-    },
-    label: "Approved",
+
+const themes = {
+  success: {
+    border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+    background: BCDesignTokens.supportSurfaceColorSuccess,
   },
-  ACCEPTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "83px",
-    },
-    label: "Accepted",
+  info: {
+    border: `1px solid ${BCDesignTokens.themeBlue100}`,
+    background: BCDesignTokens.themeBlue20,
   },
-  SATISFIED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "78px",
-    },
-    label: "Satisfied",
+  warning: {
+    border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+    background: BCDesignTokens.supportSurfaceColorWarning,
   },
-  REVIEWED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
-    label: "Reviewed",
+  danger: {
+    border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+    background: BCDesignTokens.supportSurfaceColorDanger,
   },
-  ACKNOWLEDGED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      color: BCDesignTokens.iconsColorSuccess,
-    },
-    label: "Acknowledged",
+  orange: {
+    border: `1px solid #F18A15`,
+    background: "#FFDEB8",
   },
-  IN_REVIEW: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    label: "In Review",
+  purple: {
+    border: `1px solid #9B6BDA`,
+    background: "#F6E4FF",
   },
-  REVIEW_REJECTED: {
-    label: "Review Rejected",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
-      width: "125px",
-    },
+  neutral: {
+    border: `1px solid ${BCDesignTokens.surfaceColorBorderMedium}`,
+    background: BCDesignTokens.surfaceColorSecondaryButtonDisabled,
   },
-  REVIEW_NOT_COMPLETED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-      background: BCDesignTokens.supportSurfaceColorWarning,
-      height: "24px",
-      width: "168px",
-    },
-    label: "Review Not Completed",
+  decision: {
+    border: `1px solid ${EAOColors.DecisionDark}`,
+    background: EAOColors.DecisionLight,
   },
-  SUBMITTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    label: "Submitted",
-  },
-  COMPLETED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
-    label: "Completed",
-  },
-  PARTIALLY_COMPLETED: {
-    label: "Partially Completed",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-      background: BCDesignTokens.supportSurfaceColorWarning,
-      height: "24px",
-    },
-  },
-  NEW: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${EAOColors.DecisionDark}`,
-      background: EAOColors.DecisionLight,
-      height: "24px",
-    },
-    label: "New",
-  },
-  IN_PROGRESS: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    label: "In Progress",
-  },
-  NEW_SUBMISSION: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${EAOColors.DecisionDark}`,
-      background: EAOColors.DecisionLight,
-      height: "24px",
-    },
-    label: "New Submission",
-  },
-  AWAITING_MANAGER_APPROVAL: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "196px",
-    },
-    label: "Awaiting Manager Approval",
-  },
-  PASSED_CONSULTATION_CHECK: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
+};
+
+// 2. Map statuses to labels and themes
+type StyleProps = {
+  label: string;
+  theme: keyof typeof themes;
+  width?: string;
+};
+
+const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
+  {
+    APPROVED: { label: "Approved", theme: "success" },
+    ACCEPTED: { label: "Accepted", theme: "success", width: "83px" },
+    SATISFIED: { label: "Satisfied", theme: "success", width: "78px" },
+    REVIEWED: { label: "Reviewed", theme: "success" },
+    COMPLETED: { label: "Completed", theme: "success" },
+    PASSED_CONSULTATION_CHECK: {
+      label: "Passed Consultation Check",
+      theme: "success",
       width: "191px",
     },
-    label: "Passed Consultation Check",
-  },
-  UPDATE_REQUESTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "140px",
-    },
-    label: "Update Requested",
-  },
-  REVISION_REQUIRED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "140px",
-    },
-    label: "Revision Required",
-  },
-  REVISION_REQUESTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "150px",
-    },
-    label: "Revision Requested",
-  },
-  CREATED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.surfaceColorBorderMedium}`,
-      background: BCDesignTokens.surfaceColorSecondaryButtonDisabled,
-      height: "24px",
-    },
-    label: "Created",
-  },
-  UNDER_REVIEW: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    label: "Under Review",
-  },
-  UNDER_CONSULTATION_CHECK: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    label: "Under Consultation Check",
-  },
-  UPDATED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #9B6BDA`,
-      background: "#F6E4FF",
-      height: "24px",
-    },
-    label: "Updated",
-  },
-  FAILED_CONSULTATION_CHECK: {
-    label: "Failed Consultation Check",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
-    },
-  },
-  NO_REVISION_REQUIRED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
+    NO_REVISION_REQUIRED: {
+      label: "No Revision Required",
+      theme: "success",
       width: "157px",
     },
-    label: "No Revision Required",
-  },
-  RESUBMITTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-      width: "104px",
+    VERIFIED: { label: "Verified", theme: "success" },
+    ACKNOWLEDGED: { label: "Acknowledged", theme: "success" },
+
+    IN_PROGRESS: { label: "In Progress", theme: "info" },
+    IN_REVIEW: { label: "In Review", theme: "info" },
+    UNDER_REVIEW: { label: "Under Review", theme: "info" },
+    UNDER_CONSULTATION_CHECK: {
+      label: "Under Consultation Check",
+      theme: "info",
     },
-    label: "Resubmitted",
-  },
-  INTERNAL_VERIFICATION: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
+    SUBMITTED: { label: "Submitted", theme: "info", width: "104px" },
+    RESUBMITTED: { label: "Resubmitted", theme: "info" },
+
+    REVIEW_REJECTED: {
+      label: "Review Rejected",
+      theme: "danger",
+      width: "125px",
     },
-    label: "Internal Verification",
-  },
-  VERIFIED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
+    FAILED_CONSULTATION_CHECK: {
+      label: "Failed Consultation Check",
+      theme: "danger",
     },
-    label: "Verified",
-  },
-  REQUESTED_BY_EAO: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-      background: BCDesignTokens.supportSurfaceColorWarning,
-      height: "24px",
+    NOT_APPROVED: { label: "Not Approved", theme: "danger" },
+
+    REVIEW_NOT_COMPLETED: {
+      label: "Review Not Completed",
+      theme: "warning",
+      width: "168px",
+    },
+    PARTIALLY_COMPLETED: { label: "Partially Completed", theme: "warning" },
+    REQUESTED_BY_EAO: {
+      label: "Requested by EAO",
+      theme: "warning",
       width: "139px",
     },
-    label: "Requested by EAO",
-  },
-};
+    INTERNAL_VERIFICATION: { label: "Internal Verification", theme: "warning" },
+
+    NEW: { label: "New", theme: "decision" },
+    NEW_SUBMISSION: { label: "New Submission", theme: "decision" },
+
+    AWAITING_MANAGER_APPROVAL: {
+      label: "Awaiting Manager Approval",
+      theme: "orange",
+      width: "196px",
+    },
+    UPDATE_REQUESTED: {
+      label: "Update Requested",
+      theme: "orange",
+    },
+    REVISION_REQUIRED: {
+      label: "Revision Required",
+      theme: "orange",
+      width: "140px",
+    },
+    REVISION_REQUESTED: {
+      label: "Revision Requested",
+      theme: "orange",
+      width: "150px",
+    },
+
+    UPDATED: { label: "Updated", theme: "purple" },
+    PENDING_ACKNOWLEDGEMENT: {
+      label: "Pending Acknowledgement",
+      theme: "purple",
+    },
+    READY_FOR_ACKNOWLEDGEMENT: {
+      label: "Ready for Acknowledgement",
+      theme: "purple",
+    },
+    READY_FOR_APPROVAL: { label: "Ready for Approval", theme: "purple" },
+
+    CREATED: { label: "Created", theme: "neutral" },
+  };
 
 type PackageStatusChipProps = Readonly<{
   status: PackageStatus | NonCanonicalPackageStatus;
 }>;
-export default function PackageStatusChip({ status }: PackageStatusChipProps) {
-  const style = statusStyles[status];
 
-  if (!style) {
+export default function PackageStatusChip({ status }: PackageStatusChipProps) {
+  const config = statusMap[status];
+
+  if (!config || !config.label) {
     return null;
   }
 
-  return (
-    <Chip
-      sx={{
-        ...style.sx,
-      }}
-      label={style.label}
-    />
-  );
+  const sx: SxProps<Theme> = {
+    ...baseSx,
+    ...(config.theme ? themes[config.theme] : {}),
+    ...(config.width ? { width: config.width } : {}),
+  };
+
+  return <Chip sx={sx} label={config.label} />;
 }

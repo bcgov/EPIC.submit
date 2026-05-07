@@ -6,282 +6,172 @@ import {
 } from "@/models/Submission";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { Box, Chip, Stack } from "@mui/material";
+import { Box, Chip, Stack, SxProps, Theme } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import React, { ReactNode, useMemo } from "react";
 
+// 1. Define reusable base styles/themes
+const baseSx: SxProps<Theme> = {
+  borderRadius: 1,
+  height: "24px",
+  px: 1,
+};
+
+const themes = {
+  success: {
+    border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+    background: BCDesignTokens.supportSurfaceColorSuccess,
+  },
+  info: {
+    border: `1px solid ${BCDesignTokens.themeBlue100}`,
+    background: BCDesignTokens.themeBlue20,
+  },
+  warning: {
+    border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+    background: BCDesignTokens.supportSurfaceColorWarning,
+  },
+  danger: {
+    border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
+    background: BCDesignTokens.supportSurfaceColorDanger,
+  },
+  orange: {
+    border: `1px solid #F18A15`,
+    background: "#FFDEB8",
+  },
+  purple: {
+    border: `1px solid #9B6BDA`,
+    background: "#F6E4FF",
+  },
+  neutral: {
+    border: `1px solid ${BCDesignTokens.surfaceColorBorderMedium}`,
+    background: BCDesignTokens.surfaceColorSecondaryButtonDisabled,
+  },
+  decision: {
+    border: `1px solid ${EAOColors.DecisionDark}`,
+    background: EAOColors.DecisionLight,
+  },
+};
+
+// 2. Map statuses to labels and themes
 type StyleProps = {
-  sx: Record<string, string | number>;
   label: string;
+  theme: keyof typeof themes;
+  width?: string;
   icon?: ReactNode;
 };
 
-const statusStyles: Record<string, StyleProps> = {
-  NEW_SUBMISSION: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${EAOColors.DecisionDark}`,
-      background: EAOColors.DecisionLight,
-      height: "24px",
-    },
-    label: "New Submission",
-  },
-  NEW: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${EAOColors.DecisionDark}`,
-      background: EAOColors.DecisionLight,
-      height: "24px",
-    },
-    label: "New",
-  },
-  UNDER_REVIEW: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    label: "Under Review",
-  },
-  REVIEW_NOT_COMPLETED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-      background: BCDesignTokens.supportSurfaceColorWarning,
-      height: "24px",
-      width: "168px",
-    },
-    label: "Review Not Completed",
-  },
-  UNDER_CONSULTATION_CHECK: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    label: "Under Consultation Check",
-  },
-  COMPLETED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
-    label: "Completed",
-  },
-  PARTIALLY_COMPLETED: {
-    label: "Partially Completed",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-      background: BCDesignTokens.supportSurfaceColorWarning,
-      height: "24px",
-    },
-  },
-  SUBMITTED: {
-    label: "Submitted",
-    sx: {
-      width: "90px",
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-  },
-  AWAITING_MANAGER_APPROVAL: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "196px",
-    },
-    label: "Awaiting Manager Approval",
-  },
+const statusMap: Record<string, StyleProps> = {
+  COMPLETED: { label: "Completed", theme: "success" },
   PASSED_CONSULTATION_CHECK: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "191px",
-    },
     label: "Passed Consultation Check",
+    theme: "success",
+    width: "191px",
   },
-  UPDATE_REQUESTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "140px",
-    },
-    label: "Update Requested",
+  APPROVED: { label: "Approved", theme: "success" },
+  REVIEWED: { label: "Reviewed", theme: "success", width: "85px" },
+  ACCEPTED: { label: "Accepted", theme: "success", width: "83px" },
+  SATISFIED: { label: "Satisfied", theme: "success", width: "85px" },
+  NO_REVISION_REQUIRED: {
+    label: "No Revision Required",
+    theme: "success",
+    width: "157px",
   },
+  VERIFIED: {
+    label: "Verified",
+    theme: "success",
+    icon: (
+      <CheckIcon
+        sx={{
+          fontSize: "16px !important",
+          color: BCDesignTokens.supportBorderColorSuccess,
+        }}
+      />
+    ),
+  },
+  ACKNOWLEDGED: {
+    label: "Acknowledged",
+    theme: "success",
+    icon: (
+      <CheckIcon
+        sx={{
+          fontSize: "16px !important",
+          color: BCDesignTokens.supportBorderColorSuccess,
+        }}
+      />
+    ),
+  },
+
+  UNDER_REVIEW: { label: "Under Review", theme: "info" },
+  UNDER_CONSULTATION_CHECK: {
+    label: "Under Consultation Check",
+    theme: "info",
+  },
+  SUBMITTED: { label: "Submitted", theme: "info", width: "90px" },
+  NEW_VERSION: {
+    label: "New Version",
+    theme: "info",
+    icon: (
+      <RefreshIcon
+        sx={{ fontSize: "16px", color: BCDesignTokens.themeBlue100 }}
+      />
+    ),
+  },
+  REQUESTED_BY_EAO: {
+    label: "Requested by EAO",
+    theme: "info",
+  },
+
   REVIEW_REJECTED: {
     label: "Review Rejected",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
-      width: "125px",
-    },
-  },
-  REVISION_REQUIRED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "140px",
-    },
-    label: "Revision Required",
-  },
-  REVISION_REQUESTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-      width: "150px",
-    },
-    label: "Revision Requested",
-  },
-  UPDATED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #9B6BDA`,
-      background: "#F6E4FF",
-      height: "24px",
-      width: "85px",
-    },
-    label: "Updated",
+    theme: "danger",
+    width: "125px",
   },
   FAILED_CONSULTATION_CHECK: {
     label: "Failed Consultation Check",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
-    },
+    theme: "danger",
   },
-  FAILED: {
-    label: "Failed",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
-    },
-  },
-  APPROVED: {
-    label: "Approved",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "86px",
-    },
-  },
-  REVIEWED: {
-    label: "Reviewed",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "85px",
-    },
-  },
-  ACCEPTED: {
-    label: "Accepted",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "83px",
-    },
-  },
-  SATISFIED: {
-    label: "Satisfied",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "85px",
-    },
-  },
-  NO_REVISION_REQUIRED: {
-    label: "No Revision Required",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-      width: "157px",
-    },
-  },
+  FAILED: { label: "Failed", theme: "danger" },
   PREVIOUSLY_FAILED: {
     label: "Previously Failed",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      width: "128px",
-    },
+    theme: "danger",
+    width: "128px",
   },
-  VERIFIED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
-    label: "Verified",
-    icon: <CheckIcon sx={{ fontSize: "16px !important", color: BCDesignTokens.supportBorderColorSuccess }} />,
-  },
-  ACKNOWLEDGED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
-    label: "Acknowledged",
-    icon: <CheckIcon sx={{ fontSize: "16px !important", color: BCDesignTokens.supportBorderColorSuccess }} />,
-  },
-  NEW_VERSION: {
-    label: "New Version",
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.themeBlue100}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-    },
-    icon: <RefreshIcon sx={{ fontSize: "16px", color: BCDesignTokens.themeBlue100 }} />,
-  },
-  REQUESTED_BY_EAO: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorInfo}`,
-      background: BCDesignTokens.themeBlue20,
-      height: "24px",
-      width: "104px",
-    },
-    label: "Requested by EAO",
-  },
-};
 
+  REVIEW_NOT_COMPLETED: {
+    label: "Review Not Completed",
+    theme: "warning",
+    width: "168px",
+  },
+  PARTIALLY_COMPLETED: { label: "Partially Completed", theme: "warning" },
+
+  NEW_SUBMISSION: { label: "New Submission", theme: "decision" },
+  NEW: { label: "New", theme: "decision" },
+
+  AWAITING_MANAGER_APPROVAL: {
+    label: "Awaiting Manager Approval",
+    theme: "orange",
+    width: "196px",
+  },
+  UPDATE_REQUESTED: {
+    label: "Update Requested",
+    theme: "orange",
+    width: "140px",
+  },
+  REVISION_REQUIRED: {
+    label: "Revision Required",
+    theme: "orange",
+    width: "140px",
+  },
+  REVISION_REQUESTED: {
+    label: "Revision Requested",
+    theme: "orange",
+    width: "150px",
+  },
+
+  UPDATED: { label: "Updated", theme: "purple", width: "85px" },
+};
 
 type SubmissionStatusChipProps = Readonly<{
   status?: string;
@@ -289,19 +179,23 @@ type SubmissionStatusChipProps = Readonly<{
 export function SubmissionStatusChip({
   status = "",
 }: SubmissionStatusChipProps) {
-  const style = statusStyles[status];
+  const config = statusMap[status];
 
-  if (!style) {
+  if (!config || !config.label) {
     return null;
   }
 
+  const sx: SxProps<Theme> = {
+    ...baseSx,
+    ...(config.theme ? themes[config.theme] : {}),
+    ...(config.width ? { width: config.width } : {}),
+  };
+
   return (
     <Chip
-      sx={{
-        ...style.sx,
-      }}
-      label={style.label}
-      icon={style.icon as React.ReactElement}
+      sx={sx}
+      label={config.label}
+      icon={config.icon as React.ReactElement}
     />
   );
 }
