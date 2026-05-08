@@ -53,4 +53,3 @@ class ItemService:
         else:
             PackageItemQueries.update_package_status(package_id, session)
         current_app.logger.info(f"Package status updated for package ID: {package_id}")
-
