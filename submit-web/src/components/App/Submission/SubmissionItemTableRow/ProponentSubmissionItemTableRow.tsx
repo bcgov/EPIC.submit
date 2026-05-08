@@ -140,6 +140,7 @@ export default function ProponentSubmissionItemTableRow({
             condition={
               isFormSubmission ||
               !submissionPackage?.submitted_on ||
+              packageType.name !== SubmissionPackageType.MANAGEMENT_PLAN ||
               submissionPackage.update_requests.filter(
                 (updateRequest) =>
                   updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value,

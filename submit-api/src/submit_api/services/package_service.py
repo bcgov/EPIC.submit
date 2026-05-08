@@ -23,6 +23,7 @@ from submit_api.models.package_item_type import PackageItemType as PackageItemTy
 from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageItemQueries
+from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.submission_review import SubmissionReviewStatus
@@ -435,12 +436,20 @@ class PackageService:
 
         cls._update_items_status(
             package.items, ItemStatus.SUBMITTED.value, session)
-        cls._update_package_status(package.id, session, package)
-        cls._update_package_submission_details(package, session)
         cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
+        cls._update_package_submission_details(package, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._create_email_queue_record(package, session)
         cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
+
+        # Non-versioned packages (e.g. Additional Information) derive their display status
+        # from submission states (NEW_SUBMISSION / INTERNAL_VERIFICATION / VERIFIED).
+        # Versioned packages use item-based status (SUBMITTED / UNDER_REVIEW / etc.).
+        if not package.type.versioning_enabled:
+            PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
+        else:
+            cls._update_package_status(package.id, session, package)
+
         return package
 
     @classmethod
@@ -455,11 +464,9 @@ class PackageService:
             raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_package_submission_details(package, session)
 
-        # Ensure package and item statuses are reset to SUBMITTED for non-versioned packages,
+        # Ensure package and item statuses are reset for non-versioned packages,
         # removing any previous flags like PARTIALLY_COMPLETED
         if not package.type.versioning_enabled:
-            package.status = [PackageStatus.SUBMITTED.value]
-            session.add(package)
             cls._update_items_status(
                 package.items, ItemStatus.SUBMITTED.value, session)
 
@@ -470,6 +477,12 @@ class PackageService:
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
         cls._deactivate_fail_reviews(package, session)
         cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
+
+        # Recompute package display status from submission states for non-versioned packages.
+        # Versioned packages manage their own status through the review workflow.
+        if not package.type.versioning_enabled:
+            PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
+
         return package
 
     @classmethod
