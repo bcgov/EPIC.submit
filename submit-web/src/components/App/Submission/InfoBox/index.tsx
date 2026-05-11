@@ -14,7 +14,10 @@ type InfoBoxProps = {
   accountProject?: AccountProject;
 };
 
-export const InfoBox = ({ submissionPackage, accountProject }: InfoBoxProps) => {
+export const InfoBox = ({
+  submissionPackage,
+  accountProject,
+}: InfoBoxProps) => {
   const { version } = submissionPackage;
   const condition = useMemo(() => {
     if (!submissionPackage.meta) return "";
@@ -55,7 +58,8 @@ export const InfoBox = ({ submissionPackage, accountProject }: InfoBoxProps) => 
               color: BCDesignTokens.typographyColorPrimary,
             }}
           >
-            Description: &nbsp;<br />
+            Description: &nbsp;
+            <br />
           </Typography>
           <Typography
             component="span"
@@ -78,85 +82,100 @@ export const InfoBox = ({ submissionPackage, accountProject }: InfoBoxProps) => 
           p: "16px",
         }}
       >
-        <If condition={submissionPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN}>
-        <Then>
-          <Grid item xs={12} md={6} container>
-            <Grid item xs={12}>
-              <Stack direction={"row"} spacing={2}>
-                <Typography color={BCDesignTokens.themeGray70}>
-                  Condition:
-                </Typography>
-                <Typography color={"inherit"}>{condition || "-"}</Typography>
-              </Stack>
-            </Grid>
+        <If
+          condition={
+            submissionPackage.type.name ===
+            SubmissionPackageType.MANAGEMENT_PLAN
+          }
+        >
+          <Then>
+            <Grid item xs={12} md={6} container>
+              <Grid item xs={12}>
+                <Stack direction={"row"} spacing={2}>
+                  <Typography color={BCDesignTokens.themeGray70}>
+                    Condition:
+                  </Typography>
+                  <Typography color={"inherit"}>{condition || "-"}</Typography>
+                </Stack>
+              </Grid>
 
-            <Grid item xs={12}>
-              <Stack direction={"row"} spacing={2}>
-                <Typography color={BCDesignTokens.themeGray70}>
-                  Supporting Condition(s):
-                </Typography>
-                <Typography color={"inherit"}>
-                  {supportingConditions || "-"}
-                </Typography>
-              </Stack>
+              <Grid item xs={12}>
+                <Stack direction={"row"} spacing={2}>
+                  <Typography color={BCDesignTokens.themeGray70}>
+                    Supporting Condition(s):
+                  </Typography>
+                  <Typography color={"inherit"}>
+                    {supportingConditions || "-"}
+                  </Typography>
+                </Stack>
+              </Grid>
             </Grid>
-          </Grid>
-        </Then>
-        <Else>
-          <Grid item xs={12} md={6} container direction={"column"}>
-            <Grid item xs={12}>
-              <Stack direction={"row"} spacing={2}>
-                <Typography color={BCDesignTokens.themeGray70}>
-                  Project name:
-                </Typography>
-                <Typography color={"inherit"}>
-                  {accountProject?.project?.name || "-"}
-                </Typography>
-              </Stack>
+          </Then>
+          <Else>
+            <Grid
+              item
+              xs={12}
+              md={6}
+              container
+              direction={"column"}
+              spacing={2}
+            >
+              <Grid item xs={12}>
+                <Stack direction={"row"} spacing={1}>
+                  <Typography color={BCDesignTokens.themeGray70}>
+                    Project name:
+                  </Typography>
+                  <Typography color={"inherit"}>
+                    {accountProject?.project?.name || "-"}
+                  </Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack direction={"row"} spacing={1}>
+                  <Typography color={BCDesignTokens.themeGray70}>
+                    Submitted on:
+                  </Typography>
+                  <Typography color={"inherit"}>
+                    {dateUtils.formatDate(submissionPackage.submitted_on) ||
+                      "-"}
+                  </Typography>
+                </Stack>
+              </Grid>
+              <Grid item xs={12}>
+                <Stack direction={"row"} spacing={1}>
+                  <Typography color={BCDesignTokens.themeGray70}>
+                    Submitted by:
+                  </Typography>
+                  <Typography color={"inherit"}>
+                    {submissionPackage.submitted_by || "-"}
+                  </Typography>
+                </Stack>
+              </Grid>
             </Grid>
-            <Grid item xs={12}>
-              <Stack direction={"row"} spacing={2}>
-                <Typography color={BCDesignTokens.themeGray70}>
-                  Submitted on:
-                </Typography>
-                <Typography color={"inherit"}>
-                  {dateUtils.formatDate(submissionPackage.submitted_on) || "-"}
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={12}>
-              <Stack direction={"row"} spacing={2}>
-                <Typography color={BCDesignTokens.themeGray70}>
-                  Submitted by:
-                </Typography>
-                <Typography color={"inherit"}>
-                  {submissionPackage.submitted_by || "-"}
-                </Typography>
-              </Stack>
-            </Grid>
-          </Grid>
-        </Else>
-      </If>
+          </Else>
+        </If>
 
-      {version && submissionPackage.type.name !== SubmissionPackageType.ADDITIONAL_INFORMATION && (
-        <>
-          <Grid
-            item
-            md={6}
-            xs={12}
-            container
-            alignContent={{ xs: "flex-start" }}
-            justifyContent={{ xs: "flex-end" }}
-          >
-            <VersionGroup currentPackageVersion={version} />
-          </Grid>
-          <Grid item xs={12} container mt={"16px"}>
-            <SubmissionHistory
-              submissionPackageId={String(version.original_package_id)}
-            />
-          </Grid>
-        </>
-      )}
+        {version &&
+          submissionPackage.type.name !==
+            SubmissionPackageType.ADDITIONAL_INFORMATION && (
+            <>
+              <Grid
+                item
+                md={6}
+                xs={12}
+                container
+                alignContent={{ xs: "flex-start" }}
+                justifyContent={{ xs: "flex-end" }}
+              >
+                <VersionGroup currentPackageVersion={version} />
+              </Grid>
+              <Grid item xs={12} container mt={"16px"}>
+                <SubmissionHistory
+                  submissionPackageId={String(version.original_package_id)}
+                />
+              </Grid>
+            </>
+          )}
       </Grid>
     </>
   );
