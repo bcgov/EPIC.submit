@@ -158,13 +158,15 @@ class PackageService:
             cls._update_items_status(items_to_update, ItemStatus.REVIEW_NOT_COMPLETED.value, session)
             cls._update_package_status(original_package.id, session, original_package)
 
-            if original_package.version:
-                ActivityLogService.log_activity(
-                    entity_id=original_package.version.original_package_id,
-                    action=ActivityActionType.RESUBMISSION_INVITATION.value,
-                    entity_version=original_package.version.version,
-                    session=session
-                )
+            ActivityLogService.log_activity(
+                entity_id=(
+                    original_package.version.original_package_id
+                    if original_package.version else original_package.id
+                ),
+                action=ActivityActionType.RESUBMISSION_INVITATION.value,
+                entity_version=original_package.version.version if original_package.version else 1,
+                session=session
+            )
 
             session.add(new_package)
             session.flush()
@@ -301,7 +303,9 @@ class PackageService:
             raise BadRequestError("Cannot resubmit a package that has been approved")
         if package.status == PackageStatus.REJECTED:
             raise BadRequestError("Cannot resubmit a package that has been rejected")
-        if not package.update_requests and not package.account_project_work_id:
+        open_update_requests = [request for request in package.update_requests
+                                if request.status != UpdateRequestStatus.ACCEPTED.value]
+        if not open_update_requests and not package.account_project_work_id:
             raise BadRequestError("Cannot resubmit a package that has no update requests")
         current_app.logger.info(f"Package {package.id} is ready to resubmit")
         return package
@@ -456,10 +460,6 @@ class PackageService:
     def _resubmit_package(cls, package, session):
         """Submit the package by updating its status and items."""
         current_app.logger.info(f"Resubmitting package {package.id}")
-        open_update_requests = [request for request in package.update_requests
-                                if request.status != UpdateRequestStatus.ACCEPTED.value]
-        if not open_update_requests:
-            raise BadRequestError("Cannot resubmit a package that has no open update requests")
         if package.completed_on:
             raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_package_submission_details(package, session)
@@ -544,14 +544,13 @@ class PackageService:
     @staticmethod
     def _log_activity_submission(package, action, session):
         """Log activity for package submission."""
-        if package.version:
-            ActivityLogService.log_activity(
-                entity_id=package.version.original_package_id,
-                action=action,
-                actor_type=ActorTypeEnum.ENTITY.value,
-                entity_version=package.version.version,
-                session=session
-            )
+        ActivityLogService.log_activity(
+            entity_id=package.version.original_package_id if package.version else package.id,
+            action=action,
+            actor_type=ActorTypeEnum.ENTITY.value,
+            entity_version=package.version.version if package.version else 1,
+            session=session
+        )
 
     @classmethod
     def _deactivate_fail_reviews(cls, package, session):
@@ -662,13 +661,12 @@ class PackageService:
         action = review_action_map.get(package.type.name)
         if not action:
             raise BadRequestError("Unsupported package type for review")
-        if package.version:
-            ActivityLogService.log_activity(
-                entity_id=package.version.original_package_id,
-                action=action,
-                entity_version=package.version.version,
-                session=session
-            )
+        ActivityLogService.log_activity(
+            entity_id=package.version.original_package_id if package.version else package.id,
+            action=action,
+            entity_version=package.version.version if package.version else 1,
+            session=session
+        )
 
     @classmethod
     def start_cr_check(cls, package_id):
@@ -694,13 +692,12 @@ class PackageService:
     @staticmethod
     def _log_activity_start_consultation_check(package, session):
         """Log activity for starting consultation check."""
-        if package.version:
-            ActivityLogService.log_activity(
-                entity_id=package.version.original_package_id,
-                action=ActivityActionType.START_CONSULTATION_CHECK.value,
-                entity_version=package.version.version,
-                session=session
-            )
+        ActivityLogService.log_activity(
+            entity_id=package.version.original_package_id if package.version else package.id,
+            action=ActivityActionType.START_CONSULTATION_CHECK.value,
+            entity_version=package.version.version if package.version else 1,
+            session=session
+        )
 
     @staticmethod
     def _unsupported_status(*args, **kwargs):
@@ -785,12 +782,11 @@ class PackageService:
     @staticmethod
     def _log_activity_update_request(package):
         """Log activity for update request creation."""
-        if package.version:
-            ActivityLogService.log_activity(
-                entity_id=package.version.original_package_id,
-                action=ActivityActionType.UPDATE_REQUESTED.value,
-                entity_version=package.version.version,
-            )
+        ActivityLogService.log_activity(
+            entity_id=package.version.original_package_id if package.version else package.id,
+            action=ActivityActionType.UPDATE_REQUESTED.value,
+            entity_version=package.version.version if package.version else 1,
+        )
 
     @classmethod
     def _get_and_validate_package_for_update_request(cls, package_id):

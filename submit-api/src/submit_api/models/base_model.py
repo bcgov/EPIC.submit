@@ -31,7 +31,12 @@ class BaseModel(db.Model):
     __abstract__ = True
 
     created_date = db.Column(db.DateTime, default=lambda: datetime.now(UTC), nullable=False)
-    updated_date = db.Column(db.DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC), nullable=True)
+    updated_date = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=True
+    )
 
     @declared_attr
     def created_by(cls):  # pylint:disable=no-self-argument, # noqa: N805

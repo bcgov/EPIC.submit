@@ -150,20 +150,9 @@ export default function Row({
   const isRemovable =
     currentSubmission.status === SUBMISSION_STATUS.PENDING &&
     currentSubmission.minor_version === 1;
-
   return (
     <TableRow>
       <SubmitTableCell>
-        {/* <Typography
-          variant="body1"
-          color="inherit"
-          sx={{
-            overflow: "clip",
-            textOverflow: "ellipsis",
-            cursor: "pointer",
-            mx: 0.5,
-          }}
-        > */}
         <DocumentLink
           name={submitted_document?.name ?? ""}
           loading={pendingGetObject}

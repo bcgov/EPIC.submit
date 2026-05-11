@@ -10,7 +10,7 @@ import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "@/components/App/Submission/DocumentRow";
-import { When } from "react-if";
+import { If, When } from "react-if";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "@/components/App/Submission/SubmissionItemTableRow";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,8 +23,9 @@ import {
 import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
-import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
+import { UPDATE_REQUEST_STATUS, UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
+import dayjs from "dayjs";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -69,6 +70,28 @@ export default function ProponentSubmissionItemTableRow({
 
   const hasAccountProjectWork = Boolean(submissionPackage?.account_project_work?.id);
 
+  const isUpdated = useMemo(() => {
+    if (!submissionPackage) return false;
+    
+    const last_update_request = submissionPackage.update_requests
+      .filter(
+        (updateRequest) =>
+          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
+          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
+          updateRequest.active,
+      )
+      .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
+
+    if (!last_update_request) return false;
+    
+    return Boolean(
+      item.submissions?.find((submission) =>
+        dayjs(submission.created_date).isAfter(
+          last_update_request.created_date,
+        ),
+      ),
+    );
+  }, [item, submissionPackage]);
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
   const onActionClick = () => {
@@ -94,7 +117,7 @@ export default function ProponentSubmissionItemTableRow({
               variant="h6"
               color="inherit"
               fontWeight={900}
-              sx={{ mx: 0.5 }}
+              sx={{ mx: 0.5, fontSize: "1rem", lineHeight: "1.688rem" }}
             >
               {name}
             </Typography>
@@ -113,19 +136,35 @@ export default function ProponentSubmissionItemTableRow({
               />
             </Box>
           </When>
-          <When condition={hasAccountProjectWork && hasOpenUpdateRequest}>
-            <Chip
-              label="Update Requested"
-              size="small"
-              sx={{
-                backgroundColor: "#ffdeb8",
-                border: "1px solid #f18a15",
-                color: BCDesignTokens.typographyColorPrimary,
-                fontSize: "12px",
-                height: "24px",
-                fontWeight: 400,
-              }}
-            />
+          <When condition={hasAccountProjectWork}>
+            <If condition={hasOpenUpdateRequest}>
+              <Chip
+                label="Update Requested"
+                size="small"
+                sx={{
+                  backgroundColor: "#ffdeb8",
+                  border: "1px solid #f18a15",
+                  color: BCDesignTokens.typographyColorPrimary,
+                  fontSize: "12px",
+                  height: "24px",
+                  fontWeight: 400,
+                }}
+              />
+            </If>
+            <If condition={isUpdated}>
+              <Chip
+                label="Updated"
+                size="small"
+                sx={{
+                  backgroundColor: "#F6E4FF",
+                  border: "1px solid #9B6BDA",
+                  color: BCDesignTokens.typographyColorPrimary,
+                  fontSize: "12px",
+                  height: "24px",
+                  fontWeight: 400,
+                }}
+              />
+            </If>
           </When>
         </SubmitPrimaryRowTableCell>
       
