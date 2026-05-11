@@ -3,7 +3,8 @@ from flask import current_app
 
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Item as ItemModel
-from submit_api.models.queries.package import PackageItemQueries
+from submit_api.models import Package as PackageModel
+from submit_api.models.queries.package import PackageItemQueries, PackageSubmissionQueries
 from submit_api.services import authorization
 
 
@@ -41,6 +42,14 @@ class ItemService:
 
     @staticmethod
     def _update_package_status(package_id, session):
-        """Update the status of the package based on the statuses of its items."""
-        PackageItemQueries.update_package_status(package_id, session)
+        """Update the status of the package based on the statuses of its items.
+
+        For non-versioned packages (e.g. Additional Information), the display status is
+        derived from submission states, not item states.
+        """
+        package = PackageModel.find_by_id(package_id)
+        if package and not package.type.versioning_enabled:
+            PackageSubmissionQueries.update_package_status_from_submissions(package_id, session, package)
+        else:
+            PackageItemQueries.update_package_status(package_id, session)
         current_app.logger.info(f"Package status updated for package ID: {package_id}")

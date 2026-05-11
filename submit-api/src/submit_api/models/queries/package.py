@@ -338,6 +338,10 @@ class PackageSubmissionQueries:
         This handles the logic for Type A/B/C staged workflows up to
         READY_FOR_ACKNOWLEDGEMENT status, as further package status changes are done at
         the package level and do not require aggregated submission statuses.
+
+        For packages without an approval_type (e.g. Additional Information, which has
+        no formal approval workflow), the same verification progression applies but
+        there is no acknowledgement-readiness stage derived from submission statuses alone.
         """
         approval_type = package.type.approval_type
         submissions = [
@@ -359,16 +363,22 @@ class PackageSubmissionQueries:
         cls._add_new_submission_status(aggregated_statuses, statuses)
 
         # Type A staged workflow
-        if (approval_type == PackageApprovalType.A):
+        if approval_type == PackageApprovalType.A:
             cls._add_internal_verification_status(aggregated_statuses, statuses)
             cls._add_verified_status(aggregated_statuses, statuses)
 
         # Type B/C staged workflow
-        if (approval_type in [PackageApprovalType.B, PackageApprovalType.C]):
+        elif approval_type in [PackageApprovalType.B, PackageApprovalType.C]:
             cls._add_internal_verification_status(aggregated_statuses, statuses)
             cls._add_verified_status(aggregated_statuses, statuses)
             cls._add_pending_acknowledgement_status(aggregated_statuses, statuses)
             cls._add_ready_for_acknowledgement_status(aggregated_statuses, statuses)
+
+        else:
+            # Still apply verification progression so status doesn't fall through
+            # to an empty list (which would render as "CREATED" on the frontend).
+            cls._add_internal_verification_status(aggregated_statuses, statuses)
+            cls._add_verified_status(aggregated_statuses, statuses)
 
         # Overlay update request state last — it sits on top of whatever base state we have
         cls._add_update_request_overlay(aggregated_statuses, package)

@@ -111,8 +111,14 @@ export function useStaffSubmissionPage({
       ? allDocumentsVerified
       : isReadyForAcknowledgement;
 
+  // Show the acknowledge button when:
+  // - For versioned packages (IPD, DPD, etc.): approval_type must be set
+  // - For non-versioned packages (Additional Information): always show, approval_type is null
+  const hasAcknowledgeWorkflow =
+    Boolean(approval_type) || submissionPackage?.type.versioning_enabled === false;
+
   const showAcknowledgeButton =
-    !isPackageAcknowledged && !isPackageApproved && approval_type;
+    !isPackageAcknowledged && !isPackageApproved && hasAcknowledgeWorkflow;
   const showApproveButtons =
     isPackageAcknowledged && approval_type == SubmissionPackageApprovalType.C;
 

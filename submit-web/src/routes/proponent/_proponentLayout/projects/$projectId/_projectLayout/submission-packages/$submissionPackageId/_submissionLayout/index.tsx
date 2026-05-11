@@ -336,8 +336,8 @@ export default function SubmissionPage() {
   );
 
   const isSubmitDisabled =
-    submissionPackage.type.name !==
-      SubmissionPackageType.ADDITIONAL_INFORMATION &&
+    submissionPackage.type.name ===
+      SubmissionPackageType.MANAGEMENT_PLAN &&
     isPackageSubmitted &&
     pendingRequests.length === 0 &&
     openRequests.length === 0;
