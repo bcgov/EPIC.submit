@@ -300,7 +300,7 @@ class PackageService:
             raise BadRequestError("Cannot resubmit a package that has been approved")
         if package.status == PackageStatus.REJECTED:
             raise BadRequestError("Cannot resubmit a package that has been rejected")
-        if not package.update_requests:
+        if not package.update_requests and not package.account_project_work_id:
             raise BadRequestError("Cannot resubmit a package that has no update requests")
         current_app.logger.info(f"Package {package.id} is ready to resubmit")
         return package
