@@ -20,10 +20,18 @@ export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
   const { data: versions } = useGetSubmissionVersions(submittedDocument.id);
 
   const isNewVersion = useMemo(() => {
-    if (!versions || submittedDocument.status !== SUBMISSION_STATUS.SUBMITTED)
+    if (
+      !versions ||
+      (submittedDocument.status !== SUBMISSION_STATUS.SUBMITTED &&
+        submittedDocument.status !== SUBMISSION_STATUS.PENDING)
+    )
       return false;
-    // Check if any previous version was VERIFIED
-    return versions.some((v) => v.status === SUBMISSION_STATUS.VERIFIED);
+    // Check if any previous version was VERIFIED or ACKNOWLEDGED
+    return versions.some(
+      (v) =>
+        v.status === SUBMISSION_STATUS.VERIFIED ||
+        v.status === SUBMISSION_STATUS.ACKNOWLEDGED,
+    );
   }, [versions, submittedDocument.status]);
 
   return (

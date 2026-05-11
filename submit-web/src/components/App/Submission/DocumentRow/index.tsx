@@ -49,6 +49,7 @@ export default function DocumentRow({
     setExpanded,
     isPackageReadyForAcknowledgement,
     isAdditionalInfo,
+    isNewVersion,
     showUndoVerificationButton,
     showUndoAcknowledgementButton,
     showDefaultActionButton,
@@ -70,7 +71,10 @@ export default function DocumentRow({
     const status = documentSubmission.status;
     const smallIcon = { width: 16, height: 16 };
 
-    if (status === SUBMISSION_STATUS.SUBMITTED) {
+    if (
+      status === SUBMISSION_STATUS.SUBMITTED ||
+      (status === SUBMISSION_STATUS.PENDING && isNewVersion)
+    ) {
       const secondary: SplitButtonAction[] = [];
       if (!isAdditionalInfo) {
         secondary.push({
