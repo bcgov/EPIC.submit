@@ -7,16 +7,13 @@ import VersionGroup from "@/components/App/Submission/VersionGroup";
 import { SubmissionHistory } from "@/components/App/Submission/InfoBox/SubmissionHistory";
 import { Else, If, Then } from "react-if";
 import dateUtils from "@/utils/dateUtils";
-import { AccountProject } from "@/models/Project";
 
 type InfoBoxProps = {
   submissionPackage: SubmissionPackage;
-  accountProject?: AccountProject;
 };
 
 export const InfoBox = ({
-  submissionPackage,
-  accountProject,
+  submissionPackage
 }: InfoBoxProps) => {
   const { version } = submissionPackage;
   const condition = useMemo(() => {
@@ -80,6 +77,7 @@ export const InfoBox = ({
           borderRadius: "4px",
           border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
           p: "16px",
+          justifyContent: "space-between",
         }}
       >
         <If
@@ -112,70 +110,53 @@ export const InfoBox = ({
             </Grid>
           </Then>
           <Else>
-            <Grid
-              item
-              xs={12}
-              md={6}
-              container
-              direction={"column"}
-              spacing={2}
+            <Stack
+              gap={2}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+              }}
             >
-              <Grid item xs={12}>
-                <Stack direction={"row"} spacing={1}>
-                  <Typography color={BCDesignTokens.themeGray70}>
-                    Project name:
-                  </Typography>
-                  <Typography color={"inherit"}>
-                    {accountProject?.project?.name || "-"}
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack direction={"row"} spacing={1}>
-                  <Typography color={BCDesignTokens.themeGray70}>
-                    Submitted on:
-                  </Typography>
-                  <Typography color={"inherit"}>
-                    {dateUtils.formatDate(submissionPackage.submitted_on) ||
-                      "-"}
-                  </Typography>
-                </Stack>
-              </Grid>
-              <Grid item xs={12}>
-                <Stack direction={"row"} spacing={1}>
-                  <Typography color={BCDesignTokens.themeGray70}>
-                    Submitted by:
-                  </Typography>
-                  <Typography color={"inherit"}>
-                    {submissionPackage.submitted_by || "-"}
-                  </Typography>
-                </Stack>
-              </Grid>
-            </Grid>
+              <Stack direction={"row"} spacing={1}>
+                <Typography color={BCDesignTokens.themeGray70}>
+                  Submitted on:
+                </Typography>
+                <Typography color={"inherit"}>
+                  {dateUtils.formatDate(submissionPackage.submitted_on) || "-"}
+                </Typography>
+              </Stack>
+            <Stack direction={"row"} spacing={1}>
+              <Typography color={BCDesignTokens.themeGray70}>
+                Submitted by:
+              </Typography>
+              <Typography color={"inherit"}>
+                {submissionPackage.submitted_by || "-"}
+              </Typography>
+            </Stack>
+          </Stack>
           </Else>
         </If>
-
-        {version &&
-          submissionPackage.type.name !==
-            SubmissionPackageType.ADDITIONAL_INFORMATION && (
             <>
-              <Grid
-                item
-                md={6}
-                xs={12}
-                container
-                alignContent={{ xs: "flex-start" }}
-                justifyContent={{ xs: "flex-end" }}
-              >
-                <VersionGroup currentPackageVersion={version} />
-              </Grid>
+              {version && (
+                <Grid
+                  item
+                  md={6}
+                  xs={12}
+                  container
+                  alignContent={{ xs: "flex-start" }}
+                  justifyContent={{ xs: "flex-end" }}
+                >
+                  <VersionGroup currentPackageVersion={version} />
+                </Grid>
+              )}
               <Grid item xs={12} container mt={"16px"}>
                 <SubmissionHistory
-                  submissionPackageId={String(version.original_package_id)}
+                  submissionPackageId={String(
+                    version?.original_package_id ?? submissionPackage.id
+                  )}
                 />
               </Grid>
             </>
-          )}
       </Grid>
     </>
   );

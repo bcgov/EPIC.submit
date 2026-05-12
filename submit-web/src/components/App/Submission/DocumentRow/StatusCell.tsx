@@ -14,7 +14,7 @@ type StatusCellProps = Readonly<{
   submittedDocument: Submission;
 }>;
 
-export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
+export const  StatusCell = ({ submittedDocument }: StatusCellProps) => {
   const { userType } = useAccount();
   const entityUser = userType === USER_TYPE.PROPONENT;
   const { data: versions } = useGetSubmissionVersions(submittedDocument.id);
