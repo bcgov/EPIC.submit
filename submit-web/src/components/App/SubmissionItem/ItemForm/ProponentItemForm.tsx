@@ -13,6 +13,9 @@ import { IPDSubmissionProponentView } from "@/components/App/SubmissionItem/IPDS
 import { GeoSpatialProponentView } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialProponentView";
 import { EngagementPlanProponentView } from "@/components/App/SubmissionItem/EPSubmission/EPProponentView";
 import { AdditionalInformationProponentView } from "@/components/App/SubmissionItem/AdditionalInformation/ProponentView";
+import { AdditionalInformationUpdateForm } from "@/components/App/SubmissionItem/AdditionalInformation/UpdateForm";
+import { IPDUpdateForm } from "@/components/App/SubmissionItem/IPDSubmission/IPDUpdateForm";
+import { EngagementPlanUpdateForm } from "@/components/App/SubmissionItem/EPSubmission/EPUpdateForm";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
@@ -39,10 +42,10 @@ const updateFormMap = {
   [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: ManagementPlanUpdateForm,
   [SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION]: ContactInformationEntityView,
   [SUBMISSION_ITEM_TYPE.IEM]: IEMUpdateForm,
-  [SUBMISSION_ITEM_TYPE.IPD]: IPDSubmissionProponentView,
-  [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanProponentView,
+  [SUBMISSION_ITEM_TYPE.IPD]: IPDUpdateForm,
+  [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanUpdateForm,
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: GeoSpatialProponentView,
-  [SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT]: AdditionalInformationProponentView,
+  [SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT]: AdditionalInformationUpdateForm,
 };
 
 export const ProponentItemUpdateForm = ({ submissionItem }: ItemFormProps) => {

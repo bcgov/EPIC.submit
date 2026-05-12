@@ -259,10 +259,7 @@ export default function SubmissionPage() {
                   </Typography>
                 </WarningBox>
               </When>
-              <InfoBox
-                submissionPackage={submissionPackage}
-                accountProject={accountProject}
-              />
+              <InfoBox submissionPackage={submissionPackage} />
               <When
                 condition={accountProject.account_project_works?.length === 0}
               >
