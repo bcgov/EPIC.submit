@@ -127,7 +127,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             status = submission.status
             allowed_statuses = [SubmissionStatus.SUBMITTED,
                                 SubmissionStatus.REJECTED,
-                                SubmissionStatus.PENDING]
+                                SubmissionStatus.PENDING,
+                                SubmissionStatus.VERIFIED,
+                                SubmissionStatus.ACKNOWLEDGED]
             if status not in allowed_statuses:
                 current_app.logger.warning(
                     "Attempted to replace a document with non-replaceable status '%s' for submission_id: %s.",

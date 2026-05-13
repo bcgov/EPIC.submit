@@ -206,22 +206,7 @@ export default function DocumentRow({
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"15%"}>
           <Box mr={2}>
-            {!staff && isUpdated && submissionPackage?.account_project_work ? (
-              <Chip
-                label="New Version"
-                size="small"
-                sx={{
-                  backgroundColor: BCDesignTokens.themeBlue20,
-                  border: `1px solid ${BCDesignTokens.themeBlue100}`,
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                }}
-              />
-            ) : (
-              <StatusCell submittedDocument={documentSubmission} />
-            )}
+            <StatusCell submittedDocument={documentSubmission} />
           </Box>
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"20%"}>
