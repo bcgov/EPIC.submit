@@ -12,9 +12,13 @@ import { useMemo } from "react";
 
 type StatusCellProps = Readonly<{
   submittedDocument: Submission;
+  isUpdated?: boolean;
 }>;
 
-export const  StatusCell = ({ submittedDocument }: StatusCellProps) => {
+export const StatusCell = ({
+  submittedDocument,
+  isUpdated,
+}: StatusCellProps) => {
   const { userType } = useAccount();
   const entityUser = userType === USER_TYPE.PROPONENT;
   const { data: versions } = useGetSubmissionVersions(submittedDocument.id);
@@ -36,17 +40,21 @@ export const  StatusCell = ({ submittedDocument }: StatusCellProps) => {
 
   return (
     <Switch>
+      <Case condition={isNewVersion || isUpdated}>
+        <SubmissionStatusChip
+          status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION}
+        />
+      </Case>
       <Case condition={entityUser}>{null}</Case>
       <Case condition={submittedDocument.status === SUBMISSION_STATUS.REJECTED}>
         <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.FAILED} />
       </Case>
-      <Case condition={isNewVersion}>
-        <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION} />
-      </Case>
       <Case condition={submittedDocument.status === SUBMISSION_STATUS.VERIFIED}>
         <SubmissionStatusChip status={SUBMISSION_STATUS.VERIFIED} />
       </Case>
-      <Case condition={submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED}>
+      <Case
+        condition={submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED}
+      >
         <SubmissionStatusChip status={SUBMISSION_STATUS.ACKNOWLEDGED} />
       </Case>
       <Default>{null}</Default>

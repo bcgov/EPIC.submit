@@ -1,4 +1,4 @@
-import { Box, Chip, IconButton, TableRow, Typography } from "@mui/material";
+import { Box, IconButton, TableRow, Typography } from "@mui/material";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import dayjs from "dayjs";
@@ -53,7 +53,9 @@ export default function DocumentRow({
     // Check if this specific submission is PENDING and created after the last package submission
     return (
       documentSubmission.status === SUBMISSION_STATUS.PENDING &&
-      dayjs(documentSubmission.created_date).isAfter(dayjs(submissionPackage.submitted_on))
+      dayjs(documentSubmission.created_date).isAfter(
+        dayjs(submissionPackage.submitted_on),
+      )
     );
   }, [documentSubmission, submissionPackage?.submitted_on]);
 
@@ -206,7 +208,10 @@ export default function DocumentRow({
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"15%"}>
           <Box mr={2}>
-            <StatusCell submittedDocument={documentSubmission} />
+            <StatusCell
+              submittedDocument={documentSubmission}
+              isUpdated={isUpdated}
+            />
           </Box>
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"20%"}>
