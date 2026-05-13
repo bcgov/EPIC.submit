@@ -196,14 +196,18 @@ class PackageSchema(Schema):
 
         # Add non-canonical statuses
         update_requests = data.get('update_requests', [])
-        is_update_requested = any(ur.get('active') and ur.get('status') != 'COMPLETED' for ur in update_requests)
-
+        is_update_requested = any(ur.get('active') and ur.get('status') == 'OPEN' for ur in update_requests)
+        is_updated = (update_requests and
+                      all(ur.get('active') and ur.get('status') == 'PENDING_REVIEW'
+                          for ur in update_requests))
         # Check if any item has REVISION_REQUIRED
         items = data.get('items', [])
         is_revision_required = any(item.get('status') == 'REVISION_REQUIRED' for item in items)
 
         if is_update_requested:
             new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+        if is_updated:
+            new_status.append(NonCanonicalPackageStatus.UPDATED.value)
 
         if is_revision_required:
             if user_type == UserType.PROPONENT:
@@ -259,13 +263,54 @@ def get_package_status(status, user_type, version_obj, package_type=None):
     version = 1
     if version_obj and isinstance(version_obj, dict):
         version = version_obj.get('version', 1) or 1
-
-    versioning_enabled = package_type.get('versioning_enabled', True) if isinstance(package_type, dict) else True
     package_status_mapping = {
+        # work related package statuses
         PackageStatus.NEW.value: {
             UserType.PROPONENT: PackageStatus.NEW.value if version == 1 else '',
             UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
         },
+        PackageStatus.IN_PROGRESS.value: {
+            UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
+            UserType.STAFF: PackageStatus.CREATED.value
+        },
+        PackageStatus.SUBMITTED.value: {
+            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+            UserType.STAFF: (PackageStatus.NEW_SUBMISSION.value if version == 1
+                             else PackageStatus.RESUBMITTED.value)
+        },
+        PackageStatus.INTERNAL_VERIFICATION.value: {
+            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+            UserType.STAFF: PackageStatus.INTERNAL_VERIFICATION.value
+        },
+        PackageStatus.VERIFIED.value: {
+            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+            UserType.STAFF: PackageStatus.VERIFIED.value
+        },
+        PackageStatus.PENDING_ACKNOWLEDGEMENT.value: {
+            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+            UserType.STAFF: PackageStatus.PENDING_ACKNOWLEDGEMENT.value
+        },
+        PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value: {
+            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+            UserType.STAFF: PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value
+        },
+        PackageStatus.ACKNOWLEDGED.value: {
+            UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
+            UserType.STAFF: PackageStatus.ACKNOWLEDGED.value
+        },
+        PackageStatus.READY_FOR_APPROVAL.value: {
+            UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
+            UserType.STAFF: PackageStatus.READY_FOR_APPROVAL.value
+        },
+        PackageStatus.APPROVED.value: {
+            UserType.PROPONENT: PackageStatus.APPROVED.value,
+            UserType.STAFF: PackageStatus.APPROVED.value
+        },
+        PackageStatus.NOT_APPROVED.value: {
+            UserType.PROPONENT: PackageStatus.NOT_APPROVED.value,
+            UserType.STAFF: PackageStatus.NOT_APPROVED.value
+        },
+        # end work related package statuses
         PackageStatus.PARTIALLY_COMPLETED.value: {
             UserType.PROPONENT: PackageStatus.PARTIALLY_COMPLETED.value,
             UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
@@ -273,12 +318,6 @@ def get_package_status(status, user_type, version_obj, package_type=None):
         PackageStatus.COMPLETED.value: {
             UserType.PROPONENT: PackageStatus.COMPLETED.value,
             UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
-        },
-        PackageStatus.SUBMITTED.value: {
-            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: (PackageStatus.SUBMITTED.value if not versioning_enabled
-                             else (PackageStatus.NEW_SUBMISSION.value if version == 1
-                                   else PackageStatus.RESUBMITTED.value))
         },
         PackageStatus.UNDER_REVIEW.value: {
             UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
@@ -311,11 +350,7 @@ def get_package_status(status, user_type, version_obj, package_type=None):
         PackageStatus.REVIEWED.value: {
             UserType.PROPONENT: PackageStatus.REVIEWED.value,
             UserType.STAFF: PackageStatus.REVIEWED.value
-        },
-        PackageStatus.IN_PROGRESS.value: {
-            UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
-            UserType.STAFF: PackageStatus.CREATED.value if not versioning_enabled else PackageStatus.IN_PROGRESS.value
-        },
+        }
     }
 
     if status in package_status_mapping:

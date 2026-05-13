@@ -97,12 +97,12 @@ class PackageService:
         # Use account_project_work_id from request if provided
         if request_data.get("account_project_work_id"):
             package_data["account_project_work_id"] = request_data.get("account_project_work_id")
-            # Set IN_PROGRESS status for work-related packages
+            # Set NEW status for work-related packages
             if not package_data.get("status"):
-                package_data["status"] = [PackageStatus.IN_PROGRESS.value]
+                package_data["status"] = [PackageStatus.NEW.value]
                 work_id = request_data.get('account_project_work_id')
                 current_app.logger.info(
-                    f"Setting IN_PROGRESS status for work-related package with work_id: {work_id}"
+                    f"Setting NEW status for work-related package with work_id: {work_id}"
                 )
             current_app.logger.info(
                 f"Using account_project_work_id from request: {request_data.get('account_project_work_id')}"
@@ -271,11 +271,11 @@ class PackageService:
         if package.submitted_on:
             return cls._validate_package_for_resubmit(package)
 
-        if not package.type.versioning_enabled:
-            document_submissions = cls._get_document_submissions_from_package(package)
-            if not document_submissions:
-                current_app.logger.info(f"Package {package_id} has no documents")
-                raise BadRequestError("You must have at least one file uploaded to be able to submit your package.")
+        # Check if package has any document submissions
+        document_submissions = cls._get_document_submissions_from_package(package)
+        if not document_submissions:
+            current_app.logger.info(f"Package {package_id} has no documents")
+            raise BadRequestError("You must have at least one file uploaded to be able to submit your package.")
 
         required_items = cls._get_required_items(package)
         incomplete_required_items = [
@@ -446,10 +446,8 @@ class PackageService:
         cls._create_email_queue_record(package, session)
         cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
 
-        # Non-versioned packages (e.g. Additional Information) derive their display status
-        # from submission states (NEW_SUBMISSION / INTERNAL_VERIFICATION / VERIFIED).
-        # Versioned packages use item-based status (SUBMITTED / UNDER_REVIEW / etc.).
-        if not package.type.versioning_enabled:
+        # For work-related packages, update status from submissions
+        if package.account_project_work_id:
             PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
         else:
             cls._update_package_status(package.id, session, package)
@@ -478,9 +476,8 @@ class PackageService:
         cls._deactivate_fail_reviews(package, session)
         cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
 
-        # Recompute package display status from submission states for non-versioned packages.
-        # Versioned packages manage their own status through the review workflow.
-        if not package.type.versioning_enabled:
+        # Update package status from submissions for work-related packages
+        if package.account_project_work_id:
             PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
 
         return package

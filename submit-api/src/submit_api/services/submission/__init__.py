@@ -2,10 +2,12 @@
 from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
+from submit_api.exceptions import BadRequestError
 from submit_api.models import Item as ItemModel, Package as PackageModel
 from submit_api.models.db import db, session_scope
 from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
+from submit_api.models.package_item_type import PackageItemType
 from submit_api.enums.package_type import PackageApprovalType
 from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionType, \
@@ -175,7 +177,50 @@ class SubmissionService:
         """Update the status of the submission item."""
         if not status:
             return
+
+        # Validate required document submissions before marking as COMPLETED
+        if status == ItemStatus.COMPLETED.value:
+            cls._validate_required_document_submission(item_id)
+
         ItemService.update_submission_item_status(item_id, status, session)
+
+    @classmethod
+    def _validate_required_document_submission(cls, item_id):
+        """Validate that required document items have at least one document submission."""
+        # Get the item with its relationships
+        item = ItemModel.find_by_id(item_id)
+        if not item:
+            raise BadRequestError("Item not found.")
+
+        # Check if this item type is required for the package type
+        package = PackageModel.find_by_id(item.package_id)
+        if not package:
+            raise BadRequestError("Package not found.")
+
+        package_item_type = PackageItemType.query.filter_by(
+            package_type_id=package.type_id,
+            item_type_id=item.type_id
+        ).first()
+
+        # Only validate if the item is required
+        if not package_item_type or not package_item_type.is_required:
+            return
+
+        # Only validate for document upload items
+        if item.type.submission_method != SubmissionMethod.DOCUMENT_UPLOAD:
+            return
+
+        # Check if there's at least one active submission with a document
+        has_document_submission = any(
+            submission.type == SubmissionType.DOCUMENT and
+            submission.submitted_document_id is not None
+            for submission in item.submissions
+        )
+
+        if not has_document_submission:
+            raise BadRequestError(
+                f"Cannot mark item as COMPLETED. Required documents are missing for '{item.type.name}'."
+            )
 
     @classmethod
     def delete_submission(cls, submission_id):
