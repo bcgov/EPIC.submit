@@ -55,10 +55,12 @@ export default function DocumentsTable({
       return addedSubmissions;
     }
     const submissions = submissionItem.submissions.filter(
-      (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+      (submission) =>
+        submission.type === SUBMISSION_TYPE.DOCUMENT &&
+        submission.submitted_document?.folder === folder,
     );
     return [...submissions, ...addedSubmissions];
-  }, [submissionItem, addedSubmissions]);
+  }, [submissionItem, addedSubmissions, folder]);
 
   if (isItemLoading) {
     return <Skeleton variant="rectangular" height={200} />;

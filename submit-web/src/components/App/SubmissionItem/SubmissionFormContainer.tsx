@@ -75,7 +75,10 @@ export const SubmissionFormContainer = ({
               container
               spacing={BCDesignTokens.layoutMarginMedium}
               padding="16px"
-              sx={{ flexDirection: "column" }}
+              sx={{
+                flexDirection: "column",
+                alignItems: "flex-start",
+              }}
             >
               {children}
             </Grid>
