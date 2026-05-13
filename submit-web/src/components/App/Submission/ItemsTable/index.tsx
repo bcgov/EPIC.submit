@@ -1,4 +1,4 @@
-import { Box, Table, TableBody, TableContainer, Typography } from "@mui/material";
+import { Box, Table, TableBody, TableContainer } from "@mui/material";
 import { useAccount } from "@/store/accountStore";
 import { USER_TYPE } from "@/models/User";
 import { When } from "react-if";
@@ -12,8 +12,6 @@ import InternalDocumentsRows from "@/components/App/SubmissionItem/InternalDocum
 import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
 import ItemsTableHead from "@/components/App/Submission/ItemsTable/ItemsTableHead";
 import { AccountProject } from "@/models/Project";
-import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
-import { BCDesignTokens } from "epic.theme";
 
 type ItemsTableProps = Readonly<{
   submissionPackage: SubmissionPackage;
@@ -39,20 +37,6 @@ export default function ItemsTable({
   useEffect(() => {
     initializeFiles(submissionPackage.internal_staff_documents || []);
   }, [submissionPackage.internal_staff_documents, initializeFiles]);
-
-  const isAdditionalInfo =
-    packageType.name === SubmissionPackageType.ADDITIONAL_INFORMATION;
-
-  const documentItems = isAdditionalInfo
-    ? submissionItems?.filter(
-        (item) => item.type.name === SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT,
-      )
-    : [];
-  const geospatialItems = isAdditionalInfo
-    ? submissionItems?.filter(
-        (item) => item.type.name === SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION,
-      )
-    : [];
 
   const renderItems = (items: typeof submissionItems) =>
     items?.map((subItem) => (
@@ -80,64 +64,8 @@ export default function ItemsTable({
       />
     ));
 
-  if (isAdditionalInfo) {
-    return (
-      <Box sx={{ display: "flex", flexDirection: "column", gap: "36px" }}>
-        {documentItems && documentItems.length > 0 && (
-          <Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                fontSize: "18px",
-                mb: "16px",
-                color: BCDesignTokens.typographyColorPrimary,
-              }}
-            >
-              Documents
-            </Typography>
-            <TableContainer
-              component={Box}
-              sx={{ height: "100%", overflow: "hidden" }}
-            >
-              <Table sx={{ tableLayout: "fixed" }}>
-                <ItemsTableHead packageType={packageType} />
-                <TableBody>{renderItems(documentItems)}</TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        )}
-
-        {geospatialItems && geospatialItems.length > 0 && (
-          <Box>
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                fontSize: "18px",
-                mb: "16px",
-                color: BCDesignTokens.typographyColorPrimary,
-              }}
-            >
-              Geospatial Information
-            </Typography>
-            <TableContainer
-              component={Box}
-              sx={{ height: "100%", overflow: "hidden" }}
-            >
-              <Table sx={{ tableLayout: "fixed" }}>
-                <ItemsTableHead packageType={packageType} />
-                <TableBody>{renderItems(geospatialItems)}</TableBody>
-              </Table>
-            </TableContainer>
-          </Box>
-        )}
-      </Box>
-    );
-  }
-
   return (
-    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden" }}>
+    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden", mt: 2.25,mb:1 }}>
       <Table sx={{ tableLayout: "fixed" }}>
         <ItemsTableHead packageType={packageType} />
         <TableBody>

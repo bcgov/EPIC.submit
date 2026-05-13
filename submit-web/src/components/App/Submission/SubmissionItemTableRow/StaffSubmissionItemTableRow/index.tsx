@@ -84,8 +84,8 @@ export default function StaffSubmissionItemTableRow({
             <Typography
               variant="h6"
               color="inherit"
-              fontWeight={900}
-              sx={{ mx: 0.5 }}
+              fontWeight={700}
+              sx={{ mx: 0.5, fontSize: "1rem", lineHeight: "1.688rem" }}
             >
               {name}
             </Typography>

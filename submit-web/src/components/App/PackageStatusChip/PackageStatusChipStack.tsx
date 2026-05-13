@@ -9,7 +9,6 @@ export const PackageStatusChipStack = ({
   submissionPackage,
 }: PackageStatusChipStackProps) => {
   const { status } = submissionPackage;
-
   const filteredStatus = (status || []).filter(Boolean);
 
   return (

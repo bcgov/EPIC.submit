@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { SubmissionPackage } from "@/models/Package";
+import { SUBMISSION_STATUS } from "@/models/Submission";
 
 export type DocumentChangeState = {
   [itemTypeId: number]: {
@@ -47,7 +48,10 @@ export const useDocumentChangeTracking = ({
             : null;
 
           if (submissionDate) {
-            if (!lastSubmissionDate || submissionDate > lastSubmissionDate) {
+            const isPending = submission.status === SUBMISSION_STATUS.PENDING;
+            const isNewByDate = !lastSubmissionDate || submissionDate > lastSubmissionDate;
+
+            if (isPending || isNewByDate) {
               newDocumentIds.push(doc.id);
             }
 
