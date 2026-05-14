@@ -1,4 +1,4 @@
-import { Box, Chip, IconButton, TableRow, Typography } from "@mui/material";
+import { Box, IconButton, TableRow, Typography } from "@mui/material";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import dayjs from "dayjs";
@@ -53,7 +53,9 @@ export default function DocumentRow({
     // Check if this specific submission is PENDING and created after the last package submission
     return (
       documentSubmission.status === SUBMISSION_STATUS.PENDING &&
-      dayjs(documentSubmission.created_date).isAfter(dayjs(submissionPackage.submitted_on))
+      dayjs(documentSubmission.created_date).isAfter(
+        dayjs(submissionPackage.submitted_on),
+      )
     );
   }, [documentSubmission, submissionPackage?.submitted_on]);
 
@@ -63,6 +65,7 @@ export default function DocumentRow({
     setExpanded,
     isPackageReadyForAcknowledgement,
     isAdditionalInfo,
+    isNewVersion,
     showUndoVerificationButton,
     showUndoAcknowledgementButton,
     showDefaultActionButton,
@@ -84,7 +87,10 @@ export default function DocumentRow({
     const status = documentSubmission.status;
     const smallIcon = { width: 16, height: 16 };
 
-    if (status === SUBMISSION_STATUS.SUBMITTED) {
+    if (
+      status === SUBMISSION_STATUS.SUBMITTED ||
+      (status === SUBMISSION_STATUS.PENDING && isNewVersion)
+    ) {
       const secondary: SplitButtonAction[] = [];
       if (!isAdditionalInfo) {
         secondary.push({
@@ -202,22 +208,10 @@ export default function DocumentRow({
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"15%"}>
           <Box mr={2}>
-            {!staff && isUpdated && submissionPackage?.account_project_work ? (
-              <Chip
-                label="New Version"
-                size="small"
-                sx={{
-                  backgroundColor: BCDesignTokens.themeBlue20,
-                  border: `1px solid ${BCDesignTokens.themeBlue100}`,
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                }}
-              />
-            ) : (
-              <StatusCell submittedDocument={documentSubmission} />
-            )}
+            <StatusCell
+              submittedDocument={documentSubmission}
+              isUpdated={isUpdated}
+            />
           </Box>
         </SubmitTableCell>
         <SubmitTableCell align="right" width={"20%"}>

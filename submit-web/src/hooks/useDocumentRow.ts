@@ -9,7 +9,8 @@ import {
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { isAxiosError } from "axios";
 import { useUpdateSubmissionStatus } from "./api/useSubmissions";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useGetSubmissionVersions } from "./api/useSubmissions";
 
 interface UseDocumentRowOptions {
   documentSubmission: Submission;
@@ -24,6 +25,7 @@ export function useDocumentRow({
 }: UseDocumentRowOptions) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const { data: versions } = useGetSubmissionVersions(documentSubmission.id);
 
   // ─── Derived State ────────────────────────────────────────────────────────
 
@@ -54,6 +56,21 @@ export function useDocumentRow({
   const showDefaultActionButton =
     !submissionPackage?.completed_on &&
     !submissionPackage?.account_project_work;
+
+  const isNewVersion = useMemo(() => {
+    if (
+      !versions ||
+      (documentSubmission.status !== SUBMISSION_STATUS.SUBMITTED &&
+        documentSubmission.status !== SUBMISSION_STATUS.PENDING)
+    )
+      return false;
+    // Check if any previous version was VERIFIED or ACKNOWLEDGED
+    return versions.some(
+      (v) =>
+        v.status === SUBMISSION_STATUS.VERIFIED ||
+        v.status === SUBMISSION_STATUS.ACKNOWLEDGED,
+    );
+  }, [versions, documentSubmission.status]);
 
   // ─── Mutations ────────────────────────────────────────────────────────────
 
@@ -135,6 +152,8 @@ export function useDocumentRow({
     showUndoVerificationButton,
     showUndoAcknowledgementButton,
     showDefaultActionButton,
+    isNewVersion,
+    versions,
     handleVerify,
     handleAcknowledge,
     handleUndoVerification,
