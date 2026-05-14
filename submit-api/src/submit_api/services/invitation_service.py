@@ -235,7 +235,7 @@ class InvitationService:
                     PackageService.create_first_package(account_project.id, {
                         "type": "IPD",
                         "name": "Initial Project Description & Engagement Plan",
-                        "status": [PackageStatus.REQUESTED_BY_EAO.value],
+                        "status": [PackageStatus.NEW.value],
                         "metadata": {}
                     })
 

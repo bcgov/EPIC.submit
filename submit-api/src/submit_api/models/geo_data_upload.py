@@ -42,8 +42,15 @@ class GeoDataUpload(BaseModel):
     geometry_type = Column(String(50), nullable=True)
     crs_original = Column(String(100), nullable=True)
     bbox = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
-    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC), nullable=True)
+    created_at = Column(
+        DateTime, default=lambda: datetime.now(UTC), nullable=False
+    )
+    updated_at = Column(
+        DateTime,
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=True
+    )
 
     def to_dict(self):
         """Return a dictionary representation of the model."""

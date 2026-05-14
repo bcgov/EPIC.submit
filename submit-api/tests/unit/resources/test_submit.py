@@ -162,6 +162,15 @@ def test_submit_package_state(client, session, jwt):
     )
     assert contact_response.status_code == HTTPStatus.CREATED
 
+    # Step 3.5: Upload Consultation Record Document (required before marking as COMPLETED)
+    consultation_doc_payload = TestPackageScenarios.get_fake_document_payload()
+    consultation_doc_response = client.post(
+        f"/api/submissions/items/{consultation_item['id']}",
+        json=consultation_doc_payload,
+        headers=headers,
+    )
+    assert consultation_doc_response.status_code == HTTPStatus.CREATED
+
     # Step 4: Submit Consultation Record Form with COMPLETED status
     consultation_payload = TestPackageScenarios.get_consultation_record_form_payload(consultation_item["id"])
     consultation_payload["status"] = "COMPLETED"
@@ -174,6 +183,15 @@ def test_submit_package_state(client, session, jwt):
         headers=headers,
     )
     assert consultation_response.status_code == HTTPStatus.CREATED
+
+    # Step 4.5: Upload Management Plan Document (required before marking as COMPLETED)
+    management_doc_payload = TestPackageScenarios.get_fake_document_payload()
+    management_doc_response = client.post(
+        f"/api/submissions/items/{management_item['id']}",
+        json=management_doc_payload,
+        headers=headers,
+    )
+    assert management_doc_response.status_code == HTTPStatus.CREATED
 
     # Step 5: Submit Management Plan Form with COMPLETED status
     management_payload = TestPackageScenarios.get_management_plan_form_payload(management_item["id"])

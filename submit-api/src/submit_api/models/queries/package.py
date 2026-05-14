@@ -21,7 +21,6 @@ from submit_api.models.package import PackageStatus
 from submit_api.models.package_version import PackageVersion
 from submit_api.models.package_item_type import PackageItemType
 from submit_api.models.submission import SubmissionStatus, SubmissionType
-from submit_api.models.update_request import UpdateRequestStatus
 
 
 # pylint: disable=too-few-public-methods
@@ -257,12 +256,6 @@ class PackageSubmissionQueries:
     """Query module for complex submission status driven aggregation."""
 
     @classmethod
-    def _add_new_submission_status(cls, aggregated_statuses, statuses: set[SubmissionStatus]):
-        """Add NEW_SUBMISSION status when no review actions have been taken yet."""
-        if not statuses or statuses == {SubmissionStatus.SUBMITTED.value}:
-            aggregated_statuses.append(PackageStatus.NEW_SUBMISSION.value)
-
-    @classmethod
     def _add_internal_verification_status(
         cls, aggregated_statuses, statuses: set[SubmissionStatus]
     ):
@@ -282,7 +275,8 @@ class PackageSubmissionQueries:
     def _add_verified_status(
         cls,
         aggregated_statuses,
-        statuses: set[SubmissionStatus]
+        statuses: set[SubmissionStatus],
+        approval_type: PackageApprovalType | None = None
     ):
         """Add VERIFIED when all docs are VERIFIED, or are some combination of VERIFIED and ACKNOWLEDGED."""
         if (
@@ -290,16 +284,10 @@ class PackageSubmissionQueries:
             statuses == {SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value}
         ):
             aggregated_statuses.append(PackageStatus.VERIFIED.value)
-
-    @classmethod
-    def _add_pending_acknowledgement_status(
-        cls,
-        aggregated_statuses,
-        statuses: set[SubmissionStatus]
-    ):
-        """Add PENDING_ACKNOWLEDGEMENT when all docs are VERIFIED, or are some combination of VERIFIED/ACKNOWLEDGED."""
-        if statuses == {SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value}:
-            aggregated_statuses.append(PackageStatus.PENDING_ACKNOWLEDGEMENT.value)
+            # For Type A packages, we don't need to move to pending acknowledgement
+            if approval_type != PackageApprovalType.A:
+                # Now that we've verified, we can move to pending acknowledgement
+                aggregated_statuses.append(PackageStatus.PENDING_ACKNOWLEDGEMENT)
 
     @classmethod
     def _add_ready_for_acknowledgement_status(
@@ -308,28 +296,6 @@ class PackageSubmissionQueries:
         """Add READY_FOR_ACKNOWLEDGEMENT when all docs are acknowledged."""
         if statuses == {SubmissionStatus.ACKNOWLEDGED.value}:
             aggregated_statuses.append(PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value)
-
-    @classmethod
-    def _add_update_request_overlay(cls, aggregated_statuses, package):
-        """Overlay UPDATE_REQUESTED or UPDATED on top of intermediate statuses.
-
-        Only applies when the package is still in an actionable review state —
-        not once it's been approved/not approved.
-        """
-        terminal = {PackageStatus.APPROVED.value, PackageStatus.NOT_APPROVED.value}
-        if any(s in terminal for s in aggregated_statuses):
-            return
-
-        active_requests = [ur for ur in package.update_requests if ur.active]
-        if not active_requests:
-            return
-
-        all_pending_review = all(
-            ur.status == UpdateRequestStatus.PENDING_REVIEW.value
-            for ur in active_requests
-        )
-        overlay = PackageStatus.UPDATED.value if all_pending_review else PackageStatus.UPDATE_REQUESTED.value
-        aggregated_statuses.append(overlay)
 
     @classmethod
     def aggregate_submission_statuses(cls, package) -> list[str]:
@@ -343,15 +309,20 @@ class PackageSubmissionQueries:
         no formal approval workflow), the same verification progression applies but
         there is no acknowledgement-readiness stage derived from submission statuses alone.
         """
+        # Check for IN_PROGRESS status for work-related packages
+        in_progress_status = cls._add_in_progress_status(package)
+        if in_progress_status:
+            return in_progress_status
+
         approval_type = package.type.approval_type
         submissions = [
             s for item in package.items
             for s in item.submissions
             if s.active and not s.deleted and s.type == SubmissionType.DOCUMENT
         ]
-
+        # If no submissions, return NEW status
         if not submissions:
-            return [PackageStatus.NEW_SUBMISSION.value]
+            return [PackageStatus.NEW.value]
 
         statuses = {s.status.value if isinstance(s.status, SubmissionStatus)
                     else s.status
@@ -359,19 +330,15 @@ class PackageSubmissionQueries:
 
         aggregated_statuses = []
 
-        # Ensure NEW_SUBMISSION status when no review actions taken
-        cls._add_new_submission_status(aggregated_statuses, statuses)
-
         # Type A staged workflow
         if approval_type == PackageApprovalType.A:
             cls._add_internal_verification_status(aggregated_statuses, statuses)
-            cls._add_verified_status(aggregated_statuses, statuses)
+            cls._add_verified_status(aggregated_statuses, statuses, approval_type=None)
 
         # Type B/C staged workflow
         elif approval_type in [PackageApprovalType.B, PackageApprovalType.C]:
             cls._add_internal_verification_status(aggregated_statuses, statuses)
-            cls._add_verified_status(aggregated_statuses, statuses)
-            cls._add_pending_acknowledgement_status(aggregated_statuses, statuses)
+            cls._add_verified_status(aggregated_statuses, statuses, approval_type=approval_type)
             cls._add_ready_for_acknowledgement_status(aggregated_statuses, statuses)
 
         else:
@@ -379,11 +346,54 @@ class PackageSubmissionQueries:
             # to an empty list (which would render as "CREATED" on the frontend).
             cls._add_internal_verification_status(aggregated_statuses, statuses)
             cls._add_verified_status(aggregated_statuses, statuses)
+        # Add submitted status
+        cls._add_submitted_status(aggregated_statuses, package)
 
-        # Overlay update request state last — it sits on top of whatever base state we have
-        cls._add_update_request_overlay(aggregated_statuses, package)
+        # # Overlay update request state last — it sits on top of whatever base state we have
+        # cls._add_update_request_overlay(aggregated_statuses, package)
 
         return aggregated_statuses
+
+    @classmethod
+    def _add_in_progress_status(cls, package):
+        """Add IN_PROGRESS status for work-related packages with submissions.
+
+        Returns:
+            list[str] or None: Returns [IN_PROGRESS] if conditions are met, None otherwise.
+        """
+        # For work-related packages, add IN_PROGRESS when items have submissions and package hasn't been submitted yet
+        if package.account_project_work_id and not package.submitted_on:
+            # Check if any item has at least one submission
+            has_submissions = any(
+                item.submissions for item in package.items
+            )
+            if has_submissions:
+                # Only set IN_PROGRESS if package is currently in NEW status (not yet submitted)
+                if package.status == [PackageStatus.NEW]:
+                    return [PackageStatus.IN_PROGRESS.value]
+        return None
+
+    @classmethod
+    def _add_submitted_status(cls, aggregated_statuses, package):
+        """Add submitted status to aggregated statuses."""
+        # If we already have a status, don't add submitted
+        if aggregated_statuses:
+            return
+        # Get all item statuses for review-related statuses (these apply to all items)
+        all_statuses = [item.status.value if isinstance(item.status, ItemStatus)
+                        else item.status
+                        for item in package.items]
+
+        # Get required item statuses for completion/submission checks
+        required_statuses = PackageItemQueries._get_required_item_statuses(package.items)
+        # Add SUBMITTED if all required items are submitted
+        if required_statuses:
+            if all(status == ItemStatus.SUBMITTED.value for status in required_statuses):
+                aggregated_statuses.append(PackageStatus.SUBMITTED.value)
+        # If no items are required, add SUBMITTED if any item is submitted
+        elif all_statuses:
+            if any(status == ItemStatus.SUBMITTED.value for status in all_statuses):
+                aggregated_statuses.append(PackageStatus.SUBMITTED.value)
 
     @staticmethod
     def update_package_status_from_submissions(package_id, session, package=None):
@@ -392,6 +402,6 @@ class PackageSubmissionQueries:
             package = session.query(PackageModel).filter_by(id=package_id).one()
 
         new_statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
-        if package.status != new_statuses:
+        if len(new_statuses) > 0 and package.status != new_statuses:
             package.status = new_statuses
             session.add(package)

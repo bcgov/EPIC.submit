@@ -48,8 +48,8 @@ class ItemService:
         derived from submission states, not item states.
         """
         package = PackageModel.find_by_id(package_id)
-        if package and not package.type.versioning_enabled:
-            PackageSubmissionQueries.update_package_status_from_submissions(package_id, session, package)
-        else:
+        if package and package.type.name == 'Management Plan':
             PackageItemQueries.update_package_status(package_id, session)
+        else:
+            PackageSubmissionQueries.update_package_status_from_submissions(package_id, session, package)
         current_app.logger.info(f"Package status updated for package ID: {package_id}")

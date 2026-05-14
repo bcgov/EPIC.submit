@@ -106,7 +106,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     INTERNAL_VERIFICATION: { label: "Internal Verification", theme: "warning" },
 
     NEW: { label: "New", theme: "decision" },
-    NEW_SUBMISSION: { label: "New Submission", theme: "decision" },
+    NEW_SUBMISSION: { label: "New Submission", theme: "purple" },
 
     AWAITING_MANAGER_APPROVAL: {
       label: "Awaiting Manager Approval",

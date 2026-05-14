@@ -26,15 +26,15 @@ export const isSubmissionItemReadyToSubmit = ({
   ) {
     return true;
   }
-  
   // If item is optional (not required), it's always ready
   if (submissionItem.is_required === false) {
     return true;
   }
   
-  // Required items must be completed
+  // Required items must be completed or submitted
   const isSubmissionItemCompleted =
-    submissionItem.status === SUBMISSION_ITEM_STATUS.COMPLETED.value;
+    submissionItem.status === SUBMISSION_ITEM_STATUS.COMPLETED.value ||
+    submissionItem.status === SUBMISSION_ITEM_STATUS.SUBMITTED.value;
   return isSubmissionItemCompleted;
 };
 
