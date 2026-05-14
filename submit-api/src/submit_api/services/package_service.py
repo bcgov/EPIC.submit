@@ -603,6 +603,30 @@ class PackageService:
             return package
 
     @classmethod
+    def not_approved_package(cls, package_id):
+        """Do not approve the package."""
+        with session_scope() as session:
+            package = cls.get_package_by_id(package_id)
+            if not package:
+                raise BadRequestError("Package not found")
+
+            # Remove all document statuses
+            for item in package.items:
+                for submission in item.submissions:
+                    if submission.type == SubmissionType.DOCUMENT:
+                        submission.status = None
+                        session.add(submission)
+
+            package.status = [PackageStatus.NOT_APPROVED.value]
+            session.add(package)
+
+            # Create new package version
+
+            # Save
+            session.flush()
+            return package
+
+    @classmethod
     def start_review(cls, package_id, _session=None):
         """Start the review process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)
@@ -735,6 +759,7 @@ class PackageService:
                 PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
                 PackageStatus.ACKNOWLEDGED.value: cls.acknowledge_package,
                 PackageStatus.APPROVED.value: cls.approve_package,
+                PackageStatus.NOT_APPROVED.value: cls.not_approved_package
             }
         )
         return state_updaters[status]

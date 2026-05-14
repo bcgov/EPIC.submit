@@ -30,6 +30,7 @@ import AcknowledgeSubmissionModal from "@/components/App/Submission/Modals/Ackno
 import { useUpdateRequests } from "@/hooks/useUpdateRequests";
 import { useStaffSubmissionPage } from "@/hooks/useStaffSubmissionPage";
 import ApproveSubmissionModal from "@/components/App/Submission/Modals/ApproveSubmissionModal";
+import NotApprovedSubmissionModal from "@/components/App/Submission/Modals/NotApprovedSubmissionModal";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -135,18 +136,19 @@ export default function SubmissionPage() {
 
   const handleNotApprovedClick = () => {
     setOpenModal(
-      <AcknowledgeSubmissionModal
-        onConfirm={() => {
+      <NotApprovedSubmissionModal
+        onConfirm={(data) => {
           updatePackageState({
             packageId: submissionPackageId,
             data: {
-              status: PACKAGE_STATUS.ACKNOWLEDGED.value,
+              status: PACKAGE_STATUS.NOT_APPROVED.value,
+              decision_date: data.decisionDate,
+              reason: data.reason,
             },
           });
+          console.log(data);
         }}
         onCancel={() => setCloseModal()}
-        hasOpenUpdateRequests={sentUpdateRequests.length > 0}
-        openRequestSectionNames={openRequestSectionNames}
       />,
     );
   };

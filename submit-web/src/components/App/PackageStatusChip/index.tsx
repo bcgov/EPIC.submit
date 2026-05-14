@@ -48,25 +48,22 @@ const themes = {
 type StyleProps = {
   label: string;
   theme: keyof typeof themes;
-  width?: string;
 };
 
 const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
   {
     APPROVED: { label: "Approved", theme: "success" },
-    ACCEPTED: { label: "Accepted", theme: "success", width: "83px" },
-    SATISFIED: { label: "Satisfied", theme: "success", width: "78px" },
+    ACCEPTED: { label: "Accepted", theme: "success" },
+    SATISFIED: { label: "Satisfied", theme: "success" },
     REVIEWED: { label: "Reviewed", theme: "success" },
     COMPLETED: { label: "Completed", theme: "success" },
     PASSED_CONSULTATION_CHECK: {
       label: "Passed Consultation Check",
       theme: "success",
-      width: "191px",
     },
     NO_REVISION_REQUIRED: {
       label: "No Revision Required",
       theme: "success",
-      width: "157px",
     },
     VERIFIED: { label: "Verified", theme: "success" },
     ACKNOWLEDGED: { label: "Acknowledged", theme: "success" },
@@ -78,13 +75,12 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
       label: "Under Consultation Check",
       theme: "info",
     },
-    SUBMITTED: { label: "Submitted", theme: "info", width: "104px" },
+    SUBMITTED: { label: "Submitted", theme: "info" },
     RESUBMITTED: { label: "Resubmitted", theme: "info" },
 
     REVIEW_REJECTED: {
       label: "Review Rejected",
       theme: "danger",
-      width: "125px",
     },
     FAILED_CONSULTATION_CHECK: {
       label: "Failed Consultation Check",
@@ -95,13 +91,11 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     REVIEW_NOT_COMPLETED: {
       label: "Review Not Completed",
       theme: "warning",
-      width: "168px",
     },
     PARTIALLY_COMPLETED: { label: "Partially Completed", theme: "warning" },
     REQUESTED_BY_EAO: {
       label: "Requested by EAO",
       theme: "warning",
-      width: "139px",
     },
     INTERNAL_VERIFICATION: { label: "Internal Verification", theme: "warning" },
 
@@ -111,7 +105,6 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     AWAITING_MANAGER_APPROVAL: {
       label: "Awaiting Manager Approval",
       theme: "orange",
-      width: "196px",
     },
     UPDATE_REQUESTED: {
       label: "Update Requested",
@@ -120,12 +113,10 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     REVISION_REQUIRED: {
       label: "Revision Required",
       theme: "orange",
-      width: "140px",
     },
     REVISION_REQUESTED: {
       label: "Revision Requested",
       theme: "orange",
-      width: "150px",
     },
 
     UPDATED: { label: "Updated", theme: "purple" },
@@ -156,7 +147,6 @@ export default function PackageStatusChip({ status }: PackageStatusChipProps) {
   const sx: SxProps<Theme> = {
     ...baseSx,
     ...(config.theme ? themes[config.theme] : {}),
-    ...(config.width ? { width: config.width } : {}),
   };
 
   return <Chip sx={sx} label={config.label} />;

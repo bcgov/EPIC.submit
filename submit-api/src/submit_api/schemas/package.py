@@ -75,6 +75,8 @@ class PostPackageState(Schema):
         unknown = EXCLUDE
 
     status = fields.Str(data_key="status")
+    decision_date = fields.DateTime(dataKey="decision_date")
+    reason = fields.Str(data_key="reason")
 
 
 class CreateUpdateRequestSchema(Schema):

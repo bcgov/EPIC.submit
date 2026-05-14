@@ -82,7 +82,7 @@ export function useStaffSubmissionPage({
   );
 
   const canAcknowledge =
-    (approval_type === SubmissionPackageApprovalType.A)
+    approval_type === SubmissionPackageApprovalType.A
       ? isPackageVerified
       : isReadyForAcknowledgement;
 
