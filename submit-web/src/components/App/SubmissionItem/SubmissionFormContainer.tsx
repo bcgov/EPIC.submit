@@ -77,6 +77,7 @@ export const SubmissionFormContainer = ({
               padding="16px"
               sx={{
                 flexDirection: "column",
+                alignItems: "flex-end",
               }}
             >
               {children}
