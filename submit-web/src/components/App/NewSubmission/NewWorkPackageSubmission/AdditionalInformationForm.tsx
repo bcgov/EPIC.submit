@@ -18,6 +18,11 @@ export const AdditionalInformationForm = () => {
           name="name"
           fullWidth
           placeholder="example: Blueprint for Proposed Changes of Surface Infrastructure"
+          sx={{
+            '& .MuiInputBase-input::placeholder': {
+              fontStyle: 'italic',
+            },
+          }}
         />
       </Grid>
 
@@ -37,6 +42,11 @@ export const AdditionalInformationForm = () => {
           rows={4}
           placeholder="example: Copy of our most recent blueprint, including a shapefile, as per our last discussion with Megan Smith."
           maxLength={500}
+          sx={{
+            '& .MuiInputBase-input::placeholder': {
+              fontStyle: 'italic',
+            },
+          }}
         />
       </Grid>
     </Grid>
