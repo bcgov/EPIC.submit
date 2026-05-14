@@ -70,19 +70,7 @@ const contactInformationSchema = yup.object().shape({
     }),
   }),
   secondaryContact: yup.object().shape({
-    accountUserId: yup
-      .string()
-      .nullable()
-      .test(
-        "not-same-as-primary",
-        "Secondary contact cannot be the same as primary contact.",
-        function (value) {
-          const root = this.from?.[1]?.value;
-          const primaryUserId = root?.primaryContact?.accountUserId;
-          if (!value || !primaryUserId) return true;
-          return value !== primaryUserId;
-        },
-      ),
+    accountUserId: yup.string().nullable(),
     givenName: yup.string().when("accountUserId", {
       is: (val: number | null) => !val,
       then: (schema) => schema.required("Please enter a given name."),
@@ -127,7 +115,25 @@ const contactInformationSchema = yup.object().shape({
       otherwise: (schema) => schema.notRequired(),
     }),
   }),
-});
+}).test(
+  "contacts-not-same",
+  "Secondary contact cannot be the same as primary contact.",
+  function (value) {
+    const primaryUserId = value?.primaryContact?.accountUserId;
+    const secondaryUserId = value?.secondaryContact?.accountUserId;
+
+    if (!secondaryUserId || !primaryUserId) return true;
+
+    if (String(secondaryUserId) === String(primaryUserId)) {
+      return this.createError({
+        path: "secondaryContact.accountUserId",
+        message: "Secondary contact cannot be the same as primary contact.",
+      });
+    }
+
+    return true;
+  },
+);
 
 type ContactInformationForm = yup.InferType<typeof contactInformationSchema>;
 
