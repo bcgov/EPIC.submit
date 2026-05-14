@@ -355,7 +355,7 @@ export const ContactInformationEntityView = () => {
         data: request,
       });
       await refetch();
-      notify.success("Submission created successfully");
+      notify.success("Submission Contact Information saved successfully");
       navigate({
         to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
       });
