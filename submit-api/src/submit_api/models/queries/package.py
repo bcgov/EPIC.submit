@@ -286,8 +286,7 @@ class PackageSubmissionQueries:
             aggregated_statuses.append(PackageStatus.VERIFIED.value)
             # For Type A packages, we don't need to move to pending acknowledgement
             if approval_type != PackageApprovalType.A:
-                # Now that we've verified, we can move to pending acknowledgement
-                aggregated_statuses.append(PackageStatus.PENDING_ACKNOWLEDGEMENT)
+                aggregated_statuses.append(PackageStatus.PENDING_ACKNOWLEDGEMENT.value)
 
     @classmethod
     def _add_ready_for_acknowledgement_status(
