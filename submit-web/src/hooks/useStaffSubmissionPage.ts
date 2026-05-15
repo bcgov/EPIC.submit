@@ -1,17 +1,22 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   useGetPackageVersionsByOriginalPackageId,
   useGetStaffSubmissionPackage,
   useUpdateStateSubmissionPackage,
+  useRefuseSubmissionPackage,
+  getStaffSubmissionPackageById,
 } from "@/hooks/api/usePackages";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import {
   PACKAGE_STATUS,
+  SubmissionPackage,
   SubmissionPackageApprovalType,
 } from "@/models/Package";
+import { QUERY_KEY } from "./api/constants";
+import { useNavigate } from "@tanstack/react-router";
 
 interface UseStaffSubmissionPageOptions {
   submissionPackageId: number;
@@ -25,6 +30,8 @@ export function useStaffSubmissionPage({
   queryClient,
 }: UseStaffSubmissionPageOptions) {
   const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(accountProjectId).queryKey,
@@ -41,6 +48,67 @@ export function useStaffSubmissionPage({
     originalPackageId: submissionPackage?.version?.original_package_id,
     enabled: Boolean(submissionPackage?.version?.original_package_id),
   });
+
+  const loadNewPackage = async (packageId: number) => {
+    try {
+      setIsLoading(true);
+      await queryClient.ensureQueryData<SubmissionPackage>({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        queryFn: () => getStaffSubmissionPackageById({ packageId }),
+      });
+      console.log(
+        "navigate",
+        `/staff/projects/${accountProject?.id}/submission-packages/${packageId}`,
+      );
+      navigate({
+        to: `/staff/projects/${accountProject?.id}/submission-packages/${packageId}`,
+        replace: true,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // ─── Mutations ────────────────────────────────────────────────────────────
+
+  const { mutate: updatePackageState, isPending: updatingPackageState } =
+    useUpdateStateSubmissionPackage({
+      onSuccess: () => {
+        setCloseModal();
+        notify.success("Submission acknowledged successfully");
+      },
+      onError: (error: any) => {
+        notify.error(
+          error?.response?.data?.message ?? "Failed to acknowledge submission",
+        );
+      },
+    });
+
+  const { mutate: refusePackage, isPending: refusingPackage } =
+    useRefuseSubmissionPackage({
+      onSuccess: (newPackage) => {
+        setCloseModal();
+        notify.success("Submission refused successfully");
+
+        // Invalidate the old package so it's refetched when revisited
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackageId],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [
+            QUERY_KEY.PACKAGE_VERSIONS,
+            newPackage.version?.original_package_id,
+          ],
+        });
+
+        loadNewPackage(newPackage.id);
+      },
+      onError: (error: any) => {
+        notify.error(
+          error?.response?.data?.message ?? "Failed to refuse submission",
+        );
+      },
+    });
 
   // ─── Derived State ────────────────────────────────────────────────────────
 
@@ -97,27 +165,17 @@ export function useStaffSubmissionPage({
   const showApproveButtons =
     isPackageAcknowledged && approval_type == SubmissionPackageApprovalType.C;
 
-  // ─── Mutations ────────────────────────────────────────────────────────────
-
-  const { mutate: updatePackageState, isPending: updatingPackageState } =
-    useUpdateStateSubmissionPackage({
-      onSuccess: () => {
-        setCloseModal();
-        notify.success("Submission acknowledged successfully");
-      },
-      onError: (error: any) => {
-        notify.error(
-          error?.response?.data?.message ?? "Failed to acknowledge submission",
-        );
-      },
-    });
+  useEffect(() => {
+    setIsLoading(updatingPackageState || refusingPackage);
+  }, [updatingPackageState, refusingPackage]);
 
   return {
     accountProject,
     submissionPackage,
     isFetching,
     updatePackageState,
-    updatingPackageState,
+    refusePackage,
+    isLoading,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
     canAcknowledge,

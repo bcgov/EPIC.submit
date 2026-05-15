@@ -17,6 +17,9 @@ const baseSx: SxProps<Theme> = {
   borderRadius: 1,
   height: "24px",
   px: 1,
+  "& .MuiChip-label": {
+    overflow: "visible",
+  },
 };
 
 const themes = {

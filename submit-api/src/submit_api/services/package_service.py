@@ -603,7 +603,7 @@ class PackageService:
             return package
 
     @classmethod
-    def not_approved_package(cls, package_id):
+    def refuse_package(cls, package_id, decision_date):
         """Do not approve the package."""
         with session_scope() as session:
             package = cls.get_package_by_id(package_id)
@@ -618,13 +618,24 @@ class PackageService:
                         session.add(submission)
 
             package.status = [PackageStatus.NOT_APPROVED.value]
+            package.decision_date = decision_date
             session.add(package)
 
-            # Create new package version
+            # Cancel all open update requests
+            for update_request in package.update_requests:
+                update_request.status = UpdateRequestStatus.CLOSED.value
+                update_request.active = False
+                session.add(update_request)
 
-            # Save
+            # Create new package version
+            new_package = cls.create_new_package_from_original(package_id, session)
+            if package.submitted_by:
+                user = User.get_by_guid(package.submitted_by)
+                if user:
+                    new_package.submitted_by = user.auth_guid
+
             session.flush()
-            return package
+            return new_package
 
     @classmethod
     def start_review(cls, package_id, _session=None):
@@ -759,7 +770,6 @@ class PackageService:
                 PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
                 PackageStatus.ACKNOWLEDGED.value: cls.acknowledge_package,
                 PackageStatus.APPROVED.value: cls.approve_package,
-                PackageStatus.NOT_APPROVED.value: cls.not_approved_package
             }
         )
         return state_updaters[status]

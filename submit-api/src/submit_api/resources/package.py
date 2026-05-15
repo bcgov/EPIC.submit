@@ -23,7 +23,7 @@ from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import (
     CreatePackageVersionSchema, CreateUpdateRequestNoteSchema, CreateUpdateRequestSchema, PackageSchema,
-    PackageUpdateRequestSchema, PackageVersionSchema, PostPackageRequestSchema, PostPackageState, StaffPackageSchema)
+    PackageUpdateRequestSchema, PackageVersionSchema, PostPackageRequestSchema, PostPackageState, StaffPackageSchema, RefusePackageSchema)
 from submit_api.services import authorization
 from submit_api.services.package_service import PackageService
 from submit_api.utils.roles import EpicSubmitRole
@@ -267,3 +267,24 @@ class PackageUpdateRequestNote(Resource):
         package_with_updated_note = PackageService.update_update_request_note(
             package_id, update_request_id, update_note_data)
         return PackageSchema().dump(package_with_updated_note), HTTPStatus.OK
+
+@cors_preflight("OPTIONS, POST")
+@API.route("/<int:package_id>/refuse", methods=["POST", "OPTIONS"])
+class RefusePackage(Resource):
+    """Resource for refusing a package."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Refuse package"
+    )
+    @API.response(
+        code=HTTPStatus.CREATED, model=package_model, description="Refused package"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cross_origin(origins=allowedorigins())
+    @auth.require
+    def post(package_id):
+        """Refuse package."""
+        request_body = RefusePackageSchema().load(API.payload)
+        new_package = PackageService.refuse_package(package_id, request_body.get("decision_date"))
+        return PackageSchema().dump(new_package), HTTPStatus.CREATED

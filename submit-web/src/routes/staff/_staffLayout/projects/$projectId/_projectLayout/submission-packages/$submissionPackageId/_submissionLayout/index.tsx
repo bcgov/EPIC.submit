@@ -58,7 +58,8 @@ export default function SubmissionPage() {
     submissionPackage,
     isFetching,
     updatePackageState,
-    updatingPackageState,
+    refusePackage,
+    isLoading,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
     canAcknowledge,
@@ -138,10 +139,9 @@ export default function SubmissionPage() {
     setOpenModal(
       <RefuseSubmissionModal
         onConfirm={(data) => {
-          updatePackageState({
+          refusePackage({
             packageId: submissionPackageId,
             data: {
-              status: PACKAGE_STATUS.NOT_APPROVED.value,
               decision_date: data.decisionDate,
               reason: data.reason,
             },
@@ -338,8 +338,8 @@ export default function SubmissionPage() {
                     variant="outlined"
                     color="primary"
                     onClick={handleAcknowledgeClick}
-                    disabled={!canAcknowledge || updatingPackageState}
-                    loading={updatingPackageState}
+                    disabled={!canAcknowledge || isLoading}
+                    loading={isLoading}
                   >
                     {submissionPackage?.type.name ===
                     SubmissionPackageType.ADDITIONAL_INFORMATION ? (
@@ -357,8 +357,8 @@ export default function SubmissionPage() {
                       variant="outlined"
                       color="error"
                       onClick={handleNotApprovedClick}
-                      disabled={updatingPackageState}
-                      loading={updatingPackageState}
+                      disabled={isLoading}
+                      loading={isLoading}
                     >
                       Not Approved
                     </Button>
@@ -366,8 +366,8 @@ export default function SubmissionPage() {
                       variant="outlined"
                       color="primary"
                       onClick={handleApproveSubmissionClick}
-                      disabled={updatingPackageState}
-                      loading={updatingPackageState}
+                      disabled={isLoading}
+                      loading={isLoading}
                     >
                       Approve Submission
                     </Button>
