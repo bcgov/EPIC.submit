@@ -104,6 +104,7 @@ class Package(BaseModel):
     submitted_by_user = db.relationship(
         'User', foreign_keys=[submitted_by], lazy='joined')
     completed_on = Column(db.DateTime, nullable=True)
+    decision_date = Column(db.DateTime, nullable=True)
     meta = db.relationship(
         'PackageMetadata', backref='package', lazy='joined', uselist=False, cascade='all, delete', passive_deletes=True)
     items = db.relationship('Item', backref='package',
