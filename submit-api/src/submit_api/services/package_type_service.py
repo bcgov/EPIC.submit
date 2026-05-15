@@ -1,6 +1,7 @@
 """Service for package management."""
 from typing import List, Dict, Any, Tuple
 
+from submit_api.enums.package_type import PackageApprovalType
 from submit_api.models import PackageType, TrackPhase, ItemType, PackageItemType
 from submit_api.models.db import db
 from submit_api.models.item_type import SubmissionMethod
@@ -36,7 +37,6 @@ class PackageTypeService:
 
         for item_type_def in item_types:
             is_required = item_type_def.get('is_required', True)
-            
             if 'id' in item_type_def and item_type_def['id'] is not None:
                 # Existing item type - validate it exists
                 item_type_id = item_type_def['id']
@@ -140,39 +140,37 @@ class PackageTypeService:
         Raises:
             ValueError: If phase not found or item types are invalid
         """
-        # Extract parameters from data dictionary
-        ea_act_name = data['ea_act_name']
-        work_type_name = data['work_type_name']
-        phase_name = data['phase_name']
-        package_type_name = data['package_type_name']
-        package_type_title = data['package_type_title']
-        item_types = data['item_types']
-        mandatory = data.get('mandatory', False)
-        approval_type = data.get('approval_type')
-        versioning_enabled = data.get('versioning_enabled', True)
-
         # Find the phase
-        phase = TrackPhase.find_by_identifiers(ea_act_name, work_type_name, phase_name)
+        phase = TrackPhase.find_by_identifiers(
+            data['ea_act_name'],
+            data['work_type_name'],
+            data['phase_name']
+        )
         if not phase:
             raise ValueError(
-                f"Phase not found for EA Act: '{ea_act_name}', "
-                f"Work Type: '{work_type_name}', Phase: '{phase_name}'"
+                f"Phase not found for EA Act: '{data['ea_act_name']}', "
+                f"Work Type: '{data['work_type_name']}', Phase: '{data['phase_name']}'"
             )
 
         # Process item types - create new ones or validate existing ones
-        processed_item_types, created_item_types = PackageTypeService._process_item_types(item_types)
+        processed_item_types, created_item_types = PackageTypeService._process_item_types(
+            data['item_types']
+        )
 
         # Check if package type already exists for this phase
-        existing_package_type = PackageType.find_by_name_and_phase(package_type_name, phase.id)
+        existing_package_type = PackageType.find_by_name_and_phase(
+            data['package_type_name'],
+            phase.id
+        )
 
         if existing_package_type:
             # Update existing package type
             package_type = existing_package_type
-            package_type.title = package_type_title
-            package_type.mandatory = mandatory
-            package_type.versioning_enabled = versioning_enabled
+            package_type.title = data['package_type_title']
+            package_type.mandatory = data.get('mandatory', False)
+            package_type.versioning_enabled = data.get('versioning_enabled', True)
+            approval_type = data.get('approval_type')
             if approval_type:
-                from submit_api.enums.package_type import PackageApprovalType
                 package_type.approval_type = PackageApprovalType[approval_type]
             else:
                 package_type.approval_type = None
@@ -182,14 +180,14 @@ class PackageTypeService:
             PackageItemType.delete_by_package_type_id(package_type.id)
         else:
             # Create new package type
-            from submit_api.enums.package_type import PackageApprovalType
+            approval_type = data.get('approval_type')
             package_type = PackageType(
-                name=package_type_name,
-                title=package_type_title,
+                name=data['package_type_name'],
+                title=data['package_type_title'],
                 phase_id=phase.id,
-                mandatory=mandatory,
+                mandatory=data.get('mandatory', False),
                 approval_type=PackageApprovalType[approval_type] if approval_type else None,
-                versioning_enabled=versioning_enabled,
+                versioning_enabled=data.get('versioning_enabled', True),
                 created_by='system'  # TODO: Get from auth context
             )
             db.session.add(package_type)
