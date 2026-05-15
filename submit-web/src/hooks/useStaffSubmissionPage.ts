@@ -88,8 +88,11 @@ export function useStaffSubmissionPage({
 
   const showAcknowledgeButton =
     Boolean(approval_type) &&
-    [SubmissionPackageApprovalType.A, SubmissionPackageApprovalType.C]
-      .includes(approval_type as SubmissionPackageApprovalType);
+    [
+      SubmissionPackageApprovalType.A,
+      SubmissionPackageApprovalType.B,
+      SubmissionPackageApprovalType.C,
+    ].includes(approval_type as SubmissionPackageApprovalType);
 
   const showApproveButtons =
     isPackageAcknowledged && approval_type == SubmissionPackageApprovalType.C;
