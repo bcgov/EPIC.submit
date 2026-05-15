@@ -56,10 +56,6 @@ export function useStaffSubmissionPage({
         queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         queryFn: () => getStaffSubmissionPackageById({ packageId }),
       });
-      console.log(
-        "navigate",
-        `/staff/projects/${accountProject?.id}/submission-packages/${packageId}`,
-      );
       navigate({
         to: `/staff/projects/${accountProject?.id}/submission-packages/${packageId}`,
         replace: true,

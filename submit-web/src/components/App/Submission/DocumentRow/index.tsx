@@ -274,10 +274,7 @@ export default function DocumentRow({
             colSpan={6}
             style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
           >
-            <DocumentsSubTable
-              submission={documentSubmission}
-              packageType={packageType}
-            />
+            <DocumentsSubTable submission={documentSubmission} />
           </SubmitTableCell>
         </TableRow>
       )}

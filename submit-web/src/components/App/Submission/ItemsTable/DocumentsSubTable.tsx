@@ -12,19 +12,16 @@ import { Submission } from "@/models/Submission";
 import { useGetSubmissionVersions } from "@/hooks/api/useSubmissions";
 import DocumentSubRow from "./DocumentSubRow";
 import { useMemo, useState } from "react";
-import { PackageType } from "@/models/Package";
 import ItemsTableHead from "./ItemsTableHead";
 import { useMounted } from "@/hooks/common";
 
 type DocumentsSubTableProps = Readonly<{
   submission?: Submission;
-  packageType?: PackageType;
   submissionId?: number;
   currentDocumentId?: number;
 }>;
 export default function DocumentsSubTable({
   submission,
-  packageType,
   submissionId,
   currentDocumentId,
 }: DocumentsSubTableProps) {

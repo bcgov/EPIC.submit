@@ -23,7 +23,8 @@ from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import (
     CreatePackageVersionSchema, CreateUpdateRequestNoteSchema, CreateUpdateRequestSchema, PackageSchema,
-    PackageUpdateRequestSchema, PackageVersionSchema, PostPackageRequestSchema, PostPackageState, StaffPackageSchema, RefusePackageSchema)
+    PackageUpdateRequestSchema, PackageVersionSchema, PostPackageRequestSchema, PostPackageState, StaffPackageSchema,
+    RefusePackageSchema)
 from submit_api.services import authorization
 from submit_api.services.package_service import PackageService
 from submit_api.utils.roles import EpicSubmitRole
@@ -267,6 +268,7 @@ class PackageUpdateRequestNote(Resource):
         package_with_updated_note = PackageService.update_update_request_note(
             package_id, update_request_id, update_note_data)
         return PackageSchema().dump(package_with_updated_note), HTTPStatus.OK
+
 
 @cors_preflight("OPTIONS, POST")
 @API.route("/<int:package_id>/refuse", methods=["POST", "OPTIONS"])

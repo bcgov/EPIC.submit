@@ -76,6 +76,7 @@ class PostPackageState(Schema):
 
     status = fields.Str(data_key="status")
 
+
 class RefusePackageSchema(Schema):
     """refuse package schema."""
 
