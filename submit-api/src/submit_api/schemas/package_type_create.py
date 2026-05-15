@@ -35,6 +35,12 @@ class ItemTypeSchema(Schema):
         validate=validate.OneOf(['FORM_SUBMISSION', 'DOCUMENT_UPLOAD']),
         metadata={"description": "Submission method: FORM_SUBMISSION or DOCUMENT_UPLOAD"}
     )
+    is_required = fields.Bool(
+        required=False,
+        data_key="is_required",
+        load_default=True,
+        metadata={"description": "Whether this item type is required for the package type"}
+    )
 
     @validates_schema
     def validate_item_type(self, data, **kwargs):
@@ -88,6 +94,25 @@ class PackageTypeCreateSchema(Schema):
         required=True,
         data_key="item_types",
         metadata={"description": "List of item types (can be IDs or new item type definitions)"}
+    )
+    mandatory = fields.Bool(
+        required=False,
+        data_key="mandatory",
+        load_default=False,
+        metadata={"description": "Whether this package type must be created by the system"}
+    )
+    approval_type = fields.Str(
+        required=False,
+        data_key="approval_type",
+        validate=validate.OneOf(['A', 'B', 'C']),
+        allow_none=True,
+        metadata={"description": "Package approval type: A, B, or C"}
+    )
+    versioning_enabled = fields.Bool(
+        required=False,
+        data_key="versioning_enabled",
+        load_default=True,
+        metadata={"description": "Whether this package type supports versioning"}
     )
 
     @validates_schema
