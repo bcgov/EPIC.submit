@@ -11,10 +11,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import {
   PACKAGE_STATUS,
   SubmissionPackageApprovalType,
-  SubmissionPackageType,
 } from "@/models/Package";
-import { SUBMISSION_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
-import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 
 interface UseStaffSubmissionPageOptions {
   submissionPackageId: number;
@@ -66,28 +63,6 @@ export function useStaffSubmissionPage({
     0 > latestApprovedVersion,
   );
 
-  const allDocumentsVerified = useMemo(() => {
-    if (!submissionPackage) {
-      return false;
-    }
-
-    const documentSubmissions = submissionPackage.items
-      .filter(
-        (item) =>
-          item.type.name === SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT ||
-          item.type.name === SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION,
-      )
-      .flatMap((item) => item.submissions)
-      .filter((sub) => sub.type === SUBMISSION_TYPE.DOCUMENT);
-
-    return (
-      documentSubmissions.length > 0 &&
-      documentSubmissions.every(
-        (sub) => sub.status === SUBMISSION_STATUS.VERIFIED,
-      )
-    );
-  }, [submissionPackage]);
-
   const isReadyForAcknowledgement = useMemo(
     () =>
       submissionPackage?.status.includes(
@@ -101,19 +76,24 @@ export function useStaffSubmissionPage({
     [submissionPackage],
   );
 
+  const isPackageVerified = useMemo(
+    () => submissionPackage?.status.includes(PACKAGE_STATUS.VERIFIED.value),
+    [submissionPackage],
+  );
+
   const canAcknowledge =
-    submissionPackage?.type.name == SubmissionPackageType.ADDITIONAL_INFORMATION
-      ? allDocumentsVerified
+    (approval_type === SubmissionPackageApprovalType.A)
+      ? isPackageVerified
       : isReadyForAcknowledgement;
 
-  // Show the acknowledge button when:
-  // - For versioned packages (IPD, DPD, etc.): approval_type must be set
-  // - For non-versioned packages (Additional Information): always show, approval_type is null
-  const hasAcknowledgeWorkflow =
-    Boolean(approval_type) || submissionPackage?.type.versioning_enabled === false;
-
   const showAcknowledgeButton =
-    isReadyForAcknowledgement && hasAcknowledgeWorkflow;
+    Boolean(approval_type) &&
+    [
+      SubmissionPackageApprovalType.A,
+      SubmissionPackageApprovalType.B,
+      SubmissionPackageApprovalType.C,
+    ].includes(approval_type as SubmissionPackageApprovalType);
+
   const showApproveButtons =
     isPackageAcknowledged && approval_type == SubmissionPackageApprovalType.C;
 

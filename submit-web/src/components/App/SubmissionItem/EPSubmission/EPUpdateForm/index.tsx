@@ -61,6 +61,7 @@ export const EngagementPlanUpdateForm = () => {
         <Button
           sx={{
             mt: "3em",
+            width: "fit-content",
           }}
           onClick={handleSaveAndExit}
         >
