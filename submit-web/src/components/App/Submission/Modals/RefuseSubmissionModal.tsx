@@ -10,7 +10,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import dayjs from "dayjs";
 
-const NotApprovedSubmissionFormSchema = yup.object().shape({
+const RefuseSubmissionFormSchema = yup.object().shape({
   decisionDate: yup
     .date()
     .transform((value, original) =>
@@ -20,21 +20,19 @@ const NotApprovedSubmissionFormSchema = yup.object().shape({
   reason: yup.string().optional().nullable(),
 });
 
-type NotApprovedSubmissionForm = yup.InferType<
-  typeof NotApprovedSubmissionFormSchema
->;
+type RefuseSubmissionForm = yup.InferType<typeof RefuseSubmissionFormSchema>;
 
-type NotApprovedSubmissionModalProps = {
-  onConfirm: (data: NotApprovedSubmissionForm) => void;
+type RefuseSubmissionModalProps = {
+  onConfirm: (data: RefuseSubmissionForm) => void;
   onCancel: () => void;
 };
 
-const NotApprovedSubmissionModal = ({
+const RefuseSubmissionModal = ({
   onConfirm,
   onCancel,
-}: NotApprovedSubmissionModalProps) => {
-  const methods = useForm<NotApprovedSubmissionForm>({
-    resolver: yupResolver(NotApprovedSubmissionFormSchema),
+}: RefuseSubmissionModalProps) => {
+  const methods = useForm<RefuseSubmissionForm>({
+    resolver: yupResolver(RefuseSubmissionFormSchema),
     mode: "onSubmit",
     defaultValues: {
       decisionDate: new Date(),
@@ -134,4 +132,4 @@ const NotApprovedSubmissionModal = ({
   );
 };
 
-export default NotApprovedSubmissionModal;
+export default RefuseSubmissionModal;

@@ -89,7 +89,7 @@ export default function DocumentsSubTable({
           Previous Submitted Versions
         </Typography>
         <Table sx={{ tableLayout: "fixed" }}>
-          <ItemsTableHead packageType={packageType} />
+          <ItemsTableHead />
           <TableBody>
             {filteredSubmissions?.map((submission) => (
               <DocumentSubRow

@@ -65,9 +65,12 @@ export default function ItemsTable({
     ));
 
   return (
-    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden", mt: 2.25,mb:1 }}>
+    <TableContainer
+      component={Box}
+      sx={{ height: "100%", overflow: "hidden", mt: 2.25, mb: 1 }}
+    >
       <Table sx={{ tableLayout: "fixed" }}>
-        <ItemsTableHead packageType={packageType} />
+        <ItemsTableHead />
         <TableBody>
           {renderItems(submissionItems)}
           <When

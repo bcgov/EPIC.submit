@@ -1,14 +1,8 @@
 import { TableHead, TableRow, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
-import { PackageType, SubmissionPackageType } from "@/models/Package";
 
-export default function ItemsTableHead({
-  packageType,
-}: {
-  packageType?: PackageType;
-}) {
-  const isIPD = packageType?.name === SubmissionPackageType.IPD;
+export default function ItemsTableHead() {
   return (
     <TableHead
       sx={{
@@ -37,11 +31,11 @@ export default function ItemsTableHead({
         <SubmitTableHeadCell width={"10%"} align="right">
           Version
         </SubmitTableHeadCell>
-        <SubmitTableHeadCell width={"15%"} align="center">
+        <SubmitTableHeadCell width={"18%"} align="center">
           Status
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
-          width={isIPD ? "30%" : "20%"}
+          width="17%"
           align="right"
           sx={{
             paddingRight: "2% !important",
