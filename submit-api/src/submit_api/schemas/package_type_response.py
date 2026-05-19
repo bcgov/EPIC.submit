@@ -78,3 +78,16 @@ class PackageTypeResponseSchema(Schema):
         required=True,
         metadata={"description": "True if package type newly created, False if updated"}
     )
+    mandatory = fields.Boolean(
+        required=False,
+        metadata={"description": "Whether this package type must be created by the system"}
+    )
+    approval_type = fields.Str(
+        required=False,
+        allow_none=True,
+        metadata={"description": "Package approval type: A, B, or C"}
+    )
+    versioning_enabled = fields.Boolean(
+        required=False,
+        metadata={"description": "Whether this package type supports versioning"}
+    )

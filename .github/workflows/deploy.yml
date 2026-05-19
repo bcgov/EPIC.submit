@@ -7,6 +7,10 @@ on:
         description: "Environment (test/prod)"
         required: true
         default: "test"
+      source_tag:
+        description: "Source tag to promote"
+        required: true
+        default: "latest"
 
 defaults:
   run:
@@ -26,14 +30,24 @@ jobs:
         run: |
           oc login --server=${{secrets.OPENSHIFT_LOGIN_REGISTRY}} --token=${{secrets.OPENSHIFT_SA_TOKEN}}
 
+      - name: Backup Current Images
+        shell: bash
+        run: |
+          oc project ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          oc tag submit-api:${{ github.event.inputs.environment }} submit-api:backup-${{ github.event.inputs.environment }}-$TIMESTAMP
+          oc tag submit-web:${{ github.event.inputs.environment }} submit-web:backup-${{ github.event.inputs.environment }}-$TIMESTAMP
+          oc tag submit-cron:${{ github.event.inputs.environment }} submit-cron:backup-${{ github.event.inputs.environment }}-$TIMESTAMP
+          echo "Backup tags created with timestamp: $TIMESTAMP"
+
       - name: Tag Images and Rollout
         shell: bash
         run: |
           oc project ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
-          oc tag submit-api:dev submit-api:${{ github.event.inputs.environment }}
-          oc tag submit-web:dev submit-web:${{ github.event.inputs.environment }}
-          oc tag submit-cron:dev submit-cron:${{ github.event.inputs.environment }}
+          oc tag submit-api:${{ github.event.inputs.source_tag }} submit-api:${{ github.event.inputs.environment }}
+          oc tag submit-web:${{ github.event.inputs.source_tag }} submit-web:${{ github.event.inputs.environment }}
+          oc tag submit-cron:${{ github.event.inputs.source_tag }} submit-cron:${{ github.event.inputs.environment }}
           
-          oc rollout status dc/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
-          oc rollout status dc/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
-          oc rollout status dc/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }} -w
+          oc rollout restart deployment/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}
+          oc rollout restart deployment/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}
+          oc rollout restart deployment/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}
