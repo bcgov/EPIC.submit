@@ -17,6 +17,9 @@ const baseSx: SxProps<Theme> = {
   borderRadius: 1,
   height: "24px",
   px: 1,
+  "& .MuiChip-label": {
+    overflow: "visible",
+  },
 };
 
 const themes = {
@@ -58,7 +61,6 @@ const themes = {
 type StyleProps = {
   label: string;
   theme: keyof typeof themes;
-  width?: string;
   icon?: ReactNode;
 };
 
@@ -67,16 +69,14 @@ const statusMap: Record<string, StyleProps> = {
   PASSED_CONSULTATION_CHECK: {
     label: "Passed Consultation Check",
     theme: "success",
-    width: "191px",
   },
   APPROVED: { label: "Approved", theme: "success" },
-  REVIEWED: { label: "Reviewed", theme: "success", width: "85px" },
-  ACCEPTED: { label: "Accepted", theme: "success", width: "83px" },
-  SATISFIED: { label: "Satisfied", theme: "success", width: "85px" },
+  REVIEWED: { label: "Reviewed", theme: "success" },
+  ACCEPTED: { label: "Accepted", theme: "success" },
+  SATISFIED: { label: "Satisfied", theme: "success" },
   NO_REVISION_REQUIRED: {
     label: "No Revision Required",
     theme: "success",
-    width: "157px",
   },
   VERIFIED: {
     label: "Verified",
@@ -108,7 +108,7 @@ const statusMap: Record<string, StyleProps> = {
     label: "Under Consultation Check",
     theme: "info",
   },
-  SUBMITTED: { label: "Submitted", theme: "info", width: "90px" },
+  SUBMITTED: { label: "Submitted", theme: "info" },
   NEW_VERSION: {
     label: "New Version",
     theme: "info",
@@ -126,7 +126,6 @@ const statusMap: Record<string, StyleProps> = {
   REVIEW_REJECTED: {
     label: "Review Rejected",
     theme: "danger",
-    width: "125px",
   },
   FAILED_CONSULTATION_CHECK: {
     label: "Failed Consultation Check",
@@ -136,13 +135,11 @@ const statusMap: Record<string, StyleProps> = {
   PREVIOUSLY_FAILED: {
     label: "Previously Failed",
     theme: "danger",
-    width: "128px",
   },
 
   REVIEW_NOT_COMPLETED: {
     label: "Review Not Completed",
     theme: "warning",
-    width: "168px",
   },
   PARTIALLY_COMPLETED: { label: "Partially Completed", theme: "warning" },
 
@@ -152,25 +149,21 @@ const statusMap: Record<string, StyleProps> = {
   AWAITING_MANAGER_APPROVAL: {
     label: "Awaiting Manager Approval",
     theme: "orange",
-    width: "196px",
   },
   UPDATE_REQUESTED: {
     label: "Update Requested",
     theme: "orange",
-    width: "140px",
   },
   REVISION_REQUIRED: {
     label: "Revision Required",
     theme: "orange",
-    width: "140px",
   },
   REVISION_REQUESTED: {
     label: "Revision Requested",
     theme: "orange",
-    width: "150px",
   },
 
-  UPDATED: { label: "Updated", theme: "purple", width: "85px" },
+  UPDATED: { label: "Updated", theme: "purple" },
 };
 
 type SubmissionStatusChipProps = Readonly<{
@@ -188,7 +181,6 @@ export function SubmissionStatusChip({
   const sx: SxProps<Theme> = {
     ...baseSx,
     ...(config.theme ? themes[config.theme] : {}),
-    ...(config.width ? { width: config.width } : {}),
   };
 
   return (

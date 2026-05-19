@@ -279,6 +279,54 @@ export const useUpdateStateSubmissionPackage = (options?: Options) => {
   });
 };
 
+const refuseSubmissionPackage = ({
+  packageId,
+  data,
+}: {
+  packageId: number;
+  data: Record<string, unknown>;
+}) => {
+  return submitRequest<SubmissionPackage>({
+    url: `/packages/${packageId}/refuse`,
+    method: "post",
+    data,
+  });
+};
+
+export const useRefuseSubmissionPackage = (options?: Options) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: refuseSubmissionPackage,
+    ...options,
+    onSuccess: (submissionPackage) => {
+      if (options?.onSuccess) {
+        options.onSuccess(submissionPackage);
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.SUBMISSION_VERSIONS,
+          submissionPackage.account_project_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.ACCOUNT_PROJECT,
+          submissionPackage.account_project_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+      queryClient.refetchQueries({
+        queryKey: [QUERY_KEY.ACTIVITY_LOGS],
+      });
+    },
+  });
+};
+
 const createPackageUpdateRequest = ({
   packageId,
   data,

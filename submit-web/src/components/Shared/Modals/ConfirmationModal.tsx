@@ -13,11 +13,14 @@ import { modalStyle } from "./constants";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import CloseIcon from "@mui/icons-material/Close";
 
+type ConfirmButtonColorType = "primary" | "error";
+
 type ConfirmationModalProps = {
   title: string;
   description: string | React.ReactNode;
   onConfirm: () => void;
   confirmText?: string;
+  confirmButtonColor?: ConfirmButtonColorType;
   hideSecondary?: boolean;
   // Either show cancel or secondary action, but not both
   cancelText?: string;
@@ -31,6 +34,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   description,
   onConfirm,
   confirmText,
+  confirmButtonColor = "primary",
   hideSecondary,
   cancelText,
   onCancel,
@@ -94,7 +98,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           loading={isLoading}
           variant="contained"
           onClick={handleConfirm}
-          color="primary"
+          color={confirmButtonColor}
         >
           {confirmText ?? "Confirm"}
         </LoadingButton>

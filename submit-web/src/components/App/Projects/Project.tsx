@@ -11,9 +11,10 @@ type ProjectParam = {
 
 export const Project = ({ accountProject }: ProjectParam) => {
   const navigate = useNavigate();
-  
+
   const { name, ea_certificate } = accountProject.project;
-  const hasAccountProjectWorks = (accountProject.account_project_works?.length ?? 0) > 0;
+  const hasAccountProjectWorks =
+    (accountProject.account_project_works?.length ?? 0) > 0;
 
   const handleNewSubmission = (workId?: number, isManagementPlan?: boolean) => {
     navigate({
@@ -29,31 +30,34 @@ export const Project = ({ accountProject }: ProjectParam) => {
       topLabel={accountProject.project.proponent?.name || ""}
       bottomLabel={ea_certificate ? `EAC # ${ea_certificate}` : ""}
     >
-      {hasAccountProjectWorks && accountProject.account_project_works && 
+      {hasAccountProjectWorks &&
+        accountProject.account_project_works &&
         accountProject.account_project_works.map((accountProjectWork) => {
           const workPackages = accountProject.packages.filter(
-            (pkg) => pkg.account_project_work?.id === accountProjectWork.id
+            (pkg) => pkg.account_project_work?.id === accountProjectWork.id,
           );
           return (
             <ProjectSubmissionsCard
               key={accountProjectWork.id}
               title={accountProjectWork.work.title || ""}
-              status={accountProjectWork.work.current_phase?.name || PROJECT_STATUS.POST_DECISION}
+              status={
+                accountProjectWork.work.current_phase?.name ||
+                PROJECT_STATUS.POST_DECISION
+              }
               isWorkRelated={true}
               workId={accountProjectWork.id}
               packages={workPackages}
               onNewSubmission={handleNewSubmission}
             />
           );
-        })
-      }
+        })}
       {accountProject.project.has_approved_condition && (
         <ProjectSubmissionsCard
           title="Management Plans & Related Documents"
           status={PROJECT_STATUS.POST_DECISION}
           isWorkRelated={false}
           packages={accountProject.packages.filter(
-            (pkg) => pkg.type.name === SubmissionPackageType.MANAGEMENT_PLAN
+            (pkg) => pkg.type.name === SubmissionPackageType.MANAGEMENT_PLAN,
           )}
           onNewSubmission={handleNewSubmission}
         />

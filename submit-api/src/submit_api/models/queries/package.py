@@ -58,12 +58,18 @@ class PackageQueries:
                 ).label("packages")  # Aggregate packages as a JSON array
             )
             .join(PackageModel, PackageModel.account_project_id == AccountProject.id)
+            # Join with PackageVersion to filter by version_id
             .join(PackageVersion,
-                  PackageModel.version_id == PackageVersion.id)  # Join with PackageVersion to filter by version_id
+                  PackageModel.version_id == PackageVersion.id, isouter=True)
             .join(latest_versions_subquery,
                   # Only fetch packages with the latest version_id
-                  PackageModel.version_id == latest_versions_subquery.c.latest_version_id)
-            .filter(AccountProject.account_id == account_id)
+                  PackageModel.version_id == latest_versions_subquery.c.latest_version_id, isouter=True)
+            .filter(AccountProject.account_id == account_id,
+                    db.or_(
+                        PackageModel.version_id == latest_versions_subquery.c.latest_version_id,
+                        PackageModel.version_id is None
+                    )
+                    )
         )
 
         if account_project_ids:

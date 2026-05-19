@@ -77,6 +77,18 @@ class PostPackageState(Schema):
     status = fields.Str(data_key="status")
 
 
+class RefusePackageSchema(Schema):
+    """refuse package schema."""
+
+    class Meta:  # pylint: disable=too-few-public-methods
+        """Exclude unknown fields in the deserialized output."""
+
+        unknown = EXCLUDE
+
+    decision_date = fields.DateTime(dataKey="decision_date")
+    reason = fields.Str(data_key="reason")
+
+
 class CreateUpdateRequestSchema(Schema):
     """create update request schema."""
 

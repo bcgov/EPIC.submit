@@ -603,6 +603,41 @@ class PackageService:
             return package
 
     @classmethod
+    def refuse_package(cls, package_id, decision_date):
+        """Do not approve the package."""
+        with session_scope() as session:
+            package = cls.get_package_by_id(package_id)
+            if not package:
+                raise BadRequestError("Package not found")
+
+            # Remove all document statuses
+            for item in package.items:
+                for submission in item.submissions:
+                    if submission.type == SubmissionType.DOCUMENT:
+                        submission.status = None
+                        session.add(submission)
+
+            package.status = [PackageStatus.NOT_APPROVED.value]
+            package.decision_date = decision_date
+            session.add(package)
+
+            # Cancel all open update requests
+            for update_request in package.update_requests:
+                update_request.status = UpdateRequestStatus.CLOSED.value
+                update_request.active = False
+                session.add(update_request)
+
+            # Create new package version
+            new_package = cls.create_new_package_from_original(package_id, session)
+            if package.submitted_by:
+                user = User.get_by_guid(package.submitted_by)
+                if user:
+                    new_package.submitted_by = user.auth_guid
+
+            session.flush()
+            return new_package
+
+    @classmethod
     def start_review(cls, package_id, _session=None):
         """Start the review process for the package."""
         package = cls._get_and_validate_package_for_starting_review(package_id)

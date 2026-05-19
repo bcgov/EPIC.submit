@@ -30,6 +30,7 @@ import AcknowledgeSubmissionModal from "@/components/App/Submission/Modals/Ackno
 import { useUpdateRequests } from "@/hooks/useUpdateRequests";
 import { useStaffSubmissionPage } from "@/hooks/useStaffSubmissionPage";
 import ApproveSubmissionModal from "@/components/App/Submission/Modals/ApproveSubmissionModal";
+import RefuseSubmissionModal from "@/components/App/Submission/Modals/RefuseSubmissionModal";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -57,7 +58,8 @@ export default function SubmissionPage() {
     submissionPackage,
     isFetching,
     updatePackageState,
-    updatingPackageState,
+    refusePackage,
+    isLoading,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
     canAcknowledge,
@@ -135,18 +137,17 @@ export default function SubmissionPage() {
 
   const handleNotApprovedClick = () => {
     setOpenModal(
-      <AcknowledgeSubmissionModal
-        onConfirm={() => {
-          updatePackageState({
+      <RefuseSubmissionModal
+        onConfirm={(data) => {
+          refusePackage({
             packageId: submissionPackageId,
             data: {
-              status: PACKAGE_STATUS.ACKNOWLEDGED.value,
+              decision_date: data.decisionDate,
+              reason: data.reason,
             },
           });
         }}
         onCancel={() => setCloseModal()}
-        hasOpenUpdateRequests={sentUpdateRequests.length > 0}
-        openRequestSectionNames={openRequestSectionNames}
       />,
     );
   };
@@ -337,8 +338,8 @@ export default function SubmissionPage() {
                     variant="outlined"
                     color="primary"
                     onClick={handleAcknowledgeClick}
-                    disabled={!canAcknowledge || updatingPackageState}
-                    loading={updatingPackageState}
+                    disabled={!canAcknowledge || isLoading}
+                    loading={isLoading}
                   >
                     {submissionPackage?.type.name ===
                     SubmissionPackageType.ADDITIONAL_INFORMATION ? (
@@ -356,8 +357,8 @@ export default function SubmissionPage() {
                       variant="outlined"
                       color="error"
                       onClick={handleNotApprovedClick}
-                      disabled={updatingPackageState}
-                      loading={updatingPackageState}
+                      disabled={isLoading}
+                      loading={isLoading}
                     >
                       Not Approved
                     </Button>
@@ -365,8 +366,8 @@ export default function SubmissionPage() {
                       variant="outlined"
                       color="primary"
                       onClick={handleApproveSubmissionClick}
-                      disabled={updatingPackageState}
-                      loading={updatingPackageState}
+                      disabled={isLoading}
+                      loading={isLoading}
                     >
                       Approve Submission
                     </Button>

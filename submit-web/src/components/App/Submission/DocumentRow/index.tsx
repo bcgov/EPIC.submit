@@ -206,7 +206,7 @@ export default function DocumentRow({
             <span style={{ marginRight: "24px" }} />
           )}
         </SubmitTableCell>
-        <SubmitTableCell align="right" width={"15%"}>
+        <SubmitTableCell align="right" width={"18%"}>
           <Box mr={2}>
             <StatusCell
               submittedDocument={documentSubmission}
@@ -214,7 +214,7 @@ export default function DocumentRow({
             />
           </Box>
         </SubmitTableCell>
-        <SubmitTableCell align="right" width={"20%"}>
+        <SubmitTableCell align="right" width={"17%"}>
           <Box
             sx={{
               display: "flex",
@@ -274,10 +274,7 @@ export default function DocumentRow({
             colSpan={6}
             style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
           >
-            <DocumentsSubTable
-              submission={documentSubmission}
-              packageType={packageType}
-            />
+            <DocumentsSubTable submission={documentSubmission} />
           </SubmitTableCell>
         </TableRow>
       )}
