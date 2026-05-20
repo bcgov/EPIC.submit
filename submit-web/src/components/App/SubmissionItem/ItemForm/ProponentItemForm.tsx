@@ -11,6 +11,7 @@ import { IemSubmissionProponentView } from "@/components/App/SubmissionItem/IEMS
 import { IEMUpdateForm } from "@/components/App/SubmissionItem/IEMSubmission/IEMUpdateForm";
 import { IPDSubmissionProponentView } from "@/components/App/SubmissionItem/IPDSubmission/IPDProponentView";
 import { GeoSpatialProponentView } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialProponentView";
+import { GeoSpatialUpdateForm } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialUpdateForm";
 import { EngagementPlanProponentView } from "@/components/App/SubmissionItem/EPSubmission/EPProponentView";
 import { AdditionalInformationProponentView } from "@/components/App/SubmissionItem/AdditionalInformation/ProponentView";
 import { AdditionalInformationUpdateForm } from "@/components/App/SubmissionItem/AdditionalInformation/UpdateForm";
@@ -44,7 +45,7 @@ const updateFormMap = {
   [SUBMISSION_ITEM_TYPE.IEM]: IEMUpdateForm,
   [SUBMISSION_ITEM_TYPE.IPD]: IPDUpdateForm,
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanUpdateForm,
-  [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: GeoSpatialProponentView,
+  [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: GeoSpatialUpdateForm,
   [SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT]: AdditionalInformationUpdateForm,
 };
 
