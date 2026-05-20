@@ -19,11 +19,13 @@ type DocumentsSubTableProps = Readonly<{
   submission?: Submission;
   submissionId?: number;
   currentDocumentId?: number;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 export default function DocumentsSubTable({
   submission,
   submissionId,
   currentDocumentId,
+  onDocumentClick,
 }: DocumentsSubTableProps) {
   const currentSubmissionId = submissionId ?? submission?.id;
   const { data: submissions, isPending: isSubmissionsLoading } =
@@ -92,6 +94,7 @@ export default function DocumentsSubTable({
               <DocumentSubRow
                 key={submission.id}
                 documentSubmission={submission}
+                onDocumentClick={onDocumentClick}
               />
             ))}
           </TableBody>

@@ -3,7 +3,7 @@ import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BCDesignTokens } from "epic.theme";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
-import { Grid, Link, List, ListItem, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
 import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
@@ -13,11 +13,10 @@ import Form from "@/components/Shared/Forms/common";
 import { FormProvider, useForm } from "react-hook-form";
 import { Submission } from "@/models/Submission";
 import {
-  GEO_DOC_LABELS,
-  GEO_DOC_LINKS,
   GeoSpatialSubmissionForm,
   geospatialSubmissionSchema,
 } from "./constants";
+import { GeoSpatialGuidelines } from "./GeoSpatialGuidelines";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
@@ -33,7 +32,6 @@ import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
 import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
-import { styled } from "@mui/material/styles";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
 // Lazy-load the map modal so maplibre-gl is not downloaded until first use
 const MapPreviewModal = lazy(() =>
@@ -42,12 +40,7 @@ const MapPreviewModal = lazy(() =>
   })),
 );
 
-const StyledListItem = styled(ListItem)({
-  padding: 2,
-  display: "list-item",
-  listStyleType: "disc",
-  color: BCDesignTokens.themeBlue100,
-});
+
 
 export const GeoSpatialProponentView = () => {
   const {
@@ -207,67 +200,7 @@ export const GeoSpatialProponentView = () => {
         <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
             <Grid item xs={12}>
-              <Typography variant="body2">
-                Please download the EAO’s{" "}
-                <Link
-                  href={GEO_DOC_LINKS[GEO_DOC_LABELS.SPATIAL_GUIDELINE]}
-                  underline="always"
-                  sx={{ color: BCDesignTokens.themeBlue100 }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Spacial Data Submission Guideline
-                </Link>{" "}
-                (PDF, 5.1MB) to understand GIS files requirements.
-              </Typography>
-              <Typography variant="body2" sx={{ mt: 2 }}>
-                You can also download these shape file templates to help you get
-                started.
-              </Typography>
-              <List sx={{ pl: 4 }}>
-                <StyledListItem>
-                  <Typography variant="body2">
-                    <Link
-                      href={GEO_DOC_LINKS[GEO_DOC_LABELS.EAOShapeFiles]}
-                      underline="always"
-                      sx={{ color: BCDesignTokens.themeBlue100 }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      EAOShapeFiles
-                    </Link>
-                  </Typography>
-                </StyledListItem>
-                <StyledListItem>
-                  <Typography variant="body2">
-                    <Link
-                      href={GEO_DOC_LINKS[GEO_DOC_LABELS.EAO_ESRI_FileGDB]}
-                      underline="always"
-                      sx={{ color: BCDesignTokens.themeBlue100 }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      EAO_ESRI_FileGDB
-                    </Link>{" "}
-                    (with domains - may be submitted as an alternative to
-                    individual shapefiles)
-                  </Typography>
-                </StyledListItem>
-                <StyledListItem>
-                  <Typography variant="body2">
-                    <Link
-                      href={GEO_DOC_LINKS[GEO_DOC_LABELS.EOA_QGISGeopackage]}
-                      underline="always"
-                      sx={{ color: BCDesignTokens.themeBlue100 }}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      EOA_QGISGeopackage
-                    </Link>{" "}
-                    (with domains)
-                  </Typography>
-                </StyledListItem>
-              </List>
+              <GeoSpatialGuidelines />
             </Grid>
             <Grid item xs={12}>
               <GenericDocumentUploadSection

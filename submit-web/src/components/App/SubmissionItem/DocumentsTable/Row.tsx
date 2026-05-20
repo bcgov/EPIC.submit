@@ -1,4 +1,4 @@
-import { TableRow } from "@mui/material";
+import { TableRow, IconButton, Chip, Typography } from "@mui/material";
 import {
   Submission,
   SUBMISSION_STATUS,
@@ -22,20 +22,27 @@ import { BCDesignTokens } from "epic.theme";
 import { useFileStore } from "@/store/fileStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
+import { useGetGeoUploads } from "@/hooks/api/useGeo";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
   folderPath: string;
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
+  isGeoSpatial?: boolean;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 
 export default function Row({
   documentSubmission,
   folderPath,
   setIsPendingUpload,
+  isGeoSpatial = false,
+  onDocumentClick,
 }: DocumentRowProps) {
   const queryClient = useQueryClient();
-  const { submissionPackageId } = useParams({
+  const { submissionPackageId, submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
@@ -43,8 +50,23 @@ export default function Row({
   const [isReplacingDocument, setIsReplacingDocument] = useState(false);
   const [currentSubmission, setCurrentSubmission] =
     useState<Submission>(documentSubmission);
+  const [expanded, setExpanded] = useState(false);
 
   const { removeFile } = useFileStore();
+
+  const { data: geoUploads } = useGetGeoUploads(
+    {
+      itemId: Number(subItemId),
+      autoRefetch: isGeoSpatial,
+    },
+    {
+      enabled: isGeoSpatial,
+    }
+  );
+
+  const geoUpload = (geoUploads as any[])?.find(
+    (u: any) => u.raw_s3_key === currentSubmission.submitted_document?.url,
+  );
 
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
     submissionItemId: currentSubmission.item_id,
@@ -63,6 +85,14 @@ export default function Row({
     onSuccess: (newSubmission) => {
       setCurrentSubmission(newSubmission);
       notify.success("Document replaced successfully");
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, Number(currentSubmission.item_id)],
+      });
+      if (isGeoSpatial) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.GEO_UPLOADS],
+        });
+      }
     },
     onError: () => {
       notify.error("Failed to replace document");
@@ -91,7 +121,11 @@ export default function Row({
   };
 
   const openDocument = () => {
-    downloadDocument();
+    if (isGeoSpatial && onDocumentClick) {
+      onDocumentClick(currentSubmission);
+    } else {
+      downloadDocument();
+    }
   };
 
   const replaceDocument = async (files: FileList | null) => {
@@ -99,6 +133,11 @@ export default function Row({
       return;
     }
     const fileToUpload = files[0];
+    const ext = fileToUpload.name.split(".").pop()?.toLowerCase();
+    if (isGeoSpatial && ext !== "zip" && ext !== "shp") {
+      notify.error("Only .zip and .shp files are allowed for geospatial data.");
+      return;
+    }
     try {
       setIsReplacingDocument(true);
       setIsPendingUpload(true);
@@ -139,6 +178,14 @@ export default function Row({
       await deleteDocument({ filepath: submitted_document?.url ?? "" });
       await deleteSubmission(currentSubmission.id);
       removeFile(currentSubmission.id);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, Number(currentSubmission.item_id)],
+      });
+      if (isGeoSpatial) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.GEO_UPLOADS],
+        });
+      }
     } catch (e) {
       notify.error("Failed to remove document");
     } finally {
@@ -150,45 +197,97 @@ export default function Row({
   const isRemovable =
     currentSubmission.status === SUBMISSION_STATUS.PENDING &&
     currentSubmission.minor_version === 1;
+
   return (
-    <TableRow>
-      <SubmitTableCell>
-        <DocumentLink
-          name={submitted_document?.name ?? ""}
-          loading={pendingGetObject}
-          onClick={openDocument}
-        />
-        {/* </Typography> */}
-      </SubmitTableCell>
-      <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
-      <SubmitTableCell align="right">{version}</SubmitTableCell>
-      <SubmitTableCell align="right">
-        {isRemovable ? (
-          <LoadingButton
-            variant="text"
-            loading={isRemovingDocument}
-            onClick={removeDocument}
-            sx={{
-              color: BCDesignTokens.typographyColorLink,
-              "&:hover": {
-                backgroundColor: "transparent",
-              },
-              "&:focus": {
-                outline: "none",
-              },
-            }}
-          >
-            Remove
-          </LoadingButton>
-        ) : (
-          <FileUploadButton
-            onChange={replaceDocument}
-            loading={isReplacingDocument}
-          >
-            Replace
-          </FileUploadButton>
+    <>
+      <TableRow>
+        <SubmitTableCell>
+          <DocumentLink
+            name={submitted_document?.name ?? ""}
+            loading={pendingGetObject}
+            onClick={openDocument}
+          />
+        </SubmitTableCell>
+        <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
+        <SubmitTableCell align="right">
+          {version}
+          {currentSubmission.minor_version > 1 ? (
+            <IconButton onClick={() => setExpanded(!expanded)} sx={{ p: 0 }}>
+              <ExpandMoreIcon
+                sx={{
+                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "0.3s ease-in-out",
+                }}
+              />
+            </IconButton>
+          ) : (
+            <span style={{ marginRight: "24px" }} />
+          )}
+        </SubmitTableCell>
+        {isGeoSpatial && (
+          <SubmitTableCell align="center">
+            {geoUpload ? (
+              <Chip
+                label={geoUpload.status.toUpperCase()}
+                color={
+                  geoUpload.status === "ready"
+                    ? "success"
+                    : geoUpload.status === "processing"
+                      ? "warning"
+                      : "error"
+                }
+                variant="outlined"
+                size="small"
+              />
+            ) : (
+              <Typography variant="body2" color="textSecondary">
+                N/A
+              </Typography>
+            )}
+          </SubmitTableCell>
         )}
-      </SubmitTableCell>
-    </TableRow>
+        <SubmitTableCell align="right">
+          {isRemovable ? (
+            <LoadingButton
+              variant="text"
+              loading={isRemovingDocument}
+              onClick={removeDocument}
+              sx={{
+                color: BCDesignTokens.typographyColorLink,
+                "&:hover": {
+                  backgroundColor: "transparent",
+                },
+                "&:focus": {
+                  outline: "none",
+                },
+              }}
+            >
+              Remove
+            </LoadingButton>
+          ) : (
+            <FileUploadButton
+              onChange={replaceDocument}
+              loading={isReplacingDocument}
+              accept={isGeoSpatial ? ".zip,.shp" : undefined}
+            >
+              Replace
+            </FileUploadButton>
+          )}
+        </SubmitTableCell>
+      </TableRow>
+      {expanded && (
+        <TableRow>
+          <SubmitTableCell
+            colSpan={isGeoSpatial ? 6 : 5}
+            style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
+          >
+            <DocumentsSubTable
+              submission={currentSubmission}
+              onDocumentClick={onDocumentClick}
+            />
+          </SubmitTableCell>
+        </TableRow>
+      )}
+    </>
   );
 }

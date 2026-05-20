@@ -10,16 +10,18 @@ import { DocumentLink } from "@/components/Shared/DocumentLink";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 
 export default function DocumentSubRow({
   documentSubmission,
+  onDocumentClick,
 }: DocumentRowProps) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
 
   const { submitted_document, version, submitted_by } = documentSubmission;
 
-  const { name, url } = submitted_document || { name: "", url: "" };
+  const { name, url, folder } = submitted_document || { name: "", url: "", folder: "" };
 
   const downloadDocument = async () => {
     try {
@@ -37,7 +39,11 @@ export default function DocumentSubRow({
   };
 
   const openDocument = () => {
-    downloadDocument();
+    if (onDocumentClick && folder === "geospatial") {
+      onDocumentClick(documentSubmission);
+    } else {
+      downloadDocument();
+    }
   };
 
   return (

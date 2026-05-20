@@ -14,12 +14,14 @@ type AddDocumentActionButtonProps = {
   folder: string;
   folderPath: string;
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
+  isGeoSpatial?: boolean;
 };
 export const AddDocumentActionButton = ({
   handleAddDocument,
   folder,
   folderPath,
   setIsPendingUpload,
+  isGeoSpatial = false,
 }: AddDocumentActionButtonProps) => {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -32,6 +34,11 @@ export const AddDocumentActionButton = ({
       return;
     }
     const fileToUpload = files[0];
+    const ext = fileToUpload.name.split(".").pop()?.toLowerCase();
+    if (isGeoSpatial && ext !== "zip" && ext !== "shp") {
+      notify.error("Only .zip and .shp files are allowed for geospatial data.");
+      return;
+    }
     try {
       setIsAddingDocument(true);
       setIsPendingUpload(true);
@@ -54,8 +61,16 @@ export const AddDocumentActionButton = ({
       });
 
       queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, Number(submissionItemId)],
+      });
+      queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, Number(submissionPackageId)],
       });
+      if (isGeoSpatial) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.GEO_UPLOADS],
+        });
+      }
       handleAddDocument(addedSubmission);
     } catch (e) {
       notify.error("Failed to add document");
@@ -68,8 +83,12 @@ export const AddDocumentActionButton = ({
     }
   };
   return (
-    <FileUploadButton onChange={createDocument} loading={isAddingDocument}>
-      + Add a New Document
+    <FileUploadButton
+      onChange={createDocument}
+      loading={isAddingDocument}
+      accept={isGeoSpatial ? ".zip,.shp" : undefined}
+    >
+      {isGeoSpatial ? "+ Add a New Geospatial File" : "+ Add a New Document"}
     </FileUploadButton>
   );
 };
