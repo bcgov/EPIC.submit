@@ -24,7 +24,7 @@ from sqlalchemy import Column, DateTime, Float, Integer, JSON, String, Text
 from .base_model import BaseModel
 
 
-class GeoDataUpload(BaseModel):
+class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
     """Definition of the GeoDataUpload entity."""
 
     __tablename__ = 'geo_data_uploads'
@@ -52,9 +52,36 @@ class GeoDataUpload(BaseModel):
         nullable=True
     )
 
-    def __init__(self, **kwargs):
-        """Initialize the geo data upload."""
-        super().__init__(**kwargs)
+
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        filename: str = '',
+        file_type: str | None = None,
+        file_size_kb: float | None = None,
+        raw_s3_key: str | None = None,
+        preview_s3_key: str | None = None,
+        standard_s3_key: str | None = None,
+        status: str = 'processing',
+        error_message: str | None = None,
+        feature_count: int | None = None,
+        geometry_type: str | None = None,
+        crs_original: str | None = None,
+        bbox: dict | None = None,
+    ):
+        """Initialize the GeoDataUpload with all its fields."""
+        super().__init__()
+        self.filename = filename
+        self.file_type = file_type
+        self.file_size_kb = file_size_kb
+        self.raw_s3_key = raw_s3_key
+        self.preview_s3_key = preview_s3_key
+        self.standard_s3_key = standard_s3_key
+        self.status = status
+        self.error_message = error_message
+        self.feature_count = feature_count
+        self.geometry_type = geometry_type
+        self.crs_original = crs_original
+        self.bbox = bbox
 
     def to_dict(self):
         """Return a dictionary representation of the model."""
