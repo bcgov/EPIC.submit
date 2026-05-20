@@ -52,7 +52,6 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
         nullable=True
     )
 
-
     def __init__(  # pylint: disable=too-many-arguments
         self,
         filename: str = '',
