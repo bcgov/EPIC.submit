@@ -52,6 +52,10 @@ class GeoDataUpload(BaseModel):
         nullable=True
     )
 
+    def __init__(self, **kwargs):
+        """Initialize the geo data upload."""
+        super().__init__(**kwargs)
+
     def to_dict(self):
         """Return a dictionary representation of the model."""
         return {

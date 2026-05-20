@@ -28,10 +28,14 @@ import { getSubmissionItemLabel } from "@/utils";
 type DocumentsTableProps = Readonly<{
   folder: string;
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
+  isGeoSpatial?: boolean;
+  onDocumentClick?: (documentItem: Submission) => void;
 }>;
 export default function DocumentsTable({
   folder,
   setIsPendingUpload,
+  isGeoSpatial = false,
+  onDocumentClick,
 }: DocumentsTableProps) {
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -59,7 +63,10 @@ export default function DocumentsTable({
         submission.type === SUBMISSION_TYPE.DOCUMENT &&
         submission.submitted_document?.folder === folder,
     );
-    return [...submissions, ...addedSubmissions];
+    const filteredAdded = addedSubmissions.filter(
+      (addedSub) => !submissions.some((sub) => sub.id === addedSub.id),
+    );
+    return [...submissions, ...filteredAdded];
   }, [submissionItem, addedSubmissions, folder]);
 
   if (isItemLoading) {
@@ -84,6 +91,9 @@ export default function DocumentsTable({
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
+            {isGeoSpatial && (
+              <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
+            )}
             <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </SubmitTableHead>
@@ -94,13 +104,14 @@ export default function DocumentsTable({
                 {getSubmissionItemLabel(submissionItem.type.name)}
               </Typography>
             </SubmitPrimaryRowTableCell>
-            <SubmitPrimaryRowTableCell colSpan={2} />
+            <SubmitPrimaryRowTableCell colSpan={isGeoSpatial ? 3 : 2} />
             <SubmitPrimaryRowTableCell align="right">
               <AddDocumentActionButton
                 folder={folder}
                 folderPath={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${folder}/`}
                 handleAddDocument={handleAddSubmission}
                 setIsPendingUpload={setIsPendingUpload}
+                isGeoSpatial={isGeoSpatial}
               />
             </SubmitPrimaryRowTableCell>
           </SubmitTablePrimaryRow>
@@ -110,6 +121,8 @@ export default function DocumentsTable({
               documentSubmission={documentSubmission}
               folderPath={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${folder}/`}
               setIsPendingUpload={setIsPendingUpload}
+              isGeoSpatial={isGeoSpatial}
+              onDocumentClick={onDocumentClick}
             />
           ))}
         </TableBody>

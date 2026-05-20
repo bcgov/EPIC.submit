@@ -10,7 +10,7 @@ import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import DocumentRow from "@/components/App/Submission/DocumentRow";
-import { If, When } from "react-if";
+import { When } from "react-if";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "@/components/App/Submission/SubmissionItemTableRow";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,7 +23,10 @@ import {
 import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
-import { UPDATE_REQUEST_STATUS, UPDATE_REQUEST_TYPE } from "@/models/UpdateRequest";
+import {
+  UPDATE_REQUEST_STATUS,
+  UPDATE_REQUEST_TYPE,
+} from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import dayjs from "dayjs";
 
@@ -64,15 +67,17 @@ export default function ProponentSubmissionItemTableRow({
       (updateRequest) =>
         updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
         updateRequest.active &&
-        updateRequest.submission_item_types.includes(type_id)
+        updateRequest.submission_item_types.includes(type_id),
     );
   }, [submissionPackage, type_id]);
 
-  const hasAccountProjectWork = Boolean(submissionPackage?.account_project_work?.id);
+  const hasAccountProjectWork = Boolean(
+    submissionPackage?.account_project_work?.id,
+  );
 
   const isUpdated = useMemo(() => {
     if (!submissionPackage) return false;
-    
+
     const last_update_request = submissionPackage.update_requests
       .filter(
         (updateRequest) =>
@@ -83,7 +88,7 @@ export default function ProponentSubmissionItemTableRow({
       .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
 
     if (!last_update_request) return false;
-    
+
     return Boolean(
       item.submissions?.find((submission) =>
         dayjs(submission.created_date).isAfter(
@@ -137,7 +142,7 @@ export default function ProponentSubmissionItemTableRow({
             </Box>
           </When>
           <When condition={hasAccountProjectWork}>
-            <If condition={hasOpenUpdateRequest}>
+            <When condition={hasOpenUpdateRequest}>
               <Chip
                 label="Update Requested"
                 size="small"
@@ -150,8 +155,8 @@ export default function ProponentSubmissionItemTableRow({
                   fontWeight: 400,
                 }}
               />
-            </If>
-            <If condition={isUpdated}>
+            </When>
+            <When condition={isUpdated}>
               <Chip
                 label="Updated"
                 size="small"
@@ -164,10 +169,10 @@ export default function ProponentSubmissionItemTableRow({
                   fontWeight: 400,
                 }}
               />
-            </If>
+            </When>
           </When>
         </SubmitPrimaryRowTableCell>
-      
+
         <SubmitPrimaryRowTableCell
           align="right"
           width={isIPD ? "30%" : "10%"}

@@ -7,12 +7,14 @@ type FileUploadButtonProps = {
   children: React.ReactNode;
   multiple?: boolean;
   loading?: boolean;
+  accept?: string;
 };
 export const FileUploadButton = ({
   onChange,
   children,
   multiple = false,
   loading = false,
+  accept,
 }: FileUploadButtonProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -42,6 +44,7 @@ export const FileUploadButton = ({
         type="file"
         onChange={(e) => handleFileChange(e)}
         multiple={multiple}
+        accept={accept}
       />
     </LoadingButton>
   );

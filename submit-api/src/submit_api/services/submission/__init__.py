@@ -47,6 +47,7 @@ class SubmissionService:
     def create_submission(cls, item_id, request_data):
         """Create a new submission."""
         cls._check_assigned_on_package(item_id)
+        is_geospatial = False
         with session_scope() as session:
             submission_type = request_data.get("type")
             submission_creator = cls.make_submission_creator(submission_type)
@@ -56,7 +57,16 @@ class SubmissionService:
 
             status = request_data.get("status")
             cls.update_submission_item_status(item_id, status, session)
-            return submission
+
+            # Check if the document being created is geospatial
+            is_geospatial = (submission.type == SubmissionType.DOCUMENT and
+                             submission.submitted_document and
+                             submission.submitted_document.folder == 'geospatial')
+
+        if is_geospatial:
+            cls.trigger_geo_process(item_id)
+
+        return submission
 
     @classmethod
     def replace_submission(cls, submission_id, request_data):
@@ -67,8 +77,25 @@ class SubmissionService:
         submission_type = request_data.get("type")
         submission_creator = cls.make_submission_creator(submission_type)
         submission_data = request_data.get("data")
-        submission = submission_creator.replace(submission_id, submission_data)
-        return submission
+
+        # Check if the document being replaced is geospatial
+        is_geospatial = (submission.type == SubmissionType.DOCUMENT and
+                         submission.submitted_document and
+                         submission.submitted_document.folder == 'geospatial')
+
+        url_to_cleanup = None
+        if is_geospatial and submission.status == SubmissionStatus.PENDING:
+            url_to_cleanup = submission.submitted_document.url
+
+        new_submission = submission_creator.replace(submission_id, submission_data)
+
+        if is_geospatial:
+            cls.trigger_geo_process(new_submission.item_id)
+
+        if url_to_cleanup:
+            cls._cleanup_document_artifacts(url_to_cleanup)
+
+        return new_submission
 
     @classmethod
     def move_submission(cls, submission_id, request_data):
@@ -329,7 +356,9 @@ class SubmissionService:
         """Trigger geospatial processing for newly uploaded files related to an item."""
         submissions = SubmissionModel.query.filter_by(
             item_id=item_id,
-            type=SubmissionType.DOCUMENT
+            type=SubmissionType.DOCUMENT,
+            deleted=False,
+            active=True
         ).all()
 
         triggered_uploads = []
@@ -362,11 +391,14 @@ class SubmissionService:
             )
             db.session.add(upload)
             db.session.flush()
-
-            # pylint: disable=protected-access
-            GeoService._spawn_processing_thread(app, upload.id)
-
-            triggered_uploads.append({'id': upload.id, 'filename': upload.filename})
+            triggered_uploads.append(upload)
 
         db.session.commit()
-        return triggered_uploads
+
+        result = []
+        for upload in triggered_uploads:
+            # pylint: disable=protected-access
+            GeoService._spawn_processing_thread(app, upload.id)
+            result.append({'id': upload.id, 'filename': upload.filename})
+
+        return result
