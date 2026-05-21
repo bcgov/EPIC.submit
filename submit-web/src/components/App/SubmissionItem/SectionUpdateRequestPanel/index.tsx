@@ -127,7 +127,7 @@ export const SectionUpdateRequestPanel: React.FC<
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <RefreshIcon sx={{ color: BCDesignTokens.themeGold100, fontSize: "16px" }} />
+          <RefreshIcon sx={{ color: hasAnyRequests ? BCDesignTokens.themeGold100 : BCDesignTokens.themeGray70, fontSize: "16px" }} />
           <Typography
             variant="h6"
             sx={{
