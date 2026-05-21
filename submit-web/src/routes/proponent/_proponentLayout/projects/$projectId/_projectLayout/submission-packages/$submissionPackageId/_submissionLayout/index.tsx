@@ -250,7 +250,8 @@ export default function SubmissionPage() {
 
     const openRequests = submissionPackage.update_requests.filter(
       (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+        (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
+         updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
         updateRequest.active,
     );
 

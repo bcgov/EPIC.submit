@@ -44,17 +44,18 @@ export default function ActionSplitButton({
         onClick={primaryAction.onClick}
         startIcon={primaryAction.icon}
         sx={{
-          height: 34,
-          fontSize: BCDesignTokens.typographyFontSizeSmallBody,
+          height: 25,
+          fontSize: "12px",
           fontWeight: 400,
-          color: BCDesignTokens.themeBlue80,
-          borderColor: BCDesignTokens.themeBlue80,
+          color: "#036",
+          borderColor: "#036",
           backgroundColor: "transparent",
           textTransform: "none",
           px: 1.5,
+          borderRadius: "3px",
           "&:hover": {
             backgroundColor: "rgba(0, 51, 102, 0.06)",
-            borderColor: BCDesignTokens.themeBlue80,
+            borderColor: "#036",
           },
         }}
       >
@@ -70,10 +71,10 @@ export default function ActionSplitButton({
         variant="outlined"
         size="small"
         sx={{
-          height: 34,
-          borderColor: BCDesignTokens.themeBlue80,
+          height: 25,
+          borderColor: "#036",
           "& .MuiButtonGroup-grouped": {
-            borderColor: `${BCDesignTokens.themeBlue80} !important`,
+            borderColor: "#036 !important",
           },
         }}
       >
@@ -82,9 +83,9 @@ export default function ActionSplitButton({
           onClick={primaryAction.onClick}
           startIcon={primaryAction.icon}
           sx={{
-            fontSize: BCDesignTokens.typographyFontSizeSmallBody,
+            fontSize: "12px",
             fontWeight: 400,
-            color: BCDesignTokens.themeBlue80,
+            color: "#036",
             backgroundColor: "transparent",
             textTransform: "none",
             px: 1.5,
@@ -103,7 +104,7 @@ export default function ActionSplitButton({
           sx={{
             minWidth: "28px !important",
             px: 0,
-            color: BCDesignTokens.themeBlue80,
+            color: "#036",
             backgroundColor: "transparent",
             "&:hover": {
               backgroundColor: "rgba(0, 51, 102, 0.06)",

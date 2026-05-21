@@ -367,6 +367,22 @@ class PackageService:
                 session.add(submission)
 
     @staticmethod
+    def _update_submission_status_on_resubmit(package, session):
+        """Update only PENDING submission statuses to SUBMITTED during resubmission.
+
+        This preserves the status of submissions that have already been processed by staff:
+        - VERIFIED, APPROVED, REJECTED, ACKNOWLEDGED statuses are preserved
+        - SUBMITTED statuses are preserved (no unnecessary updates)
+        - Only PENDING submissions are updated to SUBMITTED
+        """
+        for item in package.items:
+            for submission in item.submissions:
+                if submission.status == SubmissionStatus.PENDING:
+                    submission.status = SubmissionStatus.SUBMITTED
+                    session.add(submission)
+        current_app.logger.info(f"Updated PENDING submissions to SUBMITTED for package {package.id}")
+
+    @staticmethod
     def _deactivate_replaced_submissions(package, session):
         """Deactivate replaced submissions."""
         current_app.logger.info(f"Deactivating pending replacement submissions for package {package.id}")
@@ -462,15 +478,9 @@ class PackageService:
             raise BadRequestError("Cannot resubmit a package that has been completed")
         cls._update_package_submission_details(package, session)
 
-        # Ensure package and item statuses are reset for non-versioned packages,
-        # removing any previous flags like PARTIALLY_COMPLETED
-        if not package.type.versioning_enabled:
-            cls._update_items_status(
-                package.items, ItemStatus.SUBMITTED.value, session)
-
         cls._deactivate_replaced_submissions(package, session)
-        cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._create_email_queue_record(package, session)
+        cls._update_submission_status_on_resubmit(package, session)
         cls._deactivate_revision_required_requests(package, session)
         cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
         cls._deactivate_fail_reviews(package, session)
@@ -533,10 +543,8 @@ class PackageService:
             raise BadRequestError("Update request not found")
         if update_request.submission_package_id != package.id:
             raise BadRequestError("Update request does not belong to the specified package")
-        if update_request.status == UpdateRequestStatus.ACCEPTED.value:
-            raise BadRequestError("Cannot withdraw an already accepted update request")
-        if update_request.status == UpdateRequestStatus.CLOSED.value:
-            raise BadRequestError("Update request is already withdrawn")
+        if update_request.status != UpdateRequestStatus.OPEN.value:
+            raise BadRequestError("Update request can only be withdrawn when status is OPEN")
 
     @staticmethod
     def _log_activity_submission(package, action, session):

@@ -7,9 +7,10 @@ import {
   Box,
   IconButton,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import BorderColorIcon from '@mui/icons-material/BorderColor';
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { BCDesignTokens } from "epic.theme";
+import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 
 interface UpdateRequestAccordionProps {
   itemTypeName: string;
@@ -26,6 +27,8 @@ interface UpdateRequestAccordionProps {
   noteEditingUI?: ReactNode; // PROPONENT: UI for adding/editing notes
   onEditNote?: () => void; // PROPONENT: Callback when edit icon is clicked
   showEditIcon?: boolean; // PROPONENT: Show edit icon in proponent response header
+  status?: string; // Update request status to conditionally show proponent note
+  isProponentView?: boolean; // PROPONENT: Show notes even when status is OPEN
 }
 
 export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
@@ -43,6 +46,8 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
   noteEditingUI,
   onEditNote,
   showEditIcon = false,
+  status,
+  isProponentView = false,
 }) => {
   return (
     <Accordion
@@ -50,7 +55,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
       onChange={onToggle}
       sx={{
         border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-        background: BCDesignTokens.themeGray10,
+        background: "#fafafa",
         borderRadius: "6px",
         mb: variant === "previous" ? 0 : 2,
         "&:before": {
@@ -60,7 +65,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
       }}
     >
       <AccordionSummary
-        expandIcon={<ExpandMoreIcon sx={{ fontSize: "16px", color: BCDesignTokens.themeGray80 }} />}
         sx={{
           minHeight: "46px",
           height: "46px",
@@ -73,7 +77,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
               margin: 0,
             },
           },
-          px: 1.75,
+          px: 1.5,
         }}
       >
         <Box
@@ -84,14 +88,23 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
             width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <ChevronRightIcon 
+              sx={{ 
+                fontSize: "12px", 
+                color: "#2d2d2d",
+                transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
+                transition: "transform 0.2s ease",
+              }} 
+            />
             <Typography
               variant="body1"
               sx={{
                 fontWeight: 700,
                 fontSize: "16px",
-                color: BCDesignTokens.typographyColorPrimary,
+                color: "#2d2d2d",
                 lineHeight: "27px",
+                fontFamily: "BCSans, sans-serif",
               }}
             >
               {itemTypeName}
@@ -100,15 +113,15 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
           {headerRightContent}
         </Box>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={{ backgroundColor: "white" }}>
         <Box sx={{ display: "flex", flexDirection: "column" }}>
           {/* EAO Staff Note */}
           <Box
             sx={{
-              backgroundColor: BCDesignTokens.themeGray10,
+              backgroundColor: "#F9F9F9",
               p: "12px 12px 12px 15px",
               borderRadius: "4px",
-              borderLeft: `3px solid ${BCDesignTokens.themeBlue100}`,
+              borderLeft: "3px solid #036",
               display: "flex",
               flexDirection: "column",
               marginBottom: "16px",
@@ -125,9 +138,9 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
               <Typography
                 sx={{
                   fontWeight: 700,
-                  fontSize: "13px",
+                  fontSize: "14px",
                   fontFamily: "BCSans, sans-serif",
-                  color: BCDesignTokens.themeBlue100,
+                  color: "#036",
                   lineHeight: "19.5px",
                 }}
               >
@@ -136,7 +149,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
               <Typography
                 sx={{
                   fontSize: "12px",
-                  color: BCDesignTokens.themeGray80,
+                  color: "#606060",
                   lineHeight: "18px",
                   fontFamily: "BCSans, sans-serif",
                 }}
@@ -147,9 +160,9 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
             <Typography
               sx={{
                 whiteSpace: "pre-wrap",
-                fontSize: "13px",
+                fontSize: "14px",
                 lineHeight: "19.5px",
-                color: BCDesignTokens.typographyColorPrimary,
+                color: "#2d2d2d",
                 fontFamily: "BCSans, sans-serif",
               }}
             >
@@ -157,11 +170,11 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
             </Typography>
           </Box>
 
-          {/* Proponent Response (if exists) */}
-          {note && (
+          {/* Proponent Response (if exists) - Show to proponents always, show to staff only if status is not OPEN */}
+          {note && (isProponentView || status !== UPDATE_REQUEST_STATUS.OPEN.value) && (
             <Box
               sx={{
-                backgroundColor: BCDesignTokens.themeGray10,
+                backgroundColor: "#F9F9F9",
                 p: "12px 12px 12px 15px",
                 borderRadius: "4px",
                 borderLeft: `3px solid ${BCDesignTokens.themeGold100}`,
@@ -237,7 +250,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                       },
                     }}
                   >
-                    <BorderColorIcon sx={{ fontSize: "16px" }} />
+                    <BorderColorIcon sx={{ fontSize: "24px" }} />
                   </IconButton>
                 )}
               </Box>

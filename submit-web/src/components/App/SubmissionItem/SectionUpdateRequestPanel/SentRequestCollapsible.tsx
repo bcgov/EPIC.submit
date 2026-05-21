@@ -12,7 +12,8 @@
  * - No action buttons (onAcceptUpdate/onWithdrawUpdate not used)
  */
 import React, { useState } from "react";
-import { Box, Chip, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Typography, Chip } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import { SentRequest } from "./types";
 import { BCDesignTokens } from "epic.theme";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
@@ -29,6 +30,7 @@ interface SentRequestCollapsibleProps {
   onUpdateNote?: (updateRequestId: number, note: string) => void; // PROPONENT: Save note
   isLoading?: boolean; // Loading state for save operation
   packageId: number; // Required for API calls
+  isProponentView?: boolean; // PROPONENT: Show notes even when status is OPEN
 }
 
 export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
@@ -40,6 +42,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   onUpdateNote,
   isLoading = false,
   packageId,
+  isProponentView = false,
 }) => {
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(request.note || "");
@@ -80,49 +83,61 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   };
 
   const headerRightContent = (
-    <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-      {/* BOTH: Show "Requested" badge when request is OPEN (awaiting proponent response) */}
+    <Box sx={{ display: "flex", gap: 1, alignItems: "center", width: "25%", justifyContent: "space-between" }}>
+      {/* STAFF: Show "Requested" badge and Withdraw Update button when request is OPEN */}
       {request.status === UPDATE_REQUEST_STATUS.OPEN.value && (
-        <Chip
-          label="Requested"
-          size="small"
-          sx={{
-            backgroundColor: "#fcf8e3",
-            border: "1px solid #f5a623",
-            color: BCDesignTokens.typographyColorPrimary,
-            fontSize: "12px",
-            height: "24px",
-            fontWeight: 400,
-          }}
-        />
+        <>
+          <Chip
+            label="Requested"
+            size="small"
+            sx={{
+              backgroundColor: "#fcf8e3",
+              border: "1px solid #f5a623",
+              color: "#2d2d2d",
+              fontSize: "12px",
+              height: "24px",
+              fontWeight: 400,
+              fontFamily: "BCSans, sans-serif",
+            }}
+          />
+          {onWithdrawUpdate && (
+            <ActionSplitButton
+              primaryAction={{
+                label: "Withdraw Update",
+                onClick: handleWithdrawUpdate,
+                icon: <CloseIcon sx={{ fontSize: 13 }} />,
+              }}
+              secondaryActions={[]}
+            />
+          )}
+        </>
       )}
-      {/* STAFF ONLY: Show "Updated" badge and action buttons when proponent has responded */}
+      {/* STAFF: Show "Updated" badge and Accept Update button when proponent has responded */}
       {request.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value && (
         <>
           <Chip
             label="Updated"
             size="small"
             sx={{
-              backgroundColor: "#e3f2fd",
-              border: "1px solid #2196f3",
-              color: BCDesignTokens.typographyColorPrimary,
+              backgroundColor: "#f6e4ff",
+              border: "1px solid #9b6bda",
+              borderRadius: "2px",
+              color: "#2d2d2d",
               fontSize: "12px",
               height: "24px",
               fontWeight: 400,
+              fontFamily: "BCSans, sans-serif",
             }}
           />
-          <ActionSplitButton
-            primaryAction={{
-              label: "Accept Update",
-              onClick: handleAcceptUpdate,
-            }}
-            secondaryActions={[
-              {
-                label: "Withdraw Request",
-                onClick: handleWithdrawUpdate,
-              },
-            ]}
-          />
+          {onAcceptUpdate && (
+            <ActionSplitButton
+              primaryAction={{
+                label: "Accept Update",
+                onClick: handleAcceptUpdate,
+              }}
+              secondaryActions={[]}
+            />
+          )}
         </>
       )}
     </Box>
@@ -141,11 +156,13 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
       noteUpdatedBy={request.noteUpdatedBy}
       noteUpdatedAt={request.noteUpdatedAt}
       variant="active"
-      // PROPONENT: Show edit icon in proponent response when note exists
-      showEditIcon={onUpdateNote && !!request.note}
+      status={request.status}
+      isProponentView={isProponentView}
+      // PROPONENT: Show edit icon in proponent response when note exists and status is OPEN
+      showEditIcon={onUpdateNote && !!request.note && request.status === UPDATE_REQUEST_STATUS.OPEN.value}
       onEditNote={handleEditNote}
-      // PROPONENT: Add note editing UI when onUpdateNote is provided
-      noteEditingUI={onUpdateNote && (
+      // PROPONENT: Add note editing UI when onUpdateNote is provided and status is OPEN
+      noteEditingUI={onUpdateNote && request.status === UPDATE_REQUEST_STATUS.OPEN.value && (
         <Box sx={{ mt: 2 }}>
           {!request.note && !isEditingNote && (
             // No note yet: Show Add Note button
@@ -236,7 +253,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                 {/* Helper Text */}
                 <Typography
                   sx={{
-                    fontSize: "13px",
+                    fontSize: "14px",
                     lineHeight: "19.5px",
                     marginTop: 1,
                     color: BCDesignTokens.typographyColorPrimary,

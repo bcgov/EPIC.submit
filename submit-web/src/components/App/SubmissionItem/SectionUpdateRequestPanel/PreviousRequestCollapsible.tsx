@@ -58,7 +58,7 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
   };
 
   const headerRightContent = (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "25%", justifyContent: "space-between" }}>
       {getStatusBadge()}
       <Typography
         variant="body2"
@@ -86,6 +86,7 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
       noteUpdatedBy={request.noteUpdatedBy}
       noteUpdatedAt={request.noteUpdatedAt}
       variant="previous"
+      status={request.status}
     />
   );
 };
