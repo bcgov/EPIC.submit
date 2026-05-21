@@ -150,7 +150,14 @@ export function useStaffSubmissionPage({
       ? isPackageVerified
       : isReadyForAcknowledgement;
 
+  const isPackageApproved = useMemo(
+    () => submissionPackage?.status.includes(PACKAGE_STATUS.APPROVED.value),
+    [submissionPackage],
+  );
+
   const showAcknowledgeButton =
+    !isPackageAcknowledged &&
+    !isPackageApproved &&
     Boolean(approval_type) &&
     [
       SubmissionPackageApprovalType.A,
