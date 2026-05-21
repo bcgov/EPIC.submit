@@ -96,6 +96,12 @@ export const SectionUpdateRequestPanel: React.FC<
   // Determine if this is proponent view (no action buttons provided)
   const isProponentView = !onAcceptUpdate && !onWithdrawUpdate;
 
+  // Hide panel if there are no active or previous requests
+  const hasAnyRequestsAtAll = totalCount > 0 || previousRequests.length > 0;
+  if (!hasAnyRequestsAtAll) {
+    return null;
+  }
+
   return (
     <Box
       sx={{
@@ -111,37 +117,63 @@ export const SectionUpdateRequestPanel: React.FC<
           alignItems: "center",
           justifyContent: "space-between",
           borderRadius: "4px",
-          backgroundColor: panelBackground,
-          p: 2,
+          backgroundColor: hasAnyRequests ? "#fcf8e3" : panelBackground,
+          px: "20px",
+          py: 2,
           borderBottom:
             totalCount > 0
-              ? `1px solid ${panelBorderColor}`
+              ? `1px solid ${hasAnyRequests ? "#f5a623" : panelBorderColor}`
               : "none",
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <RefreshIcon sx={{ color: BCDesignTokens.themeBlue90 }} />
+          <RefreshIcon sx={{ color: BCDesignTokens.themeGold100, fontSize: "16px" }} />
           <Typography
             variant="h6"
             sx={{
-              color: BCDesignTokens.themeBlue90,
-              fontWeight: BCDesignTokens.typographyBoldBody,
+              color: "#2d2d2d",
+              fontWeight: 700,
+              fontSize: "18px",
+              fontFamily: "BCSans, sans-serif",
+              lineHeight: "30.6px",
             }}
           >
             Update Requests
           </Typography>
           {totalCount > 0 && (
-            <Typography
-              variant="h6"
+            <Box
               sx={{
-                color: BCDesignTokens.themeBlue90,
-                fontWeight: BCDesignTokens.typographyBoldBody,
+                backgroundColor: "#f5a623",
+                color: "white",
+                borderRadius: "11px",
+                width: "22px",
+                height: "22px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "12px",
+                fontWeight: 700,
+                fontFamily: "BCSans, sans-serif",
+                lineHeight: "18px",
               }}
             >
-              ({totalCount})
-            </Typography>
+              {totalCount}
+            </Box>
           )}
         </Box>
+        {sentRequests.length > 0 && (
+          <Typography
+            sx={{
+              color: "#606060",
+              fontSize: "12px",
+              fontFamily: "BCSans, sans-serif",
+              fontStyle: "italic",
+              lineHeight: "18px",
+            }}
+          >
+            Awaiting entity response
+          </Typography>
+        )}
       </Box>
 
       {totalCount === 0 ? (
@@ -189,6 +221,7 @@ export const SectionUpdateRequestPanel: React.FC<
               onUpdateNote={isProponentView ? onUpdateNote : undefined}
               isLoading={isLoading}
               packageId={packageId}
+              isProponentView={isProponentView}
             />
           ))}
 

@@ -62,15 +62,15 @@ export const PendingRequestCollapsible: React.FC<
           }}
           sx={{
             color: BCDesignTokens.themeBlue90,
-            textDecoration: "underline",
             cursor: "pointer",
             fontSize: "14px",
+            textDecoration: "none",
           }}
         >
           Remove
         </Link>
       </AccordionSummary>
-      <AccordionDetails>
+      <AccordionDetails sx={{ backgroundColor: "white" }}>
         <Box>
           <Typography
             variant="body2"

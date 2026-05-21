@@ -32,6 +32,12 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
 
   const hasActiveRequests = sentRequests.length > 0;
 
+  // Hide panel if there are no active or previous requests
+  const hasAnyRequestsAtAll = sentRequests.length > 0 || previousRequests.length > 0;
+  if (!hasAnyRequestsAtAll) {
+    return null;
+  }
+
   // Styling based on Figma designs
   const panelBorderColor = hasActiveRequests ? BCDesignTokens.supportBorderColorWarning : BCDesignTokens.surfaceColorBorderDefault;
   const panelBackground = hasActiveRequests ? BCDesignTokens.themeGold10 : BCDesignTokens.themeGray10;
@@ -159,6 +165,7 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
                 onUpdateNote={onUpdateNote}
                 isLoading={isLoading}
                 packageId={packageId}
+                isProponentView={true}
               />
             ))}
           </Box>

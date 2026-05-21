@@ -17,7 +17,7 @@ import {
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE, SUBMISSION_STATUS } from "@/models/Submission";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "..";
 import SubmissionItemReviewConfirmation from "@/components/App/Submission/SubmissionItemReviewConfirmation";
@@ -186,7 +186,10 @@ export default function StaffSubmissionItemTableRow({
       </SubmitTablePrimaryRow>
       <When condition={submitted_on}>
         {submissions
-          ?.filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
+          ?.filter((submission) => 
+            submission.type === SUBMISSION_TYPE.DOCUMENT &&
+            submission.status !== SUBMISSION_STATUS.PENDING
+          )
           .map((submission) => (
             <DocumentRow
               submissionItem={item}
