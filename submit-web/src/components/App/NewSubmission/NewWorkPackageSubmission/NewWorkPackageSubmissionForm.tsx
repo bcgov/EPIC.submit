@@ -36,12 +36,12 @@ export const NewWorkPackageSubmissionForm = ({
     currentPhase,
   } = useNewSubmissionStore();
 
+  const [selectedPackageValue, setSelectedPackageValue] = useState<string>("");
   // Fetch package types for the current phase
   const { data: package_types = [] } = useGetPackageTypesByPhaseId({
     phaseId: currentPhase?.id,
     enabled: Boolean(currentPhase?.id),
   });
-
   const [errorText, setErrorText] = useState<string | null>(null);
   const [showAdditionalInfoForm, setShowAdditionalInfoForm] = useState(false);
 
@@ -57,18 +57,81 @@ export const NewWorkPackageSubmissionForm = ({
   const { handleSubmit, reset } = methods;
 
   // Map package types from API to dropdown options
+  // Show existing packages (including mandatory ones) and available non-mandatory package types
   const packages = useMemo(() => {
-    return package_types.map((pkgType) => {
-      // Check if this package type already exists in mappedPackages
-      const existingPackage = mappedPackages.find(
-        (pkg) => pkg.value === pkgType.name,
+    // Create a map of package type names to existing packages (can have multiple per type)
+    const existingPackagesByType = new Map<string, typeof mappedPackages>();
+    mappedPackages.forEach((pkg) => {
+      const existing = existingPackagesByType.get(pkg.value) || [];
+      existingPackagesByType.set(pkg.value, [...existing, pkg]);
+    });
+
+    const packageOptions: Array<{
+      value: string;
+      packageType: SubmissionPackageType;
+      label: string;
+      id: number | null;
+      isExisting: boolean;
+      sortOrder: number;
+    }> = [];
+
+    // Build list from package types
+    package_types.forEach((pkgType) => {
+      const existingPackages = existingPackagesByType.get(pkgType.name) || [];
+
+      // If mandatory and doesn't exist, skip it (can't be created from UI)
+      if (pkgType.mandatory && existingPackages.length === 0) {
+        return;
+      }
+
+      // Sort existing packages alphabetically by label
+      const sortedExistingPackages = [...existingPackages].sort((a, b) =>
+        a.label.localeCompare(b.label)
       );
 
-      return {
-        value: pkgType.name as SubmissionPackageType,
-        label: pkgType.title || pkgType.name,
-        id: existingPackage?.id || null,
-      };
+      // Add existing packages first
+      sortedExistingPackages.forEach((existingPkg) => {
+        const packageTypeTitle = pkgType.title || pkgType.name;
+        const customPackageName = existingPkg.label;
+        // Show "Type Title - Custom Name" if they differ, otherwise just the name
+        const displayLabel = packageTypeTitle !== customPackageName
+          ? `${packageTypeTitle} - ${customPackageName}`
+          : customPackageName;
+
+        packageOptions.push({
+          value: `existing-${existingPkg.id}`,
+          packageType: pkgType.name as SubmissionPackageType,
+          label: displayLabel,
+          id: existingPkg.id,
+          isExisting: true,
+          sortOrder: 0, // Existing packages come first
+        });
+      });
+
+      // For non-mandatory types, add option to create new (after existing packages)
+      if (!pkgType.mandatory) {
+        packageOptions.push({
+          value: `new-${pkgType.name}`,
+          packageType: pkgType.name as SubmissionPackageType,
+          label: pkgType.title || pkgType.name,
+          id: null,
+          isExisting: false,
+          sortOrder: 1, // Creation options come after existing
+        });
+      }
+    });
+
+    // Sort by package type first, then by sortOrder (existing before new), then by label
+    return packageOptions.sort((a, b) => {
+      // First sort by package type
+      const typeCompare = a.packageType.localeCompare(b.packageType);
+      if (typeCompare !== 0) return typeCompare;
+      
+      // Then by sortOrder (existing packages before creation options)
+      if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+      
+      // Finally by label
+      return a.label.localeCompare(b.label);
     });
   }, [package_types, mappedPackages]);
 
@@ -101,7 +164,7 @@ export const NewWorkPackageSubmissionForm = ({
     }
 
     const selectedPackage = packages.find(
-      (pkg) => pkg.value === submissionPackageType,
+      (pkg) => pkg.value === selectedPackageValue,
     );
 
     // If package already exists, navigate to it
@@ -146,6 +209,7 @@ export const NewWorkPackageSubmissionForm = ({
       // Go back to package selection
       setShowAdditionalInfoForm(false);
       setSubmissionPackageType(null);
+      setSelectedPackageValue("");
       reset();
       return;
     }
@@ -154,15 +218,20 @@ export const NewWorkPackageSubmissionForm = ({
 
   useEffect(() => {
     setErrorText(null);
-    // Show Additional Information form immediately when selected
+    const selectedPackage = packages.find(
+      (pkg) => pkg.value === selectedPackageValue,
+    );
+    // Show Additional Information form immediately when selected for new packages
     if (
-      submissionPackageType === SubmissionPackageType.ADDITIONAL_INFORMATION
+      submissionPackageType === SubmissionPackageType.ADDITIONAL_INFORMATION &&
+      selectedPackage &&
+      !selectedPackage.isExisting
     ) {
       setShowAdditionalInfoForm(true);
     } else {
       setShowAdditionalInfoForm(false);
     }
-  }, [submissionPackageType]);
+  }, [submissionPackageType, selectedPackageValue, packages]);
 
   return (
     <>
@@ -176,10 +245,15 @@ export const NewWorkPackageSubmissionForm = ({
           <TextField
             select
             fullWidth
-            onChange={(e) =>
-              setSubmissionPackageType(e.target.value as SubmissionPackageType)
-            }
-            value={submissionPackageType || ""}
+            onChange={(e) => {
+              const value = e.target.value;
+              setSelectedPackageValue(value);
+              const selected = packages.find((pkg) => pkg.value === value);
+              if (selected) {
+                setSubmissionPackageType(selected.packageType);
+              }
+            }}
+            value={selectedPackageValue}
             error={!submissionPackageType && Boolean(errorText)}
             SelectProps={{
               displayEmpty: true,

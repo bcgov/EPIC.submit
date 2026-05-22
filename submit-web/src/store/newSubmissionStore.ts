@@ -40,8 +40,10 @@ export const useNewSubmissionStore = create<NewSubmissionState>((set) => ({
       ? accountProject?.account_project_works?.find((apw) => apw.id === workId)?.work?.current_phase ?? null
       : accountProject?.account_project_works?.at(-1)?.work?.current_phase ?? null;
 
+    // Filter packages by account_project_work_id to only show packages for the current work
     const mappedPackages =
       accountProject?.packages
+        ?.filter((pkg) => pkg.account_project_work?.id === workId)
         ?.map((pkg) => ({
           value: pkg.type.name as SubmissionPackageType,
           label: pkg.name,

@@ -49,13 +49,14 @@ class PackageVersionService:
         new_package.version_id = new_version.id
         session.add(new_package)
 
-        new_metadata = {
-            PackageMetadataFields.MAIN_CONDITION.value: current_package.meta.json.get(
-                PackageMetadataFields.MAIN_CONDITION.value, None),
-            PackageMetadataFields.SUPPORTING_CONDITIONS.value: current_package.meta.json.get(
-                PackageMetadataFields.SUPPORTING_CONDITIONS.value, None),
-        }
-        cls._create_package_metadata(session, new_package.id, new_metadata)
+        if current_package.meta.json:
+            new_metadata = {
+                PackageMetadataFields.MAIN_CONDITION.value: current_package.meta.json.get(
+                    PackageMetadataFields.MAIN_CONDITION.value, None),
+                PackageMetadataFields.SUPPORTING_CONDITIONS.value: current_package.meta.json.get(
+                    PackageMetadataFields.SUPPORTING_CONDITIONS.value, None),
+            }
+            cls._create_package_metadata(session, new_package.id, new_metadata)
 
         # Create items
         cls._create_items(session, new_package.id, current_package.type)
