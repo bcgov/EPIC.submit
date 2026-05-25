@@ -132,13 +132,9 @@ export default function VersionGroup({
   const canCreateVersion =
     submissionPackage?.type.approval_type !== SubmissionPackageApprovalType.C;
 
-  const showVersions =
-    packageVersions?.length !== 1 &&
+  const hideVersions =
+    packageVersions?.length === 1 &&
     submissionPackage?.type.approval_type === SubmissionPackageApprovalType.C;
-
-  console.log(showVersions);
-  console.log(packageVersions?.length);
-  console.log(submissionPackage?.type.approval_type);
 
   if (isVersionsLoading || isPackageLoading) {
     return (
@@ -169,7 +165,7 @@ export default function VersionGroup({
           New
         </Button>
       )}
-      {showVersions &&
+      {!hideVersions &&
         packageVersions?.map((packageVersion) => (
           <Button
             key={packageVersion.id}
