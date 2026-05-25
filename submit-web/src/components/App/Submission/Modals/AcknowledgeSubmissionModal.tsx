@@ -33,35 +33,48 @@ const AcknowledgeSubmissionModal = ({
             width: "520px",
           }}
         >
-          {hasOpenUpdateRequests && (
-            <WarningBox sx={{ p: 1.5 }}>
-              <Box sx={{ display: "flex", gap: 1.5 }}>
-                <WarningAmberOutlinedIcon
-                  sx={{ color: BCDesignTokens.supportBorderColorWarning }}
-                />
-                <Box>
-                  <Typography variant="body1" sx={{ fontWeight: 700 }}>
-                    Open Update Requests
-                  </Typography>
-                  <Typography variant="body2">
-                    The following sections have open update requests:{" "}
-                    <b>{openRequestSectionNames.join(", ")}</b>
-                  </Typography>
+          {hasOpenUpdateRequests ? (
+            <>
+              <WarningBox sx={{ p: 1.5 }}>
+                <Box sx={{ display: "flex", gap: 1.5 }}>
+                  <WarningAmberOutlinedIcon
+                    sx={{ color: BCDesignTokens.supportBorderColorWarning }}
+                  />
+                  <Box>
+                    <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                      Open Update Requests
+                    </Typography>
+                    <Typography variant="body2">
+                      The following sections have open update requests:{" "}
+                      <b>{openRequestSectionNames.join(", ")}</b>
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </WarningBox>
+              </WarningBox>
+              <Typography variant="body1">
+                The proponent will receive an email acknowledging receipt of the
+                submission, but the package will remain open until all open
+                update requests are either withdrawn or until documents are
+                resubmitted and acknowledged.
+              </Typography>
+            </>
+          ) : (
+            <>
+              <Typography variant="body1">
+                The proponent will receive an automated email confirming the EAO
+                has acknowledged receipt of the submission. Once acknowledged,
+                the proponent will no longer be able to submit additional
+                documents.
+              </Typography>
+              <Typography variant="body1">
+                If you need to allow the proponent to resubmit some documents,
+                you can send an Update Request before or after acknowledging the
+                submission. When an Update Request is open, the submission
+                package will remain open for the proponent to resubmit
+                documents.
+              </Typography>
+            </>
           )}
-          <Typography variant="body1">
-            The proponent will receive an automated email confirming the EAO has
-            acknowledged receipt of the submission. Once acknowledged, the
-            proponent will no longer be able to submit additional documents.
-          </Typography>
-          <Typography variant="body1">
-            If you need to allow the proponent to resubmit some documents, you
-            can send an Update Request before or after acknowledging the
-            submission. When an Update Request is open, the submission package
-            will remain open for the proponent to resubmit documents.
-          </Typography>
         </Box>
       }
     />

@@ -4,8 +4,13 @@ import {
   getSubmissionPackageById,
   useGetPackageVersionsByOriginalPackageId,
   useCreateNewPackageVersion,
+  useGetStaffSubmissionPackage,
 } from "@/hooks/api/usePackages";
-import { PackageVersion, SubmissionPackage } from "@/models/Package";
+import {
+  PackageVersion,
+  SubmissionPackage,
+  SubmissionPackageApprovalType,
+} from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import {
@@ -46,6 +51,10 @@ export default function VersionGroup({
   const { data: packageVersions, isPending: isVersionsLoading } =
     useGetPackageVersionsByOriginalPackageId({
       originalPackageId: currentPackageVersion.original_package_id,
+    });
+  const { data: submissionPackage, isFetching: isPackageLoading } =
+    useGetStaffSubmissionPackage({
+      packageId: submissionPackageId,
     });
 
   const queryClient = useQueryClient();
@@ -120,7 +129,18 @@ export default function VersionGroup({
     return currentPackageVersion.version === latestVersion;
   }, [packageVersions, currentPackageVersion.version]);
 
-  if (isVersionsLoading) {
+  const canCreateVersion =
+    submissionPackage?.type.approval_type !== SubmissionPackageApprovalType.C;
+
+  const showVersions =
+    packageVersions?.length !== 1 &&
+    submissionPackage?.type.approval_type === SubmissionPackageApprovalType.C;
+
+  console.log(showVersions);
+  console.log(packageVersions?.length);
+  console.log(submissionPackage?.type.approval_type);
+
+  if (isVersionsLoading || isPackageLoading) {
     return (
       <Stack direction="row" spacing={1}>
         <Skeleton variant="rectangular" width={35} height={35} />
@@ -137,7 +157,7 @@ export default function VersionGroup({
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      {!isProponent && isLatestVersion && (
+      {!isProponent && isLatestVersion && canCreateVersion && (
         <Button
           color="secondary"
           sx={{
@@ -149,25 +169,26 @@ export default function VersionGroup({
           New
         </Button>
       )}
-      {packageVersions?.map((packageVersion) => (
-        <Button
-          key={packageVersion.id}
-          color={
-            packageId === packageVersion.package_id ? "primary" : "secondary"
-          }
-          sx={{
-            width: "auto",
-          }}
-          onClick={() => handleUpdatePackageId(packageVersion.package_id)}
-          startIcon={
-            packageVersion.id === last_approved_package_version?.id ? (
-              <GppGoodOutlinedIcon />
-            ) : undefined
-          }
-        >
-          Package {packageVersion.version}
-        </Button>
-      ))}
+      {showVersions &&
+        packageVersions?.map((packageVersion) => (
+          <Button
+            key={packageVersion.id}
+            color={
+              packageId === packageVersion.package_id ? "primary" : "secondary"
+            }
+            sx={{
+              width: "auto",
+            }}
+            onClick={() => handleUpdatePackageId(packageVersion.package_id)}
+            startIcon={
+              packageVersion.id === last_approved_package_version?.id ? (
+                <GppGoodOutlinedIcon />
+              ) : undefined
+            }
+          >
+            Package {packageVersion.version}
+          </Button>
+        ))}
     </Stack>
   );
 }

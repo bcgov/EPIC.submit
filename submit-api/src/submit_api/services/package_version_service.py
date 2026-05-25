@@ -49,7 +49,7 @@ class PackageVersionService:
         new_package.version_id = new_version.id
         session.add(new_package)
 
-        if current_package.meta.json:
+        if current_package.meta and current_package.meta.json:
             new_metadata = {
                 PackageMetadataFields.MAIN_CONDITION.value: current_package.meta.json.get(
                     PackageMetadataFields.MAIN_CONDITION.value, None),
