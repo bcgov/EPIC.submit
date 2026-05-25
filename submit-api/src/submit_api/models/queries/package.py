@@ -338,7 +338,7 @@ class PackageSubmissionQueries:
         # Type A staged workflow
         if approval_type == PackageApprovalType.A:
             cls._add_internal_verification_status(aggregated_statuses, statuses)
-            cls._add_verified_status(aggregated_statuses, statuses, approval_type=None)
+            cls._add_verified_status(aggregated_statuses, statuses, approval_type=approval_type)
 
         # Type B/C staged workflow
         elif approval_type in [PackageApprovalType.B, PackageApprovalType.C]:
