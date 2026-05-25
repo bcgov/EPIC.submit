@@ -642,7 +642,7 @@ class PackageService:
                 if user:
                     new_package.submitted_by = user.auth_guid
             new_package.status = [PackageStatus.REVISION_REQUIRED]
-            
+
             # Add works
             new_package.account_project_work = package.account_project_work
 
