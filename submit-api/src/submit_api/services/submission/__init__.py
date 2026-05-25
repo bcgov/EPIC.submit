@@ -58,6 +58,12 @@ class SubmissionService:
             status = request_data.get("status")
             cls.update_submission_item_status(item_id, status, session)
 
+            # Set is_updated flag on the item only if package has already been submitted
+            item = ItemModel.find_by_id(item_id)
+            if item and item.package.submitted_on:
+                item.is_updated = True
+                session.add(item)
+
             # Check if the document being created is geospatial
             is_geospatial = (submission.type == SubmissionType.DOCUMENT and
                              submission.submitted_document and
@@ -88,6 +94,13 @@ class SubmissionService:
             url_to_cleanup = submission.submitted_document.url
 
         new_submission = submission_creator.replace(submission_id, submission_data)
+
+        # Set is_updated flag on the item only if package has already been submitted
+        with session_scope() as session:
+            item = ItemModel.find_by_id(new_submission.item_id)
+            if item and item.package.submitted_on:
+                item.is_updated = True
+                session.add(item)
 
         if is_geospatial:
             cls.trigger_geo_process(new_submission.item_id)
@@ -171,6 +184,14 @@ class SubmissionService:
                 cls._validate_submission_status_transition(approval_type, existing_status, SubmissionStatus[status])
 
                 submission.status = status
+
+                # Set is_updated to False on the item when status changes to VERIFIED or ACKNOWLEDGED
+                if status in [SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value]:
+                    item = ItemModel.find_by_id(submission.item_id)
+                    if item:
+                        item.is_updated = False
+                        session.add(item)
+
                 session.add(submission)
                 session.flush()
 
@@ -263,6 +284,13 @@ class SubmissionService:
             if submission.submitted_document.folder == 'geospatial':
                 url_to_delete = submission.submitted_document.url
 
+        # Set is_updated flag on the item before deleting (only if package has been submitted)
+        item = ItemModel.find_by_id(submission.item_id)
+        if item and item.package.submitted_on:
+            item.is_updated = True
+            db.session.add(item)
+            db.session.commit()
+
         submission.delete()
 
         if url_to_delete:
@@ -303,6 +331,14 @@ class SubmissionService:
         if not submission:
             raise ValueError("Submission not found.")
         cls._validate_package_is_open(submission.id)
+
+        # Set is_updated flag on the item before soft deleting (only if package has been submitted)
+        with session_scope() as session:
+            item = ItemModel.find_by_id(submission.item_id)
+            if item and item.package.submitted_on:
+                item.is_updated = True
+                session.add(item)
+
         submission_creator = cls.make_submission_creator(submission.type.value)
         deleted_submission = submission_creator.soft_delete(submission_id)
         return deleted_submission

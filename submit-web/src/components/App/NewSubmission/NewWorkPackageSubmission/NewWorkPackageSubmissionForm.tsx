@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Button, Grid, MenuItem, TextField, Typography } from "@mui/material";
+import { Button, Grid, ListSubheader, MenuItem, TextField, Typography } from "@mui/material";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 import { SubmissionPackageType } from "@/models/Package";
@@ -265,11 +265,49 @@ export const NewWorkPackageSubmissionForm = ({
                 ),
             }}
           >
-            {packages.map((pkg) => (
-              <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value}>
-                {pkg.label}
-              </MenuItem>
-            ))}
+            {/* New Submissions Section */}
+            {packages.some((pkg) => !pkg.isExisting) && (
+              <ListSubheader
+                sx={{
+                  fontFamily: 'BC Sans',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  lineHeight: '21px',
+                  color: '#898785',
+                }}
+              >
+                Create a new submission
+              </ListSubheader>
+            )}
+            {packages
+              .filter((pkg) => !pkg.isExisting)
+              .map((pkg) => (
+                <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value} sx={{ pl: 4 }}>
+                  • {pkg.label}
+                </MenuItem>
+              ))}
+
+            {/* Existing Packages Section */}
+            {packages.some((pkg) => pkg.isExisting) && (
+              <ListSubheader
+                sx={{
+                  fontFamily: 'BC Sans',
+                  fontWeight: 700,
+                  fontSize: '14px',
+                  lineHeight: '21px',
+                  color: '#898785',
+                }}
+              >
+                Add documents to existing submission
+              </ListSubheader>
+            )}
+            {packages
+              .filter((pkg) => pkg.isExisting)
+              .map((pkg) => (
+                <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value} sx={{ pl: 4 }}>
+                  • {pkg.label}
+                </MenuItem>
+              ))}
           </TextField>
         </Grid>
 

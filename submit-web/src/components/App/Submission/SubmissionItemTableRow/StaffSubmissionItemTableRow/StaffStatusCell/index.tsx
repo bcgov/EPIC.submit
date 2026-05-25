@@ -5,11 +5,6 @@ import { SUBMISSION_ITEM_TYPE, SubmissionItem } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { filterOpenUpdateRequests } from "@/utils";
-import {
-  UPDATE_REQUEST_STATUS,
-  UPDATE_REQUEST_TYPE,
-} from "@/models/UpdateRequest";
-import dayjs from "dayjs";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
 import { Case, Default, Switch } from "react-if";
 import { CRStaffCell } from "./CRStaffCell";
@@ -31,25 +26,7 @@ export default function StaffStatusCell({
 
   const { status, type_id, type } = submissionItem;
 
-  const isUpdated = useMemo(() => {
-    const last_update_request = submissionPackage.update_requests
-      .filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
-          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-          updateRequest.active,
-      )
-      .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
-
-    if (!last_update_request) return false;
-    return Boolean(
-      submissionItem.submissions?.find((submission) =>
-        dayjs(submission.created_date).isAfter(
-          last_update_request.created_date,
-        ),
-      ),
-    );
-  }, [submissionItem, submissionPackage.update_requests]);
+  const isUpdated = submissionItem.is_updated;
 
   const isUpdateRequest = useMemo(() => {
     if (!submissionPackage) return false;

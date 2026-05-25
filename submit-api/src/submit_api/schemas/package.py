@@ -209,11 +209,15 @@ class PackageSchema(Schema):
         # Add non-canonical statuses
         update_requests = data.get('update_requests', [])
         is_update_requested = any(ur.get('active') and ur.get('status') == 'OPEN' for ur in update_requests)
-        is_updated = (update_requests and
-                      all(ur.get('active') and ur.get('status') == 'PENDING_REVIEW'
-                          for ur in update_requests))
-        # Check if any item has REVISION_REQUIRED
+        # Check if all submissions within items have SUBMITTED status AND any item has is_updated flag set to true
         items = data.get('items', [])
+        all_items_submitted = all(
+            all(submission.get('status') == 'SUBMITTED' for submission in item.get('submissions', []))
+            for item in items
+        ) if items else False
+        any_item_updated = any(item.get('is_updated') for item in items)
+        is_updated = all_items_submitted and any_item_updated
+        # Check if any item has REVISION_REQUIRED
         is_revision_required = any(item.get('status') == 'REVISION_REQUIRED' for item in items)
 
         if is_update_requested:

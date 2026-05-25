@@ -25,10 +25,8 @@ import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
 import {
   UPDATE_REQUEST_STATUS,
-  UPDATE_REQUEST_TYPE,
 } from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
-import dayjs from "dayjs";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -75,28 +73,7 @@ export default function ProponentSubmissionItemTableRow({
     submissionPackage?.account_project_work?.id,
   );
 
-  const isUpdated = useMemo(() => {
-    if (!submissionPackage) return false;
-
-    const last_update_request = submissionPackage.update_requests
-      .filter(
-        (updateRequest) =>
-          updateRequest.type === UPDATE_REQUEST_TYPE.UPDATE.value &&
-          updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-          updateRequest.active,
-      )
-      .sort((a, b) => dayjs(b.created_date).diff(dayjs(a.created_date)))[0];
-
-    if (!last_update_request) return false;
-
-    return Boolean(
-      item.submissions?.find((submission) =>
-        dayjs(submission.created_date).isAfter(
-          last_update_request.created_date,
-        ),
-      ),
-    );
-  }, [item, submissionPackage]);
+  const isUpdated = item.is_updated;
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
   const onActionClick = () => {
@@ -136,7 +113,7 @@ export default function ProponentSubmissionItemTableRow({
               <SubmissionStatusChipStack
                 status={status}
                 isUpdateRequested={hasOpenUpdateRequest}
-                isUpdated={false}
+                isUpdated={isUpdated}
                 packageStatus={submissionPackage?.status}
               />
             </Box>

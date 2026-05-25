@@ -70,6 +70,7 @@ class ItemSchema(Schema):
     submissions = fields.Method('filter_submissions_by_status')
     sort_order = fields.Int(data_key="sort_order")
     is_required = fields.Method('get_is_required')
+    is_updated = fields.Bool(data_key="is_updated")
 
     @post_dump
     def map_status(self, data, many, **kwargs):
