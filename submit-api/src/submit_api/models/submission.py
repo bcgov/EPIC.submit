@@ -77,6 +77,7 @@ class Submission(BaseModel):
         nullable=True,
         default=SubmissionStatus.PENDING
     )
+    is_updated = Column(db.Boolean, nullable=False, default=False, comment="Whether the submission has been updated")
     root_submission_id = Column(db.Integer, ForeignKey('submissions.id'),
                                 nullable=True)  # the base or root id of submisison
 

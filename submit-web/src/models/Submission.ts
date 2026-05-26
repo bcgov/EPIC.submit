@@ -301,6 +301,7 @@ export type Submission = {
   created_date: string;
   submitted_by: string;
   status: SubmissionStatus;
+  is_updated: boolean;
 };
 
 export type SubmittedDocument = {

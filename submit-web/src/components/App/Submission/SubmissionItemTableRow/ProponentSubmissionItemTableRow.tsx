@@ -73,7 +73,12 @@ export default function ProponentSubmissionItemTableRow({
     submissionPackage?.account_project_work?.id,
   );
 
-  const isUpdated = item.is_updated;
+  const isUpdated = useMemo(() => {
+    // Check if any submission in this section has is_updated flag set to true
+    return Boolean(
+      item.submissions?.find((submission) => submission.is_updated)
+    );
+  }, [item.submissions]);
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
   const onActionClick = () => {

@@ -26,7 +26,12 @@ export default function StaffStatusCell({
 
   const { status, type_id, type } = submissionItem;
 
-  const isUpdated = submissionItem.is_updated;
+  const isUpdated = useMemo(() => {
+    // Check if any submission in this section has is_updated flag set to true
+    return Boolean(
+      submissionItem.submissions?.find((submission) => submission.is_updated)
+    );
+  }, [submissionItem.submissions]);
 
   const isUpdateRequest = useMemo(() => {
     if (!submissionPackage) return false;
