@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Button, Grid, ListSubheader, MenuItem, TextField, Typography } from "@mui/material";
+import { Button, Divider, Grid, ListSubheader, MenuItem, TextField, Typography } from "@mui/material";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
 import { SubmissionPackageType } from "@/models/Package";
@@ -276,16 +276,21 @@ export const NewWorkPackageSubmissionForm = ({
                   color: '#898785',
                 }}
               >
-                Create a new submission
+                Create a new submission package
               </ListSubheader>
             )}
             {packages
               .filter((pkg) => !pkg.isExisting)
               .map((pkg) => (
-                <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value} sx={{ pl: 4 }}>
+                <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value} sx={{ pl: 4, py: 1.5 }}>
                   • {pkg.label}
                 </MenuItem>
               ))}
+
+            {/* Divider between sections */}
+            {packages.some((pkg) => !pkg.isExisting) && packages.some((pkg) => pkg.isExisting) && (
+              <Divider sx={{ my: 1, mx: 2 }} />
+            )}
 
             {/* Existing Packages Section */}
             {packages.some((pkg) => pkg.isExisting) && (
@@ -298,13 +303,13 @@ export const NewWorkPackageSubmissionForm = ({
                   color: '#898785',
                 }}
               >
-                Add documents to existing submission
+                Add documents to existing submission package
               </ListSubheader>
             )}
             {packages
               .filter((pkg) => pkg.isExisting)
               .map((pkg) => (
-                <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value} sx={{ pl: 4 }}>
+                <MenuItem key={`${pkg.value}-${pkg.id}`} value={pkg.value} sx={{ pl: 4, py: 1.5 }}>
                   • {pkg.label}
                 </MenuItem>
               ))}

@@ -34,7 +34,6 @@ class Item(BaseModel):
                             cascade='all, delete', passive_deletes=True)
     reviewed_on = Column(db.DateTime, nullable=True)
     review_start_date = Column(db.DateTime, nullable=True)
-    is_updated = Column(db.Boolean, nullable=False, default=False, comment="Whether the item has been updated")
     submissions = db.relationship(
         'Submission',
         lazy='joined',
