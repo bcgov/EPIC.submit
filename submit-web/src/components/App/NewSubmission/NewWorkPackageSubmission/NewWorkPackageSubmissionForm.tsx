@@ -80,9 +80,9 @@ export const NewWorkPackageSubmissionForm = ({
       const existingPackages = existingPackagesByType.get(pkgType.name) || [];
 
       // If mandatory and doesn't exist, skip it (can't be created from UI)
-      if (pkgType.mandatory && existingPackages.length === 0) {
-        return;
-      }
+      // if (pkgType.mandatory && existingPackages.length === 0) {
+      //   return;
+      // }
 
       // Sort existing packages alphabetically by label
       const sortedExistingPackages = [...existingPackages].sort((a, b) =>
@@ -109,7 +109,7 @@ export const NewWorkPackageSubmissionForm = ({
       });
 
       // For non-mandatory types, add option to create new (after existing packages)
-      if (!pkgType.mandatory) {
+      // if (!pkgType.mandatory) {
         packageOptions.push({
           value: `new-${pkgType.name}`,
           packageType: pkgType.name as SubmissionPackageType,
@@ -118,7 +118,7 @@ export const NewWorkPackageSubmissionForm = ({
           isExisting: false,
           sortOrder: 1, // Creation options come after existing
         });
-      }
+      // }
     });
 
     // Sort by package type first, then by sortOrder (existing before new), then by label

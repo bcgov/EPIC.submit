@@ -52,10 +52,10 @@ const AcknowledgeSubmissionModal = ({
                 </Box>
               </WarningBox>
               <Typography variant="body1">
-                The proponent will receive an email acknowledging receipt of the
-                submission, but the package will remain open until all open
-                update requests are either withdrawn or until documents are
-                resubmitted and acknowledged.
+                The proponent will receive an automated email confirming the EAO has acknowledged receipt of the submission. Once acknowledged, the proponent will no longer be able to submit additional documents.
+              </Typography>
+              <Typography variant="body1">
+                If you need to allow the proponent to resubmit some documents, you can send an Update Request before or after acknowledging the submission. When an Update Request is open, the submission package will remain open for the proponent to resubmit documents.
               </Typography>
             </>
           ) : (
