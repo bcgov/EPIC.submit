@@ -15,7 +15,7 @@ import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "@/components/App/Submission/SubmissionItemTableRow";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
+import { SubmissionPackage, SubmissionPackageType, PACKAGE_STATUS } from "@/models/Package";
 import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
@@ -68,6 +68,10 @@ export default function ProponentSubmissionItemTableRow({
         updateRequest.submission_item_types.includes(type_id),
     );
   }, [submissionPackage, type_id]);
+
+  const isPackageAcknowledged = useMemo(() => {
+    return submissionPackage?.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value) || false;
+  }, [submissionPackage]);
 
   const hasAccountProjectWork = Boolean(
     submissionPackage?.account_project_work?.id,
@@ -161,11 +165,12 @@ export default function ProponentSubmissionItemTableRow({
             condition={
               isFormSubmission ||
               !submissionPackage?.submitted_on ||
-              packageType.name !== SubmissionPackageType.MANAGEMENT_PLAN ||
-              submissionPackage.update_requests.filter(
-                (updateRequest) =>
-                  updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value,
-              ).length > 0
+              (packageType.name !== SubmissionPackageType.MANAGEMENT_PLAN && 
+               ((!isPackageAcknowledged && submissionPackage.update_requests.filter(
+                 (updateRequest) =>
+                   updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value,
+               ).length > 0) ||
+                (isPackageAcknowledged && hasOpenUpdateRequest)))
             }
           >
             <Typography

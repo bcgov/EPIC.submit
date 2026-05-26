@@ -336,13 +336,45 @@ export default function SubmissionPage() {
       updateRequest.active,
   );
 
-  const isSubmitDisabled =
-    submissionPackage.type.name ===
-      SubmissionPackageType.MANAGEMENT_PLAN &&
-    isPackageSubmitted &&
-    pendingRequests.length === 0 &&
-    openRequests.length === 0;
+  const isPackageAcknowledged = submissionPackage.status.includes(
+    PACKAGE_STATUS.ACKNOWLEDGED.value
+  );
 
+  const hasFilesInUpdateRequestedSections = useMemo(() => {
+    if (!isPackageAcknowledged || openRequests.length === 0) {
+      return true; // Not applicable, allow submission
+    }
+
+    // Get item type IDs from open update requests
+    const requestedItemTypeIds = new Set<number>();
+    openRequests.forEach(request => {
+      request.submission_item_types.forEach(typeId => {
+        requestedItemTypeIds.add(typeId);
+      });
+    });
+
+    // Check if any requested items have submissions with documents
+    return submissionPackage.items.some(item => {
+      if (!requestedItemTypeIds.has(item.type_id)) {
+        return false; // Not a requested item
+      }
+
+      // Check if item has any document submissions
+      return item.submissions.some(submission => 
+        submission.type === SUBMISSION_TYPE.DOCUMENT && 
+        submission.submitted_document_id !== undefined
+      );
+    });
+  }, [submissionPackage, isPackageAcknowledged, openRequests]);
+
+  const isSubmitDisabled = 
+    // Basic conditions for disabling submit
+    (isPackageSubmitted && pendingRequests.length === 0 && openRequests.length === 0 && 
+     (isPackageAcknowledged || submissionPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN)) ||
+    // Additional condition for acknowledged packages without files in requested sections
+    (isPackageAcknowledged && !hasFilesInUpdateRequestedSections);
+
+  
   return (
     <PageGrid>
       <SubmitLoaderBackdrop isOpen={isFetching} />

@@ -303,10 +303,22 @@ class PackageService:
             raise BadRequestError("Cannot resubmit a package that has been approved")
         if package.status == PackageStatus.REJECTED:
             raise BadRequestError("Cannot resubmit a package that has been rejected")
+        
+        # Check if package is acknowledged
+        is_acknowledged = PackageStatus.ACKNOWLEDGED.value in package.status
+        
+        # Get open update requests
         open_update_requests = [request for request in package.update_requests
                                 if request.status != UpdateRequestStatus.ACCEPTED.value]
-        if not open_update_requests and not package.account_project_work_id:
+        
+        # Block resubmission if acknowledged without open update requests
+        if is_acknowledged and not open_update_requests:
+            raise BadRequestError("Cannot resubmit an acknowledged package without an open update request")
+        
+        # For non-acknowledged packages, require update requests (unless work-related)
+        if not is_acknowledged and not open_update_requests and not package.account_project_work_id:
             raise BadRequestError("Cannot resubmit a package that has no update requests")
+        
         current_app.logger.info(f"Package {package.id} is ready to resubmit")
         return package
 
