@@ -39,6 +39,7 @@ class ItemSubmissionSchema(Schema):
     minor_version = fields.Int(data_key="minor_version")
     major_version = fields.Int(data_key="major_version")
     status = fields.Enum(data_key="status", enum=SubmissionStatus)
+    is_updated = fields.Bool(data_key="is_updated")
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
@@ -70,7 +71,6 @@ class ItemSchema(Schema):
     submissions = fields.Method('filter_submissions_by_status')
     sort_order = fields.Int(data_key="sort_order")
     is_required = fields.Method('get_is_required')
-    is_updated = fields.Bool(data_key="is_updated")
 
     @post_dump
     def map_status(self, data, many, **kwargs):
