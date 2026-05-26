@@ -10,7 +10,6 @@ import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { isAxiosError } from "axios";
 import { useUpdateSubmissionStatus } from "./api/useSubmissions";
 import { useMemo, useState } from "react";
-import { useGetSubmissionVersions } from "./api/useSubmissions";
 
 interface UseDocumentRowOptions {
   documentSubmission: Submission;
@@ -25,7 +24,6 @@ export function useDocumentRow({
 }: UseDocumentRowOptions) {
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [expanded, setExpanded] = useState(false);
-  const { data: versions } = useGetSubmissionVersions(documentSubmission.id);
 
   // ─── Derived State ────────────────────────────────────────────────────────
 
@@ -58,19 +56,17 @@ export function useDocumentRow({
     !submissionPackage?.account_project_work;
 
   const isNewVersion = useMemo(() => {
+    // Show new version if major or minor version > 1 and status is PENDING or SUBMITTED
     if (
-      !versions ||
-      (documentSubmission.status !== SUBMISSION_STATUS.SUBMITTED &&
-        documentSubmission.status !== SUBMISSION_STATUS.PENDING)
+      documentSubmission.status !== SUBMISSION_STATUS.SUBMITTED &&
+      documentSubmission.status !== SUBMISSION_STATUS.PENDING
     )
       return false;
-    // Check if any previous version was VERIFIED or ACKNOWLEDGED
-    return versions.some(
-      (v) =>
-        v.status === SUBMISSION_STATUS.VERIFIED ||
-        v.status === SUBMISSION_STATUS.ACKNOWLEDGED,
+    
+    return (
+      documentSubmission.major_version > 1 || documentSubmission.minor_version > 1
     );
-  }, [versions, documentSubmission.status]);
+  }, [documentSubmission.major_version, documentSubmission.minor_version, documentSubmission.status]);
 
   // ─── Mutations ────────────────────────────────────────────────────────────
 
@@ -153,7 +149,6 @@ export function useDocumentRow({
     showUndoAcknowledgementButton,
     showDefaultActionButton,
     isNewVersion,
-    versions,
     handleVerify,
     handleAcknowledge,
     handleUndoVerification,

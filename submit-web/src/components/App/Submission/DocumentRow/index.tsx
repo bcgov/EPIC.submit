@@ -1,8 +1,6 @@
 import { Box, IconButton, TableRow, Typography } from "@mui/material";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
-import dayjs from "dayjs";
-import { useMemo } from "react";
 import {
   SubmitTableCell,
   SubmitTableRow,
@@ -44,20 +42,6 @@ export default function DocumentRow({
     documentSubmission;
   const packageType = propsPackageType || submissionPackage?.type;
   const name = submitted_document?.name || "";
-
-  // Calculate isUpdated per individual submission
-  const isUpdated = useMemo(() => {
-    // Check if package has been submitted at least once
-    if (!submissionPackage?.submitted_on) return false;
-
-    // Check if this specific submission is PENDING and created after the last package submission
-    return (
-      documentSubmission.status === SUBMISSION_STATUS.PENDING &&
-      dayjs(documentSubmission.created_date).isAfter(
-        dayjs(submissionPackage.submitted_on),
-      )
-    );
-  }, [documentSubmission, submissionPackage?.submitted_on]);
 
   const {
     pendingGetObject,
@@ -210,7 +194,6 @@ export default function DocumentRow({
           <Box mr={2}>
             <StatusCell
               submittedDocument={documentSubmission}
-              isUpdated={isUpdated}
             />
           </Box>
         </SubmitTableCell>

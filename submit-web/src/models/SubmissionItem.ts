@@ -70,6 +70,7 @@ export interface SubmissionItem {
   notes?: Note[];
   review_start_date?: string;
   is_required?: boolean;
+  is_updated: boolean;
 }
 
 export type InternalStaffDocumentType = "S3" | "LINK";

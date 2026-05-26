@@ -7,40 +7,34 @@ import {
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Case, Default, Switch } from "react-if";
-import { useGetSubmissionVersions } from "@/hooks/api/useSubmissions";
 import { useMemo } from "react";
 
 type StatusCellProps = Readonly<{
   submittedDocument: Submission;
-  isUpdated?: boolean;
 }>;
 
 export const StatusCell = ({
   submittedDocument,
-  isUpdated,
 }: StatusCellProps) => {
   const { userType } = useAccount();
   const entityUser = userType === USER_TYPE.PROPONENT;
-  const { data: versions } = useGetSubmissionVersions(submittedDocument.id);
 
   const isNewVersion = useMemo(() => {
+    // Show new version if major or minor version > 1 and status is PENDING or SUBMITTED
     if (
-      !versions ||
-      (submittedDocument.status !== SUBMISSION_STATUS.SUBMITTED &&
-        submittedDocument.status !== SUBMISSION_STATUS.PENDING)
+      submittedDocument.status !== SUBMISSION_STATUS.SUBMITTED &&
+      submittedDocument.status !== SUBMISSION_STATUS.PENDING
     )
       return false;
-    // Check if any previous version was VERIFIED or ACKNOWLEDGED
-    return versions.some(
-      (v) =>
-        v.status === SUBMISSION_STATUS.VERIFIED ||
-        v.status === SUBMISSION_STATUS.ACKNOWLEDGED,
+    
+    return (
+      submittedDocument.major_version > 1 || submittedDocument.minor_version > 1
     );
-  }, [versions, submittedDocument.status]);
+  }, [submittedDocument.major_version, submittedDocument.minor_version, submittedDocument.status]);
 
   return (
     <Switch>
-      <Case condition={isNewVersion || isUpdated}>
+      <Case condition={isNewVersion}>
         <SubmissionStatusChip
           status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION}
         />

@@ -424,7 +424,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             minor_version=minor_version,
             created_by=submission_data.get("created_by", TokenInfo.get_username()),
             root_submission_id=submission_data.get("root_submission_id"),
-            status=submission_data.get("status", SubmissionStatus.PENDING),
+            status=submission_data.get("status", SubmissionStatus.PENDING)
         )
         session.add(submission)
         session.flush()
