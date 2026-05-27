@@ -20,10 +20,12 @@ from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User, PackageVersion
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
+from submit_api.models.item import Item
 from submit_api.models.user import UserType
 from submit_api.schemas.project import AccountProjectSchema, StaffAccountProjectSchema
 from submit_api.utils.token_info import TokenInfo
 from submit_api.models.update_request import UpdateRequest, UpdateRequestType, UpdateRequestStatus
+from submit_api.services.package_service import PackageService
 
 
 class ProjectQueries:
@@ -60,8 +62,28 @@ class ProjectQueries:
     @classmethod
     def get_account_project_by_id(cls, account_project_id: int, is_staff: bool):
         """Find account project by id."""
-        account_project = db.session.query(AccountProject).filter(
-            AccountProject.id == account_project_id).first()
+        # Get user type for status calculation
+        user = User.get_by_guid(TokenInfo.get_username())
+        user_type = user.type if user else None
+
+        # Load account project with packages, items, and submissions for status calculation
+        account_project = (
+            db.session.query(AccountProject)
+            .filter(AccountProject.id == account_project_id)
+            .options(
+                joinedload(AccountProject.packages)
+                .joinedload(Package.items)
+                .joinedload(Item.submissions)
+            )
+            .first()
+        )
+
+        # Pre-calculate statuses for all packages
+        if account_project and user_type:
+            for package in account_project.packages:
+                package._calculated_status = PackageService.calculate_package_statuses(
+                    package, user_type
+                )
 
         schema_class = StaffAccountProjectSchema if is_staff else AccountProjectSchema
         account_project_dict = schema_class().dump(account_project)
@@ -146,13 +168,37 @@ class ProjectQueries:
     def get_full_account_projects(cls, account_project_ids: list,
                                   is_proponent: bool, filtered_package_ids: list) -> list:
         """Retrieve full AccountProject objects, apply schema, and filter packages."""
+        # Get user type for status calculation
+        user = User.get_by_guid(TokenInfo.get_username())
+        user_type = user.type if user else None
+
+        # Load account projects with packages, items, and submissions for status calculation
         account_projects = (
             db.session.query(AccountProject)
             .join(Project, AccountProject.project_id == Project.id)
             .filter(AccountProject.id.in_(account_project_ids))
-            .options(joinedload(AccountProject.packages))
+            .options(
+                joinedload(AccountProject.packages)
+                .joinedload(Package.items)
+                .joinedload(Item.submissions)
+            )
             .order_by(Project.name)
         ).all()
+
+        # Pre-calculate statuses for all packages
+        package_statuses = {}
+        for account_project in account_projects:
+            for package in account_project.packages:
+                if user_type:
+                    package_statuses[package.id] = PackageService.calculate_package_statuses(
+                        package, user_type
+                    )
+
+        # Store calculated statuses on package objects for schema access
+        for account_project in account_projects:
+            for package in account_project.packages:
+                if package.id in package_statuses:
+                    package._calculated_status = package_statuses[package.id]
 
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
         account_projects_list = schema_class(many=True).dump(account_projects)

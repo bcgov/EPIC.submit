@@ -5,10 +5,9 @@ Manages the package
 
 from marshmallow import EXCLUDE, Schema, fields, post_dump, validate
 
-from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
+from submit_api.models.package import PackageStatus
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType
-from submit_api.models.user import UserType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 from submit_api.schemas.account_project_work import AccountProjectWorkSchema
@@ -190,54 +189,32 @@ class PackageSchema(Schema):
         """Get all update requests (active and inactive)."""
         return PackageUpdateRequestSchema(many=True).dump(obj.all_update_requests)
 
-    @post_dump
-    def map_status(self, data, many, **kwargs):
+    @post_dump(pass_original=True)
+    def map_status(self, data, original_data, **kwargs):
         """Map status."""
+        # Check if status was pre-calculated by the service layer
+        # This is set by ProjectQueries for optimized queries
+        if original_data and hasattr(original_data, '_calculated_status'):
+            data['status'] = original_data._calculated_status
+            return data
+
+        # Fallback: Use service method to calculate statuses
+        # This ensures consistency across all endpoints
         auth_guid = TokenInfo.get_username()
         if not auth_guid:
             data['status'] = []
             return data
+
         user = UserService.get_by_auth_guid(auth_guid)
         user_type = user.type if user else None
 
-        version = data.get('version')
-        package_type_data = data.get('type')
-
-        new_status = [get_package_status(status, user_type, version, package_type_data)
-                      for status in data['status']]
-
-        # Add non-canonical statuses
-        update_requests = data.get('update_requests', [])
-        is_update_requested = any(ur.get('active') and ur.get('status') == 'OPEN' for ur in update_requests)
-        # Check if any submission has is_updated=true and status is SUBMITTED
-        items = data.get('items', [])
-        is_updated = any(
-            submission.get('is_updated') and submission.get('status') == 'SUBMITTED'
-            for item in items
-            for submission in item.get('submissions', [])
-        )
-        # Check if any item has REVISION_REQUIRED
-        is_revision_required = any(item.get('status') == 'REVISION_REQUIRED' for item in items)
-
-        if is_update_requested:
-            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
-        if is_updated:
-            new_status.append(NonCanonicalPackageStatus.UPDATED.value)
-
-        if is_revision_required:
-            if user_type == UserType.PROPONENT:
-                new_status.append(NonCanonicalPackageStatus.REVISION_REQUIRED.value)
-            else:
-                new_status.append(NonCanonicalPackageStatus.REVISION_REQUESTED.value)
-
-        # Return new status list while preserving insertion order
-        seen = set()
-        deduped_status = []
-        for status in new_status:
-            if status and status not in seen:
-                seen.add(status)
-                deduped_status.append(status)
-        data['status'] = deduped_status
+        if original_data and user_type:
+            # Lazy import to avoid circular dependency
+            from submit_api.services.package_service import PackageService
+            # Call the service method with the original package object
+            data['status'] = PackageService.calculate_package_statuses(original_data, user_type)
+        else:
+            data['status'] = []
 
         return data
 
@@ -266,112 +243,6 @@ class StaffPackageSchema(PackageSchema):
         if pending_manager_review:
             return SubmissionReviewStatus.PENDING_MANAGER_REVIEW.value
         return None
-
-
-def get_package_status(status, user_type, version_obj, package_type=None):
-    """Get the local (Pacific Timezone) datetime."""
-    if not status:
-        return None
-    if user_type not in [UserType.PROPONENT, UserType.STAFF]:
-        return status
-
-    version = 1
-    if version_obj and isinstance(version_obj, dict):
-        version = version_obj.get('version', 1) or 1
-    package_status_mapping = {
-        # work related package statuses
-        PackageStatus.NEW.value: {
-            UserType.PROPONENT: PackageStatus.NEW.value if version == 1 else '',
-            UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
-        },
-        PackageStatus.IN_PROGRESS.value: {
-            UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
-            UserType.STAFF: PackageStatus.CREATED.value
-        },
-        PackageStatus.SUBMITTED.value: {
-            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: (PackageStatus.NEW_SUBMISSION.value if version == 1
-                             else PackageStatus.RESUBMITTED.value)
-        },
-        PackageStatus.INTERNAL_VERIFICATION.value: {
-            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: PackageStatus.INTERNAL_VERIFICATION.value
-        },
-        PackageStatus.VERIFIED.value: {
-            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: PackageStatus.VERIFIED.value
-        },
-        PackageStatus.PENDING_ACKNOWLEDGEMENT.value: {
-            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: PackageStatus.PENDING_ACKNOWLEDGEMENT.value
-        },
-        PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value: {
-            UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-            UserType.STAFF: PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value
-        },
-        PackageStatus.ACKNOWLEDGED.value: {
-            UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
-            UserType.STAFF: PackageStatus.ACKNOWLEDGED.value
-        },
-        PackageStatus.READY_FOR_APPROVAL.value: {
-            UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
-            UserType.STAFF: PackageStatus.READY_FOR_APPROVAL.value
-        },
-        PackageStatus.APPROVED.value: {
-            UserType.PROPONENT: PackageStatus.APPROVED.value,
-            UserType.STAFF: PackageStatus.APPROVED.value
-        },
-        PackageStatus.NOT_APPROVED.value: {
-            UserType.PROPONENT: PackageStatus.NOT_APPROVED.value,
-            UserType.STAFF: PackageStatus.NOT_APPROVED.value
-        },
-        # end work related package statuses
-        PackageStatus.PARTIALLY_COMPLETED.value: {
-            UserType.PROPONENT: PackageStatus.PARTIALLY_COMPLETED.value,
-            UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
-        },
-        PackageStatus.COMPLETED.value: {
-            UserType.PROPONENT: PackageStatus.COMPLETED.value,
-            UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
-        },
-        PackageStatus.UNDER_REVIEW.value: {
-            UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
-            UserType.STAFF: PackageStatus.UNDER_REVIEW.value
-        },
-        PackageStatus.UNDER_CONSULTATION_CHECK.value: {
-            UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
-            UserType.STAFF: PackageStatus.UNDER_CONSULTATION_CHECK.value
-        },
-        PackageStatus.CC_AWAITING_MANAGER_APPROVAL.value: {
-            UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
-            UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
-        },
-        PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value: {
-            UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
-            UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
-        },
-        PackageStatus.IEM_AWAITING_MANAGER_APPROVAL.value: {
-            UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
-            UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
-        },
-        PackageStatus.REVIEW_REJECTED.value: {
-            UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,
-            UserType.STAFF: PackageStatus.REVIEW_REJECTED.value
-        },
-        PackageStatus.SATISFIED.value: {
-            UserType.PROPONENT: PackageStatus.NO_REVISION_REQUIRED.value,
-            UserType.STAFF: PackageStatus.SATISFIED.value
-        },
-        PackageStatus.REVIEWED.value: {
-            UserType.PROPONENT: PackageStatus.REVIEWED.value,
-            UserType.STAFF: PackageStatus.REVIEWED.value
-        }
-    }
-
-    if status in package_status_mapping:
-        return package_status_mapping[status][user_type]
-
-    return status
 
 
 class AccountPackageSchema(Schema):

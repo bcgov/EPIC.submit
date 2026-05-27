@@ -59,6 +59,18 @@ export default function StaffSubmissionItemTableRow({
     submissionPackage.account_project_work?.id,
   );
 
+  const isUpdated = useMemo(() => {
+    // Check if any submission has is_updated flag AND status is SUBMITTED
+    // This ensures the proponent has actually resubmitted the item
+    return Boolean(
+      item.submissions?.find(
+        (submission) => 
+          submission.is_updated && 
+          submission.status === SUBMISSION_STATUS.SUBMITTED
+      )
+    );
+  }, [item.submissions]);
+
   const handleClick = () => {
     navigate({
       to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
@@ -112,6 +124,20 @@ export default function StaffSubmissionItemTableRow({
                 sx={{
                   backgroundColor: BCDesignTokens.supportSurfaceColorWarning,
                   border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
+                  color: BCDesignTokens.typographyColorPrimary,
+                  fontSize: "12px",
+                  height: "24px",
+                  fontWeight: 400,
+                }}
+              />
+            </When>
+            <When condition={isUpdated}>
+              <Chip
+                label="Updated"
+                size="small"
+                sx={{
+                  backgroundColor: "#F6E4FF",
+                  border: "1px solid #9B6BDA",
                   color: BCDesignTokens.typographyColorPrimary,
                   fontSize: "12px",
                   height: "24px",
