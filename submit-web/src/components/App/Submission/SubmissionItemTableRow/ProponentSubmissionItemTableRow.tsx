@@ -124,7 +124,7 @@ export default function ProponentSubmissionItemTableRow({
             </Box>
           </When>
           <When condition={hasAccountProjectWork}>
-            <When condition={hasOpenUpdateRequest}>
+            <When condition={hasOpenUpdateRequest && !isUpdated}>
               <Chip
                 label="Update Requested"
                 size="small"
