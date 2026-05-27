@@ -305,7 +305,7 @@ class PackageService:
             raise BadRequestError("Cannot resubmit a package that has been rejected")
         
         # Check if package is acknowledged
-        is_acknowledged = PackageStatus.ACKNOWLEDGED.value in package.status
+        is_acknowledged = PackageStatus.ACKNOWLEDGED in package.status
         
         # Get open update requests
         open_update_requests = [request for request in package.update_requests
@@ -318,6 +318,10 @@ class PackageService:
         # For non-acknowledged packages, require update requests (unless work-related)
         if not is_acknowledged and not open_update_requests and not package.account_project_work_id:
             raise BadRequestError("Cannot resubmit a package that has no update requests")
+        
+        # Validate no empty submissions when package is acknowledged
+        if is_acknowledged:
+            cls._validate_no_empty_submissions(package)
         
         current_app.logger.info(f"Package {package.id} is ready to resubmit")
         return package
@@ -922,6 +926,27 @@ class PackageService:
             raise BadRequestError("Note already exists for the update request")
         if not update_request.active:
             raise BadRequestError("Update request is not active")
+
+    @classmethod
+    def _validate_no_empty_submissions(cls, package):
+        """Validate that there are no empty submissions when resubmitting an acknowledged package."""
+        empty_submissions = []
+        
+        for item in package.items:
+            for submission in item.submissions:
+                # Check if submission is empty (no document and no form)
+                if not submission.submitted_document_id and not submission.submitted_form_id:
+                    empty_submissions.append({
+                        'item_type': item.type.name,
+                        'submission_id': submission.id
+                    })
+        
+        if empty_submissions:
+            item_types = ', '.join(set(s['item_type'] for s in empty_submissions))
+            raise BadRequestError(
+                f"Cannot resubmit an acknowledged package with empty submissions. "
+                f"Please add documents or forms to the following sections: {item_types}"
+            )
 
     @classmethod
     def _validate_update_update_request_note(cls, package_id, update_request):

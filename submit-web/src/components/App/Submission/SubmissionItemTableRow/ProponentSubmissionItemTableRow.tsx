@@ -139,6 +139,8 @@ export default function ProponentSubmissionItemTableRow({
                   fontSize: "12px",
                   height: "24px",
                   fontWeight: 400,
+                  mr: 1,
+                  ml: 1,
                 }}
               />
             </When>
@@ -153,6 +155,8 @@ export default function ProponentSubmissionItemTableRow({
                   fontSize: "12px",
                   height: "24px",
                   fontWeight: 400,
+                  mr: 1,
+                  ml: 1,
                 }}
               />
             </When>
