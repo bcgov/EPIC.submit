@@ -1,4 +1,5 @@
 """Service for package management."""
+# pylint: disable=too-many-lines
 from collections import defaultdict
 from datetime import datetime, UTC
 
@@ -18,7 +19,7 @@ from submit_api.models.account_project_work import AccountProjectWork as Account
 from submit_api.models.db import session_scope
 from submit_api.models.email_queue import EmailQueue as EmailQueueModel
 from submit_api.models.email_queue import EntityType
-from submit_api.models.package import PackageStatus
+from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models.package_item_type import PackageItemType as PackageItemTypeModel
 from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
 from submit_api.models.package_metadata import PackageMetadataFields
@@ -40,6 +41,192 @@ from submit_api.services.package_version_service import PackageVersionService
 
 class PackageService:
     """Package management service."""
+
+    @staticmethod
+    def _get_status_mapping(version):
+        """Get the package status mapping dictionary."""
+        return {
+            # work related package statuses
+            PackageStatus.NEW.value: {
+                UserType.PROPONENT: PackageStatus.NEW.value if version == 1 else '',
+                UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
+            },
+            PackageStatus.IN_PROGRESS.value: {
+                UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,
+                UserType.STAFF: PackageStatus.CREATED.value
+            },
+            PackageStatus.SUBMITTED.value: {
+                UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+                UserType.STAFF: (PackageStatus.NEW_SUBMISSION.value if version == 1
+                                 else PackageStatus.RESUBMITTED.value)
+            },
+            PackageStatus.INTERNAL_VERIFICATION.value: {
+                UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+                UserType.STAFF: PackageStatus.INTERNAL_VERIFICATION.value
+            },
+            PackageStatus.VERIFIED.value: {
+                UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+                UserType.STAFF: PackageStatus.VERIFIED.value
+            },
+            PackageStatus.PENDING_ACKNOWLEDGEMENT.value: {
+                UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+                UserType.STAFF: PackageStatus.PENDING_ACKNOWLEDGEMENT.value
+            },
+            PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value: {
+                UserType.PROPONENT: PackageStatus.SUBMITTED.value,
+                UserType.STAFF: PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value
+            },
+            PackageStatus.ACKNOWLEDGED.value: {
+                UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
+                UserType.STAFF: PackageStatus.ACKNOWLEDGED.value
+            },
+            PackageStatus.READY_FOR_APPROVAL.value: {
+                UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
+                UserType.STAFF: PackageStatus.READY_FOR_APPROVAL.value
+            },
+            PackageStatus.APPROVED.value: {
+                UserType.PROPONENT: PackageStatus.APPROVED.value,
+                UserType.STAFF: PackageStatus.APPROVED.value
+            },
+            PackageStatus.NOT_APPROVED.value: {
+                UserType.PROPONENT: PackageStatus.NOT_APPROVED.value,
+                UserType.STAFF: PackageStatus.NOT_APPROVED.value
+            },
+            # end work related package statuses
+            PackageStatus.PARTIALLY_COMPLETED.value: {
+                UserType.PROPONENT: PackageStatus.PARTIALLY_COMPLETED.value,
+                UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
+            },
+            PackageStatus.COMPLETED.value: {
+                UserType.PROPONENT: PackageStatus.COMPLETED.value,
+                UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
+            },
+            PackageStatus.UNDER_REVIEW.value: {
+                UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
+                UserType.STAFF: PackageStatus.UNDER_REVIEW.value
+            },
+            PackageStatus.UNDER_CONSULTATION_CHECK.value: {
+                UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
+                UserType.STAFF: PackageStatus.UNDER_CONSULTATION_CHECK.value
+            },
+            PackageStatus.CC_AWAITING_MANAGER_APPROVAL.value: {
+                UserType.PROPONENT: PackageStatus.UNDER_CONSULTATION_CHECK.value,
+                UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
+            },
+            PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value: {
+                UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
+                UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
+            },
+            PackageStatus.IEM_AWAITING_MANAGER_APPROVAL.value: {
+                UserType.PROPONENT: PackageStatus.UNDER_REVIEW.value,
+                UserType.STAFF: PackageStatus.AWAITING_MANAGER_APPROVAL.value
+            },
+            PackageStatus.REVIEW_REJECTED.value: {
+                UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,
+                UserType.STAFF: PackageStatus.REVIEW_REJECTED.value
+            },
+            PackageStatus.SATISFIED.value: {
+                UserType.PROPONENT: PackageStatus.NO_REVISION_REQUIRED.value,
+                UserType.STAFF: PackageStatus.SATISFIED.value
+            },
+            PackageStatus.REVIEWED.value: {
+                UserType.PROPONENT: PackageStatus.REVIEWED.value,
+                UserType.STAFF: PackageStatus.REVIEWED.value
+            }
+        }
+
+    @staticmethod
+    def _map_canonical_statuses(package, user_type, package_status_mapping):
+        """Map canonical statuses based on user type."""
+        new_status = []
+        for status in package.status:
+            status_value = status.value if hasattr(status, 'value') else status
+            if status_value in package_status_mapping:
+                mapped_status = package_status_mapping[status_value][user_type]
+                if mapped_status:
+                    new_status.append(mapped_status)
+            else:
+                new_status.append(status_value)
+        return new_status
+
+    @staticmethod
+    def _check_item_conditions(package):
+        """Check for revision required and updated submission conditions."""
+        has_revision_required = False
+        has_updated_submission = False
+
+        for item in package.items:
+            if item.status.value == 'REVISION_REQUIRED':
+                has_revision_required = True
+
+            for submission in item.submissions:
+                if submission.is_updated and submission.status.value == 'SUBMITTED':
+                    has_updated_submission = True
+                    break
+
+            if has_revision_required and has_updated_submission:
+                break
+
+        return has_revision_required, has_updated_submission
+
+    @staticmethod
+    def _add_noncanonical_statuses(new_status, has_open_update_request, has_updated_submission,
+                                   has_revision_required, user_type):
+        """Add noncanonical statuses to the status list."""
+        if has_open_update_request:
+            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+        if has_updated_submission:
+            new_status.append(NonCanonicalPackageStatus.UPDATED.value)
+        if has_revision_required:
+            status_to_add = (NonCanonicalPackageStatus.REVISION_REQUIRED.value
+                             if user_type == UserType.PROPONENT
+                             else NonCanonicalPackageStatus.REVISION_REQUESTED.value)
+            new_status.append(status_to_add)
+
+    @staticmethod
+    def _deduplicate_statuses(statuses):
+        """Deduplicate statuses while preserving order."""
+        seen = set()
+        deduped = []
+        for status in statuses:
+            if status and status not in seen:
+                seen.add(status)
+                deduped.append(status)
+        return deduped
+
+    @staticmethod
+    def calculate_package_statuses(package, user_type):
+        """Calculate complete package status list including noncanonical statuses.
+
+        Optimized to process all data in a single pass to avoid unnecessary iterations.
+        Includes canonical status mapping based on user type and version.
+
+        Args:
+            package: Package model object with items and update_requests loaded
+            user_type: UserType enum value (STAFF or PROPONENT)
+
+        Returns:
+            list: Complete list of status strings including noncanonical statuses
+        """
+        if user_type not in [UserType.PROPONENT, UserType.STAFF]:
+            return [status.value if hasattr(status, 'value') else status for status in package.status]
+
+        version = package.version.version if package.version else 1
+        package_status_mapping = PackageService._get_status_mapping(version)
+        new_status = PackageService._map_canonical_statuses(package, user_type, package_status_mapping)
+
+        has_revision_required, has_updated_submission = PackageService._check_item_conditions(package)
+        has_open_update_request = any(
+            ur.active and ur.status == 'OPEN'
+            for ur in package.update_requests
+        )
+
+        PackageService._add_noncanonical_statuses(
+            new_status, has_open_update_request, has_updated_submission,
+            has_revision_required, user_type
+        )
+
+        return PackageService._deduplicate_statuses(new_status)
 
     @classmethod
     def get_package_by_id(cls, package_id):
