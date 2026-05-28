@@ -486,30 +486,32 @@ class PackageService:
         current_app.logger.info(f"Validating package {package.id} for resubmission")
         if not package.submitted_on:
             raise BadRequestError("Cannot resubmit a package that has not been submitted")
-        if package.status == PackageStatus.APPROVED:
+        if PackageStatus.APPROVED.value in package.status:
             raise BadRequestError("Cannot resubmit a package that has been approved")
-        if package.status == PackageStatus.REJECTED:
+        if PackageStatus.REJECTED.value in package.status:
             raise BadRequestError("Cannot resubmit a package that has been rejected")
-        
+        if PackageStatus.NOT_APPROVED.value in package.status:
+            raise BadRequestError("Cannot resubmit a package that has not been approved")
+
         # Check if package is acknowledged
         is_acknowledged = PackageStatus.ACKNOWLEDGED in package.status
-        
+
         # Get open update requests
         open_update_requests = [request for request in package.update_requests
                                 if request.status != UpdateRequestStatus.ACCEPTED.value]
-        
+
         # Block resubmission if acknowledged without open update requests
         if is_acknowledged and not open_update_requests:
             raise BadRequestError("Cannot resubmit an acknowledged package without an open update request")
-        
+
         # For non-acknowledged packages, require update requests (unless work-related)
         if not is_acknowledged and not open_update_requests and not package.account_project_work_id:
             raise BadRequestError("Cannot resubmit a package that has no update requests")
-        
+
         # Validate no empty submissions when package is acknowledged
         if is_acknowledged:
             cls._validate_no_empty_submissions(package)
-        
+
         current_app.logger.info(f"Package {package.id} is ready to resubmit")
         return package
 
@@ -1044,12 +1046,15 @@ class PackageService:
         if not package.submitted_on:
             raise BadRequestError(
                 "Cannot create an update request for a package that has not been submitted")
-        if package.status == PackageStatus.APPROVED:
+        if PackageStatus.APPROVED in package.status:
             raise BadRequestError(
                 "Cannot create an update request for a package that has been approved")
-        if package.status == PackageStatus.REJECTED:
+        if PackageStatus.REJECTED in package.status:
             raise BadRequestError(
                 "Cannot create an update request for a package that has been rejected")
+        if PackageStatus.NOT_APPROVED in package.status:
+            raise BadRequestError(
+                "Cannot create an update request for a package that has not been approved")
         return package
 
     @classmethod
@@ -1061,7 +1066,7 @@ class PackageService:
         if package.completed_on:
             raise BadRequestError(
                 "Cannot create a review for a package that has been completed")
-        if package.status == PackageStatus.REJECTED:
+        if PackageStatus.REJECTED.value in package.status:
             raise BadRequestError(
                 "Cannot create a review for a package that has been rejected")
         return package
@@ -1118,7 +1123,7 @@ class PackageService:
     def _validate_no_empty_submissions(cls, package):
         """Validate that there are no empty submissions when resubmitting an acknowledged package."""
         empty_submissions = []
-        
+
         for item in package.items:
             for submission in item.submissions:
                 # Check if submission is empty (no document and no form)
@@ -1127,7 +1132,7 @@ class PackageService:
                         'item_type': item.type.name,
                         'submission_id': submission.id
                     })
-        
+
         if empty_submissions:
             item_types = ', '.join(set(s['item_type'] for s in empty_submissions))
             raise BadRequestError(

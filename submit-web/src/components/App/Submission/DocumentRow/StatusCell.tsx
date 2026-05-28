@@ -20,17 +20,15 @@ export const StatusCell = ({
   const entityUser = userType === USER_TYPE.PROPONENT;
 
   const isNewVersion = useMemo(() => {
-    // Show new version if major or minor version > 1 and status is PENDING or SUBMITTED
+    // Show new version if minor version > 1 and status is PENDING or SUBMITTED
     if (
       submittedDocument.status !== SUBMISSION_STATUS.SUBMITTED &&
       submittedDocument.status !== SUBMISSION_STATUS.PENDING
     )
       return false;
     
-    return (
-      submittedDocument.major_version > 1 || submittedDocument.minor_version > 1
-    );
-  }, [submittedDocument.major_version, submittedDocument.minor_version, submittedDocument.status]);
+    return submittedDocument.minor_version > 1;
+  }, [submittedDocument.minor_version, submittedDocument.status]);
 
   return (
     <Switch>

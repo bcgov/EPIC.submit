@@ -448,22 +448,30 @@ class SubmissionService:
         item = ItemModel.find_by_id(item_id)
         if not item:
             raise ValueError("Item not found.")
-        
+
         package = item.package
         if not package:
             raise ValueError("Package not found.")
-        
+
+        # Block if package is approved, rejected, or not approved
+        if PackageStatus.APPROVED in package.status:
+            raise BadRequestError("Cannot add documents to an approved package")
+        if PackageStatus.REJECTED in package.status:
+            raise BadRequestError("Cannot add documents to a rejected package")
+        if PackageStatus.NOT_APPROVED in package.status:
+            raise BadRequestError("Cannot add documents to a not approved package")
+
         # Check if package is acknowledged
         is_acknowledged = PackageStatus.ACKNOWLEDGED.value in package.status
-        
+
         # Get open update requests
         open_update_requests = [request for request in package.update_requests
                                 if request.status == UpdateRequestStatus.OPEN.value]
-        
+
         # Block if acknowledged without open update requests
         if is_acknowledged and not open_update_requests:
             raise BadRequestError("Cannot add items to an acknowledged package without an open update request")
-        
+
         # Validate item type is requested in open update requests
         if open_update_requests:
             cls._validate_item_type_requested(item, open_update_requests)
@@ -472,13 +480,13 @@ class SubmissionService:
     def _validate_item_type_requested(cls, item, open_update_requests):
         """Validate that the item type is requested in at least one open update request."""
         item_type_id = item.type_id
-        
+
         # Check if any open update request includes this item type
         is_requested = any(
-            item_type_id in request.submission_item_types 
+            item_type_id in request.submission_item_types
             for request in open_update_requests
         )
-        
+
         if not is_requested:
             raise BadRequestError(
                 f"Cannot add items to '{item.type.name}' section. "
