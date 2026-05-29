@@ -56,17 +56,15 @@ export function useDocumentRow({
     !submissionPackage?.account_project_work;
 
   const isNewVersion = useMemo(() => {
-    // Show new version if major or minor version > 1 and status is PENDING or SUBMITTED
+    // Show new version if minor version > 1 and status is PENDING or SUBMITTED
     if (
       documentSubmission.status !== SUBMISSION_STATUS.SUBMITTED &&
       documentSubmission.status !== SUBMISSION_STATUS.PENDING
     )
       return false;
     
-    return (
-      documentSubmission.major_version > 1 || documentSubmission.minor_version > 1
-    );
-  }, [documentSubmission.major_version, documentSubmission.minor_version, documentSubmission.status]);
+    return documentSubmission.minor_version > 1;
+  }, [documentSubmission.minor_version, documentSubmission.status]);
 
   // ─── Mutations ────────────────────────────────────────────────────────────
 

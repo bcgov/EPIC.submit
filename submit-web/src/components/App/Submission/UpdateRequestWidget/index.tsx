@@ -12,7 +12,7 @@ import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
 import { useMemo, useState, Fragment } from "react";
-import { SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage, PACKAGE_STATUS } from "@/models/Package";
 import RequestSection from "./RequestSection";
 import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import AddRequestSection from "./AddRequestSection";
@@ -90,6 +90,13 @@ export default function UpdateRequestWidget({
   const handleCancelReason = () => {
     setIsCreateRequestOpen(false);
   };
+
+  const isApprovedOrRejected = useMemo(() => {
+    if (!submissionPackage?.status) return false;
+    return submissionPackage.status.includes(PACKAGE_STATUS.APPROVED.value) ||
+           submissionPackage.status.includes(PACKAGE_STATUS.REJECTED.value) ||
+           submissionPackage.status.includes(PACKAGE_STATUS.NOT_APPROVED.value);
+  }, [submissionPackage?.status]);
 
   if (!updateRequests) return null;
 
@@ -179,28 +186,30 @@ export default function UpdateRequestWidget({
               sx={{ color: "#38598A", p: 0 }}
             />
           </Box>
-          <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
-            <Box
-              onClick={handleIsCreateRequestOpen}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Typography
-                variant="body2"
-                color={BCDesignTokens.typographyColorLink}
+          {!isApprovedOrRejected && (
+            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+              <Box
+                onClick={handleIsCreateRequestOpen}
                 sx={{
-                  cursor: "pointer",
-                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
-                data-testid="request-update-button"
               >
-                + Request an Update
-              </Typography>
-            </Box>
-          </PermissionsGate>
+                <Typography
+                  variant="body2"
+                  color={BCDesignTokens.typographyColorLink}
+                  sx={{
+                    cursor: "pointer",
+                    width: "100%",
+                  }}
+                  data-testid="request-update-button"
+                >
+                  + Request an Update
+                </Typography>
+              </Box>
+            </PermissionsGate>
+          )}
         </Box>
       </AccordionSummary>
       <AccordionDetails

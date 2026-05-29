@@ -159,7 +159,13 @@ export default function SubmissionPage() {
         status: PACKAGE_STATUS.SUBMITTED.value,
       },
     });
-    notify.success("Management plan submitted successfully");
+    
+    const isResubmission = Boolean(submissionPackage.submitted_on);
+    const successMessage = isResubmission
+      ? "Your submission package has been resubmitted successfully to the EAO."
+      : "Your submission package has been submitted successfully to the EAO.";
+    
+    notify.success(successMessage, 15000);
   };
 
   const submitPackage = () => {
@@ -183,6 +189,35 @@ export default function SubmissionPage() {
         setIsValidating(true);
         notify.error(
           "You must have at least one file uploaded to be able to submit your package.",
+        );
+        return;
+      }
+    }
+
+    // Check for new files in update-requested sections for acknowledged packages
+    if (isPackageAcknowledged && openRequests.length > 0) {
+      const requestedItemTypeIds = new Set<number>();
+      openRequests.forEach(request => {
+        request.submission_item_types.forEach(typeId => {
+          requestedItemTypeIds.add(typeId);
+        });
+      });
+
+      const hasNewFilesInRequestedSections = submissionPackage.items.some(item => {
+        if (!requestedItemTypeIds.has(item.type_id)) {
+          return false;
+        }
+        return item.submissions.some(submission => 
+          submission.is_updated && 
+          submission.type === SUBMISSION_TYPE.DOCUMENT && 
+          submission.submitted_document_id !== undefined
+        );
+      });
+
+      if (!hasNewFilesInRequestedSections) {
+        notify.warning(
+          "You must have at least one new file added to your package to resubmit your submission package.",
+          15000
         );
         return;
       }
@@ -234,11 +269,12 @@ export default function SubmissionPage() {
       },
     });
 
-    const successMessage = isAdditionalInformation
-      ? "Your Additional Information Submission has been successfully submitted to the EAO."
-      : "Management plan submitted successfully";
+    const isResubmission = Boolean(submissionPackage.submitted_on);
+    const successMessage = isResubmission
+      ? "Your submission package has been resubmitted successfully to the EAO."
+      : "Your submission package has been submitted successfully to the EAO.";
 
-    notify.success(successMessage);
+    notify.success(successMessage, 15000);
   };
 
   const managementPlanName = useManagementPlanName(submissionPackage);
@@ -336,13 +372,16 @@ export default function SubmissionPage() {
       updateRequest.active,
   );
 
-  const isSubmitDisabled =
-    submissionPackage.type.name ===
-      SubmissionPackageType.MANAGEMENT_PLAN &&
-    isPackageSubmitted &&
-    pendingRequests.length === 0 &&
-    openRequests.length === 0;
+  const isPackageAcknowledged = submissionPackage.status.includes(
+    PACKAGE_STATUS.ACKNOWLEDGED.value
+  );
 
+  const isSubmitDisabled = 
+    // Basic conditions for disabling submit
+    (isPackageSubmitted && pendingRequests.length === 0 && openRequests.length === 0 && 
+     (isPackageAcknowledged || submissionPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN));
+
+  
   return (
     <PageGrid>
       <SubmitLoaderBackdrop isOpen={isFetching} />
