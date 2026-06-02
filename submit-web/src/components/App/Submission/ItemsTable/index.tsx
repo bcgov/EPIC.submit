@@ -70,7 +70,7 @@ export default function ItemsTable({
       sx={{ height: "100%", overflow: "hidden", mt: 2.25, mb: 1 }}
     >
       <Table sx={{ tableLayout: "fixed" }}>
-        <ItemsTableHead />
+        <ItemsTableHead approvalType={packageType.approval_type} />
         <TableBody>
           {renderItems(submissionItems)}
           <When
