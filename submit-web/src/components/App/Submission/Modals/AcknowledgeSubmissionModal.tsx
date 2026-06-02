@@ -1,6 +1,6 @@
-import { Box, Typography } from "@mui/material";
+import { Box, List, ListItem, Typography } from "@mui/material";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
-import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { BCDesignTokens } from "epic.theme";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 
@@ -37,7 +37,7 @@ const AcknowledgeSubmissionModal = ({
             <>
               <WarningBox sx={{ p: 1.5 }}>
                 <Box sx={{ display: "flex", gap: 1.5 }}>
-                  <WarningAmberOutlinedIcon
+                  <ErrorOutlineIcon
                     sx={{ color: BCDesignTokens.supportBorderColorWarning }}
                   />
                   <Box>
@@ -45,9 +45,18 @@ const AcknowledgeSubmissionModal = ({
                       Open Update Requests
                     </Typography>
                     <Typography variant="body2">
-                      The following sections have open update requests:{" "}
-                      <b>{openRequestSectionNames.join(", ")}</b>
+                      The following sections have open update requests:
                     </Typography>
+                    <List sx={{ listStyleType: "disc", pl: 4, py: 0 }}>
+                      {openRequestSectionNames.map((sectionName, index) => (
+                        <ListItem
+                          key={index}
+                          sx={{ display: "list-item", p: 0, fontWeight: 700 }}
+                        >
+                          {sectionName}
+                        </ListItem>
+                      ))}
+                    </List>
                   </Box>
                 </Box>
               </WarningBox>

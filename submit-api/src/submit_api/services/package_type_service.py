@@ -119,16 +119,16 @@ class PackageTypeService:
 
     @staticmethod
     def create_or_update_package_type(data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create or update a package type with phase association.
+        """Create or update a package type with optional phase association.
 
         This method is idempotent - it will create a new package type if it doesn't exist,
         or update the existing one if it does. It also creates new item types if they don't exist.
 
         Args:
             data: Dictionary containing:
-                - ea_act_name: Environmental Assessment Act name
-                - work_type_name: Work type name
-                - phase_name: Phase name (can be display_name or name)
+                - ea_act_name: Environmental Assessment Act name (optional)
+                - work_type_name: Work type name (optional)
+                - phase_name: Phase name (can be display_name or name) (optional)
                 - package_type_name: Name of the package type to create/update
                 - package_type_title: Display title for the package type
                 - item_types: List of item type definitions (either {'id': int} or
@@ -138,29 +138,33 @@ class PackageTypeService:
             Dict containing the created/updated package type information
 
         Raises:
-            ValueError: If phase not found or item types are invalid
+            ValueError: If phase fields provided but phase not found, or item types are invalid
         """
-        # Find the phase
-        phase = TrackPhase.find_by_identifiers(
-            data['ea_act_name'],
-            data['work_type_name'],
-            data['phase_name']
-        )
-        if not phase:
-            raise ValueError(
-                f"Phase not found for EA Act: '{data['ea_act_name']}', "
-                f"Work Type: '{data['work_type_name']}', Phase: '{data['phase_name']}'"
+        # Find the phase if phase fields are provided
+        phase = None
+        phase_id = None
+        if data.get('ea_act_name') and data.get('work_type_name') and data.get('phase_name'):
+            phase = TrackPhase.find_by_identifiers(
+                data['ea_act_name'],
+                data['work_type_name'],
+                data['phase_name']
             )
+            if not phase:
+                raise ValueError(
+                    f"Phase not found for EA Act: '{data['ea_act_name']}', "
+                    f"Work Type: '{data['work_type_name']}', Phase: '{data['phase_name']}'"
+                )
+            phase_id = phase.id
 
         # Process item types - create new ones or validate existing ones
         processed_item_types, created_item_types = PackageTypeService._process_item_types(
             data['item_types']
         )
 
-        # Check if package type already exists for this phase
+        # Check if package type already exists for this phase (or no phase)
         existing_package_type = PackageType.find_by_name_and_phase(
             data['package_type_name'],
-            phase.id
+            phase_id
         )
 
         if existing_package_type:
@@ -169,6 +173,7 @@ class PackageTypeService:
             package_type.title = data['package_type_title']
             package_type.mandatory = data.get('mandatory', False)
             package_type.versioning_enabled = data.get('versioning_enabled', True)
+            package_type.success_message = data.get('success_message')
             approval_type = data.get('approval_type')
             if approval_type:
                 package_type.approval_type = PackageApprovalType[approval_type]
@@ -184,10 +189,11 @@ class PackageTypeService:
             package_type = PackageType(
                 name=data['package_type_name'],
                 title=data['package_type_title'],
-                phase_id=phase.id,
+                phase_id=phase_id,
                 mandatory=data.get('mandatory', False),
                 approval_type=PackageApprovalType[approval_type] if approval_type else None,
                 versioning_enabled=data.get('versioning_enabled', True),
+                success_message=data.get('success_message'),
                 created_by='system'  # TODO: Get from auth context
             )
             db.session.add(package_type)
@@ -200,18 +206,28 @@ class PackageTypeService:
 
         db.session.commit()
 
-        return {
+        response = {
             'id': package_type.id,
             'name': package_type.name,
             'title': package_type.title,
             'phase_id': package_type.phase_id,
-            'phase_name': phase.display_name or phase.name,
-            'ea_act_name': phase.ea_act_name,
-            'work_type_name': phase.work_type_name,
             'item_type_ids': [item['id'] for item in processed_item_types],
             'created_item_types': created_item_types,
             'created': existing_package_type is None,
             'mandatory': package_type.mandatory,
             'approval_type': package_type.approval_type.value if package_type.approval_type else None,
-            'versioning_enabled': package_type.versioning_enabled
+            'versioning_enabled': package_type.versioning_enabled,
+            'success_message': package_type.success_message
         }
+
+        # Add phase information if phase exists
+        if phase:
+            response['phase_name'] = phase.display_name or phase.name
+            response['ea_act_name'] = phase.ea_act_name
+            response['work_type_name'] = phase.work_type_name
+        else:
+            response['phase_name'] = None
+            response['ea_act_name'] = None
+            response['work_type_name'] = None
+
+        return response

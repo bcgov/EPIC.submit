@@ -20,7 +20,7 @@ const statusStyles: Record<string, StyleProps> = {
   UPDATE_REQUESTED: {
     label: "Update Requested",
     sx: {
-      borderRadius: 1,
+      borderRadius: "4px",
       border: "1px solid #f18a15",
       background: "#ffdeb8",
       height: "24px",
@@ -30,7 +30,7 @@ const statusStyles: Record<string, StyleProps> = {
   UPDATED: {
     label: "Updated",
     sx: {
-      borderRadius: 1,
+      borderRadius: "4px",
       border: "1px solid #9b6bda",
       background: "#f6e4ff",
       height: "24px",

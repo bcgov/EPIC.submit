@@ -1,5 +1,6 @@
 import { ProponentStatus } from "@/models/Proponent";
-import { Box, Chip } from "@mui/material";
+import { Box } from "@mui/material";
+import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
 import { BCDesignTokens } from "epic.theme";
 
 const STATUS_LABELS = {
@@ -11,36 +12,34 @@ const STATUS_LABELS = {
 } as const;
 
 type StatusStyle = {
-  background: string;
-  borderColor: string;
   label: string;
+  theme?: StatusChipTheme;
+  customColors?: {
+    background: string;
+    border: string;
+  };
 };
 
 const statusStyles: Record<ProponentStatus, StatusStyle> = {
   ELIGIBLE: {
-    background: "#F6E4FF",
-    borderColor: "#9B6BDA",
     label: STATUS_LABELS.ELIGIBLE,
+    theme: "purple",
   },
   INVITE_GENERATED: {
-    background: "#D8EAFD",
-    borderColor: "#1E5189",
     label: STATUS_LABELS.INVITE_GENERATED,
+    theme: "info",
   },
   PENDING_ONBOARDING: {
-    background: "#D8EAFD",
-    borderColor: "#1E5189",
     label: STATUS_LABELS.PENDING_ONBOARDING,
+    theme: "info",
   },
   INELIGIBLE: {
-    background: "#FFDEB8",
-    borderColor: "#F18A15",
     label: STATUS_LABELS.INELIGIBLE,
+    theme: "orange",
   },
   ONBOARDED: {
-    background: "#F6FFF8",
-    borderColor: "#42814A",
     label: STATUS_LABELS.ONBOARDED,
+    theme: "success",
   },
 };
 
@@ -57,13 +56,11 @@ export function ProponentStatusChip({ status }: ProponentStatusChipProps) {
 
   return (
     <Box>
-      <Chip
+      <StatusChip
         label={style.label}
+        theme={style.theme}
+        customColors={style.customColors}
         sx={{
-          borderRadius: "2px",
-          height: "24px",
-          border: `1px solid ${style.borderColor}`,
-          background: style.background,
           fontSize: BCDesignTokens.typographyFontSizeSmallBody,
           fontWeight: BCDesignTokens.typographyFontWeightMedium,
           color: BCDesignTokens.typographyColorPrimary,

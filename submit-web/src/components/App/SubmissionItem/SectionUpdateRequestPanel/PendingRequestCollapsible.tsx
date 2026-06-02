@@ -18,11 +18,12 @@ interface PendingRequestCollapsibleProps {
   onUpdateNote: (note: string) => void;
   expanded: boolean;
   onToggle: () => void;
+  hasError?: boolean;
 }
 
 export const PendingRequestCollapsible: React.FC<
   PendingRequestCollapsibleProps
-> = ({ request, onRemove, onUpdateNote, expanded, onToggle }) => {
+> = ({ request, onRemove, onUpdateNote, expanded, onToggle, hasError = false }) => {
   return (
     <Accordion
       expanded={expanded}
@@ -98,6 +99,8 @@ export const PendingRequestCollapsible: React.FC<
             onChange={(e) => onUpdateNote(e.target.value)}
             placeholder={`Describe what needs to be updated or added for ${request.itemTypeName}...`}
             variant="outlined"
+            error={hasError}
+            helperText={hasError ? "Please enter a note before sending your update request" : ""}
           />
         </Box>
       </AccordionDetails>

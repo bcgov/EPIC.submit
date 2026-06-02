@@ -42,6 +42,7 @@ export const SectionUpdateRequestPanel: React.FC<
   const [expandedSent, setExpandedSent] = useState<Set<number>>(new Set());
   const [showPreviousRequests, setShowPreviousRequests] = useState(false);
   const [expandedPrevious, setExpandedPrevious] = useState<Set<number>>(new Set());
+  const [validationErrors, setValidationErrors] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     setExpandedPending(new Set(pendingRequests.map((r) => r.itemTypeId)));
@@ -93,6 +94,40 @@ export const SectionUpdateRequestPanel: React.FC<
     });
   };
 
+  const handleSendRequests = () => {
+    // Validate all pending requests have notes
+    const invalidRequests = pendingRequests
+      .filter((request) => !request.reason || request.reason.trim() === "")
+      .map((request) => request.itemTypeId);
+
+    if (invalidRequests.length > 0) {
+      setValidationErrors(new Set(invalidRequests));
+      // Expand all invalid requests so user can see the errors
+      setExpandedPending((prev) => {
+        const newSet = new Set(prev);
+        invalidRequests.forEach((id) => newSet.add(id));
+        return newSet;
+      });
+      return;
+    }
+
+    // Clear any existing errors and proceed
+    setValidationErrors(new Set());
+    onSendRequests();
+  };
+
+  const handleUpdateNote = (itemTypeId: number, note: string) => {
+    // Clear validation error when user starts typing
+    if (note.trim() !== "") {
+      setValidationErrors((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(itemTypeId);
+        return newSet;
+      });
+    }
+    onUpdateNote(itemTypeId, note);
+  };
+
   // Determine if this is proponent view (no action buttons provided)
   const isProponentView = !onAcceptUpdate && !onWithdrawUpdate;
 
@@ -119,7 +154,7 @@ export const SectionUpdateRequestPanel: React.FC<
           borderRadius: "4px",
           backgroundColor: hasAnyRequests ? "#fcf8e3" : panelBackground,
           px: "20px",
-          py: 2,
+          py: 1,
           borderBottom:
             totalCount > 0
               ? `1px solid ${hasAnyRequests ? "#f5a623" : panelBorderColor}`
@@ -134,7 +169,6 @@ export const SectionUpdateRequestPanel: React.FC<
               color: "#2d2d2d",
               fontWeight: 700,
               fontSize: "18px",
-              fontFamily: "BCSans, sans-serif",
               lineHeight: "30.6px",
             }}
           >
@@ -153,7 +187,6 @@ export const SectionUpdateRequestPanel: React.FC<
                 justifyContent: "center",
                 fontSize: "12px",
                 fontWeight: 700,
-                fontFamily: "BCSans, sans-serif",
                 lineHeight: "18px",
               }}
             >
@@ -166,7 +199,6 @@ export const SectionUpdateRequestPanel: React.FC<
             sx={{
               color: "#606060",
               fontSize: "12px",
-              fontFamily: "BCSans, sans-serif",
               fontStyle: "italic",
               lineHeight: "18px",
             }}
@@ -203,11 +235,30 @@ export const SectionUpdateRequestPanel: React.FC<
               key={request.itemTypeId}
               request={request}
               onRemove={() => onRemoveFlag(request.itemTypeId)}
-              onUpdateNote={(note) => onUpdateNote(request.itemTypeId, note)}
+              onUpdateNote={(note) => handleUpdateNote(request.itemTypeId, note)}
               expanded={expandedPending.has(request.itemTypeId)}
               onToggle={() => handleTogglePending(request.itemTypeId)}
+              hasError={validationErrors.has(request.itemTypeId)}
             />
           ))}
+          {/* STAFF ONLY: Button to send pending requests to proponent */}
+          {pendingRequests.length > 0 && (
+            <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+              <Button
+                variant="contained"
+                onClick={handleSendRequests}
+                disabled={isLoading}
+                sx={{
+                  background: BCDesignTokens.themeBlue90,
+                  "&:hover": {
+                    background: BCDesignTokens.themeBlue100,
+                  },
+                }}
+              >
+                Send Request to Proponent
+              </Button>
+            </Box>
+          )}
 
           {/* STAFF: Sent requests | PROPONENT: Open requests from EAO */}
           {sentRequests.map((request) => (
@@ -224,25 +275,6 @@ export const SectionUpdateRequestPanel: React.FC<
               isProponentView={isProponentView}
             />
           ))}
-
-          {/* STAFF ONLY: Button to send pending requests to proponent */}
-          {pendingRequests.length > 0 && (
-            <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-              <Button
-                variant="contained"
-                onClick={onSendRequests}
-                disabled={isLoading}
-                sx={{
-                  background: BCDesignTokens.themeBlue90,
-                  "&:hover": {
-                    background: BCDesignTokens.themeBlue100,
-                  },
-                }}
-              >
-                Send Request to Proponent
-              </Button>
-            </Box>
-          )}
         </Box>
       )}
 <Box sx={{ pb: 2, px: 2.5, backgroundColor: "white" }}>

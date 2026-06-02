@@ -269,7 +269,6 @@ export const NewWorkPackageSubmissionForm = ({
             {packages.some((pkg) => !pkg.isExisting) && (
               <ListSubheader
                 sx={{
-                  fontFamily: 'BC Sans',
                   fontWeight: 700,
                   fontSize: '14px',
                   lineHeight: '21px',
@@ -296,7 +295,6 @@ export const NewWorkPackageSubmissionForm = ({
             {packages.some((pkg) => pkg.isExisting) && (
               <ListSubheader
                 sx={{
-                  fontFamily: 'BC Sans',
                   fontWeight: 700,
                   fontSize: '14px',
                   lineHeight: '21px',

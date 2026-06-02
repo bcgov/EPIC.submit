@@ -4,7 +4,6 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Chip,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
@@ -73,6 +72,13 @@ export default function ProponentSubmissionItemTableRow({
     return submissionPackage?.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value) || false;
   }, [submissionPackage]);
 
+  const isPackagedReachedEnd = useMemo(() => {
+    return submissionPackage?.status.includes(PACKAGE_STATUS.APPROVED.value) || 
+      submissionPackage?.status.includes(PACKAGE_STATUS.REJECTED.value) ||
+      submissionPackage?.status.includes(PACKAGE_STATUS.NOT_APPROVED.value) ||
+      submissionPackage?.status.includes(PACKAGE_STATUS.ACCEPTED.value);
+  }, [submissionPackage]);
+
   const hasAccountProjectWork = Boolean(
     submissionPackage?.account_project_work?.id,
   );
@@ -83,6 +89,12 @@ export default function ProponentSubmissionItemTableRow({
       item.submissions?.find((submission) => submission.is_updated)
     );
   }, [item.submissions]);
+  const showActionLabels = useMemo(() => {
+    return !isPackagedReachedEnd && (isFormSubmission || 
+              !submissionPackage?.submitted_on ||
+              (isPackageAcknowledged && hasOpenUpdateRequest)||
+            !isPackageAcknowledged)
+  }, [hasOpenUpdateRequest, isPackageAcknowledged, isFormSubmission, submissionPackage, isPackagedReachedEnd]);
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
   const onActionClick = () => {
@@ -117,50 +129,15 @@ export default function ProponentSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-          <When condition={!hasAccountProjectWork}>
-            <Box mr={2}>
-              <SubmissionStatusChipStack
-                status={status}
-                isUpdateRequested={hasOpenUpdateRequest}
-                isUpdated={isUpdated}
-                packageStatus={submissionPackage?.status}
-              />
-            </Box>
-          </When>
-          <When condition={hasAccountProjectWork}>
-            <When condition={hasOpenUpdateRequest && !isUpdated}>
-              <Chip
-                label="Update Requested"
-                size="small"
-                sx={{
-                  backgroundColor: "#ffdeb8",
-                  border: "1px solid #f18a15",
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                  mr: 1,
-                  ml: 1,
-                }}
-              />
-            </When>
-            <When condition={isUpdated}>
-              <Chip
-                label="Updated"
-                size="small"
-                sx={{
-                  backgroundColor: "#F6E4FF",
-                  border: "1px solid #9B6BDA",
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                  mr: 1,
-                  ml: 1,
-                }}
-              />
-            </When>
-          </When>
+          <Box mr={2}>
+            <SubmissionStatusChipStack
+              status={status}
+              isUpdateRequested={hasOpenUpdateRequest}
+              isUpdated={isUpdated}
+              packageStatus={submissionPackage?.status}
+              showOnlyUpdateChips={hasAccountProjectWork}
+            />
+          </Box>
         </SubmitPrimaryRowTableCell>
 
         <SubmitPrimaryRowTableCell
@@ -170,18 +147,7 @@ export default function ProponentSubmissionItemTableRow({
             paddingRight: "2% !important",
           }}
         >
-          <When
-            condition={
-              isFormSubmission ||
-              !submissionPackage?.submitted_on ||
-              (packageType.name !== SubmissionPackageType.MANAGEMENT_PLAN && 
-               ((!isPackageAcknowledged && submissionPackage.update_requests.filter(
-                 (updateRequest) =>
-                   updateRequest.status !== UPDATE_REQUEST_STATUS.ACCEPTED.value,
-               ).length > 0) ||
-                (isPackageAcknowledged && hasOpenUpdateRequest)))
-            }
-          >
+          <When condition={showActionLabels}>
             <Typography
               variant="body2"
               data-testid={`submission-item-action-${name}`}

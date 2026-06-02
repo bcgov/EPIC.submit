@@ -36,6 +36,10 @@ class PackageType(BaseModel):
         db.Boolean, nullable=False, default=False,
         comment="Whether this package type must be created by the system"
     )
+    success_message = Column(
+        db.String(255), nullable=True,
+        comment="Success message to display to user after submission"
+    )
     phase = relationship('TrackPhase', foreign_keys=[phase_id], lazy='joined')
     item_types = relationship('ItemType', secondary='package_item_types', back_populates='package_types')
 

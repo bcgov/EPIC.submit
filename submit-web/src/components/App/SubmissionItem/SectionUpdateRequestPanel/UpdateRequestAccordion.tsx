@@ -90,8 +90,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <ChevronRightIcon 
-              sx={{ 
-                fontSize: "12px", 
+              sx={{
                 color: "#2d2d2d",
                 transform: expanded ? "rotate(90deg)" : "rotate(0deg)",
                 transition: "transform 0.2s ease",
@@ -104,7 +103,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                 fontSize: "16px",
                 color: "#2d2d2d",
                 lineHeight: "27px",
-                fontFamily: "BCSans, sans-serif",
               }}
             >
               {itemTypeName}
@@ -139,7 +137,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                 sx={{
                   fontWeight: 700,
                   fontSize: "14px",
-                  fontFamily: "BCSans, sans-serif",
                   color: "#036",
                   lineHeight: "19.5px",
                 }}
@@ -151,7 +148,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                   fontSize: "12px",
                   color: "#606060",
                   lineHeight: "18px",
-                  fontFamily: "BCSans, sans-serif",
                 }}
               >
                 {new Date(createdDate).toISOString().split('T')[0]}
@@ -163,7 +159,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                 fontSize: "14px",
                 lineHeight: "19.5px",
                 color: "#2d2d2d",
-                fontFamily: "BCSans, sans-serif",
               }}
             >
               {reason || "No reason provided"}
@@ -195,7 +190,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                     fontWeight: 700,
                     fontSize: "13px",
                     color: BCDesignTokens.typographyColorPrimary,
-                    fontFamily: "BCSans, sans-serif",
                     lineHeight: "19.5px",
                   }}
                 >
@@ -206,7 +200,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                     fontSize: "12px",
                     color: BCDesignTokens.themeGray80,
                     lineHeight: "18px",
-                    fontFamily: "BCSans, sans-serif",
                   }}
                 >
                   {noteUpdatedAt
@@ -229,7 +222,6 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                     fontSize: "13px",
                     lineHeight: "19.5px",
                     color: BCDesignTokens.typographyColorPrimary,
-                    fontFamily: "BCSans, sans-serif",
                     flex: 1,
                   }}
                 >

@@ -1,5 +1,6 @@
 import React from "react";
-import { Box, Chip, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import { StatusChip } from "@/components/Shared/StatusChip";
 import { PreviousRequest } from "./types";
 import { BCDesignTokens } from "epic.theme";
 import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
@@ -22,34 +23,24 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
   const getStatusBadge = () => {
     if (isAccepted) {
       return (
-        <Chip
+        <StatusChip
           label="Accepted"
-          size="small"
+          theme="success"
           sx={{
-            backgroundColor: BCDesignTokens.supportSurfaceColorSuccess,
-            border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-            color: "#2D2D2D",
             fontSize: "12px",
-            height: "24px",
             fontWeight: 400,
-            borderRadius: "4px",
           }}
         />
       );
     }
     if (isWithdrawn) {
       return (
-        <Chip
+        <StatusChip
           label="Withdrawn"
-          size="small"
+          theme="danger"
           sx={{
-            backgroundColor: BCDesignTokens.supportSurfaceColorDanger,
-            border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-            color: "#2D2D2D",
             fontSize: "12px",
-            height: "24px",
             fontWeight: 400,
-            borderRadius: "2px",
           }}
         />
       );

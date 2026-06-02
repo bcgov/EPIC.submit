@@ -4,9 +4,9 @@ import {
   TableCell,
   TableRow,
   Typography,
-  Chip,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { When } from "react-if";
 import { useNavigate, useParams } from "@tanstack/react-router";
@@ -22,7 +22,6 @@ import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "..";
 import SubmissionItemReviewConfirmation from "@/components/App/Submission/SubmissionItemReviewConfirmation";
 import DocumentRow from "@/components/App/Submission/DocumentRow";
-import StaffStatusCell from "./StaffStatusCell";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
 
@@ -71,6 +70,12 @@ export default function StaffSubmissionItemTableRow({
     );
   }, [item.submissions]);
 
+  const isPackageInEndStatus = useMemo(() => {
+    // Check if package is in one of the end statuses where updates cannot be requested
+    const endStatuses: string[] = ['APPROVED', 'ACCEPTED', 'REJECTED', 'NOT_APPROVED'];
+    return endStatuses.some(status => submissionPackage.status?.includes(status as any));
+  }, [submissionPackage.status]);
+
   const handleClick = () => {
     navigate({
       to: `/staff/projects/${projectId}/submission-packages/${submissionPackageId}/submissions/${id}`,
@@ -106,45 +111,13 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="center" width={"20%"}>
-          <Box
-            display="flex"
-            flexDirection="column"
-            gap={0.5}
-            alignItems="center"
-          >
-            <When condition={!hasAccountProjectWork}>
-              <Box mr={2}>
-                <StaffStatusCell submissionItem={item} />
-              </Box>
-            </When>
-            <When condition={hasPendingRequest}>
-              <Chip
-                label="Flagged for Update"
-                size="small"
-                sx={{
-                  backgroundColor: BCDesignTokens.supportSurfaceColorWarning,
-                  border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                }}
-              />
-            </When>
-            <When condition={isUpdated}>
-              <Chip
-                label="Updated"
-                size="small"
-                sx={{
-                  backgroundColor: "#F6E4FF",
-                  border: "1px solid #9B6BDA",
-                  color: BCDesignTokens.typographyColorPrimary,
-                  fontSize: "12px",
-                  height: "24px",
-                  fontWeight: 400,
-                }}
-              />
-            </When>
+          <Box mr={2}>
+            <SubmissionStatusChipStack
+              status={item.status}
+              isFlaggedForUpdate={hasPendingRequest}
+              isUpdated={isUpdated}
+              showOnlyUpdateChips={hasAccountProjectWork}
+            />
           </Box>
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell
@@ -178,7 +151,7 @@ export default function StaffSubmissionItemTableRow({
             </When>
             <When
               condition={Boolean(
-                hasDocument && submitted_on && onRequestUpdate,
+                hasDocument && submitted_on && onRequestUpdate && !isPackageInEndStatus,
               )}
             >
               <MuiLink

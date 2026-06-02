@@ -49,20 +49,24 @@ class PackageTypeResponseSchema(Schema):
         metadata={"description": "Display title for the package type"}
     )
     phase_id = fields.Int(
-        required=True,
-        metadata={"description": "Associated phase ID from track_phases table"}
+        required=False,
+        allow_none=True,
+        metadata={"description": "Associated phase ID from track_phases table (null for package types without phase)"}
     )
     phase_name = fields.Str(
-        required=True,
-        metadata={"description": "Display name of the phase"}
+        required=False,
+        allow_none=True,
+        metadata={"description": "Display name of the phase (null for package types without phase)"}
     )
     ea_act_name = fields.Str(
-        required=True,
-        metadata={"description": "Environmental Assessment Act name"}
+        required=False,
+        allow_none=True,
+        metadata={"description": "Environmental Assessment Act name (null for package types without phase)"}
     )
     work_type_name = fields.Str(
-        required=True,
-        metadata={"description": "Work type name"}
+        required=False,
+        allow_none=True,
+        metadata={"description": "Work type name (null for package types without phase)"}
     )
     item_type_ids = fields.List(
         fields.Int(),
@@ -90,4 +94,9 @@ class PackageTypeResponseSchema(Schema):
     versioning_enabled = fields.Boolean(
         required=False,
         metadata={"description": "Whether this package type supports versioning"}
+    )
+    success_message = fields.Str(
+        required=False,
+        allow_none=True,
+        metadata={"description": "Success message to display to user after submission"}
     )
