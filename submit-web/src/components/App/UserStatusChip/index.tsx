@@ -1,8 +1,7 @@
-import { Chip } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
 
 type StyleProps = {
-  sx: Record<string, string | number>;
+  theme: StatusChipTheme;
   label: string;
 };
 
@@ -10,48 +9,23 @@ export type UserPackageStatus = "ACTIVE" | "PENDING" | "REJECTED" | "REVOKED" | 
 
 const statusStyles: Record<UserPackageStatus, StyleProps> = {
   ACTIVE: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-      background: BCDesignTokens.supportSurfaceColorSuccess,
-      height: "24px",
-    },
+    theme: "success",
     label: "Active User",
   },
   PENDING: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #9B6BDA`,
-      background: "#F6E4FF",
-      height: "24px",
-    },
+    theme: "purple",
     label: "Invited",
   },
   REVOKED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
-    },
+    theme: "danger",
     label: "Revoked",
   },
   REJECTED: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-      background: BCDesignTokens.supportSurfaceColorDanger,
-      height: "24px",
-    },
+    theme: "danger",
     label: "Rejected",
   },
   INACTIVE: {
-    sx: {
-      borderRadius: 1,
-      border: `1px solid #F18A15`,
-      background: "#FFDEB8",
-      height: "24px",
-    },
+    theme: "orange",
     label: "Deactivated",
   },
 };
@@ -67,10 +41,8 @@ export default function UserStatusChip({ status }: UserStatusChipProps) {
   }
 
   return (
-    <Chip
-      sx={{
-        ...style.sx,
-      }}
+    <StatusChip
+      theme={style.theme}
       label={style.label}
     />
   );

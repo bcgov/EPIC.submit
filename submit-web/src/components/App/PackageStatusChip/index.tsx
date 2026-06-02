@@ -1,56 +1,10 @@
 import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
-import { Chip, SxProps, Theme } from "@mui/material";
-import { BCDesignTokens, EAOColors } from "epic.theme";
+import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
 
-// 1. Define reusable base styles/themes
-const baseSx: SxProps<Theme> = {
-  borderRadius: 1,
-  height: "24px",
-  px: 1,
-  "& .MuiChip-label": {
-    overflow: "visible",
-  },
-};
-
-const themes = {
-  success: {
-    border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-    background: BCDesignTokens.supportSurfaceColorSuccess,
-  },
-  info: {
-    border: `1px solid ${BCDesignTokens.themeBlue100}`,
-    background: BCDesignTokens.themeBlue20,
-  },
-  warning: {
-    border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-    background: BCDesignTokens.supportSurfaceColorWarning,
-  },
-  danger: {
-    border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-    background: BCDesignTokens.supportSurfaceColorDanger,
-  },
-  orange: {
-    border: `1px solid #F18A15`,
-    background: "#FFDEB8",
-  },
-  purple: {
-    border: `1px solid #9B6BDA`,
-    background: "#F6E4FF",
-  },
-  neutral: {
-    border: `1px solid ${BCDesignTokens.surfaceColorBorderMedium}`,
-    background: BCDesignTokens.surfaceColorSecondaryButtonDisabled,
-  },
-  decision: {
-    border: `1px solid ${EAOColors.DecisionDark}`,
-    background: EAOColors.DecisionLight,
-  },
-};
-
-// 2. Map statuses to labels and themes
+// Map statuses to labels and themes
 type StyleProps = {
   label: string;
-  theme: keyof typeof themes;
+  theme: StatusChipTheme;
 };
 
 const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
@@ -83,6 +37,10 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
 
     REVIEW_REJECTED: {
       label: "Review Rejected",
+      theme: "danger",
+    },
+    REJECTED: {
+      label: "Rejected",
       theme: "danger",
     },
     FAILED_CONSULTATION_CHECK: {
@@ -147,10 +105,5 @@ export default function PackageStatusChip({ status }: PackageStatusChipProps) {
     return null;
   }
 
-  const sx: SxProps<Theme> = {
-    ...baseSx,
-    ...(config.theme ? themes[config.theme] : {}),
-  };
-
-  return <Chip sx={sx} label={config.label} />;
+  return <StatusChip label={config.label} theme={config.theme} />;
 }

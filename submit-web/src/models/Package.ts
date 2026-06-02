@@ -22,6 +22,7 @@ export type PackageType = {
   versioning_enabled: boolean;
   mandatory: boolean;
   approval_type?: SubmissionPackageApprovalType;
+  success_message?: string;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus

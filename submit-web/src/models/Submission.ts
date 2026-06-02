@@ -8,7 +8,8 @@ export type NonCanonicalSubmissionStatus =
   | "NO_REVISION_REQUIRED"
   | "PREVIOUSLY_FAILED"
   | "NEW_VERSION"
-  | "FAILED";
+  | "FAILED"
+  | "FLAGGED_FOR_UPDATE";
 
 export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   Record<NonCanonicalSubmissionStatus, NonCanonicalSubmissionStatus>
@@ -22,6 +23,7 @@ export const NON_CANONICAL_SUBMISSION_STATUS = Object.freeze<
   FAILED: "FAILED",
   NO_REVISION_REQUIRED: "NO_REVISION_REQUIRED",
   PREVIOUSLY_FAILED: "PREVIOUSLY_FAILED",
+  FLAGGED_FOR_UPDATE: "FLAGGED_FOR_UPDATE",
 });
 
 export type SubmissionItemStatus =

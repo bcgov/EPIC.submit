@@ -65,19 +65,37 @@ class PackageTypeCreateSchema(Schema):
         unknown = EXCLUDE
 
     ea_act_name = fields.Str(
-        required=True,
+        required=False,
+        allow_none=True,
         data_key="ea_act_name",
-        metadata={"description": "Environmental Assessment Act name (e.g., 'EA Act (2018)')"}
+        metadata={
+            "description": (
+                "Environmental Assessment Act name (e.g., 'EA Act (2018)'). "
+                "Optional for package types without phase association."
+            )
+        }
     )
     work_type_name = fields.Str(
-        required=True,
+        required=False,
+        allow_none=True,
         data_key="work_type_name",
-        metadata={"description": "Work type name (e.g., 'Assessment', 'Amendment')"}
+        metadata={
+            "description": (
+                "Work type name (e.g., 'Assessment', 'Amendment'). "
+                "Optional for package types without phase association."
+            )
+        }
     )
     phase_name = fields.Str(
-        required=True,
+        required=False,
+        allow_none=True,
         data_key="phase_name",
-        metadata={"description": "Phase name (e.g., 'Early Engagement', 'EAC Application Review')"}
+        metadata={
+            "description": (
+                "Phase name (e.g., 'Early Engagement', 'EAC Application Review'). "
+                "Optional for package types without phase association."
+            )
+        }
     )
     package_type_name = fields.Str(
         required=True,
@@ -114,9 +132,28 @@ class PackageTypeCreateSchema(Schema):
         load_default=True,
         metadata={"description": "Whether this package type supports versioning"}
     )
+    success_message = fields.Str(
+        required=False,
+        data_key="success_message",
+        allow_none=True,
+        metadata={"description": "Success message to display to user after submission"}
+    )
 
     @validates_schema
     def validate_item_types(self, data, **kwargs):
         """Validate that item_types is not empty."""
         if not data.get('item_types'):
             raise ValidationError('item_types must contain at least one item type')
+
+    @validates_schema
+    def validate_phase_fields(self, data, **kwargs):
+        """Validate that either all phase fields are provided or none are provided."""
+        phase_fields = ['ea_act_name', 'work_type_name', 'phase_name']
+        provided_fields = [field for field in phase_fields if data.get(field)]
+
+        # Either all phase fields should be provided or none
+        if 0 < len(provided_fields) < 3:
+            raise ValidationError(
+                'Either provide all phase fields (ea_act_name, work_type_name, phase_name) '
+                'or none for package types without phase association'
+            )

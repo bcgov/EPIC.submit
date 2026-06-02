@@ -195,8 +195,9 @@ class SubmissionService:
 
                 session.add(submission)
                 session.flush()
-
-                PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
+                # Only update package status if it's not already ACKNOWLEDGED
+                if PackageStatus.ACKNOWLEDGED not in package.status:
+                    PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
                 current_app.logger.info(f"Submission {submission_id} status updated to {status}.")
             return submission
 

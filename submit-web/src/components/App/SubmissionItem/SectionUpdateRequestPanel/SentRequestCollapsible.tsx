@@ -12,7 +12,8 @@
  * - No action buttons (onAcceptUpdate/onWithdrawUpdate not used)
  */
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography, Chip } from "@mui/material";
+import { Box, TextField, Button, Typography } from "@mui/material";
+import { StatusChip } from "@/components/Shared/StatusChip";
 import CloseIcon from "@mui/icons-material/Close";
 import { SentRequest } from "./types";
 import { BCDesignTokens } from "epic.theme";
@@ -87,17 +88,15 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
       {/* STAFF: Show "Requested" badge and Withdraw Update button when request is OPEN */}
       {request.status === UPDATE_REQUEST_STATUS.OPEN.value && (
         <>
-          <Chip
+          <StatusChip
             label="Requested"
-            size="small"
+            customColors={{
+              background: "#fcf8e3",
+              border: "#f5a623",
+            }}
             sx={{
-              backgroundColor: "#fcf8e3",
-              border: "1px solid #f5a623",
-              color: "#2d2d2d",
               fontSize: "12px",
-              height: "24px",
               fontWeight: 400,
-              fontFamily: "BCSans, sans-serif",
             }}
           />
           {onWithdrawUpdate && (
@@ -115,18 +114,12 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
       {/* STAFF: Show "Updated" badge and Accept Update button when proponent has responded */}
       {request.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value && (
         <>
-          <Chip
+          <StatusChip
             label="Updated"
-            size="small"
+            theme="purple"
             sx={{
-              backgroundColor: "#f6e4ff",
-              border: "1px solid #9b6bda",
-              borderRadius: "2px",
-              color: "#2d2d2d",
               fontSize: "12px",
-              height: "24px",
               fontWeight: 400,
-              fontFamily: "BCSans, sans-serif",
             }}
           />
           {onAcceptUpdate && (
@@ -172,7 +165,6 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
               sx={{
                 textTransform: "none",
                 fontSize: "16px",
-                fontFamily: "BCSans, sans-serif",
                 lineHeight: "24px",
                 height: "40px",
                 borderRadius: "4px",
@@ -209,7 +201,6 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                     fontSize: "13px",
                     lineHeight: "19.5px",
                     color: BCDesignTokens.typographyColorPrimary,
-                    fontFamily: "BCSans, sans-serif",
                   }}
                 >
                   Note for the EAO
@@ -230,7 +221,6 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                     "& .MuiOutlinedInput-root": {
                       fontSize: "14px",
                       lineHeight: "21px",
-                      fontFamily: "BCSans, sans-serif",
                       padding: "10px 12px",
                       "& fieldset": {
                         borderColor: "#606060",
@@ -257,7 +247,6 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                     lineHeight: "19.5px",
                     marginTop: 1,
                     color: BCDesignTokens.typographyColorPrimary,
-                    fontFamily: "BCSans, sans-serif",
                   }}
                 >
                   This note will be visible to the EAO after resubmitting your documents
@@ -272,7 +261,6 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                 sx={{
                   textTransform: "none",
                   fontSize: "16px",
-                  fontFamily: "BCSans, sans-serif",
                   lineHeight: "24px",
                   height: "40px",
                   width: "108px",

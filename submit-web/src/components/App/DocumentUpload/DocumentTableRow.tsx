@@ -5,8 +5,8 @@ import {
   TableRow,
   TableRowProps,
   Typography,
-  Chip,
 } from "@mui/material";
+import { StatusChip } from "@/components/Shared/StatusChip";
 import { BCDesignTokens } from "epic.theme";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -205,17 +205,16 @@ export default function DocumentTableRow({
       {isGeoSpatial && (
         <DocumentTableCell align="center">
           {geoUpload ? (
-            <Chip
+            <StatusChip
               label={geoUpload.status.toUpperCase()}
-              color={
+              theme={
                 geoUpload.status === "ready"
                   ? "success"
                   : geoUpload.status === "processing"
                     ? "warning"
-                    : "error"
+                    : "danger"
               }
-              variant="outlined"
-              size="small"
+              sx={{ fontSize: "12px" }}
             />
           ) : (
             <Typography variant="body2" color="textSecondary">

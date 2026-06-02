@@ -4,8 +4,8 @@ import {
   CardContent,
   Typography,
   CardActions,
-  Chip,
 } from "@mui/material";
+import { StatusChip } from "@/components/Shared/StatusChip";
 import { createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "react-oidc-context";
 
@@ -22,9 +22,9 @@ function Profile() {
       <CardContent>
         <Typography variant="h4" color="primary" fontWeight={600} gutterBottom>
           {user?.profile.name}{" "}
-          <Chip
-            label={user?.profile.identity_provider?.toString()}
-            color="secondary"
+          <StatusChip
+            label={user?.profile.identity_provider?.toString() || ""}
+            theme="info"
           />
         </Typography>
         <Typography sx={{ mb: 1.5 }} color="primary">

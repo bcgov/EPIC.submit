@@ -83,7 +83,8 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
           justifyContent: "space-between",
           borderRadius: "4px",
           backgroundColor: panelBackground,
-          p: 2,
+          px: 2,
+          py: 1,
           cursor: "pointer",
         }}
         onClick={() => setIsExpanded(!isExpanded)}

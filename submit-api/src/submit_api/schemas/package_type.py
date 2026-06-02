@@ -19,5 +19,6 @@ class PackageTypeSchema(Schema):
     name = fields.Str(data_key="name")
     title = fields.Str(data_key="title", required=False)
     versioning_enabled = fields.Bool(data_key="versioning_enabled")
+    success_message = fields.Str(data_key="success_message", required=False)
     mandatory = fields.Bool(data_key="mandatory")
     approval_type = fields.Enum(data_key="approval_type", enum=PackageApprovalType, required=False)

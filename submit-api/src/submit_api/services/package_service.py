@@ -692,7 +692,8 @@ class PackageService:
         cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
 
         # Update package status from submissions for work-related packages
-        if package.account_project_work_id:
+        # Only update if the package is not already acknowledged
+        if package.account_project_work_id and PackageStatus.ACKNOWLEDGED not in package.status:
             PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
 
         return package
@@ -1049,6 +1050,9 @@ class PackageService:
         if PackageStatus.APPROVED in package.status:
             raise BadRequestError(
                 "Cannot create an update request for a package that has been approved")
+        if PackageStatus.ACCEPTED in package.status:
+            raise BadRequestError(
+                "Cannot create an update request for a package that has been accepted")
         if PackageStatus.REJECTED in package.status:
             raise BadRequestError(
                 "Cannot create an update request for a package that has been rejected")

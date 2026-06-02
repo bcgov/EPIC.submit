@@ -6,61 +6,17 @@ import {
 } from "@/models/Submission";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { Box, Chip, Stack, SxProps, Theme } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { BCDesignTokens, EAOColors } from "epic.theme";
+import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
+import { BCDesignTokens } from "epic.theme";
 import React, { ReactNode, useMemo } from "react";
 
-// 1. Define reusable base styles/themes
-const baseSx: SxProps<Theme> = {
-  borderRadius: 1,
-  height: "24px",
-  px: 1,
-  "& .MuiChip-label": {
-    overflow: "visible",
-  },
-};
-
-const themes = {
-  success: {
-    border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
-    background: BCDesignTokens.supportSurfaceColorSuccess,
-  },
-  info: {
-    border: `1px solid ${BCDesignTokens.themeBlue100}`,
-    background: BCDesignTokens.themeBlue20,
-  },
-  warning: {
-    border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-    background: BCDesignTokens.supportSurfaceColorWarning,
-  },
-  danger: {
-    border: `1px solid ${BCDesignTokens.supportBorderColorDanger}`,
-    background: BCDesignTokens.supportSurfaceColorDanger,
-  },
-  orange: {
-    border: `1px solid #F18A15`,
-    background: "#FFDEB8",
-  },
-  purple: {
-    border: `1px solid #9B6BDA`,
-    background: "#F6E4FF",
-  },
-  neutral: {
-    border: `1px solid ${BCDesignTokens.surfaceColorBorderMedium}`,
-    background: BCDesignTokens.surfaceColorSecondaryButtonDisabled,
-  },
-  decision: {
-    border: `1px solid ${EAOColors.DecisionDark}`,
-    background: EAOColors.DecisionLight,
-  },
-};
-
-// 2. Map statuses to labels and themes
+// Map statuses to labels and themes
 type StyleProps = {
   label: string;
-  theme: keyof typeof themes;
+  theme: StatusChipTheme;
   icon?: ReactNode;
 };
 
@@ -142,6 +98,10 @@ const statusMap: Record<string, StyleProps> = {
     theme: "warning",
   },
   PARTIALLY_COMPLETED: { label: "Partially Completed", theme: "warning" },
+  FLAGGED_FOR_UPDATE: {
+    label: "Flagged for Update",
+    theme: "warning",
+  },
 
   NEW_SUBMISSION: { label: "New Submission", theme: "decision" },
   NEW: { label: "New", theme: "decision" },
@@ -178,16 +138,11 @@ export function SubmissionStatusChip({
     return null;
   }
 
-  const sx: SxProps<Theme> = {
-    ...baseSx,
-    ...(config.theme ? themes[config.theme] : {}),
-  };
-
   return (
-    <Chip
-      sx={sx}
+    <StatusChip
       label={config.label}
-      icon={config.icon as React.ReactElement}
+      theme={config.theme}
+      icon={config.icon}
     />
   );
 }
@@ -197,15 +152,22 @@ type SubmissionStatusChipStackProps = {
   isUpdateRequested?: boolean;
   isUpdated?: boolean;
   packageStatus?: PackageStatus[];
+  showOnlyUpdateChips?: boolean;
+  isFlaggedForUpdate?: boolean;
 };
 export const SubmissionStatusChipStack = ({
   status,
   isUpdateRequested = false,
   isUpdated = false,
   packageStatus,
+  showOnlyUpdateChips = false,
+  isFlaggedForUpdate = false,
 }: SubmissionStatusChipStackProps) => {
   const { userType } = useAccount();
   const hideStatus = useMemo(() => {
+    if (showOnlyUpdateChips) {
+      return true;
+    }
     if (userType === USER_TYPE.STAFF) {
       return status === SUBMISSION_ITEM_STATUS.SUBMITTED.value;
     } else if (userType === USER_TYPE.PROPONENT) {
@@ -215,7 +177,7 @@ export const SubmissionStatusChipStack = ({
       );
     }
     return false;
-  }, [status, packageStatus, userType]);
+  }, [status, packageStatus, userType, showOnlyUpdateChips]);
   return (
     <Box sx={{ display: "inline-block" }}>
       <Stack
@@ -228,6 +190,11 @@ export const SubmissionStatusChipStack = ({
         }}
       >
         {!hideStatus && status && <SubmissionStatusChip status={status} />}
+        {isFlaggedForUpdate && (
+          <SubmissionStatusChip
+            status={NON_CANONICAL_SUBMISSION_STATUS.FLAGGED_FOR_UPDATE}
+          />
+        )}
         {isUpdateRequested && !isUpdated && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}

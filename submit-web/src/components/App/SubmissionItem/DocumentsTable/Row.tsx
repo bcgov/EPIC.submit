@@ -1,4 +1,5 @@
-import { TableRow, IconButton, Chip, Typography } from "@mui/material";
+import { TableRow, IconButton, Typography } from "@mui/material";
+import { StatusChip } from "@/components/Shared/StatusChip";
 import {
   Submission,
   SUBMISSION_STATUS,
@@ -227,17 +228,16 @@ export default function Row({
         {isGeoSpatial && (
           <SubmitTableCell align="center">
             {geoUpload ? (
-              <Chip
+              <StatusChip
                 label={geoUpload.status.toUpperCase()}
-                color={
+                theme={
                   geoUpload.status === "ready"
                     ? "success"
                     : geoUpload.status === "processing"
                       ? "warning"
-                      : "error"
+                      : "danger"
                 }
-                variant="outlined"
-                size="small"
+                sx={{ fontSize: "12px" }}
               />
             ) : (
               <Typography variant="body2" color="textSecondary">

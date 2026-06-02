@@ -1,4 +1,4 @@
-import { Chip } from "@mui/material";
+import { StatusChip } from "@/components/Shared/StatusChip";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import React from "react";
 
@@ -43,15 +43,15 @@ export function SubmissionBadge({ variant, className }: SubmissionBadgeProps) {
   const config = badgeConfigs[variant];
 
   return (
-    <Chip
+    <StatusChip
       icon={config.icon}
       label={config.label}
       className={className}
+      customColors={{
+        background: config.backgroundColor,
+        border: config.borderColor,
+      }}
       sx={{
-        height: "24px",
-        borderRadius: "2px",
-        backgroundColor: config.backgroundColor,
-        border: `1px solid ${config.borderColor}`,
         color: config.textColor,
         fontSize: "12px",
         fontWeight: 400,
