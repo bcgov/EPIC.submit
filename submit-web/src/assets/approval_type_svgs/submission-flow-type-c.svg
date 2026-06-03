@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1660 490" font-family="'BC Sans', 'Noto Sans', Verdana, Arial, sans-serif" role="img" aria-labelledby="tc-title tc-desc">
+  <title id="tc-title">Type C submission flow: Initial Project Description and Revised Application</title>
+  <desc id="tc-desc">Two-actor flow with three EAO stages: Verification, Acknowledgement, and an Approval decision. After Acknowledged the package becomes Ready for Approval; the actual approval decision happens outside EPIC.submit. Terminal status is Accepted. If Refused, the Regulated Party must revise and resubmit.</desc>
+
+  <style>
+    .ttl     { fill: #013366; font-size: 18px; font-weight: 700; }
+    .sub     { fill: #606060; font-size: 12px; }
+    .lane    { fill: #909090; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+    .badge   { font-size: 13px; font-weight: 400; fill: #2d2d2d; }
+    .item    { font-size: 13px; font-weight: 400; fill: #2d2d2d; }
+    .verify  { font-size: 12px; font-weight: 500; fill: #013366; }
+    .helper  { font-size: 11px; fill: #606060; }
+    .helperS { font-size: 11px; fill: #606060; }
+    .cap     { fill: #1F5F2A; font-size: 13px; font-weight: 600; }
+    .leg     { fill: #2d2d2d; font-size: 12px; }
+    .legk    { fill: #013366; font-size: 12px; font-weight: 700; }
+    .ext     { fill: #6A1B9A; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+    .refuse  { fill: #B12A2A; font-size: 12px; font-style: italic; }
+  </style>
+
+  <rect x="0" y="0" width="1660" height="4" fill="#7B1FA2"/>
+
+  <text x="24" y="36" class="ttl">Type C: Initial Project Description / Revised Application</text>
+  <text x="24" y="56" class="sub">Verification, acknowledgement, and an approval decision. The approval workflow happens outside EPIC.submit.</text>
+
+  <!-- ============================================
+       FLOW STRIP
+       9 steps. Widths chosen so item rows fit:
+         1: Created               130
+         2: New Submission        130
+         3: Internal Verification 170 (with item row)
+         4: Verified              130
+         5: Pending Ack           220 (with item row containing Acknowledged)
+         6: Ready for Ack         190
+         7: Acknowledged          150
+         8: Ready for Approval    180 (in EXTERNAL box)
+         9: Accepted              130
+       Sum: 1430 + 8 arrows × 22 = 1606. Pad 24 each side. viewBox 1620 (extra 14 right).
+       Step starts: 24, 176, 328, 520, 672, 914, 1126, 1316, 1466
+       Wait — recompute starts:
+         step1 x=24, w=130, ends=154, +arrow22 → next=176
+         step2 x=176, w=130, ends=306, → next=328
+         step3 x=328, w=170, ends=498, → next=520
+         step4 x=520, w=130, ends=650, → next=672
+         step5 x=672, w=220, ends=892, → next=914
+         step6 x=914, w=190, ends=1104, → next=1126
+         step7 x=1126, w=150, ends=1276, → next=1298
+         step8 x=1298, w=180, ends=1478, → next=1500
+         step9 x=1500, w=130, ends=1630
+       Need viewBox >= 1654. Use 1660.
+       ============================================ -->
+
+  <rect x="14" y="80" width="148" height="200" rx="10" fill="#FFFAEC" stroke="#FCE9B6"/>
+  <text x="24" y="98" class="lane">Regulated Party</text>
+
+  <rect x="170" y="80" width="1472" height="200" rx="10" fill="#F4F8FC" stroke="#D6E2EF"/>
+  <text x="180" y="98" class="lane">EAO</text>
+
+  <!-- ===== STEP 1 (RP): Created (130) ===== -->
+  <g transform="translate(24, 110)">
+    <text x="0" y="0" class="helper">Creates package</text>
+    <rect x="0" y="14" width="130" height="24" rx="4" fill="#FFF4D6" stroke="#FCBA19"/>
+    <text x="65" y="31" text-anchor="middle" class="badge">Created</text>
+    <text x="0" y="64" class="helper">Submits to EAO</text>
+  </g>
+  <path d="M156 168 L174 168" stroke="#888" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 2 (EAO): New Submission (130) ===== -->
+  <g transform="translate(176, 110)">
+    <text x="0" y="0" class="helper">EAO receives</text>
+    <rect x="0" y="14" width="130" height="24" rx="4" fill="#F3E8FF" stroke="#D8B4FE"/>
+    <text x="65" y="31" text-anchor="middle" class="badge">New Submission</text>
+    <text x="0" y="64" class="helper">Package opened</text>
+  </g>
+  <path d="M308 168 L326 168" stroke="#888" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 3 (EAO): Internal Verification (170) + items ===== -->
+  <g transform="translate(328, 110)">
+    <text x="0" y="0" class="helper">Receivability check</text>
+    <rect x="0" y="14" width="170" height="24" rx="4" fill="#FEF1D8" stroke="#F8BB47"/>
+    <text x="85" y="31" text-anchor="middle" class="badge">Internal Verification</text>
+    <g transform="translate(0, 56)">
+      <rect x="0" y="0" width="60" height="24" rx="4" fill="#fff" stroke="#013366"/>
+      <text x="30" y="17" text-anchor="middle" class="verify">Verify</text>
+      <path d="M66 12 L78 12" stroke="#888" stroke-width="1.2" fill="none" marker-end="url(#arrowSm)"/>
+      <rect x="82" y="0" width="86" height="24" rx="4" fill="#F6FFF8" stroke="#42814A"/>
+      <path d="M89 12 l4 4 l8 -8" stroke="#2e8540" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="125" y="17" text-anchor="middle" class="item">Verified</text>
+    </g>
+  </g>
+  <path d="M500 168 L518 168" stroke="#888" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 4 (EAO): Verified (intermediate) (130) ===== -->
+  <g transform="translate(520, 110)">
+    <text x="0" y="0" class="helper">All items verified</text>
+    <rect x="0" y="14" width="130" height="24" rx="4" fill="#F6FFF8" stroke="#42814A"/>
+    <text x="65" y="31" text-anchor="middle" class="badge">Verified</text>
+    <text x="0" y="64" class="helper">Begin acknowledgement</text>
+  </g>
+  <path d="M652 168 L670 168" stroke="#888" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 5 (EAO): Pending Acknowledgement (220) + items ===== -->
+  <g transform="translate(672, 110)">
+    <text x="0" y="0" class="helper">Deeper review per document</text>
+    <rect x="0" y="14" width="220" height="24" rx="4" fill="#DAD4E8" stroke="#6a54a3"/>
+    <text x="110" y="31" text-anchor="middle" class="badge">Pending Acknowledgement</text>
+    <g transform="translate(0, 56)">
+      <rect x="0" y="0" width="86" height="24" rx="4" fill="#F6FFF8" stroke="#42814A"/>
+      <path d="M7 12 l4 4 l8 -8" stroke="#2e8540" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="50" y="17" text-anchor="middle" class="item">Verified</text>
+      <path d="M92 12 L104 12" stroke="#888" stroke-width="1.2" fill="none" marker-end="url(#arrowSm)"/>
+      <rect x="108" y="0" width="112" height="24" rx="4" fill="#F6FFF8" stroke="#42814A"/>
+      <path d="M118 12 l4 4 l8 -8" stroke="#2e8540" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="170" y="17" text-anchor="middle" class="item">Acknowledged</text>
+    </g>
+  </g>
+  <path d="M894 168 L912 168" stroke="#888" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 6 (EAO): Ready for Acknowledgment (190) ===== -->
+  <g transform="translate(914, 110)">
+    <text x="0" y="0" class="helper">All items acknowledged</text>
+    <rect x="0" y="14" width="190" height="24" rx="4" fill="#F6FFF8" stroke="#42814A"/>
+    <text x="95" y="31" text-anchor="middle" class="badge">Ready for Acknowledgment</text>
+    <text x="0" y="64" class="helper">Awaiting manual trigger</text>
+  </g>
+  <path d="M1106 168 L1124 168" stroke="#888" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 7 (EAO): Acknowledged (intermediate) (150) ===== -->
+  <g transform="translate(1126, 110)">
+    <text x="0" y="0" class="helper">EAO clicks Acknowledge</text>
+    <rect x="0" y="14" width="124" height="24" rx="4" fill="#F6FFF8" stroke="#42814A"/>
+    <text x="62" y="31" text-anchor="middle" class="badge">Acknowledged</text>
+    <text x="0" y="64" class="helper">Automated email sent</text>
+  </g>
+  <path d="M1278 168 L1296 168" stroke="#888" stroke-width="1.5" fill="none" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 8 (EAO): Ready for Approval (180) wrapped in EXTERNAL box ===== -->
+  <rect x="1288" y="86" width="200" height="200" rx="10" fill="none" stroke="#7B1FA2" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="1388" y="80" text-anchor="middle" class="ext">Outside EPIC.submit</text>
+
+  <g transform="translate(1298, 110)">
+    <text x="0" y="0" class="helper">Awaiting approval</text>
+    <rect x="0" y="14" width="180" height="24" rx="4" fill="#DAD4E8" stroke="#6a54a3"/>
+    <text x="90" y="31" text-anchor="middle" class="badge">Ready for Approval</text>
+    <text x="0" y="58" class="helperS">Approval workflow runs</text>
+    <text x="0" y="74" class="helperS">externally (for example,</text>
+    <text x="0" y="90" class="helperS">CEAO sign-off, Management</text>
+    <text x="0" y="106" class="helperS">Plan review).</text>
+    <text x="0" y="130" class="helperS">Decision returns:</text>
+  </g>
+  <path d="M1488 168 L1500 168" stroke="#7B1FA2" stroke-width="1.5" fill="none" stroke-dasharray="3 3" marker-end="url(#arrowP)"/>
+
+  <!-- ===== STEP 9 (EAO): Accepted (TERMINAL) (130) ===== -->
+  <g transform="translate(1500, 110)">
+    <text x="0" y="0" class="helper">Decision recorded</text>
+    <rect x="0" y="14" width="130" height="24" rx="4" fill="#F6FFF8" stroke="#42814A" stroke-width="2"/>
+    <text x="65" y="31" text-anchor="middle" class="badge">Accepted</text>
+    <text x="65" y="64" text-anchor="middle" class="cap">Terminal for Type C</text>
+  </g>
+
+  <!-- ============================================
+       LEGEND
+       ============================================ -->
+  <line x1="24" y1="320" x2="1636" y2="320" stroke="#E0E0E0"/>
+
+  <text x="24" y="346" class="legk">Verification</text>
+  <text x="24" y="364" class="leg">Quick internal check that each document is receivable: correct file, not password protected, matches what was expected. Internal to EAO; not visible to the Regulated Party.</text>
+
+  <text x="24" y="392" class="legk">Acknowledgement</text>
+  <text x="24" y="410" class="leg">Deeper review confirming each document delivers the substantive content required for the submission. Once the package is acknowledged, an automated email is sent to the Regulated Party and both sides see the package marked Acknowledged.</text>
+
+  <text x="24" y="438" class="legk">Approval</text>
+  <text x="24" y="456" class="leg">Official decision (Accepted or Refused) made outside EPIC.submit, for example by CEAO sign-off or Management Plan review. The result is logged on the submission record.</text>
+
+  <text x="24" y="474" class="refuse">If the submission is Refused, the Regulated Party must revise and resubmit a new version of the package.</text>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#888"/>
+    </marker>
+    <marker id="arrowSm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#888"/>
+    </marker>
+    <marker id="arrowP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7B1FA2"/>
+    </marker>
+  </defs>
+</svg>
