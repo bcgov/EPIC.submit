@@ -17,7 +17,11 @@ function OidcCallback() {
   const baseProponentPath = "/proponent";
 
   const account = useAccount();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const {
+    isAuthenticated,
+    signoutSilent,
+    isLoading: isAuthLoading,
+  } = useAuth();
 
   if (account.isLoading || isAuthLoading) {
     return <PageLoader />;
@@ -39,6 +43,7 @@ function OidcCallback() {
   }
 
   if (account?.error?.status === HTTP_STATUS.NOT_FOUND) {
+    signoutSilent();
     return <Navigate to="/need-access" />;
   }
 
