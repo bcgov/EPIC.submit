@@ -35,6 +35,7 @@ export const useGetAllProponents = () => {
 type GetProponentOptions = {
   includeProjects?: boolean;
   includeInvitations?: boolean;
+  includeEligibilityEntries?: boolean;
   includeAdministrators?: boolean;
 };
 
@@ -48,6 +49,9 @@ const getProponent = (
   }
   if (options.includeInvitations) {
     params["include-invitations"] = String(Boolean(options.includeInvitations));
+  }
+  if (options.includeEligibilityEntries) {
+    params["include-eligibility-entries"] = String(Boolean(options.includeEligibilityEntries));
   }
   if (options.includeAdministrators) {
     params["include-administrators"] = String(
@@ -73,11 +77,12 @@ export const getProponentOptions = (
 export const useGetProponent = (
   proponentId: number,
   options: GetProponentOptions = {},
+  queryOptions?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: [QUERY_KEY.PROPONENT, proponentId],
+    queryKey: [QUERY_KEY.PROPONENT, proponentId, options],
     queryFn: () => getProponent(Number(proponentId), options),
-    enabled: !!proponentId,
+    enabled: queryOptions?.enabled ?? !!proponentId,
     staleTime: 30 * 60 * 1000, // 30 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes
   });
@@ -94,7 +99,7 @@ const enableProponentProjects = ({
     url: `proponents/${proponentId}/projects`,
     method: "post",
     data: {
-      projects: projectIds
+      eligibility_entry_ids: projectIds
     },
   });
 };

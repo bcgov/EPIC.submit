@@ -7,10 +7,14 @@ import { ProjectsTable } from "./ProjectsTable";
 
 export const EligibleProjectsTable = () => {
   const proponent = useProponentStore((state) => state.proponent);
-  const eligibleProjects = useProponentStore((state) => state.eligibleProjects);
+
   const pendingInvitation = useProponentStore((state) => state.pendingInvitation);
   const isLoading = useProponentStore((state) => state.isLoading);
   const isError = useProponentStore((state) => state.isError);
+  const eligibleEntries = useProponentStore((state) => state.eligibleEntries);
+
+
+  const hasEligibleItems = eligibleEntries.length > 0;
 
   return (
     <>
@@ -29,7 +33,7 @@ export const EligibleProjectsTable = () => {
           </Tooltip>
         }
       />
-      {proponent?.status == "ONBOARDED" && eligibleProjects.length > 0 && (
+      {proponent?.status == "ONBOARDED" && hasEligibleItems && (
         <Typography
           variant="body1"
           sx={{
@@ -43,7 +47,7 @@ export const EligibleProjectsTable = () => {
           The Account Administrator(s) for ${proponent?.name} will receive an email to inform them they can now access and submit documents for this project.`}
         </Typography>
       )}
-      {proponent?.status == "INELIGIBLE" || eligibleProjects.length == 0 ? (
+      {proponent?.status == "INELIGIBLE" || !hasEligibleItems ? (
         <Box
           sx={{
             mt: BCDesignTokens.layoutMarginXlarge,
@@ -64,8 +68,10 @@ export const EligibleProjectsTable = () => {
         </Box>
       ) : (
         <ProjectsTable
-          projects={eligibleProjects}
-          pendingProjectIds={pendingInvitation?.project_ids}
+          
+          entries={eligibleEntries}
+          
+          pendingEntryIds={(pendingInvitation as any)?.eligibility_entry_ids}
           isLoading={isLoading}
           isError={isError}
           sx={{

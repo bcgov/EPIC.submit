@@ -31,6 +31,16 @@ export const RegistrationUrl = ({
   const selectedProjectsIds = useProponentStore(
     (state) => state.selectedProjectsIds,
   );
+  const selectedEntryIds = useProponentStore(
+    (state) => state.selectedEntryIds,
+  );
+  const eligibleEntries = useProponentStore(
+    (state) => state.eligibleEntries,
+  );
+  
+  // Use eligibility entry IDs if available, otherwise fall back to legacy project IDs
+  const useEntries = selectedEntryIds.length > 0;
+  const selectedIds = useEntries ? selectedEntryIds : selectedProjectsIds;
 
   const { proponentId } = useParams({
     from: "/staff/_staffLayout/proponents/$proponentId",
@@ -73,15 +83,49 @@ export const RegistrationUrl = ({
   };
 
   const handleGenerateUrlClick = () => {
-    if (selectedProjectsIds.length === 0) {
+    if (selectedIds.length === 0) {
       openConfirmationModal();
       return;
     }
-    createInvitation({
-      proponent_id: proponentId,
-      project_ids: selectedProjectsIds,
-      role_name: USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
-    });
+    
+    if (useEntries) {
+      // New format: build project_selections from eligibility entries data
+      const selectedEntries = eligibleEntries.filter(entry => selectedEntryIds.includes(entry.id));
+      const projectSelectionsMap = new Map<number, { work_ids: number[], non_work_item_types: string[] }>();
+      
+      selectedEntries.forEach(entry => {
+        if (!projectSelectionsMap.has(entry.project_id)) {
+          projectSelectionsMap.set(entry.project_id, { work_ids: [], non_work_item_types: [] });
+        }
+        
+        const selection = projectSelectionsMap.get(entry.project_id)!;
+        
+        if (entry.work_id) {
+          selection.work_ids.push(entry.work_id);
+        } else if (entry.non_work_item_type) {
+          selection.non_work_item_types.push(entry.non_work_item_type);
+        }
+      });
+      
+      const project_selections = Array.from(projectSelectionsMap.entries()).map(([project_id, selection]) => ({
+        project_id,
+        work_ids: selection.work_ids.length > 0 ? selection.work_ids : undefined,
+        non_work_item_types: selection.non_work_item_types.length > 0 ? selection.non_work_item_types : undefined,
+      }));
+      
+      createInvitation({
+        proponent_id: proponentId,
+        project_selections,
+        role_name: USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
+      });
+    } else {
+      // Legacy format: send project_ids
+      createInvitation({
+        proponent_id: proponentId,
+        project_ids: selectedProjectsIds,
+        role_name: USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
+      });
+    }
   };
 
   const { mutate: renewInvitation, isPending: isRenewingInvitation } =

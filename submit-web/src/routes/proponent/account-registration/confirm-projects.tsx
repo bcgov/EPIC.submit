@@ -4,9 +4,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Fragment } from "react/jsx-runtime";
 import { useMemo } from "react";
 import { Grid } from "@mui/material";
-import { useLoadProjectsByProponentId } from "@/hooks/api/useProjects";
-import { ProjectCard } from "@/components/App/AccountRegistration/ProjectCard";
+import { useGetProponent } from "@/hooks/api/useProponents";
+import { EligibilityEntryCard } from "@/components/App/AccountRegistration/EligibilityEntryCard";
 import ProjectConfirmationForm from "@/components/App/AccountRegistration/ProjectConfirmationForm";
+import { EligibilityEntry } from "@/store/proponentStore";
 
 export const Route = createFileRoute(
   "/proponent/account-registration/confirm-projects"
@@ -16,18 +17,44 @@ export const Route = createFileRoute(
 
 function ConfirmProjects() {
   const { entityName, invitation } = useCreateAccountFormStore();
-  const { data: projects } = useLoadProjectsByProponentId(
-    invitation?.proponent_id
+  const { data: proponent } = useGetProponent(
+    invitation?.proponent_id ?? 0,
+    {
+      includeEligibilityEntries: true,
+    },
+    {
+      enabled: !!invitation?.proponent_id,
+    }
   );
 
-  const filteredProjects = useMemo(() => {
-    if (!projects || !invitation?.project_ids || invitation.project_ids.length === 0) {
+  const eligibilityEntries = useMemo(() => {
+    if (!proponent || !invitation?.project_selections || invitation.project_selections.length === 0) {
       return [];
     }
-    return projects.filter((project) =>
-      invitation.project_ids.includes(project.id)
-    );
-  }, [projects, invitation?.project_ids]);
+    
+    const rawEntries = (proponent as any).eligibility_entries || [];
+    const entries: EligibilityEntry[] = rawEntries.map((entry: any) => ({
+      ...entry,
+      id: entry.work_id
+        ? `${entry.project_id}:work:${entry.work_id}`
+        : `${entry.project_id}:non_work:${entry.non_work_item_type}`,
+    }));
+
+    // Filter entries based on project_selections
+    return entries.filter((entry) => {
+      const selection = invitation.project_selections?.find(
+        (ps) => ps.project_id === entry.project_id
+      );
+      if (!selection) return false;
+
+      if (entry.work_id) {
+        return selection.work_ids?.includes(entry.work_id);
+      } else {
+        const nonWorkType = entry.non_work_item_type;
+        return nonWorkType ? selection.non_work_item_types?.includes(nonWorkType) ?? false : false;
+      }
+    });
+  }, [proponent, invitation?.project_selections]);
 
   return (
     <>
@@ -35,14 +62,14 @@ function ConfirmProjects() {
         mainTitle="Project Account(s)"
         subTitle={
           <Fragment>
-            We found the following Project(s) associated with {entityName}.
+            We found the following Project(s)/Work(s) associated with {entityName}.
           </Fragment>
         }
       />
       <Grid container spacing={3} mb={6}>
-        {filteredProjects.map((project) => (
-          <Grid item key={project.id}>
-            <ProjectCard key={project.id} project={project} />
+        {eligibilityEntries.map((entry) => (
+          <Grid item key={entry.id}>
+            <EligibilityEntryCard entry={entry} />
           </Grid>
         ))}
       </Grid>

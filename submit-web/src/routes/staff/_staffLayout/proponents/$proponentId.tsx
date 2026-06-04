@@ -27,8 +27,8 @@ export const Route = createFileRoute(
   loader: ({ context: { queryClient }, params: { proponentId } }) =>
     queryClient.ensureQueryData(
       getProponentOptions(Number(proponentId), {
-        includeProjects: true,
         includeInvitations: true,
+        includeEligibilityEntries: true,
         includeAdministrators: true,
       }),
     ),
@@ -73,14 +73,14 @@ function ProponentPage() {
     refetch,
   } = useSuspenseQuery(
     getProponentOptions(proponentId, {
-      includeProjects: true,
       includeInvitations: true,
+      includeEligibilityEntries: true,
       includeAdministrators: true,
     }),
   );
 
   // Zustand store actions
-  const { eligibleProjects, setProponent, setIsLoading, setIsError, reset } =
+  const { eligibleEntries, setProponent, setIsLoading, setIsError, reset } =
     useProponentStore();
 
   // Sync query data to store
@@ -134,10 +134,10 @@ function ProponentPage() {
             </Typography>
           )}
           <EligibleProjectsTable />
-          {proponent?.status == "ONBOARDED" && eligibleProjects.length > 0 && (
+          {proponent?.status == "ONBOARDED" && eligibleEntries.length > 0 && (
             <EnableProjectsButton onEnableProjects={refetch} />
           )}
-          {proponent?.status != "ONBOARDED" && eligibleProjects.length > 0 && (
+          {proponent?.status != "ONBOARDED" && eligibleEntries.length > 0 && (
             <RegistrationUrl onInvitationCreated={refetch} />
           )}
           <ContactsSection

@@ -59,25 +59,41 @@ export const useCreateNewAccountProjectInvitation = (options?: Options) => {
   });
 };
 
+type ProjectSelection = {
+  project_id: number;
+  work_ids?: number[];
+  non_work_item_types?: string[];
+};
+
 type CreateNewAccountProjectInvitation = {
   proponent_id: number;
   role_name: string;
-  project_ids: (string | number)[];
+  project_ids?: (string | number)[]; // Legacy - for backward compatibility
+  project_selections?: ProjectSelection[]; // New - structured project selections
 };
 
 const createNewAccountProjectInvitation = ({
   proponent_id,
   project_ids,
+  project_selections,
   role_name,
 }: CreateNewAccountProjectInvitation) => {
+  const data: any = {
+    proponent_id,
+    role_name,
+  };
+  
+  // Send project_selections if provided, otherwise fall back to legacy project_ids
+  if (project_selections) {
+    data.project_selections = project_selections;
+  } else if (project_ids) {
+    data.project_ids = project_ids;
+  }
+  
   return submitRequest({
     url: `/invitations/account`,
     method: "post",
-    data: {
-      proponent_id,
-      role_name,
-      project_ids,
-    },
+    data,
   });
 };
 

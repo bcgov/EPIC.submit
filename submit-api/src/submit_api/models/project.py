@@ -50,6 +50,7 @@ class Project(db.Model):
             "name": self.name,
             "proponent_id": self.proponent_id,
             "proponent": self.proponent.to_dict() if self.proponent else None,
+            "has_approved_condition": self.has_approved_condition,
             "works": [work.to_dict() for work in self.works],
             "ea_certificate": self.ea_certificate,
             "epic_guid": self.epic_guid,

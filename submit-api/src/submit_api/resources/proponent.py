@@ -88,12 +88,14 @@ class Proponent(Resource):
         """Get a proponent by id."""
         include_invitations = request.args.get("include-invitations", "false").lower() == "true"
         include_projects = request.args.get("include-projects", "false").lower() == "true"
+        include_eligibility_entries = request.args.get("include-eligibility-entries", "false").lower() == "true"
         include_administrators = request.args.get("include-administrators", "false").lower() == "true"
         proponent = ProponentService.get_proponent(
             proponent_id,
-            include_invitations,
-            include_projects,
-            include_administrators,
+            include_invitations=include_invitations,
+            include_projects=include_projects,
+            include_eligibility_entries=include_eligibility_entries,
+            include_administrators=include_administrators,
         )
         if not proponent:
             raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
@@ -123,5 +125,9 @@ class ProponentProject(Resource):
         """Create new account_project(s) for proponent."""
         payload = EnableProponentProjectsSchema().load(request.json)
         ProponentService.add_eligible_account_projects(proponent_id, payload)
-        proponent = ProponentService.get_proponent(proponent_id, True, True)
+        proponent = ProponentService.get_proponent(
+            proponent_id,
+            include_invitations=True,
+            include_projects=True
+        )
         return proponent, HTTPStatus.CREATED

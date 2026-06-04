@@ -1,22 +1,33 @@
 import { Invitation, InvitationStatus } from "@/models/Invitation";
-import { Project } from "@/models/Project";
 import { Proponent } from "@/models/Proponent";
 import { create } from "zustand";
 
+export interface EligibilityEntry {
+  id: string; // Created in frontend: "projectId:work:workId" or "projectId:non_work:TYPE"
+  project_id: number;
+  project_name: string;
+  work_id?: number;
+  non_work_item_type?: string;
+  current_work: string;
+  current_phase: string;
+  is_onboarded: boolean; // Whether project is onboarded
+  is_enabled: boolean; // Whether this specific entry is enabled
+}
+
 interface ProponentState {
   proponent: Proponent | null;
-  selectedProjectsIds: (string | number)[];
+  selectedEntryIds: string[];
   isLoading: boolean;
   isError: boolean;
 
   // Computed/derived properties
-  onboardedProjects: Project[];
-  eligibleProjects: Project[];
+  onboardedEntries: EligibilityEntry[];
+  eligibleEntries: EligibilityEntry[];
   pendingInvitation: Invitation | undefined;
 
   // Actions
   setProponent: (proponent: Proponent | null) => void;
-  setSelectedProjectsIds: (ids: (string | number)[]) => void;
+  setSelectedEntryIds: (ids: string[]) => void;
   setIsLoading: (loading: boolean) => void;
   setIsError: (error: boolean) => void;
   reset: () => void;
@@ -24,12 +35,12 @@ interface ProponentState {
 
 const initialState = {
   proponent: null,
-  selectedProjectsIds: [],
+  selectedEntryIds: [],
   isLoading: false,
   isError: false,
   pendingInvitation: undefined,
-  onboardedProjects: [],
-  eligibleProjects: [],
+  onboardedEntries: [],
+  eligibleEntries: [],
 };
 
 export const useProponentStore = create<ProponentState>((set) => ({
@@ -53,29 +64,32 @@ export const useProponentStore = create<ProponentState>((set) => ({
                   new Date(a.expiry_date).getTime(),
               )[0];
 
-      const accountProjectIds = new Set(
-        proponent.account_projects?.map((ap) => ap.project_id) || [],
-      );
+      // Eligibility entries logic
+      const rawEntries = (proponent as any).eligibility_entries || [];
+      const entries: EligibilityEntry[] = rawEntries.map((entry: any) => ({
+        ...entry,
+        id: entry.work_id
+          ? `${entry.project_id}:work:${entry.work_id}`
+          : `${entry.project_id}:non_work:${entry.non_work_item_type}`,
+      }));
 
-      const onboardedProjects = (proponent.projects || [])
-        .filter((project) => accountProjectIds.has(project.id))
-        .sort((a, b) => a.name.localeCompare(b.name));
+      const eligibleEntries = entries.filter((e) => !e.is_onboarded);
+      const onboardedEntries = entries.filter((e) => e.is_onboarded && e.is_enabled);
 
-      const eligibleProjects =
-        proponent.status != "ONBOARDED"
-          ? (proponent.projects || []).filter((project) => project.is_eligible)
-          : (proponent.projects || [])
-              .filter((project) => !accountProjectIds.has(project.id))
-              .filter((project) => project.is_eligible)
-              .sort((a, b) => a.name.localeCompare(b.name));
-
-      set({ pendingInvitation, onboardedProjects, eligibleProjects });
+      set({
+        pendingInvitation,
+        onboardedEntries,
+        eligibleEntries,
+      });
     } else {
-      set({ onboardedProjects: [], eligibleProjects: [] });
+      set({
+        onboardedEntries: [],
+        eligibleEntries: [],
+      });
     }
   },
 
-  setSelectedProjectsIds: (selectedProjectsIds) => set({ selectedProjectsIds }),
+  setSelectedEntryIds: (selectedEntryIds) => set({ selectedEntryIds }),
   setIsLoading: (isLoading) => set({ isLoading }),
   setIsError: (isError) => set({ isError }),
   reset: () => set(initialState),
