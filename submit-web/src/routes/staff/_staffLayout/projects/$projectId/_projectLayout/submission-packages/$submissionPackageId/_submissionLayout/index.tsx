@@ -62,6 +62,7 @@ export default function SubmissionPage() {
     isLoading,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
+    hasAnyApprovedPackageVersion,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,
@@ -201,11 +202,9 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
-                  mb:
-                    isLatestApprovedPackageVersion ||
-                    isNewerThanLastApprovedButNotApproved
-                      ? 0
-                      : BCDesignTokens.layoutMarginXlarge,
+                  mb: hasAnyApprovedPackageVersion
+                    ? 0
+                    : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={managementPlanName} />
@@ -244,7 +243,13 @@ export default function SubmissionPage() {
                   </Typography>
                 </SuccessBox>
               </When>
-              <When condition={isNewerThanLastApprovedButNotApproved}>
+              <When
+                condition={
+                  !isLatestApprovedPackageVersion &&
+                  hasAnyApprovedPackageVersion &&
+                  !isNewerThanLastApprovedButNotApproved
+                }
+              >
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
@@ -255,8 +260,8 @@ export default function SubmissionPage() {
                     variant="body2"
                     color={BCDesignTokens.typographyColorPrimary}
                   >
-                    Please Note: This submission is still pending EAO review.
-                    Until finalized, it is not considered enforceable.
+                    This version has failed review, or has been replaced with a
+                    newer version.
                   </Typography>
                 </WarningBox>
               </When>
