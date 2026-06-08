@@ -63,24 +63,19 @@ export default function SubmissionPage() {
     enabled: Boolean(submissionPackage?.version?.original_package_id),
   });
 
-  const isLatestApprovedPackageVersion = packageVersions?.find(
-    (packageVersion) =>
-      packageVersion.is_approved &&
-      packageVersion.package_id === submissionPackageId,
+  const currentPackageVersion = packageVersions?.find(
+    (pv) => pv.package_id === submissionPackageId,
   );
 
-  const latestApprovedVersion = Math.max(
-    ...(packageVersions
-      ?.filter((pv) => pv.is_approved)
-      .map((pv) => pv.version) || [0]),
+  const hasAnyApprovedPackageVersion = packageVersions?.some(
+    (pv) => pv.is_approved,
   );
 
-  const isNewerThanLastApprovedButNotApproved = Boolean(
-    (latestApprovedVersion > 0 &&
-      !submissionPackage?.version?.is_approved &&
-      submissionPackage?.version?.version) ??
-      0 > latestApprovedVersion,
-  );
+  const isLatestApprovedPackageVersion =
+    currentPackageVersion?.is_latest && currentPackageVersion?.is_approved;
+
+  const isNewerThanLastApprovedButNotApproved =
+    currentPackageVersion?.is_latest && !currentPackageVersion?.is_approved;
 
   const navigate = useNavigate();
 
@@ -143,11 +138,9 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
-                  mb:
-                    isLatestApprovedPackageVersion ||
-                    isNewerThanLastApprovedButNotApproved
-                      ? 0
-                      : BCDesignTokens.layoutMarginXlarge,
+                  mb: hasAnyApprovedPackageVersion
+                    ? 0
+                    : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={managementPlanName} />
@@ -186,7 +179,13 @@ export default function SubmissionPage() {
                   </Typography>
                 </SuccessBox>
               </When>
-              <When condition={isNewerThanLastApprovedButNotApproved}>
+              <When
+                condition={
+                  !isLatestApprovedPackageVersion &&
+                  hasAnyApprovedPackageVersion &&
+                  !isNewerThanLastApprovedButNotApproved
+                }
+              >
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
@@ -197,8 +196,8 @@ export default function SubmissionPage() {
                     variant="body2"
                     color={BCDesignTokens.typographyColorPrimary}
                   >
-                    Please Note: This submission is still pending EAO review.
-                    Until finalized, it is not considered enforceable.
+                    This version has failed review, or has been replaced with a
+                    newer version.
                   </Typography>
                 </WarningBox>
               </When>
