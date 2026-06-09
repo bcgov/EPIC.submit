@@ -31,4 +31,5 @@ class EnableProponentProjectsSchema(Schema):
 
         unknown = EXCLUDE
 
-    projects = fields.List(fields.Int(), data_key="projects")
+    projects = fields.List(fields.Int(), data_key="projects", required=False)
+    eligibility_entry_ids = fields.List(fields.Str(), data_key="eligibility_entry_ids", required=False)

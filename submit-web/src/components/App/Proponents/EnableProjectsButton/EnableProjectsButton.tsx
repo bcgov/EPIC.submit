@@ -24,8 +24,8 @@ export const EnableProjectsButton = ({
   } = useModal();
 
   const proponent = useProponentStore((state) => state.proponent);
-  const selectedProjectsIds = useProponentStore((state) => state.selectedProjectsIds);
-  const eligibleProjects = useProponentStore((state) => state.eligibleProjects);
+  const selectedEntryIds = useProponentStore((state) => state.selectedEntryIds);
+  const eligibleEntries = useProponentStore((state) => state.eligibleEntries);
 
   const { mutate: enableProjects, isPending: isEnablingProjects } =
     useEnableProponentProject({
@@ -44,7 +44,7 @@ export const EnableProjectsButton = ({
         onConfirm={() => {
           enableProjects({
             proponentId: proponentId,
-            projectIds: selectedProjectsIds,
+            projectIds: selectedEntryIds,
           });
         }}
         title="Enable Project/Work in EPIC.submit"
@@ -54,15 +54,15 @@ export const EnableProjectsButton = ({
               You will be enabling the following Project(s)/Work(s) in EPIC.submit:
             </Typography>
             <List>
-              {eligibleProjects
-                .filter(project => selectedProjectsIds.includes(project.id))
-                .map(project => (
+              {eligibleEntries
+                .filter(entry => selectedEntryIds.includes(entry.id))
+                .map(entry => (
                   <ListItem
-                    key={project.id}
+                    key={entry.id}
                     sx={{ m: 0, py: 0 }}
                   >
                     <ListItemText
-                      primary={"- " + project.name}
+                      primary={"- " + entry.project_name + " - " + entry.current_work}
                       primaryTypographyProps={{
                         fontWeight: 'bold',
                         lineHeight: 1.2,
@@ -95,7 +95,7 @@ export const EnableProjectsButton = ({
   };
       
   const handleClick = () => {
-    if (selectedProjectsIds.length === 0) {
+    if (selectedEntryIds.length === 0) {
       openErrorModal();
       return;
     }

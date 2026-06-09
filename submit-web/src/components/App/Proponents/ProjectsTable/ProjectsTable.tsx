@@ -1,39 +1,40 @@
 import { Column, DataTable } from "@/components/Shared/DataTable";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { Project } from "@/models/Project";
 import { TableProps } from "@mui/material";
 import { useEffect } from "react";
-import { useProponentStore } from "@/store/proponentStore";
+import { useProponentStore, EligibilityEntry } from "@/store/proponentStore";
 
 type ProjectsTableProps = TableProps & {
-  projects?: Project[];
-  pendingProjectIds?: number[];
+  entries?: EligibilityEntry[];
+  pendingEntryIds?: string[];
   isLoading?: boolean;
   isError?: boolean;
-  selectedProjectsIds?: (string | number)[]; // Can be overridden for read-only tables
+  selectedEntryIds?: string[];
   readonly?: boolean;
 };
 
 export const ProjectsTable = ({
-  projects = [],
-  pendingProjectIds = [],
+  entries = [],
+  pendingEntryIds,
   isLoading = false,
   isError = false,
-  selectedProjectsIds: externalSelectedProjectsIds,
+  selectedEntryIds: externalSelectedEntryIds,
   readonly = false,
   ...tableProps
 }: ProjectsTableProps) => {
   // Use store for selection unless explicitly overridden (for read-only tables like OnboardedProjectsTable)
-  const storeSelectedProjectsIds = useProponentStore(
-    (state) => state.selectedProjectsIds,
+  const storeSelectedEntryIds = useProponentStore(
+    (state) => state.selectedEntryIds,
   );
-  const setSelectedProjectsIds = useProponentStore(
-    (state) => state.setSelectedProjectsIds,
+  const setSelectedEntryIds = useProponentStore(
+    (state) => state.setSelectedEntryIds,
   );
 
-  const selectedProjectsIds =
-    externalSelectedProjectsIds ?? storeSelectedProjectsIds;
-  const onSelectionChange = readonly ? undefined : setSelectedProjectsIds;
+  const selectedEntryIds =
+    externalSelectedEntryIds ?? storeSelectedEntryIds;
+  
+  // Type-safe selection change handler
+  const onEntrySelectionChange = readonly ? undefined : setSelectedEntryIds;
 
   useEffect(() => {
     if (isError) {
@@ -41,31 +42,32 @@ export const ProjectsTable = ({
     }
   }, [isError]);
 
-  const columns: Column<Project>[] = [
+  // Columns for EligibilityEntry format
+  const entryColumns: Column<EligibilityEntry>[] = [
     {
       id: "name",
       label: "Projects",
       sortable: true,
-      getValue: (row) => row.name,
+      getValue: (row) => row.project_name,
     },
     {
       id: "current_work",
       label: "Current Work",
       sortable: true,
-      getValue: (row) => row.works?.at(-1)?.current_phase?.work_type_name,
+      getValue: (row) => row.current_work,
     },
     {
       id: "phase",
       label: "Phase",
       sortable: true,
-      getValue: (row) => row.works?.at(-1)?.current_phase?.display_name,
+      getValue: (row) => row.current_phase,
     },
   ];
 
   return (
     <DataTable
-      columns={columns}
-      data={projects}
+      columns={entryColumns}
+      data={entries}
       isLoading={isLoading}
       isError={isError}
       errorMessage="Error fetching projects"
@@ -75,9 +77,9 @@ export const ProjectsTable = ({
       paginated={false}
       tableProps={tableProps}
       selectable
-      selected={selectedProjectsIds}
-      onSelectionChange={onSelectionChange}
-      successfulRows={pendingProjectIds}
+      selected={selectedEntryIds}
+      onSelectionChange={onEntrySelectionChange as any}
+      successfulRows={pendingEntryIds}
     />
   );
 };

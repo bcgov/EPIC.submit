@@ -5,3 +5,8 @@ export enum SubmissionPackageType {
   ENGAGEMENT_PLAN = "Engagement Plan",
   GEOSPATIAL_INFORMATION = "Geospatial Information",
 }
+
+export enum NonWorkItemType {
+  MANAGEMENT_PLAN = 'MANAGEMENT_PLAN',
+  REPORT = 'REPORT',
+}

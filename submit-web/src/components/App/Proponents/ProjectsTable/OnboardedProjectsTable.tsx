@@ -4,19 +4,19 @@ import { BCDesignTokens } from "epic.theme";
 import { useProponentStore } from "@/store/proponentStore";
 
 export const OnboardedProjectsTable = () => {
-  const onboardedProjects = useProponentStore((state) => state.onboardedProjects);
+  const onboardedEntries = useProponentStore((state) => state.onboardedEntries);
   const isLoading = useProponentStore((state) => state.isLoading);
   const isError = useProponentStore((state) => state.isError);
 
-  const onboardedProjectsIds = onboardedProjects?.map(op => op.id);
+  const onboardedEntryIds = onboardedEntries?.map(e => e.id);
 
   return (
     <>
       <BarBlueTitle title="Onboarded Project(s)/Works" bold={false} variant="h5" />
       <ProjectsTable
-        projects={onboardedProjects}
-        pendingProjectIds={onboardedProjectsIds}
-        selectedProjectsIds={onboardedProjectsIds}
+        entries={onboardedEntries}
+        pendingEntryIds={onboardedEntryIds}
+        selectedEntryIds={onboardedEntryIds}
         readonly
         isLoading={isLoading}
         isError={isError}

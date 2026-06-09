@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 
 from flask import current_app
 
+from submit_api.enums.non_work_item import NonWorkItemType
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.enums.work_type import WorkTypeName
@@ -12,6 +13,7 @@ from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import User
 from submit_api.models.account import Account as AccountModel
+from submit_api.models.account_project_non_work import AccountProjectNonWork
 from submit_api.models.account_project_work import AccountProjectWork
 from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.db import session_scope
@@ -61,6 +63,13 @@ class InvitationService:
         return None
 
     @staticmethod
+    def _get_project_ids_from_invitation(invitation):
+        """Extract project IDs from invitation (supports both legacy and new formats)."""
+        if invitation.eligible_entries:
+            return [ps['project_id'] for ps in invitation.eligible_entries]
+        return invitation.project_ids or []
+
+    @staticmethod
     def _check_action_authorized(project_ids, account_projects=None, permissions=None):
         """Check if the user has permissions on the provided project IDs."""
         if not account_projects:
@@ -83,13 +92,23 @@ class InvitationService:
             raise ValueError("Invalid invitation data provided.")
 
         # Ensure required fields are present
-        required_fields = ['role_name', 'project_ids', 'proponent_id']
+        required_fields = ['role_name', 'proponent_id']
         for field in required_fields:
             if field not in invite_data:
                 raise ValueError(f"Missing required field: {field}")
 
-        # Check for existing account_projects
+        # Support both legacy project_ids and new eligible_entries
+        eligible_entries = invite_data.get('eligible_entries')
         project_ids = invite_data.get('project_ids')
+
+        if not project_ids and not eligible_entries:
+            raise ValueError("Either project_ids or eligible_entries must be provided")
+
+        # Extract project_ids from eligible_entries for validation
+        if eligible_entries and not project_ids:
+            project_ids = [ps['project_id'] for ps in eligible_entries]
+
+        # Check for existing account_projects
         existing_account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
         if existing_account_projects:
             raise BadRequestError("Invitation cannot be created for an existing account project.")
@@ -206,11 +225,14 @@ class InvitationService:
             account_user = InvitationService._create_account_user(
                 user.id, invitation.account_id, payload, session)
 
+            # Extract project IDs (supports both legacy and new formats)
+            project_ids = InvitationService._get_project_ids_from_invitation(invitation)
+
             # Create account projects if they don't exist (handles concurrent invitations gracefully)
             InvitationService.get_or_create_account_projects(
-                invitation.account_id, invitation.project_ids, session)
+                invitation.account_id, project_ids, session)
 
-            account_projects = AccountProjectModel.get_all_in_project_ids(invitation.project_ids)
+            account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
             roles = []
             for account_project in account_projects:
                 # Assign user role
@@ -218,26 +240,15 @@ class InvitationService:
                     account_user.id, account_project.id, invitation, session)
                 roles.append(role)
 
-                # Create account_project_work
-                works = TrackWork.find_by_project_id(account_project.project_id)
-                account_project_works = []
-                for work in works:
-                    if work.current_phase.enable_submit:
-                        account_project_work = AccountProjectWork.get_or_create(account_project.id, work.id)
-                        account_project_works.append(account_project_work)
+                # Process eligible_entries if available, otherwise use legacy logic
+                account_project_works = InvitationService._process_eligible_entries(
+                    account_project, invitation, session
+                )
 
-                # Create default submission package (if required by EAO)
-                # This portion needs to be revisited to work for any phase, not just Early Engagement
-                if any(
-                    apw.work.is_in_specific_phase('Early Engagement', WorkTypeName.ASSESSMENT)
-                    for apw in account_project_works
-                ):
-                    PackageService.create_first_package(account_project.id, {
-                        "type": "IPD",
-                        "name": "Initial Project Description & Engagement Plan",
-                        "status": [PackageStatus.NEW.value],
-                        "metadata": {}
-                    })
+                # Create default submission package if needed
+                InvitationService._create_default_package_if_needed(
+                    account_project_works, account_project
+                )
 
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
@@ -266,7 +277,8 @@ class InvitationService:
         if not invitation:
             return None
 
-        InvitationService._check_action_authorized(invitation.project_ids)
+        project_ids = InvitationService._get_project_ids_from_invitation(invitation)
+        InvitationService._check_action_authorized(project_ids)
         InvitationService._validate_invitation_access(invitation)
         return invitation
 
@@ -338,9 +350,17 @@ class InvitationService:
         """Create and persist an invitation record."""
         expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
         is_first_time = not account.account_users
+
+        # Auto-populate project_ids from eligible_entries if not provided
+        project_ids = invite_data.get('project_ids', [])
+        eligible_entries = invite_data.get('eligible_entries')
+        if not project_ids and eligible_entries:
+            project_ids = [ps['project_id'] for ps in eligible_entries]
+
         invitation = InvitationsModel(
             account_id=account.id,
-            project_ids=invite_data.get('project_ids', []),
+            project_ids=project_ids,
+            eligible_entries=eligible_entries,
             token=token,
             email=invite_data.get('email'),
             created_by=invite_data.get('created_by'),
@@ -401,6 +421,84 @@ class InvitationService:
         }
 
     @staticmethod
+    def _process_eligible_entries(account_project, invitation, session):
+        """Process eligible entries for an account project (new or legacy format)."""
+        if invitation.eligible_entries:
+            # New format: use eligible_entries to create specific work and non-work links
+            project_selection = next(
+                (ps for ps in invitation.eligible_entries if ps['project_id'] == account_project.project_id),
+                None
+            )
+            if project_selection:
+                account_project_works = InvitationService._process_work_selections(
+                    account_project, project_selection, session
+                )
+                InvitationService._process_non_work_selections(
+                    account_project, project_selection, session
+                )
+                return account_project_works
+            return []
+        # Legacy format: create account_project_work for all enabled works
+        return InvitationService._process_legacy_work_selections(account_project, session)
+
+    @staticmethod
+    def _process_work_selections(account_project, project_selection, session):
+        """Process work selections for an account project."""
+        account_project_works = []
+        work_ids = project_selection.get('work_ids', [])
+        for work_id in work_ids:
+            work = TrackWork.find_by_id(work_id)
+            if work and work.current_phase and work.current_phase.enable_submit:
+                account_project_work = AccountProjectWork.get_or_create(
+                    account_project.id, work_id, session
+                )
+                account_project_works.append(account_project_work)
+        return account_project_works
+
+    @staticmethod
+    def _process_non_work_selections(account_project, project_selection, session):
+        """Process non-work item selections for an account project."""
+        non_work_item_types = project_selection.get('non_work_item_types', [])
+        for non_work_type_str in non_work_item_types:
+            try:
+                non_work_type = NonWorkItemType[non_work_type_str]
+                if non_work_type == NonWorkItemType.MANAGEMENT_PLAN:
+                    project = account_project.project
+                    if project.has_approved_condition:
+                        AccountProjectNonWork.get_or_create(
+                            account_project.id, non_work_type, session
+                        )
+            except (KeyError, AttributeError):
+                continue
+
+    @staticmethod
+    def _process_legacy_work_selections(account_project, session):
+        """Process legacy work selections (all enabled works) for an account project."""
+        account_project_works = []
+        works = TrackWork.find_by_project_id(account_project.project_id)
+        for work in works:
+            if work and work.current_phase and work.current_phase.enable_submit:
+                account_project_work = AccountProjectWork.get_or_create(
+                    account_project.id, work.id, session
+                )
+                account_project_works.append(account_project_work)
+        return account_project_works
+
+    @staticmethod
+    def _create_default_package_if_needed(account_project_works, account_project):
+        """Create default submission package if required by EAO."""
+        if any(
+            apw.work.is_in_specific_phase('Early Engagement', WorkTypeName.ASSESSMENT)
+            for apw in account_project_works
+        ):
+            PackageService.create_first_package(account_project.id, {
+                "type": "IPD",
+                "name": "Initial Project Description & Engagement Plan",
+                "status": [PackageStatus.NEW.value],
+                "metadata": {}
+            })
+
+    @staticmethod
     def _update_proponent_status_by_account(account_id, status):
         """Update proponent status using account_id."""
         account = InvitationService._get_account_by_id(account_id)
@@ -448,7 +546,8 @@ class InvitationService:
         """Revoke an invitation by updating its status."""
         invitation = InvitationsModel.find_pending_by_token(token)
         if invitation:
-            InvitationService._check_action_authorized(invitation.project_ids)
+            project_ids = InvitationService._get_project_ids_from_invitation(invitation)
+            InvitationService._check_action_authorized(project_ids)
             invitation.status = InvitationStatus.REVOKED.value
             InvitationsModel.commit()
             return True
@@ -463,7 +562,8 @@ class InvitationService:
             if not invitation or invitation.status != InvitationStatus.PENDING.value:
                 return False
 
-            InvitationService._check_action_authorized(invitation.project_ids)
+            project_ids = InvitationService._get_project_ids_from_invitation(invitation)
+            InvitationService._check_action_authorized(project_ids)
 
             # Extend expiry date by 1 week from current date
             invitation.expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(weeks=1)
@@ -480,7 +580,8 @@ class InvitationService:
         invitation = InvitationsModel.find_by_id(invitation_id)
         if invitation:
             # TODO: Check invitation is PENDING or REVOKED once cron job is finalized
-            InvitationService._check_action_authorized(invitation.project_ids)
+            project_ids = InvitationService._get_project_ids_from_invitation(invitation)
+            InvitationService._check_action_authorized(project_ids)
             invitation.status = InvitationStatus.PENDING.value
             expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
             invitation.expiry_date = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=expiry_days)

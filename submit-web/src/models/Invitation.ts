@@ -9,7 +9,13 @@ export enum InvitationStatus {
 export type Invitation = {
   id: number;
   account_id: number;
-  project_ids: number[];
+  /** @deprecated Use eligible_entries instead */
+  project_ids?: number[];
+  eligible_entries?: Array<{
+    project_id: number;
+    work_ids?: number[];
+    non_work_item_types?: string[];
+  }>;
   token: string;
   email: string;
   status: string;
