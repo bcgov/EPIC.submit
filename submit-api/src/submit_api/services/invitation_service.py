@@ -65,8 +65,8 @@ class InvitationService:
     @staticmethod
     def _get_project_ids_from_invitation(invitation):
         """Extract project IDs from invitation (supports both legacy and new formats)."""
-        if invitation.project_selections:
-            return [ps['project_id'] for ps in invitation.project_selections]
+        if invitation.eligible_entries:
+            return [ps['project_id'] for ps in invitation.eligible_entries]
         return invitation.project_ids or []
 
     @staticmethod
@@ -97,16 +97,16 @@ class InvitationService:
             if field not in invite_data:
                 raise ValueError(f"Missing required field: {field}")
 
-        # Support both legacy project_ids and new project_selections
-        project_selections = invite_data.get('project_selections')
+        # Support both legacy project_ids and new eligible_entries
+        eligible_entries = invite_data.get('eligible_entries')
         project_ids = invite_data.get('project_ids')
 
-        if not project_ids and not project_selections:
-            raise ValueError("Either project_ids or project_selections must be provided")
+        if not project_ids and not eligible_entries:
+            raise ValueError("Either project_ids or eligible_entries must be provided")
 
-        # Extract project_ids from project_selections for validation
-        if project_selections and not project_ids:
-            project_ids = [ps['project_id'] for ps in project_selections]
+        # Extract project_ids from eligible_entries for validation
+        if eligible_entries and not project_ids:
+            project_ids = [ps['project_id'] for ps in eligible_entries]
 
         # Check for existing account_projects
         existing_account_projects = AccountProjectModel.get_all_in_project_ids(project_ids)
@@ -240,8 +240,8 @@ class InvitationService:
                     account_user.id, account_project.id, invitation, session)
                 roles.append(role)
 
-                # Process project_selections if available, otherwise use legacy logic
-                account_project_works = InvitationService._process_project_selections(
+                # Process eligible_entries if available, otherwise use legacy logic
+                account_project_works = InvitationService._process_eligible_entries(
                     account_project, invitation, session
                 )
 
@@ -351,16 +351,16 @@ class InvitationService:
         expiry_days = current_app.config['INVITATION_EXPIRY_DAYS']
         is_first_time = not account.account_users
 
-        # Auto-populate project_ids from project_selections if not provided
+        # Auto-populate project_ids from eligible_entries if not provided
         project_ids = invite_data.get('project_ids', [])
-        project_selections = invite_data.get('project_selections')
-        if not project_ids and project_selections:
-            project_ids = [ps['project_id'] for ps in project_selections]
+        eligible_entries = invite_data.get('eligible_entries')
+        if not project_ids and eligible_entries:
+            project_ids = [ps['project_id'] for ps in eligible_entries]
 
         invitation = InvitationsModel(
             account_id=account.id,
             project_ids=project_ids,
-            project_selections=project_selections,
+            eligible_entries=eligible_entries,
             token=token,
             email=invite_data.get('email'),
             created_by=invite_data.get('created_by'),
@@ -421,12 +421,12 @@ class InvitationService:
         }
 
     @staticmethod
-    def _process_project_selections(account_project, invitation, session):
-        """Process project selections for an account project (new or legacy format)."""
-        if invitation.project_selections:
-            # New format: use project_selections to create specific work and non-work links
+    def _process_eligible_entries(account_project, invitation, session):
+        """Process eligible entries for an account project (new or legacy format)."""
+        if invitation.eligible_entries:
+            # New format: use eligible_entries to create specific work and non-work links
             project_selection = next(
-                (ps for ps in invitation.project_selections if ps['project_id'] == account_project.project_id),
+                (ps for ps in invitation.eligible_entries if ps['project_id'] == account_project.project_id),
                 None
             )
             if project_selection:

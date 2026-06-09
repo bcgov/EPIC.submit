@@ -26,7 +26,7 @@ class Invitations(BaseModel):
     project_ids = Column(ARRAY(Integer), nullable=False)
     package_ids = Column(ARRAY(Integer), nullable=True)
     original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs
-    project_selections = Column(JSON, nullable=True)  # Structured project/work/non-work selections
+    eligible_entries = Column(JSON, nullable=True)  # Structured project/work/non-work selections
     token = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), nullable=True)  # Optional email for client
     status = Column(String(50), default=InvitationStatus.PENDING.value, nullable=False)
@@ -56,7 +56,7 @@ class Invitations(BaseModel):
             "id": self.id,
             "account_id": self.account_id,
             "project_ids": self.project_ids,
-            "project_selections": self.project_selections,
+            "eligible_entries": self.eligible_entries,
             "package_ids": self.package_ids,
             "original_package_ids": self.original_package_ids,
             "token": self.token,

@@ -28,7 +28,7 @@ function ConfirmProjects() {
   );
 
   const eligibilityEntries = useMemo(() => {
-    if (!proponent || !invitation?.project_selections || invitation.project_selections.length === 0) {
+    if (!proponent || !invitation?.eligible_entries || invitation.eligible_entries.length === 0) {
       return [];
     }
     
@@ -40,9 +40,9 @@ function ConfirmProjects() {
         : `${entry.project_id}:non_work:${entry.non_work_item_type}`,
     }));
 
-    // Filter entries based on project_selections
+    // Filter entries based on eligible_entries
     return entries.filter((entry) => {
-      const selection = invitation.project_selections?.find(
+      const selection = invitation.eligible_entries?.find(
         (ps) => ps.project_id === entry.project_id
       );
       if (!selection) return false;
@@ -54,7 +54,7 @@ function ConfirmProjects() {
         return nonWorkType ? selection.non_work_item_types?.includes(nonWorkType) ?? false : false;
       }
     });
-  }, [proponent, invitation?.project_selections]);
+  }, [proponent, invitation?.eligible_entries]);
 
   return (
     <>

@@ -25,9 +25,9 @@ class CreateNewAccountInvitationSchema(Schema):
     proponent_id = fields.Int(required=True, metadata={"description": "Proponent ID"})
     role_name = fields.Str(required=True, metadata={"description": "Role Name"})
     project_ids = fields.List(
-        fields.Int(), required=False, metadata={"description": "DEPRECATED: Use project_selections instead"}
+        fields.Int(), required=False, metadata={"description": "DEPRECATED: Use eligible_entries instead"}
     )
-    project_selections = fields.List(
+    eligible_entries = fields.List(
         fields.Nested(ProjectSelectionSchema),
         required=False,
         allow_none=True,
@@ -69,7 +69,7 @@ class InvitationSchema(Schema):
     id = fields.Int()
     account_id = fields.Int()
     project_ids = fields.List(fields.Int(), allow_none=True)
-    project_selections = fields.List(
+    eligible_entries = fields.List(
         fields.Nested(ProjectSelectionSchema),
         allow_none=True,
         metadata={"description": "Structured project selections with works and non-work items"}

@@ -89,16 +89,16 @@ export const RegistrationUrl = ({
     }
     
     if (useEntries) {
-      // New format: build project_selections from eligibility entries data
+      // New format: build eligible_entries from eligibility entries data
       const selectedEntries = eligibleEntries.filter(entry => selectedEntryIds.includes(entry.id));
-      const projectSelectionsMap = new Map<number, { work_ids: number[], non_work_item_types: string[] }>();
+      const eligibleEntriesMap = new Map<number, { work_ids: number[], non_work_item_types: string[] }>();
       
       selectedEntries.forEach(entry => {
-        if (!projectSelectionsMap.has(entry.project_id)) {
-          projectSelectionsMap.set(entry.project_id, { work_ids: [], non_work_item_types: [] });
+        if (!eligibleEntriesMap.has(entry.project_id)) {
+          eligibleEntriesMap.set(entry.project_id, { work_ids: [], non_work_item_types: [] });
         }
         
-        const selection = projectSelectionsMap.get(entry.project_id)!;
+        const selection = eligibleEntriesMap.get(entry.project_id)!;
         
         if (entry.work_id) {
           selection.work_ids.push(entry.work_id);
@@ -107,7 +107,7 @@ export const RegistrationUrl = ({
         }
       });
       
-      const project_selections = Array.from(projectSelectionsMap.entries()).map(([project_id, selection]) => ({
+      const eligible_entries = Array.from(eligibleEntriesMap.entries()).map(([project_id, selection]) => ({
         project_id,
         work_ids: selection.work_ids.length > 0 ? selection.work_ids : undefined,
         non_work_item_types: selection.non_work_item_types.length > 0 ? selection.non_work_item_types : undefined,
@@ -115,7 +115,7 @@ export const RegistrationUrl = ({
       
       createInvitation({
         proponent_id: proponentId,
-        project_selections,
+        eligible_entries,
         role_name: USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
       });
     } else {

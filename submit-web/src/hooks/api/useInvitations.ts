@@ -69,13 +69,13 @@ type CreateNewAccountProjectInvitation = {
   proponent_id: number;
   role_name: string;
   project_ids?: (string | number)[]; // Legacy - for backward compatibility
-  project_selections?: ProjectSelection[]; // New - structured project selections
+  eligible_entries?: ProjectSelection[]; // New - structured project selections
 };
 
 const createNewAccountProjectInvitation = ({
   proponent_id,
   project_ids,
-  project_selections,
+  eligible_entries,
   role_name,
 }: CreateNewAccountProjectInvitation) => {
   const data: any = {
@@ -83,9 +83,9 @@ const createNewAccountProjectInvitation = ({
     role_name,
   };
   
-  // Send project_selections if provided, otherwise fall back to legacy project_ids
-  if (project_selections) {
-    data.project_selections = project_selections;
+  // Send eligible_entries if provided, otherwise fall back to legacy project_ids
+  if (eligible_entries) {
+    data.eligible_entries = eligible_entries;
   } else if (project_ids) {
     data.project_ids = project_ids;
   }
