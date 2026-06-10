@@ -49,7 +49,6 @@ export default function ActionSplitButton({
           fontWeight: 400,
           color: "#036",
           borderColor: "#036",
-          backgroundColor: "transparent",
           textTransform: "none",
           px: 1.5,
           borderRadius: "3px",
@@ -86,7 +85,6 @@ export default function ActionSplitButton({
             fontSize: "12px",
             fontWeight: 400,
             color: "#036",
-            backgroundColor: "transparent",
             textTransform: "none",
             px: 1.5,
             "&:hover": {
