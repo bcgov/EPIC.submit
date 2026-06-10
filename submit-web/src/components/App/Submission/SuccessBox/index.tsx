@@ -37,7 +37,6 @@ export const SubmissionSuccessBox = ({
           <Link href={`mailto:${AppConfig.supportEmail}`}>
             {AppConfig.supportEmail}
           </Link>
-          .
         </Typography>
       </Box>
     </Box>
