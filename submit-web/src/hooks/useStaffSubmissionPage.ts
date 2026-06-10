@@ -110,22 +110,19 @@ export function useStaffSubmissionPage({
 
   const approval_type = submissionPackage?.type.approval_type;
 
-  const isLatestApprovedPackageVersion = packageVersions?.find(
-    (pv) => pv.is_approved && pv.package_id === submissionPackageId,
+  const currentPackageVersion = packageVersions?.find(
+    (pv) => pv.package_id === submissionPackageId,
   );
 
-  const latestApprovedVersion = Math.max(
-    ...(packageVersions
-      ?.filter((pv) => pv.is_approved)
-      .map((pv) => pv.version) || [0]),
+  const hasAnyApprovedPackageVersion = packageVersions?.some(
+    (pv) => pv.is_approved,
   );
 
-  const isNewerThanLastApprovedButNotApproved = Boolean(
-    (latestApprovedVersion > 0 &&
-      !submissionPackage?.version?.is_approved &&
-      submissionPackage?.version?.version) ??
-    0 > latestApprovedVersion,
-  );
+  const isLatestApprovedPackageVersion =
+    currentPackageVersion?.is_latest && currentPackageVersion?.is_approved;
+
+  const isNewerThanLastApprovedButNotApproved =
+    currentPackageVersion?.is_latest && !currentPackageVersion?.is_approved;
 
   const isReadyForAcknowledgement = useMemo(
     () =>
@@ -183,6 +180,7 @@ export function useStaffSubmissionPage({
     isLoading,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
+    hasAnyApprovedPackageVersion,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,
