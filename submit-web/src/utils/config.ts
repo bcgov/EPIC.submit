@@ -51,7 +51,8 @@ const GEO_DOC_URL =
 const GEO_DOC_FILES =
   window._env_?.VITE_GEO_DOC_FILES || import.meta.env.VITE_GEO_DOC_FILES || "";
 
-const SUPPORT_EMAIL = "EAO.ManagementPlanSupport@gov.bc.ca";
+const SUPPORT_MP_EMAIL = "EAO.ManagementPlanSupport@gov.bc.ca";
+const SUPPORT_IPD_EMAIL = "EAO.emailaddress@gov.bc.ca";
 
 export const AppConfig = {
   apiUrl: `${API_URL}`,
@@ -63,7 +64,8 @@ export const AppConfig = {
   appTitle: APP_TITLE,
   appUrl: APP_URL,
   clientId: CLIENT_ID,
-  supportEmail: SUPPORT_EMAIL,
+  supportMpEmail: SUPPORT_MP_EMAIL,
+  supportIpdEmail: SUPPORT_IPD_EMAIL,
   userGuide: USER_GUIDE,
   geoDocUrl: GEO_DOC_URL,
   geoDocFiles: GEO_DOC_FILES,
