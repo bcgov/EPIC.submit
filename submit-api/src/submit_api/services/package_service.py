@@ -796,6 +796,17 @@ class PackageService:
             session.flush()
             return package
 
+    @staticmethod
+    def _has_open_update_requests(package):
+        """Check if package has open or pending review update requests."""
+        return any(
+            ur.active and ur.status in [
+                UpdateRequestStatus.OPEN.value,
+                UpdateRequestStatus.PENDING_REVIEW.value
+            ]
+            for ur in package.update_requests
+        )
+
     @classmethod
     def approve_package(cls, package_id):
         """Approve the package."""
@@ -803,6 +814,13 @@ class PackageService:
             package = cls.get_package_by_id(package_id)
             if not package:
                 raise BadRequestError("Package not found")
+
+            # Check for open update requests
+            if cls._has_open_update_requests(package):
+                raise BadRequestError(
+                    "Package cannot be approved while there are open update requests. "
+                    "Please accept or withdraw all update requests first."
+                )
 
             # Approve all documents
             for item in package.items:
@@ -823,6 +841,13 @@ class PackageService:
             package = cls.get_package_by_id(package_id)
             if not package:
                 raise BadRequestError("Package not found")
+
+            # Check for open update requests
+            if cls._has_open_update_requests(package):
+                raise BadRequestError(
+                    "Package cannot be rejected while there are open update requests. "
+                    "Please accept or withdraw all update requests first."
+                )
 
             # Remove all document statuses
             for item in package.items:

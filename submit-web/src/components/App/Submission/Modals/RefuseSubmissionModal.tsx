@@ -3,6 +3,7 @@ import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { Warning } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import AlertModal from "@/components/Shared/Modals/AlertModal";
 import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import ControlledDatePicker from "@/components/Shared/ControlledFormFields/ControlledDatePicker";
 import { FormProvider, useForm } from "react-hook-form";
@@ -25,11 +26,15 @@ type RefuseSubmissionForm = yup.InferType<typeof RefuseSubmissionFormSchema>;
 type RefuseSubmissionModalProps = {
   onConfirm: (data: RefuseSubmissionForm) => void;
   onCancel: () => void;
+  hasOpenUpdateRequests?: boolean;
+  openRequestSectionNames?: string[];
 };
 
 const RefuseSubmissionModal = ({
   onConfirm,
   onCancel,
+  hasOpenUpdateRequests = false,
+  openRequestSectionNames = [],
 }: RefuseSubmissionModalProps) => {
   const methods = useForm<RefuseSubmissionForm>({
     resolver: yupResolver(RefuseSubmissionFormSchema),
@@ -40,6 +45,55 @@ const RefuseSubmissionModal = ({
     },
   });
 
+  // Show alert modal when there are open update requests
+  if (hasOpenUpdateRequests) {
+    return (
+      <AlertModal
+        title="Cannot Reject Package"
+        onClose={onCancel}
+        closeText="Close"
+        description={
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              width: "520px",
+            }}
+          >
+            <WarningBox
+              sx={{
+                p: 1.5,
+                border: "0px",
+                borderLeft: `4px solid ${BCDesignTokens.supportBorderColorWarning}`,
+              }}
+            >
+              <Box sx={{ display: "flex", gap: 1.5 }}>
+                <Warning
+                  sx={{ color: BCDesignTokens.supportBorderColorWarning }}
+                />
+                <Box>
+                  <Typography variant="body1" sx={{ fontWeight: 700 }}>
+                    Package will be Locked
+                  </Typography>
+                  <Typography variant="body2">
+                    Package cannot be rejected while there are open update requests.
+                    The following sections have open update requests:{" "}
+                    <b>{openRequestSectionNames.join(", ")}</b>
+                  </Typography>
+                  <Typography variant="body2" sx={{ mt: 1 }}>
+                    Please accept or withdraw all update requests before rejecting this package.
+                  </Typography>
+                </Box>
+              </Box>
+            </WarningBox>
+          </Box>
+        }
+      />
+    );
+  }
+
+  // Show confirmation modal when no blocking requests
   return (
     <ConfirmationModal
       title="Submission package not approved"
