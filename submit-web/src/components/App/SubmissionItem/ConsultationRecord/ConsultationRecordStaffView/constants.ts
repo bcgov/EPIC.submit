@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-export const RadioOptions = {
+export const DropdownOptions = {
   YES: {
     label: "Yes, the holder has passed the Consultation Check",
     value: "YES",
@@ -8,6 +8,10 @@ export const RadioOptions = {
   NO: {
     label: "No, the holder has not passed the Consultation Check",
     value: "NO",
+  },
+  NOT_APPLICABLE: {
+    label: "The Consultation Check is not applicable for this version",
+    value: "NOT_APPLICABLE",
   },
 };
 
@@ -19,20 +23,20 @@ export const consultationSchema = yup.lazy((value = {}) => {
   const hasManagerDecision = !!managerDecision;
 
   const noDecision =
-    staffDecision === RadioOptions.NO.value ||
-    managerDecision === RadioOptions.NO.value;
+    staffDecision === DropdownOptions.NO.value ||
+    managerDecision === DropdownOptions.NO.value;
 
   const updateRequestSchema = noDecision
     ? yup.object().shape({
-        reason: yup.string().required("Reason is required"),
-        submission_item_types: yup
-          .array()
-          .nullable()
-          .required("Submission items are required")
-          .typeError("Submission items are required")
-          .of(yup.number())
-          .min(1, "Please select at least one item"),
-      })
+      reason: yup.string().required("Reason is required"),
+      submission_item_types: yup
+        .array()
+        .nullable()
+        .required("Submission items are required")
+        .typeError("Submission items are required")
+        .of(yup.number())
+        .min(1, "Please select at least one item"),
+    })
     : yup.object().strip(); // remove from validated object if not needed
 
   const baseShape: Record<string, any> = {

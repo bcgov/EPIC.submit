@@ -47,12 +47,17 @@ export type SubmissionItemStatus =
   | "REVISION_REQUESTED"
   | "NO_REVISION_REQUIRED"
   | "UNDER_REVIEW"
+  | "NOT_APPLICABLE"
   | "UNDER_CONSULTATION_CHECK";
 
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
   { value: SubmissionItemStatus; label: string }
 > = {
+  NOT_APPLICABLE: {
+    value: "NOT_APPLICABLE",
+    label: "Not Applicable",
+  },
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
