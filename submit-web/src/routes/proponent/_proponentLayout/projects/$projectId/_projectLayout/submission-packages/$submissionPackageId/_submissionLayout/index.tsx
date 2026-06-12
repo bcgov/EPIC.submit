@@ -79,6 +79,7 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
+  console.log(submissionPackage);
 
   const documentChanges = useDocumentChangeTracking({
     submissionPackage,
@@ -582,11 +583,11 @@ export default function SubmissionPage() {
                 >
                   <WarningBox>
                     <Typography variant="body1">
-                      Your Initial Project Description & Engagement Plan
-                      Submission has been withdrawn. To submit a new Initial
-                      Project Description & Engagement Plan package, select
-                      Package {packageVersions?.at(0)?.version} above, upload
-                      your documents, and click the “Submit to EAO” button.
+                      Your {submissionPackage.name} has been withdrawn. To
+                      submit a new Initial Project Description & Engagement Plan
+                      package, select Package {packageVersions?.at(0)?.version}{" "}
+                      above, upload your documents, and click the “Submit to
+                      EAO” button.
                     </Typography>
                     <Typography variant="body1" mt="20px">
                       If you have any questions, please contact the EAO at{" "}
