@@ -570,6 +570,8 @@ app:
   oidcAuthority: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
   clientId: epic-submit
   conditionsLibraryUrl: https://condition-api-{namespace}.gold.devops.gov.bc.ca/api
+  supportMpEmail: EAO.ManagementPlanSupport@gov.bc.ca
+  supportIpdEmail: EAO.emailaddress@gov.bc.ca
 
 resources:
   cpu:
