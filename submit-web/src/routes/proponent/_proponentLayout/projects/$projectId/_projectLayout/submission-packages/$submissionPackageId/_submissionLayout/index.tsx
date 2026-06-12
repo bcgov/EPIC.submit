@@ -53,7 +53,6 @@ import { useSaveProponentNote } from "@/hooks/api/useUpdateRequests";
 import { useState, useMemo } from "react";
 import { SUBMISSION_TYPE, SUBMISSION_STATUS } from "@/models/Submission";
 
-
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
 )({
@@ -160,12 +159,12 @@ export default function SubmissionPage() {
         status: PACKAGE_STATUS.SUBMITTED.value,
       },
     });
-    
+
     const isResubmission = Boolean(submissionPackage.submitted_on);
     const successMessage = isResubmission
       ? "Your submission package has been resubmitted successfully to the EAO."
       : "Your submission package has been submitted successfully to the EAO.";
-    
+
     notify.success(successMessage, 15000);
   };
 
@@ -198,27 +197,30 @@ export default function SubmissionPage() {
     // Check for new files in update-requested sections for acknowledged packages
     if (isPackageAcknowledged && openRequests.length > 0) {
       const requestedItemTypeIds = new Set<number>();
-      openRequests.forEach(request => {
-        request.submission_item_types.forEach(typeId => {
+      openRequests.forEach((request) => {
+        request.submission_item_types.forEach((typeId) => {
           requestedItemTypeIds.add(typeId);
         });
       });
 
-      const hasNewFilesInRequestedSections = submissionPackage.items.some(item => {
-        if (!requestedItemTypeIds.has(item.type_id)) {
-          return false;
-        }
-        return item.submissions.some(submission => 
-          submission.is_updated && 
-          submission.type === SUBMISSION_TYPE.DOCUMENT && 
-          submission.submitted_document_id !== undefined
-        );
-      });
+      const hasNewFilesInRequestedSections = submissionPackage.items.some(
+        (item) => {
+          if (!requestedItemTypeIds.has(item.type_id)) {
+            return false;
+          }
+          return item.submissions.some(
+            (submission) =>
+              submission.is_updated &&
+              submission.type === SUBMISSION_TYPE.DOCUMENT &&
+              submission.submitted_document_id !== undefined,
+          );
+        },
+      );
 
       if (!hasNewFilesInRequestedSections) {
         notify.warning(
           "You must have at least one new file added to your package to resubmit your submission package.",
-          15000
+          15000,
         );
         return;
       }
@@ -288,7 +290,8 @@ export default function SubmissionPage() {
     const openRequests = submissionPackage.update_requests.filter(
       (updateRequest) =>
         (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
-         updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
+          updateRequest.status ===
+            UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
         updateRequest.active,
     );
 
@@ -357,42 +360,57 @@ export default function SubmissionPage() {
       updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
   );
 
-  const pendingRequests = submissionPackage?.update_requests.filter(
-    (updateRequest) =>
-      updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-      updateRequest.active,
-  ) || [];
+  const pendingRequests =
+    submissionPackage?.update_requests.filter(
+      (updateRequest) =>
+        updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
+        updateRequest.active,
+    ) || [];
 
-  const openRequests = submissionPackage?.update_requests.filter(
-    (updateRequest) =>
-      updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-      updateRequest.active,
-  ) || [];
+  const openRequests =
+    submissionPackage?.update_requests.filter(
+      (updateRequest) =>
+        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+        updateRequest.active,
+    ) || [];
 
   const isPackageAcknowledged = submissionPackage?.status.includes(
-    PACKAGE_STATUS.ACKNOWLEDGED.value
+    PACKAGE_STATUS.ACKNOWLEDGED.value,
   );
 
   // Check if there are any updated items that need to be submitted
   const hasUpdatedItems = submissionPackage?.items.some((item) =>
-    item.submissions.some((submission) => submission.is_updated && submission.status === SUBMISSION_STATUS.PENDING)
+    item.submissions.some(
+      (submission) =>
+        submission.is_updated &&
+        submission.status === SUBMISSION_STATUS.PENDING,
+    ),
   );
-  
+
   const isSubmitDisabled = useMemo(() => {
     if (hasUpdatedItems) {
       return false;
     }
     // Disable if package is submitted with no pending/open requests
-    return (isPackageSubmitted && pendingRequests.length === 0 && openRequests.length === 0) ||
-    // Disable if package is acknowledged with no open requests
-    (isPackageAcknowledged && openRequests.length === 0);
-  }, [isPackageSubmitted, pendingRequests.length, openRequests.length, isPackageAcknowledged, hasUpdatedItems]);
+    return (
+      (isPackageSubmitted &&
+        pendingRequests.length === 0 &&
+        openRequests.length === 0) ||
+      // Disable if package is acknowledged with no open requests
+      (isPackageAcknowledged && openRequests.length === 0)
+    );
+  }, [
+    isPackageSubmitted,
+    pendingRequests.length,
+    openRequests.length,
+    isPackageAcknowledged,
+    hasUpdatedItems,
+  ]);
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to="/error" />;
   }
 
-  
   return (
     <PageGrid>
       <SubmitLoaderBackdrop isOpen={isFetching} />
@@ -558,6 +576,28 @@ export default function SubmissionPage() {
                   </Box>
                 </Case>
                 <Case
+                  condition={submissionPackage.status.includes(
+                    PACKAGE_STATUS.NOT_APPROVED.value,
+                  )}
+                >
+                  <WarningBox>
+                    <Typography variant="body1">
+                      Your {submissionPackage.type.title} has been withdrawn. To
+                      submit a new {submissionPackage.type.title} package,
+                      select Package {packageVersions?.at(0)?.version} above,
+                      upload your documents, and click the “Submit to EAO”
+                      button.
+                    </Typography>
+                    <Typography variant="body1" mt="20px">
+                      If you have any questions, please contact the EAO at{" "}
+                      <Link href={`mailto:${AppConfig.supportIpdEmail}`}>
+                        {AppConfig.supportIpdEmail}
+                      </Link>
+                      .
+                    </Typography>
+                  </WarningBox>
+                </Case>
+                <Case
                   condition={
                     openRequests.length === 0 &&
                     pendingRequests.length === 0 &&
@@ -570,13 +610,12 @@ export default function SubmissionPage() {
                       px: BCDesignTokens.layoutPaddingSmall,
                     }}
                   >
-                    {" "}
                     <Typography variant="body1" color={"black"}>
                       If you have any questions or need to add, replace, or
                       delete documents in your submission, please contact the
                       EAO at{" "}
-                      <Link href={`mailto:${AppConfig.supportEmail}`}>
-                        {AppConfig.supportEmail}
+                      <Link href={`mailto:${AppConfig.supportMpEmail}`}>
+                        {AppConfig.supportMpEmail}
                       </Link>
                       .
                     </Typography>

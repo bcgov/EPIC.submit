@@ -79,8 +79,8 @@ function AddProjects() {
           <Typography variant="body1">
             If you have any questions about the type of documents you can submit
             on EPIC.submit, please contact{" "}
-            <Link href={`mailto:${AppConfig.supportEmail}`}>
-              {AppConfig.supportEmail}
+            <Link href={`mailto:${AppConfig.supportMpEmail}`}>
+              {AppConfig.supportMpEmail}
             </Link>
             .
           </Typography>
@@ -122,10 +122,10 @@ function AddProjects() {
             <WarningBox>
               Please Contact the EAO at
               <Link
-                href={`mailto:${AppConfig.supportEmail}`}
+                href={`mailto:${AppConfig.supportMpEmail}`}
                 sx={{ ml: BCDesignTokens.layoutMarginXsmall }}
               >
-                {AppConfig.supportEmail}
+                {AppConfig.supportMpEmail}
               </Link>
             </WarningBox>
           </Grid>
