@@ -79,7 +79,6 @@ export default function SubmissionPage() {
     packageId: submissionPackageId,
     enabled: Boolean(accountProject?.id),
   });
-  console.log(submissionPackage);
 
   const documentChanges = useDocumentChangeTracking({
     submissionPackage,
