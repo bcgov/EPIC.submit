@@ -19,7 +19,7 @@ from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.auth import auth
+from submit_api.auth import auth, jwt
 from submit_api.models.account_project_search_options import ProjectDocumentSearchOptions
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import (
@@ -52,7 +52,7 @@ class AccountDocuments(Resource):
         code=HTTPStatus.OK, model=document_list_model, description="Get documents"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
+    @auth.require
     @cross_origin(origins=allowedorigins())
     def get():
         """Get all submitted documents."""
@@ -67,6 +67,11 @@ class AccountDocuments(Resource):
         submitted_on_start = args.get('submitted_on_start')
         submitted_on_end = args.get('submitted_on_end')
 
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        if not is_staff:
+            if not project_id:
+                return {"error": "missing project_id"}, HTTPStatus.BAD_REQUEST
+
         search_options = ProjectDocumentSearchOptions(
             project_id=project_id,
             page=page,
@@ -77,6 +82,7 @@ class AccountDocuments(Resource):
             status=status,
             submitted_on_start=submitted_on_start,
             submitted_on_end=submitted_on_end,
+            is_staff=is_staff
         )
         paginated_result = DocumentService.get_documents_paginated(search_options)
 

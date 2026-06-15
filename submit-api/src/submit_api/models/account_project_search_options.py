@@ -34,3 +34,4 @@ class ProjectDocumentSearchOptions:  # pylint: disable=too-many-instance-attribu
     status: List[str] = None
     submitted_on_start: str = None
     submitted_on_end: str = None
+    is_staff: bool = False

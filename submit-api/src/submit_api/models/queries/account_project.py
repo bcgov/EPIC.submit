@@ -136,12 +136,12 @@ class ProjectQueries:
         return query
 
     @classmethod
-    def get_paginated_account_project_ids(cls, account_id: int, page: int, page_size: int,
+    def get_paginated_account_project_ids(cls, page: int, page_size: int,
                                           filtered_package_ids: list = None, user: User = None) -> tuple:
         """Retrieve paginated AccountProject IDs based on filtering."""
         query = db.session.query(AccountProject).join(Project)
 
-        if account_id is not None:
+        if user is not None:
             query = cls._filter_account_projects_by_user_access(query, user)
 
         if filtered_package_ids is None or len(filtered_package_ids) == 0:
@@ -213,7 +213,6 @@ class ProjectQueries:
     @classmethod
     def get_filtered_account_projects_paginated(
             cls,
-            account_id: int = None,
             search_options: AccountProjectSearchOptions = None,
             page: int = None,
             page_size: int = None,
@@ -226,7 +225,7 @@ class ProjectQueries:
 
         filtered_package_ids = cls.get_filtered_package_ids(search_options, user)
 
-        account_project_ids, total = cls.get_paginated_account_project_ids(account_id, page, page_size,
+        account_project_ids, total = cls.get_paginated_account_project_ids(page, page_size,
                                                                            filtered_package_ids, user)
 
         if not account_project_ids:
