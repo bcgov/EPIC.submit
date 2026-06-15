@@ -29,6 +29,7 @@ import { NotificationBox } from "./NotificationBox";
 import NotesSection from "@/components/App/SubmissionItem/NotesSection";
 import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
 import { When } from "react-if";
+import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -156,7 +157,6 @@ export default function ReviewSection() {
                 mb: BCDesignTokens.layoutMarginMedium,
               }}
             />
-            <NotesSection />
             <Typography
               variant="body1"
               sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
@@ -177,7 +177,7 @@ export default function ReviewSection() {
               <>
                 <Typography
                   variant="body1"
-                  sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold, mt: 2 }}
+                  sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
                 >
                   MANAGER'S CONFIRMATION
                 </Typography>
@@ -191,9 +191,11 @@ export default function ReviewSection() {
                 />
               </>
             </PermissionsGate>
+            <UndoTMRecommendationButton submissionItem={submissionItem} />
             <When condition={failedConsultationCheck}>
               <AddRequestSection disabled={isFormDisabled} />
             </When>
+            <NotesSection />
             <NotificationBox />
             <ActionButtons />
           </form>

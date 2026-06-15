@@ -65,8 +65,8 @@ class Item(Resource):
         return ItemSchema().dump(item), HTTPStatus.OK
 
 
-@cors_preflight("GET, OPTIONS, POST")
-@API.route("/<int:item_id>/review", methods=["GET", "OPTIONS", "POST"])
+@cors_preflight("GET, OPTIONS, POST, DELETE")
+@API.route("/<int:item_id>/review", methods=["GET", "OPTIONS", "POST", "DELETE"])
 class ItemReview(Resource):
     """Resource for managing submission item reviews."""
 
@@ -84,4 +84,19 @@ class ItemReview(Resource):
         """Save submission review."""
         request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
         review = SubmissionReviewService.save_submission_review(item_id, request_body)
+        return SubmissionReviewSchema().dump(review), HTTPStatus.OK
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Undo the TM staff recommendation for an item review"
+    )
+    @API.response(
+        code=HTTPStatus.OK, model=item_model, description="Submission item review"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    def delete(item_id):
+        """Undo staff recommendation."""
+        review = SubmissionReviewService.undo_staff_recommendation(item_id)
         return SubmissionReviewSchema().dump(review), HTTPStatus.OK
