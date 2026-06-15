@@ -132,6 +132,10 @@ class PackageService:
             PackageStatus.REVIEWED.value: {
                 UserType.PROPONENT: PackageStatus.REVIEWED.value,
                 UserType.STAFF: PackageStatus.REVIEWED.value
+            },
+            PackageStatus.WITHDRAWN.value: {
+                UserType.PROPONENT: PackageStatus.WITHDRAWN.value,
+                UserType.STAFF: PackageStatus.WITHDRAWN.value
             }
         }
 
@@ -879,6 +883,76 @@ class PackageService:
 
             session.flush()
             return new_package
+
+    @classmethod
+    def withdraw_package(cls, package_id):
+        """Withdraw a submitted package."""
+        cls._validate_account_user()
+        with session_scope() as session:
+            package = cls.get_package_by_id(package_id)
+            cls._validate_package_for_withdrawal(package)
+            
+            authorization.check_has_permissions_on_project(
+                permissions=[ProponentPermissionsEnum.SUBMIT_PACKAGE.value],
+                account_project_ids=[package.account_project_id]
+            )
+            
+            # Update package status to WITHDRAWN
+            package.status = [PackageStatus.WITHDRAWN]
+            session.add(package)
+            
+            # Log withdrawal activity
+            cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
+            
+            # Create new package version (Package 2)
+            new_package = PackageVersionService.create_new_package_version(package_id, session)
+            
+            session.flush()
+            return package
+
+    @classmethod
+    def _validate_package_for_withdrawal(cls, package):
+        """Validate that a package can be withdrawn."""
+        if not package:
+            raise ResourceNotFoundError("Package not found")
+        
+        if not package.type.versioning_enabled:
+            raise BadRequestError("Cannot withdraw a package that does not have versioning enabled")
+        
+        if not package.submitted_on:
+            raise BadRequestError("Cannot withdraw a package that has not been submitted")
+        
+        # Check if package is in a withdrawable status
+        # Proponents see SUBMITTED for: SUBMITTED, INTERNAL_VERIFICATION, VERIFIED, 
+        # PENDING_ACKNOWLEDGEMENT, READY_FOR_ACKNOWLEDGEMENT
+        # Proponents see ACKNOWLEDGED for: ACKNOWLEDGED, READY_FOR_APPROVAL
+        withdrawable_statuses = [
+            PackageStatus.SUBMITTED,
+            PackageStatus.INTERNAL_VERIFICATION,
+            PackageStatus.VERIFIED,
+            PackageStatus.PENDING_ACKNOWLEDGEMENT,
+            PackageStatus.READY_FOR_ACKNOWLEDGEMENT,
+            PackageStatus.ACKNOWLEDGED,
+            PackageStatus.READY_FOR_APPROVAL
+        ]
+        
+        if not any(status in package.status for status in withdrawable_statuses):
+            raise BadRequestError(
+                "Package can only be withdrawn when it is in Submitted or Acknowledged status"
+            )
+        
+        # Cannot withdraw if already in terminal states
+        if PackageStatus.APPROVED in package.status:
+            raise BadRequestError("Cannot withdraw an approved package")
+        
+        if PackageStatus.NOT_APPROVED in package.status:
+            raise BadRequestError("Cannot withdraw a package that has not been approved")
+        
+        if PackageStatus.ACCEPTED in package.status:
+            raise BadRequestError("Cannot withdraw an accepted package")
+        
+        if PackageStatus.WITHDRAWN in package.status:
+            raise BadRequestError("Package has already been withdrawn")
 
     @classmethod
     def start_review(cls, package_id, _session=None):
