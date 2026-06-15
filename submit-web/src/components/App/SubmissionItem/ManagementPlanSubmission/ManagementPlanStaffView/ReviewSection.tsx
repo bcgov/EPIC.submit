@@ -37,6 +37,7 @@ import NotesSection from "@/components/App/SubmissionItem/NotesSection";
 import { When } from "react-if";
 import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
 import { NotificationBox } from "./NotificationBox";
+import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema
@@ -120,7 +121,7 @@ export default function ReviewSection() {
   const isFormDisabled =
     (isStaff &&
       submissionItem?.review?.status ===
-        SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
+      SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
     submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED ||
     submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.REJECTED;
 
@@ -147,7 +148,6 @@ export default function ReviewSection() {
                 mb: BCDesignTokens.layoutMarginMedium,
               }}
             />
-            <NotesSection />
             <Typography
               variant="body1"
               sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
@@ -203,6 +203,7 @@ export default function ReviewSection() {
                 </ControlledRadioGroup>
               </>
             </PermissionsGate>
+            <UndoTMRecommendationButton submissionItem={submissionItem} />
             <When condition={failedManagementPlan}>
               <AccordionSummary
                 expandIcon={null}
@@ -250,6 +251,7 @@ export default function ReviewSection() {
               </AccordionSummary>
               <AddRequestSection disabled={isFormDisabled} />
             </When>
+            <NotesSection />
             <NotificationBox />
             <ActionButtons />
           </form>

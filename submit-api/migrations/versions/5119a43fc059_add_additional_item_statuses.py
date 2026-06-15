@@ -1,7 +1,7 @@
 """Add additional item statuses
 
 Revision ID: 5119a43fc059
-Revises: 861b5e7374e0
+Revises: 00f63e6d1384
 Create Date: 2026-06-14 22:15:37.978120
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '5119a43fc059'
-down_revision = '861b5e7374e0'
+down_revision = '00f63e6d1384'
 branch_labels = None
 depends_on = None
 
