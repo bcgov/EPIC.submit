@@ -18,19 +18,19 @@ const WithdrawalBanner = ({ packageTypeName, nextPackageNumber }: WithdrawalBann
       }}
     >
       <Typography variant="body1" color={BCDesignTokens.typographyColorPrimary}>
-        Your {packageTypeName} Submission has been withdrawn. To resubmit,
-        select Package {nextPackageNumber} above to begin a new submission.
+        Your {packageTypeName} has been withdrawn. To submit a new{" "}
+        {packageTypeName} package, select Package {nextPackageNumber} above,
+        upload your documents, and click the "Submit to EAO" button.
       </Typography>
       <Typography
         variant="body1"
         color={BCDesignTokens.typographyColorPrimary}
-        sx={{ mt: 1 }}
+        sx={{ mt: "20px" }}
       >
         If you have any questions, please contact the EAO at{" "}
-        <Link href={`mailto:${AppConfig.supportEmail}`}>
-          {AppConfig.supportEmail}
+        <Link href={`mailto:${AppConfig.supportIpdEmail}`}>
+          {AppConfig.supportIpdEmail}.
         </Link>
-        .
       </Typography>
     </WarningBox>
   );

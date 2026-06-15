@@ -40,7 +40,8 @@ class PackageVersionService:
         new_version = latest_version + 1
         new_package = cls._create_package(
             session, current_package.account_project_id,
-            {"name": current_package.name}, current_package.type)
+            {"name": current_package.name}, current_package.type,
+            account_project_work_id=current_package.account_project_work_id)
 
         new_version = cls._create_package_version(
             session, original_package_id=package_version.original_package_id,
@@ -64,13 +65,16 @@ class PackageVersionService:
         return new_package
 
     @staticmethod
-    def _create_package(session, account_project_id, request_data, package_type):
+    def _create_package(session, account_project_id, request_data, package_type, account_project_work_id=None):
         """Create a new package."""
         package_data = {
             "account_project_id": account_project_id,
             "name": request_data.get("name"),
             "type_id": package_type.id,
         }
+        if account_project_work_id is not None:
+            package_data["account_project_work_id"] = account_project_work_id
+        
         package = PackageModel(**package_data)
         session.add(package)
         session.flush()

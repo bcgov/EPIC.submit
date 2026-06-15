@@ -41,9 +41,9 @@ export const Documents = ({
           <DocumentTableHead />
           <TableBody>
             {documents.length > 0 ? (
-              documents.map((document) => (
+              documents.map((document, index) => (
                 <DocumentTableRow
-                  key={document.id}
+                  key={`${document.id}-${index}`}
                   submittedDocument={document}
                 />
               ))

@@ -5,6 +5,7 @@ import ProjectsSubRoutes from "./ProjectsSubRoutes";
 import { SubListItem } from "./SubListItem";
 import { useAccount } from "@/store/accountStore";
 import { When } from "react-if";
+import { BCDesignTokens } from "epic.theme";
 
 export default function EntityRoutes() {
   const account = useAccount();
@@ -21,6 +22,13 @@ export default function EntityRoutes() {
         }}
       />
       <ProjectsSubRoutes />
+      <MainListItem
+        route={{
+          name: "Documents",
+          path: "/proponent/documents",
+        }}
+        sx={{ mb: BCDesignTokens.layoutMarginSmall }}
+      />
       <When condition={isAdmin}>
         <MainListItem
           route={{
@@ -30,13 +38,21 @@ export default function EntityRoutes() {
         />
       </When>
       <PermissionsGate scopes={[ACCOUNT_USER_PERMISSIONS.INVITE_USERS]}>
-        <SubListItem
-          key={`sub-list-user-management`}
-          route={{
-            name: "User Management",
-            path: `/proponent/user-management`,
-          }}
-        />
+        <>
+          <MainListItem
+            route={{
+              name: "Account Settings",
+              path: "/proponent/user-management",
+            }}
+          />
+          <SubListItem
+            key={`sub-list-user-management`}
+            route={{
+              name: "User Management",
+              path: `/proponent/user-management`,
+            }}
+          />
+        </>
       </PermissionsGate>
     </>
   );

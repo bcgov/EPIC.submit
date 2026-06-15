@@ -39,6 +39,7 @@ import { Route as StaffStaffLayoutProjectsIndexRouteImport } from './routes/staf
 import { Route as StaffStaffLayoutDocumentsIndexRouteImport } from './routes/staff/_staffLayout/documents/index'
 import { Route as ProponentProponentLayoutUserManagementIndexRouteImport } from './routes/proponent/_proponentLayout/user-management/index'
 import { Route as ProponentProponentLayoutProjectsIndexRouteImport } from './routes/proponent/_proponentLayout/projects/index'
+import { Route as ProponentProponentLayoutDocumentsIndexRouteImport } from './routes/proponent/_proponentLayout/documents/index'
 import { Route as StaffStaffLayoutProponentsProponentIdRouteImport } from './routes/staff/_staffLayout/proponents/$proponentId'
 import { Route as ProponentProponentLayoutUserManagementUserDetailsRouteImport } from './routes/proponent/_proponentLayout/user-management/user-details'
 import { Route as ProponentProponentLayoutUserManagementProfileRouteImport } from './routes/proponent/_proponentLayout/user-management/profile'
@@ -229,6 +230,12 @@ const ProponentProponentLayoutProjectsIndexRoute =
     path: '/projects/',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
+const ProponentProponentLayoutDocumentsIndexRoute =
+  ProponentProponentLayoutDocumentsIndexRouteImport.update({
+    id: '/documents/',
+    path: '/documents/',
+    getParentRoute: () => ProponentProponentLayoutRoute,
+  } as any)
 const StaffStaffLayoutProponentsProponentIdRoute =
   StaffStaffLayoutProponentsProponentIdRouteImport.update({
     id: '/proponents/$proponentId',
@@ -395,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/proponent/user-management/profile': typeof ProponentProponentLayoutUserManagementProfileRoute
   '/proponent/user-management/user-details': typeof ProponentProponentLayoutUserManagementUserDetailsRoute
   '/staff/proponents/$proponentId': typeof StaffStaffLayoutProponentsProponentIdRoute
+  '/proponent/documents/': typeof ProponentProponentLayoutDocumentsIndexRoute
   '/proponent/projects/': typeof ProponentProponentLayoutProjectsIndexRoute
   '/proponent/user-management/': typeof ProponentProponentLayoutUserManagementIndexRoute
   '/staff/documents/': typeof StaffStaffLayoutDocumentsIndexRoute
@@ -441,6 +449,7 @@ export interface FileRoutesByTo {
   '/proponent/user-management/profile': typeof ProponentProponentLayoutUserManagementProfileRoute
   '/proponent/user-management/user-details': typeof ProponentProponentLayoutUserManagementUserDetailsRoute
   '/staff/proponents/$proponentId': typeof StaffStaffLayoutProponentsProponentIdRoute
+  '/proponent/documents': typeof ProponentProponentLayoutDocumentsIndexRoute
   '/proponent/projects': typeof ProponentProponentLayoutProjectsIndexRoute
   '/proponent/user-management': typeof ProponentProponentLayoutUserManagementIndexRoute
   '/staff/documents': typeof StaffStaffLayoutDocumentsIndexRoute
@@ -487,6 +496,7 @@ export interface FileRoutesById {
   '/proponent/_proponentLayout/user-management/profile': typeof ProponentProponentLayoutUserManagementProfileRoute
   '/proponent/_proponentLayout/user-management/user-details': typeof ProponentProponentLayoutUserManagementUserDetailsRoute
   '/staff/_staffLayout/proponents/$proponentId': typeof StaffStaffLayoutProponentsProponentIdRoute
+  '/proponent/_proponentLayout/documents/': typeof ProponentProponentLayoutDocumentsIndexRoute
   '/proponent/_proponentLayout/projects/': typeof ProponentProponentLayoutProjectsIndexRoute
   '/proponent/_proponentLayout/user-management/': typeof ProponentProponentLayoutUserManagementIndexRoute
   '/staff/_staffLayout/documents/': typeof StaffStaffLayoutDocumentsIndexRoute
@@ -538,6 +548,7 @@ export interface FileRouteTypes {
     | '/proponent/user-management/profile'
     | '/proponent/user-management/user-details'
     | '/staff/proponents/$proponentId'
+    | '/proponent/documents/'
     | '/proponent/projects/'
     | '/proponent/user-management/'
     | '/staff/documents/'
@@ -584,6 +595,7 @@ export interface FileRouteTypes {
     | '/proponent/user-management/profile'
     | '/proponent/user-management/user-details'
     | '/staff/proponents/$proponentId'
+    | '/proponent/documents'
     | '/proponent/projects'
     | '/proponent/user-management'
     | '/staff/documents'
@@ -629,6 +641,7 @@ export interface FileRouteTypes {
     | '/proponent/_proponentLayout/user-management/profile'
     | '/proponent/_proponentLayout/user-management/user-details'
     | '/staff/_staffLayout/proponents/$proponentId'
+    | '/proponent/_proponentLayout/documents/'
     | '/proponent/_proponentLayout/projects/'
     | '/proponent/_proponentLayout/user-management/'
     | '/staff/_staffLayout/documents/'
@@ -872,6 +885,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentProponentLayoutProjectsIndexRouteImport
       parentRoute: typeof ProponentProponentLayoutRoute
     }
+    '/proponent/_proponentLayout/documents/': {
+      id: '/proponent/_proponentLayout/documents/'
+      path: '/documents'
+      fullPath: '/proponent/documents/'
+      preLoaderRoute: typeof ProponentProponentLayoutDocumentsIndexRouteImport
+      parentRoute: typeof ProponentProponentLayoutRoute
+    }
     '/staff/_staffLayout/proponents/$proponentId': {
       id: '/staff/_staffLayout/proponents/$proponentId'
       path: '/proponents/$proponentId'
@@ -1078,6 +1098,7 @@ interface ProponentProponentLayoutRouteChildren {
   ProponentProponentLayoutUserManagementNewUserRoute: typeof ProponentProponentLayoutUserManagementNewUserRoute
   ProponentProponentLayoutUserManagementProfileRoute: typeof ProponentProponentLayoutUserManagementProfileRoute
   ProponentProponentLayoutUserManagementUserDetailsRoute: typeof ProponentProponentLayoutUserManagementUserDetailsRoute
+  ProponentProponentLayoutDocumentsIndexRoute: typeof ProponentProponentLayoutDocumentsIndexRoute
   ProponentProponentLayoutProjectsIndexRoute: typeof ProponentProponentLayoutProjectsIndexRoute
   ProponentProponentLayoutUserManagementIndexRoute: typeof ProponentProponentLayoutUserManagementIndexRoute
   ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteWithChildren
@@ -1098,6 +1119,8 @@ const ProponentProponentLayoutRouteChildren: ProponentProponentLayoutRouteChildr
       ProponentProponentLayoutUserManagementProfileRoute,
     ProponentProponentLayoutUserManagementUserDetailsRoute:
       ProponentProponentLayoutUserManagementUserDetailsRoute,
+    ProponentProponentLayoutDocumentsIndexRoute:
+      ProponentProponentLayoutDocumentsIndexRoute,
     ProponentProponentLayoutProjectsIndexRoute:
       ProponentProponentLayoutProjectsIndexRoute,
     ProponentProponentLayoutUserManagementIndexRoute:

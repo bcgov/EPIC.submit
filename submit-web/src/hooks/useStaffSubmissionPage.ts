@@ -114,15 +114,19 @@ export function useStaffSubmissionPage({
     (pv) => pv.package_id === submissionPackageId,
   );
 
-  const hasAnyApprovedPackageVersion = packageVersions?.some(
-    (pv) => pv.is_approved,
-  );
-
   const isLatestApprovedPackageVersion =
     currentPackageVersion?.is_latest && currentPackageVersion?.is_approved;
 
   const isNewerThanLastApprovedButNotApproved =
     currentPackageVersion?.is_latest && !currentPackageVersion?.is_approved;
+
+  const isRejectedOrReplaced =
+    (packageVersions?.at(0)?.package_id !== submissionPackageId &&
+      !currentPackageVersion?.is_approved) ||
+    (currentPackageVersion?.is_approved && !isLatestApprovedPackageVersion);
+
+  const displaySubmissionBanner =
+    isLatestApprovedPackageVersion || isRejectedOrReplaced;
 
   const isReadyForAcknowledgement = useMemo(
     () =>
@@ -180,7 +184,8 @@ export function useStaffSubmissionPage({
     isLoading,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
-    hasAnyApprovedPackageVersion,
+    isRejectedOrReplaced,
+    displaySubmissionBanner,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,
