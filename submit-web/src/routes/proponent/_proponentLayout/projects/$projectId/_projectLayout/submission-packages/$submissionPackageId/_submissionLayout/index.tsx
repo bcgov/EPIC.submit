@@ -456,7 +456,6 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-
                   mb: hasAnyApprovedPackageVersion
                     ? 0
                     : BCDesignTokens.layoutMarginXlarge,
