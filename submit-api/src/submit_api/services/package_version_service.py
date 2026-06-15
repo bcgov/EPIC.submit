@@ -74,7 +74,6 @@ class PackageVersionService:
         }
         if account_project_work_id is not None:
             package_data["account_project_work_id"] = account_project_work_id
-        
         package = PackageModel(**package_data)
         session.add(package)
         session.flush()

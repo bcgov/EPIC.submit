@@ -73,7 +73,9 @@ class SubmissionReviewService:
         _ = cls._get_submission_item_by_id(item_id)
         review = SubmissionReview.get_active_review_by_item_id(item_id)
         if not review:
-            review = SubmissionReview(item_id=item_id)
+            review = SubmissionReview()
+            review.item_id = item_id
+
         current_app.logger.debug(f"Active item review for item {item_id}: {review}")
         return review
 
@@ -85,7 +87,9 @@ class SubmissionReviewService:
             raise UnprocessableEntityError("Review entry type is not supported.")
         review_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(review_id, entry_type)
         if not review_entry:
-            review_entry = SubmissionReviewEntry(review_id=review_id, type=entry_type)
+            review_entry = SubmissionReviewEntry()
+            review_entry.review_id = review_id
+            review_entry.type = entry_type
         return review_entry
 
     @classmethod
@@ -154,6 +158,52 @@ class SubmissionReviewService:
             return ItemStatus.CC_AWAITING_MANAGER_APPROVAL
         if item.type.name == SubmissionItemType.IEM.value:
             return ItemStatus.IEM_AWAITING_MANAGER_APPROVAL
+        raise UnprocessableEntityError("Item type is not supported.")
+
+    @classmethod
+    def undo_staff_recommendation(cls, item_id):
+        """Undo the TM's recommendation, reverting the review to pending staff review."""
+        with session_scope() as session:
+            review = SubmissionReview.get_active_review_by_item_id(item_id)
+            if not review:
+                current_app.logger.error(f"No active review found for item {item_id}.")
+                raise ResourceNotFoundError(f"No active review found for item {item_id}.")
+            if review.status != SubmissionReviewStatus.PENDING_MANAGER_REVIEW:
+                current_app.logger.error(
+                    f"Item {item_id} review is not pending manager review; cannot undo.")
+                raise UnprocessableEntityError(
+                    "The review is not pending manager review.")
+
+            # Delete the staff recommendation entry
+            staff_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(
+                review.id, SubmissionReviewEntryType.STAFF_RECOMMENDATION
+            )
+            if staff_entry:
+                session.delete(staff_entry)
+
+            # Reset review status
+            review.status = SubmissionReviewStatus.PENDING_STAFF_REVIEW
+            session.add(review)
+
+            # Reset item status back to under-review state
+            item = cls._get_submission_item_by_id(item_id)
+            item.status = cls._get_under_review_status(item)
+            session.add(item)
+
+            cls._update_package_status(item.package_id, session)
+            current_app.logger.info(
+                f"Staff recommendation undone for item {item_id}.")
+            return review
+
+    @classmethod
+    def _get_under_review_status(cls, item):
+        """Get the item status representing 'under review' (pre-recommendation)."""
+        if item.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value:
+            return ItemStatus.UNDER_REVIEW
+        if item.type.name == SubmissionItemType.CONSULTATION_RECORD.value:
+            return ItemStatus.UNDER_CONSULTATION_CHECK
+        if item.type.name == SubmissionItemType.IEM.value:
+            return ItemStatus.UNDER_REVIEW
         raise UnprocessableEntityError("Item type is not supported.")
 
     @classmethod

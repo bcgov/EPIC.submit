@@ -26,7 +26,19 @@ class ConsultationRecordService:
     @classmethod
     def approve_consultation_record(cls, item, session):
         """Approve consultation record."""
-        item.status = ItemStatus.PASSED_CONSULTATION_CHECK.value
+        item_review = SubmissionReview.get_active_review_by_item_id(item.id)
+        manager_review_entry = SubmissionReviewEntry.get_review_entry_by_id_and_type(
+            item_review.id, SubmissionReviewEntryType.MANAGER_CONFIRMATION
+        )
+        is_not_applicable = False
+        if manager_review_entry and manager_review_entry.entry:
+            is_not_applicable = manager_review_entry.entry.get('passedConsultationCheck') == 'NOT_APPLICABLE'
+
+        if is_not_applicable:
+            item.status = ItemStatus.NOT_APPLICABLE.value
+        else:
+            item.status = ItemStatus.PASSED_CONSULTATION_CHECK.value
+
         reviewed_on = datetime.now(UTC)
         item.reviewed_on = reviewed_on
         package_metadata = PackageMetadata.get_or_create(item.package_id)
@@ -97,13 +109,12 @@ class ConsultationRecordService:
         """Create an update request."""
         current_app.logger.info(
             f"Creating update request for new package {data.get('package_id')}.")
-        update_request = UpdateRequest(
-            submission_package_id=data.get('package_id'),
-            submission_item_types=data.get('item_types'),
-            created_by=TokenInfo.get_username(),
-            reason=data.get('reason'),
-            type=data.get('type')
-        )
+        update_request = UpdateRequest()
+        update_request.submission_package_id = data.get('package_id')
+        update_request.submission_item_types = data.get('item_types')
+        update_request.created_by = TokenInfo.get_username()
+        update_request.reason = data.get('reason')
+        update_request.type = data.get('type')
         session.add(update_request)
         current_app.logger.info(
             f"Update request created for new package {data.get('package_id')}.")
@@ -111,8 +122,8 @@ class ConsultationRecordService:
     @classmethod
     def _create_rejection_email_queue(cls, package_id, template_name):
         """Create an email queue record for an update request."""
-        email_queue = EmailQueueModel(
-            entity_id=package_id, entity_type=EntityType.PACKAGE.value,
-            template_name=template_name
-        )
+        email_queue = EmailQueueModel()
+        email_queue.entity_id = package_id
+        email_queue.entity_type = EntityType.PACKAGE.value
+        email_queue.template_name = template_name
         email_queue.save()
