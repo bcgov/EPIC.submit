@@ -3,20 +3,20 @@ import {
   DocumentFilter,
   DocumentFilters,
 } from "@/components/App/Documents/DocumentFilter";
+import { ProjectsSelect } from "@/components/App/Projects/ProjectsSelect";
+import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { useGetSubmittedDocuments } from "@/hooks/api/useSubmittedDocuments";
 import { useGetAccountProjects } from "@/hooks/api/useProjects";
-import { Box, Grid } from "@mui/material";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { BCDesignTokens } from "epic.theme";
+import { useGetSubmittedDocuments } from "@/hooks/api/useSubmittedDocuments";
 import { PaginatedDocumentsResponse } from "@/models/Submission";
+import { Box, Grid, Typography } from "@mui/material";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { BCDesignTokens } from "epic.theme";
+import { useEffect, useMemo, useState } from "react";
 import { When } from "react-if";
-import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
-import { ProjectsSelect } from "@/components/App/Projects/ProjectsSelect";
 
-export const Route = createFileRoute("/staff/_staffLayout/documents/")({
+export const Route = createFileRoute("/proponent/_proponentLayout/documents/")({
   component: DocumentsPage,
   head: () => ({ meta: [{ title: "All Documents" }] }),
 });
@@ -118,13 +118,22 @@ function DocumentsPage() {
           projectSelected={selectedProjectId !== ""}
         />
         <ContentBox mainLabel={"Documents"} contentBoxVariant="secondary">
-          <ProjectsSelect
-            projects={projects}
-            isProjectsLoading={isProjectsLoading}
-            selectedProjectId={selectedProjectId}
-            filters={filters}
-            onProjectChange={handleProjectChange}
-          />
+          {projects.length > 1 ? (
+            <ProjectsSelect
+              projects={projects}
+              isProjectsLoading={isProjectsLoading}
+              selectedProjectId={selectedProjectId}
+              filters={filters}
+              onProjectChange={handleProjectChange}
+            />
+          ) : (
+            <Typography
+              variant="h5"
+              sx={{ mb: BCDesignTokens.layoutMarginMedium }}
+            >
+              {selectedProject?.project.name}
+            </Typography>
+          )}
           <Box
             display={"flex"}
             flexDirection="column"

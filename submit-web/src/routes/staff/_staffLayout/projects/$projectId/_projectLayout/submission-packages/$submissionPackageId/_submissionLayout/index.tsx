@@ -61,7 +61,8 @@ export default function SubmissionPage() {
     refusePackage,
     isLoading,
     isLatestApprovedPackageVersion,
-    isNewerThanLastApprovedButNotApproved,
+    isRejectedOrReplaced,
+    displaySubmissionBanner,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,
@@ -201,11 +202,9 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
-                  mb:
-                    isLatestApprovedPackageVersion ||
-                    isNewerThanLastApprovedButNotApproved
-                      ? 0
-                      : BCDesignTokens.layoutMarginXlarge,
+                  mb: displaySubmissionBanner
+                    ? 0
+                    : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={managementPlanName} />
@@ -244,7 +243,7 @@ export default function SubmissionPage() {
                   </Typography>
                 </SuccessBox>
               </When>
-              <When condition={isNewerThanLastApprovedButNotApproved}>
+              <When condition={isRejectedOrReplaced}>
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
@@ -255,8 +254,8 @@ export default function SubmissionPage() {
                     variant="body2"
                     color={BCDesignTokens.typographyColorPrimary}
                   >
-                    Please Note: This submission is still pending EAO review.
-                    Until finalized, it is not considered enforceable.
+                    This version has failed review, or has been replaced with a
+                    newer version.
                   </Typography>
                 </WarningBox>
               </When>
@@ -276,10 +275,6 @@ export default function SubmissionPage() {
               </When>
               <Box
                 sx={{
-                  mt:
-                    accountProject.account_project_works?.length === 0
-                      ? "36px"
-                      : "0px",
                   mb: BCDesignTokens.layoutMarginXlarge,
                   pt: BCDesignTokens.layoutPaddingXsmall,
                 }}

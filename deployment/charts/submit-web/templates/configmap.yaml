@@ -17,5 +17,7 @@ data:
         "VITE_OIDC_AUTHORITY": "{{ .Values.app.oidcAuthority }}",
         "VITE_CLIENT_ID": "{{ .Values.app.clientId }}",
         "VITE_CONDITIONS_LIBRARY_URL": "{{ .Values.app.conditionsLibraryUrl }}",
-        "VITE_USER_GUIDE": "{{ .Values.app.user_guide}}"
+        "VITE_USER_GUIDE": "{{ .Values.app.user_guide}}",
+        "VITE_SUPPORT_MP_EMAIL": "{{ .Values.app.supportMpEmail}}",
+        "VITE_SUPPORT_IPD_EMAIL": "{{ .Values.app.supportIpdEmail}}"
       }

@@ -8,7 +8,7 @@ import { useProjectFilters } from "@/components/App/Filters/projectFilterStore";
 import { Projects, ProjectsSkeleton } from "@/components/App/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { getAccountProjectsForStaff } from "@/hooks/api/useProjects";
+import { getAccountProjects } from "@/hooks/api/useProjects";
 import { QUERY_KEY } from "@/hooks/api/constants";
 
 export const Route = createFileRoute("/staff/_staffLayout/projects/")({
@@ -35,7 +35,7 @@ function ProjectsPage() {
     initialPageParam: initialPageParam,
     queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, filters],
     queryFn: ({ pageParam }) =>
-      getAccountProjectsForStaff({
+      getAccountProjects({
         page: pageParam,
         pageSize: pageSize,
         searchOptions: filters,

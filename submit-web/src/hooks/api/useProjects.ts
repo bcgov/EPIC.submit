@@ -186,7 +186,7 @@ export const useGetAccountProjectForStaff = ({
   return useQuery(options);
 };
 
-type GetProjectsByParamsForStaff = {
+type GetProjectsByParams = {
   searchOptions?: Record<string, string | number | string[]>;
   page?: number;
   pageSize?: number;
@@ -197,11 +197,11 @@ type AccountProjectPage = {
   next_cursor: number;
   total: number;
 };
-export const getAccountProjectsForStaff = ({
+export const getAccountProjects = ({
   searchOptions,
   page,
   pageSize,
-}: GetProjectsByParamsForStaff) => {
+}: GetProjectsByParams) => {
   const url = "/projects";
 
   return submitRequest<AccountProjectPage>({
@@ -214,37 +214,35 @@ export const getAccountProjectsForStaff = ({
   });
 };
 
-type UseGetProjectsForStaffParams = {
+type UseGetProjectsParams = {
   searchOptions?: Record<string, string | number | string[]>;
   page?: number;
   pageSize?: number;
 };
 
-
-export const getAccountProjectsForStaffQueryOptions = ({
+export const getAccountProjectsQueryOptions = ({
   searchOptions,
   page,
   pageSize,
-}: UseGetProjectsForStaffParams) =>
+}: UseGetProjectsParams) =>
   queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions, page, pageSize],
-    queryFn: () => getAccountProjectsForStaff({ searchOptions, page, pageSize }),
+    queryFn: () => getAccountProjects({ searchOptions, page, pageSize }),
     ...defaultUseQueryOptions,
   });
 
-export const useGetAccountProjectsForStaff = ({
+export const useGetAccountProjects = ({
   searchOptions,
   page,
   pageSize,
-}: UseGetProjectsForStaffParams) => {
-  const options = getAccountProjectsForStaffQueryOptions({
+}: UseGetProjectsParams) => {
+  const options = getAccountProjectsQueryOptions({
     searchOptions,
     page,
     pageSize,
   });
   return useQuery(options);
 };
-
 
 export const getAccountPackagesByAccountIdQueryOptions = ({
   accountId,

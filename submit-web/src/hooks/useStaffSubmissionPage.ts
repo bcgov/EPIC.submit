@@ -110,22 +110,23 @@ export function useStaffSubmissionPage({
 
   const approval_type = submissionPackage?.type.approval_type;
 
-  const isLatestApprovedPackageVersion = packageVersions?.find(
-    (pv) => pv.is_approved && pv.package_id === submissionPackageId,
+  const currentPackageVersion = packageVersions?.find(
+    (pv) => pv.package_id === submissionPackageId,
   );
 
-  const latestApprovedVersion = Math.max(
-    ...(packageVersions
-      ?.filter((pv) => pv.is_approved)
-      .map((pv) => pv.version) || [0]),
-  );
+  const isLatestApprovedPackageVersion =
+    currentPackageVersion?.is_latest && currentPackageVersion?.is_approved;
 
-  const isNewerThanLastApprovedButNotApproved = Boolean(
-    (latestApprovedVersion > 0 &&
-      !submissionPackage?.version?.is_approved &&
-      submissionPackage?.version?.version) ??
-    0 > latestApprovedVersion,
-  );
+  const isNewerThanLastApprovedButNotApproved =
+    currentPackageVersion?.is_latest && !currentPackageVersion?.is_approved;
+
+  const isRejectedOrReplaced =
+    (packageVersions?.at(0)?.package_id !== submissionPackageId &&
+      !currentPackageVersion?.is_approved) ||
+    (currentPackageVersion?.is_approved && !isLatestApprovedPackageVersion);
+
+  const displaySubmissionBanner =
+    isLatestApprovedPackageVersion || isRejectedOrReplaced;
 
   const isReadyForAcknowledgement = useMemo(
     () =>
@@ -183,6 +184,8 @@ export function useStaffSubmissionPage({
     isLoading,
     isLatestApprovedPackageVersion,
     isNewerThanLastApprovedButNotApproved,
+    isRejectedOrReplaced,
+    displaySubmissionBanner,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,

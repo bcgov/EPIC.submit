@@ -58,10 +58,11 @@ class AccountProjects(Resource):
         code=HTTPStatus.OK, model=project_list_model, description="Get paginated projects"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
+    @auth.require
     @cross_origin(origins=allowedorigins())
     def get():
         """Get paginated account projects."""
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
         args = request.args
         search_text = args.get('search_text')
         submitted_on_start = args.get('submitted_on_start')
@@ -86,7 +87,7 @@ class AccountProjects(Resource):
 
         # Fetch paginated projects
         account_projects, total_projects = ProjectService.get_all_account_projects_paginated(
-            search_options, page, page_size, is_proponent=False
+            search_options, page, page_size, is_proponent=not is_staff
         )
 
         # Calculate next cursor (if applicable)

@@ -780,9 +780,12 @@ class PackageService:
             package = cls.get_package_by_id(package_id)
             if not package:
                 raise BadRequestError("Package not found")
-            # For non-versioned packages, we acknowledge all documents
-            if not package.type.versioning_enabled:
-                for item in package.items:
+
+            for item in package.items:
+                item.status = ItemStatus.ACKNOWLEDGED
+                session.add(item)
+                # For non-versioned packages, we acknowledge all documents
+                if not package.type.versioning_enabled:
                     for submission in item.submissions:
                         if submission.type == SubmissionType.DOCUMENT:
                             submission.status = SubmissionStatus.ACKNOWLEDGED
@@ -806,6 +809,8 @@ class PackageService:
 
             # Approve all documents
             for item in package.items:
+                item.status = ItemStatus.APPROVED
+                session.add(item)
                 for submission in item.submissions:
                     if submission.type == SubmissionType.DOCUMENT:
                         submission.status = SubmissionStatus.APPROVED
@@ -826,6 +831,8 @@ class PackageService:
 
             # Remove all document statuses
             for item in package.items:
+                item.status = ItemStatus.NOT_APPROVED
+                session.add(item)
                 for submission in item.submissions:
                     if submission.type == SubmissionType.DOCUMENT:
                         submission.status = None

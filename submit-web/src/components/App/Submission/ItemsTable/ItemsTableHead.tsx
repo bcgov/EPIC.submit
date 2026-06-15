@@ -5,12 +5,17 @@ import { SubmissionPackageApprovalType } from "@/models/Package";
 import InfoIcon from "@mui/icons-material/Info";
 import TypeASvg from "@/assets/approval_type_svgs/submission-flow-type-a.svg";
 import TypeCSvg from "@/assets/approval_type_svgs/submission-flow-type-c.svg";
+import { useAccount } from "@/store/accountStore";
+import { USER_TYPE } from "@/models/User";
 
 type ItemsTableHeadProps = Readonly<{
   approvalType?: SubmissionPackageApprovalType;
 }>;
 
 export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
+  const { userType } = useAccount();
+  const isStaffUser = userType === USER_TYPE.STAFF;
+  
   const getSvgForApprovalType = () => {
     if (!approvalType) return null;
     return approvalType === SubmissionPackageApprovalType.A ? TypeASvg : TypeCSvg;
@@ -56,8 +61,8 @@ export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 0.5 }}>
-            <Typography variant="body2">Actions</Typography>
-            {svgSrc && (
+            Actions
+            {svgSrc && isStaffUser && (
               <Tooltip
                 title={
                   <Box
@@ -88,8 +93,8 @@ export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
                   tooltip: {
                     sx: {
                       bgcolor: "white",
-                      maxWidth: "min(900px, 90vw)",
-                      width: "900px",
+                      maxWidth: "95vw", // Increased from 90vw to 95vw
+                      width: "90vw",
                       p: 1.5,
                       boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.15)",
                       "& .MuiTooltip-arrow": {
