@@ -17,16 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("""
-    DO $$
-    BEGIN
-        IF NOT EXISTS (SELECT 1 FROM pg_type typ 
-                       JOIN pg_enum en ON en.enumtypid = typ.oid 
-                       WHERE typ.typname = 'itemstatus' AND en.enumlabel = 'NOT_APPLICABLE') THEN
-            ALTER TYPE itemstatus ADD VALUE 'NOT_APPLICABLE';
-        END IF;
-    END$$;
-    """)
+    op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'NOT_APPLICABLE';")
 
 
 def downgrade():
