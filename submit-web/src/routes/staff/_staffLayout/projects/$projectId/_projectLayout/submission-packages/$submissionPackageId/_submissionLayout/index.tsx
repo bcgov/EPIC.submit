@@ -149,6 +149,8 @@ export default function SubmissionPage() {
           });
         }}
         onCancel={() => setCloseModal()}
+        hasOpenUpdateRequests={sentUpdateRequests.length > 0}
+        openRequestSectionNames={openRequestSectionNames}
       />,
     );
   };

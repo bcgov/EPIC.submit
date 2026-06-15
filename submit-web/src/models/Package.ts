@@ -73,7 +73,8 @@ export type PackageStatus =
   | "READY_FOR_ACKNOWLEDGEMENT"
   | "READY_FOR_APPROVAL"
   | "ACKNOWLEDGED"
-  | "NOT_APPROVED";
+  | "NOT_APPROVED"
+  | "WITHDRAWN";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -190,6 +191,10 @@ export const PACKAGE_STATUS: Record<
   NOT_APPROVED: {
     value: "NOT_APPROVED",
     label: "Not Approved",
+  },
+  WITHDRAWN: {
+    value: "WITHDRAWN",
+    label: "Withdrawn",
   },
 };
 

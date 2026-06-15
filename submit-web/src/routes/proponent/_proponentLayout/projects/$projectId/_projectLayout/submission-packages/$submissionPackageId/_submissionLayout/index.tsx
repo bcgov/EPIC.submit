@@ -11,6 +11,7 @@ import {
   useGetPackageVersionsByOriginalPackageId,
   useGetSubmissionPackage,
   useUpdateStateSubmissionPackage,
+  useWithdrawPackage,
 } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { PACKAGE_STATUS, SubmissionPackageType } from "@/models/Package";
@@ -47,6 +48,8 @@ import type {
   PreviousRequest,
 } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
 import { UnaddressedSectionsModal } from "@/components/App/Submission/Modals/UnaddressedSectionsModal";
+import WithdrawSubmissionModal from "@/components/App/Submission/Modals/WithdrawSubmissionModal";
+import WithdrawalBanner from "@/components/App/Submission/WithdrawalBanner";
 import { useDocumentChangeTracking } from "@/hooks/useDocumentChangeTracking";
 import { getUnaddressedUpdateRequestSections } from "@/utils/updateRequestHelpers";
 import { useSaveProponentNote } from "@/hooks/api/useUpdateRequests";
@@ -61,6 +64,7 @@ export const Route = createFileRoute(
 
 export default function SubmissionPage() {
   const [showUnaddressedModal, setShowUnaddressedModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [unaddressedSections, setUnaddressedSections] = useState<
     ReturnType<typeof getUnaddressedUpdateRequestSections>
   >([]);
@@ -119,6 +123,19 @@ export default function SubmissionPage() {
       );
     },
   });
+
+  const { mutate: withdrawPackage, isPending: isWithdrawingPackage } =
+    useWithdrawPackage({
+      onSuccess: () => {
+        notify.success("Your submission has been withdrawn successfully.", 15000);
+        setShowWithdrawModal(false);
+      },
+      onError: (error: any) => {
+        notify.error(
+          error?.response?.data?.message ?? "Failed to withdraw the package.",
+        );
+      },
+    });
 
   const navigate = useNavigate();
 
@@ -280,6 +297,11 @@ export default function SubmissionPage() {
     notify.success(successMessage, 15000);
   };
 
+  const handleWithdrawSubmission = () => {
+    if (!submissionPackage) return;
+    withdrawPackage({ packageId: submissionPackage.id });
+  };
+
   const managementPlanName = useManagementPlanName(submissionPackage);
 
   // Transform update requests for ProponentUpdateRequestPanel
@@ -406,6 +428,36 @@ export default function SubmissionPage() {
     isPackageAcknowledged,
     hasUpdatedItems,
   ]);
+
+  const isPackageWithdrawn = submissionPackage?.status.includes(
+    PACKAGE_STATUS.WITHDRAWN.value
+  );
+
+  const isWithdrawDisabled = useMemo(() => {
+    // Disable if versioning is not enabled
+    if (!submissionPackage?.type?.versioning_enabled) return true;
+    
+    if (!submissionPackage?.submitted_on) return true;
+    
+    // Disable if already withdrawn
+    if (isPackageWithdrawn) return true;
+    
+    // Disable if in terminal states
+    if (
+      submissionPackage.status.includes(PACKAGE_STATUS.APPROVED.value) ||
+      submissionPackage.status.includes(PACKAGE_STATUS.NOT_APPROVED.value) ||
+      submissionPackage.status.includes(PACKAGE_STATUS.ACCEPTED.value)
+    ) {
+      return true;
+    }
+    
+    // Enable if in submitted or acknowledged status
+    const isInWithdrawableStatus =
+      submissionPackage.status.includes(PACKAGE_STATUS.SUBMITTED.value) ||
+      submissionPackage.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value);
+    
+    return !isInWithdrawableStatus;
+  }, [submissionPackage, isPackageWithdrawn]);
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to="/error" />;
@@ -559,6 +611,12 @@ export default function SubmissionPage() {
                   </Typography>
                 </When>
               </Box>
+              <When condition={isPackageWithdrawn}>
+                <WithdrawalBanner
+                  packageTypeName={submissionPackage.type.title || submissionPackage.type.name}
+                  nextPackageNumber={(currentPackageVersion?.version || 1) + 1}
+                />
+              </When>
               <Switch>
                 <Case
                   condition={
@@ -590,9 +648,8 @@ export default function SubmissionPage() {
                     <Typography variant="body1" mt="20px">
                       If you have any questions, please contact the EAO at{" "}
                       <Link href={`mailto:${AppConfig.supportIpdEmail}`}>
-                        {AppConfig.supportIpdEmail}
+                        {AppConfig.supportIpdEmail}.
                       </Link>
-                      .
                     </Typography>
                   </WarningBox>
                 </Case>
@@ -624,30 +681,54 @@ export default function SubmissionPage() {
               <Box
                 sx={{
                   pt: BCDesignTokens.layoutPaddingXlarge,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  width: "100%",
                 }}
               >
-                <Button
-                  color="secondary"
-                  sx={{ mr: 1 }}
-                  onClick={() =>
-                    navigate({ to: `/proponent/projects/${accountProject.id}` })
-                  }
-                >
-                  Save & Close
-                </Button>
-                <PermissionsGate
-                  scopes={[ACCOUNT_USER_PERMISSIONS.SUBMIT_PACKAGE]}
-                >
-                  <Unless condition={submissionPackage.completed_on}>
-                    <Button
-                      onClick={submitPackage}
-                      loading={isSubmittingPackage || isFetching}
-                      disabled={isSubmitDisabled}
-                    >
-                      Submit to EAO
-                    </Button>
-                  </Unless>
-                </PermissionsGate>
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Button
+                    color="secondary"
+                    onClick={() =>
+                      navigate({ to: `/proponent/projects/${accountProject.id}` })
+                    }
+                  >
+                    Save & Close
+                  </Button>
+                  <PermissionsGate
+                    scopes={[ACCOUNT_USER_PERMISSIONS.SUBMIT_PACKAGE]}
+                  >
+                    <Unless condition={submissionPackage.completed_on}>
+                      <Button
+                        onClick={submitPackage}
+                        loading={isSubmittingPackage || isFetching}
+                        disabled={isSubmitDisabled || isPackageWithdrawn}
+                      >
+                        Submit to EAO
+                      </Button>
+                    </Unless>
+                  </PermissionsGate>
+                </Box>
+                <Box>
+                  <PermissionsGate
+                    scopes={[ACCOUNT_USER_PERMISSIONS.SUBMIT_PACKAGE]}
+                  >
+                    <Unless condition={submissionPackage.completed_on}>
+                      <When condition={submissionPackage.type.versioning_enabled}>
+                        <Button
+                          color="error"
+                          variant="outlined"
+                          onClick={() => setShowWithdrawModal(true)}
+                          loading={isWithdrawingPackage}
+                          disabled={isWithdrawDisabled}
+                        >
+                          Withdraw Submission
+                        </Button>
+                      </When>
+                    </Unless>
+                  </PermissionsGate>
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -659,6 +740,12 @@ export default function SubmissionPage() {
         onConfirm={proceedWithSubmission}
         onCancel={() => setShowUnaddressedModal(false)}
       />
+      {showWithdrawModal && (
+        <WithdrawSubmissionModal
+          onConfirm={handleWithdrawSubmission}
+          onCancel={() => setShowWithdrawModal(false)}
+        />
+      )}
     </PageGrid>
   );
 }

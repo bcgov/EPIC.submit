@@ -18,7 +18,7 @@ depends_on = None
 
 def upgrade():
     op.execute("ALTER TYPE itemstatus ADD VALUE IF NOT EXISTS 'NOT_APPLICABLE';")
-
+    op.execute("ALTER TYPE packagestatus ADD VALUE IF NOT EXISTS 'WITHDRAWN';")
 
 def downgrade():
     pass

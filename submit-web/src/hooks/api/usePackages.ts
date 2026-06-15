@@ -327,6 +327,47 @@ export const useRefuseSubmissionPackage = (options?: Options) => {
   });
 };
 
+const withdrawPackage = ({ packageId }: { packageId: number }) => {
+  return submitRequest<SubmissionPackage>({
+    url: `/packages/${packageId}/withdraw`,
+    method: "post",
+  });
+};
+
+export const useWithdrawPackage = (options?: Options) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: withdrawPackage,
+    ...options,
+    onSuccess: (submissionPackage) => {
+      if (options?.onSuccess) {
+        options.onSuccess(submissionPackage);
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, submissionPackage.id],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.SUBMISSION_VERSIONS,
+          submissionPackage.account_project_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          QUERY_KEY.ACCOUNT_PROJECT,
+          submissionPackage.account_project_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+      queryClient.refetchQueries({
+        queryKey: [QUERY_KEY.ACTIVITY_LOGS],
+      });
+    },
+  });
+};
+
 const createPackageUpdateRequest = ({
   packageId,
   data,

@@ -70,6 +70,7 @@ class PackageStatus(enum.Enum):
     UPDATED = "UPDATED"
     READY_FOR_APPROVAL = "READY_FOR_APPROVAL"
     NOT_APPROVED = 'NOT_APPROVED'
+    WITHDRAWN = 'WITHDRAWN'
 
     @classmethod
     def check_value(cls, value):
