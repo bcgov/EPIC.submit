@@ -47,7 +47,10 @@ export type SubmissionItemStatus =
   | "REVISION_REQUESTED"
   | "NO_REVISION_REQUIRED"
   | "UNDER_REVIEW"
-  | "UNDER_CONSULTATION_CHECK";
+  | "UNDER_CONSULTATION_CHECK"
+  | "ACKNOWLEDGED"
+  | "NOT_APPROVED"
+  | "WITHDRAWN";
 
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
@@ -136,6 +139,18 @@ export const SUBMISSION_ITEM_STATUS: Record<
   UNDER_CONSULTATION_CHECK: {
     value: "UNDER_CONSULTATION_CHECK",
     label: "Under Consultation Check",
+  },
+  ACKNOWLEDGED: {
+    value: "ACKNOWLEDGED",
+    label: "Acknowledged",
+  },
+  NOT_APPROVED: {
+    value: "NOT_APPROVED",
+    label: "Not Approved",
+  },
+  WITHDRAWN: {
+    value: "WITHDRAWN",
+    label: "Withdrawn",
   },
 };
 
