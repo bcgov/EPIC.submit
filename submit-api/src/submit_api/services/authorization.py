@@ -23,7 +23,6 @@ def check_has_permissions_on_project(permissions=None, account_project_ids=None)
     if user.type == UserType.STAFF:
         return
 
-    print(user, user.account_user, user.account_user.role, account_project_ids)
     if not user or not user.account_user or not user.account_user.role or not account_project_ids:
         abort(HTTPStatus.UNAUTHORIZED)
 
