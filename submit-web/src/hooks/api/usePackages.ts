@@ -354,6 +354,12 @@ export const useWithdrawPackage = (options?: Options) => {
       });
       queryClient.invalidateQueries({
         queryKey: [
+          QUERY_KEY.PACKAGE_VERSIONS,
+          submissionPackage.version?.original_package_id,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
           QUERY_KEY.ACCOUNT_PROJECT,
           submissionPackage.account_project_id,
         ],
