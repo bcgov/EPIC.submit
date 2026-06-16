@@ -626,7 +626,7 @@ export default function SubmissionPage() {
                     isFirstSubmission
                   }
                 >
-                  <Box mb={BCDesignTokens.layoutMarginXlarge}>
+                  <Box mb={BCDesignTokens.layoutMarginXlarge} sx={{ width: "100%" }}>
                     <SubmissionSuccessBox
                       submissionPackageType={submissionPackage.type}
                     />

@@ -65,7 +65,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     <Box sx={modalStyle}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
         <DialogTitle>{title}</DialogTitle>
-        <IconButton onClick={setClose}>
+        <IconButton onClick={handleCancel}>
           <CloseIcon />
         </IconButton>
       </Box>
