@@ -657,7 +657,8 @@ export default function SubmissionPage() {
                   condition={
                     openRequests.length === 0 &&
                     pendingRequests.length === 0 &&
-                    isPackageSubmitted
+                    isPackageSubmitted &&
+                    !isPackageWithdrawn
                   }
                 >
                   <GreyBox
@@ -671,9 +672,8 @@ export default function SubmissionPage() {
                       delete documents in your submission, please contact the
                       EAO at{" "}
                       <Link href={`mailto:${AppConfig.supportMpEmail}`}>
-                        {AppConfig.supportMpEmail}
+                        {AppConfig.supportMpEmail}.
                       </Link>
-                      .
                     </Typography>
                   </GreyBox>
                 </Case>
