@@ -639,7 +639,7 @@ export default function SubmissionPage() {
                 >
                   <WarningBox>
                     <Typography variant="body1">
-                      Your {submissionPackage.type.title} has been withdrawn. To
+                      Your {submissionPackage.type.title} has not been approved. To
                       submit a new {submissionPackage.type.title} package,
                       select Package {packageVersions?.at(0)?.version} above,
                       upload your documents, and click the “Submit to EAO”
