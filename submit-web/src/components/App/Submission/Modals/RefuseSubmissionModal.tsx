@@ -3,6 +3,7 @@ import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { Warning } from "@mui/icons-material";
 import { BCDesignTokens } from "epic.theme";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
+import OpenUpdateRequestsAlertModal from "./OpenUpdateRequestsAlertModal";
 import ControlledTextField from "@/components/Shared/ControlledFormFields/ControlledTextField";
 import ControlledDatePicker from "@/components/Shared/ControlledFormFields/ControlledDatePicker";
 import { FormProvider, useForm } from "react-hook-form";
@@ -25,11 +26,15 @@ type RefuseSubmissionForm = yup.InferType<typeof RefuseSubmissionFormSchema>;
 type RefuseSubmissionModalProps = {
   onConfirm: (data: RefuseSubmissionForm) => void;
   onCancel: () => void;
+  hasOpenUpdateRequests?: boolean;
+  openRequestSectionNames?: string[];
 };
 
 const RefuseSubmissionModal = ({
   onConfirm,
   onCancel,
+  hasOpenUpdateRequests = false,
+  openRequestSectionNames = [],
 }: RefuseSubmissionModalProps) => {
   const methods = useForm<RefuseSubmissionForm>({
     resolver: yupResolver(RefuseSubmissionFormSchema),
@@ -40,6 +45,17 @@ const RefuseSubmissionModal = ({
     },
   });
 
+  // Show alert modal when there are open update requests
+  if (hasOpenUpdateRequests) {
+    return (
+      <OpenUpdateRequestsAlertModal
+        onClose={onCancel}
+        openRequestSectionNames={openRequestSectionNames}
+      />
+    );
+  }
+
+  // Show confirmation modal when no blocking requests
   return (
     <ConfirmationModal
       title="Submission package not approved"

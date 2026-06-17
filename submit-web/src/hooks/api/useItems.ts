@@ -130,3 +130,44 @@ export const useSaveSubmissionReview = ({
     },
   });
 };
+
+export const undoStaffRecommendation = (itemId: number) => {
+  return submitRequest<SubmissionReview>({
+    url: `/items/${itemId}/review`,
+    method: "delete",
+  });
+};
+
+export const useUndoStaffRecommendation = ({
+  itemId,
+  packageId,
+  accountProjectId,
+}: UseSaveSubmissionParams) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => undoStaffRecommendation(itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, itemId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_VERSIONS, accountProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.PACKAGE_VERSIONS],
+      });
+      queryClient.removeQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACTIVITY_LOGS],
+      });
+    },
+  });
+};

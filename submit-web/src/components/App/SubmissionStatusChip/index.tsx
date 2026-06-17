@@ -11,7 +11,7 @@ import CheckIcon from "@mui/icons-material/Check";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
 import { BCDesignTokens } from "epic.theme";
-import React, { ReactNode, useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 
 // Map statuses to labels and themes
 type StyleProps = {
@@ -124,6 +124,8 @@ const statusMap: Record<string, StyleProps> = {
   },
 
   UPDATED: { label: "Updated", theme: "purple" },
+  NOT_APPLICABLE: { label: "Not Applicable", theme: "neutral" },
+  NOT_APPROVED: { label: "Not Approved", theme: "danger" },
 };
 
 type SubmissionStatusChipProps = Readonly<{
@@ -139,11 +141,7 @@ export function SubmissionStatusChip({
   }
 
   return (
-    <StatusChip
-      label={config.label}
-      theme={config.theme}
-      icon={config.icon}
-    />
+    <StatusChip label={config.label} theme={config.theme} icon={config.icon} />
   );
 }
 

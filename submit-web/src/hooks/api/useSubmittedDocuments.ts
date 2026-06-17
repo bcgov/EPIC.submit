@@ -1,20 +1,24 @@
-import { PaginatedDocumentsResponse, Submission, SubmittedDocument } from "@/models/Submission";
+import {
+  PaginatedDocumentsResponse,
+  Submission,
+  SubmittedDocument,
+} from "@/models/Submission";
 import { submitRequest } from "@/utils/axiosUtils";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 
-type GetProjectsByParamsForStaff = {
+type GetProjectsByParams = {
   searchOptions?: Record<string, string | number | string[]>;
   projectId?: number;
   page?: number;
   size?: number;
 };
-const getDocumentsForStaff = ({
+const getDocuments = ({
   searchOptions,
   projectId,
   page,
   size,
-}: GetProjectsByParamsForStaff) => {
+}: GetProjectsByParams) => {
   const url = "/documents";
 
   return submitRequest<SubmittedDocument[] | PaginatedDocumentsResponse>({
@@ -42,41 +46,47 @@ const getDocumentsForStaff = ({
   });
 };
 
-
-type UseGetDocumentsForStaffParams = {
+type UseGetDocumentsParams = {
   searchOptions?: Record<string, string | number | string[]>;
   projectId?: number;
   page?: number;
   size?: number;
+  enabled?: boolean;
 };
 
-export const getSubmittedDocumentsForStaffQueryOptions = ({
+export const getSubmittedDocumentsQueryOptions = ({
   searchOptions,
   projectId,
   page,
   size,
-}: UseGetDocumentsForStaffParams) =>
+}: UseGetDocumentsParams) =>
   queryOptions({
-    queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions, projectId, page, size],
-    queryFn: () => getDocumentsForStaff({ searchOptions, projectId, page, size }),
+    queryKey: [
+      QUERY_KEY.ACCOUNT_PROJECTS,
+      searchOptions,
+      projectId,
+      page,
+      size,
+    ],
+    queryFn: () => getDocuments({ searchOptions, projectId, page, size }),
     ...defaultUseQueryOptions,
   });
 
-export const useGetSubmittedDocumentsForStaff = ({
+export const useGetSubmittedDocuments = ({
   searchOptions,
   projectId,
   page,
   size,
-}: UseGetDocumentsForStaffParams) => {
-  const options = getSubmittedDocumentsForStaffQueryOptions({
+  enabled = true,
+}: UseGetDocumentsParams) => {
+  const options = getSubmittedDocumentsQueryOptions({
     searchOptions,
     projectId,
     page,
     size,
   });
-  return useQuery(options);
+  return useQuery({ ...options, enabled });
 };
-
 
 export const getSubmittedDocumentsByPackageIdForStaffQueryOptions = ({
   packageId,

@@ -116,7 +116,7 @@ export default function FormFieldSection({
             </Grid>
           </Grid>
           <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
-            <Typography variant="body1">
+            <Typography variant="body1" component="div">
               <ul
                 style={{
                   marginLeft: BCDesignTokens.layoutMarginSmall,

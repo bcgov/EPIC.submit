@@ -47,12 +47,20 @@ export type SubmissionItemStatus =
   | "REVISION_REQUESTED"
   | "NO_REVISION_REQUIRED"
   | "UNDER_REVIEW"
-  | "UNDER_CONSULTATION_CHECK";
+  | "NOT_APPLICABLE"
+  | "UNDER_CONSULTATION_CHECK"
+  | "ACKNOWLEDGED"
+  | "NOT_APPROVED"
+  | "WITHDRAWN";
 
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
   { value: SubmissionItemStatus; label: string }
 > = {
+  NOT_APPLICABLE: {
+    value: "NOT_APPLICABLE",
+    label: "Not Applicable",
+  },
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
@@ -137,6 +145,18 @@ export const SUBMISSION_ITEM_STATUS: Record<
     value: "UNDER_CONSULTATION_CHECK",
     label: "Under Consultation Check",
   },
+  ACKNOWLEDGED: {
+    value: "ACKNOWLEDGED",
+    label: "Acknowledged",
+  },
+  NOT_APPROVED: {
+    value: "NOT_APPROVED",
+    label: "Not Approved",
+  },
+  WITHDRAWN: {
+    value: "WITHDRAWN",
+    label: "Withdrawn",
+  },
 };
 
 export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
@@ -194,6 +214,22 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "APPROVED",
     label: "Approved",
   },
+  NOT_APPROVED: {
+    value: "NOT_APPROVED",
+    label: "Not Approved",
+  },
+  ACKNOWLEDGED: {
+    value: "ACKNOWLEDGED",
+    label: "Acknowledged",
+  },
+  REVIEW_REJECTED: {
+    value: "REVIEW_REJECTED",
+    label: "Review Rejected",
+  },
+  SUBMITTED: {
+    value: "SUBMITTED",
+    label: "Submitted",
+  },
 };
 
 export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
@@ -246,6 +282,18 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
+  },
+  NOT_APPROVED: {
+    value: "NOT_APPROVED",
+    label: "Not Approved",
+  },
+  ACKNOWLEDGED: {
+    value: "ACKNOWLEDGED",
+    label: "Acknowledged",
+  },
+  REVIEW_REJECTED: {
+    value: "REVIEW_REJECTED",
+    label: "Review Rejected",
   },
 };
 

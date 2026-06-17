@@ -4,14 +4,14 @@ import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import ActionButtons from "./ActionButtons";
-import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
-import { SubmitRadio } from "@/components/Shared/SubmitRadio";
-import { useQueryClient } from "@tanstack/react-query";
+import ControlledSelect from "@/components/Shared/ControlledFormFields/ControlledSelect";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { useMemo } from "react";
-import { consultationSchema, RadioOptions } from "./constants";
+import { consultationSchema, DropdownOptions } from "./constants";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
+import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import {
   SUBMISSION_REVIEW_ENTRY_TYPE,
   SUBMISSION_REVIEW_STATUS,
@@ -29,6 +29,7 @@ import { NotificationBox } from "./NotificationBox";
 import NotesSection from "@/components/App/SubmissionItem/NotesSection";
 import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
 import { When } from "react-if";
+import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -45,7 +46,7 @@ export default function ReviewSection() {
   const isStaff = checkIfStaff(roles);
   const isManager = checkIfManager(roles);
 
-  const { submissionId: submissionItemId } = useParams({
+  const { submissionId: submissionItemId, submissionPackageId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
 
@@ -98,16 +99,40 @@ export default function ReviewSection() {
   const managerAnswer = watch("manager.passedConsultationCheck");
 
   const failedConsultationCheck =
-    managerAnswer === RadioOptions.NO.value ||
-    (staffAnswer === RadioOptions.NO.value &&
-      managerAnswer !== RadioOptions.YES.value);
+    managerAnswer === DropdownOptions.NO.value ||
+    (staffAnswer === DropdownOptions.NO.value &&
+      managerAnswer !== DropdownOptions.YES.value);
 
   const isFormDisabled =
     (isStaff &&
       submissionItem?.review?.status ===
-        SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
+      SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
     submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED ||
     submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.REJECTED;
+
+  const { data: submissionPackage } = useSuspenseQuery(
+    getStaffSubmissionPackageQueryOptions({
+      packageId: Number(submissionPackageId),
+    }),
+  );
+
+  const isSubsequentVersion = useMemo(() => {
+    return Boolean(submissionPackage?.version && submissionPackage.version.version > 1);
+  }, [submissionPackage]);
+
+  const dropdownOptions = useMemo(() => {
+    const baseOptions = [
+      { value: DropdownOptions.YES.value, label: DropdownOptions.YES.label },
+      { value: DropdownOptions.NO.value, label: DropdownOptions.NO.label },
+    ];
+    if (isSubsequentVersion) {
+      baseOptions.push({
+        value: DropdownOptions.NOT_APPLICABLE.value,
+        label: DropdownOptions.NOT_APPLICABLE.label,
+      });
+    }
+    return baseOptions;
+  }, [isSubsequentVersion]);
 
   return (
     <Grid item container data-testid="review-section" xs={12}>
@@ -132,55 +157,45 @@ export default function ReviewSection() {
                 mb: BCDesignTokens.layoutMarginMedium,
               }}
             />
-            <NotesSection />
             <Typography
               variant="body1"
               sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
             >
               Based on the above information, has the holder passed the
-              Consultation Check?
+              Consultation Check for the {submissionPackage?.name}?
             </Typography>
 
-            <ControlledRadioGroup
+            <ControlledSelect
               name="staff.passedConsultationCheck"
-              hideError={isManager}
-            >
-              <SubmitRadio
-                label={RadioOptions.YES.label}
-                value={RadioOptions.YES.value}
-                disabled={isFormDisabled || isManager}
-              />
-              <SubmitRadio
-                label={RadioOptions.NO.label}
-                value={RadioOptions.NO.value}
-                disabled={isFormDisabled || isManager}
-              />
-            </ControlledRadioGroup>
+              placeholder="Select an option..."
+              options={dropdownOptions}
+              disabled={isFormDisabled || isManager}
+              clearable={false}
+              sx={{ width: "50%", mt: 1, mb: 0 }}
+            />
             <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.extended_eao_edit]}>
               <>
                 <Typography
                   variant="body1"
                   sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
                 >
-                  MANAGER CONFIRMATION:
+                  MANAGER'S CONFIRMATION
                 </Typography>
-                <ControlledRadioGroup name="manager.passedConsultationCheck">
-                  <SubmitRadio
-                    label={RadioOptions.YES.label}
-                    value={RadioOptions.YES.value}
-                    disabled={isFormDisabled}
-                  />
-                  <SubmitRadio
-                    label={RadioOptions.NO.label}
-                    value={RadioOptions.NO.value}
-                    disabled={isFormDisabled}
-                  />
-                </ControlledRadioGroup>
+                <ControlledSelect
+                  name="manager.passedConsultationCheck"
+                  placeholder="Select an option..."
+                  options={dropdownOptions}
+                  disabled={isFormDisabled}
+                  clearable={false}
+                  sx={{ width: "50%", mt: 1, mb: 0 }}
+                />
               </>
             </PermissionsGate>
+            <UndoTMRecommendationButton submissionItem={submissionItem} />
             <When condition={failedConsultationCheck}>
               <AddRequestSection disabled={isFormDisabled} />
             </When>
+            <NotesSection />
             <NotificationBox />
             <ActionButtons />
           </form>

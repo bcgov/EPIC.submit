@@ -13,7 +13,7 @@ import {
 } from "@/models/SubmissionReview";
 import { isAxiosError } from "axios";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { consultationSchema, RadioOptions } from "./constants";
+import { consultationSchema, DropdownOptions } from "./constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { When } from "react-if";
@@ -86,11 +86,11 @@ export default function ActionButtons() {
         data,
       );
 
-      const passed =
-        decisionData.passedConsultationCheck === RadioOptions.YES.value;
-      const updateRequestData = passed
-        ? {}
-        : consultationSchema.validateSyncAt("update_request", data);
+      const isNo =
+        decisionData.passedConsultationCheck === DropdownOptions.NO.value;
+      const updateRequestData = isNo
+        ? consultationSchema.validateSyncAt("update_request", data)
+        : {};
       const requestBody = {
         form_answers: {
           ...decisionData,
@@ -125,11 +125,11 @@ export default function ActionButtons() {
         getValues(),
       );
 
-      const passed =
-        staffDecision.passedConsultationCheck === RadioOptions.YES.value;
-      const updateRequestData = passed
-        ? {}
-        : consultationSchema.validateSyncAt("update_request", getValues());
+      const isNo =
+        staffDecision.passedConsultationCheck === DropdownOptions.NO.value;
+      const updateRequestData = isNo
+        ? consultationSchema.validateSyncAt("update_request", getValues())
+        : {};
 
       const requestBody = {
         status: SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
@@ -160,15 +160,17 @@ export default function ActionButtons() {
         getValues(),
       );
       const noDecision =
-        managerDecision.passedConsultationCheck === RadioOptions.NO.value;
+        managerDecision.passedConsultationCheck === DropdownOptions.NO.value;
       const updateRequestData = noDecision
         ? consultationSchema.validateSyncAt("update_request", getValues())
         : {};
 
       const passed =
-        managerDecision.passedConsultationCheck === RadioOptions.YES.value;
+        managerDecision.passedConsultationCheck === DropdownOptions.YES.value;
+      const notApplicable =
+        managerDecision.passedConsultationCheck === DropdownOptions.NOT_APPLICABLE.value;
       const requestBody = {
-        status: passed
+        status: (passed || notApplicable)
           ? SUBMISSION_REVIEW_STATUS.APPROVED
           : SUBMISSION_REVIEW_STATUS.REJECTED,
         form_answers: {

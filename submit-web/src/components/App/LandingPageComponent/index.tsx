@@ -127,8 +127,8 @@ export const LandingPageComponent = () => {
             <Typography variant="body1" mt={1}>
               For assistance with EPIC.submit, please contact the EAO support
               team at{" "}
-              <Link href={`mailto:${AppConfig.supportEmail}`}>
-                {AppConfig.supportEmail}
+              <Link href={`mailto:${AppConfig.supportMpEmail}`}>
+                {AppConfig.supportMpEmail}
               </Link>
             </Typography>
             <Box mt="24px">

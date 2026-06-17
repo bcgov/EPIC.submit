@@ -190,10 +190,10 @@ export const NewPlanDetails = ({
               correct condition but the information displayed is incorrect for
               that condition, please contact the EAO at
               <Link
-                href={`mailto:${AppConfig.supportEmail}`}
+                href={`mailto:${AppConfig.supportMpEmail}`}
                 sx={{ ml: BCDesignTokens.layoutMarginXsmall }}
               >
-                {AppConfig.supportEmail}
+                {AppConfig.supportMpEmail}
               </Link>
             </WarningBox>
           )}

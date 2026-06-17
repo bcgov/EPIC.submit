@@ -290,3 +290,25 @@ class RefusePackage(Resource):
         request_body = RefusePackageSchema().load(API.payload)
         new_package = PackageService.refuse_package(package_id, request_body.get("decision_date"))
         return PackageSchema().dump(new_package), HTTPStatus.CREATED
+
+
+@cors_preflight("OPTIONS, POST")
+@API.route("/<int:package_id>/withdraw", methods=["POST", "OPTIONS"])
+class WithdrawPackage(Resource):
+    """Resource for withdrawing a package."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Withdraw a submitted package"
+    )
+    @API.response(
+        code=HTTPStatus.OK, model=package_model, description="Withdrawn package"
+    )
+    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @cross_origin(origins=allowedorigins())
+    @auth.require
+    def post(package_id):
+        """Withdraw a submitted package."""
+        withdrawn_package = PackageService.withdraw_package(package_id)
+        return PackageSchema().dump(withdrawn_package), HTTPStatus.OK

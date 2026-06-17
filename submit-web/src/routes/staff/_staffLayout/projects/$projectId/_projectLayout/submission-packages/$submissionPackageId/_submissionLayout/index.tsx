@@ -61,8 +61,8 @@ export default function SubmissionPage() {
     refusePackage,
     isLoading,
     isLatestApprovedPackageVersion,
-    isNewerThanLastApprovedButNotApproved,
-    hasAnyApprovedPackageVersion,
+    isRejectedOrReplaced,
+    displaySubmissionBanner,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,
@@ -149,6 +149,8 @@ export default function SubmissionPage() {
           });
         }}
         onCancel={() => setCloseModal()}
+        hasOpenUpdateRequests={sentUpdateRequests.length > 0}
+        openRequestSectionNames={openRequestSectionNames}
       />,
     );
   };
@@ -202,7 +204,7 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
-                  mb: hasAnyApprovedPackageVersion
+                  mb: displaySubmissionBanner
                     ? 0
                     : BCDesignTokens.layoutMarginXlarge,
                 }}
@@ -243,13 +245,7 @@ export default function SubmissionPage() {
                   </Typography>
                 </SuccessBox>
               </When>
-              <When
-                condition={
-                  !isLatestApprovedPackageVersion &&
-                  hasAnyApprovedPackageVersion &&
-                  !isNewerThanLastApprovedButNotApproved
-                }
-              >
+              <When condition={isRejectedOrReplaced}>
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
@@ -281,10 +277,6 @@ export default function SubmissionPage() {
               </When>
               <Box
                 sx={{
-                  mt:
-                    accountProject.account_project_works?.length === 0
-                      ? "36px"
-                      : "0px",
                   mb: BCDesignTokens.layoutMarginXlarge,
                   pt: BCDesignTokens.layoutPaddingXsmall,
                 }}

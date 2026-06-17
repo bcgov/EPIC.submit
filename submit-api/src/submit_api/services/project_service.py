@@ -39,7 +39,7 @@ class ProjectService:
             raise PermissionDeniedError("User does not belong to this account")
 
         projects, _ = ProjectQueries.get_filtered_account_projects_paginated(
-            account_id, search_options, None, None, is_proponent, user
+            search_options, None, None, is_proponent, user
         )
         return projects
 
@@ -75,4 +75,4 @@ class ProjectService:
                                            page: int = 1, page_size: int = 10, is_proponent: bool = True):
         """Get projects with pagination."""
         return ProjectQueries.get_filtered_account_projects_paginated(
-            None, search_options, page, page_size, is_proponent)
+            search_options, page, page_size, is_proponent)

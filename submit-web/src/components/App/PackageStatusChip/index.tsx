@@ -59,6 +59,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
       theme: "warning",
     },
     INTERNAL_VERIFICATION: { label: "Internal Verification", theme: "warning" },
+    WITHDRAWN: { label: "Withdrawn", theme: "warning" },
 
     NEW: { label: "New", theme: "decision" },
     NEW_SUBMISSION: { label: "New Submission", theme: "purple" },
