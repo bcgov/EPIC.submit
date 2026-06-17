@@ -22,14 +22,16 @@ type StatusFilterProps = {
   multiple?: boolean;
   error?: boolean;
   onFocus?: () => void;
+  availableStatuses?: string[];
 };
 
 function StatusFilter({
-    value: controlledValue,
-    onChange,
-    multiple = true,
-    error,
-    onFocus,
+  value: controlledValue,
+  onChange,
+  multiple = true,
+  error,
+  onFocus,
+  availableStatuses,
 }: StatusFilterProps) {
   const store = useProjectFilters();
   const { userType } = useAccount();
@@ -39,7 +41,14 @@ function StatusFilter({
     ? PROPONENT_SUBMISSION_ITEM_FILTERS
     : EAO_SUBMISSION_ITEM_FILTERS;
 
-  const internalValue = controlledValue !== undefined ? controlledValue : store.filters.status;
+  const internalValue =
+    controlledValue !== undefined ? controlledValue : store.filters.status;
+
+  const displayedStatuses = availableStatuses
+    ? Object.values(statusFilters).filter((status) =>
+        availableStatuses.includes(status.value),
+      )
+    : Object.values(statusFilters);
 
   const handleChange = (event: SelectChangeEvent<string | string[]>) => {
     const value = event.target.value;
@@ -126,7 +135,7 @@ function StatusFilter({
           return <SubmissionStatusChip status={selected} />;
         }}
       >
-        {Object.values(statusFilters).map((status) => (
+        {displayedStatuses.map((status) => (
           <MenuItem
             key={status.value}
             value={status.value}

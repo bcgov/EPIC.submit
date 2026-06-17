@@ -13,7 +13,7 @@
 # limitations under the License.
 """Model to handle all complex operations related to Submitted Documents."""
 
-from sqlalchemy import cast, or_, String
+from sqlalchemy import cast, and_, or_, String
 from submit_api.models.account_project import AccountProject
 from submit_api.models.account_project_search_options import DocumentSearchOptions, ProjectDocumentSearchOptions
 from submit_api.models.db import db
@@ -130,7 +130,8 @@ class DocumentQueries:
             Submission.minor_version,
             Package.submitted_on,
             Item.status,
-            Submission.root_submission_id
+            Submission.root_submission_id,
+            Project.has_approved_condition
         )
 
         query = query.join(Item, Item.id == Submission.item_id)
@@ -147,7 +148,7 @@ class DocumentQueries:
             Submission.type == SubmissionType.DOCUMENT,
             Submission.active.is_(True),
             Submission.deleted.is_(False),
-            Submission.status != SubmissionStatus.PENDING
+            or_(Submission.status != SubmissionStatus.PENDING, Submission.status.is_(None))
         )
 
         if search_options.project_id:
@@ -169,7 +170,17 @@ class DocumentQueries:
                 cast(TrackWork.title, String) + " - " +
                 cast(TrackPhase.name, String)
             )
-            query = query.filter(work_phase_concat.in_(search_options.work_phase))
+            DEFAULT_WORK_PHASE = "Management Plan & Related Documents - Post Decision"
+            
+            conditions = [work_phase_concat.in_(search_options.work_phase)]
+            if DEFAULT_WORK_PHASE in search_options.work_phase:
+                conditions.append(
+                    and_(
+                        Package.account_project_work_id.is_(None),
+                        Project.has_approved_condition.is_(True)
+                    )
+                )
+            query = query.filter(or_(*conditions))
 
         if search_options.submitted_on_start:
             query = query.filter(Package.submitted_on >= search_options.submitted_on_start)

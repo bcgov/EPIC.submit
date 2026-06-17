@@ -125,6 +125,7 @@ const statusMap: Record<string, StyleProps> = {
 
   UPDATED: { label: "Updated", theme: "purple" },
   NOT_APPLICABLE: { label: "Not Applicable", theme: "neutral" },
+  NOT_APPROVED: { label: "Not Approved", theme: "danger" },
 };
 
 type SubmissionStatusChipProps = Readonly<{
@@ -140,11 +141,7 @@ export function SubmissionStatusChip({
   }
 
   return (
-    <StatusChip
-      label={config.label}
-      theme={config.theme}
-      icon={config.icon}
-    />
+    <StatusChip label={config.label} theme={config.theme} icon={config.icon} />
   );
 }
 

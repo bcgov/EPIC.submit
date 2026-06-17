@@ -51,6 +51,7 @@ type UseGetDocumentsParams = {
   projectId?: number;
   page?: number;
   size?: number;
+  enabled?: boolean;
 };
 
 export const getSubmittedDocumentsQueryOptions = ({
@@ -76,6 +77,7 @@ export const useGetSubmittedDocuments = ({
   projectId,
   page,
   size,
+  enabled = true,
 }: UseGetDocumentsParams) => {
   const options = getSubmittedDocumentsQueryOptions({
     searchOptions,
@@ -83,7 +85,7 @@ export const useGetSubmittedDocuments = ({
     page,
     size,
   });
-  return useQuery(options);
+  return useQuery({ ...options, enabled });
 };
 
 export const getSubmittedDocumentsByPackageIdForStaffQueryOptions = ({

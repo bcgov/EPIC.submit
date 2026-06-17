@@ -6,6 +6,7 @@ from submit_api.models import PackageType, TrackPhase, ItemType, PackageItemType
 from submit_api.models.db import db
 from submit_api.models.item_type import SubmissionMethod
 from submit_api.utils.constants import SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP
+from submit_api.models.queries.package_type import PackageTypeQueries
 
 
 class PackageTypeService:
@@ -231,3 +232,10 @@ class PackageTypeService:
             response['work_type_name'] = None
 
         return response
+
+    @staticmethod
+    def get_by_project_id(project_id: int) -> List[PackageType]:
+        """Get package types available for a given project based on its active work phases
+        and whether it has approved conditions.
+        """
+        return PackageTypeQueries.find_by_project_id(project_id)
