@@ -214,6 +214,22 @@ export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
     value: "APPROVED",
     label: "Approved",
   },
+  NOT_APPROVED: {
+    value: "NOT_APPROVED",
+    label: "Not Approved",
+  },
+  ACKNOWLEDGED: {
+    value: "ACKNOWLEDGED",
+    label: "Acknowledged",
+  },
+  REVIEW_REJECTED: {
+    value: "REVIEW_REJECTED",
+    label: "Review Rejected",
+  },
+  SUBMITTED: {
+    value: "SUBMITTED",
+    label: "Submitted",
+  },
 };
 
 export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
@@ -266,6 +282,18 @@ export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
+  },
+  NOT_APPROVED: {
+    value: "NOT_APPROVED",
+    label: "Not Approved",
+  },
+  ACKNOWLEDGED: {
+    value: "ACKNOWLEDGED",
+    label: "Acknowledged",
+  },
+  REVIEW_REJECTED: {
+    value: "REVIEW_REJECTED",
+    label: "Review Rejected",
   },
 };
 

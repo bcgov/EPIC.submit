@@ -1,22 +1,22 @@
-import { useMemo, useState } from "react";
+import DateSubmittedFromFilter from "@/components/App/Filters/DateSubmittedFromFilter";
+import DateSubmittedToFilter from "@/components/App/Filters/DateSubmittedToFilter";
+import { SearchFilter } from "@/components/App/Filters/SearchFilter";
+import StatusFilter from "@/components/App/Filters/StatusFilter";
+import { useGetPackageTypesByProjectId } from "@/hooks/api/usePackageTypes";
+import { AccountProject } from "@/models/Project";
+import FilterAltOffOutlinedIcon from "@mui/icons-material/FilterAltOffOutlined";
 import {
   Box,
+  Chip,
+  FormControl,
+  FormHelperText,
+  Grid,
   MenuItem,
   Select,
   Typography,
-  FormControl,
-  Grid,
-  FormHelperText,
-  Chip,
 } from "@mui/material";
-import { SubmissionPackageType } from "@/models/Package";
-import { AccountProject } from "@/models/Project";
 import { BCDesignTokens } from "epic.theme";
-import { SearchFilter } from "@/components/App/Filters/SearchFilter";
-import StatusFilter from "@/components/App/Filters/StatusFilter";
-import DateSubmittedFromFilter from "@/components/App/Filters/DateSubmittedFromFilter";
-import DateSubmittedToFilter from "@/components/App/Filters/DateSubmittedToFilter";
-import FilterAltOffOutlinedIcon from "@mui/icons-material/FilterAltOffOutlined";
+import { useMemo, useState } from "react";
 
 export type DocumentFilters = {
   name: string;
@@ -32,6 +32,7 @@ type DocumentFilterProps = {
   setFilters: (filters: DocumentFilters) => void;
   selectedProject: AccountProject | undefined;
   projectSelected: boolean;
+  availableStatuses?: string[];
 };
 
 export const DocumentFilter = ({
@@ -39,24 +40,41 @@ export const DocumentFilter = ({
   setFilters,
   selectedProject,
   projectSelected,
+  availableStatuses,
 }: DocumentFilterProps) => {
   const [searchTerm, setSearchTerm] = useState(filters.name);
   const [showValidation, setShowValidation] = useState(false);
 
   // Available Work/Phases from selected project
   const availableWorkPhases = useMemo(() => {
-    if (!selectedProject?.account_project_works) return [];
-    const workPhases = selectedProject.account_project_works.map((apw) => {
-      const workTitle = apw.work?.title ?? "";
-      const phaseName = apw.work?.current_phase?.name ?? "";
-      return `${workTitle} - ${phaseName}`;
-    });
+    if (!selectedProject) return [];
+
+    const workPhases = [];
+
+    if (selectedProject.account_project_works) {
+      workPhases.push(
+        ...selectedProject.account_project_works.map((apw) => {
+          const workTitle = apw.work?.title ?? "";
+          const phaseName = apw.work?.current_phase?.name ?? "";
+          return `${workTitle} - ${phaseName}`;
+        }),
+      );
+    }
+
+    if (selectedProject.project.has_approved_condition) {
+      workPhases.push("Management Plan & Related Documents - Post Decision");
+    }
+
     // Return unique values
     return Array.from(new Set(workPhases)).filter(Boolean);
   }, [selectedProject]);
 
   // Submission types
-  const submissionTypes = Object.values(SubmissionPackageType);
+  const { data: packageTypes } = useGetPackageTypesByProjectId({
+    projectId: selectedProject?.project_id,
+    enabled: Boolean(selectedProject),
+  });
+  const submissionTypes = packageTypes?.map((pt) => pt.name) ?? [];
 
   const handleFilterChange = (
     key: keyof DocumentFilters,
@@ -232,6 +250,7 @@ export const DocumentFilter = ({
             onChange={(val) => handleFilterChange("status", val)}
             error={!projectSelected && showValidation}
             onFocus={handleValidationCheck}
+            availableStatuses={availableStatuses}
           />
         </Grid>
 

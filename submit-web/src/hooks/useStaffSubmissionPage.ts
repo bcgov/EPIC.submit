@@ -121,7 +121,8 @@ export function useStaffSubmissionPage({
     currentPackageVersion?.is_latest && !currentPackageVersion?.is_approved;
 
   const isRejectedOrReplaced =
-    (packageVersions?.at(0)?.package_id !== submissionPackageId &&
+    (!approval_type &&
+      packageVersions?.at(0)?.package_id !== submissionPackageId &&
       !currentPackageVersion?.is_approved) ||
     (currentPackageVersion?.is_approved && !isLatestApprovedPackageVersion);
 

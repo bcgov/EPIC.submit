@@ -79,11 +79,27 @@ function DocumentsPage() {
     searchOptions: searchOptions as any,
   });
 
+  const { data: unfilteredDocumentsData } = useGetSubmittedDocuments({
+    projectId: selectedProjectId || undefined,
+    page: 1,
+    size: 1000,
+    searchOptions: {} as any,
+    enabled: selectedProjectId !== "",
+  });
+
   useEffect(() => {
     if (isDocumentsError) {
       notify.error("Failed to load documents");
     }
   }, [isDocumentsError]);
+
+  const availableStatuses = useMemo(() => {
+    const data = unfilteredDocumentsData as PaginatedDocumentsResponse;
+    if (!data?.items) return [];
+    return Array.from(new Set(data.items.map((doc) => doc.status))).filter(
+      Boolean,
+    );
+  }, [unfilteredDocumentsData]);
 
   if (isDocumentsError) {
     return <Navigate to={"/error"} />;
@@ -116,6 +132,7 @@ function DocumentsPage() {
           setFilters={handleFilterChange}
           selectedProject={selectedProject}
           projectSelected={selectedProjectId !== ""}
+          availableStatuses={availableStatuses}
         />
         <ContentBox mainLabel={"Documents"} contentBoxVariant="secondary">
           <ProjectsSelect

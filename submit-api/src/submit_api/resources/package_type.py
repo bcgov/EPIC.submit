@@ -48,6 +48,24 @@ class PackageTypeByPhaseResource(Resource):
         return schema.dump(package_types), HTTPStatus.OK
 
 
+@cors_preflight('GET,OPTIONS')
+@API.route('/project/<int:project_id>', methods=['GET', 'OPTIONS'])
+class PackageTypeByProjectResource(Resource):
+    """Resource for fetching package types by project."""
+
+    @API.doc('get_package_types_by_project')
+    @API.response(
+        code=HTTPStatus.OK,
+        model=[package_type_response_model],
+        description='Package types retrieved successfully'
+    )
+    @auth.require
+    def get(self, project_id):
+        """Get all package types available for a given project."""
+        package_types = PackageTypeService.get_by_project_id(project_id)
+        return PackageTypeSchema(many=True).dump(package_types), HTTPStatus.OK
+
+
 @cors_preflight('POST,OPTIONS')
 @API.route('', methods=['POST', 'OPTIONS'])
 class PackageTypeResource(Resource):

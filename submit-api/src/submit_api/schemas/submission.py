@@ -122,7 +122,7 @@ class PaginatedProjectDocumentItemSchema(Schema):
     id = fields.Int(data_key="id")
     name = fields.Str(data_key="name")
     project_name = fields.Str(data_key="project_name")
-    work = fields.Str(data_key="work")
+    work = fields.Method("get_work")
     phase = fields.Method("get_phase")
     version = fields.Method("get_version")
     submitted_on = fields.DateTime(data_key="submitted_on")
@@ -132,7 +132,15 @@ class PaginatedProjectDocumentItemSchema(Schema):
 
     def get_phase(self, obj):
         """Get the phase name."""
+        if obj.has_approved_condition:
+            return "Post Decision"
         return obj.phase_display_name if obj.phase_display_name else obj.phase_name
+
+    def get_work(self, obj):
+        """Get the work title."""
+        if obj.has_approved_condition:
+            return "Management Plan & Related Documents"
+        return obj.work
 
     def get_version(self, obj):
         """Get the version."""

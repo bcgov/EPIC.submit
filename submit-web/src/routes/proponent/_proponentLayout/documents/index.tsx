@@ -73,10 +73,19 @@ function DocumentsPage() {
     isPending: isDocumentsLoading,
     isError: isDocumentsError,
   } = useGetSubmittedDocuments({
-    projectId: selectedProjectId === "" ? undefined : selectedProjectId,
+    projectId: selectedProjectId || undefined,
     page: currentPage,
     size: pageSize,
     searchOptions: searchOptions as any,
+    enabled: selectedProjectId !== "",
+  });
+
+  const { data: unfilteredDocumentsData } = useGetSubmittedDocuments({
+    projectId: selectedProjectId || undefined,
+    page: 1,
+    size: 1000,
+    searchOptions: {} as any,
+    enabled: selectedProjectId !== "",
   });
 
   useEffect(() => {
@@ -84,6 +93,14 @@ function DocumentsPage() {
       notify.error("Failed to load documents");
     }
   }, [isDocumentsError]);
+
+  const availableStatuses = useMemo(() => {
+    const data = unfilteredDocumentsData as PaginatedDocumentsResponse;
+    if (!data?.items) return [];
+    return Array.from(new Set(data.items.map((doc) => doc.status))).filter(
+      Boolean,
+    );
+  }, [unfilteredDocumentsData]);
 
   if (isDocumentsError) {
     return <Navigate to={"/error"} />;
@@ -116,6 +133,7 @@ function DocumentsPage() {
           setFilters={handleFilterChange}
           selectedProject={selectedProject}
           projectSelected={selectedProjectId !== ""}
+          availableStatuses={availableStatuses}
         />
         <ContentBox mainLabel={"Documents"} contentBoxVariant="secondary">
           {projects.length > 1 ? (
