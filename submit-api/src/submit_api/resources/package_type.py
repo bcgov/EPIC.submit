@@ -47,6 +47,7 @@ class PackageTypeByPhaseResource(Resource):
         schema = PackageTypeSchema(many=True)
         return schema.dump(package_types), HTTPStatus.OK
 
+
 @cors_preflight('GET,OPTIONS')
 @API.route('/project/<int:project_id>', methods=['GET', 'OPTIONS'])
 class PackageTypeByProjectResource(Resource):

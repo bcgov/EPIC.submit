@@ -93,9 +93,6 @@ function DocumentsPage() {
     }
   }, [isDocumentsError]);
 
-  if (isDocumentsError) {
-    return <Navigate to={"/error"} />;
-  }
   const availableStatuses = useMemo(() => {
     const data = unfilteredDocumentsData as PaginatedDocumentsResponse;
     if (!data?.items) return [];
@@ -103,6 +100,10 @@ function DocumentsPage() {
       Boolean,
     );
   }, [unfilteredDocumentsData]);
+
+  if (isDocumentsError) {
+    return <Navigate to={"/error"} />;
+  }
 
   const handleProjectChange = (projectId: number) => {
     setSelectedProjectId(projectId);

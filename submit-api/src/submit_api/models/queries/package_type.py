@@ -19,13 +19,14 @@ from submit_api.models.package_type import PackageType
 from submit_api.models.project import Project
 from submit_api.models.track_work import TrackWork
 
+
 # pylint: disable=too-few-public-methods
 class PackageTypeQueries:
     """Query module for complex package_type queries"""
+
     @classmethod
     def find_by_project_id(cls, project_id: int):
-        """Return package types associated with a project's current work phases,
-        plus Management Plan types if project has approved conditions."""
+        """Return package types associated with a project's current work phases."""
         # Get phase IDs from active works on this project
         phase_ids = (
             db.session.query(TrackWork.current_phase_id)

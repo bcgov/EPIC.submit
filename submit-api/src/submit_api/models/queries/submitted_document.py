@@ -170,10 +170,10 @@ class DocumentQueries:
                 cast(TrackWork.title, String) + " - " +
                 cast(TrackPhase.name, String)
             )
-            DEFAULT_WORK_PHASE = "Management Plan & Related Documents - Post Decision"
-            
+            default_work_phase = "Management Plan & Related Documents - Post Decision"
+
             conditions = [work_phase_concat.in_(search_options.work_phase)]
-            if DEFAULT_WORK_PHASE in search_options.work_phase:
+            if default_work_phase in search_options.work_phase:
                 conditions.append(
                     and_(
                         Package.account_project_work_id.is_(None),

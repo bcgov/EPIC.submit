@@ -235,7 +235,5 @@ class PackageTypeService:
 
     @staticmethod
     def get_by_project_id(project_id: int) -> List[PackageType]:
-        """Get package types available for a given project based on its active work phases
-        and whether it has approved conditions.
-        """
+        """Get package types available for a given project based on its active work phases"""
         return PackageTypeQueries.find_by_project_id(project_id)
