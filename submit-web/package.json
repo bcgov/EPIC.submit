@@ -28,7 +28,7 @@
     "@tanstack/router-plugin": "^1.161.3",
     "axios": "^1.16.0",
     "dayjs": "^1.11.13",
-    "dompurify": "^3.4.0",
+    "dompurify": "^3.4.9",
     "epic.theme": "latest",
     "jwt-decode": "^4.0.0",
     "keycloak-js": "^25.0.1",
