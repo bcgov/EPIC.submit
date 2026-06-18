@@ -24,6 +24,13 @@ class StaffUser(BaseModel):
     work_email_address = Column(db.String(100), nullable=False)
     user_id = Column(db.Integer, ForeignKey('users.id'), nullable=False, unique=True)
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
+    work_assignments = db.relationship(
+        'StaffUserWork',
+        back_populates='staff_user',
+        lazy='select',
+        cascade='all, delete',
+        passive_deletes=True
+    )
 
     @classmethod
     def create_staff_user(cls, data, session=None) -> StaffUser:

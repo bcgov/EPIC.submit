@@ -31,6 +31,13 @@ class TrackWork(BaseModel):
 
     project = db.relationship('Project', foreign_keys=[project_id], lazy='joined')
     current_phase = db.relationship('TrackPhase', foreign_keys=[current_phase_id], lazy='joined')
+    staff_assignments = db.relationship(
+        'StaffUserWork',
+        foreign_keys='StaffUserWork.work_id',
+        lazy='select',
+        cascade='all, delete',
+        passive_deletes=True
+    )
 
     __table_args__ = (
         db.Index('idx_track_works_project_id', 'project_id'),

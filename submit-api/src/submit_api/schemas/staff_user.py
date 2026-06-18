@@ -20,6 +20,7 @@ class StaffUserSchema(Schema):
     full_name = fields.Str(data_key="full_name")
     work_email_address = fields.Str(data_key="work_email_address")
     user_id = fields.Int(data_key="user_id")
+    work_assignments = fields.List(fields.Nested('StaffUserWorkSchema'), data_key="work_assignments")
 
 
 class CreateStaffUserRequest(Schema):

@@ -33,6 +33,7 @@ from .package_version import PackageVersion
 from .project import Project
 from .proponent import Proponent
 from .staff_user import StaffUser
+from .staff_user_work import StaffUserWork
 from .submission import Submission
 from .submission_review import SubmissionReview
 from .submission_review_entry import SubmissionReviewEntry

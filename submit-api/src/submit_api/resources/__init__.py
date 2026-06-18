@@ -39,6 +39,7 @@ from .package_type import API as PACKAGE_TYPE_API
 from .project import API as PROJECT_API
 from .proponent import API as PROPONENT_API
 from .staff_user import API as STAFF_USER_API
+from .staff_user_work import API as STAFF_USER_WORK_API
 from .submission import API as SUBMISSION_API
 from .submission_item_note import API as SUBMISSION_ITEM_NOTE_API
 from .submitted_document import API as SUBMITTED_DOCUMENT_API
@@ -87,6 +88,7 @@ API.add_namespace(INTERNAL_DOCUMENT_API)
 API.add_namespace(SUBMITTED_DOCUMENT_API)
 API.add_namespace(SUBMISSION_ITEM_NOTE_API)
 API.add_namespace(STAFF_USER_API)
+API.add_namespace(STAFF_USER_WORK_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,
