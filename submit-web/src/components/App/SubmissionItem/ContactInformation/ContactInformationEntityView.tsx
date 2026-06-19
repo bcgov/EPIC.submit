@@ -395,7 +395,7 @@ export const ContactInformationEntityView = () => {
             </Grid>
             <Grid item xs={12}>
               <Typography
-                variant="body1"
+                variant="h6"
                 sx={{
                   fontWeight: "bold",
                 }}
@@ -485,7 +485,7 @@ export const ContactInformationEntityView = () => {
             </Grid>
             <Grid item xs={12}>
               <Typography
-                variant="body1"
+                variant="h6"
                 sx={{
                   fontWeight: "bold",
                 }}
