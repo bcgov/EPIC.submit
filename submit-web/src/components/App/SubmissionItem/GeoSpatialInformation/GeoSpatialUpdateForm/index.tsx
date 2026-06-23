@@ -1,18 +1,18 @@
-import { useState, lazy, Suspense } from "react";
+import { useMemo, useState, lazy, Suspense } from "react";
 import { Box, Button, Typography, Grid } from "@mui/material";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { deleteDocument, S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { BCDesignTokens } from "epic.theme";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
-import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import { Submission } from "@/models/Submission";
 import { useQueryClient } from "@tanstack/react-query";
-import { SubmissionItem } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { GeoSpatialGuidelines } from "../GeoSpatialGuidelines";
+import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
 
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
@@ -29,13 +29,7 @@ export const GeoSpatialUpdateForm = () => {
   });
 
   const queryClient = useQueryClient();
-  const submissionItem = queryClient.getQueryData<SubmissionItem>([
-    QUERY_KEY.SUBMISSION_ITEM,
-    Number(submissionItemId),
-  ]);
-
   const [isPendingUpload, setIsPendingUpload] = useState(false);
-  const [previewUpload, setPreviewUpload] = useState<GeoUpload | null>(null);
   const [previewDocument, setPreviewDocument] = useState<Submission | null>(null);
 
   const { data: geoUploads } = useGetGeoUploads({
@@ -43,6 +37,20 @@ export const GeoSpatialUpdateForm = () => {
     autoRefetch: true,
   });
   const uploads = geoUploads as unknown as GeoUpload[];
+
+  // Derive previewUpload reactively so the modal updates as polling resolves status
+  const previewUpload = useMemo<GeoUpload | null>(() => {
+    if (!previewDocument || !uploads) return null;
+    return (
+      uploads.find(
+        (u) => u.raw_s3_key === previewDocument.submitted_document?.url,
+      ) ?? null
+    );
+  }, [previewDocument, uploads]);
+
+  const { mutateAsync: deleteSubmissionAsync } = useDeleteSubmission({
+    submissionItemId: Number(submissionItemId),
+  });
 
   const handleSaveAndExit = () => {
     navigate({
@@ -60,32 +68,42 @@ export const GeoSpatialUpdateForm = () => {
       return;
     }
 
-    if (upload.status === "ready" || upload.status === "failed") {
-      setPreviewUpload(upload);
-      setPreviewDocument(documentItem);
-    } else if (upload.status === "processing") {
+    if (upload.status === "processing") {
       notify.info("Geospatial processing is in progress. Please wait.");
-    } else {
-      notify.error(
-        upload.error_message || "Processing failed for this file.",
-      );
+      return;
+    }
+
+    setPreviewDocument(documentItem);
+  };
+
+  // Called by AddDocumentActionButton once a geo file finishes uploading
+  const onUploadComplete = (submission: Submission) => {
+    setPreviewDocument(submission);
+  };
+
+  const handleApprove = () => {
+    setPreviewDocument(null);
+  };
+
+  const handleReject = async () => {
+    if (!previewDocument) return;
+    const filepath = previewDocument.submitted_document?.url ?? "";
+    try {
+      await deleteDocument({ filepath });
+      await deleteSubmissionAsync(previewDocument.id);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.SUBMISSION_ITEM, Number(submissionItemId)],
+      });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GEO_UPLOADS] });
+      notify.success("Geospatial file rejected and removed.");
+    } catch {
+      notify.error("Failed to remove geospatial file.");
+    } finally {
+      setPreviewDocument(null);
     }
   };
 
-  const documentSubmissions = submissionItem?.submissions?.filter(
-    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
-  );
-
-  const geoSubmissions =
-    documentSubmissions?.filter(
-      (submission) =>
-        submission.submitted_document?.folder === S3_FOLDER.GEOSPATIAL.value,
-    ) || [];
-
-  const previewIndex = previewDocument
-    ? geoSubmissions.findIndex((s) => s.id === previewDocument.id) + 1
-    : 0;
-  const totalGeoFiles = geoSubmissions.length;
+  const isBlockedFromExit = isPendingUpload || previewDocument !== null;
 
   return (
     <SubmissionFormContainer>
@@ -112,6 +130,7 @@ export const GeoSpatialUpdateForm = () => {
             setIsPendingUpload={setIsPendingUpload}
             isGeoSpatial={true}
             onDocumentClick={handleDocumentClick}
+            onUploadComplete={onUploadComplete}
           />
         </Box>
       </Box>
@@ -119,21 +138,21 @@ export const GeoSpatialUpdateForm = () => {
       {/* Map Preview Modal */}
       <Suspense fallback={null}>
         <MapPreviewModal
+          open={previewDocument !== null}
           uploadId={previewUpload?.id ?? null}
           documentItem={previewDocument}
           fileSizeKb={previewUpload?.file_size_kb}
-          status={previewUpload?.status}
+          status={
+            previewUpload?.status ??
+            (previewDocument !== null ? "processing" : undefined)
+          }
           errorMessage={previewUpload?.error_message}
-          fileIndex={previewIndex}
-          totalFiles={totalGeoFiles}
-          onClose={() => {
-            setPreviewUpload(null);
-            setPreviewDocument(null);
-          }}
+          onApprove={handleApprove}
+          onReject={handleReject}
         />
       </Suspense>
 
-      <UnfinishedUploadsCheck customCondition={isPendingUpload}>
+      <UnfinishedUploadsCheck customCondition={isBlockedFromExit}>
         <Button
           sx={{
             mt: "3em",
