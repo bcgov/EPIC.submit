@@ -32,6 +32,7 @@ export interface UploadSectionConfig {
   acceptedFileTypes?: string[];
   acceptedFileTypesCriteria?: string;
   onDocumentClick?: (documentItem: Submission) => void;
+  onUploadComplete?: (submission: Submission) => void;
 }
 
 interface GenericDocumentUploadSectionProps {
@@ -238,6 +239,7 @@ export const GenericDocumentUploadSection: React.FC<
                 isGeoSpatial={section.name === "geospatial"}
                 formFieldName={section.name}
                 onDocumentClick={section.onDocumentClick}
+                onUploadComplete={section.onUploadComplete}
               />
             </Box>
           </Grid>

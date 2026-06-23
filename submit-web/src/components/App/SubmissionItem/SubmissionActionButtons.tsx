@@ -5,10 +5,12 @@ export default function SubmissionActionButtons({
   saveAndClose,
   onSubmit,
   submitButtonText = "Save Completed Form",
+  submitCondition,
 }: Readonly<{
   saveAndClose?: () => void;
   onSubmit?: () => void;
   submitButtonText?: string;
+  submitCondition?: boolean;
 }>) {
   return (
     <Grid item xs={12} container spacing={2}>
@@ -23,7 +25,7 @@ export default function SubmissionActionButtons({
       )}
       {onSubmit && (
         <Grid item xs={12} sm="auto">
-          <UnfinishedUploadsCheck>
+          <UnfinishedUploadsCheck customCondition={submitCondition}>
             <Button onClick={onSubmit}>{submitButtonText}</Button>
           </UnfinishedUploadsCheck>
         </Grid>

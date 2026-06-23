@@ -3,7 +3,7 @@ import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BCDesignTokens } from "epic.theme";
-import { Grid, Link, List, ListItem, Typography } from "@mui/material";
+import { Grid } from "@mui/material";
 import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
@@ -16,23 +16,15 @@ import { PendingRequest, SentRequest } from "@/components/App/SubmissionItem/Sec
 import { getSubmissionPackageQueryOptions, useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { styled } from "@mui/material/styles";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
 import { Submission } from "@/models/Submission";
-import { GEO_DOC_LABELS, GEO_DOC_LINKS } from "./constants";
+import { GeoSpatialGuidelines } from "./GeoSpatialGuidelines";
 
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
     default: m.MapPreviewModal,
   })),
 );
-
-const StyledListItem = styled(ListItem)({
-  padding: 2,
-  display: "list-item",
-  listStyleType: "disc",
-  color: BCDesignTokens.themeBlue100,
-});
 
 export const GeoSpatialStaffView = () => {
   const {
@@ -186,67 +178,7 @@ export const GeoSpatialStaffView = () => {
     <SubmissionFormContainer>
       <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
         <Grid item xs={12}>
-          <Typography variant="body2">
-            Please download the EAO's{" "}
-            <Link
-              href={GEO_DOC_LINKS[GEO_DOC_LABELS.SPATIAL_GUIDELINE]}
-              underline="always"
-              sx={{ color: BCDesignTokens.themeBlue100 }}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Spacial Data Submission Guideline
-            </Link>{" "}
-            (PDF, 5.1MB) to understand GIS files requirements.
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 2 }}>
-            You can also download these shape file templates to help you get
-            started.
-          </Typography>
-          <List sx={{ pl: 4 }}>
-            <StyledListItem>
-              <Typography variant="body2">
-                <Link
-                  href={GEO_DOC_LINKS[GEO_DOC_LABELS.EAOShapeFiles]}
-                  underline="always"
-                  sx={{ color: BCDesignTokens.themeBlue100 }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  EAOShapeFiles
-                </Link>
-              </Typography>
-            </StyledListItem>
-            <StyledListItem>
-              <Typography variant="body2">
-                <Link
-                  href={GEO_DOC_LINKS[GEO_DOC_LABELS.EAO_ESRI_FileGDB]}
-                  underline="always"
-                  sx={{ color: BCDesignTokens.themeBlue100 }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  EAO_ESRI_FileGDB
-                </Link>{" "}
-                (with domains - may be submitted as an alternative to
-                individual shapefiles)
-              </Typography>
-            </StyledListItem>
-            <StyledListItem>
-              <Typography variant="body2">
-                <Link
-                  href={GEO_DOC_LINKS[GEO_DOC_LABELS.EOA_QGISGeopackage]}
-                  underline="always"
-                  sx={{ color: BCDesignTokens.themeBlue100 }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  EOA_QGISGeopackage
-                </Link>{" "}
-                (with domains)
-              </Typography>
-            </StyledListItem>
-          </List>
+          <GeoSpatialGuidelines />
         </Grid>
         <Grid item xs={12}>
           <GenericDocumentUploadSection

@@ -8,7 +8,7 @@ import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
-import { useMemo, useState, lazy, Suspense } from "react";
+import { useCallback, useMemo, useState, lazy, Suspense } from "react";
 import Form from "@/components/Shared/Forms/common";
 import { FormProvider, useForm } from "react-hook-form";
 import { Submission } from "@/models/Submission";
@@ -26,13 +26,14 @@ import {
   SUBMISSION_TYPE,
   SubmissionItemStatus,
 } from "@/models/Submission";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
-import { useSaveSubmission } from "@/hooks/api/useSubmissions";
+import { deleteDocument, S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { useSaveSubmission, useDeleteSubmission } from "@/hooks/api/useSubmissions";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
 import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
+import { useFileStore } from "@/store/fileStore";
 // Lazy-load the map modal so maplibre-gl is not downloaded until first use
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
@@ -65,30 +66,33 @@ export const GeoSpatialProponentView = () => {
   const navigate = useNavigate();
 
   const [isBackdropOpen, setIsBackdropOpen] = useState(false);
-  const [previewUpload, setPreviewUpload] = useState<GeoUpload | null>(null);
-  const [previewDocument, setPreviewDocument] = useState<Submission | null>(
-    null,
-  );
+  const [previewDocument, setPreviewDocument] = useState<Submission | null>(null);
+  const [reviewQueue, setReviewQueue] = useState<Submission[]>([]);
+
   const { data: geoUploads } = useGetGeoUploads({
     itemId: Number(submissionItemId),
     autoRefetch: true,
   });
   const uploads = geoUploads as unknown as GeoUpload[];
 
+  // Derive previewUpload reactively so it updates as polling resolves the status
+  const previewUpload = useMemo<GeoUpload | null>(() => {
+    if (!previewDocument || !uploads) return null;
+    return (
+      uploads.find(
+        (u) => u.raw_s3_key === previewDocument.submitted_document?.url,
+      ) ?? null
+    );
+  }, [previewDocument, uploads]);
+
+  const { mutateAsync: deleteSubmissionAsync } = useDeleteSubmission({
+    submissionItemId: Number(submissionItemId),
+  });
+  const { removeFile } = useFileStore();
+
   const documentSubmissions = submissionItem?.submissions?.filter(
     (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
   );
-
-  const geoSubmissions =
-    documentSubmissions?.filter(
-      (submission) =>
-        submission.submitted_document?.folder === S3_FOLDER.GEOSPATIAL.value,
-    ) || [];
-
-  const previewIndex = previewDocument
-    ? geoSubmissions.findIndex((s) => s.id === previewDocument.id) + 1
-    : 0;
-  const totalGeoFiles = geoSubmissions.length;
 
   const defaultDocumentValues = useMemo(() => {
     if (!documentSubmissions) return {};
@@ -158,6 +162,67 @@ export const GeoSpatialProponentView = () => {
     }
   };
 
+  // Advances to the next file in the review queue
+  const openNextInQueue = useCallback((queue: Submission[]) => {
+    const [next, ...remaining] = queue;
+    setReviewQueue(remaining);
+    setPreviewDocument(next ?? null);
+  }, []);
+
+  // Called by PendingDocumentRow once a geo file finishes uploading
+  const onUploadComplete = useCallback(
+    (submission: Submission) => {
+      if (previewDocument !== null) {
+        setReviewQueue((prev) => [...prev, submission]);
+      } else {
+        setPreviewDocument(submission);
+      }
+    },
+    [previewDocument],
+  );
+
+  const handleApprove = useCallback(() => {
+    openNextInQueue(reviewQueue);
+  }, [reviewQueue, openNextInQueue]);
+
+  const handleReject = useCallback(async () => {
+    if (!previewDocument) return;
+    const filepath = previewDocument.submitted_document?.url ?? "";
+
+    // Remove from form immediately for snappy UX
+    const current = methods.getValues("geospatial") as string[];
+    methods.setValue(
+      "geospatial",
+      current.filter((v) => v !== filepath),
+      { shouldValidate: true },
+    );
+
+    try {
+      await deleteDocument({ filepath });
+    } catch {
+      // Non-blocking — S3 delete failure doesn't prevent DB record removal
+    }
+
+    try {
+      await deleteSubmissionAsync(previewDocument.id);
+    } catch {
+      notify.error("Failed to remove geospatial file");
+    }
+
+    removeFile(previewDocument.id);
+    openNextInQueue(reviewQueue);
+  }, [
+    previewDocument,
+    reviewQueue,
+    methods,
+    deleteSubmissionAsync,
+    removeFile,
+    openNextInQueue,
+  ]);
+
+  // Save & Exit is blocked while the review modal is open or files are queued
+  const isReviewPending = previewDocument !== null || reviewQueue.length > 0;
+
   const documentUploadSections: UploadSectionConfig[] = useMemo(
     () => [
       {
@@ -166,6 +231,7 @@ export const GeoSpatialProponentView = () => {
         folder: S3_FOLDER.GEOSPATIAL.value,
         acceptedFileTypes: ["shp", "zip"],
         acceptedFileTypesCriteria: "Must contain shape files",
+        onUploadComplete,
         onDocumentClick: (documentItem) => {
           const url = documentItem.submitted_document?.url;
           if (!url) return;
@@ -176,20 +242,16 @@ export const GeoSpatialProponentView = () => {
             return;
           }
 
-          if (upload.status === "ready" || upload.status === "failed") {
-            setPreviewUpload(upload);
-            setPreviewDocument(documentItem);
-          } else if (upload.status === "processing") {
+          if (upload.status === "processing") {
             notify.info("Geospatial processing is in progress. Please wait.");
-          } else {
-            notify.error(
-              upload.error_message || "Processing failed for this file.",
-            );
+            return;
           }
+
+          setPreviewDocument(documentItem);
         },
       },
     ],
-    [uploads],
+    [uploads, onUploadComplete],
   );
 
   if (!accountProject) return <Navigate to="/error" />;
@@ -212,23 +274,24 @@ export const GeoSpatialProponentView = () => {
             {/* Map Preview Modal — lazy loaded, only downloads maplibre-gl on first open */}
             <Suspense fallback={null}>
               <MapPreviewModal
+                open={previewDocument !== null}
                 uploadId={previewUpload?.id ?? null}
                 documentItem={previewDocument}
                 fileSizeKb={previewUpload?.file_size_kb}
-                status={previewUpload?.status}
+                status={
+                  previewUpload?.status ??
+                  (previewDocument !== null ? "processing" : undefined)
+                }
                 errorMessage={previewUpload?.error_message}
-                fileIndex={previewIndex}
-                totalFiles={totalGeoFiles}
-                onClose={() => {
-                  setPreviewUpload(null);
-                  setPreviewDocument(null);
-                }}
+                onApprove={handleApprove}
+                onReject={handleReject}
               />
             </Suspense>
 
             <SubmissionActionButtons
               onSubmit={handleSubmit(handleCompleteForm)}
               submitButtonText="Save & Exit"
+              submitCondition={isReviewPending}
             />
           </Grid>
         </Form>
