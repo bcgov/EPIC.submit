@@ -25,7 +25,7 @@ from submit_api.schemas.staff_user_work import (
 )
 from submit_api.services.staff_user_work_service import StaffUserWorkService
 from submit_api.utils.util import allowedorigins, cors_preflight
-
+from submit_api.auth import auth
 
 API = Namespace("staff-user-works", description="Endpoints for Staff User Work Management")
 
@@ -48,6 +48,7 @@ class StaffUserWorkResource(Resource):
     """Resource for creating/updating staff user work assignments from EPIC.track."""
 
     @staticmethod
+    @auth.require
     @ApiHelper.swagger_decorators(
         API,
         endpoint_description="Create or update staff user work assignment from EPIC.track"
@@ -87,6 +88,7 @@ class StaffUserWorkRemove(Resource):
     """Resource for removing staff user work assignments."""
 
     @staticmethod
+    @auth.require
     @ApiHelper.swagger_decorators(
         API,
         endpoint_description="Remove staff user work assignment"
