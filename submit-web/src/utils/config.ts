@@ -15,7 +15,6 @@ declare global {
       VITE_CENTRE_API_URL: string;
       VITE_USER_GUIDE: string;
       VITE_GEO_DOC_URL: string;
-      VITE_GEO_DOC_FILES: string;
       VITE_SUPPORT_MP_EMAIL: string;
       VITE_SUPPORT_IPD_EMAIL: string;
     };
@@ -50,8 +49,6 @@ const USER_GUIDE =
   window._env_?.VITE_USER_GUIDE || import.meta.env.VITE_USER_GUIDE || "";
 const GEO_DOC_URL =
   window._env_?.VITE_GEO_DOC_URL || import.meta.env.VITE_GEO_DOC_URL || "";
-const GEO_DOC_FILES =
-  window._env_?.VITE_GEO_DOC_FILES || import.meta.env.VITE_GEO_DOC_FILES || "";
 const SUPPORT_MP_EMAIL =
   window._env_?.VITE_SUPPORT_MP_EMAIL ||
   import.meta.env.VITE_SUPPORT_MP_EMAIL ||
@@ -75,7 +72,6 @@ export const AppConfig = {
   supportIpdEmail: SUPPORT_IPD_EMAIL,
   userGuide: USER_GUIDE,
   geoDocUrl: GEO_DOC_URL,
-  geoDocFiles: GEO_DOC_FILES,
 };
 
 const trimmedAppUrl = APP_URL?.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;

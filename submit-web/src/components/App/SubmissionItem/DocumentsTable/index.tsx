@@ -16,7 +16,7 @@ import { useParams } from "@tanstack/react-router";
 import Row from "./Row";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 import { useGetSubmissionItem } from "@/hooks/api/useItems";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AddDocumentActionButton } from "./AddDocumentActionButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
@@ -30,12 +30,14 @@ type DocumentsTableProps = Readonly<{
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
   isGeoSpatial?: boolean;
   onDocumentClick?: (documentItem: Submission) => void;
+  onUploadComplete?: (submission: Submission) => void;
 }>;
 export default function DocumentsTable({
   folder,
   setIsPendingUpload,
   isGeoSpatial = false,
   onDocumentClick,
+  onUploadComplete,
 }: DocumentsTableProps) {
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -53,6 +55,16 @@ export default function DocumentsTable({
     useGetSubmissionItem({
       itemId: Number(submissionItemId),
     });
+
+  // Keep addedSubmissions in sync: drop any entry that was removed from the backend
+  useEffect(() => {
+    if (!submissionItem) return;
+    setAddedSubmissions((prev) =>
+      prev.filter((addedSub) =>
+        submissionItem.submissions.some((sub) => sub.id === addedSub.id),
+      ),
+    );
+  }, [submissionItem]);
 
   const documentSubmissions = useMemo(() => {
     if (!submissionItem) {
@@ -112,6 +124,7 @@ export default function DocumentsTable({
                 handleAddDocument={handleAddSubmission}
                 setIsPendingUpload={setIsPendingUpload}
                 isGeoSpatial={isGeoSpatial}
+                onUploadComplete={onUploadComplete}
               />
             </SubmitPrimaryRowTableCell>
           </SubmitTablePrimaryRow>

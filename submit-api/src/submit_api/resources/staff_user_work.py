@@ -20,7 +20,8 @@ from flask_restx import Namespace, Resource
 
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.staff_user_work import (
-    RemoveStaffUserWorkRequest, StaffUserWorkSchema, CreateStaffUserWorkRequest
+    RemoveStaffUserWorkRequest, StaffUserWorkSchema, CreateStaffUserWorkRequest,
+    StaffWorkRoleResponseSchema
 )
 from submit_api.services.staff_user_work_service import StaffUserWorkService
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -41,11 +42,33 @@ staff_user_work_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, StaffUserWorkSchema(), "Staff User Work"
 )
 
+staff_work_role_response_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, StaffWorkRoleResponseSchema(), "Staff Work Role Response"
+)
 
-@cors_preflight("POST, OPTIONS")
-@API.route("", methods=["POST", "OPTIONS"])
+
+@cors_preflight("GET, POST, OPTIONS")
+@API.route("", methods=["GET", "POST", "OPTIONS"])
 class StaffUserWorkResource(Resource):
     """Resource for creating/updating staff user work assignments from EPIC.track."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
+        API,
+        endpoint_description="Get all active staff work role assignments"
+    )
+    @API.response(code=200, model=[staff_work_role_response_model], description="List of staff work roles")
+    @API.response(code=500, description="Internal server error")
+    @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
+    def get():
+        """Get all active staff work role assignments with email and basic details."""
+        try:
+            staff_work_roles = StaffUserWorkService.get_all_staff_work_roles()
+            return StaffWorkRoleResponseSchema(many=True).dump(staff_work_roles), HTTPStatus.OK
+        except Exception as e:  # pylint:disable=broad-exception-caught  # noqa: B902
+            return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
 
     @staticmethod
     @auth.require
@@ -101,7 +124,10 @@ class StaffUserWorkRemove(Resource):
                 work_id=request_data.get("work_id")
             )
             return {
-                "message": f"Work assignment removed for user '{request_data.get("email")}' and work ID {request_data.get("work_id")}."
+                "message": (
+                    f"Work assignment removed for user '{request_data.get('email')}' "
+                    f"and work ID {request_data.get('work_id')}."
+                )
             }, HTTPStatus.OK
         except Exception as e:  # pylint:disable=broad-exception-caught  # noqa: B902
             return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
