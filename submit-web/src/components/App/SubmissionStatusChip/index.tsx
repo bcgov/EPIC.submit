@@ -130,9 +130,13 @@ const statusMap: Record<string, StyleProps> = {
 
 type SubmissionStatusChipProps = Readonly<{
   status?: string;
+  label?: string;
+  showIcon?: boolean;
 }>;
 export function SubmissionStatusChip({
   status = "",
+  label = "",
+  showIcon = false,
 }: SubmissionStatusChipProps) {
   const config = statusMap[status];
 
@@ -141,7 +145,11 @@ export function SubmissionStatusChip({
   }
 
   return (
-    <StatusChip label={config.label} theme={config.theme} icon={config.icon} />
+    <StatusChip
+      label={label ? label : config.label}
+      theme={config.theme}
+      icon={showIcon && config.icon}
+    />
   );
 }
 

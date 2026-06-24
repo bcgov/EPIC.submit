@@ -355,7 +355,7 @@ class ProjectQueries:
             status.value == updated_value for status in statuses)
 
         if canonical_statuses:
-            query = query.filter(Package.status.op("@>")(canonical_statuses))
+            query = query.filter(Package.status.op("&&")(canonical_statuses))
 
         if include_revision_required:
             query = cls._revision_required_filter(query)

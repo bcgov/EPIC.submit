@@ -13,9 +13,7 @@ type StatusCellProps = Readonly<{
   submittedDocument: Submission;
 }>;
 
-export const StatusCell = ({
-  submittedDocument,
-}: StatusCellProps) => {
+export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
   const { userType } = useAccount();
   const entityUser = userType === USER_TYPE.PROPONENT;
 
@@ -26,7 +24,7 @@ export const StatusCell = ({
       submittedDocument.status !== SUBMISSION_STATUS.PENDING
     )
       return false;
-    
+
     return submittedDocument.minor_version > 1;
   }, [submittedDocument.minor_version, submittedDocument.status]);
 
@@ -47,7 +45,10 @@ export const StatusCell = ({
       <Case
         condition={submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED}
       >
-        <SubmissionStatusChip status={SUBMISSION_STATUS.ACKNOWLEDGED} />
+        <SubmissionStatusChip
+          status={SUBMISSION_STATUS.ACKNOWLEDGED}
+          showIcon
+        />
       </Case>
       <Default>{null}</Default>
     </Switch>
