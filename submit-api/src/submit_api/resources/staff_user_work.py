@@ -15,7 +15,6 @@
 
 from http import HTTPStatus
 
-from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
@@ -26,6 +25,7 @@ from submit_api.schemas.staff_user_work import (
 from submit_api.services.staff_user_work_service import StaffUserWorkService
 from submit_api.utils.util import allowedorigins, cors_preflight
 from submit_api.auth import auth
+from submit_api.utils.roles import EpicSubmitRole
 
 API = Namespace("staff-user-works", description="Endpoints for Staff User Work Management")
 
@@ -59,23 +59,15 @@ class StaffUserWorkResource(Resource):
     @API.response(code=404, description="User not found in Keycloak or work doesn't exist")
     @API.response(code=500, description="Internal server error")
     @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
     def post():
         """Create or update a staff user work assignment from EPIC.track."""
-        request_data = request.get_json()
-        email = request_data.get("email")
-        work_id = request_data.get("work_id")
-        role = request_data.get("role")
-
-        if not email or not work_id or not role:
-            return {
-                "message": "All fields are required: 'email', 'work_id', and 'role'."
-            }, HTTPStatus.BAD_REQUEST
-
+        request_data = CreateStaffUserWorkRequest().load(API.payload)
         try:
             staff_user_work = StaffUserWorkService.create_or_update_staff_user_work(
-                email=email,
-                work_id=work_id,
-                role=role
+                email=request_data.get("email"),
+                work_id=request_data.get("work_id"),
+                role=request_data.get("role")
             )
             return StaffUserWorkSchema().dump(staff_user_work), HTTPStatus.CREATED
         except Exception as e:  # pylint:disable=broad-exception-caught  # noqa: B902
@@ -99,24 +91,17 @@ class StaffUserWorkRemove(Resource):
     @API.response(code=404, description="User or work assignment not found")
     @API.response(code=500, description="Internal server error")
     @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
     def delete():
         """Remove a staff user work assignment."""
-        request_data = request.get_json()
-        email = request_data.get("email")
-        work_id = request_data.get("work_id")
-
-        if not email or not work_id:
-            return {
-                "message": "Both 'email' and 'work_id' are required."
-            }, HTTPStatus.BAD_REQUEST
-
+        request_data = RemoveStaffUserWorkRequest().load(API.payload)
         try:
             StaffUserWorkService.remove_staff_user_work(
-                email=email,
-                work_id=work_id
+                email=request_data.get("email"),
+                work_id=request_data.get("work_id")
             )
             return {
-                "message": f"Work assignment removed for user '{email}' and work ID {work_id}."
+                "message": f"Work assignment removed for user '{request_data.get("email")}' and work ID {request_data.get("work_id")}."
             }, HTTPStatus.OK
         except Exception as e:  # pylint:disable=broad-exception-caught  # noqa: B902
             return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
