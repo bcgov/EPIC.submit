@@ -286,8 +286,6 @@ class ProjectQueries:
         if user_role.original_package_ids:
             package_query = package_query.join(PackageVersion).filter(
                 PackageVersion.original_package_id.in_(user_role.original_package_ids))
-        else:
-            package_query = package_query.filter(False)
 
         return package_query
 
@@ -327,7 +325,7 @@ class ProjectQueries:
             status.value == updated_value for status in statuses)
 
         if canonical_statuses:
-            query = query.filter(Package.status.op("@>")(canonical_statuses))
+            query = query.filter(Package.status.op("&&")(canonical_statuses))
 
         if include_revision_required:
             query = cls._revision_required_filter(query)

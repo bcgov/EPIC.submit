@@ -53,9 +53,22 @@ export type SubmissionItemStatus =
   | "NOT_APPROVED"
   | "WITHDRAWN";
 
+export type SubmissionFilterRole = "eao" | "proponent";
+
+export type SubmissionItemStatusEntry = {
+  value: SubmissionItemStatus;
+  label: string;
+  // Which filter UIs this status appears in
+  filter?: SubmissionFilterRole[];
+  // Groups multiple statuses under a single display option, e.g. "Completed").
+  // filterGroup?: string;
+  sortOrder?: number;
+  isGroup?: boolean;
+};
+
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
-  { value: SubmissionItemStatus; label: string }
+  SubmissionItemStatusEntry
 > = {
   NOT_APPLICABLE: {
     value: "NOT_APPLICABLE",
@@ -64,74 +77,107 @@ export const SUBMISSION_ITEM_STATUS: Record<
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
+    filter: ["eao"],
+    sortOrder: 1,
   },
   NEW: {
     value: "NEW",
     label: "New",
+    filter: ["proponent"],
+    sortOrder: 1,
   },
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
+    // filter: ["proponent"],
+    sortOrder: 7,
   },
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
     label: "Partially Completed",
+    filter: ["proponent"],
+    sortOrder: 5,
   },
   SUBMITTED: {
     value: "SUBMITTED",
     label: "Submitted",
+    filter: ["proponent"],
+    sortOrder: 6,
   },
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
+    filter: ["eao", "proponent"],
+    sortOrder: 9,
   },
   REVIEW_REJECTED: {
     value: "REVIEW_REJECTED",
     label: "Review Rejected",
+    filter: ["proponent"],
   },
   REVIEW_NOT_COMPLETED: {
-    value: "REVIEW_REJECTED",
-    label: "Review Rejected",
+    value: "REVIEW_NOT_COMPLETED",
+    label: "Review Not Completed",
   },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
-    label: "Review Not Completed",
+    label: "Failed Consultation Check",
+    filter: ["eao"],
+    sortOrder: 8,
   },
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
+    filter: ["eao", "proponent"],
+    sortOrder: 13,
   },
   REVISION_REQUIRED: {
     value: "REVISION_REQUIRED",
     label: "Revision Required",
+    filter: ["proponent"],
+    sortOrder: 4,
   },
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
+    filter: ["eao", "proponent"],
+    sortOrder: 10,
   },
   ACCEPTED: {
     value: "ACCEPTED",
     label: "Accepted",
+    filter: ["eao", "proponent"],
+    sortOrder: 11,
   },
   SATISFIED: {
     value: "SATISFIED",
     label: "Satisfied",
+    filter: ["eao", "proponent"],
+    sortOrder: 12,
   },
   UPDATE_REQUESTED: {
     value: "UPDATE_REQUESTED",
     label: "Update Requested",
+    filter: ["eao", "proponent"],
+    sortOrder: 3,
   },
   UPDATED: {
     value: "UPDATED",
     label: "Updated",
+    filter: ["eao", "proponent"],
+    sortOrder: 2,
   },
   AWAITING_MANAGER_APPROVAL: {
     value: "AWAITING_MANAGER_APPROVAL",
     label: "Awaiting Manager Approval",
+    filter: ["eao"],
+    sortOrder: 7,
   },
   REVISION_REQUESTED: {
     value: "REVISION_REQUESTED",
     label: "Revision Requested",
+    filter: ["eao"],
+    sortOrder: 6,
   },
   NO_REVISION_REQUIRED: {
     value: "NO_REVISION_REQUIRED",
@@ -140,18 +186,24 @@ export const SUBMISSION_ITEM_STATUS: Record<
   UNDER_REVIEW: {
     value: "UNDER_REVIEW",
     label: "Under Review",
+    filter: ["eao"],
+    sortOrder: 4,
   },
   UNDER_CONSULTATION_CHECK: {
     value: "UNDER_CONSULTATION_CHECK",
     label: "Under Consultation Check",
+    filter: ["eao"],
+    sortOrder: 5,
   },
   ACKNOWLEDGED: {
     value: "ACKNOWLEDGED",
     label: "Acknowledged",
+    filter: ["eao"],
   },
   NOT_APPROVED: {
     value: "NOT_APPROVED",
     label: "Not Approved",
+    filter: ["eao", "proponent"],
   },
   WITHDRAWN: {
     value: "WITHDRAWN",
@@ -159,142 +211,36 @@ export const SUBMISSION_ITEM_STATUS: Record<
   },
 };
 
-export const EAO_SUBMISSION_ITEM_FILTERS: Partial<
-  Record<SubmissionItemStatus, { value: SubmissionItemStatus; label: string }>
+export const EAO_SUBMISSION_ITEM_FILTERS = Object.fromEntries(
+  Object.entries(SUBMISSION_ITEM_STATUS).filter(([, s]) =>
+    s.filter?.includes("eao"),
+  ),
+) as Partial<Record<SubmissionItemStatus, SubmissionItemStatusEntry>>;
+
+export const PROPONENT_SUBMISSION_ITEM_FILTERS = Object.fromEntries(
+  Object.entries(SUBMISSION_ITEM_STATUS).filter(([, s]) =>
+    s.filter?.includes("proponent"),
+  ),
+) as Partial<Record<SubmissionItemStatus, SubmissionItemStatusEntry>>;
+
+export const FILTER_GROUPS: Partial<
+  Record<SubmissionItemStatus, { label: string }>
 > = {
-  NEW_SUBMISSION: {
-    value: "NEW_SUBMISSION",
-    label: "New Submission",
-  },
-  UPDATED: {
-    value: "UPDATED",
-    label: "Updated",
-  },
-  UPDATE_REQUESTED: {
-    value: "UPDATE_REQUESTED",
-    label: "Update Requested",
-  },
-  UNDER_REVIEW: {
-    value: "UNDER_REVIEW",
-    label: "Under Review",
-  },
-  UNDER_CONSULTATION_CHECK: {
-    value: "UNDER_CONSULTATION_CHECK",
-    label: "Under Consultation Check",
-  },
-  REVISION_REQUESTED: {
-    value: "REVISION_REQUESTED",
-    label: "Revision Requested",
-  },
-  AWAITING_MANAGER_APPROVAL: {
-    value: "AWAITING_MANAGER_APPROVAL",
-    label: "Awaiting Manager Approval",
-  },
-  FAILED_CONSULTATION_CHECK: {
-    value: "FAILED_CONSULTATION_CHECK",
-    label: "Failed Consultation Check",
-  },
-  PASSED_CONSULTATION_CHECK: {
-    value: "PASSED_CONSULTATION_CHECK",
-    label: "Passed Consultation Check",
-  },
-  REVIEWED: {
-    value: "REVIEWED",
-    label: "Reviewed",
-  },
-  ACCEPTED: {
-    value: "ACCEPTED",
-    label: "Accepted",
-  },
-  SATISFIED: {
-    value: "SATISFIED",
-    label: "Satisfied",
-  },
-  APPROVED: {
-    value: "APPROVED",
-    label: "Approved",
-  },
-  NOT_APPROVED: {
-    value: "NOT_APPROVED",
-    label: "Not Approved",
-  },
-  ACKNOWLEDGED: {
-    value: "ACKNOWLEDGED",
-    label: "Acknowledged",
-  },
-  REVIEW_REJECTED: {
-    value: "REVIEW_REJECTED",
-    label: "Review Rejected",
-  },
-  SUBMITTED: {
-    value: "SUBMITTED",
-    label: "Submitted",
-  },
+  REVIEWED: { label: "Completed" },
+  ACCEPTED: { label: "Completed" },
+  SATISFIED: { label: "Completed" },
+  APPROVED: { label: "Completed" },
+  COMPLETED: { label: "Completed" },
 };
 
-export const PROPONENT_SUBMISSION_ITEM_FILTERS: Partial<
-  Record<SubmissionItemStatus, { value: SubmissionItemStatus; label: string }>
-> = {
-  NEW: {
-    value: "NEW",
-    label: "New",
-  },
-  UPDATED: {
-    value: "UPDATED",
-    label: "Updated",
-  },
-  UPDATE_REQUESTED: {
-    value: "UPDATE_REQUESTED",
-    label: "Update Requested",
-  },
-  REVISION_REQUIRED: {
-    value: "REVISION_REQUIRED",
-    label: "Revision Required",
-  },
-  PARTIALLY_COMPLETED: {
-    value: "PARTIALLY_COMPLETED",
-    label: "Partially Completed",
-  },
-  SUBMITTED: {
-    value: "SUBMITTED",
-    label: "Submitted",
-  },
-  COMPLETED: {
-    value: "COMPLETED",
-    label: "Completed",
-  },
-  PASSED_CONSULTATION_CHECK: {
-    value: "PASSED_CONSULTATION_CHECK",
-    label: "Passed Consultation Check",
-  },
-  ACCEPTED: {
-    value: "ACCEPTED",
-    label: "Accepted",
-  },
-  APPROVED: {
-    value: "APPROVED",
-    label: "Approved",
-  },
-  SATISFIED: {
-    value: "SATISFIED",
-    label: "Satisfied",
-  },
-  REVIEWED: {
-    value: "REVIEWED",
-    label: "Reviewed",
-  },
-  NOT_APPROVED: {
-    value: "NOT_APPROVED",
-    label: "Not Approved",
-  },
-  ACKNOWLEDGED: {
-    value: "ACKNOWLEDGED",
-    label: "Acknowledged",
-  },
-  REVIEW_REJECTED: {
-    value: "REVIEW_REJECTED",
-    label: "Review Rejected",
-  },
+export const expandStatusFilters = (statuses: string[]): string[] => {
+  return statuses.flatMap((s) => {
+    const groupLabel = FILTER_GROUPS[s as SubmissionItemStatus]?.label;
+    if (!groupLabel) return [s];
+    return Object.values(SUBMISSION_ITEM_STATUS)
+      .filter((entry) => FILTER_GROUPS[entry.value]?.label === groupLabel)
+      .map((entry) => entry.value);
+  });
 };
 
 export type SubmittedForm = {

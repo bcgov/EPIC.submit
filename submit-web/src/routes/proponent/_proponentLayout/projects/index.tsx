@@ -10,6 +10,7 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import ProjectFilters from "@/components/App/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/App/Filters/projectFilterStore";
 import { USER_TYPE } from "@/models/User";
+import { expandStatusFilters } from "@/models/Submission";
 
 export const Route = createFileRoute("/proponent/_proponentLayout/projects/")({
   component: ProjectsPage,
@@ -25,7 +26,12 @@ export function ProjectsPage() {
     isError: isProjectsError,
   } = useGetAccountProjectsByAccount({
     accountId,
-    searchOptions: filters,
+    searchOptions: {
+      ...filters,
+      ...(filters.status.length > 0 && {
+        status: expandStatusFilters(filters.status),
+      }),
+    },
   });
 
   useEffect(() => {

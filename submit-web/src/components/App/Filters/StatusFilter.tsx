@@ -1,3 +1,12 @@
+import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
+import {
+  EAO_SUBMISSION_ITEM_FILTERS,
+  FILTER_GROUPS,
+  PROPONENT_SUBMISSION_ITEM_FILTERS,
+  SubmissionItemStatusEntry,
+} from "@/models/Submission";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import {
   Box,
   FormControl,
@@ -6,15 +15,8 @@ import {
   SelectChangeEvent,
   Typography,
 } from "@mui/material";
-import { useProjectFilters } from "./projectFilterStore";
-import {
-  EAO_SUBMISSION_ITEM_FILTERS,
-  PROPONENT_SUBMISSION_ITEM_FILTERS,
-} from "@/models/Submission";
-import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
 import { BCDesignTokens } from "epic.theme";
-import { useAccount } from "@/store/accountStore";
-import { USER_TYPE } from "@/models/User";
+import { useProjectFilters } from "./projectFilterStore";
 
 type StatusFilterProps = {
   value?: string | string[];
@@ -37,7 +39,7 @@ function StatusFilter({
   const { userType } = useAccount();
   const isProponent = userType === USER_TYPE.PROPONENT;
 
-  const statusFilters = isProponent
+  const roleFilters = isProponent
     ? PROPONENT_SUBMISSION_ITEM_FILTERS
     : EAO_SUBMISSION_ITEM_FILTERS;
 
@@ -45,10 +47,31 @@ function StatusFilter({
     controlledValue !== undefined ? controlledValue : store.filters.status;
 
   const displayedStatuses = availableStatuses
-    ? Object.values(statusFilters).filter((status) =>
+    ? // Default to availableStatuses prop
+      Object.values(roleFilters).filter((status) =>
         availableStatuses.includes(status.value),
       )
-    : Object.values(statusFilters);
+    : // Sort roleFilters and group them
+      Object.values(roleFilters)
+        .sort((a, b) => {
+          if (a.sortOrder == null || b.sortOrder == null) return 0;
+          return a.sortOrder - b.sortOrder;
+        })
+        .reduce((acc, status) => {
+          const group = FILTER_GROUPS[status.value];
+          if (group) {
+            if (!acc.find((s) => s.label === group.label)) {
+              acc.push({
+                value: status.value,
+                label: group.label,
+                isGroup: true,
+              });
+            }
+          } else {
+            acc.push(status);
+          }
+          return acc;
+        }, [] as SubmissionItemStatusEntry[]);
 
   const handleChange = (event: SelectChangeEvent<string | string[]>) => {
     const value = event.target.value;
@@ -61,7 +84,7 @@ function StatusFilter({
     if (multiple && Array.isArray(value)) {
       if (value.includes("all")) {
         store.setFilters({
-          status: Object.values(statusFilters).map((status) => status.value),
+          status: Object.values(roleFilters).map((status) => status.value),
         });
       } else if (value.length <= 3) {
         store.setFilters({ status: value });
@@ -123,16 +146,27 @@ function StatusFilter({
           if (Array.isArray(selected)) {
             return (
               <div style={{ display: "flex", flexWrap: "wrap" }}>
-                {selected.map((value) => (
-                  <Box key={value} mr={1}>
-                    <SubmissionStatusChip status={value} />
-                  </Box>
-                ))}
+                {selected.map((value) => {
+                  const display = displayedStatuses.find(
+                    (d) => d.value === value,
+                  );
+                  return (
+                    <Box key={value} mr={1}>
+                      <SubmissionStatusChip
+                        status={value}
+                        label={display?.label}
+                      />
+                    </Box>
+                  );
+                })}
               </div>
             );
           }
 
-          return <SubmissionStatusChip status={selected} />;
+          const display = displayedStatuses.find((d) => d.value === selected);
+          return (
+            <SubmissionStatusChip status={selected} label={display?.label} />
+          );
         }}
       >
         {displayedStatuses.map((status) => (
@@ -141,7 +175,7 @@ function StatusFilter({
             value={status.value}
             onClick={() => handleMenuItemClick(status.value)}
           >
-            <SubmissionStatusChip status={status.value} />
+            <SubmissionStatusChip status={status.value} label={status.label} />
           </MenuItem>
         ))}
       </Select>

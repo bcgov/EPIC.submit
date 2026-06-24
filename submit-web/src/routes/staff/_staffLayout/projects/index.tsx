@@ -10,6 +10,7 @@ import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { getAccountProjects } from "@/hooks/api/useProjects";
 import { QUERY_KEY } from "@/hooks/api/constants";
+import { expandStatusFilters } from "@/models/Submission";
 
 export const Route = createFileRoute("/staff/_staffLayout/projects/")({
   component: ProjectsPage,
@@ -38,7 +39,12 @@ function ProjectsPage() {
       getAccountProjects({
         page: pageParam,
         pageSize: pageSize,
-        searchOptions: filters,
+        searchOptions: {
+          ...filters,
+          ...(filters.status.length > 0 && {
+            status: expandStatusFilters(filters.status),
+          }),
+        },
       }),
     getNextPageParam: (lastPage) => lastPage.next_cursor,
   });
