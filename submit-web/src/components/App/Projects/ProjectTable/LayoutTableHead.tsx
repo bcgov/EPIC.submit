@@ -4,15 +4,19 @@ import { USER_TYPE } from "@/models/User";
 import ProponentLayoutHead from "./ProponentLayoutHead";
 import StaffLayoutHead from "./StaffLayoutHead";
 
-export default function LayoutTableHead() {
+type LayoutTableHeadProps = {
+  isManagementPlan?: boolean;
+};
+
+export default function LayoutTableHead({ isManagementPlan }: LayoutTableHeadProps) {
   const { userType } = useAccount();
   return (
     <Switch>
       <Case condition={userType === USER_TYPE.PROPONENT}>
-        <ProponentLayoutHead />
+        <ProponentLayoutHead isManagementPlan={isManagementPlan} />
       </Case>
       <Case condition={userType === USER_TYPE.STAFF}>
-        <StaffLayoutHead />
+        <StaffLayoutHead isManagementPlan={isManagementPlan} />
       </Case>
     </Switch>
   );

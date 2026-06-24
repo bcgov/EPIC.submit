@@ -12,11 +12,18 @@ import React from "react";
 export const SubmitTableHeadCell = styled(TableCell)(() => ({
   color: BCDesignTokens.themeGray70,
   fontSize: BCDesignTokens.typographyFontSizeSmallBody,
+  fontWeight: BCDesignTokens.typographyFontWeightsBold,
   "&:hover": {
     color: BCDesignTokens.surfaceColorMenusHover,
   },
   border: "none",
   padding: BCDesignTokens.layoutPaddingXsmall,
+  "&&:first-of-type": {
+    paddingLeft: "1rem",
+  },
+  "&&:last-of-type": {
+    paddingRight: "1rem",
+  },
 }));
 
 export const SubmitCheckboxTableHeadCell = styled(SubmitTableHeadCell)(() => ({

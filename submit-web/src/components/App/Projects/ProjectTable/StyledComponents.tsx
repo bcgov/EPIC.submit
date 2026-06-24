@@ -26,4 +26,10 @@ export const StyledProjectTableCell = styled(TableCell)(() => ({
     borderTopRightRadius: 5,
     borderBottomRightRadius: 5,
   },
+  "&&:first-of-type": {
+    paddingLeft: "1rem",
+  },
+  "&&:last-of-type": {
+    paddingRight: "1rem",
+  },
 }));

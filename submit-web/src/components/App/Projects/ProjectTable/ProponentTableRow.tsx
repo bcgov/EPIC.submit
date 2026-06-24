@@ -1,14 +1,12 @@
-import { ArrowForwardIos } from "@mui/icons-material";
 import dateUtils from "@/utils/dateUtils";
-import { Typography } from "@mui/material";
+import { Chip, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
 import {
   StyledProjectTableCell,
   StyledProjectTableRow,
 } from "@/components/App/Projects/ProjectTable/StyledComponents";
-import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { useNavigate } from "@tanstack/react-router";
 import { SubmitLink } from "@/components/Shared/Text/SubmitLink";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
@@ -26,11 +24,25 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
   };
 
   const managementPlanName = useManagementPlanName(subPackage);
+  const isMP = subPackage.type.name === SubmissionPackageType.MANAGEMENT_PLAN;
+  const conditionNumber = subPackage.meta?.main_condition?.condition_number;
 
   return (
     <>
       <StyledProjectTableRow>
-        <StyledProjectTableCell sx={{ py: 0 }} width={"55%"}>
+        {isMP && (
+          <StyledProjectTableCell align="left" sx={{ py: 0, width: "5%" }}>
+            {conditionNumber && (
+              <Chip
+                label={`#${conditionNumber}`}
+                size="small"
+                variant="outlined"
+                sx={{ height: "20px", fontSize: "0.7rem", fontWeight: "bold" }}
+              />
+            )}
+          </StyledProjectTableCell>
+        )}
+        <StyledProjectTableCell sx={{ py: 0, width: isMP ? "50%" : "55%" }}>
           <SubmitLink
             sx={{
               display: "flex",
@@ -41,15 +53,9 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
             }}
             onClick={onSubmissionClick}
           >
-            <Typography
-              variant="h6"
-              color={BCDesignTokens.themeBlue90}
-              fontWeight={"500"}
-              sx={{ mr: 0.5 }}
-            >
+            <Typography fontSize="1rem" fontWeight="bold" color={BCDesignTokens.themeBlue90}>
               {managementPlanName}
             </Typography>
-            <ArrowForwardIos fontSize="small" />
           </SubmitLink>
         </StyledProjectTableCell>
         <StyledProjectTableCell align="left" width={"15%"}>
@@ -63,14 +69,11 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
         <StyledProjectTableCell
           width={"15%"}
           align="right"
-          sx={{
-            pr: BCDesignTokens.layoutPaddingSmall,
-          }}
+          sx={{ pr: BCDesignTokens.layoutPaddingSmall }}
         >
           <PackageStatusChipStack submissionPackage={subPackage} />
         </StyledProjectTableCell>
       </StyledProjectTableRow>
-      <EmptyRow colSpan={4} />
     </>
   );
 }
