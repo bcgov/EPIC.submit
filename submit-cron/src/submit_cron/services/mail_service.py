@@ -124,10 +124,10 @@ class EmailService:  # pylint: disable=too-few-public-methods
         package: PackageModel = db.session.get(PackageModel, package_id)
         if not package:
             raise BadRequestError(f"Package with ID {package_id} not found.")
-        manager_emails = KeycloakService.get_eao_manager_emails()
+        manager_emails = KeycloakService.get_mpt_manager_emails()
         if not manager_emails:
             raise BadRequestError(
-                "No EAO_MANAGER group members with email found (check Keycloak admin config)"
+                "No MPT_MANAGER group members with email found (check Keycloak admin config)"
             )
         email_details = PackageSubmissionEmailService.prepare_awaiting_manager_approval_email(
             package, manager_emails

@@ -6,9 +6,12 @@ Handles validation of user roles and permissions.
 """
 from http import HTTPStatus
 
+from flask import g
 from flask_restx import abort
 
+from submit_api.auth import auth
 from submit_api.enums.role import RoleEnum
+from submit_api.enums.work_role import WorkRole
 from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import User as UserModel
@@ -21,6 +24,9 @@ def check_has_permissions_on_project(permissions=None, account_project_ids=None)
     """Check if user is assigned to all of the given projects."""
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
     if user.type == UserType.STAFF:
+        # Check for INSTANCE_ADMIN first - they have full access
+        if auth.is_instance_admin():
+            return  # Full access, bypass all checks
         return
 
     if not user or not user.account_user or not user.account_user.role or not account_project_ids:
@@ -50,8 +56,9 @@ def check_has_permissions_on_project(permissions=None, account_project_ids=None)
     return
 
 
-def has_access_to_package(package_id):
+def has_access_to_package(package_id):  # pylint: disable=too-many-branches
     """Check if user is assigned to the package."""
+    from submit_api.models import StaffUserWork  # pylint: disable=import-outside-toplevel
     if not package_id:
         abort(HTTPStatus.BAD_REQUEST)
 
@@ -61,6 +68,32 @@ def has_access_to_package(package_id):
 
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
     if user.type == UserType.STAFF:
+        # Check for INSTANCE_ADMIN first - they have full access
+        if auth.is_instance_admin():
+            return  # Full access, bypass all checks including work-based restrictions
+
+        # Check if package is work-related
+        if package.account_project_work_id:
+            # Work-based package - check staff user has access to this work
+            staff_user = user.staff_user
+            if not staff_user:
+                abort(HTTPStatus.FORBIDDEN)
+            # Get the work_id from the already-loaded relationship
+            if not package.account_project_work:
+                abort(HTTPStatus.FORBIDDEN)
+            work_id = package.account_project_work.work_id
+            # Check if staff user has active assignment to this work
+            staff_user_work = StaffUserWork.query.filter_by(
+                staff_user_id=staff_user.id,
+                work_id=work_id,
+                is_active=True
+            ).first()
+            if not staff_user_work:
+                abort(HTTPStatus.FORBIDDEN)
+            # Store role in g for later permission checks
+            g.work_role = staff_user_work.role
+            return
+        # Non-work package - allow access via Keycloak roles
         return
 
     if not user or not user.account_user or not user.account_user.role:
@@ -89,3 +122,27 @@ def has_access_to_package(package_id):
                 return
 
     abort(HTTPStatus.FORBIDDEN)
+
+
+def has_work_role(required_roles: list[WorkRole]) -> bool:
+    """Check if current user has one of the required work roles.
+
+    Args:
+        required_roles: List of WorkRole enums required
+
+    Returns:
+        bool: True if user has required role, False otherwise
+    """
+    if not hasattr(g, 'work_role'):
+        return False
+    return g.work_role in [role.value for role in required_roles]
+
+
+def require_team_lead_access():
+    """Check if current user has Team Lead role for the work.
+
+    Raises:
+        HTTPStatus.FORBIDDEN: If user doesn't have Team Lead role
+    """
+    if not has_work_role([WorkRole.TEAM_LEAD]):
+        abort(HTTPStatus.FORBIDDEN)

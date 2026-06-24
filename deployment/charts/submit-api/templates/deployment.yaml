@@ -152,6 +152,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: KEYCLOAK_REALM_NAME
+            - name: INSTANCE_ADMIN_GROUP
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: INSTANCE_ADMIN_GROUP
             - name: KEYCLOAK_ADMIN_CLIENT
               valueFrom:
                 secretKeyRef:

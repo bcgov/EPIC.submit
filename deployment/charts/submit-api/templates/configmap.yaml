@@ -14,5 +14,6 @@ data:
   PYTHONBUFFERED: "{{ .Values.python.pythonBuffered }}"
   KEYCLOAK_BASE_URL: {{ .Values.auth.keycloak.uri }}
   KEYCLOAK_REALM_NAME: {{ .Values.auth.keycloak.realm }}
+  INSTANCE_ADMIN_GROUP: {{ .Values.auth.keycloak.instanceAdminGroup }}
   CONNECT_TIMEOUT: "{{ .Values.python.connectTimeout }}"
   CORS_ORIGIN: "{{ .Values.cors.origin }}"

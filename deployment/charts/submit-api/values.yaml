@@ -42,6 +42,7 @@ auth:
   keycloak:
     uri: https://dev.loginproxy.gov.bc.ca
     realm: eao-epic
+    instanceAdminGroup: INSTANCE_ADMIN
     adminClientId:
     adminClientSecret:
 python:
