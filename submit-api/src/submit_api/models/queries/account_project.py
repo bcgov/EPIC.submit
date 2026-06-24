@@ -286,6 +286,8 @@ class ProjectQueries:
         if user_role.original_package_ids:
             package_query = package_query.join(PackageVersion).filter(
                 PackageVersion.original_package_id.in_(user_role.original_package_ids))
+        else:
+            package_query = package_query.filter(False)
 
         return package_query
 
