@@ -2,16 +2,16 @@
 from flask import current_app
 
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.models import StaffUser, StaffUserWork, TrackWork, User
-from submit_api.models.user import UserType
+from submit_api.models import StaffUserWork, TrackWork, User
 from submit_api.services.keycloak import KeycloakService
+from submit_api.services.staff_user_service import StaffUserService
 
 
 class StaffUserWorkService:
     """Staff user work management service."""
 
     @classmethod
-    def create_or_update_staff_user_work(cls, email: str, work_id: int, role: str):  # pylint: disable=too-many-locals
+    def create_or_update_staff_user_work(cls, email: str, work_id: int, role: str):
         """Create or update staff user work assignment from EPIC.track.
 
         Args:
@@ -26,45 +26,16 @@ class StaffUserWorkService:
             ResourceNotFoundError: If user not found in Keycloak or work doesn't exist
             BadRequestError: If invalid input
         """
-        # 1. Lookup user in Keycloak by email
         try:
-            keycloak_user = KeycloakService.get_user_by_email(email)
+            staff_user, username = StaffUserService.get_or_create_staff_user_from_email(email)
+        except ValueError as e:
+            raise BadRequestError(str(e)) from e
         except Exception as e:  # noqa: B902
             current_app.logger.error(f"Failed to fetch user from Keycloak: {str(e)}")
             raise ResourceNotFoundError(f"User with email '{email}' not found in Keycloak.") from e
 
-        username = keycloak_user.get("username")
-        first_name = keycloak_user.get("firstName") or ""
-        last_name = keycloak_user.get("lastName") or ""
-        work_email = keycloak_user.get("email")
-
-        if not username:
-            raise BadRequestError(f"Keycloak user with email '{email}' does not have a valid username.")
-
-        # 2. Get or create User record (type=STAFF)
-        user = User.get_by_guid(username)
-        if not user:
-            user_data = {
-                "auth_guid": username,
-                "type": UserType.STAFF
-            }
-            user = User.create_user(user_data)
-            current_app.logger.info(f"Created User with username {username}")
-
-        # 3. Get or create StaffUser record
-        staff_user = user.staff_user
-        if not staff_user:
-            staff_user_data = {
-                "first_name": first_name,
-                "last_name": last_name,
-                "work_email_address": work_email,
-                "user_id": user.id
-            }
-            staff_user = StaffUser.create_staff_user(staff_user_data)
-            current_app.logger.info(f"Created StaffUser for User with username {username}")
-
-        # 4. Check if user has EAO_TEAM_MEMBER Keycloak group (subgroup under SUBMIT)
-        # 5. Assign EAO_TEAM_MEMBER group only if not already assigned (idempotent)
+        # Check if user has EAO_TEAM_MEMBER Keycloak group (subgroup under SUBMIT)
+        # Assign EAO_TEAM_MEMBER group only if not already assigned (idempotent)
         try:
             user_groups = KeycloakService.get_user_groups(username)
             has_eao_team_member = any(group.get('path') == '/SUBMIT/EAO_TEAM_MEMBER'
@@ -159,3 +130,12 @@ class StaffUserWorkService:
             list[StaffUserWork]: List of active work assignments
         """
         return StaffUserWork.find_by_staff_user_id(staff_user_id)
+
+    @classmethod
+    def get_all_staff_work_roles(cls):
+        """Get all active staff work role assignments.
+
+        Returns:
+            list[StaffUserWork]: List of all active staff work assignments with staff user and work details
+        """
+        return StaffUserWork.query.filter_by(is_active=True).all()

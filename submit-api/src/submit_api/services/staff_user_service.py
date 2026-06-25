@@ -41,9 +41,19 @@ class StaffUserService:
         return staff_user
 
     @classmethod
-    def create_and_assign_group(cls, email: str, group_name: str) -> StaffUser:
-        """Create a user from Keycloak and assign them to a Keycloak group."""
-        # 1. Fetch user from Keycloak
+    def get_or_create_staff_user_from_email(cls, email: str) -> tuple:
+        """Get or create staff user from Keycloak email lookup.
+
+        Args:
+            email: Email address of the staff user
+
+        Returns:
+            tuple: (StaffUser instance, username)
+
+        Raises:
+            ResourceNotFoundError: If user not found in Keycloak
+            ValueError: If Keycloak user doesn't have a valid username
+        """
         keycloak_user = KeycloakService.get_user_by_email(email)
         username = keycloak_user.get("username")
         first_name = keycloak_user.get("firstName") or ""
@@ -53,7 +63,6 @@ class StaffUserService:
         if not username:
             raise ValueError(f"Keycloak user with email '{email}' does not have a valid username.")
 
-        # 2. Create or fetch local User
         user = UserModel.get_by_guid(username)
         if not user:
             user_data = {
@@ -63,7 +72,6 @@ class StaffUserService:
             user = UserModel.create_user(user_data)
             current_app.logger.info(f"Created User with username {username}")
 
-        # 3. Create or fetch local StaffUser
         staff_user = user.staff_user
         if not staff_user:
             staff_user_data = {
@@ -75,7 +83,13 @@ class StaffUserService:
             staff_user = StaffUser.create_staff_user(staff_user_data)
             current_app.logger.info(f"Created StaffUser for User with username {username}")
 
-        # 4. Assign to Keycloak group
+        return staff_user, username
+
+    @classmethod
+    def create_and_assign_group(cls, email: str, group_name: str) -> StaffUser:
+        """Create a user from Keycloak and assign them to a Keycloak group."""
+        staff_user, username = cls.get_or_create_staff_user_from_email(email)
+
         group_id = KeycloakService.get_group_id_by_path(group_name)
         KeycloakService.update_user_group(user_id=username, group_id=group_id)
 
