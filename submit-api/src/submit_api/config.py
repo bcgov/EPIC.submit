@@ -99,6 +99,9 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     INVITATION_EXPIRY_DAYS = int(os.getenv('INVITATION_EXPIRY_DAYS', '7'))  # Default to 7 days
 
+    # Keycloak Groups
+    INSTANCE_ADMIN_GROUP = os.getenv('INSTANCE_ADMIN_GROUP', 'INSTANCE_ADMIN')
+
     # CORS
     CORS_ORIGIN = os.getenv('CORS_ORIGIN', '')
 

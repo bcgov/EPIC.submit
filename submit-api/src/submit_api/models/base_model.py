@@ -46,7 +46,7 @@ class BaseModel(db.Model):
     @declared_attr
     def updated_by(cls):  # pylint:disable=no-self-argument, # noqa: N805
         """Return foreign key for modified by."""
-        return Column(db.String(50))
+        return Column(db.String(50), onupdate=cls._get_current_user)
 
     @staticmethod
     def _get_current_user():

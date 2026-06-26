@@ -24,7 +24,9 @@ export const useManagementPlanName = (
       submissionPackage.type.name === SubmissionPackageType.IEM;
 
     if (needsConditionNumber && conditionNumber) {
-      return conditionNumber + " - " + submissionPackage.name;
+      if (submissionPackage.type.name !== SubmissionPackageType.MANAGEMENT_PLAN) {
+        return conditionNumber + " - " + submissionPackage.name;
+      }
     }
     if (submissionPackage.type.name === SubmissionPackageType.ADDITIONAL_INFORMATION) {
       return `${submissionPackage.type.title} - ${submissionPackage.name}`;

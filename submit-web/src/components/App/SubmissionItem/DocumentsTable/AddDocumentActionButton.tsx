@@ -15,6 +15,7 @@ type AddDocumentActionButtonProps = {
   folderPath: string;
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
   isGeoSpatial?: boolean;
+  onUploadComplete?: (submission: Submission) => void;
 };
 export const AddDocumentActionButton = ({
   handleAddDocument,
@@ -22,6 +23,7 @@ export const AddDocumentActionButton = ({
   folderPath,
   setIsPendingUpload,
   isGeoSpatial = false,
+  onUploadComplete,
 }: AddDocumentActionButtonProps) => {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -72,6 +74,9 @@ export const AddDocumentActionButton = ({
         });
       }
       handleAddDocument(addedSubmission);
+      if (isGeoSpatial && onUploadComplete) {
+        onUploadComplete(addedSubmission);
+      }
     } catch (e) {
       notify.error("Failed to add document");
       if (isAxiosError(e)) {

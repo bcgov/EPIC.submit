@@ -15,12 +15,15 @@
 
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload, aliased
+from submit_api.auth import auth
 from submit_api.enums.role import RoleEnum
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User, PackageVersion
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
+from submit_api.models.account_project_work import AccountProjectWork
 from submit_api.models.package import Package
 from submit_api.models.item import Item
+from submit_api.models.staff_user_work import StaffUserWork
 from submit_api.models.user import UserType
 from submit_api.schemas.project import AccountProjectSchema, StaffAccountProjectSchema
 from submit_api.utils.token_info import TokenInfo
@@ -265,8 +268,36 @@ class ProjectQueries:
 
         if not user:
             raise ValueError("User not found.")
-
+        if not package_query:
+            package_query = db.session.query(Package)
         if user.type == UserType.STAFF:
+            # INSTANCE_ADMIN has access to all packages
+            if auth.is_instance_admin():
+                return package_query
+
+            # Filter packages based on staff user's work assignments
+            staff_user = user.staff_user
+            if not staff_user:
+                return package_query.filter(False)
+
+            # Get all active work IDs for this staff user
+            active_work_ids = db.session.query(StaffUserWork.work_id).filter(
+                StaffUserWork.staff_user_id == staff_user.id,
+                StaffUserWork.is_active == True  # noqa: E712
+            ).subquery()
+
+            # Filter packages to only those with account_project_work_id matching staff's work assignments
+            # OR packages without account_project_work_id (non-work packages accessible via Keycloak roles)
+            package_query = package_query.outerjoin(
+                AccountProjectWork,
+                Package.account_project_work_id == AccountProjectWork.id
+            ).filter(
+                or_(
+                    Package.account_project_work_id.is_(None),  # Non-work packages
+                    AccountProjectWork.work_id.in_(active_work_ids)  # Work packages staff has access to
+                )
+            )
+
             return package_query
 
         if not user.account_user or not user.account_user.role:
@@ -279,9 +310,6 @@ class ProjectQueries:
 
         if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value]:
             return package_query
-
-        if not package_query:
-            package_query = db.session.query(Package)
 
         if user_role.original_package_ids:
             package_query = package_query.join(PackageVersion).filter(
@@ -327,7 +355,7 @@ class ProjectQueries:
             status.value == updated_value for status in statuses)
 
         if canonical_statuses:
-            query = query.filter(Package.status.op("@>")(canonical_statuses))
+            query = query.filter(Package.status.op("&&")(canonical_statuses))
 
         if include_revision_required:
             query = cls._revision_required_filter(query)

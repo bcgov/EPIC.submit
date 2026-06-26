@@ -4,7 +4,7 @@ import {
   createSubmission,
   useTriggerGeoProcess,
 } from "@/hooks/api/useSubmissions";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_TYPE, Submission } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useEffect, useMemo, useState } from "react";
@@ -20,12 +20,14 @@ type DocumentTableRowProps = Readonly<{
   error?: boolean;
   folder?: string;
   isGeoSpatial?: boolean;
+  onUploadComplete?: (submission: Submission) => void;
 }>;
 export default function PendingDocumentRow({
   documentItem,
   error = false,
   folder: s3Folder,
   isGeoSpatial,
+  onUploadComplete,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -96,6 +98,10 @@ export default function PendingDocumentRow({
       }
 
       completeFileUpload(documentItem.id, documentSubmission);
+
+      if (isGeoSpatial && onUploadComplete) {
+        onUploadComplete(documentSubmission);
+      }
 
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_ITEM, documentSubmission.item_id],

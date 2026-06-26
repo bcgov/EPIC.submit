@@ -2,7 +2,11 @@ import { TableHead, TableRow } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 
-export default function ProponentLayoutHead() {
+type ProponentLayoutHeadProps = {
+  isManagementPlan?: boolean;
+};
+
+export default function ProponentLayoutHead({ isManagementPlan }: ProponentLayoutHeadProps) {
   return (
     <TableHead
       sx={{
@@ -13,29 +17,13 @@ export default function ProponentLayoutHead() {
       }}
     >
       <TableRow>
-        <SubmitTableHeadCell
-          sx={{
-            width: "55%",
-          }}
-        />
-        <SubmitTableHeadCell
-          align="left"
-          sx={{
-            width: "15%",
-          }}
-        />
-        <SubmitTableHeadCell
-          align="left"
-          sx={{
-            width: "15%",
-          }}
-        />
-        <SubmitTableHeadCell
-          align="left"
-          sx={{
-            width: "15%",
-          }}
-        />
+        {isManagementPlan && (
+          <SubmitTableHeadCell align="left" sx={{ width: "5%" }} />
+        )}
+        <SubmitTableHeadCell sx={{ width: isManagementPlan ? "50%" : "55%" }} />
+        <SubmitTableHeadCell align="left" sx={{ width: "15%" }} />
+        <SubmitTableHeadCell align="left" sx={{ width: "15%" }} />
+        <SubmitTableHeadCell align="left" sx={{ width: "15%" }} />
       </TableRow>
     </TableHead>
   );

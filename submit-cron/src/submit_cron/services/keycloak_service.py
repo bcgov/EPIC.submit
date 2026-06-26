@@ -16,8 +16,8 @@ import requests
 from flask import current_app
 
 
-# Same group path as submit-api (SUBMIT / EAO_MANAGER)
-EAO_MANAGER_GROUP_PATH = "SUBMIT/EAO_MANAGER"
+# Same group path as submit-api (SUBMIT / MPT_MANAGER)
+MPT_MANAGER_GROUP_PATH = "SUBMIT/MPT_MANAGER"
 
 
 class KeycloakService:
@@ -87,7 +87,7 @@ class KeycloakService:
 
     @staticmethod
     def get_group_id_by_path(group_path: str) -> str:
-        """Find a Keycloak group by full path (e.g. 'SUBMIT/EAO_MANAGER') and return its ID."""
+        """Find a Keycloak group by full path (e.g. 'SUBMIT/MPT_MANAGER') and return its ID."""
         segments = group_path.strip("/").split("/")
         current_groups = KeycloakService.get_groups(brief_representation=True)
         current_group = None
@@ -108,10 +108,10 @@ class KeycloakService:
         return response.json()
 
     @classmethod
-    def get_eao_manager_emails(cls) -> list:
-        """Return email addresses of SUBMIT/EAO_MANAGER group members (same as submit-api flow)."""
+    def get_mpt_manager_emails(cls) -> list:
+        """Return email addresses of SUBMIT/MPT_MANAGER group members (same as submit-api flow)."""
         try:
-            group_id = cls.get_group_id_by_path(EAO_MANAGER_GROUP_PATH)
+            group_id = cls.get_group_id_by_path(MPT_MANAGER_GROUP_PATH)
             members = cls.get_members_for_group(group_id)
             return [m.get("email") for m in members if m.get("email")]
         except (ValueError, requests.RequestException):

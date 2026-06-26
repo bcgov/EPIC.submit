@@ -4,15 +4,19 @@ import ProponentTableHead from "./ProponentTableHead";
 import { USER_TYPE } from "@/models/User";
 import StaffTableHead from "./StaffTableHead";
 
-export default function TableHead() {
+type TableHeadProps = {
+  isManagementPlan?: boolean;
+};
+
+export default function TableHead({ isManagementPlan }: TableHeadProps) {
   const { userType } = useAccount();
   return (
     <Switch>
       <Case condition={userType === USER_TYPE.PROPONENT}>
-        <ProponentTableHead />
+        <ProponentTableHead isManagementPlan={isManagementPlan} />
       </Case>
       <Case condition={userType === USER_TYPE.STAFF}>
-        <StaffTableHead />
+        <StaffTableHead isManagementPlan={isManagementPlan} />
       </Case>
     </Switch>
   );

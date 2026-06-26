@@ -5,8 +5,19 @@ import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import AddIcon from "@mui/icons-material/Add";
-import { Box, Button, Divider, styled, Typography } from "@mui/material";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import {
+  Box,
+  Button,
+  Chip,
+  Collapse,
+  IconButton,
+  styled,
+  Typography,
+} from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { useState } from "react";
 import { When } from "react-if";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 
@@ -37,6 +48,9 @@ export const ProjectSubmissionsCard = ({
   onNewSubmission,
 }: ProjectSubmissionsCardProps) => {
   const { userType } = useAccount();
+  const [reviewCompletedOpen, setReviewCompletedOpen] = useState(false);
+
+  const isManagementPlan = !isWorkRelated;
 
   const activeSubmissionPackages = packages?.filter(
     (subPackage) => !subPackage.completed_on,
@@ -59,8 +73,8 @@ export const ProjectSubmissionsCard = ({
         justifyContent={"space-between"}
         sx={{
           pt: BCDesignTokens.layoutPaddingMedium,
-          pl: "0.75rem",
-          pb: BCDesignTokens.layoutPaddingXlarge,
+          pl: BCDesignTokens.layoutPaddingMedium,
+          pb: BCDesignTokens.layoutPaddingLarge,
         }}
       >
         <SubmissionTitle customTitle={title} customStatus={status} />
@@ -75,54 +89,95 @@ export const ProjectSubmissionsCard = ({
           </CardInnerBox>
         </When>
       </Box>
-      <Box height={"100%"} px={BCDesignTokens.layoutPaddingXsmall}>
+      <Box height={"100%"}>
         <When condition={!isWorkRelated}>
-          <Divider
-            sx={{
-              ml: BCDesignTokens.layoutPaddingSmall,
-              mb: BCDesignTokens.layoutPaddingXsmall,
-            }}
-          />
           <Typography
-            variant="body1"
+            variant="body2"
             sx={{
-              fontWeight: "bold",
+              fontWeight: 600,
               backgroundColor: BCDesignTokens.themeGold10,
-              ml: BCDesignTokens.layoutPaddingSmall,
+              borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+              padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`,
             }}
           >
             Active Submissions
           </Typography>
         </When>
         <CardInnerBox
-          sx={{ height: "100%", py: BCDesignTokens.layoutPaddingSmall }}
+          sx={{ height: "100%", p: 0 }}
         >
-          <ProjectTable submissionPackages={activeSubmissionPackages} />
-        </CardInnerBox>
-        <When condition={!isWorkRelated}>
-          <Divider
-            sx={{
-              mb: BCDesignTokens.layoutPaddingXsmall,
-              mt: BCDesignTokens.layoutPaddingSmall,
-              ml: BCDesignTokens.layoutPaddingSmall,
-            }}
+          <ProjectTable
+            isManagementPlan={isManagementPlan}
+            submissionPackages={activeSubmissionPackages}
           />
-          <Typography
-            variant="body1"
-            sx={{
-              fontWeight: "bold",
-              backgroundColor: BCDesignTokens.themeGold10,
-              ml: BCDesignTokens.layoutPaddingSmall,
-            }}
-          >
-            Review Completed by the EAO
-          </Typography>
-        </When>
-        <CardInnerBox
-          sx={{ height: "100%", py: BCDesignTokens.layoutPaddingMedium }}
-        >
-          <ProjectTable headless submissionPackages={pastSubmissionPackages} />
         </CardInnerBox>
+        <When condition={!isWorkRelated && pastSubmissionPackages.length > 0}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{
+              cursor: "pointer",
+              userSelect: "none",
+              backgroundColor: BCDesignTokens.themeGold10,
+              borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+              padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`,
+            }}
+            onClick={() => setReviewCompletedOpen((prev) => !prev)}
+          >
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography
+                variant="body2"
+                sx={{ fontWeight: 600 }}
+              >
+                Review Completed by the EAO
+              </Typography>
+              <Chip
+                label={pastSubmissionPackages.length}
+                size="small"
+                sx={{
+                  backgroundColor: BCDesignTokens.themeBlue20,
+                  border: `1px solid ${BCDesignTokens.themePrimaryBlue}`,
+                  borderRadius: "10px",
+                  fontWeight: 600,
+                  height: "22px",
+                }}
+              />
+            </Box>
+            <IconButton size="small" sx={{ ml: 0.5, p: 0.25, alignSelf: "flex-end" }}>
+              {reviewCompletedOpen ? (
+                <ExpandLessIcon fontSize="small" />
+              ) : (
+                <ExpandMoreIcon fontSize="small" />
+              )}
+            </IconButton>
+          </Box>
+          <Collapse in={reviewCompletedOpen}>
+            <CardInnerBox
+              sx={{
+                height: "100%",
+                p: 0,
+              }}
+            >
+              <ProjectTable
+                headless
+                isManagementPlan={isManagementPlan}
+                submissionPackages={pastSubmissionPackages}
+              />
+            </CardInnerBox>
+          </Collapse>
+        </When>
+        <When condition={isWorkRelated && pastSubmissionPackages.length > 0}>
+          <CardInnerBox
+            sx={{ height: "100%", p: 0 }}
+          >
+            <ProjectTable
+              headless
+              isManagementPlan={false}
+              submissionPackages={pastSubmissionPackages}
+            />
+          </CardInnerBox>
+        </When>
       </Box>
     </Box>
   );
