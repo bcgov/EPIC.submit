@@ -27,7 +27,7 @@ from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
 from submit_api.models import GeoDataUpload, db
-from submit_api.services.geo_processor import GeoService
+from submit_api.services.geo import GeoService
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -102,8 +102,10 @@ class GeoUploadStatus(Resource):
                         yield f"data: {json.dumps(payload)}\n\n"
                         return
 
-                    if upload.status == "failed":
+                    if upload.status in ("failed", "validation_failed"):
                         payload["error"] = upload.error_message
+                        if upload.status == "validation_failed":
+                            payload["validation_errors"] = upload.validation_errors
                         yield f"data: {json.dumps(payload)}\n\n"
                         return
 

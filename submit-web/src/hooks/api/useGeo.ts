@@ -3,6 +3,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { defaultUseQueryOptions, QUERY_KEY } from "./constants";
 import { Options } from "./types";
 
+export interface GeoValidationError {
+  feature_index: number | null;
+  field: string | null;
+  dbf_column: string | null;
+  error_type: "missing_column" | "missing_value" | "invalid_code" | "no_shapefile";
+  value: string | null;
+  message: string;
+}
+
 export interface GeoUpload {
   id: number;
   filename: string;
@@ -13,6 +22,7 @@ export interface GeoUpload {
   geometry_type?: string;
   crs_original?: string;
   error_message?: string;
+  validation_errors?: GeoValidationError[];
   created_at: string;
   raw_s3_key?: string;
 }

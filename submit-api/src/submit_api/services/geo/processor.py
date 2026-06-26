@@ -36,6 +36,7 @@ import geopandas as gpd
 from submit_api.models import GeoDataUpload, Item as ItemModel, Submission as SubmissionModel, db
 from submit_api.models.submission import SubmissionType
 from submit_api.services.document_service_client import DocumentServiceClient
+from submit_api.services.geo.validator import validate_geo_file
 
 
 logger = logging.getLogger(__name__)
@@ -301,6 +302,26 @@ class GeoService:
                             upload.file_size_kb = round(file_size_bytes / 1024, 2)
                             db.session.commit()
 
+                        if os.environ.get("GEO_FILE_VALIDATION", "false").lower() == "true":
+                            is_valid, errors, summary = validate_geo_file(local_path)
+                            if not is_valid:
+                                logger.warning(
+                                    "Attribute validation failed for GeoDataUpload %s: "
+                                    "%d error(s) in field(s): %s",
+                                    upload_id,
+                                    summary["total_errors"],
+                                    ", ".join(summary["fields_with_errors"]) or "N/A",
+                                )
+                                upload.status = "validation_failed"
+                                upload.validation_errors = errors
+                                upload.error_message = (
+                                    f"Attribute validation failed: {summary['total_errors']} "
+                                    f"error(s) in field(s): "
+                                    f"{', '.join(summary['fields_with_errors']) or 'N/A'}."
+                                )
+                                db.session.commit()
+                                return
+
                         result = process_geo_file(local_path)
 
                         for tier in ("preview", "standard"):
@@ -476,11 +497,12 @@ class GeoService:
         upload = cls.get_upload(upload_id)
         if not upload:
             raise LookupError(f"GeoDataUpload {upload_id} not found.")
-        if upload.status != "failed":
+        if upload.status not in ("failed", "validation_failed"):
             raise ValueError("Only failed uploads can be retried.")
 
         upload.status = "processing"
         upload.error_message = None
+        upload.validation_errors = None
         db.session.commit()
 
         cls._spawn_processing_thread(app, upload.id)
