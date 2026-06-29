@@ -70,7 +70,11 @@ class Package(Resource):
     def get(package_id):
         """Get package by id."""
         is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
-        if not is_staff:
+        if is_staff:
+            # Call has_access_to_package to set g.work_role for staff users
+            authorization.has_access_to_package(package_id)
+        else:
+            # For proponents, check access
             authorization.has_access_to_package(package_id)
         package = PackageService.get_package_by_id(package_id)
         if not package:
@@ -116,11 +120,18 @@ class PackageState(Resource):
         code=HTTPStatus.OK, model=package_model, description="Updated Package"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
+    @API.response(HTTPStatus.FORBIDDEN, "Forbidden - Team Lead access required for approval")
     @cross_origin(origins=allowedorigins())
     @auth.require
     def post(package_id):
         """Update package state."""
         request_body = PostPackageState().load(API.payload)
+        
+        # Check authorization for package access
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        if is_staff:
+            authorization.has_access_to_package(package_id)
+        
         package = PackageService.update_package_state(package_id, request_body)
         return PackageSchema().dump(package), HTTPStatus.OK
 

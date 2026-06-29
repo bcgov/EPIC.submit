@@ -18,3 +18,4 @@ class AccountProjectWorkSchema(Schema):
     id = fields.Int(data_key="id")
     work_id = fields.Int(data_key="work_id")
     work = fields.Nested(TrackWorkSchema, data_key="work")
+    work_role = fields.Str(attribute='current_user_work_role', data_key="work_role", allow_none=True)

@@ -89,6 +89,12 @@ class ProjectQueries:
                     package, user_type
                 )
 
+        # Attach work roles to AccountProjectWork objects for staff users
+        if account_project and is_staff and user and user.type == UserType.STAFF and user.staff_user:
+            cls._attach_work_roles_to_account_project_works(
+                account_project.account_project_works, user.staff_user.id
+            )
+
         schema_class = StaffAccountProjectSchema if is_staff else AccountProjectSchema
         account_project_dict = schema_class().dump(account_project)
 
@@ -215,6 +221,13 @@ class ProjectQueries:
                 if package.id in package_statuses:
                     package._calculated_status = package_statuses[package.id]
 
+        # Attach work roles to AccountProjectWork objects for staff users
+        if not is_proponent and user and user.type == UserType.STAFF and user.staff_user:
+            for account_project in account_projects:
+                cls._attach_work_roles_to_account_project_works(
+                    account_project.account_project_works, user.staff_user.id
+                )
+
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
         account_projects_list = schema_class(many=True).dump(account_projects)
 
@@ -285,6 +298,40 @@ class ProjectQueries:
             )
 
         return query
+
+    @classmethod
+    def _attach_work_roles_to_account_project_works(cls, account_project_works, staff_user_id: int):
+        """Attach work roles to AccountProjectWork objects using a single query.
+        
+        Args:
+            account_project_works: List of AccountProjectWork objects
+            staff_user_id: ID of the staff user
+        """
+        if not account_project_works:
+            return
+
+        # Get all work IDs from the account_project_works
+        work_ids = [apw.work_id for apw in account_project_works]
+        
+        if not work_ids:
+            return
+
+        # Single query to get all work roles for this staff user
+        work_roles = db.session.query(
+            StaffUserWork.work_id,
+            StaffUserWork.role
+        ).filter(
+            StaffUserWork.staff_user_id == staff_user_id,
+            StaffUserWork.work_id.in_(work_ids),
+            StaffUserWork.is_active == True  # noqa: E712
+        ).all()
+
+        # Create a mapping of work_id to role
+        work_role_map = {work_id: role for work_id, role in work_roles}
+
+        # Attach the role to each AccountProjectWork object
+        for apw in account_project_works:
+            apw.current_user_work_role = work_role_map.get(apw.work_id)
 
     @classmethod
     def _get_accessible_work_ids_for_staff_user(cls, user: User):
