@@ -15,13 +15,14 @@
 from functools import wraps
 from http import HTTPStatus
 
-from flask import current_app, g, request
+from flask import g, request
 from flask_jwt_oidc import JwtManager
 
 from submit_api.models import db
 from submit_api.exceptions import PermissionDeniedError
 from submit_api.models import User
 from submit_api.models.user import UserType
+from submit_api.utils.roles import EpicSubmitRole
 
 jwt = (
     JwtManager()
@@ -40,8 +41,6 @@ class Auth:  # pylint: disable=too-few-public-methods
         def decorated(*args, **kwargs):
             g.authorization_header = request.headers.get("Authorization", None)
             g.token_info = g.jwt_oidc_token_info
-            # Store groups from token for INSTANCE_ADMIN checks
-            g.user_groups = g.token_info.get("groups", []) if hasattr(g, "token_info") else []
 
             return f(*args, **kwargs)
 
@@ -54,7 +53,9 @@ class Auth:  # pylint: disable=too-few-public-methods
         Args:
             roles (list[str]): List of valid roles
         """
-        return jwt.has_one_of_roles(roles)
+        # Always include full_access role for staff users
+        roles_with_full_access = list(roles) + [EpicSubmitRole.FULL_ACCESS.value]
+        return jwt.has_one_of_roles(roles_with_full_access)
 
     @classmethod
     def has_one_of_roles(cls, roles):
@@ -70,8 +71,10 @@ class Auth:  # pylint: disable=too-few-public-methods
             def wrapper(*args, **kwargs):
                 user = db.session.query(User).filter_by(auth_guid=cls().preferred_username).first()
                 if user.type == UserType.STAFF:
+                    # Always include full_access role for staff users
+                    roles_with_full_access = list(roles) + [EpicSubmitRole.FULL_ACCESS.value]
                     # pylint: disable=no-value-for-parameter
-                    if jwt.has_one_of_roles(roles):
+                    if jwt.has_one_of_roles(roles_with_full_access):
                         return f(*args, **kwargs)
                     raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
 
@@ -96,21 +99,6 @@ class Auth:  # pylint: disable=too-few-public-methods
     def preferred_username(self):
         """Retrieve the preferred username claim from the JWT token."""
         return g.token_info.get("preferred_username") if hasattr(g, "token_info") else None
-
-    @classmethod
-    def is_instance_admin(cls):
-        """Check if the current user belongs to the INSTANCE_ADMIN group.
-
-        Returns:
-            bool: True if user is in SUBMIT/INSTANCE_ADMIN group, False otherwise
-        """
-        if not hasattr(g, "user_groups"):
-            return False
-
-        instance_admin_group = current_app.config.get("INSTANCE_ADMIN_GROUP", "INSTANCE_ADMIN")
-        instance_admin_path = f"/SUBMIT/{instance_admin_group}"
-
-        return instance_admin_path in g.user_groups
 
 
 auth = Auth()

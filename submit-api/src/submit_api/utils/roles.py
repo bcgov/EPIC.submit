@@ -23,3 +23,4 @@ class EpicSubmitRole(Enum):
     EAO_CREATE = "eao_create"
     EXTENDED_EAO_EDIT = "extended_eao_edit"
     MANAGE_USERS = "manage-users"
+    FULL_ACCESS = "full_access"
