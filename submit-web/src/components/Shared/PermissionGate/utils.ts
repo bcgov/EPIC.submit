@@ -30,7 +30,10 @@ export const hasPermission = ({
   permissions: string[];
   scopes: string[];
 }) => {
-  const scopesMap = scopes.reduce(
+  // Always include full_access role in the scopes check
+  const scopesWithFullAccess = [...scopes, EPIC_SUBMIT_ROLE.full_access];
+  
+  const scopesMap = scopesWithFullAccess.reduce(
     (acc, scope) => {
       acc[scope] = true;
       return acc;
