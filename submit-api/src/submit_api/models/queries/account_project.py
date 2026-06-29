@@ -15,8 +15,9 @@
 
 from sqlalchemy import or_
 from sqlalchemy.orm import joinedload, aliased
-from submit_api.auth import auth
+from submit_api.auth import jwt
 from submit_api.enums.role import RoleEnum
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User, PackageVersion
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
@@ -100,6 +101,17 @@ class ProjectQueries:
                 package for package in account_project_dict['packages']
                 if package['id'] in filtered_package_ids
             ]
+
+        # Filter account_project_works for staff users without full_access role
+        if is_staff and user and user.type == UserType.STAFF:
+            if not jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
+                accessible_work_ids = cls._get_accessible_work_ids_for_staff_user(user)
+                if 'account_project_works' in account_project_dict:
+                    account_project_dict['account_project_works'] = [
+                        work for work in account_project_dict['account_project_works']
+                        if work.get('work_id') in accessible_work_ids
+                    ]
+
         return account_project_dict
 
     @classmethod
@@ -211,6 +223,20 @@ class ProjectQueries:
                 account_project['packages'] = [package for package in account_project['packages']
                                                if package['id'] in filtered_package_ids]
 
+        # Filter account_project_works for staff users without full_access role
+        if not is_proponent and user and user.type == UserType.STAFF:
+            if not jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
+                # Get accessible work IDs for this staff user
+                accessible_work_ids = cls._get_accessible_work_ids_for_staff_user(user)
+
+                # Filter account_project_works to only include accessible works
+                for account_project in account_projects_list:
+                    if 'account_project_works' in account_project:
+                        account_project['account_project_works'] = [
+                            work for work in account_project['account_project_works']
+                            if work.get('work_id') in accessible_work_ids
+                        ]
+
         return account_projects_list
 
     @classmethod
@@ -261,6 +287,24 @@ class ProjectQueries:
         return query
 
     @classmethod
+    def _get_accessible_work_ids_for_staff_user(cls, user: User):
+        """Get list of work IDs accessible to a staff user."""
+        if not user or user.type != UserType.STAFF:
+            return []
+
+        staff_user = user.staff_user
+        if not staff_user:
+            return []
+
+        # Get all active work IDs for this staff user
+        work_ids = db.session.query(StaffUserWork.work_id).filter(
+            StaffUserWork.staff_user_id == staff_user.id,
+            StaffUserWork.is_active == True  # noqa: E712
+        ).all()
+
+        return [work_id for (work_id,) in work_ids]
+
+    @classmethod
     def _filter_packages_by_user_access(cls, package_query=None, user: User = None):
         """Filter packages by all accessible packages of the user."""
         if user is None:
@@ -271,8 +315,8 @@ class ProjectQueries:
         if not package_query:
             package_query = db.session.query(Package)
         if user.type == UserType.STAFF:
-            # INSTANCE_ADMIN has access to all packages
-            if auth.is_instance_admin():
+            # Users with full_access role have access to all packages
+            if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
                 return package_query
 
             # Filter packages based on staff user's work assignments

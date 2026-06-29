@@ -50,6 +50,7 @@ class TestJwtClaims(dict, Enum):
                 EpicSubmitRole.EAO_VIEW.value,
                 EpicSubmitRole.MANAGE_USERS.value,
                 EpicSubmitRole.EXTENDED_EAO_EDIT.value,
+                EpicSubmitRole.FULL_ACCESS.value,
             ]
         },
         'resource_access': {

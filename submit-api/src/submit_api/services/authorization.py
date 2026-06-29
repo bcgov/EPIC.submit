@@ -9,7 +9,7 @@ from http import HTTPStatus
 from flask import g
 from flask_restx import abort
 
-from submit_api.auth import auth
+from submit_api.auth import jwt
 from submit_api.enums.role import RoleEnum
 from submit_api.enums.work_role import WorkRole
 from submit_api.models import AccountUser as AccountUserModel
@@ -18,14 +18,15 @@ from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.user import UserType
 from submit_api.utils.token_info import TokenInfo
+from submit_api.utils.roles import EpicSubmitRole
 
 
 def check_has_permissions_on_project(permissions=None, account_project_ids=None):
     """Check if user is assigned to all of the given projects."""
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
     if user.type == UserType.STAFF:
-        # Check for INSTANCE_ADMIN first - they have full access
-        if auth.is_instance_admin():
+        # Check for full_access role - they have full access
+        if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
             return  # Full access, bypass all checks
         return
 
@@ -68,8 +69,8 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
 
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
     if user.type == UserType.STAFF:
-        # Check for INSTANCE_ADMIN first - they have full access
-        if auth.is_instance_admin():
+        # Check for full_access role - they have full access
+        if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
             return  # Full access, bypass all checks including work-based restrictions
 
         # Check if package is work-related
