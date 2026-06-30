@@ -50,6 +50,53 @@ _Summary = dict
 _Result = tuple[bool, _ErrorList, _Summary]
 
 
+def _validate_feature(idx: int, props: dict) -> _ErrorList:
+    """Validate a single feature's properties against FIELD_MAP rules.
+
+    Returns a list of error dicts (empty if the feature is valid).
+    """
+    feature_errors: _ErrorList = []
+
+    for logical, dbf_col in FIELD_MAP.items():
+        raw_val = props.get(dbf_col)
+
+        # Normalise: strip whitespace; treat empty string as absent.
+        val = raw_val.strip() if isinstance(raw_val, str) else raw_val
+        if val == "":
+            val = None
+
+        allowed: set[str] = ALLOWED_VALUES[logical]
+
+        if val is None:
+            if logical not in NULLABLE_FIELDS:
+                feature_errors.append({
+                    "feature_index": idx,
+                    "field": logical,
+                    "dbf_column": dbf_col,
+                    "error_type": "missing_value",
+                    "value": raw_val,
+                    "message": f"Feature {idx}: '{dbf_col}' is required but has no value.",
+                })
+        else:
+            compare_val = val.upper() if CASE_INSENSITIVE else val
+            compare_set = {v.upper() for v in allowed} if CASE_INSENSITIVE else allowed
+
+            if compare_val not in compare_set:
+                feature_errors.append({
+                    "feature_index": idx,
+                    "field": logical,
+                    "dbf_column": dbf_col,
+                    "error_type": "invalid_code",
+                    "value": val,
+                    "message": (
+                        f"Feature {idx}: '{dbf_col}' value {repr(val)} is not in "
+                        f"the allowed set {sorted(allowed)}."
+                    ),
+                })
+
+    return feature_errors
+
+
 def validate_shapefile(shp_path: str) -> _Result:
     """Validate a single shapefile's attributes against FIELD_MAP rules.
 
@@ -95,49 +142,9 @@ def validate_shapefile(shp_path: str) -> _Result:
                 capped = True
                 break
 
-            props: dict = feature.get("properties", {}) or {}
-
-            for logical, dbf_col in FIELD_MAP.items():
-                raw_val = props.get(dbf_col)
-
-                # Normalise: strip whitespace; treat empty string as absent.
-                val = raw_val.strip() if isinstance(raw_val, str) else raw_val
-                if val == "":
-                    val = None
-
-                is_nullable = logical in NULLABLE_FIELDS
-                allowed: set[str] = ALLOWED_VALUES[logical]
-
-                if val is None:
-                    if not is_nullable:
-                        errors.append({
-                            "feature_index": idx,
-                            "field": logical,
-                            "dbf_column": dbf_col,
-                            "error_type": "missing_value",
-                            "value": raw_val,
-                            "message": (
-                                f"Feature {idx}: '{dbf_col}' is required but has no value."
-                            ),
-                        })
-                        fields_with_errors.add(logical)
-                else:
-                    compare_val = val.upper() if CASE_INSENSITIVE else val
-                    compare_set = {v.upper() for v in allowed} if CASE_INSENSITIVE else allowed
-
-                    if compare_val not in compare_set:
-                        errors.append({
-                            "feature_index": idx,
-                            "field": logical,
-                            "dbf_column": dbf_col,
-                            "error_type": "invalid_code",
-                            "value": val,
-                            "message": (
-                                f"Feature {idx}: '{dbf_col}' value {repr(val)} is not in "
-                                f"the allowed set {sorted(allowed)}."
-                            ),
-                        })
-                        fields_with_errors.add(logical)
+            feature_errors = _validate_feature(idx, feature.get("properties", {}) or {})
+            errors.extend(feature_errors)
+            fields_with_errors.update(e["field"] for e in feature_errors)
 
     return (
         len(errors) == 0,

@@ -280,7 +280,80 @@ class GeoService:
     # -- Background worker ---------------------------------------------------
 
     @staticmethod
-    def _process_upload_in_background(app, upload_id: int) -> None:
+    def _validate_or_fail(upload: GeoDataUpload, local_path: str) -> bool:
+        """Run attribute validation, persisting a failure state if invalid.
+
+        Returns True if the upload passed validation (or validation is skipped),
+        False if it failed and the upload was marked ``validation_failed``.
+        """
+        if os.environ.get("SKIP_GEO_FILE_ATTR_VALIDATION", "false").lower() == "true":
+            return True
+
+        is_valid, errors, summary = validate_geo_file(local_path)
+        if is_valid:
+            return True
+
+        logger.warning(
+            "Attribute validation failed for GeoDataUpload %s: %d error(s) in field(s): %s",
+            upload.id,
+            summary["total_errors"],
+            ", ".join(summary["fields_with_errors"]) or "N/A",
+        )
+        upload.status = "validation_failed"
+        upload.validation_errors = errors
+        missing_cols = [
+            e["dbf_column"] for e in errors if e.get("error_type") == "missing_column"
+        ]
+        if missing_cols:
+            upload.error_message = (
+                "The shapefile is missing required column(s): "
+                f"{', '.join(missing_cols)}."
+            )
+        else:
+            upload.error_message = (
+                f"Attribute validation failed with {summary['total_errors']} issue(s) in: "
+                f"{', '.join(summary['fields_with_errors']) or 'N/A'}."
+            )
+        db.session.commit()
+        return False
+
+    @staticmethod
+    def _upload_processed_tiers(upload: GeoDataUpload, result: Dict[str, Any]) -> None:
+        """Upload processed tiers to S3 and record their keys on the upload."""
+        for tier in ("preview", "standard"):
+            s3_key = f"geo/processed/{upload.id}/{tier}.geojson"
+            write_url, actual_s3_key = DocumentServiceClient.get_presigned_write_url(s3_key)
+            DocumentServiceClient.upload_via_presigned_url(write_url, result["tiers"][tier])
+            if tier == "preview":
+                upload.preview_s3_key = actual_s3_key
+            else:
+                upload.standard_s3_key = actual_s3_key
+
+    @staticmethod
+    def _mark_upload_failed(upload_id: int, exc: Exception) -> None:
+        """Persist a failed state for the upload after an unexpected error."""
+        try:
+            # Rollback any pending or failed transaction state
+            db.session.rollback()
+
+            # Re-fetch the upload instance because it may be detached after rollback
+            upload = db.session.get(GeoDataUpload, upload_id)
+            if upload:
+                upload.status = "failed"
+                upload.error_message = str(exc)
+                db.session.commit()
+                logger.info("Successfully marked GeoDataUpload %s as failed.", upload_id)
+            else:
+                logger.error("Could not re-fetch GeoDataUpload %s after rollback.", upload_id)
+        except Exception as fallback_exc:  # pylint: disable=broad-except # noqa: B902
+            logger.error(
+                "CRITICAL: Failed to save the error state for upload %s. "
+                "The database might be unreachable: %s",
+                upload_id, fallback_exc
+            )
+
+    @classmethod
+    def _process_upload_in_background(cls, app, upload_id: int) -> None:
         """Download, convert, and re-upload a single GeoDataUpload (runs in daemon thread)."""
         with _GEO_SEMAPHORE:
             with app.app_context():
@@ -298,51 +371,14 @@ class GeoService:
 
                         # Update file size in KB if it's currently 0.0 (or unknown)
                         if not upload.file_size_kb or upload.file_size_kb == 0.0:
-                            file_size_bytes = os.path.getsize(local_path)
-                            upload.file_size_kb = round(file_size_bytes / 1024, 2)
+                            upload.file_size_kb = round(os.path.getsize(local_path) / 1024, 2)
                             db.session.commit()
 
-                        if os.environ.get("SKIP_GEO_FILE_ATTR_VALIDATION", "false").lower() != "true":
-                            is_valid, errors, summary = validate_geo_file(local_path)
-                            if not is_valid:
-                                logger.warning(
-                                    "Attribute validation failed for GeoDataUpload %s: "
-                                    "%d error(s) in field(s): %s",
-                                    upload_id,
-                                    summary["total_errors"],
-                                    ", ".join(summary["fields_with_errors"]) or "N/A",
-                                )
-                                upload.status = "validation_failed"
-                                upload.validation_errors = errors
-                                missing_cols = [
-                                    e["dbf_column"]
-                                    for e in errors
-                                    if e.get("error_type") == "missing_column"
-                                ]
-                                if missing_cols:
-                                    upload.error_message = (
-                                        "The shapefile is missing required column(s): "
-                                        f"{', '.join(missing_cols)}."
-                                    )
-                                else:
-                                    upload.error_message = (
-                                        f"Attribute validation failed with {summary['total_errors']} "
-                                        f"issue(s) in: "
-                                        f"{', '.join(summary['fields_with_errors']) or 'N/A'}."
-                                    )
-                                db.session.commit()
-                                return
+                        if not cls._validate_or_fail(upload, local_path):
+                            return
 
                         result = process_geo_file(local_path)
-
-                        for tier in ("preview", "standard"):
-                            s3_key = f"geo/processed/{upload_id}/{tier}.geojson"
-                            write_url, actual_s3_key = DocumentServiceClient.get_presigned_write_url(s3_key)
-                            DocumentServiceClient.upload_via_presigned_url(write_url, result["tiers"][tier])
-                            if tier == "preview":
-                                upload.preview_s3_key = actual_s3_key
-                            else:
-                                upload.standard_s3_key = actual_s3_key
+                        cls._upload_processed_tiers(upload, result)
 
                     metadata = result["metadata"]
                     upload.feature_count = metadata["feature_count"]
@@ -355,26 +391,7 @@ class GeoService:
 
                 except Exception as exc:  # pylint: disable=broad-except # noqa: B902
                     logger.exception("Error processing GeoDataUpload %s: %s", upload_id, exc)
-
-                    try:
-                        # Rollback any pending or failed transaction state
-                        db.session.rollback()
-
-                        # Re-fetch the upload instance because it may be detached after rollback
-                        upload = db.session.get(GeoDataUpload, upload_id)
-                        if upload:
-                            upload.status = "failed"
-                            upload.error_message = str(exc)
-                            db.session.commit()
-                            logger.info("Successfully marked GeoDataUpload %s as failed.", upload_id)
-                        else:
-                            logger.error("Could not re-fetch GeoDataUpload %s after rollback.", upload_id)
-                    except Exception as fallback_exc:  # pylint: disable=broad-except # noqa: B902
-                        logger.error(
-                            "CRITICAL: Failed to save the error state for upload %s. "
-                            "The database might be unreachable: %s",
-                            upload_id, fallback_exc
-                        )
+                    cls._mark_upload_failed(upload_id, exc)
 
     @classmethod
     def _spawn_processing_thread(cls, app, upload_id: int) -> None:
