@@ -106,7 +106,11 @@ export default function SubmissionItemReviewConfirmation({
     if (!hasDocument) return true;
     if (submissionItem.status !== SUBMISSION_ITEM_STATUS.SUBMITTED.value)
       return true;
-  }, [hasDocument, userType, submissionItem.status]);
+    // Item types without a "start review" workflow should just proceed
+    // (e.g. download) instead of attempting to start a review.
+    if (!acceptedSubmissionItemTypes.includes(itemType) || !packageStatus)
+      return true;
+  }, [hasDocument, userType, submissionItem.status, itemType, packageStatus]);
 
   const handleBypassClick = () => {
     onClick();

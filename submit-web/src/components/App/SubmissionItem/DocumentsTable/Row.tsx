@@ -229,7 +229,7 @@ export default function Row({
           <SubmitTableCell align="center">
             {geoUpload ? (
               <StatusChip
-                label={geoUpload.status.toUpperCase()}
+                label={geoUpload.status.replace(/_/g, " ").toUpperCase()}
                 theme={
                   geoUpload.status === "ready"
                     ? "success"
