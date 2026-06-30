@@ -126,12 +126,10 @@ class PackageState(Resource):
     def post(package_id):
         """Update package state."""
         request_body = PostPackageState().load(API.payload)
-        
         # Check authorization for package access
         is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
         if is_staff:
             authorization.has_access_to_package(package_id)
-        
         package = PackageService.update_package_state(package_id, request_body)
         return PackageSchema().dump(package), HTTPStatus.OK
 

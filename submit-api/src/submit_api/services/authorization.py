@@ -148,6 +148,5 @@ def require_team_lead_access():
     # Check for full_access role first - they have full permissions
     if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
         return
-    
     if not has_work_role([WorkRole.TEAM_LEAD]):
         abort(HTTPStatus.FORBIDDEN)

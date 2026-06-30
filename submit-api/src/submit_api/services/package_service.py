@@ -235,17 +235,14 @@ class PackageService:
     @classmethod
     def get_package_by_id(cls, package_id):
         """Get package by id."""
-        from submit_api.models import User as UserModel  # pylint: disable=import-outside-toplevel
         from submit_api.models import StaffUserWork  # pylint: disable=import-outside-toplevel
-        from submit_api.models.user import UserType  # pylint: disable=import-outside-toplevel
-        from submit_api.utils.token_info import TokenInfo  # pylint: disable=import-outside-toplevel
-        
+
         authorization.has_access_to_package(package_id)
         package = PackageModel.get_package_by_id_with_items(package_id)
-        
+
         # Attach work_role to account_project_work for staff users
         if package and package.account_project_work:
-            user = UserModel.get_by_guid(TokenInfo.get_username())
+            user = User.get_by_guid(TokenInfo.get_username())
             if user and user.type == UserType.STAFF and user.staff_user:
                 # Get the work role for this staff user and work
                 staff_user_work = StaffUserWork.query.filter_by(
@@ -253,12 +250,10 @@ class PackageService:
                     work_id=package.account_project_work.work_id,
                     is_active=True
                 ).first()
-                
                 if staff_user_work:
                     package.account_project_work.current_user_work_role = staff_user_work.role
                 else:
                     package.account_project_work.current_user_work_role = None
-        
         return package
 
     @classmethod
@@ -839,15 +834,13 @@ class PackageService:
     @classmethod
     def approve_package(cls, package_id):
         """Approve the package.
-        
+
         Only Team Leads and users with full_access role can approve packages.
         Team Members can view, verify, acknowledge, and request updates.
         """
-        from submit_api.services import authorization  # pylint: disable=import-outside-toplevel
-        
         # Require Team Lead or full_access role for approval
         authorization.require_team_lead_access()
-        
+
         with session_scope() as session:
             package = cls.get_package_by_id(package_id)
             if not package:

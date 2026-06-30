@@ -302,7 +302,6 @@ class ProjectQueries:
     @classmethod
     def _attach_work_roles_to_account_project_works(cls, account_project_works, staff_user_id: int):
         """Attach work roles to AccountProjectWork objects using a single query.
-        
         Args:
             account_project_works: List of AccountProjectWork objects
             staff_user_id: ID of the staff user
@@ -312,7 +311,6 @@ class ProjectQueries:
 
         # Get all work IDs from the account_project_works
         work_ids = [apw.work_id for apw in account_project_works]
-        
         if not work_ids:
             return
 
