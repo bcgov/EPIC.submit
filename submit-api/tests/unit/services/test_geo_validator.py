@@ -23,8 +23,6 @@ column names are confirmed.
 """
 from unittest.mock import patch
 
-import pytest
-
 from submit_api.services.geo.validator import validate_shapefile
 from submit_api.services.geo.validation_rules import FIELD_MAP
 
@@ -37,21 +35,21 @@ from submit_api.services.geo.validation_rules import FIELD_MAP
 _DBF = {logical: dbf for logical, dbf in FIELD_MAP.items()}
 
 VALID_SCHEMA = {
-    _DBF["category"]:               "str:10",
-    _DBF["sub_category"]:           "str:10",
-    _DBF["component"]:              "str:50",
-    _DBF["sensitive_data"]:         "str:3",
+    _DBF["category"]: "str:10",
+    _DBF["sub_category"]: "str:10",
+    _DBF["component"]: "str:50",
+    _DBF["sensitive_data"]: "str:3",
     _DBF["source_of_spatial_data"]: "str:20",
-    _DBF["footprint"]:              "str:3",
+    _DBF["footprint"]: "str:3",
 }
 
 VALID_PROPERTIES = {
-    _DBF["category"]:               "PN",
-    _DBF["sub_category"]:           "EE",
-    _DBF["component"]:              "Subcomponent",
-    _DBF["sensitive_data"]:         "No",
+    _DBF["category"]: "PN",
+    _DBF["sub_category"]: "EE",
+    _DBF["component"]: "Subcomponent",
+    _DBF["sensitive_data"]: "No",
     _DBF["source_of_spatial_data"]: "Proponent",
-    _DBF["footprint"]:              "Yes",
+    _DBF["footprint"]: "Yes",
 }
 
 
@@ -96,8 +94,10 @@ def test_valid_file_passes():
 
 
 def test_missing_required_column_fails_fast():
-    """If a required DBF column is absent the validator returns immediately
-    without scanning any rows."""
+    """Return immediately when a required DBF column is absent.
+
+    The validator does not scan any rows in this case.
+    """
     schema_without_category = {k: v for k, v in VALID_SCHEMA.items() if k != _DBF["category"]}
     collection = _FakeCollection(
         schema_props=schema_without_category,
@@ -134,8 +134,10 @@ def test_missing_required_value_fails():
 
 @patch("submit_api.services.geo.validator.VALIDATE_VALUES", False)
 def test_values_disabled_skips_row_checks():
-    """With value validation off, a file with all required columns passes even
-    when row values are out of spec (only column presence is enforced)."""
+    """Pass a file with all required columns when value validation is off.
+
+    Only column presence is enforced, so out-of-spec row values are ignored.
+    """
     out_of_spec = {**VALID_PROPERTIES, _DBF["category"]: "Project Notification", _DBF["footprint"]: None}
     collection = _FakeCollection(
         schema_props=VALID_SCHEMA,

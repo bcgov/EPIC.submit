@@ -25,12 +25,12 @@ TODO: Once a filled SpatialDataTemplate shapefile is available, open it with
 # Maps logical field key → actual DBF column name in the shapefile.
 # Verified against a real EAO SpatialDataTemplate export (BaptisteNickel.dbf).
 FIELD_MAP: dict[str, str] = {
-    "category":               "Category",
-    "sub_category":           "Subcategor",
-    "component":              "Component",
-    "sensitive_data":         "Sensitived",
+    "category": "Category",
+    "sub_category": "Subcategor",
+    "component": "Component",
+    "sensitive_data": "Sensitived",
     "source_of_spatial_data": "SourceofSp",
-    "footprint":              "Footprint",
+    "footprint": "Footprint",
 }
 
 # Master switch for row-level value/nullability validation.
@@ -43,12 +43,12 @@ FIELD_MAP: dict[str, str] = {
 VALIDATE_VALUES: bool = False
 
 ALLOWED_VALUES: dict[str, set[str]] = {
-    "category":               {"PN", "EAC", "PD"},
-    "sub_category":           {"Pre EA", "EE", "RD", "PP", "ADR", "EAR", "P", "C", "O", "CM", "D", "A", "N"},
-    "component":              {"Value component", "Subcomponent", "Major"},
-    "sensitive_data":         {"Yes", "No"},
+    "category": {"PN", "EAC", "PD"},
+    "sub_category": {"Pre EA", "EE", "RD", "PP", "ADR", "EAR", "P", "C", "O", "CM", "D", "A", "N"},
+    "component": {"Value component", "Subcomponent", "Major"},
+    "sensitive_data": {"Yes", "No"},
     "source_of_spatial_data": {"Proponent", "Catalogue", "Other"},
-    "footprint":              {"Yes", "No"},
+    "footprint": {"Yes", "No"},
 }
 
 # Fields whose value may be null/empty — all others are required.
