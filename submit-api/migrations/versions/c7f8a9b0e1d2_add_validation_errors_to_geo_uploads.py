@@ -1,7 +1,7 @@
 """Add validation_errors column to geo_data_uploads
 
 Revision ID: c7f8a9b0e1d2
-Revises: 5119a43fc059
+Revises: 8b6bd8480abd
 Create Date: 2026-06-24 00:00:00.000000
 
 Adds a JSON column to store structured per-feature attribute validation errors
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 
 revision = 'c7f8a9b0e1d2'
-down_revision = '5119a43fc059'
+down_revision = '8b6bd8480abd'
 branch_labels = None
 depends_on = None
 

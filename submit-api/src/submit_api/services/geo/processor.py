@@ -302,7 +302,7 @@ class GeoService:
                             upload.file_size_kb = round(file_size_bytes / 1024, 2)
                             db.session.commit()
 
-                        if os.environ.get("GEO_FILE_VALIDATION", "false").lower() == "true":
+                        if os.environ.get("SKIP_GEO_FILE_ATTR_VALIDATION", "false").lower() != "true":
                             is_valid, errors, summary = validate_geo_file(local_path)
                             if not is_valid:
                                 logger.warning(
@@ -314,11 +314,22 @@ class GeoService:
                                 )
                                 upload.status = "validation_failed"
                                 upload.validation_errors = errors
-                                upload.error_message = (
-                                    f"Attribute validation failed: {summary['total_errors']} "
-                                    f"error(s) in field(s): "
-                                    f"{', '.join(summary['fields_with_errors']) or 'N/A'}."
-                                )
+                                missing_cols = [
+                                    e["dbf_column"]
+                                    for e in errors
+                                    if e.get("error_type") == "missing_column"
+                                ]
+                                if missing_cols:
+                                    upload.error_message = (
+                                        "The shapefile is missing required column(s): "
+                                        f"{', '.join(missing_cols)}."
+                                    )
+                                else:
+                                    upload.error_message = (
+                                        f"Attribute validation failed with {summary['total_errors']} "
+                                        f"issue(s) in: "
+                                        f"{', '.join(summary['fields_with_errors']) or 'N/A'}."
+                                    )
                                 db.session.commit()
                                 return
 

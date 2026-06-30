@@ -30,7 +30,6 @@ import MapIcon from "@mui/icons-material/Map";
 import type { GeoJSON } from "geojson";
 import { Submission } from "@/models/Submission";
 import { BCDesignTokens } from "epic.theme";
-import { GeoValidationError } from "@/hooks/api/useGeo";
 
 interface MapPreviewModalProps {
   open: boolean;
@@ -39,7 +38,6 @@ interface MapPreviewModalProps {
   fileSizeKb?: number;
   status?: string;
   errorMessage?: string;
-  validationErrors?: GeoValidationError[];
   onApprove: () => void;
   onReject: () => Promise<void>;
 }
@@ -51,7 +49,6 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   fileSizeKb,
   status,
   errorMessage,
-  validationErrors,
   onApprove,
   onReject,
 }) => {
@@ -358,7 +355,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       sx={{ maxWidth: "500px", color: BCDesignTokens.typographyColorPlaceholder }}
                     >
                       {status === "validation_failed"
-                        ? "This file does not meet the required attribute standards. Please correct the issues below and re-upload."
+                        ? "This file does not meet the required attribute standards. Please correct the issue and re-upload."
                         : "Geometry must be valid; no NULL geometry or self-intersecting polygons"}
                     </Typography>
                     {errorMessage && (
@@ -369,29 +366,6 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       >
                         {errorMessage}
                       </Typography>
-                    )}
-                    {status === "validation_failed" && validationErrors && validationErrors.length > 0 && (
-                      <Box
-                        sx={{
-                          mt: 2,
-                          maxWidth: "600px",
-                          width: "100%",
-                          maxHeight: "200px",
-                          overflowY: "auto",
-                          textAlign: "left",
-                          bgcolor: "background.paper",
-                          border: "1px solid",
-                          borderColor: "error.light",
-                          borderRadius: 1,
-                          p: 1.5,
-                        }}
-                      >
-                        {validationErrors.map((e, i) => (
-                          <Typography key={i} variant="body2" color="error.main" sx={{ mb: 0.5 }}>
-                            {e.message}
-                          </Typography>
-                        ))}
-                      </Box>
                     )}
                   </Box>
                 ) : (
