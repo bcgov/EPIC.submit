@@ -42,6 +42,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
     geometry_type = Column(String(50), nullable=True)
     crs_original = Column(String(100), nullable=True)
     bbox = Column(JSON, nullable=True)
+    validation_errors = Column(JSON, nullable=True)
     created_at = Column(
         DateTime, default=lambda: datetime.now(UTC), nullable=False
     )
@@ -66,6 +67,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
         geometry_type: str | None = None,
         crs_original: str | None = None,
         bbox: dict | None = None,
+        validation_errors: list | None = None,
     ):
         """Initialize the GeoDataUpload with all its fields."""
         super().__init__()
@@ -81,6 +83,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
         self.geometry_type = geometry_type
         self.crs_original = crs_original
         self.bbox = bbox
+        self.validation_errors = validation_errors
 
     def to_dict(self):
         """Return a dictionary representation of the model."""
@@ -98,6 +101,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
             'geometry_type': self.geometry_type,
             'crs_original': self.crs_original,
             'bbox': self.bbox,
+            'validation_errors': self.validation_errors,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

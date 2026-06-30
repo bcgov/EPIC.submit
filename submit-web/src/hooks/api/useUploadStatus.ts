@@ -16,6 +16,16 @@ interface UploadStatusEvent {
   crs_original?: string;
   bbox?: number[];
   error?: string;
+  validation_errors?: ValidationError[];
+}
+
+export interface ValidationError {
+  feature_index: number | null;
+  field: string | null;
+  dbf_column: string | null;
+  error_type: "missing_column" | "missing_value" | "invalid_code" | "no_shapefile";
+  value: string | null;
+  message: string;
 }
 
 interface UseUploadStatusOptions {
@@ -78,7 +88,7 @@ export const useUploadStatus = (
           setMetadata(meta);
           onReady?.(uploadId, meta);
           eventSource.close();
-        } else if (data.status === "failed") {
+        } else if (data.status === "failed" || data.status === "validation_failed") {
           const errMsg = data.error || "Processing failed";
           setError(errMsg);
           onFailed?.(errMsg);

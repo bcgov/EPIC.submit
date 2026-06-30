@@ -330,7 +330,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
               <Box
                 sx={{ flex: 1, position: "relative", minHeight: "350px" }}
               >
-                {status === "failed" ? (
+                {(status === "failed" || status === "validation_failed") ? (
                   <Box
                     sx={{
                       display: "flex",
@@ -345,22 +345,18 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       gap: 1,
                     }}
                   >
-                    <Typography
-                      variant="h6"
-                      color="error.main"
-                      fontWeight={700}
-                    >
-                      Preview not available for this file
+                    <Typography variant="h6" color="error.main" fontWeight={700}>
+                      {status === "validation_failed"
+                        ? "Attribute validation failed"
+                        : "Preview not available for this file"}
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={{
-                        maxWidth: "500px",
-                        color: BCDesignTokens.typographyColorPlaceholder,
-                      }}
+                      sx={{ maxWidth: "500px", color: BCDesignTokens.typographyColorPlaceholder }}
                     >
-                      Geometry must be valid; no NULL geometry or
-                      self-intersecting polygons
+                      {status === "validation_failed"
+                        ? "This file does not meet the required attribute standards. Please correct the issue and re-upload."
+                        : "Geometry must be valid; no NULL geometry or self-intersecting polygons"}
                     </Typography>
                     {errorMessage && (
                       <Typography
@@ -521,7 +517,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                 </Fade>
 
                 {/* Error Message */}
-                {status !== "failed" && (error || metaError) && (
+                {status !== "failed" && status !== "validation_failed" && (error || metaError) && (
                   <Box
                     sx={{
                       position: "absolute",
@@ -567,7 +563,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         <Button
           variant="contained"
           onClick={onApprove}
-          disabled={isProcessing || status === "failed"}
+          disabled={isProcessing || status === "failed" || status === "validation_failed"}
           sx={{ minWidth: "120px" }}
         >
           Approve
