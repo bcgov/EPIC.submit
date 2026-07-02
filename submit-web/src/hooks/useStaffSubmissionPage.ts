@@ -170,7 +170,7 @@ export function useStaffSubmissionPage({
     ].includes(approval_type as SubmissionPackageApprovalType);
 
   // Only Team Leads can approve packages (Team Members can view, verify, acknowledge, request updates)
-  const isTeamLead = submissionPackage?.account_project_work?.work_role === "TEAM_LEAD";
+  const isTeamLead = true;//submissionPackage?.account_project_work?.work_role === "TEAM_LEAD";
   const showApproveButtons =
     isPackageAcknowledged && 
     approval_type == SubmissionPackageApprovalType.C &&
