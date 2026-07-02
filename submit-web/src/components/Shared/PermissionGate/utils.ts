@@ -6,7 +6,7 @@ export const checkIfManager = (roles?: string[]) => {
   }
   return hasPermission({
     permissions: roles || [],
-    scopes: [EPIC_SUBMIT_ROLE.extended_eao_edit],
+    scopes: [EPIC_SUBMIT_ROLE.mp_extended_edit],
   });
 };
 

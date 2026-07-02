@@ -18,7 +18,7 @@ from http import HTTPStatus
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.auth import auth, jwt
+from submit_api.auth import auth
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import (
@@ -27,7 +27,9 @@ from submit_api.schemas.package import (
     RefusePackageSchema)
 from submit_api.services import authorization
 from submit_api.services.package_service import PackageService
+from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.roles import EpicSubmitRole
+from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -69,7 +71,8 @@ class Package(Resource):
     @auth.require
     def get(package_id):
         """Get package by id."""
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        staff_user = StaffUserService.get_staff_by_id(TokenInfo.get_username())
+        is_staff = staff_user is not None
         if is_staff:
             # Call has_access_to_package to set g.work_role for staff users
             authorization.has_access_to_package(package_id)
@@ -125,11 +128,15 @@ class PackageState(Resource):
     @auth.require
     def post(package_id):
         """Update package state."""
+        from submit_api.enums.package_operation import PackageOperation
+        from submit_api.services.package_access_control import PackageAccessControl
+
         request_body = PostPackageState().load(API.payload)
-        # Check authorization for package access
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        # Check authorization for package EDIT access
+        staff_user = StaffUserService.get_staff_by_id(TokenInfo.get_username())
+        is_staff = staff_user is not None
         if is_staff:
-            authorization.has_access_to_package(package_id)
+            PackageAccessControl.check_package_access(package_id, PackageOperation.EDIT)
         package = PackageService.update_package_state(package_id, request_body)
         return PackageSchema().dump(package), HTTPStatus.OK
 

@@ -18,14 +18,16 @@ from http import HTTPStatus
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.auth import auth, jwt
+from submit_api.auth import auth
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.item import ItemSchema
 from submit_api.schemas.item import StaffItemSchema
 from submit_api.schemas.submission_review import SaveSubmissionReviewRequestSchema, SubmissionReviewSchema
 from submit_api.services.item_service import ItemService
+from submit_api.services.staff_user_service import StaffUserService
 from submit_api.services.submission_review_service import SubmissionReviewService
 from submit_api.utils.roles import EpicSubmitRole
+from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -58,7 +60,8 @@ class Item(Resource):
     @auth.require
     def get(item_id):
         """Get item by id."""
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        staff_user = StaffUserService.get_staff_by_id(TokenInfo.get_username())
+        is_staff = staff_user is not None
         item = ItemService.get_item_by_id(item_id)
         if is_staff:
             return StaffItemSchema().dump(item), HTTPStatus.OK

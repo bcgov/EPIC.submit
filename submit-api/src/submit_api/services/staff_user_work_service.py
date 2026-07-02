@@ -34,20 +34,32 @@ class StaffUserWorkService:
             current_app.logger.error(f"Failed to fetch user from Keycloak: {str(e)}")
             raise ResourceNotFoundError(f"User with email '{email}' not found in Keycloak.") from e
 
-        # Check if user has EAO_TEAM_MEMBER Keycloak group (subgroup under SUBMIT)
-        # Assign EAO_TEAM_MEMBER group only if not already assigned (idempotent)
+        # Assign Keycloak group based on role (subgroup under SUBMIT)
+        # TEAM_LEAD -> SUBMIT/OPS_TEAM_LEAD, TEAM_MEMBER -> SUBMIT/OPS_TEAM_MEMBER
+        # Assign group only if not already assigned (idempotent)
         try:
+            role_group_mapping = {
+                'TEAM_LEAD': 'SUBMIT/OPS_TEAM_LEAD',
+                'TEAM_MEMBER': 'SUBMIT/OPS_TEAM_MEMBER'
+            }
+            
+            keycloak_group = role_group_mapping.get(role)
+            if not keycloak_group:
+                raise BadRequestError(f"Invalid role '{role}'. Must be TEAM_LEAD or TEAM_MEMBER.")
+            
             user_groups = KeycloakService.get_user_groups(username)
-            has_eao_team_member = any(group.get('path') == '/SUBMIT/EAO_TEAM_MEMBER'
-                                      for group in user_groups)
-            if not has_eao_team_member:
-                group_id = KeycloakService.get_group_id_by_path('SUBMIT/EAO_TEAM_MEMBER')
+            has_role_group = any(group.get('path') == f'/{keycloak_group}'
+                                for group in user_groups)
+            if not has_role_group:
+                group_id = KeycloakService.get_group_id_by_path(keycloak_group)
                 KeycloakService.update_user_group(user_id=username, group_id=group_id)
-                current_app.logger.info(f"Assigned SUBMIT/EAO_TEAM_MEMBER group to user {username}")
+                current_app.logger.info(f"Assigned {keycloak_group} group to user {username}")
             else:
-                current_app.logger.info(f"User {username} already has SUBMIT/EAO_TEAM_MEMBER group")
+                current_app.logger.info(f"User {username} already has {keycloak_group} group")
+        except BadRequestError:
+            raise
         except Exception as e:  # noqa: B902  # pylint: disable=broad-exception-caught
-            current_app.logger.warning(f"Failed to assign SUBMIT/EAO_TEAM_MEMBER group: {str(e)}")
+            current_app.logger.warning(f"Failed to assign {keycloak_group} group: {str(e)}")
             # Don't fail the entire operation if group assignment fails
 
         # 6. Validate work_id exists in track_works

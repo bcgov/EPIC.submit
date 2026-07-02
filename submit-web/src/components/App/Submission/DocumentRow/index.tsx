@@ -14,7 +14,6 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import UndoIcon from "@mui/icons-material/Undo";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
-import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { SubmissionPackage, PackageType } from "@/models/Package";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 import ActionSplitButton, {
@@ -22,6 +21,7 @@ import ActionSplitButton, {
 } from "@/components/Shared/ActionSplitButton/ActionSplitButton";
 import { BCDesignTokens } from "epic.theme";
 import { useDocumentRow } from "@/hooks/useDocumentRow";
+import { usePackageRoles } from "@/hooks/usePackageRoles";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -42,6 +42,9 @@ export default function DocumentRow({
     documentSubmission;
   const packageType = propsPackageType || submissionPackage?.type;
   const name = submitted_document?.name || "";
+  
+  // Get the correct package-specific roles
+  const packageRoles = usePackageRoles(submissionPackage, packageType);
 
   const {
     pendingGetObject,
@@ -207,7 +210,7 @@ export default function DocumentRow({
             }}
           >
             {showUndoVerificationButton && (
-              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+              <PermissionsGate scopes={[packageRoles.edit]}>
                 <Typography
                   variant="body2"
                   onClick={handleUndoVerification}
@@ -222,7 +225,7 @@ export default function DocumentRow({
               </PermissionsGate>
             )}
             {showUndoAcknowledgementButton && (
-              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+              <PermissionsGate scopes={[packageRoles.edit]}>
                 <Typography
                   variant="body2"
                   onClick={handleUndoAcknowledge}
@@ -237,14 +240,14 @@ export default function DocumentRow({
               </PermissionsGate>
             )}
             {splitButtonConfig ? (
-              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+              <PermissionsGate scopes={[packageRoles.edit]}>
                 <ActionSplitButton
                   primaryAction={splitButtonConfig.primary}
                   secondaryActions={splitButtonConfig.secondary}
                 />
               </PermissionsGate>
             ) : showDefaultActionButton ? (
-              <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_edit]}>
+              <PermissionsGate scopes={[packageRoles.edit]}>
                 <ActionButton submission={documentSubmission} />
               </PermissionsGate>
             ) : null}

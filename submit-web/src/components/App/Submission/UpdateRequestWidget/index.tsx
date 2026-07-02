@@ -19,7 +19,7 @@ import AddRequestSection from "./AddRequestSection";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
 import PermissionsGate from "@/components/Shared/PermissionGate";
-import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { usePackageRoles } from "@/hooks/usePackageRoles";
 
 type UpdateRequestWidgetProps = Readonly<{
   submissionPackage: SubmissionPackage;
@@ -31,6 +31,9 @@ export default function UpdateRequestWidget({
 }: UpdateRequestWidgetProps) {
   const [isCreateRequestOpen, setIsCreateRequestOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  
+  // Get the correct package-specific roles
+  const packageRoles = usePackageRoles(submissionPackage);
 
   const updateRequests = useMemo(() => {
     if (!submissionPackage?.update_requests) return [];
@@ -187,7 +190,7 @@ export default function UpdateRequestWidget({
             />
           </Box>
           {!isApprovedOrRejected && (
-            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+            <PermissionsGate scopes={[packageRoles.edit]}>
               <Box
                 onClick={handleIsCreateRequestOpen}
                 sx={{
@@ -224,7 +227,7 @@ export default function UpdateRequestWidget({
           },
         ]}
       >
-        <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+        <PermissionsGate scopes={[packageRoles.edit]}>
           <Collapse in={isCreateRequestOpen} unmountOnExit>
             <AddRequestSection
               submissionPackage={submissionPackage}

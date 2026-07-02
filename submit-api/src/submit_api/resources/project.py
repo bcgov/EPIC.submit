@@ -19,13 +19,14 @@ from flask import abort, request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.auth import auth, jwt
+from submit_api.auth import auth
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import NonCanonicalPackageStatus, PackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import AddProjectSchema, ProjectSchema, StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
-from submit_api.utils.roles import EpicSubmitRole
+from submit_api.services.staff_user_service import StaffUserService
+from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -62,7 +63,8 @@ class AccountProjects(Resource):
     @cross_origin(origins=allowedorigins())
     def get():
         """Get paginated account projects."""
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        staff_user = StaffUserService.get_staff_by_id(TokenInfo.get_username())
+        is_staff = staff_user is not None
         args = request.args
         search_text = args.get('search_text')
         submitted_on_start = args.get('submitted_on_start')
@@ -194,7 +196,8 @@ class Projects(Resource):
     @auth.require
     def get(account_project_id):
         """Get account project by account_project_id."""
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        staff_user = StaffUserService.get_staff_by_id(TokenInfo.get_username())
+        is_staff = staff_user is not None
         account_project = ProjectService.get_account_project_by_id(account_project_id, is_staff=is_staff)
         if not account_project:
             return {"message": "Account project not found"}, HTTPStatus.NOT_FOUND

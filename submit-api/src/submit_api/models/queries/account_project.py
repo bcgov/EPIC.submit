@@ -231,10 +231,27 @@ class ProjectQueries:
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
         account_projects_list = schema_class(many=True).dump(account_projects)
 
+        # ALWAYS apply user access filtering for packages
+        package_query = db.session.query(Package).filter(
+            Package.account_project_id.in_(account_project_ids)
+        )
+        package_query = cls._filter_packages_by_user_access(package_query, user)
+        accessible_package_ids = {pkg.id for pkg in package_query.all()}
+
+        # Combine with search filtering if provided
         if filtered_package_ids:
-            for account_project in account_projects_list:
-                account_project['packages'] = [package for package in account_project['packages']
-                                               if package['id'] in filtered_package_ids]
+            # Intersection: packages matching BOTH access control AND search criteria
+            final_package_ids = accessible_package_ids & set(filtered_package_ids)
+        else:
+            # No search criteria: use only access control filtering
+            final_package_ids = accessible_package_ids
+
+        # Filter packages in serialized output
+        for account_project in account_projects_list:
+            account_project['packages'] = [
+                package for package in account_project['packages']
+                if package['id'] in final_package_ids
+            ]
 
         # Filter account_project_works for staff users without full_access role
         if not is_proponent and user and user.type == UserType.STAFF:
@@ -302,6 +319,7 @@ class ProjectQueries:
     @classmethod
     def _attach_work_roles_to_account_project_works(cls, account_project_works, staff_user_id: int):
         """Attach work roles to AccountProjectWork objects using a single query.
+
         Args:
             account_project_works: List of AccountProjectWork objects
             staff_user_id: ID of the staff user
@@ -364,28 +382,52 @@ class ProjectQueries:
             if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
                 return package_query
 
-            # Filter packages based on staff user's work assignments
+            # Filter packages based on staff user's work assignments and permissions
             staff_user = user.staff_user
             if not staff_user:
                 return package_query.filter(False)
 
-            # Get all active work IDs for this staff user
-            active_work_ids = db.session.query(StaffUserWork.work_id).filter(
-                StaffUserWork.staff_user_id == staff_user.id,
-                StaffUserWork.is_active == True  # noqa: E712
-            ).subquery()
+            # Check if user has w_view permission for works
+            has_w_view = jwt.contains_role(['w_view'])
 
-            # Filter packages to only those with account_project_work_id matching staff's work assignments
-            # OR packages without account_project_work_id (non-work packages accessible via Keycloak roles)
-            package_query = package_query.outerjoin(
-                AccountProjectWork,
-                Package.account_project_work_id == AccountProjectWork.id
-            ).filter(
-                or_(
-                    Package.account_project_work_id.is_(None),  # Non-work packages
-                    AccountProjectWork.work_id.in_(active_work_ids)  # Work packages staff has access to
+            # Check if user has mp_view permission for management plans
+            has_mp_view = jwt.contains_role(['mp_view'])
+
+            # Build filter conditions based on permissions
+            filter_conditions = []
+
+            # If user has w_view permission, check work assignments
+            if has_w_view:
+                # Get all active work IDs for this staff user
+                active_work_ids = db.session.query(StaffUserWork.work_id).filter(
+                    StaffUserWork.staff_user_id == staff_user.id,
+                    StaffUserWork.is_active == True  # noqa: E712
+                ).subquery()
+
+                # Join with AccountProjectWork to filter work packages
+                package_query = package_query.outerjoin(
+                    AccountProjectWork,
+                    Package.account_project_work_id == AccountProjectWork.id
                 )
-            )
+
+                # Add condition for work packages staff has access to
+                filter_conditions.append(AccountProjectWork.work_id.in_(active_work_ids))
+
+            # If user has mp_view permission, include management plan packages
+            if has_mp_view:
+                from submit_api.models.package_type import PackageType
+                from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
+                # Add condition for all package types accessible via MP_VIEW role
+                filter_conditions.append(
+                    Package.type.has(PackageType.name.in_(MP_VIEW_PACKAGE_TYPES))
+                )
+
+            # If no permissions, deny all access
+            if not filter_conditions:
+                return package_query.filter(False)
+
+            # Apply the filter conditions
+            package_query = package_query.filter(or_(*filter_conditions))
 
             return package_query
 
