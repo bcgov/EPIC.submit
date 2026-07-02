@@ -19,15 +19,13 @@ from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.auth import auth
+from submit_api.auth import auth, jwt
 from submit_api.models.account_project_search_options import ProjectDocumentSearchOptions
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import (
     SubmissionSchema, SubmittedDocumentByProjectSchema, PaginatedProjectDocumentItemSchema)
-from submit_api.services.staff_user_service import StaffUserService
 from submit_api.services.submitted_document_service import DocumentService
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -69,8 +67,7 @@ class AccountDocuments(Resource):
         submitted_on_start = args.get('submitted_on_start')
         submitted_on_end = args.get('submitted_on_end')
 
-        staff_user = StaffUserService.get_staff_by_id(TokenInfo.get_username())
-        is_staff = staff_user is not None
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
         if not is_staff:
             if not project_id:
                 return {"error": "missing project_id"}, HTTPStatus.BAD_REQUEST

@@ -16,14 +16,14 @@
 from http import HTTPStatus
 
 from flask_cors import cross_origin
+from submit_api.auth import jwt
 from flask_restx import Namespace, Resource
 
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.services.staff_user_service import StaffUserService
-from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.util import allowedorigins, cors_preflight
+from submit_api.utils.roles import EpicSubmitRole
 
 
 API = Namespace("activity-logs", description="Endpoints for Activity Log Management")
@@ -52,8 +52,7 @@ class ActivityLog(Resource):
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
         # Retrieve logs
-        staff_user = StaffUserService.get_staff_by_id(TokenInfo.get_username())
-        is_staff = staff_user is not None
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
         logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
         schema = ActivityLogSchema(many=True, context={"is_proponent": not is_staff})
         return schema.dump(logs), HTTPStatus.OK

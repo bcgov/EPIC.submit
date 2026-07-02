@@ -11,7 +11,6 @@ from flask_restx import abort
 
 from submit_api.auth import jwt
 from submit_api.enums.role import RoleEnum
-from submit_api.enums.work_role import WorkRole
 from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import User as UserModel
@@ -80,19 +79,6 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
 
     # For staff users, use the new centralized access control
     if user.type == UserType.STAFF:
-        # Store work_role in g for backward compatibility with existing code
-        if package.account_project_work_id and package.account_project_work:
-            staff_user = user.staff_user
-            if staff_user:
-                work_id = package.account_project_work.work_id
-                staff_user_work = StaffUserWork.query.filter_by(
-                    staff_user_id=staff_user.id,
-                    work_id=work_id,
-                    is_active=True
-                ).first()
-                if staff_user_work:
-                    g.work_role = staff_user_work.role
-
         # Delegate to centralized access control for READ operation
         PackageAccessControl.check_package_access(package_id, PackageOperation.READ)
         return
@@ -126,28 +112,13 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
     abort(HTTPStatus.FORBIDDEN)
 
 
-def has_work_role(required_roles: list[WorkRole]) -> bool:
-    """Check if current user has one of the required work roles.
-
-    Args:
-        required_roles: List of WorkRole enums required
-
-    Returns:
-        bool: True if user has required role, False otherwise
-    """
-    if not hasattr(g, 'work_role'):
-        return False
-    return g.work_role in [role.value for role in required_roles]
-
-
 def require_team_lead_access():
-    """Check if current user has Team Lead role for the work.
+    """Check if current user has w_extended_edit permission (Team Lead equivalent).
 
     Raises:
-        HTTPStatus.FORBIDDEN: If user doesn't have Team Lead role
+        HTTPStatus.FORBIDDEN: If user doesn't have w_extended_edit permission
     """
-    # Check for full_access role first - they have full permissions
-    if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
+    # Check for full_access or w_extended_edit role
+    if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value, EpicSubmitRole.W_EXTENDED_EDIT.value]):
         return
-    if not has_work_role([WorkRole.TEAM_LEAD]):
-        abort(HTTPStatus.FORBIDDEN)
+    abort(HTTPStatus.FORBIDDEN)

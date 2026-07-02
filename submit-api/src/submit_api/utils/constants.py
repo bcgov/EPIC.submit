@@ -43,6 +43,12 @@ W_ROLE_OPERATIONS = {
     'w_extended_edit': ['approve'],  # Team Lead approval
 }
 
+# Keycloak group mappings for staff work role assignments
+STAFF_WORK_ROLE_KEYCLOAK_GROUPS = {
+    'TEAM_LEAD': 'SUBMIT/OPS_TEAM_LEAD',
+    'TEAM_MEMBER': 'SUBMIT/OPS_TEAM_MEMBER'
+}
+
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_SUBJECT = 'Management Plan Submission Confirmation'
 MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'management_plan_update_request_created.html'

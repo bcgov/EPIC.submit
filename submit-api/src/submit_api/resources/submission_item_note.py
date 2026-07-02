@@ -16,13 +16,15 @@
 from http import HTTPStatus
 
 from flask_cors import cross_origin
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, abort
 
 from submit_api.auth import auth
+from submit_api.enums.package_operation import PackageOperation
+from submit_api.models import Item as ItemModel
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission_item_note import PostSubmissionItemNote, SubmissionItemNote
+from submit_api.services.package_access_control import PackageAccessControl
 from submit_api.services.submission_item_note_service import SubmissionItemNoteService
-from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -50,10 +52,21 @@ class SubmissionItemNoteResource(Resource):
         code=HTTPStatus.CREATED, model=note, description="Created a staff note"
     )
     @API.response(HTTPStatus.NOT_FOUND, "Not found")
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.require
     @cross_origin(origins=allowedorigins())
     def post(submission_item_id):
         """Create a staff note."""
+        # Get the item to determine package context
+        submission_item = ItemModel.find_by_id(submission_item_id)
+        if not submission_item:
+            abort(HTTPStatus.NOT_FOUND, "Submission item not found")
+        
+        # Check package-aware access control (mp_create, w_create, or eao_create)
+        PackageAccessControl.check_package_access(
+            submission_item.package_id,
+            PackageOperation.CREATE
+        )
+        
         create_note_data = PostSubmissionItemNote().load(API.payload)
         created_note = SubmissionItemNoteService.create_note(submission_item_id, create_note_data)
         return SubmissionItemNote().dump(created_note), HTTPStatus.CREATED

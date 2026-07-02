@@ -17,7 +17,6 @@ class StaffUserWorkSchema(Schema):
     id = fields.Int(data_key="id")
     staff_user_id = fields.Int(data_key="staff_user_id")
     work_id = fields.Int(data_key="work_id")
-    role = fields.Str(data_key="role")
     is_active = fields.Bool(data_key="is_active")
     work = fields.Nested('TrackWorkSchema', data_key="work")
 
@@ -73,7 +72,6 @@ class StaffWorkRoleResponseSchema(Schema):
 
     id = fields.Int(data_key="id")
     work_id = fields.Int(data_key="work_id")
-    role = fields.Str(data_key="role")
     email = fields.Method('get_email', data_key="email")
     first_name = fields.Method('get_first_name', data_key="first_name")
     last_name = fields.Method('get_last_name', data_key="last_name")

@@ -55,7 +55,7 @@ class StaffUserService:
             ValueError: If Keycloak user doesn't have a valid username
         """
         # Check if staff user already exists with this email to avoid Keycloak call
-        existing_staff_user = StaffUser.query.filter_by(work_email_address=email).first()
+        existing_staff_user = StaffUser.get_by_email(email)
         if existing_staff_user:
             username = existing_staff_user.user.auth_guid
             current_app.logger.info(f"Found existing StaffUser for email {email}")

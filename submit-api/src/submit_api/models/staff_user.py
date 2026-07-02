@@ -48,3 +48,8 @@ class StaffUser(BaseModel):
         """Get staff user by guid."""
         staff_user = cls.query.join(UserModel).filter(UserModel.auth_guid == _guid).first()
         return staff_user
+
+    @classmethod
+    def get_by_email(cls, email):
+        """Get staff user by work email address."""
+        return cls.query.filter_by(work_email_address=email).first()

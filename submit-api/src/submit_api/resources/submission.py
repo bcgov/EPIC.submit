@@ -17,11 +17,14 @@ from http import HTTPStatus
 
 from flask import current_app, jsonify
 from flask_cors import cross_origin
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, abort
 
 from submit_api.auth import auth
+from submit_api.enums.package_operation import PackageOperation
+from submit_api.models import Submission as SubmissionModel
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema, UpdateSubmissionStatusSchema
+from submit_api.services.package_access_control import PackageAccessControl
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -154,9 +157,15 @@ class DocumentSubmissionSoftDelete(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cross_origin(origins=allowedorigins())
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_EDIT.value])
+    @auth.require
     def delete(submission_id):
         """Soft delete a submission document."""
+        submission = SubmissionModel.find_by_id(submission_id)
+        if not submission:
+            abort(HTTPStatus.NOT_FOUND, "Submission not found")
+        
+        PackageAccessControl.check_package_access(submission.item.package_id, PackageOperation.EDIT)
+        
         deleted_submission = SubmissionService.soft_delete_submission(submission_id)
         return SubmissionSchema().dump(deleted_submission), HTTPStatus.OK
 
