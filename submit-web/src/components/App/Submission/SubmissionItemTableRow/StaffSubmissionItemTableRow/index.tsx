@@ -63,8 +63,8 @@ export default function StaffSubmissionItemTableRow({
     // This ensures the proponent has actually resubmitted the item
     return Boolean(
       item.submissions?.find(
-        (submission) => 
-          submission.is_updated && 
+        (submission) =>
+          submission.is_updated &&
           submission.status === SUBMISSION_STATUS.SUBMITTED
       )
     );
@@ -111,7 +111,7 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="center" width={"20%"}>
-          <Box mr={2}>
+          <Box mr={2} display={"flex"} justifyContent={"flex-end"}>
             <SubmissionStatusChipStack
               status={item.status}
               isFlaggedForUpdate={hasPendingRequest}
@@ -185,7 +185,7 @@ export default function StaffSubmissionItemTableRow({
       </SubmitTablePrimaryRow>
       <When condition={submitted_on}>
         {submissions
-          ?.filter((submission) => 
+          ?.filter((submission) =>
             submission.type === SUBMISSION_TYPE.DOCUMENT &&
             submission.status !== SUBMISSION_STATUS.PENDING
           )
