@@ -148,7 +148,7 @@ export function SubmissionStatusChip({
     <StatusChip
       label={label ? label : config.label}
       theme={config.theme}
-      icon={showIcon ? config.icon : undefined}
+      icon={showIcon && config.icon}
     />
   );
 }
