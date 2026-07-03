@@ -174,6 +174,9 @@ class PackageSchema(Schema):
                             data_key="version", exclude=["package_id"])
     account_project_work = fields.Nested(
         AccountProjectWorkSchema, data_key="account_project_work", allow_none=True)
+    internal_staff_documents = fields.Nested(InternalStaffDocumentSchema,
+                                             data_key="internal_staff_documents",
+                                             many=True)
 
     def get_submitted_by(self, obj):
         """Get submitted by."""

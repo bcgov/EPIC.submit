@@ -60,13 +60,13 @@ class SubmissionItemNoteResource(Resource):
         submission_item = ItemModel.find_by_id(submission_item_id)
         if not submission_item:
             abort(HTTPStatus.NOT_FOUND, "Submission item not found")
-        
+
         # Check package-aware access control (mp_create, w_create, or eao_create)
         PackageAccessControl.check_package_access(
             submission_item.package_id,
             PackageOperation.CREATE
         )
-        
+
         create_note_data = PostSubmissionItemNote().load(API.payload)
         created_note = SubmissionItemNoteService.create_note(submission_item_id, create_note_data)
         return SubmissionItemNote().dump(created_note), HTTPStatus.CREATED

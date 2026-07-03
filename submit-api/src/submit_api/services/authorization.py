@@ -6,7 +6,6 @@ Handles validation of user roles and permissions.
 """
 from http import HTTPStatus
 
-from flask import g
 from flask_restx import abort
 
 from submit_api.auth import jwt
@@ -62,7 +61,6 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
     This function now delegates to PackageAccessControl for staff users
     to provide centralized, operation-aware access control.
     """
-    from submit_api.models import StaffUserWork  # pylint: disable=import-outside-toplevel
     # pylint: disable=import-outside-toplevel
     from submit_api.enums.package_operation import PackageOperation
     # pylint: disable=import-outside-toplevel

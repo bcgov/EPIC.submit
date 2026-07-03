@@ -32,7 +32,6 @@ export default function InternalDocumentSection() {
     () => submissionPackage?.internal_staff_documents || [],
     [submissionPackage],
   );
-
   useEffect(() => {
     initializeFiles(internalStaffDocuments);
   }, [internalStaffDocuments, initializeFiles]);

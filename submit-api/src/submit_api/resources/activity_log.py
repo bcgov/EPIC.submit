@@ -16,9 +16,9 @@
 from http import HTTPStatus
 
 from flask_cors import cross_origin
-from submit_api.auth import jwt
 from flask_restx import Namespace, Resource
 
+from submit_api.auth import jwt
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
 from submit_api.services.activity_log_service import ActivityLogService

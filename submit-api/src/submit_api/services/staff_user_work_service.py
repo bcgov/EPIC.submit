@@ -2,7 +2,7 @@
 from flask import current_app
 
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.models import StaffUserWork, TrackWork, User, StaffUser
+from submit_api.models import StaffUserWork, TrackWork, StaffUser
 from submit_api.services.keycloak import KeycloakService
 from submit_api.services.staff_user_service import StaffUserService
 from submit_api.utils.constants import STAFF_WORK_ROLE_KEYCLOAK_GROUPS
@@ -41,11 +41,11 @@ class StaffUserWorkService:
         keycloak_group = STAFF_WORK_ROLE_KEYCLOAK_GROUPS.get(role)
         if not keycloak_group:
             raise BadRequestError(f"Invalid role '{role}'. Must be TEAM_LEAD or TEAM_MEMBER.")
-        
+
         try:
             user_groups = KeycloakService.get_user_groups(username)
             has_role_group = any(group.get('path') == f'/{keycloak_group}'
-                                for group in user_groups)
+                                 for group in user_groups)
             if not has_role_group:
                 group_id = KeycloakService.get_group_id_by_path(keycloak_group)
                 KeycloakService.update_user_group(user_id=username, group_id=group_id)
@@ -108,7 +108,7 @@ class StaffUserWorkService:
         username = staff_user.user.auth_guid
         try:
             user_groups = KeycloakService.get_user_groups(username)
-            for role, group_path in STAFF_WORK_ROLE_KEYCLOAK_GROUPS.items():
+            for _role, group_path in STAFF_WORK_ROLE_KEYCLOAK_GROUPS.items():
                 has_group = any(group.get('path') == f'/{group_path}' for group in user_groups)
                 if has_group:
                     group_id = KeycloakService.get_group_id_by_path(group_path)

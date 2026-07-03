@@ -89,10 +89,10 @@ class ItemReview(Resource):
         item = ItemModel.find_by_id(item_id)
         if not item:
             abort(HTTPStatus.NOT_FOUND, "Item not found")
-        
+
         # Check package-aware access control (mp_create, w_create, or eao_create)
         PackageAccessControl.check_package_access(item.package_id, PackageOperation.CREATE)
-        
+
         request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
         review = SubmissionReviewService.save_submission_review(item_id, request_body)
         return SubmissionReviewSchema().dump(review), HTTPStatus.OK
@@ -113,9 +113,9 @@ class ItemReview(Resource):
         item = ItemModel.find_by_id(item_id)
         if not item:
             abort(HTTPStatus.NOT_FOUND, "Item not found")
-        
+
         # Check package-aware access control (mp_create, w_create, or eao_create)
         PackageAccessControl.check_package_access(item.package_id, PackageOperation.CREATE)
-        
+
         review = SubmissionReviewService.undo_staff_recommendation(item_id)
         return SubmissionReviewSchema().dump(review), HTTPStatus.OK

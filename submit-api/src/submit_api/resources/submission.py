@@ -26,7 +26,6 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema, UpdateSubmissionStatusSchema
 from submit_api.services.package_access_control import PackageAccessControl
 from submit_api.services.submission import SubmissionService
-from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -163,9 +162,9 @@ class DocumentSubmissionSoftDelete(Resource):
         submission = SubmissionModel.find_by_id(submission_id)
         if not submission:
             abort(HTTPStatus.NOT_FOUND, "Submission not found")
-        
+
         PackageAccessControl.check_package_access(submission.item.package_id, PackageOperation.EDIT)
-        
+
         deleted_submission = SubmissionService.soft_delete_submission(submission_id)
         return SubmissionSchema().dump(deleted_submission), HTTPStatus.OK
 

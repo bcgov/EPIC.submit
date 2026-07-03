@@ -170,7 +170,7 @@ class PackageAccessControl:
         return permissions
 
     @staticmethod
-    def _has_mp_package_permission(package_type_name: str, operation: PackageOperation) -> bool:
+    def _has_mp_package_permission(_package_type_name: str, operation: PackageOperation) -> bool:
         """
         Check if user has MP-type package permission for operation.
 
@@ -209,12 +209,11 @@ class PackageAccessControl:
         """
         from submit_api.models import StaffUserWork, AccountProjectWork  # pylint: disable=import-outside-toplevel
 
-        if user.type != UserType.STAFF:
+        # Early exit for non-staff users or users without staff profile
+        if user.type != UserType.STAFF or not user.staff_user:
             return False
 
         staff_user = user.staff_user
-        if not staff_user:
-            return False
 
         # Get work_id from account_project_work_id
         account_project_work = AccountProjectWork.query.filter_by(id=account_project_work_id).first()
@@ -257,11 +256,11 @@ class PackageAccessControl:
         """
         if operation == PackageOperation.READ:
             return jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
-        elif operation == PackageOperation.EDIT:
+        if operation == PackageOperation.EDIT:
             return jwt.contains_role([EpicSubmitRole.EAO_EDIT.value])
-        elif operation == PackageOperation.CREATE:
+        if operation == PackageOperation.CREATE:
             return jwt.contains_role([EpicSubmitRole.EAO_CREATE.value])
-        elif operation == PackageOperation.APPROVE:
+        if operation == PackageOperation.APPROVE:
             # No EAO role for approve - would need specific implementation
             return False
 

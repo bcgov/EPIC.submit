@@ -71,13 +71,6 @@ class Package(Resource):
     @auth.require
     def get(package_id):
         """Get package by id."""
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
-        if is_staff:
-            # Call has_access_to_package to set g.work_role for staff users
-            authorization.has_access_to_package(package_id)
-        else:
-            # For proponents, check access
-            authorization.has_access_to_package(package_id)
         package = PackageService.get_package_by_id(package_id)
         if not package:
             return {"message": "Package not found"}, HTTPStatus.NOT_FOUND
@@ -127,9 +120,6 @@ class PackageState(Resource):
     @auth.require
     def post(package_id):
         """Update package state."""
-        from submit_api.enums.package_operation import PackageOperation
-        from submit_api.services.package_access_control import PackageAccessControl
-
         request_body = PostPackageState().load(API.payload)
         # Check authorization for package EDIT access
         is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
@@ -172,10 +162,10 @@ class PackageVersions(Resource):
         """Create a new package version."""
         package_version_data = CreatePackageVersionSchema().load(API.payload)
         package_id = package_version_data.get("package_id")
-        
+
         # Check package-aware access control (mp_create, w_create, or eao_create)
         PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
-        
+
         package_with_created_package_version = PackageService.create_new_package_version_with_contacts(package_id)
         return PackageSchema().dump(package_with_created_package_version), HTTPStatus.CREATED
 
@@ -202,7 +192,7 @@ class PackageUpdateRequests(Resource):
         """Create an update request."""
         # Check package-aware access control (mp_create, w_create, or eao_create)
         PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
-        
+
         create_update_request_data = CreateUpdateRequestSchema().load(API.payload)
         package_with_created_update_request = PackageService.create_update_request(
             package_id, create_update_request_data)
@@ -231,7 +221,7 @@ class PackageUpdateRequest(Resource):
         """Accept an update request."""
         # Check package-aware access control (mp_create, w_create, or eao_create)
         PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
-        
+
         accept_update_request = PackageService.accept_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(accept_update_request), HTTPStatus.OK
 
@@ -248,7 +238,7 @@ class PackageUpdateRequest(Resource):
         """Withdraw an update request."""
         # Check package-aware access control (mp_create, w_create, or eao_create)
         PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
-        
+
         withdraw_update_request = PackageService.withdraw_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(withdraw_update_request), HTTPStatus.OK
 
