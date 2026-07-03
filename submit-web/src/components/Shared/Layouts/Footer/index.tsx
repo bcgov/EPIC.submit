@@ -6,7 +6,7 @@ import { useAuth } from "react-oidc-context";
 import { OidcConfig } from "@/utils/config";
 
 const Footer = () => {
-  const { signinRedirect } = useAuth();
+  const { signinRedirect, isAuthenticated } = useAuth();
   return (
     <Grid container justifyContent="center" alignItems="center" spacing={0}>
       <Grid
@@ -58,21 +58,23 @@ const Footer = () => {
           <Typography variant="body1">{COPYRIGHT_TEXT}</Typography>
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Box display="flex" justifyContent="flex-end">
-            <Button
-              color="secondary"
-              onClick={() => {
-                signinRedirect({
-                  redirect_uri: `${OidcConfig.redirect_uri}`,
-                  extraQueryParams: {
-                    kc_idp_hint: OidcConfig.kc_idp_hint,
-                  },
-                });
-              }}
-            >
-              Admin Login
-            </Button>
-          </Box>
+          {!isAuthenticated && (
+            <Box display="flex" justifyContent="flex-end">
+              <Button
+                color="secondary"
+                onClick={() => {
+                  signinRedirect({
+                    redirect_uri: `${OidcConfig.redirect_uri}`,
+                    extraQueryParams: {
+                      kc_idp_hint: OidcConfig.kc_idp_hint,
+                    },
+                  });
+                }}
+              >
+                Admin Login
+              </Button>
+            </Box>
+          )}
         </Grid>
       </Grid>
     </Grid>

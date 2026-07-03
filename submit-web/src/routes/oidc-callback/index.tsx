@@ -3,6 +3,7 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { HTTP_STATUS } from "@/utils/constants";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback/")({
@@ -23,6 +24,14 @@ function OidcCallback() {
     isLoading: isAuthLoading,
   } = useAuth();
 
+  const needsSignout = account?.error?.status === HTTP_STATUS.NOT_FOUND;
+
+  useEffect(() => {
+    if (needsSignout) {
+      signoutSilent();
+    }
+  }, [needsSignout, signoutSilent]);
+
   if (account.isLoading || isAuthLoading) {
     return <PageLoader />;
   }
@@ -42,8 +51,7 @@ function OidcCallback() {
     return <Navigate to="/" />;
   }
 
-  if (account?.error?.status === HTTP_STATUS.NOT_FOUND) {
-    signoutSilent();
+  if (needsSignout) {
     return <Navigate to="/need-access" />;
   }
 
