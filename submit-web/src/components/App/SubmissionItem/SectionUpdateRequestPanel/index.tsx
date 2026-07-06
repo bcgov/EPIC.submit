@@ -1,48 +1,53 @@
 /**
  * SectionUpdateRequestPanel - Shared component for displaying update requests
- * 
+ *
  * USAGE:
  * - STAFF VIEW: Shows pending requests (draft), sent requests (active), and previous requests
  *   - Can create new requests (pendingRequests)
  *   - Can send requests to proponent (onSendRequests)
  *   - Can accept/withdraw sent requests
- * 
+ *
  * - PROPONENT VIEW: Shows open requests from EAO and previous accepted requests
  *   - pendingRequests should be empty []
  *   - sentRequests contains open requests from EAO
  *   - Can add notes to open requests (onUpdateNote)
  *   - Cannot send requests (onSendRequests is no-op)
  */
-import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, Link } from "@mui/material";
+import { LoadingButton } from "@/components/Shared/LoadingButton";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import { PendingRequestCollapsible } from "./PendingRequestCollapsible";
-import { SentRequestCollapsible } from "./SentRequestCollapsible";
-import { PreviousRequestCollapsible } from "./PreviousRequestCollapsible";
-import { SectionUpdateRequestPanelProps } from "./types";
+import { Box, Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import React, { useEffect, useState } from "react";
+import { PendingRequestCollapsible } from "./PendingRequestCollapsible";
+import { PreviousRequestCollapsible } from "./PreviousRequestCollapsible";
+import { SentRequestCollapsible } from "./SentRequestCollapsible";
+import { SectionUpdateRequestPanelProps } from "./types";
 
 export const SectionUpdateRequestPanel: React.FC<
   SectionUpdateRequestPanelProps
 > = ({
   pendingRequests, // STAFF: Draft requests not yet sent | PROPONENT: Always empty []
-  sentRequests,    // STAFF: Sent requests awaiting response | PROPONENT: Open requests from EAO
+  sentRequests, // STAFF: Sent requests awaiting response | PROPONENT: Open requests from EAO
   previousRequests, // BOTH: Accepted/closed requests for reference
-  onRemoveFlag,    // STAFF: Remove draft request | PROPONENT: No-op
-  onSendRequests,  // STAFF: Send pending requests | PROPONENT: No-op
-  onUpdateNote,    // STAFF: Update draft note | PROPONENT: Add response note
-  onAcceptUpdate,  // STAFF: Accept proponent update | PROPONENT: Not used
+  onRemoveFlag, // STAFF: Remove draft request | PROPONENT: No-op
+  onSendRequests, // STAFF: Send pending requests | PROPONENT: No-op
+  onUpdateNote, // STAFF: Update draft note | PROPONENT: Add response note
+  onAcceptUpdate, // STAFF: Accept proponent update | PROPONENT: Not used
   onWithdrawUpdate, // STAFF: Withdraw request | PROPONENT: Not used
   isLoading = false,
   packageId,
 }) => {
   const [expandedPending, setExpandedPending] = useState<Set<number>>(
-    new Set(pendingRequests.map((r) => r.itemTypeId))
+    new Set(pendingRequests.map((r) => r.itemTypeId)),
   );
   const [expandedSent, setExpandedSent] = useState<Set<number>>(new Set());
   const [showPreviousRequests, setShowPreviousRequests] = useState(false);
-  const [expandedPrevious, setExpandedPrevious] = useState<Set<number>>(new Set());
-  const [validationErrors, setValidationErrors] = useState<Set<number>>(new Set());
+  const [expandedPrevious, setExpandedPrevious] = useState<Set<number>>(
+    new Set(),
+  );
+  const [validationErrors, setValidationErrors] = useState<Set<number>>(
+    new Set(),
+  );
 
   useEffect(() => {
     setExpandedPending(new Set(pendingRequests.map((r) => r.itemTypeId)));
@@ -50,11 +55,11 @@ export const SectionUpdateRequestPanel: React.FC<
 
   const totalCount = pendingRequests.length + sentRequests.length;
   const hasAnyRequests = totalCount > 0;
-  
-  const panelBorderColor = hasAnyRequests 
+
+  const panelBorderColor = hasAnyRequests
     ? BCDesignTokens.supportBorderColorWarning
     : BCDesignTokens.surfaceColorBorderDefault;
-  const panelBackground = hasAnyRequests 
+  const panelBackground = hasAnyRequests
     ? BCDesignTokens.themeGold10
     : BCDesignTokens.themeGray10;
 
@@ -162,7 +167,14 @@ export const SectionUpdateRequestPanel: React.FC<
         }}
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <RefreshIcon sx={{ color: hasAnyRequests ? BCDesignTokens.themeGold100 : BCDesignTokens.themeGray70, fontSize: "16px" }} />
+          <RefreshIcon
+            sx={{
+              color: hasAnyRequests
+                ? BCDesignTokens.themeGold100
+                : BCDesignTokens.themeGray70,
+              fontSize: "16px",
+            }}
+          />
           <Typography
             variant="h6"
             sx={{
@@ -235,7 +247,9 @@ export const SectionUpdateRequestPanel: React.FC<
               key={request.itemTypeId}
               request={request}
               onRemove={() => onRemoveFlag(request.itemTypeId)}
-              onUpdateNote={(note) => handleUpdateNote(request.itemTypeId, note)}
+              onUpdateNote={(note) =>
+                handleUpdateNote(request.itemTypeId, note)
+              }
               expanded={expandedPending.has(request.itemTypeId)}
               onToggle={() => handleTogglePending(request.itemTypeId)}
               hasError={validationErrors.has(request.itemTypeId)}
@@ -244,7 +258,7 @@ export const SectionUpdateRequestPanel: React.FC<
           {/* STAFF ONLY: Button to send pending requests to proponent */}
           {pendingRequests.length > 0 && (
             <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
-              <Button
+              <LoadingButton
                 variant="contained"
                 onClick={handleSendRequests}
                 disabled={isLoading}
@@ -256,7 +270,7 @@ export const SectionUpdateRequestPanel: React.FC<
                 }}
               >
                 Send Request to Proponent
-              </Button>
+              </LoadingButton>
             </Box>
           )}
 
@@ -277,67 +291,77 @@ export const SectionUpdateRequestPanel: React.FC<
           ))}
         </Box>
       )}
-<Box sx={{ pb: 2, px: 2.5, backgroundColor: "white" }}>
-      {/* BOTH: View Previous Requests Link - Always visible */}
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Link
-              component="button"
-              onClick={() => setShowPreviousRequests(!showPreviousRequests)}
-              sx={{
-                color: BCDesignTokens.typographyColorLink,
-                fontSize: "13px",
-                fontWeight: 400,
-                textDecoration: "none",
-                cursor: "pointer",
-                p: 0.75,
-              }}
-            >
-              {showPreviousRequests ? "Hide Previous Requests" : "View Previous Requests"}
-            </Link>
-          </Box>
+      <Box sx={{ pb: 2, px: 2.5, backgroundColor: "white" }}>
+        {/* BOTH: View Previous Requests Link - Always visible */}
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Link
+            component="button"
+            onClick={() => setShowPreviousRequests(!showPreviousRequests)}
+            sx={{
+              color: BCDesignTokens.typographyColorLink,
+              fontSize: "13px",
+              fontWeight: 400,
+              textDecoration: "none",
+              cursor: "pointer",
+              p: 0.75,
+            }}
+          >
+            {showPreviousRequests
+              ? "Hide Previous Requests"
+              : "View Previous Requests"}
+          </Link>
+        </Box>
 
-      {/* BOTH: Previous Requests Section - Shows accepted/closed requests */}
-      {showPreviousRequests && (
-        <>
-          <Box sx={{ borderTop: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`, pt: 2.125, mb: 1 }}>
-            <Typography
-              variant="h6"
+        {/* BOTH: Previous Requests Section - Shows accepted/closed requests */}
+        {showPreviousRequests && (
+          <>
+            <Box
               sx={{
-                fontSize: "18px",
-                fontWeight: 400,
-                color: BCDesignTokens.typographyColorPrimary,
+                borderTop: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
+                pt: 2.125,
+                mb: 1,
               }}
             >
-              Previous Requests
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {previousRequests.length === 0 ? (
               <Typography
-                variant="body2"
+                variant="h6"
                 sx={{
-                  fontSize: "14px",
-                  color: BCDesignTokens.themeGray80,
-                  py: 2,
-                  textAlign: "center",
+                  fontSize: "18px",
+                  fontWeight: 400,
+                  color: BCDesignTokens.typographyColorPrimary,
                 }}
               >
-                No previous update requests
+                Previous Requests
               </Typography>
-            ) : (
-              previousRequests.map((request) => (
-                <PreviousRequestCollapsible
-                  key={request.updateRequestId}
-                  request={request}
-                  expanded={expandedPrevious.has(request.updateRequestId)}
-                  onToggle={() => handleTogglePrevious(request.updateRequestId)}
-                />
-              ))
-            )}
-          </Box>
-        </>
-      )}
-        </Box>
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+              {previousRequests.length === 0 ? (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: "14px",
+                    color: BCDesignTokens.themeGray80,
+                    py: 2,
+                    textAlign: "center",
+                  }}
+                >
+                  No previous update requests
+                </Typography>
+              ) : (
+                previousRequests.map((request) => (
+                  <PreviousRequestCollapsible
+                    key={request.updateRequestId}
+                    request={request}
+                    expanded={expandedPrevious.has(request.updateRequestId)}
+                    onToggle={() =>
+                      handleTogglePrevious(request.updateRequestId)
+                    }
+                  />
+                ))
+              )}
+            </Box>
+          </>
+        )}
+      </Box>
     </Box>
   );
 };
