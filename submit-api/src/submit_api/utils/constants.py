@@ -17,6 +17,38 @@ SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP = {
     'Management Plan': 'EAO.ManagementPlanSupport@gov.bc.ca'
 }
 
+# Package types accessible via MP_VIEW role
+# Add new package types here when they should be accessible to users with mp_view permission
+MP_VIEW_PACKAGE_TYPES = [
+    'Management Plan',
+    'IEM',
+]
+
+# Role-to-operation mappings for MP-type packages
+# Note: Roles do NOT stack - each must be granted explicitly
+# Users need multiple roles for multiple operations (e.g., mp_view + mp_edit)
+MP_ROLE_OPERATIONS = {
+    'mp_view': ['read'],
+    'mp_edit': ['edit'],  # Does NOT include read
+    'mp_create': ['create'],  # Does NOT include read or edit
+    'mp_extended_edit': ['approve'],  # Manager-level approval
+}
+
+# Role-to-operation mappings for work packages (includes Additional Information)
+# Note: Roles do NOT stack - each must be granted explicitly
+W_ROLE_OPERATIONS = {
+    'w_view': ['read'],
+    'w_edit': ['edit'],  # Does NOT include read
+    'w_create': ['create'],  # Does NOT include read or edit
+    'w_extended_edit': ['approve'],  # Team Lead approval
+}
+
+# Keycloak group mappings for staff work role assignments
+STAFF_WORK_ROLE_KEYCLOAK_GROUPS = {
+    'TEAM_LEAD': 'SUBMIT/OPS_TEAM_LEAD',
+    'TEAM_MEMBER': 'SUBMIT/OPS_TEAM_MEMBER'
+}
+
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_SUBJECT = 'Management Plan Submission Confirmation'
 MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'management_plan_update_request_created.html'

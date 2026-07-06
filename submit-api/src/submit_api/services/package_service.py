@@ -235,27 +235,8 @@ class PackageService:
     @classmethod
     def get_package_by_id(cls, package_id):
         """Get package by id."""
-        from submit_api.models import StaffUserWork  # pylint: disable=import-outside-toplevel
-
         authorization.has_access_to_package(package_id)
         package = PackageModel.get_package_by_id_with_items(package_id)
-
-        # Attach work_role to account_project_work for staff users
-        if package and package.account_project_work:
-            user = User.get_by_guid(TokenInfo.get_username())
-            if user and user.type == UserType.STAFF and user.staff_user:
-                # Get the work role for this staff user and work
-                staff_user_work = StaffUserWork.query.filter_by(
-                    staff_user_id=user.staff_user.id,
-                    work_id=package.account_project_work.work_id,
-                    is_active=True
-                ).first()
-
-                if staff_user_work:
-                    package.account_project_work.current_user_work_role = staff_user_work.role
-                else:
-                    package.account_project_work.current_user_work_role = None
-
         return package
 
     @classmethod

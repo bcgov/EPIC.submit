@@ -16,14 +16,17 @@
 from http import HTTPStatus
 
 from flask_cors import cross_origin
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, abort
 
 from submit_api.auth import auth, jwt
+from submit_api.enums.package_operation import PackageOperation
+from submit_api.models import Item as ItemModel
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.item import ItemSchema
 from submit_api.schemas.item import StaffItemSchema
 from submit_api.schemas.submission_review import SaveSubmissionReviewRequestSchema, SubmissionReviewSchema
 from submit_api.services.item_service import ItemService
+from submit_api.services.package_access_control import PackageAccessControl
 from submit_api.services.submission_review_service import SubmissionReviewService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -79,9 +82,17 @@ class ItemReview(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cross_origin(origins=allowedorigins())
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.require
     def post(item_id):
         """Save submission review."""
+        # Get the item to determine package context
+        item = ItemModel.find_by_id(item_id)
+        if not item:
+            abort(HTTPStatus.NOT_FOUND, "Item not found")
+
+        # Check package-aware access control (mp_create, w_create, or eao_create)
+        PackageAccessControl.check_package_access(item.package_id, PackageOperation.CREATE)
+
         request_body = SaveSubmissionReviewRequestSchema().load(API.payload)
         review = SubmissionReviewService.save_submission_review(item_id, request_body)
         return SubmissionReviewSchema().dump(review), HTTPStatus.OK
@@ -95,8 +106,16 @@ class ItemReview(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cross_origin(origins=allowedorigins())
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.require
     def delete(item_id):
         """Undo staff recommendation."""
+        # Get the item to determine package context
+        item = ItemModel.find_by_id(item_id)
+        if not item:
+            abort(HTTPStatus.NOT_FOUND, "Item not found")
+
+        # Check package-aware access control (mp_create, w_create, or eao_create)
+        PackageAccessControl.check_package_access(item.package_id, PackageOperation.CREATE)
+
         review = SubmissionReviewService.undo_staff_recommendation(item_id)
         return SubmissionReviewSchema().dump(review), HTTPStatus.OK

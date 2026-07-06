@@ -54,6 +54,13 @@ class StaffUserService:
             ResourceNotFoundError: If user not found in Keycloak
             ValueError: If Keycloak user doesn't have a valid username
         """
+        # Check if staff user already exists with this email to avoid Keycloak call
+        existing_staff_user = StaffUser.get_by_email(email)
+        if existing_staff_user:
+            username = existing_staff_user.user.auth_guid
+            current_app.logger.info(f"Found existing StaffUser for email {email}")
+            return existing_staff_user, username
+
         keycloak_user = KeycloakService.get_user_by_email(email)
         username = keycloak_user.get("username")
         first_name = keycloak_user.get("firstName") or ""

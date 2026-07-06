@@ -173,7 +173,7 @@ export default function ReviewSection() {
               clearable={false}
               sx={{ width: "50%", mt: 1, mb: 0 }}
             />
-            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.extended_eao_edit]}>
+            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.mp_extended_edit]}>
               <>
                 <Typography
                   variant="body1"

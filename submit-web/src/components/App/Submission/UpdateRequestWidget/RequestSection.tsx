@@ -15,7 +15,7 @@ import { USER_TYPE } from "@/models/User";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { UpdateRequestStatusChip } from "@/components/App/UpdateRequestStatusChip";
 import PermissionsGate from "@/components/Shared/PermissionGate";
-import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { getSubmissionItemLabel } from "@/utils";
 
 type UpdateRequestProps = Readonly<{
@@ -40,6 +40,9 @@ export default function RequestSection({
 
   const { userType } = useAccount();
   const isProponent = userType === USER_TYPE.PROPONENT;
+  
+  // Get the correct package-specific roles
+  const packageRoles = usePackageRoles(submissionPackage);
 
   const submissionItems = submissionPackage.items.filter((item) =>
     submission_item_types.includes(item.type_id),
@@ -97,7 +100,7 @@ export default function RequestSection({
         <Typography variant="body1" sx={{ mb: 1 }}>
           {reason}
         </Typography>
-        <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.eao_create]}>
+        <PermissionsGate scopes={[packageRoles.edit]}>
           {status === UPDATE_REQUEST_STATUS.ACCEPTED.value ? (
             <UpdateRequestStatusChip
               status={UPDATE_REQUEST_STATUS.ACCEPTED.value}

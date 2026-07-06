@@ -89,12 +89,6 @@ class ProjectQueries:
                     package, user_type
                 )
 
-        # Attach work roles to AccountProjectWork objects for staff users
-        if account_project and is_staff and user and user.type == UserType.STAFF and user.staff_user:
-            cls._attach_work_roles_to_account_project_works(
-                account_project.account_project_works, user.staff_user.id
-            )
-
         schema_class = StaffAccountProjectSchema if is_staff else AccountProjectSchema
         account_project_dict = schema_class().dump(account_project)
 
@@ -221,20 +215,38 @@ class ProjectQueries:
                 if package.id in package_statuses:
                     package._calculated_status = package_statuses[package.id]
 
-        # Attach work roles to AccountProjectWork objects for staff users
-        if not is_proponent and user and user.type == UserType.STAFF and user.staff_user:
-            for account_project in account_projects:
-                cls._attach_work_roles_to_account_project_works(
-                    account_project.account_project_works, user.staff_user.id
-                )
-
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
         account_projects_list = schema_class(many=True).dump(account_projects)
 
-        if filtered_package_ids:
+        # Apply package access filtering for staff users only
+        if not is_proponent and user and user.type == UserType.STAFF:
+            package_query = db.session.query(Package).filter(
+                Package.account_project_id.in_(account_project_ids)
+            )
+            package_query = cls._filter_packages_by_user_access(package_query, user)
+            accessible_package_ids = {pkg.id for pkg in package_query.all()}
+
+            # Combine with search filtering if provided
+            if filtered_package_ids:
+                # Intersection: packages matching BOTH access control AND search criteria
+                final_package_ids = accessible_package_ids & set(filtered_package_ids)
+            else:
+                # No search criteria: use only access control filtering
+                final_package_ids = accessible_package_ids
+
+            # Filter packages in serialized output
             for account_project in account_projects_list:
-                account_project['packages'] = [package for package in account_project['packages']
-                                               if package['id'] in filtered_package_ids]
+                account_project['packages'] = [
+                    package for package in account_project['packages']
+                    if package['id'] in final_package_ids
+                ]
+        elif filtered_package_ids:
+            # For proponent users, only apply search filtering (no access control filtering)
+            for account_project in account_projects_list:
+                account_project['packages'] = [
+                    package for package in account_project['packages']
+                    if package['id'] in filtered_package_ids
+                ]
 
         # Filter account_project_works for staff users without full_access role
         if not is_proponent and user and user.type == UserType.STAFF:
@@ -300,40 +312,6 @@ class ProjectQueries:
         return query
 
     @classmethod
-    def _attach_work_roles_to_account_project_works(cls, account_project_works, staff_user_id: int):
-        """Attach work roles to AccountProjectWork objects using a single query.
-
-        Args:
-            account_project_works: List of AccountProjectWork objects
-            staff_user_id: ID of the staff user
-        """
-        if not account_project_works:
-            return
-
-        # Get all work IDs from the account_project_works
-        work_ids = [apw.work_id for apw in account_project_works]
-
-        if not work_ids:
-            return
-
-        # Single query to get all work roles for this staff user
-        work_roles = db.session.query(
-            StaffUserWork.work_id,
-            StaffUserWork.role
-        ).filter(
-            StaffUserWork.staff_user_id == staff_user_id,
-            StaffUserWork.work_id.in_(work_ids),
-            StaffUserWork.is_active == True  # noqa: E712
-        ).all()
-
-        # Create a mapping of work_id to role
-        work_role_map = {work_id: role for work_id, role in work_roles}
-
-        # Attach the role to each AccountProjectWork object
-        for apw in account_project_works:
-            apw.current_user_work_role = work_role_map.get(apw.work_id)
-
-    @classmethod
     def _get_accessible_work_ids_for_staff_user(cls, user: User):
         """Get list of work IDs accessible to a staff user."""
         if not user or user.type != UserType.STAFF:
@@ -366,28 +344,52 @@ class ProjectQueries:
             if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
                 return package_query
 
-            # Filter packages based on staff user's work assignments
+            # Filter packages based on staff user's work assignments and permissions
             staff_user = user.staff_user
             if not staff_user:
                 return package_query.filter(False)
 
-            # Get all active work IDs for this staff user
-            active_work_ids = db.session.query(StaffUserWork.work_id).filter(
-                StaffUserWork.staff_user_id == staff_user.id,
-                StaffUserWork.is_active == True  # noqa: E712
-            ).subquery()
+            # Check if user has w_view permission for works
+            has_w_view = jwt.contains_role([EpicSubmitRole.W_VIEW.value])
 
-            # Filter packages to only those with account_project_work_id matching staff's work assignments
-            # OR packages without account_project_work_id (non-work packages accessible via Keycloak roles)
-            package_query = package_query.outerjoin(
-                AccountProjectWork,
-                Package.account_project_work_id == AccountProjectWork.id
-            ).filter(
-                or_(
-                    Package.account_project_work_id.is_(None),  # Non-work packages
-                    AccountProjectWork.work_id.in_(active_work_ids)  # Work packages staff has access to
+            # Check if user has mp_view permission for management plans
+            has_mp_view = jwt.contains_role([EpicSubmitRole.MP_VIEW.value])
+
+            # Build filter conditions based on permissions
+            filter_conditions = []
+
+            # If user has w_view permission, check work assignments
+            if has_w_view:
+                # Get all active work IDs for this staff user
+                active_work_ids = db.session.query(StaffUserWork.work_id).filter(
+                    StaffUserWork.staff_user_id == staff_user.id,
+                    StaffUserWork.is_active == True  # noqa: E712
+                ).subquery()
+
+                # Join with AccountProjectWork to filter work packages
+                package_query = package_query.outerjoin(
+                    AccountProjectWork,
+                    Package.account_project_work_id == AccountProjectWork.id
                 )
-            )
+
+                # Add condition for work packages staff has access to
+                filter_conditions.append(AccountProjectWork.work_id.in_(active_work_ids))
+
+            # If user has mp_view permission, include management plan packages
+            if has_mp_view:
+                from submit_api.models.package_type import PackageType
+                from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
+                # Add condition for all package types accessible via MP_VIEW role
+                filter_conditions.append(
+                    Package.type.has(PackageType.name.in_(MP_VIEW_PACKAGE_TYPES))
+                )
+
+            # If no permissions, deny all access
+            if not filter_conditions:
+                return package_query.filter(False)
+
+            # Apply the filter conditions
+            package_query = package_query.filter(or_(*filter_conditions))
 
             return package_query
 

@@ -22,8 +22,8 @@ from submit_api.auth import jwt
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
+from submit_api.utils.roles import EpicSubmitRole
 
 
 API = Namespace("activity-logs", description="Endpoints for Activity Log Management")

@@ -35,10 +35,6 @@ class StaffUserWork(BaseModel):
         db.Integer, ForeignKey('track_works.id', ondelete='CASCADE'),
         nullable=False, comment='Work ID from EPIC.track'
     )
-    role = Column(
-        db.String(50), nullable=False,
-        comment='Work role: TEAM_LEAD or TEAM_MEMBER'
-    )
     is_active = Column(
         db.Boolean, nullable=False, default=True,
         comment='Whether this assignment is currently active'
@@ -63,13 +59,12 @@ class StaffUserWork(BaseModel):
         return cls.query.filter_by(work_id=work_id, is_active=True).all()
 
     @classmethod
-    def get_or_create(cls, staff_user_id: int, work_id: int, role: str, session=None):
+    def get_or_create(cls, staff_user_id: int, work_id: int, session=None):
         """Create or get staff user work assignment.
 
         Args:
             staff_user_id: ID of the staff user
             work_id: ID of the work
-            role: Work role (TEAM_LEAD or TEAM_MEMBER)
             session: Optional database session
 
         Returns:
@@ -81,9 +76,8 @@ class StaffUserWork(BaseModel):
         ).first()
 
         if existing:
-            # Update if role changed or reactivate if inactive
-            if existing.role != role or not existing.is_active:
-                existing.role = role
+            # Reactivate if inactive
+            if not existing.is_active:
                 existing.is_active = True
                 existing.persist(session)
             return existing
@@ -91,7 +85,6 @@ class StaffUserWork(BaseModel):
         new_instance = cls(
             staff_user_id=staff_user_id,
             work_id=work_id,
-            role=role,
             is_active=True
         )
 

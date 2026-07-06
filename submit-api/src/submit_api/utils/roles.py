@@ -21,6 +21,17 @@ class EpicSubmitRole(Enum):
     EAO_EDIT = "eao_edit"
     EAO_VIEW = "eao_view"
     EAO_CREATE = "eao_create"
-    EXTENDED_EAO_EDIT = "extended_eao_edit"
     MANAGE_USERS = "manage-users"
     FULL_ACCESS = "full_access"
+
+    # Management Plan package roles
+    MP_VIEW = "mp_view"
+    MP_EDIT = "mp_edit"
+    MP_CREATE = "mp_create"
+    MP_EXTENDED_EDIT = "mp_extended_edit"
+
+    # Work package roles
+    W_VIEW = "w_view"
+    W_EDIT = "w_edit"
+    W_CREATE = "w_create"
+    W_EXTENDED_EDIT = "w_extended_edit"

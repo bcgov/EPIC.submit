@@ -17,6 +17,9 @@ import {
 } from "@/models/Package";
 import { QUERY_KEY } from "./api/constants";
 import { useNavigate } from "@tanstack/react-router";
+import { useAccount } from "@/store/accountStore";
+import { hasPermission } from "@/components/Shared/PermissionGate/utils";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 interface UseStaffSubmissionPageOptions {
   submissionPackageId: number;
@@ -32,6 +35,7 @@ export function useStaffSubmissionPage({
   const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const account = useAccount();
 
   const accountProject = queryClient.getQueryData(
     getAccountProjectForStaffQueryOptions(accountProjectId).queryKey,
@@ -169,12 +173,15 @@ export function useStaffSubmissionPage({
       SubmissionPackageApprovalType.C,
     ].includes(approval_type as SubmissionPackageApprovalType);
 
-  // Only Team Leads can approve packages (Team Members can view, verify, acknowledge, request updates)
-  const isTeamLead = true;//submissionPackage?.account_project_work?.work_role === "TEAM_LEAD";
+  // Only users with w_extended_edit permission can approve packages
+  const canApprove = hasPermission({
+    permissions: account.roles || [],
+    scopes: [EPIC_SUBMIT_ROLE.w_extended_edit],
+  });
   const showApproveButtons =
     isPackageAcknowledged && 
     approval_type == SubmissionPackageApprovalType.C &&
-    isTeamLead;
+    canApprove;
 
   useEffect(() => {
     setIsLoading(updatingPackageState || refusingPackage);

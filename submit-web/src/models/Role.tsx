@@ -2,8 +2,15 @@ export type EpicSubmitRole =
   | "eao_edit"
   | "eao_view"
   | "eao_create"
-  | "extended_eao_edit"
-  | "full_access";
+  | "full_access"
+  | "mp_view"
+  | "mp_edit"
+  | "mp_create"
+  | "mp_extended_edit"
+  | "w_view"
+  | "w_edit"
+  | "w_create"
+  | "w_extended_edit";
 
 export const EPIC_SUBMIT_ROLE = Object.freeze<
   Record<EpicSubmitRole, EpicSubmitRole>
@@ -11,8 +18,15 @@ export const EPIC_SUBMIT_ROLE = Object.freeze<
   eao_edit: "eao_edit",
   eao_view: "eao_view",
   eao_create: "eao_create",
-  extended_eao_edit: "extended_eao_edit",
   full_access: "full_access",
+  mp_view: "mp_view",
+  mp_edit: "mp_edit",
+  mp_create: "mp_create",
+  mp_extended_edit: "mp_extended_edit",
+  w_view: "w_view",
+  w_edit: "w_edit",
+  w_create: "w_create",
+  w_extended_edit: "w_extended_edit",
 });
 
 export enum USER_MANAGEMENT_ROLE {

@@ -19,6 +19,7 @@ from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth, jwt
+from submit_api.enums.package_operation import PackageOperation
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.package import (
@@ -26,6 +27,7 @@ from submit_api.schemas.package import (
     PackageUpdateRequestSchema, PackageVersionSchema, PostPackageRequestSchema, PostPackageState, StaffPackageSchema,
     RefusePackageSchema)
 from submit_api.services import authorization
+from submit_api.services.package_access_control import PackageAccessControl
 from submit_api.services.package_service import PackageService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -69,13 +71,6 @@ class Package(Resource):
     @auth.require
     def get(package_id):
         """Get package by id."""
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
-        if is_staff:
-            # Call has_access_to_package to set g.work_role for staff users
-            authorization.has_access_to_package(package_id)
-        else:
-            # For proponents, check access
-            authorization.has_access_to_package(package_id)
         package = PackageService.get_package_by_id(package_id)
         if not package:
             return {"message": "Package not found"}, HTTPStatus.NOT_FOUND
@@ -126,12 +121,10 @@ class PackageState(Resource):
     def post(package_id):
         """Update package state."""
         request_body = PostPackageState().load(API.payload)
-
-        # Check authorization for package access
+        # Check authorization for package EDIT access
         is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
         if is_staff:
-            authorization.has_access_to_package(package_id)
-
+            PackageAccessControl.check_package_access(package_id, PackageOperation.EDIT)
         package = PackageService.update_package_state(package_id, request_body)
         return PackageSchema().dump(package), HTTPStatus.OK
 
@@ -164,13 +157,16 @@ class PackageVersions(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
     @cross_origin(origins=allowedorigins())
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.require
     def post(original_package_id):  # pylint: disable=unused-argument
         """Create a new package version."""
         package_version_data = CreatePackageVersionSchema().load(API.payload)
-        package_with_created_package_version = PackageService.create_new_package_version_with_contacts(
-            package_version_data.get("package_id")
-        )
+        package_id = package_version_data.get("package_id")
+
+        # Check package-aware access control (mp_create, w_create, or eao_create)
+        PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
+
+        package_with_created_package_version = PackageService.create_new_package_version_with_contacts(package_id)
         return PackageSchema().dump(package_with_created_package_version), HTTPStatus.CREATED
 
 
@@ -190,10 +186,13 @@ class PackageUpdateRequests(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.require
     @cross_origin(origins=allowedorigins())
     def post(package_id):
         """Create an update request."""
+        # Check package-aware access control (mp_create, w_create, or eao_create)
+        PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
+
         create_update_request_data = CreateUpdateRequestSchema().load(API.payload)
         package_with_created_update_request = PackageService.create_update_request(
             package_id, create_update_request_data)
@@ -216,10 +215,13 @@ class PackageUpdateRequest(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.require
     @cross_origin(origins=allowedorigins())
     def patch(package_id, update_request_id):
         """Accept an update request."""
+        # Check package-aware access control (mp_create, w_create, or eao_create)
+        PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
+
         accept_update_request = PackageService.accept_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(accept_update_request), HTTPStatus.OK
 
@@ -230,10 +232,13 @@ class PackageUpdateRequest(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @auth.require
     @cross_origin(origins=allowedorigins())
     def delete(package_id, update_request_id):
         """Withdraw an update request."""
+        # Check package-aware access control (mp_create, w_create, or eao_create)
+        PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
+
         withdraw_update_request = PackageService.withdraw_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(withdraw_update_request), HTTPStatus.OK
 

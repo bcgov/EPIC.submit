@@ -2,9 +2,10 @@
 from flask import current_app
 
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.models import StaffUserWork, TrackWork, User
+from submit_api.models import StaffUserWork, TrackWork, StaffUser
 from submit_api.services.keycloak import KeycloakService
 from submit_api.services.staff_user_service import StaffUserService
+from submit_api.utils.constants import STAFF_WORK_ROLE_KEYCLOAK_GROUPS
 
 
 class StaffUserWorkService:
@@ -34,39 +35,44 @@ class StaffUserWorkService:
             current_app.logger.error(f"Failed to fetch user from Keycloak: {str(e)}")
             raise ResourceNotFoundError(f"User with email '{email}' not found in Keycloak.") from e
 
-        # Check if user has EAO_TEAM_MEMBER Keycloak group (subgroup under SUBMIT)
-        # Assign EAO_TEAM_MEMBER group only if not already assigned (idempotent)
+        # Assign Keycloak group based on role (subgroup under SUBMIT)
+        # TEAM_LEAD -> SUBMIT/OPS_TEAM_LEAD, TEAM_MEMBER -> SUBMIT/OPS_TEAM_MEMBER
+        # Assign group only if not already assigned (idempotent)
+        keycloak_group = STAFF_WORK_ROLE_KEYCLOAK_GROUPS.get(role)
+        if not keycloak_group:
+            raise BadRequestError(f"Invalid role '{role}'. Must be TEAM_LEAD or TEAM_MEMBER.")
+
         try:
             user_groups = KeycloakService.get_user_groups(username)
-            has_eao_team_member = any(group.get('path') == '/SUBMIT/EAO_TEAM_MEMBER'
-                                      for group in user_groups)
-            if not has_eao_team_member:
-                group_id = KeycloakService.get_group_id_by_path('SUBMIT/EAO_TEAM_MEMBER')
+            has_role_group = any(group.get('path') == f'/{keycloak_group}'
+                                 for group in user_groups)
+            if not has_role_group:
+                group_id = KeycloakService.get_group_id_by_path(keycloak_group)
                 KeycloakService.update_user_group(user_id=username, group_id=group_id)
-                current_app.logger.info(f"Assigned SUBMIT/EAO_TEAM_MEMBER group to user {username}")
+                current_app.logger.info(f"Assigned {keycloak_group} group to user {username}")
             else:
-                current_app.logger.info(f"User {username} already has SUBMIT/EAO_TEAM_MEMBER group")
+                current_app.logger.info(f"User {username} already has {keycloak_group} group")
         except Exception as e:  # noqa: B902  # pylint: disable=broad-exception-caught
-            current_app.logger.warning(f"Failed to assign SUBMIT/EAO_TEAM_MEMBER group: {str(e)}")
-            # Don't fail the entire operation if group assignment fails
+            current_app.logger.error(f"Failed to assign {keycloak_group} group to user {username}: {str(e)}")
+            raise ResourceNotFoundError(
+                f"Failed to assign required Keycloak group '{keycloak_group}' to user. "
+                "Please ensure Keycloak is accessible and try again."
+            ) from e
 
-        # 6. Validate work_id exists in track_works
+        # Validate work_id exists in track_works
         work = TrackWork.find_by_id(work_id)
         if not work:
             raise ResourceNotFoundError(f"Work with ID {work_id} not found.")
 
-        # 7. Get or create StaffUserWork record
-        # 8. Update role if changed
-        # 9. Set is_active=True
+        # Get or create StaffUserWork record and set is_active=True
         staff_user_work = StaffUserWork.get_or_create(
             staff_user_id=staff_user.id,
-            work_id=work_id,
-            role=role
+            work_id=work_id
         )
 
         current_app.logger.info(
             f"Created/updated work assignment: staff_user_id={staff_user.id}, "
-            f"work_id={work_id}, role={role}"
+            f"work_id={work_id}, role={role} (Keycloak group assignment only)"
         )
 
         return staff_user_work
@@ -82,24 +88,14 @@ class StaffUserWorkService:
         Raises:
             ResourceNotFoundError: If user or work assignment not found
         """
-        # 1. Lookup user by email
-        try:
-            keycloak_user = KeycloakService.get_user_by_email(email)
-        except Exception as e:  # noqa: B902
-            current_app.logger.error(f"Failed to fetch user from Keycloak: {str(e)}")
-            raise ResourceNotFoundError(f"User with email '{email}' not found in Keycloak.") from e
-
-        username = keycloak_user.get("username")
-        if not username:
-            raise BadRequestError(f"Keycloak user with email '{email}' does not have a valid username.")
-
-        user = User.get_by_guid(username)
-        if not user or not user.staff_user:
+        # Lookup staff user by email from database
+        staff_user = StaffUser.get_by_email(email)
+        if not staff_user:
             raise ResourceNotFoundError(f"Staff user with email '{email}' not found.")
 
-        # 2. Find StaffUserWork record
+        # Find StaffUserWork record
         staff_user_work = StaffUserWork.find_by_staff_user_and_work(
-            staff_user_id=user.staff_user.id,
+            staff_user_id=staff_user.id,
             work_id=work_id
         )
 
@@ -108,13 +104,26 @@ class StaffUserWorkService:
                 f"Work assignment not found for staff user '{email}' and work ID {work_id}."
             )
 
-        # 3. Set is_active=False for the assignment
-        # 4. Update updated_date and updated_by
+        # Remove OPS Keycloak groups (SUBMIT/OPS_TEAM_LEAD and SUBMIT/OPS_TEAM_MEMBER)
+        username = staff_user.user.auth_guid
+        try:
+            user_groups = KeycloakService.get_user_groups(username)
+            for _role, group_path in STAFF_WORK_ROLE_KEYCLOAK_GROUPS.items():
+                has_group = any(group.get('path') == f'/{group_path}' for group in user_groups)
+                if has_group:
+                    group_id = KeycloakService.get_group_id_by_path(group_path)
+                    KeycloakService.delete_user_group(user_id=username, group_id=group_id)
+                    current_app.logger.info(f"Removed {group_path} group from user {username}")
+        except Exception as e:  # noqa: B902  # pylint: disable=broad-exception-caught
+            current_app.logger.warning(f"Failed to remove OPS groups from user {username}: {str(e)}")
+            # Don't fail the entire operation if group removal fails
+
+        # Set is_active=False for the assignment
         staff_user_work.is_active = False
         staff_user_work.persist()
 
         current_app.logger.info(
-            f"Removed work assignment: staff_user_id={user.staff_user.id}, work_id={work_id}"
+            f"Removed work assignment: staff_user_id={staff_user.id}, work_id={work_id}"
         )
 
         return staff_user_work

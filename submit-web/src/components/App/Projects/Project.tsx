@@ -52,16 +52,16 @@ export const Project = ({ accountProject }: ProjectParam) => {
           );
         })}
       {accountProject.project.has_approved_condition && (
-        <ProjectSubmissionsCard
-          title="Management Plans & Related Documents"
-          status={PROJECT_STATUS.POST_DECISION}
-          isWorkRelated={false}
-          packages={accountProject.packages.filter(
-            (pkg) => pkg.type.name === SubmissionPackageType.MANAGEMENT_PLAN,
-          )}
-          onNewSubmission={handleNewSubmission}
-        />
-      )}
+          <ProjectSubmissionsCard
+            title="Management Plans & Related Documents"
+            status={PROJECT_STATUS.POST_DECISION}
+            isWorkRelated={false}
+            packages={accountProject.packages.filter(
+              (pkg) => pkg.type.name === SubmissionPackageType.MANAGEMENT_PLAN,
+            )}
+            onNewSubmission={handleNewSubmission}
+          />
+        )}
     </ContentBox>
   );
 };

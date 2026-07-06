@@ -25,8 +25,8 @@ from submit_api.models.package import NonCanonicalPackageStatus, PackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import AddProjectSchema, ProjectSchema, StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
-from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
+from submit_api.utils.roles import EpicSubmitRole
 
 
 DEFAULT_PAGE_SIZE = 3

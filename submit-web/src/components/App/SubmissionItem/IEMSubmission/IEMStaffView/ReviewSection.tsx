@@ -167,7 +167,7 @@ export default function ReviewSection() {
                 disabled={isFormDisabled || isManager}
               />
             </ControlledRadioGroup>
-            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.extended_eao_edit]}>
+            <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.mp_extended_edit]}>
               <>
                 <Typography
                   variant="body1"
