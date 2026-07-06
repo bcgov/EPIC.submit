@@ -28,6 +28,7 @@ export function useUpdateRequests({
   queryClient,
 }: UseUpdateRequestsOptions) {
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [isSendingRequests, setIsSendingRequests] = useState(false);
 
   // ─── Derived State ────────────────────────────────────────────────────────
 
@@ -182,9 +183,15 @@ export function useUpdateRequests({
 
   const handleSendRequests = useCallback(async () => {
     if (pendingRequests.length === 0) return;
+    setIsSendingRequests(true);
+
+    // Snapshot and clear immediately so any re-invocation (e.g. double-click)
+    // sees an empty list and exits early before the first await resolves.
+    const toSend = [...pendingRequests];
+    setPendingRequests([]);
 
     try {
-      for (const request of pendingRequests) {
+      for (const request of toSend) {
         await createUpdateRequestMutation.mutateAsync({
           packageId: submissionPackageId,
           data: {
@@ -194,13 +201,16 @@ export function useUpdateRequests({
         });
       }
 
-      setPendingRequests([]);
       notify.success("Update request(s) sent successfully");
       queryClient.invalidateQueries({
         queryKey: ["packages", submissionPackageId],
       });
     } catch {
+      // Restore the requests that didn't make it so the user can retry.
+      setPendingRequests(toSend);
       notify.error("Failed to send update request(s)");
+    } finally {
+      setIsSendingRequests(false);
     }
   }, [
     pendingRequests,
@@ -248,5 +258,6 @@ export function useUpdateRequests({
     handleSendRequests,
     handleAcceptUpdate,
     handleWithdrawUpdate,
+    isSendingRequests,
   };
 }

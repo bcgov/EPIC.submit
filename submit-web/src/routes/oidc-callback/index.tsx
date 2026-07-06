@@ -20,7 +20,7 @@ function OidcCallback() {
   const account = useAccount();
   const {
     isAuthenticated,
-    signoutSilent,
+    signoutRedirect,
     isLoading: isAuthLoading,
   } = useAuth();
 
@@ -28,9 +28,11 @@ function OidcCallback() {
 
   useEffect(() => {
     if (needsSignout) {
-      signoutSilent();
+      signoutRedirect({
+        post_logout_redirect_uri: `${window.location.origin}/need-access`,
+      });
     }
-  }, [needsSignout, signoutSilent]);
+  }, [needsSignout, signoutRedirect]);
 
   if (account.isLoading || isAuthLoading) {
     return <PageLoader />;
@@ -52,7 +54,7 @@ function OidcCallback() {
   }
 
   if (needsSignout) {
-    return <Navigate to="/need-access" />;
+    return <PageLoader />;
   }
 
   if (account?.error) {
