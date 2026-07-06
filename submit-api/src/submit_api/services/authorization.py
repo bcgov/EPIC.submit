@@ -120,3 +120,32 @@ def require_team_lead_access():
     if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value, EpicSubmitRole.W_EXTENDED_EDIT.value]):
         return
     abort(HTTPStatus.FORBIDDEN)
+
+
+def has_gis_extended_edit_role(user_roles=None):
+    """Check if user has GIS extended edit role.
+
+    Args:
+        user_roles: List of user roles to check. If None, checks current user's roles.
+
+    Returns:
+        bool: True if user has GIS extended edit role or full access
+    """
+    if user_roles is None:
+        # Check current user's roles via JWT
+        return jwt.contains_role([EpicSubmitRole.GIS_EXTENDED_EDIT.value, EpicSubmitRole.FULL_ACCESS.value])
+    
+    # Check provided roles list
+    return EpicSubmitRole.GIS_EXTENDED_EDIT.value in user_roles or EpicSubmitRole.FULL_ACCESS.value in user_roles
+
+
+def require_gis_extended_edit_access():
+    """Check if current user has GIS extended edit permission.
+
+    Raises:
+        HTTPStatus.FORBIDDEN: If user doesn't have GIS extended edit permission
+    """
+    # Check for full_access or gis_extended_edit role
+    if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value, EpicSubmitRole.GIS_EXTENDED_EDIT.value]):
+        return
+    abort(HTTPStatus.FORBIDDEN)
