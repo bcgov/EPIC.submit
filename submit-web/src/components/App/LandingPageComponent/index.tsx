@@ -18,9 +18,9 @@ export const LandingPageComponent = () => {
           Welcome to EPIC.submit
         </Typography>
         <Typography variant="h6" gutterBottom fontWeight={400}>
-          EPIC.submit currently supports the submission of Management Plans,
-          Independent Environmental Monitor Terms of Engagement, and certain
-          reports.
+          EPIC.submit supports the submission of Management Plans,
+          Independent Environmental Monitor Terms of Engagement, and early engagement submissions,
+          including the Initial Project Description and Engagement Plan.
         </Typography>
       </Box>
       <Grid container spacing={4}>
@@ -30,25 +30,24 @@ export const LandingPageComponent = () => {
             <BarTitle title={"What is EPIC.submit"} />
 
             <Typography variant="body1" mt={BCDesignTokens.layoutMarginXlarge}>
-              The Environmental Assessment Office (EAO) of British Columbia is
-              developing a streamlined system to make document submissions and
-              management more efficient for environmental assessment certificate
-              holders.
+              The Environmental Assessment Office (EAO) of British Columbia has
+              developed a streamlined system to make document submissions and
+              management more efficient for environmental assessment proponents and
+              certificate holders.
             </Typography>
             <Typography variant="body1" mt={1}>
-              EPIC.submit is a custom-built portal designed specifically for
-              certificate holders to manage all documentation requirements in
-              the post-decision phase of the environmental assessment process.
-              It provides a centralized platform where users can submit
-              management plans and reports, track submission status, and
-              maintain document version control—all in one place.
+              EPIC.submit is a custom-built portal designed for proponents and
+              certificate holders to manage documentation requirements across
+              the environmental assessment process. It provides a centralized
+              platform where users can submit documents, track submission status,
+              and maintain document version control - all in one place.
             </Typography>
 
             <Typography variant="body1" mt={1}>
-              This system is part of the larger epic ecosystem and has been
-              developed to eliminate fragmented communication channels, and
-              create a more transparent and efficient submission process for
-              both certificate holders and EAO staff.
+              This system is part of the larger EPIC ecosystem and has been
+              developed to eliminate fragmented communication channels and create
+              a more transparent and efficient submission process for
+              proponents, certificate holders, and EAO staff.
             </Typography>
 
             <Typography variant="h6" fontWeight="bold" mt={3}>
@@ -56,16 +55,16 @@ export const LandingPageComponent = () => {
             </Typography>
             <ul>
               <Typography component="li" variant="body1">
-                Upload and submit management plans and reports require as part
-                of your environmental assesment certificate conditions
+                Submit early engagement documents, starting with your Initial Project Description and Engagement Plan, through to all subsequent additional information submissions
               </Typography>
               <Typography component="li" variant="body1">
-                Create complete submission packages with supporting
-                documentation and forms
+                Upload and submit management plans required as part of your environmental assessment certificate conditions
               </Typography>
               <Typography component="li" variant="body1">
-                Track the status of submissions through visual status badges and
-                notifications
+                Create complete submission packages with supporting documentation and forms
+              </Typography>
+              <Typography component="li" variant="body1">
+                Track the status of submissions through visual status badges and notifications
               </Typography>
               <Typography component="li" variant="body1">
                 Receive email confirmations when your submissions are received
@@ -77,12 +76,10 @@ export const LandingPageComponent = () => {
                 Respond to update requests directly through the portal
               </Typography>
               <Typography component="li" variant="body1">
-                Manage document versions efficiently without email
-                back-and-forth
+                Manage document versions efficiently without email back-and-forth
               </Typography>
               <Typography component="li" variant="body1">
-                Stay connected with the EAO through a streamlined communication
-                channel
+                Stay connected with the EAO through a streamlined communication channel
               </Typography>
             </ul>
           </Paper>
@@ -92,15 +89,14 @@ export const LandingPageComponent = () => {
               Who can use EPIC.submit?
             </Typography>
             <Typography variant="body1" mt={1}>
-              Currently, EPIC.submit is available to certificate holders
-              managing their post-decision documentation requirements. In the
-              future, the system will be expanded to include proponents earlier
-              in the environmental assessment process.
+              EPIC.submit is available to proponents navigating the early engagement
+              phase of the environmental assessment process and certificate holders
+              managing their post-decision documentation requirements.
             </Typography>
             <Typography variant="body1" mt={1}>
-              The portal is accessible to both certificate holders and EAO
-              staff, creating a shared platform for document submission, review,
-              and communication.
+              The portal is accessible to proponents, certificate holders, and
+              EAO staff, creating a shared platform for document submission,
+              review, and communication.
             </Typography>
           </Box>
         </Grid>
@@ -118,11 +114,11 @@ export const LandingPageComponent = () => {
               Getting Started with EPIC.submit
             </Typography>
             <Typography variant="body1" mt={1}>
-              To begin using EPIC.submit, certificate holders will receive a
-              login link and access instructions from the EAO. The intuitive
-              interface guides users through the submission process, allowing
-              for efficient document uploading, form completion, and submission
-              tracking.
+              To begin using EPIC.submit, proponents and certificate holders will
+              receive a login link and access instructions from the EAO. The
+              intuitive interface guides users through the submission process,
+              allowing for efficient document uploading, form completion, and
+              submission tracking.
             </Typography>
             <Typography variant="body1" mt={1}>
               For assistance with EPIC.submit, please contact the EAO support
