@@ -1,7 +1,7 @@
 """Service for account management."""
 from flask import current_app
 from submit_api.exceptions import ResourceNotFoundError
-from submit_api.models import User
+from submit_api.models import User, db
 from submit_api.models.user import UserType
 from submit_api.models.staff_user import StaffUser
 from submit_api.utils.roles import EpicSubmitRole
@@ -27,6 +27,25 @@ class UserService:
             # Check if user has staff roles in their token
             if cls._has_staff_roles(token_info):
                 user = cls._auto_provision_staff_user(_guid, token_info)
+        elif user and user.type == UserType.STAFF and not user.staff_user and token_info:
+            # User exists as STAFF but staff_user record is missing - create it
+            if cls._has_staff_roles(token_info):
+                email = token_info.get('email')
+                given_name = token_info.get('given_name')
+                family_name = token_info.get('family_name')
+
+                staff_user_data = {
+                    'first_name': given_name,
+                    'last_name': family_name,
+                    'work_email_address': email,
+                    'user_id': user.id
+                }
+                StaffUser.create_staff_user(staff_user_data)
+
+                # Refresh the user object to load the staff_user relationship
+                db.session.refresh(user)
+
+                current_app.logger.info(f"Created missing staff_user record for: {email} (guid: {_guid})")
 
         if not user:
             raise ResourceNotFoundError(f"User with auth guid {_guid} not found")
@@ -66,6 +85,9 @@ class UserService:
             'user_id': user.id
         }
         StaffUser.create_staff_user(staff_user_data)
+
+        # Refresh the user object to load the staff_user relationship
+        db.session.refresh(user)
 
         current_app.logger.info(f"Auto-provisioned staff user: {email} (guid: {_guid})")
 
