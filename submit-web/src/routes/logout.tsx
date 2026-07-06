@@ -15,28 +15,32 @@ export const Route = createFileRoute("/logout")({
 });
 
 function Logout() {
-  const { signoutSilent, isAuthenticated } = useAuth();
+  const { signoutRedirect, isAuthenticated } = useAuth();
   const { reset } = useAccount();
   const search = Route.useSearch();
 
   const navigate = useNavigate();
 
   useMounted(() => {
-    signoutSilent();
+    reset();
+    signoutRedirect({
+      post_logout_redirect_uri: search.redirect
+        ? `${window.location.origin}${search.redirect}`
+        : window.location.origin,
+    });
   });
 
+  // Fallback: if signoutRedirect doesn't navigate away (e.g. IdP doesn't
+  // support end_session_endpoint), handle it client-side.
   useEffect(() => {
     if (!isAuthenticated) {
-      reset();
       if (search.redirect) {
         navigate({ to: search.redirect as any });
       } else {
-        navigate({
-          to: "/",
-        });
+        navigate({ to: "/" });
       }
     }
-  }, [isAuthenticated, navigate, reset, search.redirect]);
+  }, [isAuthenticated, navigate, search.redirect]);
 
   return <PageLoader />;
 }

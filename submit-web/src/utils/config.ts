@@ -83,7 +83,6 @@ export const OidcConfig = {
   redirect_uri: `${trimmedAppUrl}/oidc-callback`,
   post_logout_redirect_uri: `${trimmedAppUrl}/`,
   scope: "openid profile email",
-  revokeTokensOnSignout: true,
   response_type: "code",
   automaticSilentRenew: true,
   userStore: new WebStorageStateStore({ store: window.sessionStorage }),

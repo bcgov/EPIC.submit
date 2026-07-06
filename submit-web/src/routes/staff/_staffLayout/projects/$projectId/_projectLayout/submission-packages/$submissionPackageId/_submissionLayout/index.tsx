@@ -85,6 +85,7 @@ export default function SubmissionPage() {
     handleSendRequests,
     handleAcceptUpdate,
     handleWithdrawUpdate,
+    isSendingRequests,
   } = useUpdateRequests({
     submissionPackageId,
     submissionPackage,
@@ -309,6 +310,7 @@ export default function SubmissionPage() {
                   onAcceptUpdate={handleAcceptUpdate}
                   onWithdrawUpdate={handleWithdrawUpdate}
                   packageId={Number(submissionPackageId)}
+                  isLoading={isSendingRequests}
                 />
               </Box>
               <Box
