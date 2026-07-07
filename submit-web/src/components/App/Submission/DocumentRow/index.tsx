@@ -142,17 +142,17 @@ export default function DocumentRow({
         secondary: isAdditionalInfo
           ? [] // Link will be shown next to it instead of dropdown
           : [
-              {
-                label: "Undo Verification",
-                icon: (
-                  <UndoIcon
-                    fontSize="small"
-                    sx={{ color: BCDesignTokens.themeGray70 }}
-                  />
-                ),
-                onClick: handleUndoVerification,
-              },
-            ],
+            {
+              label: "Undo Verification",
+              icon: (
+                <UndoIcon
+                  fontSize="small"
+                  sx={{ color: BCDesignTokens.themeGray70 }}
+                />
+              ),
+              onClick: handleUndoVerification,
+            },
+          ],
       };
     }
 
@@ -238,8 +238,8 @@ export default function DocumentRow({
             <span style={{ marginRight: "24px" }} />
           )}
         </SubmitTableCell>
-        <SubmitTableCell align="right" width={"18%"}>
-          <Box mr={2}>
+        <SubmitTableCell align="left" width={"18%"}>
+          <Box ml={1}>
             <StatusCell
               submittedDocument={documentSubmission}
             />

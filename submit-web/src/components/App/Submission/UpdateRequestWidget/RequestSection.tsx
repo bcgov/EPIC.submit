@@ -40,7 +40,7 @@ export default function RequestSection({
 
   const { userType } = useAccount();
   const isProponent = userType === USER_TYPE.PROPONENT;
-  
+
   // Get the correct package-specific roles
   const packageRoles = usePackageRoles(submissionPackage);
 
