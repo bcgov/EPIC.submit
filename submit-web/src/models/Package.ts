@@ -229,4 +229,5 @@ export type SubmissionPackage = {
   update_requests: Array<UpdateRequest>;
   all_update_requests: Array<UpdateRequest>;
   version: PackageVersion;
+  enforceable?: boolean;
 };

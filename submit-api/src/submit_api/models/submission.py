@@ -30,6 +30,7 @@ class SubmissionStatus(enum.Enum):
     PENDING = 'PENDING'
     VERIFIED = 'VERIFIED'
     ACKNOWLEDGED = 'ACKNOWLEDGED'
+    REVISION_REQUIRED = 'REVISION_REQUIRED'
 
 
 # Declarative transition map:

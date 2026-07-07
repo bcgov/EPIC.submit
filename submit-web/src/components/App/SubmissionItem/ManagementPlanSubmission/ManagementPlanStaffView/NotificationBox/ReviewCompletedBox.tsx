@@ -1,5 +1,6 @@
 import { LabelValuePair } from "@/components/Shared/Text/LabelValuePair";
 import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
+import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
 import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import {
@@ -31,15 +32,25 @@ export const ReviewCompletedNotification = ({
     submissionReview.status === SUBMISSION_REVIEW_STATUS.REJECTED
       ? SUBMISSION_ITEM_STATUS.REVIEW_REJECTED.value
       : undefined;
+  const revisionRequired =
+    submissionReview.status === SUBMISSION_REVIEW_STATUS.REVISION_REQUIRED
+      ? SUBMISSION_ITEM_STATUS.REVISION_REQUIRED.value
+      : undefined;
+
+  const BoxContainer = revisionRequired ? WarningBox : SuccessBox;
 
   return (
-    <SuccessBox m="2em 0">
+    <BoxContainer m="2em 0">
       <Stack direction="row" alignItems={"center"} spacing={2}>
         <Typography variant="body1" color="inherit">
-          The Management Plan Review was completed as:
+          The Management Plan Review was confirmed as:
         </Typography>
         <SubmissionStatusChip
-          status={passedManagementPlanReview ?? failedManagementPlanReview}
+          status={
+            passedManagementPlanReview ??
+            failedManagementPlanReview ??
+            revisionRequired
+          }
         />
       </Stack>
       <Grid container color={"inherit"}>
@@ -90,6 +101,6 @@ export const ReviewCompletedNotification = ({
           </Grid>
         </Grid>
       </Grid>
-    </SuccessBox>
+    </BoxContainer>
   );
 };

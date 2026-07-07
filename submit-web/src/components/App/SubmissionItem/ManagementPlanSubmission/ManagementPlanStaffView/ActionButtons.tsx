@@ -21,7 +21,7 @@ import {
   checkIfManager,
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
-import { managementPlanReviewSchema, RadioOptions } from "./constants";
+import { managementPlanReviewSchema, DropdownOptions } from "./constants";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
 
@@ -84,7 +84,7 @@ export default function ActionButtons() {
         validateAtKey,
         data,
       );
-      const passed = decisionData.passedReview === RadioOptions.YES.value;
+      const passed = decisionData.passedReview === DropdownOptions.YES.value;
       const updateRequestData = passed
         ? {}
         : managementPlanReviewSchema.validateSyncAt("update_request", data);
@@ -122,7 +122,7 @@ export default function ActionButtons() {
         getValues(),
       );
 
-      const passed = staffDecision.passedReview === RadioOptions.YES.value;
+      const passed = staffDecision.passedReview === DropdownOptions.YES.value;
       const updateRequestData = passed
         ? {}
         : managementPlanReviewSchema.validateSyncAt(
@@ -160,9 +160,12 @@ export default function ActionButtons() {
       );
 
       const passed = [
-        RadioOptions.YES.value,
-        RadioOptions.YES_DEFAULT.value,
+        DropdownOptions.YES.value,
+        DropdownOptions.YES_DEFAULT.value,
       ].includes(managerDecision.passedReview);
+      const revisionRequired =
+        managerDecision.passedReview ===
+        DropdownOptions.REVISION_REQUIRED.value;
 
       const updateRequestData = passed
         ? {}
@@ -171,9 +174,11 @@ export default function ActionButtons() {
             getValues(),
           );
       const requestBody = {
-        status: passed
-          ? SUBMISSION_REVIEW_STATUS.APPROVED
-          : SUBMISSION_REVIEW_STATUS.REJECTED,
+        status: revisionRequired
+          ? SUBMISSION_REVIEW_STATUS.REVISION_REQUIRED
+          : passed
+            ? SUBMISSION_REVIEW_STATUS.APPROVED
+            : SUBMISSION_REVIEW_STATUS.REJECTED,
         form_answers: {
           ...managerDecision,
           ...updateRequestData,
@@ -184,9 +189,6 @@ export default function ActionButtons() {
       await saveSubmissionReview(requestBody);
       setIsCompletingReview(false);
       notify.success("Review was completed");
-      navigate({
-        to: `/staff/projects/${projectId}`,
-      });
     } catch (error) {
       setIsCompletingReview(false);
       trigger();
@@ -204,6 +206,7 @@ export default function ActionButtons() {
       [
         SUBMISSION_REVIEW_STATUS.REJECTED,
         SUBMISSION_REVIEW_STATUS.APPROVED,
+        SUBMISSION_REVIEW_STATUS.REVISION_REQUIRED,
       ].includes(submissionReview.status)
     ) {
       return true;

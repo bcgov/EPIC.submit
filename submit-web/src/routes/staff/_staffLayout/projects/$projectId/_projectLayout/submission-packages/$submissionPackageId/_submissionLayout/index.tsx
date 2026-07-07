@@ -224,7 +224,12 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <When condition={Boolean(isLatestApprovedPackageVersion)}>
+              <When
+                condition={
+                  submissionPackage.enforceable ||
+                  Boolean(isLatestApprovedPackageVersion)
+                }
+              >
                 <SuccessBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
