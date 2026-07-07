@@ -12,7 +12,7 @@
  * - No action buttons (onAcceptUpdate/onWithdrawUpdate not used)
  */
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography } from "@mui/material";
+import { Box, TextField, Button, Typography, Tooltip } from "@mui/material";
 import { StatusChip } from "@/components/Shared/StatusChip";
 import CloseIcon from "@mui/icons-material/Close";
 import { SentRequest } from "./types";
@@ -21,6 +21,7 @@ import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import ActionSplitButton from "@/components/Shared/ActionSplitButton/ActionSplitButton";
 import { UpdateRequestAccordion } from "./UpdateRequestAccordion";
 import { useUpdatePackageUpdateRequestNote, useCreatePackageUpdateRequesNote } from "@/hooks/api/usePackages";
+import { useAccount } from "@/store/accountStore";
 
 interface SentRequestCollapsibleProps {
   request: SentRequest;
@@ -32,6 +33,7 @@ interface SentRequestCollapsibleProps {
   isLoading?: boolean; // Loading state for save operation
   packageId: number; // Required for API calls
   isProponentView?: boolean; // PROPONENT: Show notes even when status is OPEN
+  isGISRequest?: boolean; // Whether this update request is for GIS documents
 }
 
 export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
@@ -44,10 +46,18 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   isLoading = false,
   packageId,
   isProponentView = false,
+  isGISRequest = false,
 }) => {
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(request.note || "");
   const maxNoteLength = 500;
+  const { roles } = useAccount();
+  
+  // Check if user has GIS permissions
+  const hasGISPermissions = roles?.includes('gis_extended_edit') || roles?.includes('full_access');
+  
+  // Determine if actions should be disabled for GIS requests
+  const isActionDisabled = isGISRequest && !hasGISPermissions;
 
   // Hooks for note operations
   const { mutate: createUpdateRequestNote, isPending: isCreatingNote } =
@@ -100,14 +110,29 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
             }}
           />
           {onWithdrawUpdate && (
-            <ActionSplitButton
-              primaryAction={{
-                label: "Withdraw Update",
-                onClick: handleWithdrawUpdate,
-                icon: <CloseIcon sx={{ fontSize: 13 }} />,
-              }}
-              secondaryActions={[]}
-            />
+            isActionDisabled ? (
+              <Tooltip title="Your current role does not allow you to perform this action">
+                <Box sx={{ opacity: 0.5, pointerEvents: "none" }}>
+                  <ActionSplitButton
+                    primaryAction={{
+                      label: "Withdraw Update",
+                      onClick: () => {},
+                      icon: <CloseIcon sx={{ fontSize: 13 }} />,
+                    }}
+                    secondaryActions={[]}
+                  />
+                </Box>
+              </Tooltip>
+            ) : (
+              <ActionSplitButton
+                primaryAction={{
+                  label: "Withdraw Update",
+                  onClick: handleWithdrawUpdate,
+                  icon: <CloseIcon sx={{ fontSize: 13 }} />,
+                }}
+                secondaryActions={[]}
+              />
+            )
           )}
         </>
       )}
@@ -123,13 +148,27 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
             }}
           />
           {onAcceptUpdate && (
-            <ActionSplitButton
-              primaryAction={{
-                label: "Accept Update",
-                onClick: handleAcceptUpdate,
-              }}
-              secondaryActions={[]}
-            />
+            isActionDisabled ? (
+              <Tooltip title="Your current role does not allow you to perform this action">
+                <Box sx={{ opacity: 0.5, pointerEvents: "none" }}>
+                  <ActionSplitButton
+                    primaryAction={{
+                      label: "Accept Update",
+                      onClick: () => {},
+                    }}
+                    secondaryActions={[]}
+                  />
+                </Box>
+              </Tooltip>
+            ) : (
+              <ActionSplitButton
+                primaryAction={{
+                  label: "Accept Update",
+                  onClick: handleAcceptUpdate,
+                }}
+                secondaryActions={[]}
+              />
+            )
           )}
         </>
       )}

@@ -38,8 +38,10 @@ interface MapPreviewModalProps {
   fileSizeKb?: number;
   status?: string;
   errorMessage?: string;
-  onApprove: () => void;
-  onReject: () => Promise<void>;
+  onApprove?: () => void;
+  onReject?: () => Promise<void>;
+  onClose?: () => void;
+  previewOnly?: boolean;
 }
 
 export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
@@ -51,6 +53,8 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   errorMessage,
   onApprove,
   onReject,
+  onClose,
+  previewOnly = false,
 }) => {
   const mapRef = useRef<MapRef>(null);
   const [loading, setLoading] = useState(false);
@@ -158,6 +162,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   const isProcessing = status === "processing" || (!uploadId && open);
 
   const handleReject = async () => {
+    if (!onReject) return;
     setIsRejecting(true);
     try {
       await onReject();
@@ -551,23 +556,35 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
       </DialogContent>
       <Divider />
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <LoadingButton
-          color="secondary"
-          onClick={handleReject}
-          loading={isRejecting}
-          disabled={isProcessing}
-          sx={{ minWidth: "120px" }}
-        >
-          Reject
-        </LoadingButton>
-        <Button
-          variant="contained"
-          onClick={onApprove}
-          disabled={isProcessing || status === "failed" || status === "validation_failed"}
-          sx={{ minWidth: "120px" }}
-        >
-          Approve
-        </Button>
+        {previewOnly ? (
+          <Button
+            variant="contained"
+            onClick={onClose}
+            sx={{ minWidth: "120px" }}
+          >
+            Close
+          </Button>
+        ) : (
+          <>
+            <LoadingButton
+              color="secondary"
+              onClick={handleReject}
+              loading={isRejecting}
+              disabled={isProcessing}
+              sx={{ minWidth: "120px" }}
+            >
+              Reject
+            </LoadingButton>
+            <Button
+              variant="contained"
+              onClick={onApprove}
+              disabled={isProcessing || status === "failed" || status === "validation_failed"}
+              sx={{ minWidth: "120px" }}
+            >
+              Approve
+            </Button>
+          </>
+        )}
       </DialogActions>
     </Dialog>
   );

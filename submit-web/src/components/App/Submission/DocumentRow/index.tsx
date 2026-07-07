@@ -12,7 +12,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckIcon from "@mui/icons-material/Check";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import UndoIcon from "@mui/icons-material/Undo";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { SubmissionPackage, PackageType } from "@/models/Package";
@@ -23,10 +22,10 @@ import ActionSplitButton, {
 import { BCDesignTokens } from "epic.theme";
 import { useDocumentRow } from "@/hooks/useDocumentRow";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { useState } from "react";
 import { useAccount } from "@/store/accountStore";
 import { lazy, Suspense } from "react";
+import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import { useGetGeoUploads } from "@/hooks/api/useGeo";
 
 const MapPreviewModal = lazy(() =>
@@ -56,8 +55,8 @@ export default function DocumentRow({
   const name = submitted_document?.name || "";
   const { roles } = useAccount();
   
-  // Check if this is a GIS document
-  const isGISDocument = submitted_document?.folder === S3_FOLDER.GEOSPATIAL.value;
+  // Check if this is a GIS document (item type name "Geospatial Information")
+  const isGISDocument = submissionItem.type.name === GIS_ITEM_TYPE_NAME;
   
   // Get the correct package-specific roles (include document folder for GIS handling)
   const packageRoles = usePackageRoles(submissionPackage, packageType, submitted_document?.folder);
@@ -177,7 +176,7 @@ export default function DocumentRow({
         ]}
       >
         <SubmitTableCell width={"45%"}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
             <Typography
               variant="body1"
               color="inherit"
@@ -204,15 +203,27 @@ export default function DocumentRow({
                 />
               )}
             </Typography>
-            {isGISDocument && (
+            {isGISDocument && staff && (
               <Button
+                variant="outlined"
                 size="small"
-                startIcon={<VisibilityIcon />}
                 onClick={() => setShowPreviewModal(true)}
                 sx={{ 
-                  minWidth: "auto", 
-                  fontSize: "0.75rem",
-                  textTransform: "none"
+                  minWidth: "auto",
+                  fontSize: "12px",
+                  lineHeight: "18px",
+                  textTransform: "none",
+                  color: "#003366",
+                  borderColor: "#003366",
+                  borderRadius: "3px",
+                  padding: "4px 12px",
+                  fontFamily: "BC Sans",
+                  fontWeight: 400,
+                  whiteSpace: "nowrap",
+                  "&:hover": {
+                    borderColor: "#003366",
+                    backgroundColor: "rgba(0, 51, 102, 0.04)",
+                  }
                 }}
               >
                 Preview GIS File
@@ -368,8 +379,8 @@ export default function DocumentRow({
             fileSizeKb={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.file_size_kb}
             status={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.status}
             errorMessage={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.error_message}
-            onApprove={() => {}} // No approve action needed for preview
-            onReject={async () => {}} // No reject action needed for preview
+            previewOnly={true}
+            onClose={() => setShowPreviewModal(false)}
           />
         </Suspense>
       )}

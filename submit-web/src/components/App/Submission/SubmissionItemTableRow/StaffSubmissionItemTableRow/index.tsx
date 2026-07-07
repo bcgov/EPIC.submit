@@ -4,6 +4,7 @@ import {
   TableCell,
   TableRow,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
@@ -24,6 +25,9 @@ import SubmissionItemReviewConfirmation from "@/components/App/Submission/Submis
 import DocumentRow from "@/components/App/Submission/DocumentRow";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
+import { useAccount } from "@/store/accountStore";
+import { usePackageRoles } from "@/hooks/usePackageRoles";
+import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -46,6 +50,8 @@ export default function StaffSubmissionItemTableRow({
   const { submissions, id } = item;
 
   const { submitted_on } = submissionPackage;
+  const { roles } = useAccount();
+  
   const name = useMemo(() => {
     return getSubmissionItemLabel(item.type.name);
   }, [item.type.name]);
@@ -75,6 +81,26 @@ export default function StaffSubmissionItemTableRow({
     const endStatuses: string[] = ['APPROVED', 'ACCEPTED', 'REJECTED', 'NOT_APPROVED'];
     return endStatuses.some(status => submissionPackage.status?.includes(status as any));
   }, [submissionPackage.status]);
+
+  // Check if this submission item is GIS (Geospatial Information)
+  const isGISItem = item.type.name === GIS_ITEM_TYPE_NAME;
+
+  // Get the appropriate roles for this package type
+  const packageRoles = usePackageRoles(submissionPackage, packageType);
+  
+  // Check if user has the appropriate create role for this package type
+  const hasPackageCreateRole = roles?.includes(packageRoles.create);
+  
+  // Check if user has GIS permissions
+  const hasGISPermissions = roles?.includes('gis_extended_edit') || roles?.includes('full_access');
+
+  // Determine if Request Update should be shown
+  // For GIS items: show if user has GIS permissions
+  // For non-GIS items: show if user has the appropriate package create role (mp_create, w_create, etc.)
+  const shouldShowRequestUpdate = isGISItem ? hasGISPermissions : hasPackageCreateRole;
+  
+  // Determine if Request Update should be disabled (for GIS items without GIS permissions)
+  const isRequestUpdateDisabled = isGISItem && !hasGISPermissions;
 
   const handleClick = () => {
     navigate({
@@ -151,34 +177,57 @@ export default function StaffSubmissionItemTableRow({
             </When>
             <When
               condition={Boolean(
-                hasDocument && submitted_on && onRequestUpdate && !isPackageInEndStatus,
+                hasDocument && submitted_on && onRequestUpdate && !isPackageInEndStatus && shouldShowRequestUpdate,
               )}
             >
-              <MuiLink
-                component="button"
-                onClick={() => onRequestUpdate?.(item.type_id, item.type.name)}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  color: BCDesignTokens.typographyColorLink,
-                  fontSize: "14px",
-                  textDecoration: "none",
-                  textAlign: "left",
-                  "&:hover": {
-                    textDecoration: "underline",
-                    cursor: "pointer",
-                  },
-                }}
-              >
-                <RefreshIcon
+              {isRequestUpdateDisabled ? (
+                <Tooltip title="Your current role does not allow you to perform this action">
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      color: BCDesignTokens.typographyColorPlaceholder,
+                      fontSize: "14px",
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    <RefreshIcon
+                      sx={{
+                        fontSize: "16px",
+                        color: BCDesignTokens.typographyColorPlaceholder,
+                      }}
+                    />
+                    Request Update
+                  </Box>
+                </Tooltip>
+              ) : (
+                <MuiLink
+                  component="button"
+                  onClick={() => onRequestUpdate?.(item.type_id, item.type.name)}
                   sx={{
-                    fontSize: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
                     color: BCDesignTokens.typographyColorLink,
+                    fontSize: "14px",
+                    textDecoration: "none",
+                    textAlign: "left",
+                    "&:hover": {
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                    },
                   }}
-                />
-                Request Update
-              </MuiLink>
+                >
+                  <RefreshIcon
+                    sx={{
+                      fontSize: "16px",
+                      color: BCDesignTokens.typographyColorLink,
+                    }}
+                  />
+                  Request Update
+                </MuiLink>
+              )}
             </When>
           </Box>
         </SubmitPrimaryRowTableCell>

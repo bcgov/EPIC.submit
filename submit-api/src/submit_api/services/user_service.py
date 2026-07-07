@@ -66,8 +66,6 @@ class UserService:
     @classmethod
     def _auto_provision_staff_user(cls, _guid, token_info):
         """Auto-provision a staff user from token info."""
-        from submit_api.models import db
-        
         email = token_info.get('email')
         given_name = token_info.get('given_name')
         family_name = token_info.get('family_name')

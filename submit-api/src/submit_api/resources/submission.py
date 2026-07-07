@@ -25,6 +25,7 @@ from submit_api.models import Submission as SubmissionModel
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.submission import CreateSubmissionRequestSchema, SubmissionSchema, UpdateSubmissionStatusSchema
 from submit_api.services.authorization import has_gis_extended_edit_role
+from submit_api.utils.constants import GIS_ITEM_TYPE_NAME
 from submit_api.services.package_access_control import PackageAccessControl
 from submit_api.services.submission import SubmissionService
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -236,14 +237,16 @@ class SubmissionUpdateStatus(Resource):
         submission = SubmissionModel.find_by_id(submission_id)
         if not submission:
             abort(HTTPStatus.NOT_FOUND, "Submission not found")
-        
-        # Check if this is a GIS document and validate GIS role
-        if (submission.submitted_document and 
-            submission.submitted_document.folder == 'geospatial'):
+        # Check if this is a GIS document (item type name "Geospatial Information") and validate GIS role
+        if (
+            submission.item
+            and submission.item.type
+            and submission.item.type.name == GIS_ITEM_TYPE_NAME
+        ):
             # For GIS documents, user must have GIS extended edit role or full access
             if not has_gis_extended_edit_role():
                 abort(HTTPStatus.FORBIDDEN, "GIS extended edit role required for GIS documents")
-        
+
         edit_submission_data = UpdateSubmissionStatusSchema().load(API.payload)
         status = edit_submission_data.get("status")
         edited_submission = SubmissionService.update_submission_status(submission_id, status)

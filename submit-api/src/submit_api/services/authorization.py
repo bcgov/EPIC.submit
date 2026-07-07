@@ -134,7 +134,7 @@ def has_gis_extended_edit_role(user_roles=None):
     if user_roles is None:
         # Check current user's roles via JWT
         return jwt.contains_role([EpicSubmitRole.GIS_EXTENDED_EDIT.value, EpicSubmitRole.FULL_ACCESS.value])
-    
+
     # Check provided roles list
     return EpicSubmitRole.GIS_EXTENDED_EDIT.value in user_roles or EpicSubmitRole.FULL_ACCESS.value in user_roles
 
