@@ -52,6 +52,7 @@ export default function ActionSplitButton({
           textTransform: "none",
           px: 1.5,
           borderRadius: "3px",
+          backgroundColor: "#fff",
           "&:hover": {
             backgroundColor: "rgba(0, 51, 102, 0.06)",
             borderColor: "#036",

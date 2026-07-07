@@ -50,12 +50,12 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   const maxNoteLength = 500;
 
   // Hooks for note operations
-  const { mutate: createUpdateRequestNote, isPending: isCreatingNote } = 
+  const { mutate: createUpdateRequestNote, isPending: isCreatingNote } =
     useCreatePackageUpdateRequesNote({
       packageId,
     });
-  
-  const { mutate: updateUpdateRequestNote, isPending: isUpdatingNote } = 
+
+  const { mutate: updateUpdateRequestNote, isPending: isUpdatingNote } =
     useUpdatePackageUpdateRequestNote({
       packageId,
     });
