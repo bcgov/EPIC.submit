@@ -111,7 +111,7 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="center" width={"20%"}>
-          <Box mr={2} display={"flex"} justifyContent={"flex-end"}>
+          <Box ml={1} display={"flex"} justifyContent={"flex-start"}>
             <SubmissionStatusChipStack
               status={item.status}
               isFlaggedForUpdate={hasPendingRequest}

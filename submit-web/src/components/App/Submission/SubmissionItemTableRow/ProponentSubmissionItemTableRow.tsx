@@ -73,7 +73,7 @@ export default function ProponentSubmissionItemTableRow({
   }, [submissionPackage]);
 
   const isPackagedReachedEnd = useMemo(() => {
-    return submissionPackage?.status.includes(PACKAGE_STATUS.APPROVED.value) || 
+    return submissionPackage?.status.includes(PACKAGE_STATUS.APPROVED.value) ||
       submissionPackage?.status.includes(PACKAGE_STATUS.REJECTED.value) ||
       submissionPackage?.status.includes(PACKAGE_STATUS.NOT_APPROVED.value) ||
       submissionPackage?.status.includes(PACKAGE_STATUS.ACCEPTED.value);
@@ -90,10 +90,10 @@ export default function ProponentSubmissionItemTableRow({
     );
   }, [item.submissions]);
   const showActionLabels = useMemo(() => {
-    return !isPackagedReachedEnd && (isFormSubmission || 
-              !submissionPackage?.submitted_on ||
-              (isPackageAcknowledged && hasOpenUpdateRequest)||
-            !isPackageAcknowledged)
+    return !isPackagedReachedEnd && (isFormSubmission ||
+      !submissionPackage?.submitted_on ||
+      (isPackageAcknowledged && hasOpenUpdateRequest) ||
+      !isPackageAcknowledged)
   }, [hasOpenUpdateRequest, isPackageAcknowledged, isFormSubmission, submissionPackage, isPackagedReachedEnd]);
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
@@ -129,7 +129,7 @@ export default function ProponentSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-          <Box mr={2}>
+          <Box ml={1} display={"flex"} justifyContent={"flex-start"}>
             <SubmissionStatusChipStack
               status={status}
               isUpdateRequested={hasOpenUpdateRequest}
