@@ -159,7 +159,7 @@ export default function DocumentRow({
   };
 
   const splitButtonConfig =
-    submissionPackage?.account_project_work || isAdditionalInfo
+    staff && (submissionPackage?.account_project_work || isAdditionalInfo)
       ? getVerifyModeSplitButton()
       : null;
 
