@@ -51,10 +51,10 @@ export default function RouterProviderWithAuthContext({
   }, [authentication, router, setAccount]);
 
   useEffect(() => {
-    if (authentication.isAuthenticated && authentication.user?.profile.preferred_username) {
+    if (authentication.isAuthenticated && authentication.user) {
       getAccountData();
     }
-  }, [authentication.isAuthenticated, authentication.user?.profile.preferred_username, getAccountData]);
+  }, [authentication.isAuthenticated, authentication.user, getAccountData]);
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
