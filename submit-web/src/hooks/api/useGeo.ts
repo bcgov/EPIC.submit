@@ -18,6 +18,7 @@ export interface GeoUpload {
   file_type: string;
   file_size_kb: number;
   status: string;
+  is_approved: boolean;
   feature_count?: number;
   geometry_type?: string;
   crs_original?: string;
@@ -90,6 +91,30 @@ export const useRetryGeoUpload = (options?: Options) => {
 const retryGeoUpload = (uploadId: number) => {
   return submitRequest<GeoUpload>({
     url: `/geo/uploads/${uploadId}/retry`,
+    method: "post",
+  });
+};
+
+/**
+ * Hook to approve a processed geospatial upload.
+ */
+export const useApproveGeoUpload = (options?: Options) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (uploadId: number) => approveGeoUpload(uploadId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEY.GEO_UPLOADS] });
+      if (options?.onSuccess) {
+        options.onSuccess(data);
+      }
+    },
+    ...options,
+  });
+};
+
+const approveGeoUpload = (uploadId: number) => {
+  return submitRequest<GeoUpload>({
+    url: `/geo/uploads/${uploadId}/approve`,
     method: "post",
   });
 };
