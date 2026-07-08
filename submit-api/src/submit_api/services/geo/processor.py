@@ -406,7 +406,7 @@ class GeoService:
     # -- CRUD ----------------------------------------------------------------
 
     @classmethod
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,R0917
     def create_upload(cls, app, filename: str, file_type: str, file_size_kb: float, s3_key: str) -> GeoDataUpload:
         """Create a GeoDataUpload record and kick off background processing."""
         if file_type not in ("shp", "zip"):

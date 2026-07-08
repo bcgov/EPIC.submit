@@ -10,7 +10,8 @@ export type EpicSubmitRole =
   | "w_view"
   | "w_edit"
   | "w_create"
-  | "w_extended_edit";
+  | "w_extended_edit"
+  | "gis_extended_edit";
 
 export const EPIC_SUBMIT_ROLE = Object.freeze<
   Record<EpicSubmitRole, EpicSubmitRole>
@@ -27,6 +28,7 @@ export const EPIC_SUBMIT_ROLE = Object.freeze<
   w_edit: "w_edit",
   w_create: "w_create",
   w_extended_edit: "w_extended_edit",
+  gis_extended_edit: "gis_extended_edit",
 });
 
 export enum USER_MANAGEMENT_ROLE {

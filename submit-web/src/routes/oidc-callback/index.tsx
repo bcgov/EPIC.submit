@@ -1,9 +1,7 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { HTTP_STATUS } from "@/utils/constants";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback/")({
@@ -24,15 +22,7 @@ function OidcCallback() {
     isLoading: isAuthLoading,
   } = useAuth();
 
-  const needsSignout = account?.error?.status === HTTP_STATUS.NOT_FOUND;
-
-  useEffect(() => {
-    if (needsSignout) {
-      signoutRedirect({
-        post_logout_redirect_uri: `${window.location.origin}/need-access`,
-      });
-    }
-  }, [needsSignout, signoutRedirect]);
+  const needsSignout = account?.error?.status === 404;
 
   if (account.isLoading || isAuthLoading) {
     return <PageLoader />;
@@ -54,6 +44,9 @@ function OidcCallback() {
   }
 
   if (needsSignout) {
+    signoutRedirect({
+      post_logout_redirect_uri: `${window.location.origin}/need-access`,
+    });
     return <PageLoader />;
   }
 

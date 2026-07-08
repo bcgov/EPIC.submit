@@ -36,7 +36,8 @@ class TrackWork(BaseModel):
         foreign_keys='StaffUserWork.work_id',
         lazy='select',
         cascade='all, delete',
-        passive_deletes=True
+        passive_deletes=True,
+        back_populates='work'
     )
 
     __table_args__ = (

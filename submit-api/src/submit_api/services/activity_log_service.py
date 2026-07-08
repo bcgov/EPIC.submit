@@ -18,7 +18,7 @@ class ActivityLogService:
     """Service class for handling activity log operations."""
 
     @staticmethod
-    def log_activity(  # pylint: disable=too-many-arguments
+    def log_activity(  # pylint: disable=too-many-arguments,R0917
             entity_id: int,
             action: str,
             actor_id: str = '',
@@ -69,7 +69,7 @@ class ActivityLogService:
         return logs
 
     @staticmethod
-    def _create_activity_log_object(  # pylint: disable=too-many-arguments
+    def _create_activity_log_object(  # pylint: disable=too-many-arguments,R0917
             entity_type, entity_id, entity_version, action, actor_id, actor_type, visibility
     ) -> ActivityLog:
         """Creates an ActivityLog object without adding it to a session."""

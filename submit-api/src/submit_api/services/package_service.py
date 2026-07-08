@@ -31,10 +31,12 @@ from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
 from submit_api.services import authorization
+from submit_api.services.authorization import has_gis_extended_edit_role
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
-    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE)
+    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
+    GIS_ITEM_TYPE_NAME)
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_version_service import PackageVersionService
 
@@ -709,6 +711,10 @@ class PackageService:
             package = cls.get_package_by_id(package_id)
             update_request = UpdateRequestModel.find_by_id(update_request_id)
             cls._validate_accept_update_request(package, update_request)
+
+            # Validate GIS role if update request is for GIS documents
+            cls._validate_gis_role_for_existing_update_request(package, update_request)
+
             update_request = UpdateRequestModel.find_by_id(update_request_id)
             update_request.status = UpdateRequestStatus.ACCEPTED.value
             update_request.active = False
@@ -723,6 +729,10 @@ class PackageService:
             package = cls.get_package_by_id(package_id)
             update_request = UpdateRequestModel.find_by_id(update_request_id)
             cls._validate_withdraw_update_request(package, update_request)
+
+            # Validate GIS role if update request is for GIS documents
+            cls._validate_gis_role_for_existing_update_request(package, update_request)
+
             update_request = UpdateRequestModel.find_by_id(update_request_id)
             update_request.status = UpdateRequestStatus.CLOSED.value
             update_request.active = False
@@ -1114,6 +1124,10 @@ class PackageService:
     def create_update_request(cls, package_id, request_data):
         """Create an update request for the package."""
         package = cls._get_and_validate_package_for_update_request(package_id)
+
+        # Validate GIS role if update request is for GIS documents
+        cls._validate_gis_role_for_update_request(package, request_data)
+
         cls._create_update_request(package, request_data)
         cls._log_activity_update_request(package)
         cls._update_request_creation_email_queue(package.id)
@@ -1185,6 +1199,44 @@ class PackageService:
             raise BadRequestError(
                 "Cannot create a review for a package that has been rejected")
         return package
+
+    @classmethod
+    def _validate_gis_role_for_update_request(cls, package, request_data):
+        """Validate GIS role if update request is for GIS documents."""
+        submission_item_types = request_data.get("submission_item_types", [])
+
+        # Check if any of the submission items contain GIS documents
+        is_gis_update_request = cls._is_gis_update_request(package, submission_item_types)
+
+        if is_gis_update_request:
+            # For GIS documents, user must have GIS extended edit role or full access
+            if not has_gis_extended_edit_role():
+                raise BadRequestError("GIS extended edit role required for GIS document update requests")
+
+    @classmethod
+    def _is_gis_update_request(cls, package, submission_item_types):
+        """Check if update request is for GIS documents.
+
+        GIS documents are identified by item type name 'Geospatial Information'.
+        """
+        # Get all items for the specified item types
+        for item in package.items:
+            if item.type_id in submission_item_types:
+                # Check if this item type is Geospatial Information
+                if item.type and item.type.name == GIS_ITEM_TYPE_NAME:
+                    return True
+        return False
+
+    @classmethod
+    def _validate_gis_role_for_existing_update_request(cls, package, update_request):
+        """Validate GIS role for existing update request (accept/withdraw operations)."""
+        # Check if the update request is for GIS documents
+        is_gis_update_request = cls._is_gis_update_request(package, update_request.submission_item_types)
+
+        if is_gis_update_request:
+            # For GIS documents, user must have GIS extended edit role or full access
+            if not has_gis_extended_edit_role():
+                raise BadRequestError("GIS extended edit role required for GIS document update requests")
 
     @classmethod
     def create_update_request_note(cls, package_id, update_request_id, request_data):

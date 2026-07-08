@@ -35,3 +35,6 @@ class EpicSubmitRole(Enum):
     W_EDIT = "w_edit"
     W_CREATE = "w_create"
     W_EXTENDED_EDIT = "w_extended_edit"
+
+    # GIS role
+    GIS_EXTENDED_EDIT = "gis_extended_edit"
