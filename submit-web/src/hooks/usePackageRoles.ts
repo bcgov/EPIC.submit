@@ -1,18 +1,32 @@
 import { useMemo } from "react";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { SubmissionPackage, PackageType } from "@/models/Package";
+import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 
 /**
  * Hook to determine the correct package-specific roles based on package type.
  * Returns the appropriate MP_* or W_* roles for the given package.
+ * For GIS documents, includes GIS role handling.
  */
 export const usePackageRoles = (
   submissionPackage?: SubmissionPackage,
-  packageType?: PackageType
+  packageType?: PackageType,
+  documentFolder?: string
 ) => {
   const actualPackageType = packageType || submissionPackage?.type;
+  const isGISDocument = documentFolder === S3_FOLDER.GEOSPATIAL.value;
 
   return useMemo(() => {
+    // For GIS documents, use GIS role + full_access
+    if (isGISDocument) {
+      return {
+        view: EPIC_SUBMIT_ROLE.gis_extended_edit,
+        edit: EPIC_SUBMIT_ROLE.gis_extended_edit,
+        create: EPIC_SUBMIT_ROLE.gis_extended_edit,
+        approve: EPIC_SUBMIT_ROLE.gis_extended_edit,
+      };
+    }
+
     // Determine if this is a work package or MP-type package
     const isWorkPackage = submissionPackage?.account_project_work != null;
     
@@ -46,5 +60,5 @@ export const usePackageRoles = (
         approve: EPIC_SUBMIT_ROLE.eao_edit, // No EAO approve role
       };
     }
-  }, [submissionPackage?.account_project_work, actualPackageType?.name]);
+  }, [submissionPackage?.account_project_work, actualPackageType?.name, isGISDocument]);
 };

@@ -46,7 +46,7 @@ class StaffUserWork(BaseModel):
         lazy='joined',
         back_populates='work_assignments')
 
-    work = db.relationship('TrackWork', foreign_keys=[work_id], lazy='joined')
+    work = db.relationship('TrackWork', foreign_keys=[work_id], lazy='joined', back_populates='staff_assignments')
 
     @classmethod
     def find_by_staff_user_id(cls, staff_user_id: int):

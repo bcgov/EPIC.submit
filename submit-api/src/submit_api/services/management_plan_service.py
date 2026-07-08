@@ -159,6 +159,29 @@ class ManagementPlanService:
             f"Management plan form approved for item {item.id}.")
         return item
 
+    @classmethod
+    def require_revision_management_plan(cls, item, session):
+        """Require revision for management plan."""
+        package = PackageModel.find_by_id(item.package_id)
+        cls.update_item_status_mp_revision_required(item)
+        package.enforceable = True
+        session.add(package)
+        session.flush()
+        current_app.logger.info(
+            f"Management plan form requires revision for item {item.id}.")
+        return item
+
+    @classmethod
+    def update_item_status_mp_revision_required(cls, item):
+        """Update the status and review date of the item for revision required."""
+        current_app.logger.info(
+            f"Requiring revision for management plan form for item {item.id}.")
+        item.status = ItemStatus.REVISION_REQUIRED
+        reviewed_on = datetime.now(UTC)
+        item.reviewed_on = reviewed_on
+        current_app.logger.info(
+            f"Management plan form requires revision for item {item.id}.")
+
     @staticmethod
     def get_package_submitted_to_eao_for(package):
         """Get the condition from the package."""

@@ -131,6 +131,8 @@ class SubmissionReviewService:
             cls.reject_submission(review.item_id, session)
         elif review.status == SubmissionReviewStatus.PENDING_MANAGER_REVIEW.value:
             cls.send_recommendation_to_manager(review.item_id, session)
+        elif review.status == SubmissionReviewStatus.REVISION_REQUIRED.value:
+            cls.revision_required_on_submission(review.item_id, session)
 
     @classmethod
     def send_recommendation_to_manager(cls, item_id, session):
@@ -281,6 +283,30 @@ class SubmissionReviewService:
             }
         )
         current_app.logger.debug(f"Rejection processor retrieved for item {item.id} of type {item_type}")
+        return status_processor_map[item_type]
+
+    @classmethod
+    def revision_required_on_submission(cls, item_id, session):
+        """Revision required on submission item."""
+        item = ItemModel.find_by_id(item_id)
+        revision_required_processor = cls._get_submission_item_revision_required_processor(item)
+        revision_required_processor(item, session)
+        cls._update_package_status(item.package_id, session)
+        cls._update_item_submissions_status(SubmissionStatus.REVISION_REQUIRED, session, item=item)
+        current_app.logger.info(f"Submission item {item.id} marked for revision.")
+        return item
+
+    @classmethod
+    def _get_submission_item_revision_required_processor(cls, item: ItemModel) -> callable:
+        """Get submission item revision required processor."""
+        item_type = item.type.name
+        status_processor_map = defaultdict(
+            lambda: cls._unsupported_submission_item_type,
+            {
+                SubmissionItemType.MANAGEMENT_PLAN_FORM.value: ManagementPlanService.require_revision_management_plan,
+            }
+        )
+        current_app.logger.debug(f"Revision required processor retrieved for item {item.id} of type {item_type}")
         return status_processor_map[item_type]
 
     @staticmethod

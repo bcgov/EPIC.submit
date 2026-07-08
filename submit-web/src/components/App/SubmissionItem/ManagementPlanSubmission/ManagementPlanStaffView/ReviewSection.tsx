@@ -9,8 +9,6 @@ import { BCDesignTokens } from "epic.theme";
 import { useForm, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import ControlledRadioGroup from "@/components/Shared/ControlledFormFields/ControlledRadioGroup";
-import { SubmitRadio } from "@/components/Shared/SubmitRadio";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { SubmissionItem } from "@/models/SubmissionItem";
@@ -29,7 +27,7 @@ import {
   checkIfManager,
   checkIfStaff,
 } from "@/components/Shared/PermissionGate/utils";
-import { managementPlanReviewSchema, RadioOptions } from "./constants";
+import { managementPlanReviewSchema, DropdownOptions } from "./constants";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import ActionButtons from "./ActionButtons";
@@ -38,6 +36,7 @@ import { When } from "react-if";
 import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
 import { NotificationBox } from "./NotificationBox";
 import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
+import ControlledSelect from "@/components/Shared/ControlledFormFields/ControlledSelect";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema
@@ -114,16 +113,31 @@ export default function ReviewSection() {
   const managerAnswer = watch("manager.passedReview");
 
   const failedManagementPlan =
-    managerAnswer === RadioOptions.NO.value ||
-    (staffAnswer === RadioOptions.NO.value &&
-      managerAnswer !== RadioOptions.YES.value);
+    managerAnswer === DropdownOptions.NO.value ||
+    (staffAnswer === DropdownOptions.NO.value &&
+      managerAnswer !== DropdownOptions.YES.value);
 
   const isFormDisabled =
     (isStaff &&
       submissionItem?.review?.status ===
-      SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
+        SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW) ||
     submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED ||
-    submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.REJECTED;
+    submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.REJECTED ||
+    submissionItem?.review?.status ===
+      SUBMISSION_REVIEW_STATUS.REVISION_REQUIRED;
+
+  const dropdownOptions = [
+    { value: DropdownOptions.YES.value, label: DropdownOptions.YES.label },
+    { value: DropdownOptions.NO.value, label: DropdownOptions.NO.label },
+    {
+      value: DropdownOptions.YES_DEFAULT.value,
+      label: DropdownOptions.YES_DEFAULT.label,
+    },
+    {
+      value: DropdownOptions.REVISION_REQUIRED.value,
+      label: DropdownOptions.REVISION_REQUIRED.label,
+    },
+  ];
 
   return (
     <Grid item container data-testid="review-section">
@@ -155,27 +169,14 @@ export default function ReviewSection() {
               Based on the above information, has the holder passed the
               Management Plan Review for the {submissionPackage?.name}?
             </Typography>
-
-            <ControlledRadioGroup
+            <ControlledSelect
               name="staff.passedReview"
-              hideError={isManager}
-            >
-              <SubmitRadio
-                label={RadioOptions.YES.label}
-                value={RadioOptions.YES.value}
-                disabled={isFormDisabled || isManager}
-              />
-              <SubmitRadio
-                label={RadioOptions.NO.label}
-                value={RadioOptions.NO.value}
-                disabled={isFormDisabled || isManager}
-              />
-              <SubmitRadio
-                label={RadioOptions.YES_DEFAULT.label}
-                value={RadioOptions.YES_DEFAULT.value}
-                disabled={isFormDisabled || isManager}
-              />
-            </ControlledRadioGroup>
+              placeholder="Select an option..."
+              options={dropdownOptions}
+              disabled={isFormDisabled || isManager}
+              clearable={false}
+              sx={{ width: "50%", mt: 1, mb: 0 }}
+            />
             <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.mp_extended_edit]}>
               <>
                 <Typography
@@ -184,23 +185,14 @@ export default function ReviewSection() {
                 >
                   MANAGER CONFIRMATION:
                 </Typography>
-                <ControlledRadioGroup name="manager.passedReview">
-                  <SubmitRadio
-                    label={RadioOptions.YES.label}
-                    value={RadioOptions.YES.value}
-                    disabled={isFormDisabled}
-                  />
-                  <SubmitRadio
-                    label={RadioOptions.NO.label}
-                    value={RadioOptions.NO.value}
-                    disabled={isFormDisabled}
-                  />
-                  <SubmitRadio
-                    label={RadioOptions.YES_DEFAULT.label}
-                    value={RadioOptions.YES_DEFAULT.value}
-                    disabled={isFormDisabled}
-                  />
-                </ControlledRadioGroup>
+                <ControlledSelect
+                  name="manager.passedReview"
+                  placeholder="Select an option..."
+                  options={dropdownOptions}
+                  disabled={isFormDisabled}
+                  clearable={false}
+                  sx={{ width: "50%", mt: 1, mb: 0 }}
+                />
               </>
             </PermissionsGate>
             <UndoTMRecommendationButton submissionItem={submissionItem} />

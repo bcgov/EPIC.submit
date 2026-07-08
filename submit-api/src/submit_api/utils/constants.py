@@ -49,6 +49,9 @@ STAFF_WORK_ROLE_KEYCLOAK_GROUPS = {
     'TEAM_MEMBER': 'SUBMIT/OPS_TEAM_MEMBER'
 }
 
+# Item type name for GIS/Geospatial submissions
+GIS_ITEM_TYPE_NAME = "Geospatial Information"
+
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_SUBJECT = 'Management Plan Submission Confirmation'
 MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'management_plan_update_request_created.html'

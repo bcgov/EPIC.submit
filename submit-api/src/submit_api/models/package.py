@@ -113,6 +113,7 @@ class Package(BaseModel):
     status = Column(db.ARRAY(Enum(PackageStatus)), nullable=False,
                     default=[PackageStatus.NEW.value])
     active = Column(db.Boolean, nullable=False, default=True)
+    enforceable = Column(db.Boolean, nullable=False, default=False)
     version_id = Column(db.Integer, ForeignKey(
         'package_versions.id'), nullable=True)
     version = db.relationship('PackageVersion', foreign_keys=[

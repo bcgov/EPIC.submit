@@ -39,9 +39,10 @@ interface MapPreviewModalProps {
   status?: string;
   errorMessage?: string;
   isApproved?: boolean;
-  onApprove: () => void;
-  onReject: () => Promise<void>;
+  onApprove?: () => void;
+  onReject?: () => Promise<void>;
   onClose?: () => void;
+  previewOnly?: boolean;
 }
 
 export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
@@ -55,6 +56,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   onApprove,
   onReject,
   onClose,
+  previewOnly,
 }) => {
   const mapRef = useRef<MapRef>(null);
   const [loading, setLoading] = useState(false);
@@ -172,6 +174,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   }, [open, isApproved]);
 
   const handleReject = async () => {
+    if (!onReject) return;
     setIsRejecting(true);
     try {
       await onReject();
@@ -332,13 +335,15 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
               </Box>
 
               {/* Alert Banner */}
-              <Box sx={{ px: 2, pb: 2 }}>
-                <Alert severity="warning" sx={{ borderRadius: "8px", backgroundColor: BCDesignTokens.supportSurfaceColorWarning }} icon={false} variant="outlined">
-                  <Typography variant="body1" fontWeight={700}>Please verify this geospatial file</Typography>
-                  Review the map preview and file information to ensure this is the correct data (correct location, using the BC Albers Projection).
-                  You must manually approve or reject each file before proceeding.
-                </Alert>
-              </Box>
+              {!previewOnly && (
+                <Box sx={{ px: 2, pb: 2 }}>
+                  <Alert severity="warning" sx={{ borderRadius: "8px", backgroundColor: BCDesignTokens.supportSurfaceColorWarning }} icon={false} variant="outlined">
+                    <Typography variant="body1" fontWeight={700}>Please verify this geospatial file</Typography>
+                    Review the map preview and file information to ensure this is the correct data (correct location, using the BC Albers Projection).
+                    You must manually approve or reject each file before proceeding.
+                  </Alert>
+                </Box>
+              )}
 
               {/* Dynamic Map Container */}
               <Box
@@ -569,16 +574,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
       </DialogContent>
       <Divider />
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <LoadingButton
-          color="secondary"
-          onClick={handleReject}
-          loading={isRejecting}
-          disabled={isProcessing}
-          sx={{ minWidth: "120px" }}
-        >
-          Reject
-        </LoadingButton>
-        {displayApproved ? (
+        {previewOnly ? (
           <Button
             onClick={onClose}
             sx={{ minWidth: "120px" }}
@@ -586,13 +582,33 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
             Close
           </Button>
         ) : (
-          <Button
-            onClick={onApprove}
-            disabled={isProcessing || status === "failed" || status === "validation_failed"}
-            sx={{ minWidth: "120px" }}
-          >
-            Approve
-          </Button>
+          <>
+            <LoadingButton
+              color="secondary"
+              onClick={handleReject}
+              loading={isRejecting}
+              disabled={isProcessing}
+              sx={{ minWidth: "120px" }}
+            >
+              Reject
+            </LoadingButton>
+            {displayApproved ? (
+              <Button
+                onClick={onClose}
+                sx={{ minWidth: "120px" }}
+              >
+                Close
+              </Button>
+            ) : (
+              <Button
+                onClick={onApprove}
+                disabled={isProcessing || status === "failed" || status === "validation_failed"}
+                sx={{ minWidth: "120px" }}
+              >
+                Approve
+              </Button>
+            )}
+          </>
         )}
       </DialogActions>
     </Dialog>

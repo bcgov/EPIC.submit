@@ -1,4 +1,4 @@
-import { Box, IconButton, TableRow, Typography } from "@mui/material";
+import { Box, IconButton, TableRow, Typography, Tooltip } from "@mui/material";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import {
@@ -23,6 +23,17 @@ import ActionSplitButton, {
 import { BCDesignTokens } from "epic.theme";
 import { useDocumentRow } from "@/hooks/useDocumentRow";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
+import { useState } from "react";
+import { useAccount } from "@/store/accountStore";
+import { lazy, Suspense } from "react";
+import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
+import { useGetGeoUploads } from "@/hooks/api/useGeo";
+
+const MapPreviewModal = lazy(() =>
+  import("@/components/App/Map/MapPreviewModal").then((m) => ({
+    default: m.MapPreviewModal,
+  })),
+);
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -43,9 +54,26 @@ export default function DocumentRow({
     documentSubmission;
   const packageType = propsPackageType || submissionPackage?.type;
   const name = submitted_document?.name || "";
+  const { roles } = useAccount();
 
-  // Get the correct package-specific roles
-  const packageRoles = usePackageRoles(submissionPackage, packageType);
+  // Check if this is a GIS document (item type name "Geospatial Information")
+  const isGISDocument = submissionItem.type.name === GIS_ITEM_TYPE_NAME;
+
+  // Get the correct package-specific roles (include document folder for GIS handling)
+  const packageRoles = usePackageRoles(submissionPackage, packageType, submitted_document?.folder);
+
+  // Check if user has GIS permissions
+  const hasGISPermissions = roles?.includes('gis_extended_edit') || roles?.includes('full_access');
+
+  // State for GIS preview modal
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  // Get geo uploads for GIS preview
+  const { data: geoUploads } = useGetGeoUploads({
+    itemId: submissionItem.id,
+    autoRefetch: false,
+  });
+  const uploads = geoUploads as any[];
 
   const {
     pendingGetObject,
@@ -188,8 +216,8 @@ export default function DocumentRow({
               url={submitted_document?.url}
               folder={submitted_document?.folder}
             />
-          </Box>
-        </SubmitTableCell>
+          </Box >
+        </SubmitTableCell >
         <SubmitTableCell align="left" width={"10%"}>
           {submitted_by || ""}
         </SubmitTableCell>
@@ -225,42 +253,90 @@ export default function DocumentRow({
             }}
           >
             {showUndoVerificationButton && (
-              <PermissionsGate scopes={[packageRoles.edit]}>
-                <Typography
-                  variant="body2"
-                  onClick={handleUndoVerification}
-                  sx={{
-                    cursor: "pointer",
-                    color: BCDesignTokens.typographyColorLink,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Undo Verification
-                </Typography>
-              </PermissionsGate>
+              isGISDocument && !hasGISPermissions ? (
+                <Tooltip title="Your current role does not allow you to perform this action">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      cursor: "not-allowed",
+                      color: BCDesignTokens.typographyColorPlaceholder,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Undo Verification
+                  </Typography>
+                </Tooltip>
+              ) : (
+                <PermissionsGate scopes={[packageRoles.edit]}>
+                  <Typography
+                    variant="body2"
+                    onClick={handleUndoVerification}
+                    sx={{
+                      cursor: "pointer",
+                      color: BCDesignTokens.typographyColorLink,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Undo Verification
+                  </Typography>
+                </PermissionsGate>
+              )
             )}
             {showUndoAcknowledgementButton && (
-              <PermissionsGate scopes={[packageRoles.edit]}>
-                <Typography
-                  variant="body2"
-                  onClick={handleUndoAcknowledge}
-                  sx={{
-                    cursor: "pointer",
-                    color: BCDesignTokens.typographyColorLink,
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  Undo Acknowledgement
-                </Typography>
-              </PermissionsGate>
+              isGISDocument && !hasGISPermissions ? (
+                <Tooltip title="Your current role does not allow you to perform this action">
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      cursor: "not-allowed",
+                      color: BCDesignTokens.typographyColorPlaceholder,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Undo Acknowledgement
+                  </Typography>
+                </Tooltip>
+              ) : (
+                <PermissionsGate scopes={[packageRoles.edit]}>
+                  <Typography
+                    variant="body2"
+                    onClick={handleUndoAcknowledge}
+                    sx={{
+                      cursor: "pointer",
+                      color: BCDesignTokens.typographyColorLink,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Undo Acknowledgement
+                  </Typography>
+                </PermissionsGate>
+              )
             )}
             {splitButtonConfig ? (
-              <PermissionsGate scopes={[packageRoles.edit]}>
-                <ActionSplitButton
-                  primaryAction={splitButtonConfig.primary}
-                  secondaryActions={splitButtonConfig.secondary}
-                />
-              </PermissionsGate>
+              isGISDocument && !hasGISPermissions ? (
+                <Tooltip title="Your current role does not allow you to perform this action">
+                  <Box>
+                    <ActionSplitButton
+                      primaryAction={{
+                        ...splitButtonConfig.primary,
+                        onClick: () => { } // Disabled click
+                      }}
+                      secondaryActions={splitButtonConfig.secondary.map(action => ({
+                        ...action,
+                        onClick: () => { } // Disabled click
+                      }))}
+                      disabled
+                    />
+                  </Box>
+                </Tooltip>
+              ) : (
+                <PermissionsGate scopes={[packageRoles.edit]}>
+                  <ActionSplitButton
+                    primaryAction={splitButtonConfig.primary}
+                    secondaryActions={splitButtonConfig.secondary}
+                  />
+                </PermissionsGate>
+              )
             ) : showDefaultActionButton ? (
               <PermissionsGate scopes={[packageRoles.edit]}>
                 <ActionButton submission={documentSubmission} />
@@ -268,7 +344,7 @@ export default function DocumentRow({
             ) : null}
           </Box>
         </SubmitTableCell>
-      </SubmitTableRow>
+      </SubmitTableRow >
       {expanded && (
         <TableRow>
           <SubmitTableCell
@@ -278,7 +354,26 @@ export default function DocumentRow({
             <DocumentsSubTable submission={documentSubmission} />
           </SubmitTableCell>
         </TableRow>
-      )}
+      )
+      }
+
+      {/* GIS Preview Modal */}
+      {
+        isGISDocument && (
+          <Suspense fallback={null}>
+            <MapPreviewModal
+              open={showPreviewModal}
+              uploadId={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.id ?? null}
+              documentItem={documentSubmission}
+              fileSizeKb={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.file_size_kb}
+              status={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.status}
+              errorMessage={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.error_message}
+              previewOnly={true}
+              onClose={() => setShowPreviewModal(false)}
+            />
+          </Suspense>
+        )
+      }
     </>
   );
 }

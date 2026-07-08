@@ -20,11 +20,13 @@ export type SplitButtonAction = {
 type ActionSplitButtonProps = Readonly<{
   primaryAction: SplitButtonAction;
   secondaryActions: SplitButtonAction[];
+  disabled?: boolean;
 }>;
 
 export default function ActionSplitButton({
   primaryAction,
   secondaryActions,
+  disabled = false,
 }: ActionSplitButtonProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -41,6 +43,7 @@ export default function ActionSplitButton({
       <Button
         variant="outlined"
         size="small"
+        disabled={disabled}
         onClick={primaryAction.onClick}
         startIcon={primaryAction.icon}
         sx={{
@@ -70,6 +73,7 @@ export default function ActionSplitButton({
         ref={anchorRef}
         variant="outlined"
         size="small"
+        disabled={disabled}
         sx={{
           height: 25,
           borderColor: "#036",

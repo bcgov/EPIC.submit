@@ -35,3 +35,6 @@ export const EXTENSION_TO_MIME_TYPE_MAP: Record<string, string[]> = {
   zip: ["application/zip", "application/x-zip-compressed"],
   shp: ["application/octet-stream"],
 };
+
+// Item type name for GIS/Geospatial submissions
+export const GIS_ITEM_TYPE_NAME = "Geospatial Information";
