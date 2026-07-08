@@ -24,7 +24,6 @@ function OidcCallback() {
   if (account.isLoading || isAuthLoading) {
     return <PageLoader />;
   }
-  console.log(account, "account");
   if (token) {
     return (
       <Navigate
@@ -39,7 +38,6 @@ function OidcCallback() {
   if (!isAuthenticated && !isAuthLoading) {
     return <Navigate to="/" />;
   }
-  console.log(isAuthenticated, "isAuthenticated");
   /** A 404 means the user authenticated (valid BCSC/BCeID) but has no account in
    the submit system yet. That is an expected state for fresh proponents*/
   const notInSystem = account?.error?.status === HTTP_STATUS.NOT_FOUND;
