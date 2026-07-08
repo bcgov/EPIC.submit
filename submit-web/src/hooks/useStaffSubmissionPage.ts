@@ -174,10 +174,11 @@ export function useStaffSubmissionPage({
     ].includes(approval_type as SubmissionPackageApprovalType);
 
   // Only users with w_extended_edit permission can approve packages
+  // GIS-only users should not be able to approve packages
   const canApprove = hasPermission({
     permissions: account.roles || [],
     scopes: [EPIC_SUBMIT_ROLE.w_extended_edit],
-  });
+  }) && !account.roles?.includes(EPIC_SUBMIT_ROLE.gis_extended_edit);
   const showApproveButtons =
     isPackageAcknowledged && 
     approval_type == SubmissionPackageApprovalType.C &&
