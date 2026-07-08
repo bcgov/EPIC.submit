@@ -26,6 +26,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
 import { useGetGeoUploads } from "@/hooks/api/useGeo";
+import { GEO_MAX_FILE_SIZE_BYTES, GEO_MAX_FILE_SIZE_MB } from "@/utils/constants";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -137,6 +138,12 @@ export default function Row({
     const ext = fileToUpload.name.split(".").pop()?.toLowerCase();
     if (isGeoSpatial && ext !== "zip" && ext !== "shp") {
       notify.error("Only .zip and .shp files are allowed for geospatial data.");
+      return;
+    }
+    if (isGeoSpatial && fileToUpload.size > GEO_MAX_FILE_SIZE_BYTES) {
+      notify.error(
+        `Geospatial files must be ${GEO_MAX_FILE_SIZE_MB} MB or smaller.`,
+      );
       return;
     }
     try {

@@ -23,12 +23,14 @@ from __future__ import annotations
 import json
 import logging
 import math
+import multiprocessing
 import os
 import tempfile
 import threading
 import zipfile
 import glob
 from datetime import datetime, timedelta, timezone
+from queue import Empty
 from typing import Any, Dict
 import pandas as pd
 import geopandas as gpd
@@ -273,6 +275,69 @@ def process_geo_file(local_path: str) -> Dict[str, Any]:
 GEO_MAX_CONCURRENT_JOBS = int(os.environ.get("GEO_MAX_CONCURRENT_JOBS", 3))
 _GEO_SEMAPHORE = threading.Semaphore(GEO_MAX_CONCURRENT_JOBS)
 
+# Hard wall-clock limit for converting a single file. A malformed or overly large
+# file can make geopandas spin indefinitely, leaving the upload stuck in
+# 'processing' forever. When exceeded, the worker process is forcibly killed and
+# the upload is marked as failed. Configurable via GEO_PROCESSING_TIMEOUT_SECONDS.
+GEO_PROCESSING_TIMEOUT_SECONDS = int(os.environ.get("GEO_PROCESSING_TIMEOUT_SECONDS", 60))
+
+
+def _process_geo_file_worker(local_path: str, result_queue: "multiprocessing.Queue") -> None:
+    """Child-process entry point: run process_geo_file and push the outcome onto the queue.
+
+    Runs in a separate process so a runaway conversion can be terminated by the
+    parent. The result dict (GeoJSON bytes + metadata) is picklable; exceptions
+    are stringified because arbitrary exception types may not be.
+    """
+    try:
+        result_queue.put(("ok", process_geo_file(local_path)))
+    except Exception as exc:  # pylint: disable=broad-except # noqa: B902
+        result_queue.put(("error", str(exc)))
+
+
+def process_geo_file_with_timeout(
+    local_path: str, timeout_seconds: int = GEO_PROCESSING_TIMEOUT_SECONDS
+) -> Dict[str, Any]:
+    """Run process_geo_file in a child process, enforcing a hard wall-clock timeout.
+
+    Raises:
+        TimeoutError: if processing exceeds ``timeout_seconds`` (the child is killed).
+        RuntimeError: if the child process fails or dies without producing a result.
+    """
+    ctx = multiprocessing.get_context()
+    result_queue: "multiprocessing.Queue" = ctx.Queue()
+    proc = ctx.Process(
+        target=_process_geo_file_worker,
+        args=(local_path, result_queue),
+        daemon=True,
+    )
+    proc.start()
+
+    try:
+        # Block until the child publishes a result or the timeout elapses. Reading
+        # from the queue before join() avoids a deadlock when the result is large.
+        status, payload = result_queue.get(timeout=timeout_seconds)
+    except Empty as exc:
+        logger.warning(
+            "Geospatial processing exceeded %ss for %s; terminating worker process.",
+            timeout_seconds, local_path,
+        )
+        proc.terminate()
+        proc.join(timeout=5)
+        if proc.is_alive():
+            proc.kill()
+        raise TimeoutError(
+            f"Processing timed out after {timeout_seconds} seconds and was stopped."
+        ) from exc
+    finally:
+        result_queue.close()
+
+    proc.join(timeout=5)
+
+    if status == "error":
+        raise RuntimeError(payload)
+    return payload
+
 
 class GeoService:
     """Service class for geospatial upload management."""
@@ -377,7 +442,7 @@ class GeoService:
                         if not cls._validate_or_fail(upload, local_path):
                             return
 
-                        result = process_geo_file(local_path)
+                        result = process_geo_file_with_timeout(local_path)
                         cls._upload_processed_tiers(upload, result)
 
                     metadata = result["metadata"]

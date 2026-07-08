@@ -40,6 +40,7 @@ from submit_api.services.geo.validation_rules import (
     FIELD_MAP,
     MAX_ERRORS,
     NULLABLE_FIELDS,
+    OPTIONAL_FIELDS,
     VALIDATE_VALUES,
 )
 
@@ -120,7 +121,7 @@ def validate_shapefile(shp_path: str) -> _Result:
                 "message": f"Required column '{dbf_col}' is absent from the shapefile schema.",
             }
             for logical, dbf_col in FIELD_MAP.items()
-            if dbf_col not in schema_props
+            if logical not in OPTIONAL_FIELDS and dbf_col not in schema_props
         ]
         if missing:
             return False, missing, {

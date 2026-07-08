@@ -52,7 +52,12 @@ ALLOWED_VALUES: dict[str, set[str]] = {
 }
 
 # Fields whose value may be null/empty — all others are required.
-NULLABLE_FIELDS: set[str] = {"sensitive_data"}
+NULLABLE_FIELDS: set[str] = {"sensitive_data", "footprint"}
+
+# Fields that are NOT required to be present as a column in the shapefile.
+# A missing column for one of these fields does not fail validation; footprint
+# is optional and files without it must still pass.
+OPTIONAL_FIELDS: set[str] = {"footprint"}
 
 # Set to True to fold both the feature value and the allowed set to uppercase
 # before comparing. False = exact case match.

@@ -156,6 +156,9 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   }, [metaData, geoJson]);
 
   const isProcessing = status === "processing" || (!uploadId && open);
+  const isTimeout =
+    status === "failed" &&
+    (errorMessage?.toLowerCase().includes("timed out") ?? false);
 
   const handleReject = async () => {
     setIsRejecting(true);
@@ -348,7 +351,9 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                     <Typography variant="h6" color="error.main" fontWeight={700}>
                       {status === "validation_failed"
                         ? "Attribute validation failed"
-                        : "Preview not available for this file"}
+                        : isTimeout
+                          ? "Geospatial processing failed"
+                          : "Preview not available for this file"}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -356,7 +361,9 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                     >
                       {status === "validation_failed"
                         ? "This file does not meet the required attribute standards. Please correct the issue and re-upload."
-                        : "Geometry must be valid; no NULL geometry or self-intersecting polygons"}
+                        : isTimeout
+                          ? "This file took too long to process and was automatically stopped. It may be too large or complex to process."
+                          : "Geometry must be valid; no NULL geometry or self-intersecting polygons"}
                     </Typography>
                     {errorMessage && (
                       <Typography

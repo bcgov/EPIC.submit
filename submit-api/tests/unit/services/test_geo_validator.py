@@ -116,7 +116,7 @@ def test_missing_required_column_fails_fast():
 @patch("submit_api.services.geo.validator.VALIDATE_VALUES", True)
 def test_missing_required_value_fails():
     """A null/empty value in a non-nullable field produces a missing_value error."""
-    props = {**VALID_PROPERTIES, _DBF["footprint"]: None}
+    props = {**VALID_PROPERTIES, _DBF["category"]: None}
     collection = _FakeCollection(
         schema_props=VALID_SCHEMA,
         features=[_feature(props)],
@@ -126,10 +126,27 @@ def test_missing_required_value_fails():
 
     assert is_valid is False
     assert any(
-        e["error_type"] == "missing_value" and e["dbf_column"] == _DBF["footprint"]
+        e["error_type"] == "missing_value" and e["dbf_column"] == _DBF["category"]
         for e in errors
     )
-    assert "footprint" in summary["fields_with_errors"]
+    assert "category" in summary["fields_with_errors"]
+
+
+def test_missing_footprint_column_passes():
+    """footprint is optional: a file lacking the Footprint column still validates."""
+    schema_without_footprint = {
+        k: v for k, v in VALID_SCHEMA.items() if k != _DBF["footprint"]
+    }
+    collection = _FakeCollection(
+        schema_props=schema_without_footprint,
+        features=[_feature(VALID_PROPERTIES)],
+    )
+    with patch("submit_api.services.geo.validator.fiona.open", return_value=collection):
+        is_valid, errors, summary = validate_shapefile("dummy.shp")
+
+    assert is_valid is True
+    assert errors == []
+    assert summary["total_errors"] == 0
 
 
 @patch("submit_api.services.geo.validator.VALIDATE_VALUES", False)
