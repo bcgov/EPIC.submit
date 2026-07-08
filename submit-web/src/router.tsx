@@ -39,20 +39,20 @@ export default function RouterProviderWithAuthContext({
       setAccountData(data);
       setAccount({
         ...data,
+        isLoading: false,
       });
     } catch (error) {
       const errorMessage = isAxiosError(error)
         ? (error.response?.data?.message ?? error.message)
         : "Unknown error";
       notify.error(`Failed to load account data: ${errorMessage}`);
+      setAccount({ isLoading: false });
     }
   }, [authentication, router, setAccount]);
 
   useEffect(() => {
-    if (authentication.isAuthenticated && authentication.user?.profile.preferred_username) {
-      getAccountData();
-    }
-  }, [authentication.isAuthenticated, authentication.user?.profile.preferred_username, getAccountData]);
+    getAccountData();
+  }, [authentication, getAccountData]);
 
   useEffect(() => {
     // the `return` is important - addAccessTokenExpiring() returns a cleanup function
