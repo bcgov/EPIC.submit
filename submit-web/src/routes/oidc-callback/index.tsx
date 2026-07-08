@@ -1,9 +1,9 @@
 import { PageLoader } from "@/components/Shared/PageLoader";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
+import { useCreateAccountFormStore } from "@/components/App/AccountRegistration/formStore";
 import { HTTP_STATUS } from "@/utils/constants";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useEffect } from "react";
 import { useAuth } from "react-oidc-context";
 
 export const Route = createFileRoute("/oidc-callback/")({
@@ -18,21 +18,8 @@ function OidcCallback() {
   const baseProponentPath = "/proponent";
 
   const account = useAccount();
-  const {
-    isAuthenticated,
-    signoutRedirect,
-    isLoading: isAuthLoading,
-  } = useAuth();
-
-  const needsSignout = account?.error?.status === HTTP_STATUS.NOT_FOUND;
-
-  useEffect(() => {
-    if (needsSignout) {
-      signoutRedirect({
-        post_logout_redirect_uri: `${window.location.origin}/need-access`,
-      });
-    }
-  }, [needsSignout, signoutRedirect]);
+  const { invitation } = useCreateAccountFormStore();
+  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   if (account.isLoading || isAuthLoading) {
     return <PageLoader />;
@@ -53,11 +40,11 @@ function OidcCallback() {
     return <Navigate to="/" />;
   }
 
-  if (needsSignout) {
-    return <PageLoader />;
-  }
+  /** A 404 means the user authenticated (valid BCSC/BCeID) but has no account in
+   the submit system yet. That is an expected state for fresh proponents*/
+  const notInSystem = account?.error?.status === HTTP_STATUS.NOT_FOUND;
 
-  if (account?.error) {
+  if (account?.error && !notInSystem) {
     return <Navigate to="/error" />;
   }
 
@@ -73,5 +60,13 @@ function OidcCallback() {
     return <Navigate to={navPath} />;
   }
 
-  return <Navigate to="/logout" />;
+  // Authenticated (valid BCSC/BCeID) but no account in the submit system yet.
+  // Users who arrived via an invitation link have their invitation stored in
+  // the create-account-form session store, so continue their registration.
+  // Everyone else has no path into the system and is sent to /need-access.
+  if (invitation) {
+    return <Navigate to="/proponent/account-registration/create-account" />;
+  }
+
+  return <Navigate to="/need-access" />;
 }
