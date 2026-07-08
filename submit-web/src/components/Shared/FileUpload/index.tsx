@@ -9,6 +9,7 @@ export type FileUploadProps = {
   accept?: Accept;
   onDrop: (acceptedFiles: File[]) => void;
   error?: boolean;
+  maxSize?: number;
   maxFiles?: number;
   maxFilesErrorMessage?: string;
   currentFileCount?: number;
@@ -25,6 +26,7 @@ export const FileUpload = ({
   },
   error = false,
   onDrop,
+  maxSize,
   maxFiles,
   maxFilesErrorMessage,
   currentFileCount
@@ -35,6 +37,7 @@ export const FileUpload = ({
       accept={accept}
       onDrop={onDrop}
       error={error}
+      maxSize={maxSize}
       maxFiles={maxFiles}
       maxFilesErrorMessage={maxFilesErrorMessage}
       currentFileCount={currentFileCount}

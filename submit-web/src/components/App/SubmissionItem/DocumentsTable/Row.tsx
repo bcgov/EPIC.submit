@@ -1,4 +1,4 @@
-import { TableRow, IconButton, Typography } from "@mui/material";
+import { Box, TableRow, IconButton, Typography } from "@mui/material";
 import { StatusChip } from "@/components/Shared/StatusChip";
 import {
   Submission,
@@ -18,6 +18,7 @@ import { deleteDocument, saveObject } from "@/hooks/api/useObjectStorage";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { GeoApprovedBadge } from "@/components/Shared/GeoApprovedBadge";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { BCDesignTokens } from "epic.theme";
 import { useFileStore } from "@/store/fileStore";
@@ -210,11 +211,25 @@ export default function Row({
     <>
       <TableRow>
         <SubmitTableCell>
-          <DocumentLink
-            name={submitted_document?.name ?? ""}
-            loading={pendingGetObject}
-            onClick={openDocument}
-          />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              overflow: "hidden",
+            }}
+          >
+            <DocumentLink
+              name={submitted_document?.name ?? ""}
+              loading={pendingGetObject}
+              onClick={openDocument}
+            />
+            <GeoApprovedBadge
+              itemId={currentSubmission.item_id}
+              url={submitted_document?.url}
+              folder={submitted_document?.folder}
+            />
+          </Box>
         </SubmitTableCell>
         <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
         <SubmitTableCell align="right">

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  Box,
   styled,
   TableCell,
   TableRow,
@@ -18,6 +19,7 @@ import { useFormContext } from "react-hook-form";
 import { useParams } from "@tanstack/react-router";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { GeoApprovedBadge } from "@/components/Shared/GeoApprovedBadge";
 import { useGetGeoUploads } from "@/hooks/api/useGeo";
 
 export const StyledHeadTableCell = styled(TableCell, {
@@ -177,28 +179,42 @@ export default function DocumentTableRow({
       error={error}
     >
       <DocumentTableCell colSpan={2}>
-        <Typography
-          variant="body1"
-          color="inherit"
-          component="div"
+        <Box
           sx={{
-            overflow: "clip",
-            textOverflow: "ellipsis",
-            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 0.5,
             mx: 0.5,
-            textDecoration: "none",
+            overflow: "hidden",
           }}
         >
-          <DocumentLink
-            name={submitted_document?.name ?? ""}
-            onClick={
-              onDocumentClick
-                ? () => onDocumentClick(documentItem)
-                : downloadDocument
-            }
-            loading={pendingGetObject}
+          <Typography
+            variant="body1"
+            color="inherit"
+            component="div"
+            sx={{
+              overflow: "clip",
+              textOverflow: "ellipsis",
+              cursor: "pointer",
+              textDecoration: "none",
+            }}
+          >
+            <DocumentLink
+              name={submitted_document?.name ?? ""}
+              onClick={
+                onDocumentClick
+                  ? () => onDocumentClick(documentItem)
+                  : downloadDocument
+              }
+              loading={pendingGetObject}
+            />
+          </Typography>
+          <GeoApprovedBadge
+            itemId={documentItem.item_id}
+            url={submitted_document?.url}
+            folder={submitted_document?.folder}
           />
-        </Typography>
+        </Box>
       </DocumentTableCell>
       <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>
       <DocumentTableCell align="right">{version}</DocumentTableCell>

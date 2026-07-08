@@ -38,8 +38,10 @@ interface MapPreviewModalProps {
   fileSizeKb?: number;
   status?: string;
   errorMessage?: string;
+  isApproved?: boolean;
   onApprove: () => void;
   onReject: () => Promise<void>;
+  onClose?: () => void;
 }
 
 export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
@@ -49,8 +51,10 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   fileSizeKb,
   status,
   errorMessage,
+  isApproved,
   onApprove,
   onReject,
+  onClose,
 }) => {
   const mapRef = useRef<MapRef>(null);
   const [loading, setLoading] = useState(false);
@@ -159,6 +163,13 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   const isTimeout =
     status === "failed" &&
     (errorMessage?.toLowerCase().includes("timed out") ?? false);
+
+  const [displayApproved, setDisplayApproved] = useState(false);
+  useEffect(() => {
+    if (open) {
+      setDisplayApproved(Boolean(isApproved));
+    }
+  }, [open, isApproved]);
 
   const handleReject = async () => {
     setIsRejecting(true);
@@ -567,14 +578,22 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
         >
           Reject
         </LoadingButton>
-        <Button
-          variant="contained"
-          onClick={onApprove}
-          disabled={isProcessing || status === "failed" || status === "validation_failed"}
-          sx={{ minWidth: "120px" }}
-        >
-          Approve
-        </Button>
+        {displayApproved ? (
+          <Button
+            onClick={onClose}
+            sx={{ minWidth: "120px" }}
+          >
+            Close
+          </Button>
+        ) : (
+          <Button
+            onClick={onApprove}
+            disabled={isProcessing || status === "failed" || status === "validation_failed"}
+            sx={{ minWidth: "120px" }}
+          >
+            Approve
+          </Button>
+        )}
       </DialogActions>
     </Dialog>
   );

@@ -268,6 +268,17 @@ export default function SubmissionPage() {
       return;
     }
 
+    const hasUnapprovedGeoFiles = (geoUploads as GeoUpload[] | undefined)?.some(
+      (u: GeoUpload) => !u.is_approved,
+    );
+    if (hasUnapprovedGeoFiles) {
+      setIsValidating(true);
+      notify.warning(
+        "One or more geospatial files have not been approved. Please open each geospatial file, review the preview, and approve it before submitting.",
+      );
+      return;
+    }
+
     // Check for unaddressed update request sections
     const unaddressed = getUnaddressedUpdateRequestSections(
       submissionPackage,
@@ -313,7 +324,7 @@ export default function SubmissionPage() {
       (updateRequest) =>
         (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
           updateRequest.status ===
-            UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
+          UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
         updateRequest.active,
     );
 
@@ -436,12 +447,12 @@ export default function SubmissionPage() {
   const isWithdrawDisabled = useMemo(() => {
     // Disable if versioning is not enabled
     if (!submissionPackage?.type?.versioning_enabled) return true;
-    
+
     if (!submissionPackage?.submitted_on) return true;
-    
+
     // Disable if already withdrawn
     if (isPackageWithdrawn) return true;
-    
+
     // Disable if in terminal states
     if (
       submissionPackage.status.includes(PACKAGE_STATUS.APPROVED.value) ||
@@ -450,12 +461,12 @@ export default function SubmissionPage() {
     ) {
       return true;
     }
-    
+
     // Enable if in submitted or acknowledged status
     const isInWithdrawableStatus =
       submissionPackage.status.includes(PACKAGE_STATUS.SUBMITTED.value) ||
       submissionPackage.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value);
-    
+
     return !isInWithdrawableStatus;
   }, [submissionPackage, isPackageWithdrawn]);
 
@@ -598,7 +609,7 @@ export default function SubmissionPage() {
                   condition={
                     isValidating &&
                     submissionPackage.type.name ===
-                      SubmissionPackageType.ADDITIONAL_INFORMATION &&
+                    SubmissionPackageType.ADDITIONAL_INFORMATION &&
                     !hasDocuments
                   }
                 >

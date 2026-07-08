@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from datetime import datetime, UTC
 
-from sqlalchemy import Column, DateTime, Float, Integer, JSON, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, JSON, String, Text
 
 from .base_model import BaseModel
 
@@ -37,6 +37,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
     preview_s3_key = Column(String(512), nullable=True)
     standard_s3_key = Column(String(512), nullable=True)
     status = Column(String(20), nullable=False, default='processing')
+    is_approved = Column(Boolean, nullable=False, default=False)
     error_message = Column(Text, nullable=True)
     feature_count = Column(Integer, nullable=True)
     geometry_type = Column(String(50), nullable=True)
@@ -62,6 +63,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
         preview_s3_key: str | None = None,
         standard_s3_key: str | None = None,
         status: str = 'processing',
+        is_approved: bool = False,
         error_message: str | None = None,
         feature_count: int | None = None,
         geometry_type: str | None = None,
@@ -78,6 +80,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
         self.preview_s3_key = preview_s3_key
         self.standard_s3_key = standard_s3_key
         self.status = status
+        self.is_approved = is_approved
         self.error_message = error_message
         self.feature_count = feature_count
         self.geometry_type = geometry_type
@@ -96,6 +99,7 @@ class GeoDataUpload(BaseModel):  # pylint: disable=too-many-instance-attributes
             'preview_s3_key': self.preview_s3_key,
             'standard_s3_key': self.standard_s3_key,
             'status': self.status,
+            'is_approved': self.is_approved,
             'error_message': self.error_message,
             'feature_count': self.feature_count,
             'geometry_type': self.geometry_type,

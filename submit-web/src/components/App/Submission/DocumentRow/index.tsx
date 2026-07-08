@@ -16,6 +16,7 @@ import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { SubmissionPackage, PackageType } from "@/models/Package";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { GeoApprovedBadge } from "@/components/Shared/GeoApprovedBadge";
 import ActionSplitButton, {
   SplitButtonAction,
 } from "@/components/Shared/ActionSplitButton/ActionSplitButton";
@@ -148,32 +149,46 @@ export default function DocumentRow({
         ]}
       >
         <SubmitTableCell width={"45%"}>
-          <Typography
-            variant="body1"
-            color="inherit"
-            component="div"
+          <Box
             sx={{
-              overflow: "clip",
-              textOverflow: "ellipsis",
-              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
               mx: 0.5,
+              overflow: "hidden",
             }}
           >
-            {staff ? (
-              <SubmissionItemReviewConfirmation
-                submissionItem={submissionItem}
-                onClick={openDocument}
-              >
-                <DocumentLink name={name} loading={pendingGetObject} />
-              </SubmissionItemReviewConfirmation>
-            ) : (
-              <DocumentLink
-                name={name}
-                loading={pendingGetObject}
-                onClick={openDocument}
-              />
-            )}
-          </Typography>
+            <Typography
+              variant="body1"
+              color="inherit"
+              component="div"
+              sx={{
+                overflow: "clip",
+                textOverflow: "ellipsis",
+                cursor: "pointer",
+              }}
+            >
+              {staff ? (
+                <SubmissionItemReviewConfirmation
+                  submissionItem={submissionItem}
+                  onClick={openDocument}
+                >
+                  <DocumentLink name={name} loading={pendingGetObject} />
+                </SubmissionItemReviewConfirmation>
+              ) : (
+                <DocumentLink
+                  name={name}
+                  loading={pendingGetObject}
+                  onClick={openDocument}
+                />
+              )}
+            </Typography>
+            <GeoApprovedBadge
+              itemId={documentSubmission.item_id}
+              url={submitted_document?.url}
+              folder={submitted_document?.folder}
+            />
+          </Box>
         </SubmitTableCell>
         <SubmitTableCell align="left" width={"10%"}>
           {submitted_by || ""}

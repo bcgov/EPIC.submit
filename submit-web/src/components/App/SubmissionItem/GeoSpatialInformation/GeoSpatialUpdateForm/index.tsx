@@ -1,4 +1,4 @@
-import { useMemo, useState, lazy, Suspense } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { Box, Button, Typography, Grid } from "@mui/material";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { useNavigate, useParams } from "@tanstack/react-router";
@@ -6,8 +6,9 @@ import { deleteDocument, S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { BCDesignTokens } from "epic.theme";
-import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
-import { Submission } from "@/models/Submission";
+import { useGetGeoUploads, useApproveGeoUpload, GeoUpload } from "@/hooks/api/useGeo";
+import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import { SubmissionItem } from "@/models/SubmissionItem";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -31,12 +32,30 @@ export const GeoSpatialUpdateForm = () => {
   const queryClient = useQueryClient();
   const [isPendingUpload, setIsPendingUpload] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<Submission | null>(null);
+  const [reviewQueue, setReviewQueue] = useState<Submission[]>([]);
 
   const { data: geoUploads } = useGetGeoUploads({
     itemId: Number(submissionItemId),
     autoRefetch: true,
   });
   const uploads = geoUploads as unknown as GeoUpload[];
+
+  const { mutateAsync: approveGeoUpload } = useApproveGeoUpload();
+
+  const submissionItem = queryClient.getQueryData<SubmissionItem>([
+    QUERY_KEY.SUBMISSION_ITEM,
+    Number(submissionItemId),
+  ]);
+  const documentSubmissions = submissionItem?.submissions?.filter(
+    (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+  );
+
+  // Advances to the next file awaiting review
+  const openNextInQueue = useCallback((queue: Submission[]) => {
+    const [next, ...remaining] = queue;
+    setReviewQueue(remaining);
+    setPreviewDocument(next ?? null);
+  }, []);
 
   // Derive previewUpload reactively so the modal updates as polling resolves status
   const previewUpload = useMemo<GeoUpload | null>(() => {
@@ -78,11 +97,24 @@ export const GeoSpatialUpdateForm = () => {
 
   // Called by AddDocumentActionButton once a geo file finishes uploading
   const onUploadComplete = (submission: Submission) => {
-    setPreviewDocument(submission);
+    if (previewDocument !== null) {
+      setReviewQueue((prev) => [...prev, submission]);
+    } else {
+      setPreviewDocument(submission);
+    }
   };
 
-  const handleApprove = () => {
-    setPreviewDocument(null);
+  const handleApprove = async () => {
+    // Persist approval so back/refresh cannot bypass the review step.
+    if (previewUpload) {
+      try {
+        await approveGeoUpload(previewUpload.id);
+      } catch {
+        notify.error("Failed to approve geospatial file.");
+        return;
+      }
+    }
+    openNextInQueue(reviewQueue);
   };
 
   const handleReject = async () => {
@@ -99,11 +131,42 @@ export const GeoSpatialUpdateForm = () => {
     } catch {
       notify.error("Failed to remove geospatial file.");
     } finally {
-      setPreviewDocument(null);
+      openNextInQueue(reviewQueue);
     }
   };
 
-  const isBlockedFromExit = isPendingUpload || previewDocument !== null;
+  // Re-open review for any upload left unapproved after a back/refresh. Runs
+  // once per mount; in-session uploads are handled by onUploadComplete.
+  const didSeedReview = useRef(false);
+  useEffect(() => {
+    if (didSeedReview.current) return;
+    if (!uploads || !documentSubmissions) return;
+
+    const unapproved = uploads.filter((u) => !u.is_approved);
+    if (unapproved.length === 0) {
+      didSeedReview.current = true;
+      return;
+    }
+
+    const docs = unapproved
+      .map((upload) =>
+        documentSubmissions.find(
+          (s) => s.submitted_document?.url === upload.raw_s3_key,
+        ),
+      )
+      .filter((d): d is Submission => Boolean(d));
+
+    if (docs.length < unapproved.length) return;
+
+    didSeedReview.current = true;
+    const [first, ...rest] = docs;
+    setPreviewDocument(first);
+    setReviewQueue(rest);
+  }, [uploads, documentSubmissions]);
+
+  const hasUnapprovedUploads = (uploads ?? []).some((u) => !u.is_approved);
+  const isBlockedFromExit =
+    isPendingUpload || previewDocument !== null || hasUnapprovedUploads;
 
   return (
     <SubmissionFormContainer>
@@ -147,8 +210,10 @@ export const GeoSpatialUpdateForm = () => {
             (previewDocument !== null ? "processing" : undefined)
           }
           errorMessage={previewUpload?.error_message}
+          isApproved={previewUpload?.is_approved}
           onApprove={handleApprove}
           onReject={handleReject}
+          onClose={() => openNextInQueue(reviewQueue)}
         />
       </Suspense>
 

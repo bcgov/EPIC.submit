@@ -580,6 +580,46 @@ class GeoService:
         }
 
     @classmethod
+    def approve_upload(cls, upload_id: int) -> GeoDataUpload:
+        """Mark a processed upload as approved by the proponent.
+
+        Raises:
+            LookupError: if the upload does not exist.
+            ValueError: if the upload is not in a 'ready' state.
+        """
+        upload = cls.get_upload(upload_id)
+        if not upload:
+            raise LookupError(f"GeoDataUpload {upload_id} not found.")
+        if upload.status != "ready":
+            raise ValueError(
+                f"Only a ready upload can be approved (status: {upload.status})."
+            )
+
+        upload.is_approved = True
+        db.session.commit()
+        return upload
+
+    @classmethod
+    def has_unapproved_uploads(cls, item_id: int) -> bool:
+        """Return True if the item has any geospatial upload not yet approved.
+
+        Covers uploads still processing, failed, or ready-but-unapproved. Used to
+        block completing a submission item until every file has been reviewed.
+        """
+        uploads = cls.list_uploads(item_id=item_id)
+        return any(not upload.is_approved for upload in uploads)
+
+    @classmethod
+    def has_unapproved_uploads_for_package(cls, package_id: int) -> bool:
+        """Return True if any geospatial upload in the package is not yet approved.
+
+        Used to block submitting a package to the EAO until every geospatial file
+        across all of its items has been reviewed and approved.
+        """
+        uploads = cls.list_uploads(package_id=package_id)
+        return any(not upload.is_approved for upload in uploads)
+
+    @classmethod
     def retry_upload(cls, app, upload_id: int) -> GeoDataUpload:
         """Reset a failed upload and re-trigger processing.
 
@@ -594,6 +634,7 @@ class GeoService:
             raise ValueError("Only failed uploads can be retried.")
 
         upload.status = "processing"
+        upload.is_approved = False
         upload.error_message = None
         upload.validation_errors = None
         db.session.commit()

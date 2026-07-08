@@ -8,7 +8,7 @@ import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
-import { useCallback, useMemo, useState, lazy, Suspense } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import Form from "@/components/Shared/Forms/common";
 import { FormProvider, useForm } from "react-hook-form";
 import { Submission } from "@/models/Submission";
@@ -32,7 +32,7 @@ import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { isAxiosError } from "axios";
 import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
-import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
+import { useGetGeoUploads, useApproveGeoUpload, GeoUpload } from "@/hooks/api/useGeo";
 import { useFileStore } from "@/store/fileStore";
 // Lazy-load the map modal so maplibre-gl is not downloaded until first use
 const MapPreviewModal = lazy(() =>
@@ -88,6 +88,7 @@ export const GeoSpatialProponentView = () => {
   const { mutateAsync: deleteSubmissionAsync } = useDeleteSubmission({
     submissionItemId: Number(submissionItemId),
   });
+  const { mutateAsync: approveGeoUpload } = useApproveGeoUpload();
   const { removeFile } = useFileStore();
 
   const documentSubmissions = submissionItem?.submissions?.filter(
@@ -181,9 +182,20 @@ export const GeoSpatialProponentView = () => {
     [previewDocument],
   );
 
-  const handleApprove = useCallback(() => {
+  const handleApprove = useCallback(async () => {
+    // Persist approval server-side so navigating away (back/refresh) cannot
+    // bypass the review step — the item can't be completed until every upload
+    // is approved.
+    if (previewUpload) {
+      try {
+        await approveGeoUpload(previewUpload.id);
+      } catch {
+        notify.error("Failed to approve geospatial file");
+        return;
+      }
+    }
     openNextInQueue(reviewQueue);
-  }, [reviewQueue, openNextInQueue]);
+  }, [previewUpload, reviewQueue, openNextInQueue, approveGeoUpload]);
 
   const handleReject = useCallback(async () => {
     if (!previewDocument) return;
@@ -220,8 +232,47 @@ export const GeoSpatialProponentView = () => {
     openNextInQueue,
   ]);
 
-  // Save & Exit is blocked while the review modal is open or files are queued
-  const isReviewPending = previewDocument !== null || reviewQueue.length > 0;
+  // On return to the page (e.g. after a back/refresh during processing), re-open
+  // the review modal for any upload the proponent never approved. Runs once per
+  // mount; new uploads within the session are handled by onUploadComplete.
+  const didSeedReview = useRef(false);
+  useEffect(() => {
+    if (didSeedReview.current) return;
+    if (!uploads || !documentSubmissions) return;
+
+    const unapproved = uploads.filter((u) => !u.is_approved);
+    if (unapproved.length === 0) {
+      didSeedReview.current = true;
+      return;
+    }
+
+    const docs = unapproved
+      .map((upload) =>
+        documentSubmissions.find(
+          (s) => s.submitted_document?.url === upload.raw_s3_key,
+        ),
+      )
+      .filter((d): d is Submission => Boolean(d));
+
+    // Wait until the matching document submissions are available in cache.
+    if (docs.length < unapproved.length) return;
+
+    didSeedReview.current = true;
+    const [first, ...rest] = docs;
+    setPreviewDocument(first);
+    setReviewQueue(rest);
+  }, [uploads, documentSubmissions]);
+
+  // Save & Exit is blocked while a review is open/queued, or any upload for this
+  // item is still unapproved (the server enforces the same rule on submit).
+  const hasUnapprovedUploads = useMemo(
+    () => (uploads ?? []).some((u) => !u.is_approved),
+    [uploads],
+  );
+  const isReviewPending =
+    previewDocument !== null ||
+    reviewQueue.length > 0 ||
+    hasUnapprovedUploads;
 
   const documentUploadSections: UploadSectionConfig[] = useMemo(
     () => [
@@ -283,8 +334,10 @@ export const GeoSpatialProponentView = () => {
                   (previewDocument !== null ? "processing" : undefined)
                 }
                 errorMessage={previewUpload?.error_message}
+                isApproved={previewUpload?.is_approved}
                 onApprove={handleApprove}
                 onReject={handleReject}
+                onClose={() => openNextInQueue(reviewQueue)}
               />
             </Suspense>
 
