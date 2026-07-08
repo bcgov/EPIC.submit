@@ -25,9 +25,10 @@ import SubmissionItemReviewConfirmation from "@/components/App/Submission/Submis
 import DocumentRow from "@/components/App/Submission/DocumentRow";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
-import { useAccount } from "@/store/accountStore";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
+import { useHasRole } from "@/hooks/common";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -50,7 +51,6 @@ export default function StaffSubmissionItemTableRow({
   const { submissions, id } = item;
 
   const { submitted_on } = submissionPackage;
-  const { roles } = useAccount();
   
   const name = useMemo(() => {
     return getSubmissionItemLabel(item.type.name);
@@ -88,11 +88,11 @@ export default function StaffSubmissionItemTableRow({
   // Get the appropriate roles for this package type
   const packageRoles = usePackageRoles(submissionPackage, packageType);
   
-  // Check if user has the appropriate create role for this package type
-  const hasPackageCreateRole = roles?.includes(packageRoles.create);
+  // Check if user has the appropriate create role for this package type (includes full_access check)
+  const hasPackageCreateRole = useHasRole(packageRoles.create);
   
-  // Check if user has GIS permissions
-  const hasGISPermissions = roles?.includes('gis_extended_edit') || roles?.includes('full_access');
+  // Check if user has GIS permissions (includes full_access check)
+  const hasGISPermissions = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
 
   // Determine if Request Update should be shown
   // For GIS items: show if user has GIS permissions

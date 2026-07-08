@@ -20,6 +20,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
 import { hasPermission } from "@/components/Shared/PermissionGate/utils";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { useHasRole } from "@/hooks/common";
 
 interface UseStaffSubmissionPageOptions {
   submissionPackageId: number;
@@ -174,11 +175,16 @@ export function useStaffSubmissionPage({
     ].includes(approval_type as SubmissionPackageApprovalType);
 
   // Only users with w_extended_edit permission can approve packages
-  // GIS-only users should not be able to approve packages
-  const canApprove = hasPermission({
+  // GIS-only users (without full_access) should not be able to approve packages
+  const hasExtendedEdit = hasPermission({
     permissions: account.roles || [],
     scopes: [EPIC_SUBMIT_ROLE.w_extended_edit],
-  }) && !account.roles?.includes(EPIC_SUBMIT_ROLE.gis_extended_edit);
+  });
+  const hasGISRole = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
+  const hasFullAccess = useHasRole(EPIC_SUBMIT_ROLE.full_access);
+  
+  // Exclude GIS-only users (those with GIS role but not full_access)
+  const canApprove = hasExtendedEdit && !(hasGISRole && !hasFullAccess);
   const showApproveButtons =
     isPackageAcknowledged && 
     approval_type == SubmissionPackageApprovalType.C &&
