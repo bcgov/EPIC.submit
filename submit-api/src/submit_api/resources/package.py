@@ -190,8 +190,9 @@ class PackageUpdateRequests(Resource):
     @cross_origin(origins=allowedorigins())
     def post(package_id):
         """Create an update request."""
-        # Check package-aware access control (mp_create, w_create, or eao_create)
-        PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
+        # Check basic package access (user can view the package)
+        # Item-level permissions (including GIS) are validated in PackageService.create_update_request
+        authorization.has_access_to_package(package_id)
 
         create_update_request_data = CreateUpdateRequestSchema().load(API.payload)
         package_with_created_update_request = PackageService.create_update_request(
@@ -219,8 +220,9 @@ class PackageUpdateRequest(Resource):
     @cross_origin(origins=allowedorigins())
     def patch(package_id, update_request_id):
         """Accept an update request."""
-        # Check package-aware access control (mp_create, w_create, or eao_create)
-        PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
+        # Check basic package access (user can view the package)
+        # Item-level permissions (including GIS) are validated in PackageService.accept_update_request
+        authorization.has_access_to_package(package_id)
 
         accept_update_request = PackageService.accept_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(accept_update_request), HTTPStatus.OK
@@ -236,8 +238,9 @@ class PackageUpdateRequest(Resource):
     @cross_origin(origins=allowedorigins())
     def delete(package_id, update_request_id):
         """Withdraw an update request."""
-        # Check package-aware access control (mp_create, w_create, or eao_create)
-        PackageAccessControl.check_package_access(package_id, PackageOperation.CREATE)
+        # Check basic package access (user can view the package)
+        # Item-level permissions (including GIS) are validated in PackageService.withdraw_update_request
+        authorization.has_access_to_package(package_id)
 
         withdraw_update_request = PackageService.withdraw_update_request(package_id, update_request_id)
         return StaffPackageSchema().dump(withdraw_update_request), HTTPStatus.OK

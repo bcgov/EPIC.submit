@@ -21,7 +21,8 @@ import { UPDATE_REQUEST_STATUS } from "@/models/UpdateRequest";
 import ActionSplitButton from "@/components/Shared/ActionSplitButton/ActionSplitButton";
 import { UpdateRequestAccordion } from "./UpdateRequestAccordion";
 import { useUpdatePackageUpdateRequestNote, useCreatePackageUpdateRequesNote } from "@/hooks/api/usePackages";
-import { useAccount } from "@/store/accountStore";
+import { useHasRole } from "@/hooks/common";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 interface SentRequestCollapsibleProps {
   request: SentRequest;
@@ -51,10 +52,9 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [noteText, setNoteText] = useState(request.note || "");
   const maxNoteLength = 500;
-  const { roles } = useAccount();
   
-  // Check if user has GIS permissions
-  const hasGISPermissions = roles?.includes('gis_extended_edit') || roles?.includes('full_access');
+  // Check if user has GIS permissions (includes full_access check)
+  const hasGISPermissions = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
   
   // Determine if actions should be disabled for GIS requests
   const isActionDisabled = isGISRequest && !hasGISPermissions;
