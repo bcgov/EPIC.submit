@@ -36,6 +36,7 @@ export const NotificationBox = () => {
         condition={[
           SUBMISSION_REVIEW_STATUS.APPROVED,
           SUBMISSION_REVIEW_STATUS.REJECTED,
+          SUBMISSION_REVIEW_STATUS.REVISION_REQUIRED,
         ].includes(submissionReview.status)}
       >
         <ReviewCompletedNotification submissionReview={submissionReview} />

@@ -1,6 +1,6 @@
 import * as yup from "yup";
 
-export const RadioOptions = Object.freeze({
+export const DropdownOptions = {
   YES: {
     label: "Yes, the holder passed the Management Plan Review",
     value: "yes",
@@ -13,7 +13,11 @@ export const RadioOptions = Object.freeze({
     label: "Yes, by default",
     value: "yes_default",
   },
-});
+  REVISION_REQUIRED: {
+    label: "The Holder has to provide a revision",
+    value: "revision_required",
+  },
+};
 
 export const managementPlanReviewSchema = yup.lazy((value) => {
   const staffDecision = value?.staff?.passedReview;
@@ -23,8 +27,8 @@ export const managementPlanReviewSchema = yup.lazy((value) => {
   const hasManagerDecision = !!managerDecision;
 
   const noDecision =
-    staffDecision === RadioOptions.NO.value ||
-    managerDecision === RadioOptions.NO.value;
+    staffDecision === DropdownOptions.NO.value ||
+    managerDecision === DropdownOptions.NO.value;
 
   const updateRequestSchema = noDecision
     ? yup.object().shape({

@@ -19,6 +19,7 @@ class SubmissionReviewStatus(enum.Enum):
     PENDING_MANAGER_REVIEW = 'PENDING_MANAGER_REVIEW'
     APPROVED = 'APPROVED'
     REJECTED = 'REJECTED'
+    REVISION_REQUIRED = 'REVISION_REQUIRED'
 
 
 class SubmissionReview(BaseModel):

@@ -127,7 +127,10 @@ export default function SubmissionPage() {
   const { mutate: withdrawPackage, isPending: isWithdrawingPackage } =
     useWithdrawPackage({
       onSuccess: () => {
-        notify.success("Your submission has been withdrawn successfully.", 15000);
+        notify.success(
+          "Your submission has been withdrawn successfully.",
+          15000,
+        );
         setShowWithdrawModal(false);
       },
       onError: (error: any) => {
@@ -430,18 +433,18 @@ export default function SubmissionPage() {
   ]);
 
   const isPackageWithdrawn = submissionPackage?.status.includes(
-    PACKAGE_STATUS.WITHDRAWN.value
+    PACKAGE_STATUS.WITHDRAWN.value,
   );
 
   const isWithdrawDisabled = useMemo(() => {
     // Disable if versioning is not enabled
     if (!submissionPackage?.type?.versioning_enabled) return true;
-    
+
     if (!submissionPackage?.submitted_on) return true;
-    
+
     // Disable if already withdrawn
     if (isPackageWithdrawn) return true;
-    
+
     // Disable if in terminal states
     if (
       submissionPackage.status.includes(PACKAGE_STATUS.APPROVED.value) ||
@@ -450,12 +453,12 @@ export default function SubmissionPage() {
     ) {
       return true;
     }
-    
+
     // Enable if in submitted or acknowledged status
     const isInWithdrawableStatus =
       submissionPackage.status.includes(PACKAGE_STATUS.SUBMITTED.value) ||
       submissionPackage.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value);
-    
+
     return !isInWithdrawableStatus;
   }, [submissionPackage, isPackageWithdrawn]);
 
@@ -527,7 +530,12 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <When condition={Boolean(isLatestApprovedPackageVersion)}>
+              <When
+                condition={
+                  submissionPackage.enforceable ||
+                  Boolean(isLatestApprovedPackageVersion)
+                }
+              >
                 <SuccessBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,
@@ -613,7 +621,9 @@ export default function SubmissionPage() {
               </Box>
               <When condition={isPackageWithdrawn}>
                 <WithdrawalBanner
-                  packageTypeName={submissionPackage.type.title || submissionPackage.type.name}
+                  packageTypeName={
+                    submissionPackage.type.title || submissionPackage.type.name
+                  }
                   nextPackageNumber={(currentPackageVersion?.version || 1) + 1}
                 />
               </When>
@@ -626,7 +636,10 @@ export default function SubmissionPage() {
                     isFirstSubmission
                   }
                 >
-                  <Box mb={BCDesignTokens.layoutMarginXlarge} sx={{ width: "100%" }}>
+                  <Box
+                    mb={BCDesignTokens.layoutMarginXlarge}
+                    sx={{ width: "100%" }}
+                  >
                     <SubmissionSuccessBox
                       submissionPackageType={submissionPackage.type}
                     />
@@ -639,8 +652,8 @@ export default function SubmissionPage() {
                 >
                   <WarningBox>
                     <Typography variant="body1">
-                      Your {submissionPackage.type.title} has not been approved. To
-                      submit a new {submissionPackage.type.title} package,
+                      Your {submissionPackage.type.title} has not been approved.
+                      To submit a new {submissionPackage.type.title} package,
                       select Package {packageVersions?.at(0)?.version} above,
                       upload your documents, and click the “Submit to EAO”
                       button.
@@ -691,7 +704,9 @@ export default function SubmissionPage() {
                   <Button
                     color="secondary"
                     onClick={() =>
-                      navigate({ to: `/proponent/projects/${accountProject.id}` })
+                      navigate({
+                        to: `/proponent/projects/${accountProject.id}`,
+                      })
                     }
                   >
                     Save & Close
@@ -715,7 +730,9 @@ export default function SubmissionPage() {
                     scopes={[ACCOUNT_USER_PERMISSIONS.SUBMIT_PACKAGE]}
                   >
                     <Unless condition={submissionPackage.completed_on}>
-                      <When condition={submissionPackage.type.versioning_enabled}>
+                      <When
+                        condition={submissionPackage.type.versioning_enabled}
+                      >
                         <Button
                           color="error"
                           variant="outlined"

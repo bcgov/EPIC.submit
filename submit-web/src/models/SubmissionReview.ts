@@ -2,7 +2,8 @@ export type SubmissionReviewStatus =
   | "PENDING_STAFF_REVIEW"
   | "PENDING_MANAGER_REVIEW"
   | "APPROVED"
-  | "REJECTED";
+  | "REJECTED"
+  | "REVISION_REQUIRED";
 export const SUBMISSION_REVIEW_STATUS = Object.freeze<
   Record<SubmissionReviewStatus, SubmissionReviewStatus>
 >({
@@ -10,6 +11,7 @@ export const SUBMISSION_REVIEW_STATUS = Object.freeze<
   PENDING_MANAGER_REVIEW: "PENDING_MANAGER_REVIEW",
   APPROVED: "APPROVED",
   REJECTED: "REJECTED",
+  REVISION_REQUIRED: "REVISION_REQUIRED",
 });
 
 export type SubmissionReview = {
