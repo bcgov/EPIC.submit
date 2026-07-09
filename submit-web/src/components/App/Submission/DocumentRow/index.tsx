@@ -24,11 +24,10 @@ import { BCDesignTokens } from "epic.theme";
 import { useDocumentRow } from "@/hooks/useDocumentRow";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { useState } from "react";
+import { useAccount } from "@/store/accountStore";
 import { lazy, Suspense } from "react";
 import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import { useGetGeoUploads } from "@/hooks/api/useGeo";
-import { useHasRole } from "@/hooks/common";
-import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
