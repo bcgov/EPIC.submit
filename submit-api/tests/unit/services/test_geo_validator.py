@@ -144,7 +144,7 @@ def test_missing_required_value_fails():
 
 
 def test_missing_footprint_column_passes():
-    """footprint is optional: a file lacking the Footprint column still validates."""
+    """Footprint is optional: a file lacking the Footprint column still validates."""
     schema_without_footprint = {
         k: v for k, v in VALID_SCHEMA.items() if k != _DBF["footprint"]
     }
