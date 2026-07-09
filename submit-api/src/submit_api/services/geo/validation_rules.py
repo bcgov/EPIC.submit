@@ -42,6 +42,13 @@ FIELD_MAP: dict[str, str] = {
 # back on without rework once the spec is confirmed.
 VALIDATE_VALUES: bool = False
 
+# Master switch for per-feature geometry validation (null/empty geometry and
+# invalid topology such as self-intersecting polygons). Independent of
+# VALIDATE_VALUES because geometry integrity does not depend on the attribute
+# allowed-value spec. Set False to fall back to the old behaviour of silently
+# dropping bad geometries during processing.
+VALIDATE_GEOMETRY: bool = True
+
 ALLOWED_VALUES: dict[str, set[str]] = {
     "category": {"PN", "EAC", "PD"},
     "sub_category": {"Pre EA", "EE", "RD", "PP", "ADR", "EAR", "P", "C", "O", "CM", "D", "A", "N"},

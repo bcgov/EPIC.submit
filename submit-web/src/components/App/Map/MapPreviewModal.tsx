@@ -7,7 +7,11 @@ import Map, {
 } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { getJsonObject } from "@/hooks/api/useObjectStorage";
-import { useGetGeoUploadUrl, GeoUploadUrlResponse } from "@/hooks/api/useGeo";
+import {
+  useGetGeoUploadUrl,
+  GeoUploadUrlResponse,
+  GeoValidationError,
+} from "@/hooks/api/useGeo";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import {
   Alert,
@@ -27,9 +31,11 @@ import {
 } from "@mui/material";
 import SatelliteIcon from "@mui/icons-material/Satellite";
 import MapIcon from "@mui/icons-material/Map";
+import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import type { GeoJSON } from "geojson";
 import { Submission } from "@/models/Submission";
 import { BCDesignTokens } from "epic.theme";
+import { GeoSpatialGuidelines } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialGuidelines";
 
 interface MapPreviewModalProps {
   open: boolean;
@@ -38,6 +44,7 @@ interface MapPreviewModalProps {
   fileSizeKb?: number;
   status?: string;
   errorMessage?: string;
+  validationErrors?: GeoValidationError[];
   isApproved?: boolean;
   onApprove?: () => void;
   onReject?: () => Promise<void>;
@@ -52,6 +59,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   fileSizeKb,
   status,
   errorMessage,
+  validationErrors,
   isApproved,
   onApprove,
   onReject,
@@ -162,9 +170,34 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   }, [metaData, geoJson]);
 
   const isProcessing = status === "processing" || (!uploadId && open);
+  const isValidationFailure = status === "validation_failed";
+  const isFailure = status === "failed" || isValidationFailure;
   const isTimeout =
     status === "failed" &&
     (errorMessage?.toLowerCase().includes("timed out") ?? false);
+
+  // Columns the shapefile is missing. Prefer the structured validation errors,
+  // but fall back to parsing the human-readable error_message (e.g. "Validation
+  // failed: missing required column(s): Category, Subcategor, ...") so the
+  // bulleted list still renders when only the message string is available.
+  const structuredMissingColumns = (validationErrors ?? [])
+    .filter((e) => e.error_type === "missing_column")
+    .map((e) => e.dbf_column ?? e.field)
+    .filter((c): c is string => Boolean(c));
+
+  const parseMissingColumns = (message?: string): string[] => {
+    const match = message?.match(/missing required column\(s\):\s*([^;.]+)/i);
+    if (!match) return [];
+    return match[1]
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
+  };
+
+  const missingColumns =
+    structuredMissingColumns.length > 0
+      ? structuredMissingColumns
+      : parseMissingColumns(errorMessage);
 
   const [displayApproved, setDisplayApproved] = useState(false);
   useEffect(() => {
@@ -186,7 +219,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   return (
     <Dialog
       open={open}
-      maxWidth="lg"
+      maxWidth="xl"
       fullWidth
       keepMounted
       PaperProps={{
@@ -335,7 +368,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
               </Box>
 
               {/* Alert Banner */}
-              {!previewOnly && (
+              {!isApproved && !isFailure && (
                 <Box sx={{ px: 2, pb: 2 }}>
                   <Alert severity="warning" sx={{ borderRadius: "8px", backgroundColor: BCDesignTokens.supportSurfaceColorWarning }} icon={false} variant="outlined">
                     <Typography variant="body1" fontWeight={700}>Please verify this geospatial file</Typography>
@@ -347,48 +380,121 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
 
               {/* Dynamic Map Container */}
               <Box
-                sx={{ flex: 1, position: "relative", minHeight: "350px" }}
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  position: "relative",
+                  minHeight: "350px",
+                  m: 2,
+                  border: "1px solid",
+                  borderColor: isFailure ? "#E4A6A2" : BCDesignTokens.surfaceColorBorderDefault,
+                  borderRadius: BCDesignTokens.layoutBorderRadiusLarge,
+                  bgcolor: isFailure ? "#FDECEA" : "transparent",
+                  overflow: "hidden",
+                }}
               >
-                {(status === "failed" || status === "validation_failed") ? (
+                {isFailure ? (
                   <Box
                     sx={{
+                      flex: 1,
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
-                      bgcolor: "#FEF2F2",
-                      height: "100%",
-                      minHeight: "350px",
                       p: 4,
                       textAlign: "center",
                       gap: 1,
+                      overflow: "auto",
                     }}
                   >
-                    <Typography variant="h6" color="error.main" fontWeight={700}>
-                      {status === "validation_failed"
-                        ? "Attribute validation failed"
-                        : isTimeout
-                          ? "Geospatial processing failed"
-                          : "Preview not available for this file"}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ maxWidth: "500px", color: BCDesignTokens.typographyColorPlaceholder }}
-                    >
-                      {status === "validation_failed"
-                        ? "This file does not meet the required attribute standards. Please correct the issue and re-upload."
-                        : isTimeout
-                          ? "This file took too long to process and was automatically stopped. It may be too large or complex to process."
-                          : "Geometry must be valid; no NULL geometry or self-intersecting polygons"}
-                    </Typography>
-                    {errorMessage && (
-                      <Typography
-                        variant="body2"
-                        color="error.main"
-                        sx={{ maxWidth: "500px", mt: 1 }}
-                      >
-                        {errorMessage}
-                      </Typography>
+                    <HighlightOffIcon
+                      sx={{ fontSize: 44, color: "#B23B36", mb: 1 }}
+                    />
+                    {isValidationFailure ? (
+                      <>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={700}
+                          color="text.primary"
+                        >
+                          Attribute validation failed
+                        </Typography>
+                        {missingColumns.length > 0 ? (
+                          <>
+                            <Typography
+                              variant="body2"
+                              color="text.secondary"
+                              sx={{ maxWidth: 480 }}
+                            >
+                              We couldn't process this file because the shapefile
+                              is missing the following required column(s):
+                            </Typography>
+                            <Box
+                              component="ul"
+                              sx={{
+                                m: 0,
+                                mt: 0.5,
+                                p: 0,
+                                listStylePosition: "inside",
+                                color: "text.secondary",
+                              }}
+                            >
+                              {missingColumns.map((column) => (
+                                <Box
+                                  component="li"
+                                  key={column}
+                                  sx={{ typography: "body2", fontWeight: 600 }}
+                                >
+                                  {column}
+                                </Box>
+                              ))}
+                            </Box>
+                          </>
+                        ) : (
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ maxWidth: 480 }}
+                          >
+                            {errorMessage ||
+                              "This file does not meet the required attribute standards."}
+                          </Typography>
+                        )}
+                        <GeoSpatialGuidelines isPreview={true} />
+                      </>
+                    ) : isTimeout ? (
+                      <>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={700}
+                          color="text.primary"
+                        >
+                          We apologize. The file upload timed out.
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Please try uploading the file again.
+                        </Typography>
+                      </>
+                    ) : (
+                      <>
+                        <Typography
+                          variant="subtitle1"
+                          fontWeight={700}
+                          color="text.primary"
+                        >
+                          Geospatial processing failed
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{ maxWidth: 480 }}
+                        >
+                          {errorMessage ||
+                            "We couldn't process this file. The geometry must be valid, with no NULL or self-intersecting geometry."}
+                        </Typography>
+                        <GeoSpatialGuidelines isPreview={true} />
+                      </>
                     )}
                   </Box>
                 ) : (
@@ -574,8 +680,20 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
       </DialogContent>
       <Divider />
       <DialogActions sx={{ px: 3, py: 2 }}>
-        {previewOnly ? (
+        {isFailure && !previewOnly ? (
+          // Failed upload/processing: the file is unusable, so the only action is
+          // to close, which fully removes the file when a removal handler exists.
+          <LoadingButton
+            color="secondary"
+            onClick={onReject ? handleReject : onClose}
+            loading={isRejecting}
+            sx={{ minWidth: "120px" }}
+          >
+            Close
+          </LoadingButton>
+        ) : previewOnly ? (
           <Button
+            color="secondary"
             onClick={onClose}
             sx={{ minWidth: "120px" }}
           >
@@ -602,7 +720,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
             ) : (
               <Button
                 onClick={onApprove}
-                disabled={isProcessing || status === "failed" || status === "validation_failed"}
+                disabled={isProcessing}
                 sx={{ minWidth: "120px" }}
               >
                 Approve

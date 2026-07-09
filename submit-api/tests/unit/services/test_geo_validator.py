@@ -70,8 +70,19 @@ class _FakeCollection:
         return iter(self._features)
 
 
-def _feature(props: dict) -> dict:
-    return {"type": "Feature", "geometry": None, "properties": props}
+# A minimal valid geometry so attribute-focused tests are not tripped up by the
+# geometry validator (which is on by default).
+_VALID_GEOMETRY = {"type": "Point", "coordinates": [0.0, 0.0]}
+
+# A classic self-intersecting "bowtie" polygon.
+_SELF_INTERSECTING_GEOMETRY = {
+    "type": "Polygon",
+    "coordinates": [[[0.0, 0.0], [1.0, 1.0], [1.0, 0.0], [0.0, 1.0], [0.0, 0.0]]],
+}
+
+
+def _feature(props: dict, geometry: dict | None = _VALID_GEOMETRY) -> dict:
+    return {"type": "Feature", "geometry": geometry, "properties": props}
 
 
 # ---------------------------------------------------------------------------
@@ -244,6 +255,66 @@ def test_whitespace_stripped_from_valid_value():
     collection = _FakeCollection(
         schema_props=VALID_SCHEMA,
         features=[_feature(props)],
+    )
+    with patch("submit_api.services.geo.validator.fiona.open", return_value=collection):
+        is_valid, errors, _ = validate_shapefile("dummy.shp")
+
+    assert is_valid is True
+    assert errors == []
+
+
+# ---------------------------------------------------------------------------
+# Geometry validation
+# ---------------------------------------------------------------------------
+
+def test_null_geometry_fails():
+    """A feature with no geometry produces a null_geometry error."""
+    collection = _FakeCollection(
+        schema_props=VALID_SCHEMA,
+        features=[_feature(VALID_PROPERTIES, geometry=None)],
+    )
+    with patch("submit_api.services.geo.validator.fiona.open", return_value=collection):
+        is_valid, errors, summary = validate_shapefile("dummy.shp")
+
+    assert is_valid is False
+    assert any(e["error_type"] == "null_geometry" for e in errors)
+    assert "geometry" in summary["fields_with_errors"]
+
+
+def test_empty_geometry_fails():
+    """A feature with an empty geometry produces a null_geometry error."""
+    empty_geom = {"type": "Polygon", "coordinates": []}
+    collection = _FakeCollection(
+        schema_props=VALID_SCHEMA,
+        features=[_feature(VALID_PROPERTIES, geometry=empty_geom)],
+    )
+    with patch("submit_api.services.geo.validator.fiona.open", return_value=collection):
+        is_valid, errors, _ = validate_shapefile("dummy.shp")
+
+    assert is_valid is False
+    assert any(e["error_type"] == "null_geometry" for e in errors)
+
+
+def test_self_intersecting_polygon_fails():
+    """A self-intersecting polygon produces a self_intersection error."""
+    collection = _FakeCollection(
+        schema_props=VALID_SCHEMA,
+        features=[_feature(VALID_PROPERTIES, geometry=_SELF_INTERSECTING_GEOMETRY)],
+    )
+    with patch("submit_api.services.geo.validator.fiona.open", return_value=collection):
+        is_valid, errors, summary = validate_shapefile("dummy.shp")
+
+    assert is_valid is False
+    assert any(e["error_type"] == "self_intersection" for e in errors)
+    assert "geometry" in summary["fields_with_errors"]
+
+
+@patch("submit_api.services.geo.validator.VALIDATE_GEOMETRY", False)
+def test_geometry_validation_disabled_skips_geometry_checks():
+    """With VALIDATE_GEOMETRY off, a null geometry no longer fails the file."""
+    collection = _FakeCollection(
+        schema_props=VALID_SCHEMA,
+        features=[_feature(VALID_PROPERTIES, geometry=None)],
     )
     with patch("submit_api.services.geo.validator.fiona.open", return_value=collection):
         is_valid, errors, _ = validate_shapefile("dummy.shp")

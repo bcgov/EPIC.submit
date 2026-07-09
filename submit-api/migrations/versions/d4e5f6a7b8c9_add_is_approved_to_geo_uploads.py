@@ -1,7 +1,7 @@
 """Add is_approved column to geo_data_uploads
 
 Revision ID: d4e5f6a7b8c9
-Revises: 6319d2b3933e
+Revises: 8bc9fafd24f1
 Create Date: 2026-07-07 00:00:00.000000
 
 Adds a boolean flag recording whether the proponent explicitly approved the
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 
 revision = 'd4e5f6a7b8c9'
-down_revision = '6319d2b3933e'
+down_revision = '8bc9fafd24f1'
 branch_labels = None
 depends_on = None
 

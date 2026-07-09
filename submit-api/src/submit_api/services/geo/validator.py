@@ -20,7 +20,8 @@ Entry points:
 Both return (is_valid: bool, errors: list[dict], summary: dict).
 
 Error dict keys: feature_index, field, dbf_column, error_type, value, message.
-Error types: missing_column | missing_value | invalid_code | no_shapefile.
+Error types: missing_column | missing_value | invalid_code | no_shapefile |
+             null_geometry | self_intersection | invalid_geometry.
 
 Fiona is used for streaming so the entire feature set is never held in memory.
 """
@@ -33,6 +34,8 @@ import tempfile
 import zipfile
 
 import fiona
+from shapely.geometry import shape
+from shapely.validation import explain_validity
 
 from submit_api.services.geo.validation_rules import (
     ALLOWED_VALUES,
@@ -41,6 +44,7 @@ from submit_api.services.geo.validation_rules import (
     MAX_ERRORS,
     NULLABLE_FIELDS,
     OPTIONAL_FIELDS,
+    VALIDATE_GEOMETRY,
     VALIDATE_VALUES,
 )
 
@@ -98,6 +102,67 @@ def _validate_feature(idx: int, props: dict) -> _ErrorList:
     return feature_errors
 
 
+def _validate_geometry(idx: int, geom: dict | None) -> _ErrorList:
+    """Validate a single feature's geometry.
+
+    Detects three distinct failures and tags each with its own ``error_type``:
+    - ``null_geometry``     — geometry is absent or empty.
+    - ``self_intersection`` — invalid topology caused by a self-intersection.
+    - ``invalid_geometry``  — any other invalid topology (ring order, etc.).
+
+    Returns a list of error dicts (empty if the geometry is valid).
+    """
+    if geom is None:
+        return [{
+            "feature_index": idx,
+            "field": "geometry",
+            "dbf_column": None,
+            "error_type": "null_geometry",
+            "value": None,
+            "message": f"Feature {idx}: geometry is missing (null).",
+        }]
+
+    try:
+        shp = shape(geom)
+    except (TypeError, ValueError, AttributeError) as exc:
+        return [{
+            "feature_index": idx,
+            "field": "geometry",
+            "dbf_column": None,
+            "error_type": "invalid_geometry",
+            "value": None,
+            "message": f"Feature {idx}: geometry could not be parsed ({exc}).",
+        }]
+
+    if shp.is_empty:
+        return [{
+            "feature_index": idx,
+            "field": "geometry",
+            "dbf_column": None,
+            "error_type": "null_geometry",
+            "value": None,
+            "message": f"Feature {idx}: geometry is empty.",
+        }]
+
+    if not shp.is_valid:
+        reason = explain_validity(shp)
+        is_self_intersection = "self-intersection" in reason.lower()
+        return [{
+            "feature_index": idx,
+            "field": "geometry",
+            "dbf_column": None,
+            "error_type": "self_intersection" if is_self_intersection else "invalid_geometry",
+            "value": None,
+            "message": (
+                f"Feature {idx}: polygon is self-intersecting ({reason})."
+                if is_self_intersection
+                else f"Feature {idx}: geometry is invalid ({reason})."
+            ),
+        }]
+
+    return []
+
+
 def validate_shapefile(shp_path: str) -> _Result:
     """Validate a single shapefile's attributes against FIELD_MAP rules.
 
@@ -130,9 +195,11 @@ def validate_shapefile(shp_path: str) -> _Result:
                 "fields_with_errors": [e["field"] for e in missing],
             }
 
-        # Value/nullability checks are gated until the official allowed-value
-        # spec is confirmed; until then a file with all required columns passes.
-        if not VALIDATE_VALUES:
+        # Row-level checks are split in two: attribute value/nullability checks
+        # are gated behind VALIDATE_VALUES (spec not yet confirmed), while
+        # geometry checks are gated behind VALIDATE_GEOMETRY. When neither is on,
+        # a file with all required columns passes without scanning any rows.
+        if not VALIDATE_VALUES and not VALIDATE_GEOMETRY:
             return True, [], {"total_errors": 0, "capped": False, "fields_with_errors": []}
 
         # --- Row-level validation (streaming) --------------------------------
@@ -143,9 +210,16 @@ def validate_shapefile(shp_path: str) -> _Result:
                 capped = True
                 break
 
-            feature_errors = _validate_feature(idx, feature.get("properties", {}) or {})
+            feature_errors: _ErrorList = []
+            if VALIDATE_GEOMETRY:
+                feature_errors.extend(_validate_geometry(idx, feature.get("geometry")))
+            if VALIDATE_VALUES:
+                feature_errors.extend(
+                    _validate_feature(idx, feature.get("properties", {}) or {})
+                )
+
             errors.extend(feature_errors)
-            fields_with_errors.update(e["field"] for e in feature_errors)
+            fields_with_errors.update(e["field"] for e in feature_errors if e["field"])
 
     return (
         len(errors) == 0,

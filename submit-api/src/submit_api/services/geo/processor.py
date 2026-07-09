@@ -344,8 +344,8 @@ class GeoService:
 
     # -- Background worker ---------------------------------------------------
 
-    @staticmethod
-    def _validate_or_fail(upload: GeoDataUpload, local_path: str) -> bool:
+    @classmethod
+    def _validate_or_fail(cls, upload: GeoDataUpload, local_path: str) -> bool:
         """Run attribute validation, persisting a failure state if invalid.
 
         Returns True if the upload passed validation (or validation is skipped),
@@ -366,21 +366,51 @@ class GeoService:
         )
         upload.status = "validation_failed"
         upload.validation_errors = errors
+        upload.error_message = cls._build_validation_message(errors, summary)
+        db.session.commit()
+        return False
+
+    @staticmethod
+    def _build_validation_message(errors: list[dict], summary: Dict[str, Any]) -> str:
+        """Compose a human-readable summary covering each distinct failure type.
+
+        The structured ``validation_errors`` list carries the per-feature detail;
+        this string is the at-a-glance headline shown to the proponent.
+        """
+        def _count(*types: str) -> int:
+            return sum(1 for e in errors if e.get("error_type") in types)
+
         missing_cols = [
             e["dbf_column"] for e in errors if e.get("error_type") == "missing_column"
         ]
+        null_geom = _count("null_geometry")
+        self_int = _count("self_intersection")
+        invalid_geom = _count("invalid_geometry")
+        attr_issues = _count("missing_value", "invalid_code")
+
+        parts: list[str] = []
         if missing_cols:
-            upload.error_message = (
-                "The shapefile is missing required column(s): "
-                f"{', '.join(missing_cols)}."
+            parts.append(f"missing required column(s): {', '.join(missing_cols)}")
+        if null_geom:
+            parts.append(f"{null_geom} feature(s) with missing or empty geometry")
+        if self_int:
+            parts.append(f"{self_int} self-intersecting polygon(s)")
+        if invalid_geom:
+            parts.append(f"{invalid_geom} feature(s) with invalid geometry")
+        if attr_issues:
+            parts.append(
+                f"{attr_issues} attribute value issue(s) in: "
+                f"{', '.join(summary['fields_with_errors']) or 'N/A'}"
             )
-        else:
-            upload.error_message = (
-                f"Attribute validation failed with {summary['total_errors']} issue(s) in: "
-                f"{', '.join(summary['fields_with_errors']) or 'N/A'}."
+
+        if not parts:
+            parts.append(
+                f"{summary['total_errors']} issue(s) in: "
+                f"{', '.join(summary['fields_with_errors']) or 'N/A'}"
             )
-        db.session.commit()
-        return False
+
+        prefix = "Capped at first " + str(len(errors)) + " issue(s). " if summary.get("capped") else ""
+        return prefix + "Validation failed: " + "; ".join(parts) + "."
 
     @staticmethod
     def _upload_processed_tiers(upload: GeoDataUpload, result: Dict[str, Any]) -> None:

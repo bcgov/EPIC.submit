@@ -334,6 +334,7 @@ export const GeoSpatialProponentView = () => {
                   (previewDocument !== null ? "processing" : undefined)
                 }
                 errorMessage={previewUpload?.error_message}
+                validationErrors={previewUpload?.validation_errors}
                 isApproved={previewUpload?.is_approved}
                 onApprove={handleApprove}
                 onReject={handleReject}

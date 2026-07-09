@@ -368,6 +368,7 @@ export default function DocumentRow({
               fileSizeKb={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.file_size_kb}
               status={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.status}
               errorMessage={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.error_message}
+              validationErrors={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.validation_errors}
               previewOnly={true}
               onClose={() => setShowPreviewModal(false)}
             />

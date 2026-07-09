@@ -1,5 +1,4 @@
-import { Box, TableRow, IconButton, Typography } from "@mui/material";
-import { StatusChip } from "@/components/Shared/StatusChip";
+import { Box, TableRow, IconButton } from "@mui/material";
 import {
   Submission,
   SUBMISSION_STATUS,
@@ -26,7 +25,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
-import { useGetGeoUploads } from "@/hooks/api/useGeo";
 import { GEO_MAX_FILE_SIZE_BYTES, GEO_MAX_FILE_SIZE_MB } from "@/utils/constants";
 
 type DocumentRowProps = Readonly<{
@@ -45,7 +43,7 @@ export default function Row({
   onDocumentClick,
 }: DocumentRowProps) {
   const queryClient = useQueryClient();
-  const { submissionPackageId, submissionId: subItemId } = useParams({
+  const { submissionPackageId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
@@ -56,20 +54,6 @@ export default function Row({
   const [expanded, setExpanded] = useState(false);
 
   const { removeFile } = useFileStore();
-
-  const { data: geoUploads } = useGetGeoUploads(
-    {
-      itemId: Number(subItemId),
-      autoRefetch: isGeoSpatial,
-    },
-    {
-      enabled: isGeoSpatial,
-    }
-  );
-
-  const geoUpload = (geoUploads as any[])?.find(
-    (u: any) => u.raw_s3_key === currentSubmission.submitted_document?.url,
-  );
 
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
     submissionItemId: currentSubmission.item_id,
@@ -247,27 +231,6 @@ export default function Row({
             <span style={{ marginRight: "24px" }} />
           )}
         </SubmitTableCell>
-        {isGeoSpatial && (
-          <SubmitTableCell align="center">
-            {geoUpload ? (
-              <StatusChip
-                label={geoUpload.status.replace(/_/g, " ").toUpperCase()}
-                theme={
-                  geoUpload.status === "ready"
-                    ? "success"
-                    : geoUpload.status === "processing"
-                      ? "warning"
-                      : "danger"
-                }
-                sx={{ fontSize: "12px" }}
-              />
-            ) : (
-              <Typography variant="body2" color="textSecondary">
-                N/A
-              </Typography>
-            )}
-          </SubmitTableCell>
-        )}
         <SubmitTableCell align="right">
           {isRemovable ? (
             <LoadingButton
@@ -300,7 +263,7 @@ export default function Row({
       {expanded && (
         <TableRow>
           <SubmitTableCell
-            colSpan={isGeoSpatial ? 6 : 5}
+            colSpan={5}
             style={{ paddingBottom: 0, paddingTop: 0, borderTop: "none" }}
           >
             <DocumentsSubTable

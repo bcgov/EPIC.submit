@@ -7,7 +7,6 @@ import {
   TableRowProps,
   Typography,
 } from "@mui/material";
-import { StatusChip } from "@/components/Shared/StatusChip";
 import { BCDesignTokens } from "epic.theme";
 import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -16,11 +15,9 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { useDeleteSubmission } from "@/hooks/api/useSubmissions";
 import { useFileStore } from "@/store/fileStore";
 import { useFormContext } from "react-hook-form";
-import { useParams } from "@tanstack/react-router";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 import { GeoApprovedBadge } from "@/components/Shared/GeoApprovedBadge";
-import { useGetGeoUploads } from "@/hooks/api/useGeo";
 
 export const StyledHeadTableCell = styled(TableCell, {
   shouldForwardProp: (prop) => prop !== "error",
@@ -100,14 +97,12 @@ type DocumentTableRowProps = Readonly<{
   error?: boolean;
   formFieldName?: string;
   folder?: string;
-  isGeoSpatial?: boolean;
   onDocumentClick?: (documentItem: Submission) => void;
 }>;
 export default function DocumentTableRow({
   documentItem,
   error = false,
   formFieldName,
-  isGeoSpatial,
   onDocumentClick,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
@@ -115,15 +110,6 @@ export default function DocumentTableRow({
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
   const { setValue, trigger, getValues } = useFormContext(); // Get form context directly
   const { removeFile } = useFileStore();
-  const { submissionId: subItemId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
-  });
-  const { data: geoUploads } = useGetGeoUploads({ itemId: Number(subItemId) });
-
-  const geoUpload = (geoUploads as any[])?.find(
-    (u: any) => u.raw_s3_key === submitted_document?.url,
-  );
-
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
     submissionItemId: documentItem.item_id,
   });
@@ -218,27 +204,6 @@ export default function DocumentTableRow({
       </DocumentTableCell>
       <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>
       <DocumentTableCell align="right">{version}</DocumentTableCell>
-      {isGeoSpatial && (
-        <DocumentTableCell align="center">
-          {geoUpload ? (
-            <StatusChip
-              label={geoUpload.status.toUpperCase()}
-              theme={
-                geoUpload.status === "ready"
-                  ? "success"
-                  : geoUpload.status === "processing"
-                    ? "warning"
-                    : "danger"
-              }
-              sx={{ fontSize: "12px" }}
-            />
-          ) : (
-            <Typography variant="body2" color="textSecondary">
-              N/A
-            </Typography>
-          )}
-        </DocumentTableCell>
-      )}
       <DocumentTableCell align="center">
         <LoadingButton
           onClick={onRemoveClick}
