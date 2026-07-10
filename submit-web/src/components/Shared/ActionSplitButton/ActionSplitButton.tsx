@@ -65,13 +65,14 @@ export default function ActionSplitButton({
   }
 
   return (
-    <Box sx={{ display: "inline-flex", alignItems: "center" }}>
+    <Box sx={{ display: "inline-flex"}}>
       <ButtonGroup
         ref={anchorRef}
         variant="outlined"
         size="small"
         sx={{
           height: 25,
+          alignItems: "center",
           borderColor: "#036",
           "& .MuiButtonGroup-grouped": {
             borderColor: "#036 !important",

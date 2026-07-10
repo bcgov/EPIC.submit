@@ -107,6 +107,7 @@ export function useUpdateRequests({
 
   const acceptUpdateRequestMutation = useAcceptUpdateRequest({
     packageId: submissionPackageId,
+    accountProjectId,
     options: {
       onSuccess: () => {
         notify.success("Update request accepted successfully");
@@ -124,6 +125,7 @@ export function useUpdateRequests({
 
   const withdrawUpdateRequestMutation = useWithdrawUpdateRequest({
     packageId: submissionPackageId,
+    accountProjectId,
     options: {
       onSuccess: () => {
         notify.success("Update request withdrawn successfully");
