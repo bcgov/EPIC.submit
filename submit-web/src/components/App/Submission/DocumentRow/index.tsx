@@ -24,10 +24,11 @@ import { BCDesignTokens } from "epic.theme";
 import { useDocumentRow } from "@/hooks/useDocumentRow";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { useState } from "react";
-import { useAccount } from "@/store/accountStore";
 import { lazy, Suspense } from "react";
 import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import { useGetGeoUploads } from "@/hooks/api/useGeo";
+import { useHasRole } from "@/hooks/common";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
@@ -54,7 +55,6 @@ export default function DocumentRow({
     documentSubmission;
   const packageType = propsPackageType || submissionPackage?.type;
   const name = submitted_document?.name || "";
-  const { roles } = useAccount();
 
   // Check if this is a GIS document (item type name "Geospatial Information")
   const isGISDocument = submissionItem.type.name === GIS_ITEM_TYPE_NAME;
@@ -62,8 +62,8 @@ export default function DocumentRow({
   // Get the correct package-specific roles (include document folder for GIS handling)
   const packageRoles = usePackageRoles(submissionPackage, packageType, submitted_document?.folder);
 
-  // Check if user has GIS permissions
-  const hasGISPermissions = roles?.includes('gis_extended_edit') || roles?.includes('full_access');
+  // Check if user has GIS permissions (includes full_access check)
+  const hasGISPermissions = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
 
   // State for GIS preview modal
   const [showPreviewModal, setShowPreviewModal] = useState(false);
