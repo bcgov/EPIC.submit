@@ -23,12 +23,14 @@ from __future__ import annotations
 import json
 import logging
 import math
+import multiprocessing
 import os
 import tempfile
 import threading
 import zipfile
 import glob
 from datetime import datetime, timedelta, timezone
+from queue import Empty
 from typing import Any, Dict
 import pandas as pd
 import geopandas as gpd
@@ -273,14 +275,77 @@ def process_geo_file(local_path: str) -> Dict[str, Any]:
 GEO_MAX_CONCURRENT_JOBS = int(os.environ.get("GEO_MAX_CONCURRENT_JOBS", 3))
 _GEO_SEMAPHORE = threading.Semaphore(GEO_MAX_CONCURRENT_JOBS)
 
+# Hard wall-clock limit for converting a single file. A malformed or overly large
+# file can make geopandas spin indefinitely, leaving the upload stuck in
+# 'processing' forever. When exceeded, the worker process is forcibly killed and
+# the upload is marked as failed. Configurable via GEO_PROCESSING_TIMEOUT_SECONDS.
+GEO_PROCESSING_TIMEOUT_SECONDS = int(os.environ.get("GEO_PROCESSING_TIMEOUT_SECONDS", 60))
+
+
+def _process_geo_file_worker(local_path: str, result_queue: "multiprocessing.Queue") -> None:
+    """Child-process entry point: run process_geo_file and push the outcome onto the queue.
+
+    Runs in a separate process so a runaway conversion can be terminated by the
+    parent. The result dict (GeoJSON bytes + metadata) is picklable; exceptions
+    are stringified because arbitrary exception types may not be.
+    """
+    try:
+        result_queue.put(("ok", process_geo_file(local_path)))
+    except Exception as exc:  # pylint: disable=broad-except # noqa: B902
+        result_queue.put(("error", str(exc)))
+
+
+def process_geo_file_with_timeout(
+    local_path: str, timeout_seconds: int = GEO_PROCESSING_TIMEOUT_SECONDS
+) -> Dict[str, Any]:
+    """Run process_geo_file in a child process, enforcing a hard wall-clock timeout.
+
+    Raises:
+        TimeoutError: if processing exceeds ``timeout_seconds`` (the child is killed).
+        RuntimeError: if the child process fails or dies without producing a result.
+    """
+    ctx = multiprocessing.get_context()
+    result_queue: "multiprocessing.Queue" = ctx.Queue()
+    proc = ctx.Process(
+        target=_process_geo_file_worker,
+        args=(local_path, result_queue),
+        daemon=True,
+    )
+    proc.start()
+
+    try:
+        # Block until the child publishes a result or the timeout elapses. Reading
+        # from the queue before join() avoids a deadlock when the result is large.
+        status, payload = result_queue.get(timeout=timeout_seconds)
+    except Empty as exc:
+        logger.warning(
+            "Geospatial processing exceeded %ss for %s; terminating worker process.",
+            timeout_seconds, local_path,
+        )
+        proc.terminate()
+        proc.join(timeout=5)
+        if proc.is_alive():
+            proc.kill()
+        raise TimeoutError(
+            f"Processing timed out after {timeout_seconds} seconds and was stopped."
+        ) from exc
+    finally:
+        result_queue.close()
+
+    proc.join(timeout=5)
+
+    if status == "error":
+        raise RuntimeError(payload)
+    return payload
+
 
 class GeoService:
     """Service class for geospatial upload management."""
 
     # -- Background worker ---------------------------------------------------
 
-    @staticmethod
-    def _validate_or_fail(upload: GeoDataUpload, local_path: str) -> bool:
+    @classmethod
+    def _validate_or_fail(cls, upload: GeoDataUpload, local_path: str) -> bool:
         """Run attribute validation, persisting a failure state if invalid.
 
         Returns True if the upload passed validation (or validation is skipped),
@@ -301,21 +366,51 @@ class GeoService:
         )
         upload.status = "validation_failed"
         upload.validation_errors = errors
+        upload.error_message = cls._build_validation_message(errors, summary)
+        db.session.commit()
+        return False
+
+    @staticmethod
+    def _build_validation_message(errors: list[dict], summary: Dict[str, Any]) -> str:
+        """Compose a human-readable summary covering each distinct failure type.
+
+        The structured ``validation_errors`` list carries the per-feature detail;
+        this string is the at-a-glance headline shown to the proponent.
+        """
+        def _count(*types: str) -> int:
+            return sum(1 for e in errors if e.get("error_type") in types)
+
         missing_cols = [
             e["dbf_column"] for e in errors if e.get("error_type") == "missing_column"
         ]
+        null_geom = _count("null_geometry")
+        self_int = _count("self_intersection")
+        invalid_geom = _count("invalid_geometry")
+        attr_issues = _count("missing_value", "invalid_code")
+
+        parts: list[str] = []
         if missing_cols:
-            upload.error_message = (
-                "The shapefile is missing required column(s): "
-                f"{', '.join(missing_cols)}."
+            parts.append(f"missing required column(s): {', '.join(missing_cols)}")
+        if null_geom:
+            parts.append(f"{null_geom} feature(s) with missing or empty geometry")
+        if self_int:
+            parts.append(f"{self_int} self-intersecting polygon(s)")
+        if invalid_geom:
+            parts.append(f"{invalid_geom} feature(s) with invalid geometry")
+        if attr_issues:
+            parts.append(
+                f"{attr_issues} attribute value issue(s) in: "
+                f"{', '.join(summary['fields_with_errors']) or 'N/A'}"
             )
-        else:
-            upload.error_message = (
-                f"Attribute validation failed with {summary['total_errors']} issue(s) in: "
-                f"{', '.join(summary['fields_with_errors']) or 'N/A'}."
+
+        if not parts:
+            parts.append(
+                f"{summary['total_errors']} issue(s) in: "
+                f"{', '.join(summary['fields_with_errors']) or 'N/A'}"
             )
-        db.session.commit()
-        return False
+
+        prefix = "Capped at first " + str(len(errors)) + " issue(s). " if summary.get("capped") else ""
+        return prefix + "Validation failed: " + "; ".join(parts) + "."
 
     @staticmethod
     def _upload_processed_tiers(upload: GeoDataUpload, result: Dict[str, Any]) -> None:
@@ -377,7 +472,7 @@ class GeoService:
                         if not cls._validate_or_fail(upload, local_path):
                             return
 
-                        result = process_geo_file(local_path)
+                        result = process_geo_file_with_timeout(local_path)
                         cls._upload_processed_tiers(upload, result)
 
                     metadata = result["metadata"]
@@ -515,6 +610,46 @@ class GeoService:
         }
 
     @classmethod
+    def approve_upload(cls, upload_id: int) -> GeoDataUpload:
+        """Mark a processed upload as approved by the proponent.
+
+        Raises:
+            LookupError: if the upload does not exist.
+            ValueError: if the upload is not in a 'ready' state.
+        """
+        upload = cls.get_upload(upload_id)
+        if not upload:
+            raise LookupError(f"GeoDataUpload {upload_id} not found.")
+        if upload.status != "ready":
+            raise ValueError(
+                f"Only a ready upload can be approved (status: {upload.status})."
+            )
+
+        upload.is_approved = True
+        db.session.commit()
+        return upload
+
+    @classmethod
+    def has_unapproved_uploads(cls, item_id: int) -> bool:
+        """Return True if the item has any geospatial upload not yet approved.
+
+        Covers uploads still processing, failed, or ready-but-unapproved. Used to
+        block completing a submission item until every file has been reviewed.
+        """
+        uploads = cls.list_uploads(item_id=item_id)
+        return any(not upload.is_approved for upload in uploads)
+
+    @classmethod
+    def has_unapproved_uploads_for_package(cls, package_id: int) -> bool:
+        """Return True if any geospatial upload in the package is not yet approved.
+
+        Used to block submitting a package to the EAO until every geospatial file
+        across all of its items has been reviewed and approved.
+        """
+        uploads = cls.list_uploads(package_id=package_id)
+        return any(not upload.is_approved for upload in uploads)
+
+    @classmethod
     def retry_upload(cls, app, upload_id: int) -> GeoDataUpload:
         """Reset a failed upload and re-trigger processing.
 
@@ -529,6 +664,7 @@ class GeoService:
             raise ValueError("Only failed uploads can be retried.")
 
         upload.status = "processing"
+        upload.is_approved = False
         upload.error_message = None
         upload.validation_errors = None
         db.session.commit()
