@@ -1,9 +1,9 @@
 import { Box, Typography, Divider } from "@mui/material";
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
 import {
+  ProjectStatus,
   getProjectStatus,
   PROJECT_STATUS,
-} from "@/components/App/registration/addProjects/ProjectCard/constants";
+} from "@/components/Shared/ProjectStatus";
 import { BCDesignTokens } from "epic.theme";
 import { Project } from "@/models/Project";
 

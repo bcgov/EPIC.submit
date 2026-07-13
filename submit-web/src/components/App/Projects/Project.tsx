@@ -3,7 +3,7 @@ import { AccountProject } from "@/models/Project";
 import { SubmissionPackageType } from "@/models/Package";
 import { useNavigate } from "@tanstack/react-router";
 import { ProjectSubmissionsCard } from "./ProjectSubmissionsCard";
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus";
 
 type ProjectParam = {
   accountProject: AccountProject;

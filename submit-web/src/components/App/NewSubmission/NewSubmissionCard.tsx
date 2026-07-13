@@ -1,4 +1,4 @@
-import { ProjectStatus } from "@/components/App/registration/addProjects/ProjectStatus";
+import { ProjectStatus } from "@/components/Shared/ProjectStatus";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import BarTitle from "@/components/Shared/Text/BarTitle";
 import { Box, Typography } from "@mui/material";
