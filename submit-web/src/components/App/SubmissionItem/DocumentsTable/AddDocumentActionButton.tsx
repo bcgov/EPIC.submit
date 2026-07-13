@@ -5,6 +5,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import { saveObject } from "@/hooks/api/useObjectStorage";
 import { createSubmission } from "@/hooks/api/useSubmissions";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import { GEO_MAX_FILE_SIZE_BYTES, GEO_MAX_FILE_SIZE_MB } from "@/utils/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { isAxiosError } from "axios";
@@ -39,6 +40,12 @@ export const AddDocumentActionButton = ({
     const ext = fileToUpload.name.split(".").pop()?.toLowerCase();
     if (isGeoSpatial && ext !== "zip" && ext !== "shp") {
       notify.error("Only .zip and .shp files are allowed for geospatial data.");
+      return;
+    }
+    if (isGeoSpatial && fileToUpload.size > GEO_MAX_FILE_SIZE_BYTES) {
+      notify.error(
+        `Geospatial files must be ${GEO_MAX_FILE_SIZE_MB} MB or smaller.`,
+      );
       return;
     }
     try {

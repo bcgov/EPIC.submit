@@ -271,6 +271,17 @@ export default function SubmissionPage() {
       return;
     }
 
+    const hasUnapprovedGeoFiles = (geoUploads as GeoUpload[] | undefined)?.some(
+      (u: GeoUpload) => !u.is_approved,
+    );
+    if (hasUnapprovedGeoFiles) {
+      setIsValidating(true);
+      notify.warning(
+        "One or more geospatial files have not been approved. Please open each geospatial file, review the preview, and approve it before submitting.",
+      );
+      return;
+    }
+
     // Check for unaddressed update request sections
     const unaddressed = getUnaddressedUpdateRequestSections(
       submissionPackage,
@@ -316,7 +327,7 @@ export default function SubmissionPage() {
       (updateRequest) =>
         (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
           updateRequest.status ===
-            UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
+          UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
         updateRequest.active,
     );
 
@@ -606,7 +617,7 @@ export default function SubmissionPage() {
                   condition={
                     isValidating &&
                     submissionPackage.type.name ===
-                      SubmissionPackageType.ADDITIONAL_INFORMATION &&
+                    SubmissionPackageType.ADDITIONAL_INFORMATION &&
                     !hasDocuments
                   }
                 >

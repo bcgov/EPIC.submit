@@ -1,4 +1,4 @@
-import { Box, IconButton, TableRow, Typography, Button, Tooltip } from "@mui/material";
+import { Box, IconButton, TableRow, Typography, Tooltip } from "@mui/material";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import {
@@ -16,6 +16,7 @@ import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { SubmissionPackage, PackageType } from "@/models/Package";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { GeoApprovedBadge } from "@/components/Shared/GeoApprovedBadge";
 import ActionSplitButton, {
   SplitButtonAction,
 } from "@/components/Shared/ActionSplitButton/ActionSplitButton";
@@ -54,19 +55,19 @@ export default function DocumentRow({
     documentSubmission;
   const packageType = propsPackageType || submissionPackage?.type;
   const name = submitted_document?.name || "";
-  
+
   // Check if this is a GIS document (item type name "Geospatial Information")
   const isGISDocument = submissionItem.type.name === GIS_ITEM_TYPE_NAME;
-  
+
   // Get the correct package-specific roles (include document folder for GIS handling)
   const packageRoles = usePackageRoles(submissionPackage, packageType, submitted_document?.folder);
-  
+
   // Check if user has GIS permissions (includes full_access check)
   const hasGISPermissions = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
-  
+
   // State for GIS preview modal
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  
+
   // Get geo uploads for GIS preview
   const { data: geoUploads } = useGetGeoUploads({
     itemId: submissionItem.id,
@@ -176,7 +177,15 @@ export default function DocumentRow({
         ]}
       >
         <SubmitTableCell width={"45%"}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
+              mx: 0.5,
+              overflow: "hidden",
+            }}
+          >
             <Typography
               variant="body1"
               color="inherit"
@@ -185,7 +194,6 @@ export default function DocumentRow({
                 overflow: "clip",
                 textOverflow: "ellipsis",
                 cursor: "pointer",
-                mx: 0.5,
               }}
             >
               {staff ? (
@@ -203,34 +211,13 @@ export default function DocumentRow({
                 />
               )}
             </Typography>
-            {isGISDocument && staff && (
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => setShowPreviewModal(true)}
-                sx={{ 
-                  minWidth: "auto",
-                  fontSize: "12px",
-                  lineHeight: "18px",
-                  textTransform: "none",
-                  color: "#003366",
-                  borderColor: "#003366",
-                  borderRadius: "3px",
-                  padding: "4px 12px",
-                  fontFamily: "BC Sans",
-                  fontWeight: 400,
-                  whiteSpace: "nowrap",
-                  "&:hover": {
-                    borderColor: "#003366",
-                    backgroundColor: "rgba(0, 51, 102, 0.04)",
-                  }
-                }}
-              >
-                Preview GIS File
-              </Button>
-            )}
-          </Box>
-        </SubmitTableCell>
+            <GeoApprovedBadge
+              itemId={documentSubmission.item_id}
+              url={submitted_document?.url}
+              folder={submitted_document?.folder}
+            />
+          </Box >
+        </SubmitTableCell >
         <SubmitTableCell align="left" width={"10%"}>
           {submitted_by || ""}
         </SubmitTableCell>
@@ -332,11 +319,11 @@ export default function DocumentRow({
                     <ActionSplitButton
                       primaryAction={{
                         ...splitButtonConfig.primary,
-                        onClick: () => {} // Disabled click
+                        onClick: () => { } // Disabled click
                       }}
                       secondaryActions={splitButtonConfig.secondary.map(action => ({
                         ...action,
-                        onClick: () => {} // Disabled click
+                        onClick: () => { } // Disabled click
                       }))}
                       disabled
                     />
@@ -357,7 +344,7 @@ export default function DocumentRow({
             ) : null}
           </Box>
         </SubmitTableCell>
-      </SubmitTableRow>
+      </SubmitTableRow >
       {expanded && (
         <TableRow>
           <SubmitTableCell
@@ -367,23 +354,27 @@ export default function DocumentRow({
             <DocumentsSubTable submission={documentSubmission} />
           </SubmitTableCell>
         </TableRow>
-      )}
-      
+      )
+      }
+
       {/* GIS Preview Modal */}
-      {isGISDocument && (
-        <Suspense fallback={null}>
-          <MapPreviewModal
-            open={showPreviewModal}
-            uploadId={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.id ?? null}
-            documentItem={documentSubmission}
-            fileSizeKb={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.file_size_kb}
-            status={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.status}
-            errorMessage={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.error_message}
-            previewOnly={true}
-            onClose={() => setShowPreviewModal(false)}
-          />
-        </Suspense>
-      )}
+      {
+        isGISDocument && (
+          <Suspense fallback={null}>
+            <MapPreviewModal
+              open={showPreviewModal}
+              uploadId={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.id ?? null}
+              documentItem={documentSubmission}
+              fileSizeKb={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.file_size_kb}
+              status={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.status}
+              errorMessage={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.error_message}
+              validationErrors={uploads?.find((u) => u.raw_s3_key === documentSubmission.submitted_document?.url)?.validation_errors}
+              previewOnly={true}
+              onClose={() => setShowPreviewModal(false)}
+            />
+          </Suspense>
+        )
+      }
     </>
   );
 }

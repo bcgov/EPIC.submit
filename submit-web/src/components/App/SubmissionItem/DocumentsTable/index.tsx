@@ -103,9 +103,6 @@ export default function DocumentsTable({
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
-            {isGeoSpatial && (
-              <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
-            )}
             <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </SubmitTableHead>
@@ -116,7 +113,7 @@ export default function DocumentsTable({
                 {getSubmissionItemLabel(submissionItem.type.name)}
               </Typography>
             </SubmitPrimaryRowTableCell>
-            <SubmitPrimaryRowTableCell colSpan={isGeoSpatial ? 3 : 2} />
+            <SubmitPrimaryRowTableCell colSpan={2} />
             <SubmitPrimaryRowTableCell align="right">
               <AddDocumentActionButton
                 folder={folder}

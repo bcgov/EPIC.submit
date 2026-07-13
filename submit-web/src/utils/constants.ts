@@ -18,6 +18,14 @@ export const DEFAULT_ACCEPTED_FILE_TYPES = [
   "xlsx",
 ];
 
+// Default maximum upload size for documents (in MB).
+export const DEFAULT_MAX_FILE_SIZE_MB = 500;
+
+// Geospatial files (.shp/.zip) are capped lower because processing large
+// files is expensive and can time out. This limit applies to geospatial only.
+export const GEO_MAX_FILE_SIZE_MB = 20;
+export const GEO_MAX_FILE_SIZE_BYTES = GEO_MAX_FILE_SIZE_MB * 1024 * 1024;
+
 export const EXTENSION_TO_MIME_TYPE_MAP: Record<string, string[]> = {
   pdf: ["application/pdf"],
   doc: ["application/msword"],

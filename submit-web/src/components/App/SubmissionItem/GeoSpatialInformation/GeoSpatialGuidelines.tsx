@@ -2,7 +2,7 @@ import { Box, Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { geoDocURL } from "./constants";
 
-export const GeoSpatialGuidelines = () => {
+export const GeoSpatialGuidelines = ({ isPreview }: { isPreview?: boolean }) => {
   return (
     <Box>
       <Typography variant="body2">
@@ -16,7 +16,8 @@ export const GeoSpatialGuidelines = () => {
         >
           Spatial Data Submission Guideline
         </Link>{" "}
-        (PDF, 5.1MB) to understand GIS files requirements. You will also find in this document some file templates to get you started.
+        (PDF, 5.1MB) to understand GIS files requirements. {" "}
+        {isPreview ? `Please review this document and re-upload.` : `You can also find file templates in this document to get you started.`}
       </Typography>
     </Box>
   );
