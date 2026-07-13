@@ -205,7 +205,7 @@ function ContactInformationForm() {
               />
               <StyledControlledTextField
                 name="position"
-                label={`Your Position/Role at ${entityName}`}
+                label="Your Position/Role"
                 fullWidth
                 InputLabelProps={{ sx: { fontWeight: 700 } }}
               />
