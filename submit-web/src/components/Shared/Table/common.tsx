@@ -77,7 +77,7 @@ export const SubmitTableHead = styled(TableHead)(() => ({}));
 export const SubmitTableContainer = styled(TableContainer)(() => ({
   height: "100%",
   cursor: "pointer",
-  overflow: "hidden",
+  overflow: "visible",
 }));
 
 const StyledTableRow = styled(TableRow, {

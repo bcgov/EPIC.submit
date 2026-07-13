@@ -111,7 +111,7 @@ export default function Row({ internalStaffDocument }: RowProps) {
           )}
         </Box>
       </SubmitTableCell>
-      <SubmitTableCell align="right" width="40%">
+      <SubmitTableCell align="left" width="40%">
         <Typography variant="body1" color="inherit">
           {created_by_user.staff_user.first_name}{" "}
           {created_by_user.staff_user.last_name}

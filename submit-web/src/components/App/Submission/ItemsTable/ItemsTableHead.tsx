@@ -47,10 +47,14 @@ export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
         <SubmitTableHeadCell width={"10%"} align="left">
           Uploaded by
         </SubmitTableHeadCell>
-        <SubmitTableHeadCell width={"10%"} align="right">
+        <SubmitTableHeadCell width={"10%"} align="right" sx={{
+          paddingRight: "0.5rem !important"
+        }}>
           Version
         </SubmitTableHeadCell>
-        <SubmitTableHeadCell width={"18%"} align="center">
+        <SubmitTableHeadCell width={"18%"} align="left" sx={{
+          paddingLeft: "0.75rem !important"
+        }}>
           Status
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
