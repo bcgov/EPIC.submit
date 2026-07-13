@@ -91,6 +91,12 @@ function ContactInformationForm() {
     }
   }, [userId, navigateToNextStep]);
 
+  useEffect(() => {
+    if (termsAccepted) {
+      setShowTermsError(false);
+    }
+  }, [termsAccepted]);
+
   const onCreateAccountSuccess = (data: AcceptInvitationResponse) => {
     setNewlyCreatedAccount(true);
     setAccount({
@@ -125,7 +131,13 @@ function ContactInformationForm() {
     },
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, setValue } = methods;
+
+  useEffect(() => {
+    if (entityName) {
+      setValue("company", entityName);
+    }
+  }, [entityName, setValue]);
 
   const onSubmitHandler = async (data: CreateAccountFormSchema) => {
     if (!termsAccepted) {
