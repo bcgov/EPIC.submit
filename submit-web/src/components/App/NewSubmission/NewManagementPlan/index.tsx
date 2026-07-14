@@ -1,6 +1,6 @@
 import { Form } from "@/components/App/NewSubmission/NewManagementPlan/Form";
 import { NewManagementPlanForm } from "@/components/App/NewSubmission/NewManagementPlan/types";
-import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus";
+import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
 import { SubmissionPackageType } from "@/models/Package";
 import { Grid } from "@mui/material";
 import { NewSubmissionCard } from "../NewSubmissionCard";

@@ -1,6 +1,7 @@
 import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import { Box, styled, SxProps, Typography } from "@mui/material";
-import { ProjectStatus, PROJECT_STATUS } from "@/components/Shared/ProjectStatus";
+import { ProjectStatus } from "@/components/Shared/ProjectStatus";
+import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
 import { useMemo } from "react";
 
 type SubmissionTitleProps = {

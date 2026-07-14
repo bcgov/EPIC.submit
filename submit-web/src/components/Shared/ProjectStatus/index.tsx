@@ -3,8 +3,6 @@ import { ModeStandby } from "@mui/icons-material";
 import { Stack } from "@mui/material";
 import { EAOColors } from "epic.theme";
 
-export * from "./constants";
-
 type StyleProps = {
   color: string;
   label: string;
