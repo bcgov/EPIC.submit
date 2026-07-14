@@ -96,7 +96,14 @@ export const IPDSubmissionProponentView = () => {
   });
 
   const handleCompleteForm = (formData: IPDSubmissionForm) => {
-    saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value);
+    if (!formData.ipd?.length) {
+      saveSubmission(
+        formData,
+        SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value,
+      );
+    } else {
+      saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value);
+    }
   };
 
   const saveSubmission = async (
