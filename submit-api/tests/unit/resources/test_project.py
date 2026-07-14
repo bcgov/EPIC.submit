@@ -89,7 +89,7 @@ def test_get_project_by_id_invalid_jwt(client):
 def test_get_projects_by_account(client, session, jwt):
     """Returns projects for the given account."""
     headers, account_project = setup_authenticated_proponent(session, jwt)
-
+    print(account_project.id)
     response = client.get(
         f"{PROJECTS_URL}/accounts/{account_project.account_id}",
         headers=headers,
@@ -98,6 +98,8 @@ def test_get_projects_by_account(client, session, jwt):
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
     assert isinstance(data, list)
+    print(account_project.id)
+    print(response.get_json())
     assert any(p["id"] == account_project.id for p in data)
 
 

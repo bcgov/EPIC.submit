@@ -19,9 +19,8 @@ from submit_api.auth import jwt
 from submit_api.enums.role import RoleEnum
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
-from submit_api.models import AccountProject, Project, db, User, PackageVersion
+from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
-from submit_api.models.account_project_work import AccountProjectWork
 from submit_api.models.package import Package
 from submit_api.models.item import Item
 from submit_api.models.staff_user_work import StaffUserWork
@@ -39,11 +38,6 @@ class ProjectQueries:
     @classmethod
     def get_accessible_account_project_ids_for_user(cls, user):
         """Return all account_project_ids accessible by the user based on their roles."""
-        # if user.type == UserType.STAFF:
-        #     # Staff can access all projects
-        #     account_project_ids = db.session.query(AccountProject.id).all()
-        #     return [ap_id for (ap_id,) in account_project_ids]
-
         if not user.account_user or not user.account_user.roles:
             return []
 
@@ -93,94 +87,21 @@ class ProjectQueries:
         schema_class = StaffAccountProjectSchema if is_staff else AccountProjectSchema
         account_project_dict = schema_class().dump(account_project)
 
-        # package_query = db.session.query(Package).join(AccountProject).filter(AccountProject.id == account_project_id)
-        # passing the dict as list for the _filter_packages_by_user_access to work with the existing logic
         account_project_dict = cls._filter_packages_by_user_access([account_project_dict])
         account_project_dict = account_project_dict[0]
-        # filtered_package_ids = [package.id for package in package_query.all()]
-
-        # if filtered_package_ids:
-        #     account_project_dict['packages'] = [
-        #         package for package in account_project_dict['packages']
-        #         if package['id'] in filtered_package_ids
-        #     ]
 
         # Filter account_project_works for staff users without full_access role
         if is_staff and user and user.type == UserType.STAFF:
             if not jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
+                has_gis_extended_edit = jwt.contains_role([EpicSubmitRole.GIS_EXTENDED_EDIT.value])
                 accessible_work_ids = cls._get_accessible_work_ids_for_staff_user(user)
                 if 'account_project_works' in account_project_dict:
                     account_project_dict['account_project_works'] = [
                         work for work in account_project_dict['account_project_works']
-                        if work.get('work_id') in accessible_work_ids
+                        if work.get('work_id') in accessible_work_ids or has_gis_extended_edit
                     ]
 
         return account_project_dict
-
-    # @classmethod
-    # def get_filtered_package_ids(cls, search_options: AccountProjectSearchOptions, user: User = None) -> list:
-    #     """Retrieve package IDs based on search filters."""
-    #     package_query = cls._filter_by_search_criteria(search_options)
-    #     # package_query = cls._filter_packages_by_user_access(package_query, user)
-
-    #     result = [row[0] for row in package_query.with_entities(
-    #         Package.id).all()] if package_query else None
-    #     return result
-
-    # @classmethod
-    # def _filter_account_projects_by_user_access(cls, query=None, user: User = None):
-    #     """Filter AccountProjects by all accessible projects of the user."""
-    #     if user is None:
-    #         user = User.get_by_guid(TokenInfo.get_username())
-
-    #     if not user:
-    #         raise ValueError("User not found.")
-
-    #     if user.type == UserType.STAFF:
-    #         return query
-
-    #     if not user.account_user or not user.account_user.role:
-    #         # No access if no role
-    #         return query.filter(False)
-
-    #     accessible_project_ids = cls.get_accessible_account_project_ids_for_user(user)
-
-    #     if query is None:
-    #         query = db.session.query(AccountProject)
-
-    #     # Filter projects by accessible project ids
-    #     query = query.filter(AccountProject.id.in_(accessible_project_ids))
-
-    #     return query
-
-    # @classmethod
-    # def get_paginated_account_project_ids(cls, page: int, page_size: int,
-    #                                       filtered_package_ids: list = None, user: User = None) -> tuple:
-    #     """Retrieve paginated AccountProject IDs based on filtering."""
-    #     query = db.session.query(AccountProject).join(Project)
-
-    #     # if user is not None:
-    #     #     query = cls._filter_account_projects_by_user_access(query, user)
-
-    #     if filtered_package_ids is None or len(filtered_package_ids) == 0:
-    #         account_project_ids_subquery = query.with_entities(AccountProject.id).distinct()
-    #     else:
-    #         account_project_ids_subquery = (query.join(Package).filter(Package.id.in_(filtered_package_ids))
-    #                                         .with_entities(AccountProject.id).distinct())
-
-    #     account_project_ids_query = (
-    #         db.session.query(AccountProject.id)
-    #         .join(Project)
-    #         .filter(AccountProject.id.in_(account_project_ids_subquery))
-    #         .order_by(Project.name)
-    #     )
-
-    #     if page and page_size:
-    #         paginated_result = account_project_ids_query.paginate(page=page, per_page=page_size)
-    #         return [row[0] for row in paginated_result.items], paginated_result.total
-
-    #     return ([row[0] for row in account_project_ids_query.all()],
-    #             account_project_ids_query.count())
 
     @classmethod
     def get_full_account_projects(cls, is_proponent: bool, account_projects: list) -> list:
@@ -188,18 +109,6 @@ class ProjectQueries:
         # Get user type for status calculation
         user = User.get_by_guid(TokenInfo.get_username())
         user_type = user.type if user else None
-        # # Load account projects with packages, items, and submissions for status calculation
-        # account_projects = (
-        #     db.session.query(AccountProject)
-        #     .join(Project, AccountProject.project_id == Project.id)
-        #     .filter(AccountProject.id.in_(account_project_ids))
-        #     .options(
-        #         joinedload(AccountProject.packages)
-        #         .joinedload(Package.items)
-        #         .joinedload(Item.submissions)
-        #     )
-        #     .order_by(Project.name)
-        # ).all()
 
         # Pre-calculate statuses for all packages
         package_statuses = {}
@@ -219,50 +128,6 @@ class ProjectQueries:
         schema_class = AccountProjectSchema if is_proponent else StaffAccountProjectSchema
         account_projects_list = schema_class(many=True).dump(account_projects)
 
-        # Apply package access filtering for staff users only
-        # if not is_proponent and user and user.type == UserType.STAFF:
-        #     package_query = db.session.query(Package).filter(
-        #         Package.account_project_id.in_(account_project_ids)
-        #     )
-        #     package_query = cls._filter_packages_by_user_access(package_query, user)
-        #     accessible_package_ids = {pkg.id for pkg in package_query.all()}
-
-        #     # Combine with search filtering if provided
-        #     if filtered_package_ids:
-        #         # Intersection: packages matching BOTH access control AND search criteria
-        #         final_package_ids = accessible_package_ids & set(filtered_package_ids)
-        #     else:
-        #         # No search criteria: use only access control filtering
-        #         final_package_ids = accessible_package_ids
-
-        #     # Filter packages in serialized output
-        #     for account_project in account_projects_list:
-        #         account_project['packages'] = [
-        #             package for package in account_project['packages']
-        #             if package['id'] in final_package_ids
-        #         ]
-        # elif filtered_package_ids:
-        #     # For proponent users, only apply search filtering (no access control filtering)
-        #     for account_project in account_projects_list:
-        #         account_project['packages'] = [
-        #             package for package in account_project['packages']
-        #             if package['id'] in filtered_package_ids
-        #         ]
-
-        # # Filter account_project_works for staff users without full_access role
-        # if not is_proponent and user and user.type == UserType.STAFF:
-        #     if not jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
-        #         # Get accessible work IDs for this staff user
-        #         accessible_work_ids = cls._get_accessible_work_ids_for_staff_user(user)
-
-        #         # Filter account_project_works to only include accessible works
-        #         for account_project in account_projects_list:
-        #             if 'account_project_works' in account_project:
-        #                 account_project['account_project_works'] = [
-        #                     work for work in account_project['account_project_works']
-        #                     if work.get('work_id') in accessible_work_ids
-        #                 ]
-
         return account_projects_list
 
     @classmethod
@@ -280,22 +145,31 @@ class ProjectQueries:
 
         # filtered_package_ids = cls.get_filtered_package_ids(search_options, user)
         account_project_query = cls._filter_by_search_criteria(search_options)
-        paginated_result = account_project_query.add_columns(Project.name).order_by(Project.name).distinct().paginate(page=page, per_page=page_size)
-        # account_project_ids, total = cls.get_paginated_account_project_ids(page, page_size,
-        #                                                                    filtered_package_ids, user)
+        ordered_query = (
+            account_project_query
+            .add_columns(Project.name)
+            .order_by(Project.name)
+            .distinct()
+        )
 
-        # if not account_project_ids:
-        #     return [], 0
-        account_projects = [account_project for account_project, project_name in paginated_result.items]
+        if page and page_size:
+            paginated_result = ordered_query.paginate(page=page, per_page=page_size)
+            account_projects = [ap for ap, _ in paginated_result.items]
+            total = paginated_result.total
+        else:
+            results = ordered_query.all()
+            account_projects = [ap for ap, _ in results]
+            total = len(account_projects)
+
         account_projects_list = cls.get_full_account_projects(is_proponent, account_projects)
         account_projects_list = cls._filter_packages_by_user_access(account_projects_list, user)
 
-        return account_projects_list, paginated_result.total
+        return account_projects_list, total
 
     @classmethod
     def _filter_by_search_criteria(cls, search_options: AccountProjectSearchOptions):
         """Apply various filters based on search options."""
-        query = db.session.query(AccountProject).join(Package).join(Project)
+        query = db.session.query(AccountProject).outerjoin(Package).join(Project)
         if not search_options or not any(bool(search_option) for search_option in search_options.__dict__.values()):
             return query
 
@@ -363,25 +237,37 @@ class ProjectQueries:
             for account_project in account_project_list:
                 allowed_packages = []
                 packages = account_project["packages"]
-                work_related_packages = [package for package in packages if package.get("account_project_work_id") is not None]
-                management_plan_related_packages = [package for package in packages if package.get("type").get("name") in MP_VIEW_PACKAGE_TYPES]
+                work_related_packages = [
+                    package for package in packages
+                    if package.get("account_project_work_id") is not None
+                ]
+                management_plan_related_packages = [
+                    package for package in packages
+                    if package.get("type").get("name") in MP_VIEW_PACKAGE_TYPES
+                ]
                 # GIS_EXTENDED_EDIT users can access all work related packages
                 if has_gis_extended_edit:
                     allowed_packages.extend(work_related_packages)
                 # W_VIEW users can access work related packages for works they are assigned to
                 if has_w_view and not has_gis_extended_edit:
                     staff_user_works = StaffUserWork.find_by_staff_user_id(staff_user.id)
-                    work_ids = [staff_user_work.work_id for staff_user_work in staff_user_works]
-                    allowed_packages.extend([package for package in work_related_packages if package.get("account_project_work").get("work_id") in work_ids])
+                    work_ids = [
+                        staff_user_work.work_id for staff_user_work in staff_user_works
+                    ]
+                    allowed_packages.extend([
+                        package for package in work_related_packages
+                        if package.get("account_project_work").get("work_id") in work_ids
+                    ])
                 # MP_VIEW users can access management plan related packages
                 if has_mp_view:
                     allowed_packages.extend(management_plan_related_packages)
                 account_project["packages"] = allowed_packages
                 # Set the correct account_project_works
+                # Skip the accesible work ids check if there is gis permission
                 if 'account_project_works' in account_project:
                     account_project['account_project_works'] = [
                         work for work in account_project['account_project_works']
-                        if work.get('work_id') in accessible_work_ids
+                        if work.get('work_id') in accessible_work_ids or has_gis_extended_edit
                     ]
         if user.type == UserType.PROPONENT:
             if not user.account_user or not user.account_user.role:
@@ -393,75 +279,28 @@ class ProjectQueries:
             accessible_project_ids = cls.get_accessible_account_project_ids_for_user(user)
             if len(accessible_project_ids) == 0:
                 return []
-            account_project_list = [account_project for account_project in account_project_list if account_project.get("id") in accessible_project_ids]
-            if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value, RoleEnum.ACCOUNT_PRIMARY_ADMIN.value]:
+            account_project_list = [
+                account_project for account_project in account_project_list
+                if account_project.get("id") in accessible_project_ids
+            ]
+            if user_role.role.role_name in [
+                RoleEnum.SUBMISSION_ADMIN.value,
+                RoleEnum.PROJECT_ADMIN.value,
+                RoleEnum.ACCOUNT_PRIMARY_ADMIN.value
+            ]:
                 return account_project_list
             if user_role.original_package_ids:
                 for account_project in account_project_list:
                     allowed_packages = []
-                    original_packages = [package for package in account_project.get("packages") if package.get("version").get("orignial_package_id") in user_role.original_package_ids]
+                    original_packages = [
+                        package for package in account_project.get("packages")
+                        if package.get("version").get("orignial_package_id")
+                        in user_role.original_package_ids
+                    ]
                     allowed_packages.extend(original_packages)
                     account_project["packages"] = allowed_packages
             else:
                 account_project_list = []
-            # # If user has gis_extended_edit permission, they can see all packages with account_project_work
-            # if has_gis_extended_edit:
-            #     filter_conditions.append(Package.account_project_work_id.isnot(None))
-            # # If user has w_view permission, check work assignments (unless they have gis_extended_edit)
-            # if has_w_view and not has_gis_extended_edit:
-            #     # Get all active work IDs for this staff user
-            #     active_work_ids = db.session.query(StaffUserWork.work_id).filter(
-            #         StaffUserWork.staff_user_id == staff_user.id,
-            #         StaffUserWork.is_active == True  # noqa: E712
-            #     ).subquery()
-
-            #     # Join with AccountProjectWork to filter work packages
-            #     account_project_query = account_project_query.outerjoin(
-            #         AccountProjectWork,
-            #         Package.account_project_work_id == AccountProjectWork.id
-            #     )
-
-            #     # Add condition for work packages staff has access to
-            #     filter_conditions.append(AccountProjectWork.work_id.in_(active_work_ids))
-
-            # # If user has mp_view permission, include management plan packages
-            # if has_mp_view:
-            #     from submit_api.models.package_type import PackageType
-            #     from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
-            #     # Add condition for all package types accessible via MP_VIEW role
-            #     filter_conditions.append(
-            #         Package.type.has(PackageType.name.in_(MP_VIEW_PACKAGE_TYPES))
-            #     )
-
-            # # If no permissions, deny all access
-            # if not filter_conditions:
-            #     return account_project_query.filter(False)
-
-            # # Apply the filter conditions
-            # account_project_query = account_project_query.filter(or_(*filter_conditions))
-
-            # return account_project_query
-        # accessible_project_ids = cls.get_accessible_account_project_ids_for_user(user)
-        # if len(accessible_project_ids) == 0:
-        #     return account_project_query.filter(False)
-        # account_project_query = account_project_query.filter(AccountProject.id.in_(accessible_project_ids))
-        # if not user.account_user or not user.account_user.role:
-        #     return account_project_query.filter(False)
-
-        # user_role = user.account_user.role
-
-        # if not user_role.active:
-        #     return account_project_query.filter(False)
-
-        # if user_role.role.role_name in [RoleEnum.SUBMISSION_ADMIN.value, RoleEnum.PROJECT_ADMIN.value, RoleEnum.ACCOUNT_PRIMARY_ADMIN.value]:
-        #     return account_project_query
-
-        # if user_role.original_package_ids:
-        #     account_project_query = account_project_query.join(PackageVersion).filter(
-        #         PackageVersion.original_package_id.in_(user_role.original_package_ids))
-        # else:
-        #     account_project_query = account_project_query.filter(False)
-
         # return account_project_query
         return account_project_list
 
