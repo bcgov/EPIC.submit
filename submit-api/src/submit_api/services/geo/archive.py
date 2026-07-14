@@ -20,8 +20,26 @@ import zipfile
 from pathlib import Path
 
 
+# Zip uploads are expanded on disk before GDAL reads them. These limits protect
+# the API worker from archives that are small on upload but huge after
+# extraction, or from archives with enough entries/layers to create excessive
+# filesystem and conversion work. They are environment-configurable so ops can
+# raise them for legitimate large datasets without changing code.
+#
+# Maximum total uncompressed bytes across all files in a zip. This is not the
+# uploaded zip size; it is the sum of each member's declared extracted size and
+# is primarily a guard against zip-bomb style payloads and temp-disk exhaustion.
 DEFAULT_MAX_EXTRACTED_BYTES = int(os.environ.get("GEO_MAX_EXTRACTED_BYTES", 500 * 1024 * 1024))
+
+# Maximum number of non-directory files allowed in one zip. Shapefiles commonly
+# include several sidecar files per layer (.dbf, .shx, .prj, .cpg, etc.), so this
+# is intentionally higher than the shapefile count limit but still rejects
+# pathological archives with thousands of tiny files.
 DEFAULT_MAX_ZIP_MEMBERS = int(os.environ.get("GEO_MAX_ZIP_MEMBERS", 500))
+
+# Maximum number of .shp layers accepted from one upload. Each layer is converted
+# independently, then merged into preview and standard GeoJSON outputs, so this
+# caps CPU time, output size growth, and frontend layer/color complexity.
 DEFAULT_MAX_SHAPEFILES = int(os.environ.get("GEO_MAX_SHAPEFILES", 20))
 
 
@@ -53,6 +71,8 @@ def safe_extract_zip(
 ) -> None:
     """Extract a zip file after checking path traversal and expanded size limits."""
     with zipfile.ZipFile(zip_path, "r") as zip_ref:
+        # Directories do not consume converted GIS input or meaningful disk
+        # capacity, so limits are applied only to actual file members.
         members = [member for member in zip_ref.infolist() if not member.is_dir()]
         if len(members) > max_members:
             raise ValueError(f"Zip archive contains too many files ({len(members)} > {max_members}).")

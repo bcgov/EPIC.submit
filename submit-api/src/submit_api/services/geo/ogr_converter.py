@@ -49,9 +49,25 @@ COLOR_PALETTE = [
 ]
 
 OUTPUT_LAYER_NAME = "features"
+
+# Preview files are meant for quick browser rendering, not authoritative GIS
+# analysis. Simplification is done after the standard layer has already been
+# converted to WGS84, so the tolerance is in degrees and intentionally small.
 PREVIEW_SIMPLIFICATION = float(os.environ.get("GEO_PREVIEW_SIMPLIFICATION", "0.000001"))
+
+# Cap the number of features copied into preview output. The standard tier still
+# contains all features; this only keeps map previews responsive for large
+# uploads.
 PREVIEW_MAX_FEATURES = int(os.environ.get("GEO_PREVIEW_MAX_FEATURES", 10_000))
+
+# Maximum size for each generated GeoJSON tier. This catches unexpectedly large
+# outputs before they are uploaded to object storage and before the frontend is
+# asked to fetch/render them.
 GEO_MAX_OUTPUT_BYTES = int(os.environ.get("GEO_MAX_OUTPUT_BYTES", 500 * 1024 * 1024))
+
+# Hard wall-clock limit for a GIS conversion job. The subprocess-level timeout
+# limits each GDAL command; process_geo_file_with_timeout also enforces this at
+# the worker-process level so a stuck conversion can be terminated.
 GEO_PROCESSING_TIMEOUT_SECONDS = int(os.environ.get("GEO_PROCESSING_TIMEOUT_SECONDS", 60))
 
 
@@ -72,6 +88,9 @@ def _run_command(cmd: list[str], timeout_seconds: int = GEO_PROCESSING_TIMEOUT_S
             cmd,
             check=False,
             capture_output=True,
+            # Some shapefile uploads omit or damage the .shx index. GDAL can
+            # rebuild it when this flag is set, which makes the converter more
+            # tolerant without changing the uploaded source archive.
             env={**os.environ, "SHAPE_RESTORE_SHX": "YES"},
             text=True,
             timeout=timeout_seconds,
@@ -104,6 +123,10 @@ def _convert_source_to_standard(shp_path: str, output_path: str, layer_index: in
     """Convert one shapefile to a WGS84 GeoJSON layer and add map styling fields."""
     source_layer_name, crs_original = _get_source_info(shp_path)
     fill_color, stroke_color = COLOR_PALETTE[layer_index % len(COLOR_PALETTE)]
+
+    # Add frontend styling fields inside OGR's SQL projection so feature
+    # properties are preserved and Python never has to load the layer into a
+    # GeoDataFrame just to decorate each feature.
     sql = (
         "SELECT *, "
         f"{_quote_literal(fill_color)} AS layer_color, "
@@ -126,6 +149,9 @@ def _convert_source_to_standard(shp_path: str, output_path: str, layer_index: in
         sql,
     ]
     if crs_original == "Unknown":
+        # Without a .prj file GDAL cannot safely reproject coordinates. The old
+        # path treated missing CRS as WGS84, so keep that compatibility by
+        # assigning EPSG:4326 rather than transforming unknown coordinates.
         logger.warning("No CRS found in file %s (missing .prj?). Assuming EPSG:4326.", shp_path)
         cmd.extend(["-a_srs", "EPSG:4326"])
     else:
@@ -178,6 +204,8 @@ def _merge_geojson_files(source_paths: list[str], output_path: str) -> None:
                 for feature in source:
                     if not first_feature:
                         target.write(",")
+                    # Write one feature at a time so multi-layer uploads do not
+                    # accumulate full GeoJSON payloads in process memory.
                     json.dump(to_dict(feature), target, allow_nan=False, separators=(",", ":"))
                     first_feature = False
         target.write("]}")
@@ -321,6 +349,10 @@ def process_geo_file_with_timeout(
     """Run process_geo_file in a child process, enforcing a hard wall-clock timeout."""
     ctx = multiprocessing.get_context()
     result_queue: "multiprocessing.Queue" = ctx.Queue()
+
+    # Run conversion in a separate process instead of the request/background
+    # thread so a timeout can terminate GDAL/Fiona work cleanly and release the
+    # worker process resources.
     proc = ctx.Process(
         target=_process_geo_file_worker,
         args=(local_path, output_dir, result_queue),

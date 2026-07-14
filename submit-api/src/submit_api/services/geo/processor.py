@@ -179,6 +179,9 @@ class GeoService:
                         if not cls._validate_or_fail(upload, local_path):
                             return
 
+                        # Keep generated tier files under the same temporary
+                        # directory so they stay available until the presigned
+                        # uploads finish, then are removed with the source file.
                         result = process_geo_file_with_timeout(local_path, tmpdir)
                         cls._upload_processed_tiers(upload, result)
 
