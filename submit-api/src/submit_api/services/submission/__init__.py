@@ -231,8 +231,23 @@ class SubmissionService:
         # Validate required document submissions before marking as COMPLETED
         if status == ItemStatus.COMPLETED.value:
             cls._validate_required_document_submission(item_id)
+            cls._validate_geospatial_uploads_approved(item_id)
 
         ItemService.update_submission_item_status(item_id, status, session)
+
+    @classmethod
+    def _validate_geospatial_uploads_approved(cls, item_id):
+        """Block completion while any geospatial upload for the item is unapproved.
+
+        Prevents bypassing the map-preview approve/reject step by navigating away
+        (back/refresh) while a file is still processing. Items without geospatial
+        uploads are unaffected.
+        """
+        if GeoService.has_unapproved_uploads(item_id):
+            raise BadRequestError(
+                "Cannot mark item as COMPLETED. All geospatial files must be "
+                "reviewed and approved before submitting."
+            )
 
     @classmethod
     def _validate_required_document_submission(cls, item_id):

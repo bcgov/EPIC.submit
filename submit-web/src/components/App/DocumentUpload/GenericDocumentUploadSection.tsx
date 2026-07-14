@@ -18,7 +18,10 @@ import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 import {
   DEFAULT_ACCEPTED_FILE_TYPES,
+  DEFAULT_MAX_FILE_SIZE_MB,
   EXTENSION_TO_MIME_TYPE_MAP,
+  GEO_MAX_FILE_SIZE_BYTES,
+  GEO_MAX_FILE_SIZE_MB,
 } from "@/utils/constants";
 import { Accept } from "react-dropzone";
 
@@ -146,6 +149,14 @@ export const GenericDocumentUploadSection: React.FC<
           (document) => document.folder === section.folder,
         );
 
+        const isGeoSpatialSection = section.name === "geospatial";
+        const sectionMaxSize = isGeoSpatialSection
+          ? GEO_MAX_FILE_SIZE_BYTES
+          : undefined;
+        const sectionMaxSizeMb = isGeoSpatialSection
+          ? GEO_MAX_FILE_SIZE_MB
+          : DEFAULT_MAX_FILE_SIZE_MB;
+
         return (
           <Grid item xs={12} key={section.name}>
             <Box sx={{ flexDirection: "column", display: "flex" }}>
@@ -215,6 +226,7 @@ export const GenericDocumentUploadSection: React.FC<
               }
               maxFiles={section.maxFiles}
               maxFilesErrorMessage={section.maxFilesErrorMessage}
+              maxSize={sectionMaxSize}
               accept={fileUploadAccept}
             />
             <Typography
@@ -224,7 +236,7 @@ export const GenericDocumentUploadSection: React.FC<
               }}
             >
               Accepted file types: {acceptedFileTypes.join(", ")}. Max file
-              size: 500 MB.
+              size: {sectionMaxSizeMb} MB.
             </Typography>
 
             <Box my={BCDesignTokens.layoutMarginLarge}>

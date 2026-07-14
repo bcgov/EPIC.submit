@@ -197,6 +197,7 @@ export const GeoSpatialStaffView = () => {
             fileSizeKb={previewUpload?.file_size_kb}
             status={previewUpload?.status}
             errorMessage={previewUpload?.error_message}
+            validationErrors={previewUpload?.validation_errors}
             fileIndex={previewIndex}
             totalFiles={totalGeoFiles}
             onClose={() => {

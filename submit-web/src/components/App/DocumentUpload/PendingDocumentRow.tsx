@@ -139,13 +139,6 @@ export default function PendingDocumentRow({
       <DocumentTableCell align="center" colSpan={2}>
         <CircularProgress size={"16px"} />
       </DocumentTableCell>
-      {isGeoSpatial && (
-        <DocumentTableCell align="center">
-          <Typography variant="body2" color="textSecondary">
-            Uploading...
-          </Typography>
-        </DocumentTableCell>
-      )}
       <DocumentTableCell align="center"></DocumentTableCell>
     </PackageTableRow>
   );

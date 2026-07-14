@@ -66,15 +66,12 @@ export default function DocumentTable({
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
-            {isGeoSpatial && (
-              <SubmitTableHeadCell align="center">Status</SubmitTableHeadCell>
-            )}
             <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
           <DocumentHeadTableRow>
-            <StyledHeadTableCell colSpan={isGeoSpatial ? 6 : 5}>
+            <StyledHeadTableCell colSpan={5}>
               <Typography
                 variant="h6"
                 color="inherit"
@@ -91,7 +88,6 @@ export default function DocumentTable({
               documentItem={document}
               formFieldName={formFieldName}
               folder={s3Folder}
-              isGeoSpatial={isGeoSpatial}
               onDocumentClick={onDocumentClick}
             />
           ))}

@@ -152,10 +152,23 @@ export function useStaffSubmissionPage({
     [submissionPackage],
   );
 
+  // Only users with w_extended_edit permission can approve/acknowledge packages
+  // GIS-only users (without full_access) should not be able to approve/acknowledge packages
+  const hasExtendedEdit = hasPermission({
+    permissions: account.roles || [],
+    scopes: [EPIC_SUBMIT_ROLE.w_extended_edit],
+  });
+  const hasGISRole = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
+  const hasFullAccess = useHasRole(EPIC_SUBMIT_ROLE.full_access);
+
+  // Exclude GIS-only users (those with GIS role but not full_access)
+  const hasAcknowledgeOrApproveRole =
+    hasExtendedEdit && !(hasGISRole && !hasFullAccess);
+
   const canAcknowledge =
-    approval_type === SubmissionPackageApprovalType.A
+    (approval_type === SubmissionPackageApprovalType.A
       ? isPackageVerified
-      : isReadyForAcknowledgement;
+      : isReadyForAcknowledgement) && hasAcknowledgeOrApproveRole;
 
   const isPackagePastApproval = useMemo(
     () =>
@@ -174,19 +187,9 @@ export function useStaffSubmissionPage({
       SubmissionPackageApprovalType.C,
     ].includes(approval_type as SubmissionPackageApprovalType);
 
-  // Only users with w_extended_edit permission can approve packages
-  // GIS-only users (without full_access) should not be able to approve packages
-  const hasExtendedEdit = hasPermission({
-    permissions: account.roles || [],
-    scopes: [EPIC_SUBMIT_ROLE.w_extended_edit],
-  });
-  const hasGISRole = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
-  const hasFullAccess = useHasRole(EPIC_SUBMIT_ROLE.full_access);
-  
-  // Exclude GIS-only users (those with GIS role but not full_access)
-  const canApprove = hasExtendedEdit && !(hasGISRole && !hasFullAccess);
+  const canApprove = hasAcknowledgeOrApproveRole;
   const showApproveButtons =
-    isPackageAcknowledged && 
+    isPackageAcknowledged &&
     approval_type == SubmissionPackageApprovalType.C &&
     canApprove;
 

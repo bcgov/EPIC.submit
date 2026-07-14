@@ -145,6 +145,26 @@ class GeoUploadUrl(Resource):
 
 
 @cors_preflight("POST, OPTIONS")
+@API.route("/<int:upload_id>/approve", methods=["POST", "OPTIONS"])
+class GeoUploadApprove(Resource):
+    """Resource for approving a processed upload."""
+
+    @staticmethod
+    @cross_origin(origins=allowedorigins())
+    @auth.require
+    def post(upload_id):
+        """Mark a ready upload as approved by the proponent."""
+        try:
+            upload = GeoService.approve_upload(upload_id)
+        except LookupError as exc:
+            return {"error": str(exc)}, HTTPStatus.NOT_FOUND
+        except ValueError as exc:
+            return {"error": str(exc)}, HTTPStatus.BAD_REQUEST
+
+        return {"id": upload.id, "status": upload.status, "is_approved": upload.is_approved}, HTTPStatus.OK
+
+
+@cors_preflight("POST, OPTIONS")
 @API.route("/<int:upload_id>/retry", methods=["POST", "OPTIONS"])
 class GeoUploadRetry(Resource):
     """Resource for retrying an upload."""

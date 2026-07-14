@@ -15,7 +15,7 @@ type ItemsTableHeadProps = Readonly<{
 export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
   const { userType } = useAccount();
   const isStaffUser = userType === USER_TYPE.STAFF;
-  
+
   const getSvgForApprovalType = () => {
     if (!approvalType) return null;
     return approvalType === SubmissionPackageApprovalType.A ? TypeASvg : TypeCSvg;
