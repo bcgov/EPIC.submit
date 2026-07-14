@@ -35,6 +35,8 @@ import HighlightOffIcon from "@mui/icons-material/HighlightOff";
 import type { GeoJSON } from "geojson";
 import { Submission } from "@/models/Submission";
 import { BCDesignTokens } from "epic.theme";
+import { useHasRole } from "@/hooks/common";
+import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { GeoSpatialGuidelines } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialGuidelines";
 
 interface MapPreviewModalProps {
@@ -74,6 +76,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
   const [mapStyleUri, setMapStyleUri] = useState<string>(
     "https://tiles.openfreemap.org/styles/liberty",
   );
+  const isStaff = useHasRole(EPIC_SUBMIT_ROLE.eao_view);
 
   const SATELLITE_STYLE: any = {
     version: 8,
@@ -368,7 +371,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
               </Box>
 
               {/* Alert Banner */}
-              {!isApproved && !isFailure && (
+              {!isStaff && !isApproved && !isFailure && (
                 <Box sx={{ px: 2, pb: 2 }}>
                   <Alert severity="warning" sx={{ borderRadius: "8px", backgroundColor: BCDesignTokens.supportSurfaceColorWarning }} icon={false} variant="outlined">
                     <Typography variant="body1" fontWeight={700}>Please verify this geospatial file</Typography>

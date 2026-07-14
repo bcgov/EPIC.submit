@@ -742,7 +742,7 @@ export default function SubmissionPage() {
                   >
                     <Unless condition={submissionPackage.completed_on}>
                       <When
-                        condition={submissionPackage.type.versioning_enabled}
+                        condition={!!submissionPackage.account_project_work}
                       >
                         <Button
                           color="error"
