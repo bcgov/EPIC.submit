@@ -51,7 +51,10 @@ export const Project = ({ accountProject }: ProjectParam) => {
             />
           );
         })}
-      {accountProject.project.has_approved_condition && (
+      {accountProject.project.has_approved_condition &&
+        accountProject.packages.some(
+          (pkg) => pkg.type.name === SubmissionPackageType.MANAGEMENT_PLAN,
+        ) && (
           <ProjectSubmissionsCard
             title="Management Plans & Related Documents"
             status={PROJECT_STATUS.POST_DECISION}

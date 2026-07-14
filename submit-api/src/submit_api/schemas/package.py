@@ -175,6 +175,7 @@ class PackageSchema(Schema):
                             data_key="version", exclude=["package_id"])
     account_project_work = fields.Nested(
         AccountProjectWorkSchema, data_key="account_project_work", allow_none=True)
+    account_project_work_id = fields.Int(data_key="account_project_work_id")
     internal_staff_documents = fields.Nested(InternalStaffDocumentSchema,
                                              data_key="internal_staff_documents",
                                              many=True)
