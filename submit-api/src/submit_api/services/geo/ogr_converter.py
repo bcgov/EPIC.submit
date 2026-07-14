@@ -230,6 +230,21 @@ def _clamp_bbox(bounds: tuple[float, float, float, float] | None) -> list[float]
     return bbox
 
 
+def _merge_bounds(
+    current_bounds: list[float] | None,
+    geom_bounds: tuple[float, float, float, float],
+) -> list[float]:
+    """Return cumulative bounds after adding one geometry bounds tuple."""
+    if current_bounds is None:
+        return [geom_bounds[0], geom_bounds[1], geom_bounds[2], geom_bounds[3]]
+    return [
+        min(current_bounds[0], geom_bounds[0]),
+        min(current_bounds[1], geom_bounds[1]),
+        max(current_bounds[2], geom_bounds[2]),
+        max(current_bounds[3], geom_bounds[3]),
+    ]
+
+
 def _get_geojson_metadata(standard_path: str, crs_original: str) -> Dict[str, Any]:
     """Read final GeoJSON metadata one feature at a time."""
     geometry_counts: Counter[str] = Counter()
@@ -244,13 +259,7 @@ def _get_geojson_metadata(standard_path: str, crs_original: str) -> Dict[str, An
                 continue
             geometry_counts[geometry.get("type", "Unknown")] += 1
             geom_bounds = shape(geometry).bounds
-            if bounds is None:
-                bounds = [geom_bounds[0], geom_bounds[1], geom_bounds[2], geom_bounds[3]]
-            else:
-                bounds[0] = min(bounds[0], geom_bounds[0])
-                bounds[1] = min(bounds[1], geom_bounds[1])
-                bounds[2] = max(bounds[2], geom_bounds[2])
-                bounds[3] = max(bounds[3], geom_bounds[3])
+            bounds = _merge_bounds(bounds, geom_bounds)
 
     geometry_type = geometry_counts.most_common(1)[0][0] if geometry_counts else "Unknown"
     return {
@@ -288,15 +297,8 @@ def _summarize_crs(crs_values: list[str]) -> str:
     return "Mixed: " + ", ".join(unique_values)
 
 
-def process_geo_file(local_path: str, output_dir: str | None = None) -> Dict[str, Any]:
-    """Process a .shp or .zip into preview/standard GeoJSON files plus metadata."""
-    output_root = output_dir or tempfile.mkdtemp(prefix="geo-processed-")
-    os.makedirs(output_root, exist_ok=True)
-
-    shapefiles = _resolve_shapefiles(local_path, output_root)
-    layer_dir = os.path.join(output_root, "layers")
-    os.makedirs(layer_dir, exist_ok=True)
-
+def _convert_layers(shapefiles: list[str], layer_dir: str) -> tuple[list[str], list[str], list[str]]:
+    """Convert source shapefiles into per-layer standard and preview outputs."""
     standard_parts: list[str] = []
     preview_parts: list[str] = []
     crs_values: list[str] = []
@@ -313,6 +315,19 @@ def process_geo_file(local_path: str, output_dir: str | None = None) -> Dict[str
             preview_parts.append(preview_part)
             with fiona.open(preview_part) as preview_source:
                 remaining_preview_features -= len(preview_source)
+
+    return standard_parts, preview_parts, crs_values
+
+
+def process_geo_file(local_path: str, output_dir: str | None = None) -> Dict[str, Any]:
+    """Process a .shp or .zip into preview/standard GeoJSON files plus metadata."""
+    output_root = output_dir or tempfile.mkdtemp(prefix="geo-processed-")
+    os.makedirs(output_root, exist_ok=True)
+
+    shapefiles = _resolve_shapefiles(local_path, output_root)
+    layer_dir = os.path.join(output_root, "layers")
+    os.makedirs(layer_dir, exist_ok=True)
+    standard_parts, preview_parts, crs_values = _convert_layers(shapefiles, layer_dir)
 
     standard_output = os.path.join(output_root, "standard.geojson")
     preview_output = os.path.join(output_root, "preview.geojson")

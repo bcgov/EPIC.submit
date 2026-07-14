@@ -43,17 +43,22 @@ DEFAULT_MAX_ZIP_MEMBERS = int(os.environ.get("GEO_MAX_ZIP_MEMBERS", 500))
 DEFAULT_MAX_SHAPEFILES = int(os.environ.get("GEO_MAX_SHAPEFILES", 20))
 
 
+def _is_unsafe_member_name(normalized_name: str, parts: tuple[str, ...]) -> bool:
+    """Return True when a zip member name can escape the extraction directory."""
+    if not normalized_name:
+        return True
+    if normalized_name.startswith(("/", "\\")):
+        return True
+    if parts and ":" in parts[0]:
+        return True
+    return ".." in parts
+
+
 def _safe_member_path(target_dir: str, member_name: str) -> Path:
     """Return a safe extraction path for one zip member."""
     normalized_name = member_name.replace("\\", "/")
     parts = Path(normalized_name).parts
-    if (
-        not normalized_name
-        or normalized_name.startswith("/")
-        or normalized_name.startswith("\\")
-        or (parts and ":" in parts[0])
-        or ".." in parts
-    ):
+    if _is_unsafe_member_name(normalized_name, parts):
         raise ValueError(f"Unsafe path in zip archive: {member_name}")
 
     base_path = Path(target_dir).resolve()
