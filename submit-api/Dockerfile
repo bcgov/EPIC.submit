@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libldap2-dev \
     libssl-dev \
     gcc \
+    gdal-bin \
     git \
  && rm -rf /var/lib/apt/lists/*
 

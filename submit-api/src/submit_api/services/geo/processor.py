@@ -20,251 +20,21 @@ Handles all geospatial business logic including:
 """
 from __future__ import annotations
 
-import json
 import logging
-import math
-import multiprocessing
 import os
 import tempfile
 import threading
-import zipfile
-import glob
 from datetime import datetime, timedelta, timezone
-from queue import Empty
 from typing import Any, Dict
-import pandas as pd
-import geopandas as gpd
 
 from submit_api.models import GeoDataUpload, Item as ItemModel, Submission as SubmissionModel, db
 from submit_api.models.submission import SubmissionType
 from submit_api.services.document_service_client import DocumentServiceClient
+from submit_api.services.geo.ogr_converter import process_geo_file_with_timeout
 from submit_api.services.geo.validator import validate_geo_file
 
 
 logger = logging.getLogger(__name__)
-COLOR_PALETTE = [
-    ("#FF00FF", "#8B008B"),  # Neon Magenta
-    ("#00FFFF", "#008B8B"),  # Neon Cyan
-    ("#FF1493", "#C71585"),  # Deep Pink
-    ("#39FF14", "#008000"),  # Neon Green
-    ("#FF4500", "#B22222"),  # Orange Red
-    ("#9400D3", "#4B0082"),  # Dark Violet
-    ("#FFFF00", "#B8860B"),  # Bright Yellow
-    ("#FF007F", "#80003F"),  # Rose
-    ("#00FF00", "#006400"),  # Lime
-    ("#8A2BE2", "#483D8B"),  # Blue Violet
-]
-
-
-# ---------------------------------------------------------------------------
-# Raw GeoJSON conversion helpers
-# ---------------------------------------------------------------------------
-
-def _is_json_serializable(val: Any) -> bool:
-    """Return True if val can be serialised to JSON."""
-    try:
-        json.dumps(val)
-        return True
-    except (TypeError, OverflowError):
-        return False
-
-
-def _read_shp_data(shp_file: str, index: int) -> gpd.GeoDataFrame:
-    """Read a single shapefile and assign colors."""
-    gdf = gpd.read_file(shp_file)
-
-    # Assign distinct color per feature rather than per layer
-    fill_colors, stroke_colors = [], []
-    for idx in range(len(gdf)):
-        f_col, s_col = COLOR_PALETTE[(idx + index) % len(COLOR_PALETTE)]
-        fill_colors.append(f_col)
-        stroke_colors.append(s_col)
-
-    gdf["layer_color"] = fill_colors
-    gdf["stroke_color"] = stroke_colors
-    gdf["layer_name"] = os.path.basename(shp_file)
-    return gdf
-
-
-def _read_zip_layers(local_path: str) -> gpd.GeoDataFrame:
-    """Read all .shp layers from a zip file and merge them."""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with zipfile.ZipFile(local_path, "r") as zip_ref:
-            zip_ref.extractall(temp_dir)
-
-        # Recursively find all .shp files
-        shp_files = glob.glob(os.path.join(temp_dir, "**", "*.shp"), recursive=True)
-
-        if not shp_files:
-            raise ValueError("No .shp files found inside the zip archive.")
-
-        # Sort to ensure consistent coloring order
-        shp_files.sort()
-        gdfs = [
-            _read_shp_data(shp_file, i)
-            for i, shp_file in enumerate(shp_files)
-        ]
-
-        if not gdfs:
-            raise ValueError("Failed to read any geospatial layers from the zip file.")
-
-        if len(gdfs) == 1:
-            return gdfs[0]
-
-        base_crs = gdfs[0].crs
-        aligned_gdfs = []
-        for gdf in gdfs:
-            if gdf.crs != base_crs and base_crs is not None and gdf.crs is not None:
-                aligned_gdfs.append(gdf.to_crs(base_crs))
-            else:
-                aligned_gdfs.append(gdf)
-        return gpd.GeoDataFrame(pd.concat(aligned_gdfs, ignore_index=True), crs=base_crs)
-
-
-def _generate_tier(
-    df: gpd.GeoDataFrame, simplification: float, max_features: int | None = None
-) -> bytes:
-    """Simplify and down-sample a GeoDataFrame, returning UTF-8 GeoJSON bytes."""
-    work_df = df.copy()
-
-    # Ensure we start with valid geometries
-    work_df = work_df[work_df.geometry.notnull() & ~work_df.geometry.is_empty]
-
-    if max_features and len(work_df) > max_features:
-        work_df = work_df.sample(n=max_features, random_state=42)
-
-    # Only simplify if a non-zero factor is provided
-    if simplification and simplification > 0:
-        work_df.geometry = work_df.geometry.simplify(simplification, preserve_topology=True)
-        # Re-drop any geometries that became empty after simplification
-        work_df = work_df[work_df.geometry.notnull() & ~work_df.geometry.is_empty]
-
-    return work_df.to_json().encode("utf-8")
-
-
-def _ensure_wgs84(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    """Ensure the GeoDataFrame is in WGS-84 (EPSG:4326)."""
-    if gdf.crs is None:
-        logger.warning("No CRS found in file (missing .prj?). Assuming EPSG:4326.")
-        gdf = gdf.set_crs("EPSG:4326")
-    elif not gdf.crs.equals("EPSG:4326"):
-        logger.info("Reprojecting from %s to EPSG:4326", gdf.crs)
-        gdf = gdf.to_crs("EPSG:4326")
-
-    # Drop any geometries that failed to reproject (can happen if coords are out of range)
-    original_count = len(gdf)
-    gdf = gdf[gdf.geometry.notnull() & ~gdf.geometry.is_empty]
-    if len(gdf) < original_count:
-        logger.info("Dropped %d null/empty geometries after reprojection", original_count - len(gdf))
-
-    return gdf
-
-
-def _get_bbox(gdf: gpd.GeoDataFrame) -> list[float]:
-    """Calculate a safe WGS-84 bounding box for the GeoDataFrame."""
-    if gdf.empty:
-        return [0.0, 0.0, 0.0, 0.0]
-
-    bounds = gdf.total_bounds  # [minx, miny, maxx, maxy]
-    # Handle NaN in bounds
-    bbox = []
-    for i, val in enumerate(bounds):
-        if not math.isfinite(val):
-            # fallback to a sensible default if any coordinate is NaN
-            logger.warning("Invalid coordinate detected in bounds: %s. Using default bbox.", val)
-            return [-180.0, -90.0, 180.0, 90.0]
-
-        if i % 2 == 0:  # X (longitude)
-            bbox.append(float(max(-180, min(180, val))))
-        else:  # Y (latitude)
-            bbox.append(float(max(-90, min(90, val))))
-    return bbox
-
-
-def _load_gdf(local_path: str) -> gpd.GeoDataFrame:
-    """Load a GeoDataFrame from a .shp or .zip file."""
-    is_zip = local_path.lower().endswith(".zip")
-    is_shp = local_path.lower().endswith(".shp")
-
-    # SHAPE_RESTORE_SHX tells GDAL to reconstruct the missing .shx index
-    _prev = os.environ.get("SHAPE_RESTORE_SHX")
-    if is_shp:
-        os.environ["SHAPE_RESTORE_SHX"] = "YES"
-
-    try:
-        if is_zip:
-            return _read_zip_layers(local_path)
-
-        try:
-            gpd.read_file(local_path)
-        except (IOError, ValueError, RuntimeError) as exc:
-            if is_shp:
-                raise ValueError(
-                    "Failed to read .shp file. Please ensure all sidecar files (.shx, .dbf, .prj) "
-                    "are included by uploading them together in a .zip archive."
-                ) from exc
-            raise exc
-
-        return _read_shp_data(local_path, 0)
-    finally:
-        if is_shp:
-            if _prev is None:
-                os.environ.pop("SHAPE_RESTORE_SHX", None)
-            else:
-                os.environ["SHAPE_RESTORE_SHX"] = _prev
-
-
-def process_geo_file(local_path: str) -> Dict[str, Any]:
-    """Process a geospatial file into preview/standard tiers plus metadata.
-
-    Args:
-        local_path: Local filesystem path to a .shp or .zip file.
-
-    Returns:
-        dict with keys ``tiers`` (dict of bytes keyed by tier name) and
-        ``metadata`` (feature_count, geometry_type, crs_original, bbox).
-    """
-    gdf = _load_gdf(local_path)
-
-    crs_original = str(gdf.crs.to_string()) if gdf.crs else "Unknown"
-
-    # Drop null / empty geometries
-    original_count = len(gdf)
-    gdf = gdf[gdf.geometry.notnull() & ~gdf.geometry.is_empty]
-    logger.info("Dropped %d null or empty geometries", original_count - len(gdf))
-
-    gdf = _ensure_wgs84(gdf)
-
-    feature_count = len(gdf)
-    geometry_type = gdf.geom_type.mode().iloc[0] if not gdf.empty else "Unknown"
-    bbox = _get_bbox(gdf)
-
-    # Drop columns that cannot be serialised to JSON
-    cols_to_drop = []
-    if not gdf.empty:
-        for col in gdf.columns:
-            if col == "geometry":
-                continue
-            sample = gdf[col].dropna().iloc[0] if not gdf[col].dropna().empty else None
-            if sample is not None and not _is_json_serializable(sample):
-                cols_to_drop.append(col)
-    if cols_to_drop:
-        logger.info("Dropped non-serialisable columns: %s", cols_to_drop)
-        gdf = gdf.drop(columns=cols_to_drop)
-
-    logger.info("Generating tiers…")
-    return {
-        "tiers": {
-            "preview": _generate_tier(gdf, 0.000001, 10_000),
-            "standard": _generate_tier(gdf, 0),
-        },
-        "metadata": {
-            "feature_count": feature_count,
-            "geometry_type": str(geometry_type),
-            "crs_original": crs_original,
-            "bbox": bbox,
-        },
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -274,69 +44,6 @@ def process_geo_file(local_path: str) -> Dict[str, Any]:
 # Max number of concurrent geospatial processing jobs to prevent resource exhaustion (RAM/CPU/DB)
 GEO_MAX_CONCURRENT_JOBS = int(os.environ.get("GEO_MAX_CONCURRENT_JOBS", 3))
 _GEO_SEMAPHORE = threading.Semaphore(GEO_MAX_CONCURRENT_JOBS)
-
-# Hard wall-clock limit for converting a single file. A malformed or overly large
-# file can make geopandas spin indefinitely, leaving the upload stuck in
-# 'processing' forever. When exceeded, the worker process is forcibly killed and
-# the upload is marked as failed. Configurable via GEO_PROCESSING_TIMEOUT_SECONDS.
-GEO_PROCESSING_TIMEOUT_SECONDS = int(os.environ.get("GEO_PROCESSING_TIMEOUT_SECONDS", 60))
-
-
-def _process_geo_file_worker(local_path: str, result_queue: "multiprocessing.Queue") -> None:
-    """Child-process entry point: run process_geo_file and push the outcome onto the queue.
-
-    Runs in a separate process so a runaway conversion can be terminated by the
-    parent. The result dict (GeoJSON bytes + metadata) is picklable; exceptions
-    are stringified because arbitrary exception types may not be.
-    """
-    try:
-        result_queue.put(("ok", process_geo_file(local_path)))
-    except Exception as exc:  # pylint: disable=broad-except # noqa: B902
-        result_queue.put(("error", str(exc)))
-
-
-def process_geo_file_with_timeout(
-    local_path: str, timeout_seconds: int = GEO_PROCESSING_TIMEOUT_SECONDS
-) -> Dict[str, Any]:
-    """Run process_geo_file in a child process, enforcing a hard wall-clock timeout.
-
-    Raises:
-        TimeoutError: if processing exceeds ``timeout_seconds`` (the child is killed).
-        RuntimeError: if the child process fails or dies without producing a result.
-    """
-    ctx = multiprocessing.get_context()
-    result_queue: "multiprocessing.Queue" = ctx.Queue()
-    proc = ctx.Process(
-        target=_process_geo_file_worker,
-        args=(local_path, result_queue),
-        daemon=True,
-    )
-    proc.start()
-
-    try:
-        # Block until the child publishes a result or the timeout elapses. Reading
-        # from the queue before join() avoids a deadlock when the result is large.
-        status, payload = result_queue.get(timeout=timeout_seconds)
-    except Empty as exc:
-        logger.warning(
-            "Geospatial processing exceeded %ss for %s; terminating worker process.",
-            timeout_seconds, local_path,
-        )
-        proc.terminate()
-        proc.join(timeout=5)
-        if proc.is_alive():
-            proc.kill()
-        raise TimeoutError(
-            f"Processing timed out after {timeout_seconds} seconds and was stopped."
-        ) from exc
-    finally:
-        result_queue.close()
-
-    proc.join(timeout=5)
-
-    if status == "error":
-        raise RuntimeError(payload)
-    return payload
 
 
 class GeoService:
@@ -418,7 +125,7 @@ class GeoService:
         for tier in ("preview", "standard"):
             s3_key = f"geo/processed/{upload.id}/{tier}.geojson"
             write_url, actual_s3_key = DocumentServiceClient.get_presigned_write_url(s3_key)
-            DocumentServiceClient.upload_via_presigned_url(write_url, result["tiers"][tier])
+            DocumentServiceClient.upload_file_via_presigned_url(write_url, result["tiers"][tier])
             if tier == "preview":
                 upload.preview_s3_key = actual_s3_key
             else:
@@ -472,7 +179,7 @@ class GeoService:
                         if not cls._validate_or_fail(upload, local_path):
                             return
 
-                        result = process_geo_file_with_timeout(local_path)
+                        result = process_geo_file_with_timeout(local_path, tmpdir)
                         cls._upload_processed_tiers(upload, result)
 
                     metadata = result["metadata"]

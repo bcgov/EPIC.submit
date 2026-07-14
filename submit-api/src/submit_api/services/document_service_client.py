@@ -97,6 +97,24 @@ class DocumentServiceClient:
         current_app.logger.info("Successfully uploaded file data")
 
     @staticmethod
+    def upload_file_via_presigned_url(
+        presigned_url: str,
+        file_path: str,
+        content_type: str = "application/geo+json",
+    ):
+        """Stream a local file directly to S3 via a presigned URL."""
+        current_app.logger.info(f"Uploading file via presigned URL from {file_path}")
+        with open(file_path, "rb") as file_data:
+            response = requests.put(
+                presigned_url,
+                data=file_data,
+                headers={"Content-Type": content_type},
+                timeout=300
+            )
+        response.raise_for_status()
+        current_app.logger.info("Successfully uploaded file")
+
+    @staticmethod
     def download_via_presigned_url(presigned_url: str, local_path: str) -> str:
         """Download file content directly from S3 via a presigned URL to a local path."""
         current_app.logger.info(f"Downloading file data via presigned URL to {local_path}")

@@ -27,16 +27,15 @@ Fiona is used for streaming so the entire feature set is never held in memory.
 """
 from __future__ import annotations
 
-import glob
 import logging
 import os
 import tempfile
-import zipfile
 
 import fiona
 from shapely.geometry import shape
 from shapely.validation import explain_validity
 
+from submit_api.services.geo.archive import find_shapefiles, safe_extract_zip
 from submit_api.services.geo.validation_rules import (
     ALLOWED_VALUES,
     CASE_INSENSITIVE,
@@ -243,12 +242,8 @@ def validate_geo_file(local_path: str) -> _Result:
 
     if local_path.lower().endswith(".zip"):
         with tempfile.TemporaryDirectory() as tmpdir:
-            with zipfile.ZipFile(local_path, "r") as zf:
-                zf.extractall(tmpdir)
-
-            shp_files = sorted(
-                glob.glob(os.path.join(tmpdir, "**", "*.shp"), recursive=True)
-            )
+            safe_extract_zip(local_path, tmpdir)
+            shp_files = find_shapefiles(tmpdir)
 
             if not shp_files:
                 err = {
