@@ -4,7 +4,7 @@ services:
   submit-api-db:
     image: postgres
     volumes:
-      - db-data:/var/lib/postgresql/data2
+      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD:admin
@@ -16,7 +16,7 @@ services:
   submit-api-db-test:
     image: postgres
     volumes:
-      - db-data:/var/lib/postgresql/data3
+      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD:admin

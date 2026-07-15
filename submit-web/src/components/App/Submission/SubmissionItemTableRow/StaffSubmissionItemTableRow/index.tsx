@@ -65,34 +65,11 @@ export default function StaffSubmissionItemTableRow({
   );
 
   const isUpdated = useMemo(() => {
-    // Check if any submission has is_updated flag AND status is SUBMITTED
-    // This ensures the proponent has actually resubmitted the item
-    const hasUpdatedSubmission = Boolean(
-      item.submissions?.find(
-        (submission) =>
-          submission.is_updated &&
-          submission.status === SUBMISSION_STATUS.SUBMITTED
-      )
-    );
-
-    if (!hasUpdatedSubmission) return false;
-
-    // Check if there's a recently accepted update request for this item
-    // We need to check all_update_requests but exclude CLOSED ones (which are old/historical)
-    // An accepted request will have status="ACCEPTED" and active=false
-    const relevantUpdateRequestsForItem = submissionPackage.all_update_requests?.filter(
-      (req) =>
-        req.submission_item_types.includes(item.type_id) &&
-        req.status !== "CLOSED" // Exclude old closed requests
-    ) || [];
-
-    // Check if there's at least one accepted request among the relevant ones
-    const hasAcceptedRequest = relevantUpdateRequestsForItem.every(
-      (req) => req.status === "ACCEPTED"
-    );
-    // Show "Updated" badge only if there's an updated submission AND no accepted request
-    return hasUpdatedSubmission && !hasAcceptedRequest;
-  }, [item.submissions, item.type_id, submissionPackage.all_update_requests]);
+      // Check if any submission in this section has is_updated flag set to true
+      return Boolean(
+        item.submissions?.find((submission) => submission.is_updated)
+      );
+    }, [item.submissions]);
 
   const isPackageInEndStatus = useMemo(() => {
     // Check if package is in one of the end statuses where updates cannot be requested

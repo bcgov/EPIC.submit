@@ -4,53 +4,53 @@ import {
   Submission,
   SUBMISSION_STATUS,
 } from "@/models/Submission";
+import { UpdateRequest } from "@/models/UpdateRequest";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
-import { Case, Default, Switch } from "react-if";
-import { useMemo } from "react";
+import { Stack } from "@mui/material";
+import { useIsNewVersion } from "@/hooks/useIsNewVersion";
 
 type StatusCellProps = Readonly<{
   submittedDocument: Submission;
+  itemTypeId?: number;
+  updateRequests?: UpdateRequest[];
 }>;
 
-export const StatusCell = ({ submittedDocument }: StatusCellProps) => {
+export const StatusCell = ({
+  submittedDocument,
+  itemTypeId,
+  updateRequests,
+}: StatusCellProps) => {
   const { userType } = useAccount();
   const entityUser = userType === USER_TYPE.PROPONENT;
 
-  const isNewVersion = useMemo(() => {
-    // Show new version if minor version > 1 and status is PENDING or SUBMITTED
-    if (
-      submittedDocument.status !== SUBMISSION_STATUS.SUBMITTED &&
-      submittedDocument.status !== SUBMISSION_STATUS.PENDING
-    )
-      return false;
+  const isNewVersion = useIsNewVersion({
+    submission: submittedDocument,
+    itemTypeId,
+    updateRequests,
+  });
 
-    return submittedDocument.minor_version > 1;
-  }, [submittedDocument.minor_version, submittedDocument.status]);
+  if (entityUser) return null;
 
   return (
-    <Switch>
-      <Case condition={isNewVersion}>
+    <Stack direction="column" spacing={0.5} alignItems="flex-start">
+      {isNewVersion && (
         <SubmissionStatusChip
           status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION}
         />
-      </Case>
-      <Case condition={entityUser}>{null}</Case>
-      <Case condition={submittedDocument.status === SUBMISSION_STATUS.REJECTED}>
+      )}
+      {submittedDocument.status === SUBMISSION_STATUS.REJECTED && (
         <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.FAILED} />
-      </Case>
-      <Case condition={submittedDocument.status === SUBMISSION_STATUS.VERIFIED}>
+      )}
+      {submittedDocument.status === SUBMISSION_STATUS.VERIFIED && (
         <SubmissionStatusChip status={SUBMISSION_STATUS.VERIFIED} />
-      </Case>
-      <Case
-        condition={submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED}
-      >
+      )}
+      {submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED && (
         <SubmissionStatusChip
           status={SUBMISSION_STATUS.ACKNOWLEDGED}
           showIcon
         />
-      </Case>
-      <Default>{null}</Default>
-    </Switch>
+      )}
+    </Stack>
   );
 };

@@ -541,7 +541,6 @@ export const useWithdrawUpdateRequest = ({
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
-      console.log("useWithdrawUpdateRequest", packageId, options);
     },
   });
 };
