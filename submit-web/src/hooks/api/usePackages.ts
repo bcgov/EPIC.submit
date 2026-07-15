@@ -440,7 +440,7 @@ export const useCreatePackageUpdateRequest = ({
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
       });
-      queryClient.refetchQueries({
+      queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
       });
     },
@@ -481,10 +481,12 @@ const updatePackageUpdateRequestNote = ({
 
 type UseAcceptUpdateRequestParams = {
   packageId: number;
+  accountProjectId: number;
   options?: Options;
 };
 export const useAcceptUpdateRequest = ({
   packageId,
+  accountProjectId,
   options = {},
 }: UseAcceptUpdateRequestParams) => {
   const queryClient = useQueryClient();
@@ -500,16 +502,24 @@ export const useAcceptUpdateRequest = ({
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         submissionPackage,
       );
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
     },
   });
 };
 
 type UseWithdrawUpdateRequestParams = {
   packageId: number;
+  accountProjectId: number;
   options?: Options;
 };
 export const useWithdrawUpdateRequest = ({
   packageId,
+  accountProjectId,
   options = {},
 }: UseWithdrawUpdateRequestParams) => {
   const queryClient = useQueryClient();
@@ -525,6 +535,12 @@ export const useWithdrawUpdateRequest = ({
         [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
         submissionPackage,
       );
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_PROJECTS],
+      });
     },
   });
 };

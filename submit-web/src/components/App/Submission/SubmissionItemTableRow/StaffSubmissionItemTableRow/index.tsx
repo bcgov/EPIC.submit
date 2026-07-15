@@ -65,16 +65,11 @@ export default function StaffSubmissionItemTableRow({
   );
 
   const isUpdated = useMemo(() => {
-    // Check if any submission has is_updated flag AND status is SUBMITTED
-    // This ensures the proponent has actually resubmitted the item
-    return Boolean(
-      item.submissions?.find(
-        (submission) =>
-          submission.is_updated &&
-          submission.status === SUBMISSION_STATUS.SUBMITTED
-      )
-    );
-  }, [item.submissions]);
+      // Check if any submission in this section has is_updated flag set to true
+      return Boolean(
+        item.submissions?.find((submission) => submission.is_updated)
+      );
+    }, [item.submissions]);
 
   const isPackageInEndStatus = useMemo(() => {
     // Check if package is in one of the end statuses where updates cannot be requested

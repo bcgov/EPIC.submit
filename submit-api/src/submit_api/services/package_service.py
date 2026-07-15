@@ -4,13 +4,14 @@ from collections import defaultdict
 from datetime import datetime, UTC
 
 from flask import current_app
+from sqlalchemy import func
 
 from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.models import Item as ItemModel, User
+from submit_api.models import Item as ItemModel, Submission, User
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageType as PackageTypeModel
 from submit_api.models import PackageVersion as PackageVersionModel
@@ -725,7 +726,9 @@ class PackageService:
             update_request.status = UpdateRequestStatus.ACCEPTED.value
             update_request.active = False
             session.add(update_request)
+            cls._reset_is_updated_for_accepted_request(package, update_request, session)
             session.flush()
+
             return package
 
     @classmethod
@@ -829,6 +832,51 @@ class PackageService:
             ]
             for ur in package.update_requests
         )
+
+    @staticmethod
+    def _reset_is_updated_for_accepted_request(package, accepted_request, session):
+        """Reset is_updated on submissions whose item types have no remaining OPEN update requests."""
+        # Subquery: item type IDs that have an OPEN update request for this package
+        open_item_type_subquery = (
+            session.query(func.unnest(UpdateRequestModel.submission_item_types).label('type_id'))
+            .filter(
+                UpdateRequestModel.submission_package_id == package.id,
+                UpdateRequestModel.active.is_(True),
+                UpdateRequestModel.status.in_([
+                    UpdateRequestStatus.OPEN.value,
+                    UpdateRequestStatus.PENDING_REVIEW.value,
+                ]),
+            )
+            .subquery()
+        )
+
+        # Find item type IDs from submissions with is_updated=True that have no OPEN update request
+        items_without_open_request = (
+            session.query(ItemModel.type_id)
+            .join(Submission, Submission.item_id == ItemModel.id)
+            .filter(
+                ItemModel.package_id == package.id,
+                Submission.is_updated.is_(True),
+                ~ItemModel.type_id.in_(session.query(open_item_type_subquery.c.type_id)),
+            )
+            .distinct()
+            .all()
+        )
+
+        # Combine: items without open request + the accepted request's item types
+        types_to_reset = {row[0] for row in items_without_open_request}
+        types_to_reset.update(accepted_request.submission_item_types or [])
+
+        if not types_to_reset:
+            return
+
+        # Reset is_updated to False for all matching submissions
+        session.query(Submission).filter(
+            Submission.item_id == ItemModel.id,
+            ItemModel.package_id == package.id,
+            ItemModel.type_id.in_(types_to_reset),
+            Submission.is_updated.is_(True),
+        ).update({Submission.is_updated: False}, synchronize_session='fetch')
 
     @classmethod
     def approve_package(cls, package_id):
