@@ -1,9 +1,12 @@
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { AccountProject } from "@/models/Project";
 import { SubmissionPackageType } from "@/models/Package";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import { useNavigate } from "@tanstack/react-router";
 import { ProjectSubmissionsCard } from "./ProjectSubmissionsCard";
 import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
+import { useMemo } from "react";
 
 type ProjectParam = {
   accountProject: AccountProject;
@@ -11,7 +14,9 @@ type ProjectParam = {
 
 export const Project = ({ accountProject }: ProjectParam) => {
   const navigate = useNavigate();
+  const { userType } = useAccount();
 
+  const is_proponent = useMemo(()=>userType === USER_TYPE.PROPONENT, [userType]);
   const { name, ea_certificate } = accountProject.project;
   const hasAccountProjectWorks =
     (accountProject.account_project_works?.length ?? 0) > 0;
@@ -51,10 +56,11 @@ export const Project = ({ accountProject }: ProjectParam) => {
             />
           );
         })}
-      {accountProject.project.has_approved_condition &&
-        accountProject.packages.some(
-          (pkg) => pkg.type.name === SubmissionPackageType.MANAGEMENT_PLAN,
-        ) && (
+      {((is_proponent && accountProject.project.has_approved_condition) ||
+        (!is_proponent &&
+          accountProject.packages.some(
+            (pkg) => pkg.type.name === SubmissionPackageType.MANAGEMENT_PLAN,
+          ))) && (
           <ProjectSubmissionsCard
             title="Management Plans & Related Documents"
             status={PROJECT_STATUS.POST_DECISION}
