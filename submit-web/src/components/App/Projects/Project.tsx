@@ -5,7 +5,7 @@ import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { useNavigate } from "@tanstack/react-router";
 import { ProjectSubmissionsCard } from "./ProjectSubmissionsCard";
-import { PROJECT_STATUS } from "@/components/App/registration/addProjects/ProjectCard/constants";
+import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
 import { useMemo } from "react";
 
 type ProjectParam = {

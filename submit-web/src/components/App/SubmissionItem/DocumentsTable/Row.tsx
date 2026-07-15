@@ -215,7 +215,7 @@ export default function Row({
             />
           </Box>
         </SubmitTableCell>
-        <SubmitTableCell align="right">{submitted_by || ""}</SubmitTableCell>
+        <SubmitTableCell align="left">{submitted_by || ""}</SubmitTableCell>
         <SubmitTableCell align="right">
           {version}
           {currentSubmission.minor_version > 1 ? (

@@ -24,10 +24,7 @@ import { Route as StaffNoRolesRouteImport } from './routes/staff/no-roles'
 import { Route as StaffStaffLayoutRouteImport } from './routes/staff/_staffLayout'
 import { Route as ProponentProponentLayoutRouteImport } from './routes/proponent/_proponentLayout'
 import { Route as ProponentAccountRegistrationRouteRouteImport } from './routes/proponent/account-registration/route'
-import { Route as ProponentRegistrationIndexRouteImport } from './routes/proponent/registration/index'
 import { Route as ProponentAccountRegistrationIndexRouteImport } from './routes/proponent/account-registration/index'
-import { Route as ProponentRegistrationCreateAccountRouteImport } from './routes/proponent/registration/create-account'
-import { Route as ProponentRegistrationCompleteRouteImport } from './routes/proponent/registration/complete'
 import { Route as ProponentAccountRegistrationSecondAdminRouteImport } from './routes/proponent/account-registration/second-admin'
 import { Route as ProponentAccountRegistrationRegistrationErrorRouteImport } from './routes/proponent/account-registration/registration-error'
 import { Route as ProponentAccountRegistrationCreateAccountRouteImport } from './routes/proponent/account-registration/create-account'
@@ -130,12 +127,6 @@ const ProponentAccountRegistrationRouteRoute =
     path: '/proponent/account-registration',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ProponentRegistrationIndexRoute =
-  ProponentRegistrationIndexRouteImport.update({
-    id: '/proponent/registration/',
-    path: '/proponent/registration/',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ProponentAccountRegistrationIndexRoute =
   ProponentAccountRegistrationIndexRouteImport.update({
     id: '/',
@@ -152,18 +143,6 @@ const ProponentProponentLayoutAboutpageLazyRoute =
       (d) => d.Route,
     ),
   )
-const ProponentRegistrationCreateAccountRoute =
-  ProponentRegistrationCreateAccountRouteImport.update({
-    id: '/proponent/registration/create-account',
-    path: '/proponent/registration/create-account',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const ProponentRegistrationCompleteRoute =
-  ProponentRegistrationCompleteRouteImport.update({
-    id: '/proponent/registration/complete',
-    path: '/proponent/registration/complete',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const ProponentAccountRegistrationSecondAdminRoute =
   ProponentAccountRegistrationSecondAdminRouteImport.update({
     id: '/second-admin',
@@ -391,11 +370,8 @@ export interface FileRoutesByFullPath {
   '/proponent/account-registration/create-account': typeof ProponentAccountRegistrationCreateAccountRoute
   '/proponent/account-registration/registration-error': typeof ProponentAccountRegistrationRegistrationErrorRoute
   '/proponent/account-registration/second-admin': typeof ProponentAccountRegistrationSecondAdminRoute
-  '/proponent/registration/complete': typeof ProponentRegistrationCompleteRoute
-  '/proponent/registration/create-account': typeof ProponentRegistrationCreateAccountRoute
   '/proponent/aboutpage': typeof ProponentProponentLayoutAboutpageLazyRoute
   '/proponent/account-registration/': typeof ProponentAccountRegistrationIndexRoute
-  '/proponent/registration/': typeof ProponentRegistrationIndexRoute
   '/proponent/user-management/edit-profile': typeof ProponentProponentLayoutUserManagementEditProfileRoute
   '/proponent/user-management/edit-role': typeof ProponentProponentLayoutUserManagementEditRoleRoute
   '/proponent/user-management/new-user': typeof ProponentProponentLayoutUserManagementNewUserRoute
@@ -438,11 +414,8 @@ export interface FileRoutesByTo {
   '/proponent/account-registration/create-account': typeof ProponentAccountRegistrationCreateAccountRoute
   '/proponent/account-registration/registration-error': typeof ProponentAccountRegistrationRegistrationErrorRoute
   '/proponent/account-registration/second-admin': typeof ProponentAccountRegistrationSecondAdminRoute
-  '/proponent/registration/complete': typeof ProponentRegistrationCompleteRoute
-  '/proponent/registration/create-account': typeof ProponentRegistrationCreateAccountRoute
   '/proponent/aboutpage': typeof ProponentProponentLayoutAboutpageLazyRoute
   '/proponent/account-registration': typeof ProponentAccountRegistrationIndexRoute
-  '/proponent/registration': typeof ProponentRegistrationIndexRoute
   '/proponent/user-management/edit-profile': typeof ProponentProponentLayoutUserManagementEditProfileRoute
   '/proponent/user-management/edit-role': typeof ProponentProponentLayoutUserManagementEditRoleRoute
   '/proponent/user-management/new-user': typeof ProponentProponentLayoutUserManagementNewUserRoute
@@ -485,11 +458,8 @@ export interface FileRoutesById {
   '/proponent/account-registration/create-account': typeof ProponentAccountRegistrationCreateAccountRoute
   '/proponent/account-registration/registration-error': typeof ProponentAccountRegistrationRegistrationErrorRoute
   '/proponent/account-registration/second-admin': typeof ProponentAccountRegistrationSecondAdminRoute
-  '/proponent/registration/complete': typeof ProponentRegistrationCompleteRoute
-  '/proponent/registration/create-account': typeof ProponentRegistrationCreateAccountRoute
   '/proponent/_proponentLayout/aboutpage': typeof ProponentProponentLayoutAboutpageLazyRoute
   '/proponent/account-registration/': typeof ProponentAccountRegistrationIndexRoute
-  '/proponent/registration/': typeof ProponentRegistrationIndexRoute
   '/proponent/_proponentLayout/user-management/edit-profile': typeof ProponentProponentLayoutUserManagementEditProfileRoute
   '/proponent/_proponentLayout/user-management/edit-role': typeof ProponentProponentLayoutUserManagementEditRoleRoute
   '/proponent/_proponentLayout/user-management/new-user': typeof ProponentProponentLayoutUserManagementNewUserRoute
@@ -537,11 +507,8 @@ export interface FileRouteTypes {
     | '/proponent/account-registration/create-account'
     | '/proponent/account-registration/registration-error'
     | '/proponent/account-registration/second-admin'
-    | '/proponent/registration/complete'
-    | '/proponent/registration/create-account'
     | '/proponent/aboutpage'
     | '/proponent/account-registration/'
-    | '/proponent/registration/'
     | '/proponent/user-management/edit-profile'
     | '/proponent/user-management/edit-role'
     | '/proponent/user-management/new-user'
@@ -584,11 +551,8 @@ export interface FileRouteTypes {
     | '/proponent/account-registration/create-account'
     | '/proponent/account-registration/registration-error'
     | '/proponent/account-registration/second-admin'
-    | '/proponent/registration/complete'
-    | '/proponent/registration/create-account'
     | '/proponent/aboutpage'
     | '/proponent/account-registration'
-    | '/proponent/registration'
     | '/proponent/user-management/edit-profile'
     | '/proponent/user-management/edit-role'
     | '/proponent/user-management/new-user'
@@ -630,11 +594,8 @@ export interface FileRouteTypes {
     | '/proponent/account-registration/create-account'
     | '/proponent/account-registration/registration-error'
     | '/proponent/account-registration/second-admin'
-    | '/proponent/registration/complete'
-    | '/proponent/registration/create-account'
     | '/proponent/_proponentLayout/aboutpage'
     | '/proponent/account-registration/'
-    | '/proponent/registration/'
     | '/proponent/_proponentLayout/user-management/edit-profile'
     | '/proponent/_proponentLayout/user-management/edit-role'
     | '/proponent/_proponentLayout/user-management/new-user'
@@ -675,9 +636,6 @@ export interface RootRouteChildren {
   OidcCallbackIndexRoute: typeof OidcCallbackIndexRoute
   ProponentIndexRoute: typeof ProponentIndexRoute
   StaffIndexRoute: typeof StaffIndexRoute
-  ProponentRegistrationCompleteRoute: typeof ProponentRegistrationCompleteRoute
-  ProponentRegistrationCreateAccountRoute: typeof ProponentRegistrationCreateAccountRoute
-  ProponentRegistrationIndexRoute: typeof ProponentRegistrationIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -773,13 +731,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentAccountRegistrationRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/proponent/registration/': {
-      id: '/proponent/registration/'
-      path: '/proponent/registration'
-      fullPath: '/proponent/registration/'
-      preLoaderRoute: typeof ProponentRegistrationIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/proponent/account-registration/': {
       id: '/proponent/account-registration/'
       path: '/'
@@ -793,20 +744,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/proponent/aboutpage'
       preLoaderRoute: typeof ProponentProponentLayoutAboutpageLazyRouteImport
       parentRoute: typeof ProponentProponentLayoutRoute
-    }
-    '/proponent/registration/create-account': {
-      id: '/proponent/registration/create-account'
-      path: '/proponent/registration/create-account'
-      fullPath: '/proponent/registration/create-account'
-      preLoaderRoute: typeof ProponentRegistrationCreateAccountRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/proponent/registration/complete': {
-      id: '/proponent/registration/complete'
-      path: '/proponent/registration/complete'
-      fullPath: '/proponent/registration/complete'
-      preLoaderRoute: typeof ProponentRegistrationCompleteRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/proponent/account-registration/second-admin': {
       id: '/proponent/account-registration/second-admin'
@@ -1209,10 +1146,6 @@ const rootRouteChildren: RootRouteChildren = {
   OidcCallbackIndexRoute: OidcCallbackIndexRoute,
   ProponentIndexRoute: ProponentIndexRoute,
   StaffIndexRoute: StaffIndexRoute,
-  ProponentRegistrationCompleteRoute: ProponentRegistrationCompleteRoute,
-  ProponentRegistrationCreateAccountRoute:
-    ProponentRegistrationCreateAccountRoute,
-  ProponentRegistrationIndexRoute: ProponentRegistrationIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

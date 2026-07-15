@@ -28,9 +28,8 @@ const DEFAULT_STYLE: StyleProps = {
 type ProjectStatusProps = {
   status: string;
 };
+
 export const ProjectStatus = ({ status }: ProjectStatusProps) => {
-
-
   // Use predefined style if available, otherwise use default with the status as label
   const style = statusStyles[status] || {
     ...DEFAULT_STYLE,

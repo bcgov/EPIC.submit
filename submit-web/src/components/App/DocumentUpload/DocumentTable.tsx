@@ -41,7 +41,7 @@ export default function DocumentTable({
     return null;
   }
   return (
-    <TableContainer component={Box} sx={{ height: "100%", overflow: "hidden" }}>
+    <TableContainer component={Box} sx={{ height: "100%", overflow: "visible" }}>
       <Table sx={{ tableLayout: "fixed" }}>
         <TableHead
           sx={{
@@ -64,9 +64,9 @@ export default function DocumentTable({
                 Form/Document
               </Typography>
             </SubmitTableHeadCell>
-            <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="left">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
-            <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Actions</SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>

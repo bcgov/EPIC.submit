@@ -202,9 +202,9 @@ export default function DocumentTableRow({
           />
         </Box>
       </DocumentTableCell>
-      <DocumentTableCell align="right">{submitted_by}</DocumentTableCell>
+      <DocumentTableCell align="left">{submitted_by}</DocumentTableCell>
       <DocumentTableCell align="right">{version}</DocumentTableCell>
-      <DocumentTableCell align="center">
+      <DocumentTableCell align="right">
         <LoadingButton
           onClick={onRemoveClick}
           loading={isRemovingDocument}

@@ -67,7 +67,7 @@ export default function ItemsTable({
   return (
     <TableContainer
       component={Box}
-      sx={{ height: "100%", overflow: "hidden", mt: 2.25, mb: 1 }}
+      sx={{ height: "100%", overflow: "visible", mt: 2.25, mb: 1 }}
     >
       <Table sx={{ tableLayout: "fixed" }}>
         <ItemsTableHead approvalType={packageType.approval_type} />

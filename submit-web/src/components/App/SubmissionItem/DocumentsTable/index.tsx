@@ -101,9 +101,9 @@ export default function DocumentsTable({
             <SubmitTableHeadCell>
               <Typography>Form/Document</Typography>
             </SubmitTableHeadCell>
-            <SubmitTableHeadCell align="right">Uploaded by</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="left">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
-            <SubmitTableHeadCell align="center">Actions</SubmitTableHeadCell>
+            <SubmitTableHeadCell align="right">Actions</SubmitTableHeadCell>
           </TableRow>
         </SubmitTableHead>
         <TableBody>

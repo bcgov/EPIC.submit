@@ -190,7 +190,7 @@ export const SubmissionStatusChipStack = ({
         direction="column"
         spacing={1}
         width={"fit-content"}
-        alignItems={"flex-end"}
+        alignItems={"flex-start"}
         sx={{
           margin: 0,
         }}
