@@ -151,6 +151,7 @@ export const getSubmissionPackageQueryOptions = ({
     queryFn: () => getSubmissionPackageById({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,
+    staleTime: 0,
   });
 
 export const getStaffSubmissionPackageQueryOptions = ({
@@ -162,6 +163,7 @@ export const getStaffSubmissionPackageQueryOptions = ({
     queryFn: () => getStaffSubmissionPackageById({ packageId }),
     enabled: enabled && Boolean(packageId),
     ...defaultUseQueryOptions,
+    staleTime: 0,
   });
 
 export const useGetSubmissionPackage = ({

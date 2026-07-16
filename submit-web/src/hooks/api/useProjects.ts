@@ -107,6 +107,7 @@ export const getAccountProjectsByAccountQueryOptions = ({
       }),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
+    staleTime: 0,
     ...customQueryOptions,
   });
 
@@ -145,6 +146,7 @@ export const getAccountProjectQueryOptions = (
       getAccountProjectById({ accountProjectId: accountProjectId as number }),
     enabled: !!accountProjectId,
     ...defaultUseQueryOptions,
+    staleTime: 0,
   });
 
 export const useGetAccountProject = ({
@@ -177,6 +179,9 @@ export const getAccountProjectForStaffQueryOptions = (
     queryFn: () => getAccountProjectByIdForStaff({ accountProjectId }),
     enabled: Boolean(accountProjectId),
     ...defaultUseQueryOptions,
+    // See getAccountProjectQueryOptions: always refetch on navigation so
+    // changes made in another session are reflected without a hard refresh.
+    staleTime: 0,
   });
 
 export const useGetAccountProjectForStaff = ({
@@ -229,6 +234,7 @@ export const getAccountProjectsQueryOptions = ({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECTS, searchOptions, page, pageSize],
     queryFn: () => getAccountProjects({ searchOptions, page, pageSize }),
     ...defaultUseQueryOptions,
+    staleTime: 0,
   });
 
 export const useGetAccountProjects = ({
