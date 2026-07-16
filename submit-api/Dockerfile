@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y \
     libldap2-dev \
     libssl-dev \
     gcc \
+    g++ \
+    gdal-bin \
+    libgdal-dev \
     git \
  && rm -rf /var/lib/apt/lists/*
 
@@ -28,5 +31,8 @@ USER 1001
 
 # Set Python path
 ENV PYTHONPATH=/opt/app-root/src
+
+# Set HOME to /tmp for OpenShift arbitrary UID support (prevents /.gunicorn permission denied errors)
+ENV HOME=/tmp
 
 ENTRYPOINT ["bash", "docker-entrypoint.sh"]

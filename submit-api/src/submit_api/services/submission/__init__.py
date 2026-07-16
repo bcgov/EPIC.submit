@@ -448,8 +448,7 @@ class SubmissionService:
 
         result = []
         for upload in triggered_uploads:
-            # pylint: disable=protected-access
-            GeoService._spawn_processing_thread(app, upload.id)
+            GeoService.submit_processing_job(app, upload.id)
             result.append({'id': upload.id, 'filename': upload.filename})
 
         return result

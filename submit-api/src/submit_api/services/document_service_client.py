@@ -97,6 +97,28 @@ class DocumentServiceClient:
         current_app.logger.info("Successfully uploaded file data")
 
     @staticmethod
+    def upload_file_via_presigned_url(
+        presigned_url: str,
+        file_path: str,
+        content_type: str = "application/octet-stream",
+    ):
+        """Stream a local file directly to S3 via a presigned URL."""
+        with open(file_path, "rb") as file_data:
+            response = requests.put(
+                presigned_url,
+                data=file_data,
+                headers={"Content-Type": content_type},
+                timeout=300
+            )
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            status_code = exc.response.status_code if exc.response is not None else "unknown"
+            raise requests.HTTPError(
+                f"Presigned file upload failed with HTTP status {status_code}"
+            ) from None
+
+    @staticmethod
     def download_via_presigned_url(presigned_url: str, local_path: str) -> str:
         """Download file content directly from S3 via a presigned URL to a local path."""
         current_app.logger.info(f"Downloading file data via presigned URL to {local_path}")

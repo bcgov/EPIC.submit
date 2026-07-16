@@ -20,251 +20,24 @@ Handles all geospatial business logic including:
 """
 from __future__ import annotations
 
-import json
 import logging
-import math
-import multiprocessing
 import os
 import tempfile
-import threading
-import zipfile
-import glob
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
-from queue import Empty
+from time import perf_counter
 from typing import Any, Dict
-import pandas as pd
-import geopandas as gpd
+
+from flask import current_app
 
 from submit_api.models import GeoDataUpload, Item as ItemModel, Submission as SubmissionModel, db
 from submit_api.models.submission import SubmissionType
 from submit_api.services.document_service_client import DocumentServiceClient
+from submit_api.services.geo.ogr_converter import process_geo_file_with_timeout
 from submit_api.services.geo.validator import validate_geo_file
 
 
 logger = logging.getLogger(__name__)
-COLOR_PALETTE = [
-    ("#FF00FF", "#8B008B"),  # Neon Magenta
-    ("#00FFFF", "#008B8B"),  # Neon Cyan
-    ("#FF1493", "#C71585"),  # Deep Pink
-    ("#39FF14", "#008000"),  # Neon Green
-    ("#FF4500", "#B22222"),  # Orange Red
-    ("#9400D3", "#4B0082"),  # Dark Violet
-    ("#FFFF00", "#B8860B"),  # Bright Yellow
-    ("#FF007F", "#80003F"),  # Rose
-    ("#00FF00", "#006400"),  # Lime
-    ("#8A2BE2", "#483D8B"),  # Blue Violet
-]
-
-
-# ---------------------------------------------------------------------------
-# Raw GeoJSON conversion helpers
-# ---------------------------------------------------------------------------
-
-def _is_json_serializable(val: Any) -> bool:
-    """Return True if val can be serialised to JSON."""
-    try:
-        json.dumps(val)
-        return True
-    except (TypeError, OverflowError):
-        return False
-
-
-def _read_shp_data(shp_file: str, index: int) -> gpd.GeoDataFrame:
-    """Read a single shapefile and assign colors."""
-    gdf = gpd.read_file(shp_file)
-
-    # Assign distinct color per feature rather than per layer
-    fill_colors, stroke_colors = [], []
-    for idx in range(len(gdf)):
-        f_col, s_col = COLOR_PALETTE[(idx + index) % len(COLOR_PALETTE)]
-        fill_colors.append(f_col)
-        stroke_colors.append(s_col)
-
-    gdf["layer_color"] = fill_colors
-    gdf["stroke_color"] = stroke_colors
-    gdf["layer_name"] = os.path.basename(shp_file)
-    return gdf
-
-
-def _read_zip_layers(local_path: str) -> gpd.GeoDataFrame:
-    """Read all .shp layers from a zip file and merge them."""
-    with tempfile.TemporaryDirectory() as temp_dir:
-        with zipfile.ZipFile(local_path, "r") as zip_ref:
-            zip_ref.extractall(temp_dir)
-
-        # Recursively find all .shp files
-        shp_files = glob.glob(os.path.join(temp_dir, "**", "*.shp"), recursive=True)
-
-        if not shp_files:
-            raise ValueError("No .shp files found inside the zip archive.")
-
-        # Sort to ensure consistent coloring order
-        shp_files.sort()
-        gdfs = [
-            _read_shp_data(shp_file, i)
-            for i, shp_file in enumerate(shp_files)
-        ]
-
-        if not gdfs:
-            raise ValueError("Failed to read any geospatial layers from the zip file.")
-
-        if len(gdfs) == 1:
-            return gdfs[0]
-
-        base_crs = gdfs[0].crs
-        aligned_gdfs = []
-        for gdf in gdfs:
-            if gdf.crs != base_crs and base_crs is not None and gdf.crs is not None:
-                aligned_gdfs.append(gdf.to_crs(base_crs))
-            else:
-                aligned_gdfs.append(gdf)
-        return gpd.GeoDataFrame(pd.concat(aligned_gdfs, ignore_index=True), crs=base_crs)
-
-
-def _generate_tier(
-    df: gpd.GeoDataFrame, simplification: float, max_features: int | None = None
-) -> bytes:
-    """Simplify and down-sample a GeoDataFrame, returning UTF-8 GeoJSON bytes."""
-    work_df = df.copy()
-
-    # Ensure we start with valid geometries
-    work_df = work_df[work_df.geometry.notnull() & ~work_df.geometry.is_empty]
-
-    if max_features and len(work_df) > max_features:
-        work_df = work_df.sample(n=max_features, random_state=42)
-
-    # Only simplify if a non-zero factor is provided
-    if simplification and simplification > 0:
-        work_df.geometry = work_df.geometry.simplify(simplification, preserve_topology=True)
-        # Re-drop any geometries that became empty after simplification
-        work_df = work_df[work_df.geometry.notnull() & ~work_df.geometry.is_empty]
-
-    return work_df.to_json().encode("utf-8")
-
-
-def _ensure_wgs84(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    """Ensure the GeoDataFrame is in WGS-84 (EPSG:4326)."""
-    if gdf.crs is None:
-        logger.warning("No CRS found in file (missing .prj?). Assuming EPSG:4326.")
-        gdf = gdf.set_crs("EPSG:4326")
-    elif not gdf.crs.equals("EPSG:4326"):
-        logger.info("Reprojecting from %s to EPSG:4326", gdf.crs)
-        gdf = gdf.to_crs("EPSG:4326")
-
-    # Drop any geometries that failed to reproject (can happen if coords are out of range)
-    original_count = len(gdf)
-    gdf = gdf[gdf.geometry.notnull() & ~gdf.geometry.is_empty]
-    if len(gdf) < original_count:
-        logger.info("Dropped %d null/empty geometries after reprojection", original_count - len(gdf))
-
-    return gdf
-
-
-def _get_bbox(gdf: gpd.GeoDataFrame) -> list[float]:
-    """Calculate a safe WGS-84 bounding box for the GeoDataFrame."""
-    if gdf.empty:
-        return [0.0, 0.0, 0.0, 0.0]
-
-    bounds = gdf.total_bounds  # [minx, miny, maxx, maxy]
-    # Handle NaN in bounds
-    bbox = []
-    for i, val in enumerate(bounds):
-        if not math.isfinite(val):
-            # fallback to a sensible default if any coordinate is NaN
-            logger.warning("Invalid coordinate detected in bounds: %s. Using default bbox.", val)
-            return [-180.0, -90.0, 180.0, 90.0]
-
-        if i % 2 == 0:  # X (longitude)
-            bbox.append(float(max(-180, min(180, val))))
-        else:  # Y (latitude)
-            bbox.append(float(max(-90, min(90, val))))
-    return bbox
-
-
-def _load_gdf(local_path: str) -> gpd.GeoDataFrame:
-    """Load a GeoDataFrame from a .shp or .zip file."""
-    is_zip = local_path.lower().endswith(".zip")
-    is_shp = local_path.lower().endswith(".shp")
-
-    # SHAPE_RESTORE_SHX tells GDAL to reconstruct the missing .shx index
-    _prev = os.environ.get("SHAPE_RESTORE_SHX")
-    if is_shp:
-        os.environ["SHAPE_RESTORE_SHX"] = "YES"
-
-    try:
-        if is_zip:
-            return _read_zip_layers(local_path)
-
-        try:
-            gpd.read_file(local_path)
-        except (IOError, ValueError, RuntimeError) as exc:
-            if is_shp:
-                raise ValueError(
-                    "Failed to read .shp file. Please ensure all sidecar files (.shx, .dbf, .prj) "
-                    "are included by uploading them together in a .zip archive."
-                ) from exc
-            raise exc
-
-        return _read_shp_data(local_path, 0)
-    finally:
-        if is_shp:
-            if _prev is None:
-                os.environ.pop("SHAPE_RESTORE_SHX", None)
-            else:
-                os.environ["SHAPE_RESTORE_SHX"] = _prev
-
-
-def process_geo_file(local_path: str) -> Dict[str, Any]:
-    """Process a geospatial file into preview/standard tiers plus metadata.
-
-    Args:
-        local_path: Local filesystem path to a .shp or .zip file.
-
-    Returns:
-        dict with keys ``tiers`` (dict of bytes keyed by tier name) and
-        ``metadata`` (feature_count, geometry_type, crs_original, bbox).
-    """
-    gdf = _load_gdf(local_path)
-
-    crs_original = str(gdf.crs.to_string()) if gdf.crs else "Unknown"
-
-    # Drop null / empty geometries
-    original_count = len(gdf)
-    gdf = gdf[gdf.geometry.notnull() & ~gdf.geometry.is_empty]
-    logger.info("Dropped %d null or empty geometries", original_count - len(gdf))
-
-    gdf = _ensure_wgs84(gdf)
-
-    feature_count = len(gdf)
-    geometry_type = gdf.geom_type.mode().iloc[0] if not gdf.empty else "Unknown"
-    bbox = _get_bbox(gdf)
-
-    # Drop columns that cannot be serialised to JSON
-    cols_to_drop = []
-    if not gdf.empty:
-        for col in gdf.columns:
-            if col == "geometry":
-                continue
-            sample = gdf[col].dropna().iloc[0] if not gdf[col].dropna().empty else None
-            if sample is not None and not _is_json_serializable(sample):
-                cols_to_drop.append(col)
-    if cols_to_drop:
-        logger.info("Dropped non-serialisable columns: %s", cols_to_drop)
-        gdf = gdf.drop(columns=cols_to_drop)
-
-    logger.info("Generating tiers…")
-    return {
-        "tiers": {
-            "preview": _generate_tier(gdf, 0.000001, 10_000),
-            "standard": _generate_tier(gdf, 0),
-        },
-        "metadata": {
-            "feature_count": feature_count,
-            "geometry_type": str(geometry_type),
-            "crs_original": crs_original,
-            "bbox": bbox,
-        },
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -273,70 +46,29 @@ def process_geo_file(local_path: str) -> Dict[str, Any]:
 
 # Max number of concurrent geospatial processing jobs to prevent resource exhaustion (RAM/CPU/DB)
 GEO_MAX_CONCURRENT_JOBS = int(os.environ.get("GEO_MAX_CONCURRENT_JOBS", 3))
-_GEO_SEMAPHORE = threading.Semaphore(GEO_MAX_CONCURRENT_JOBS)
-
-# Hard wall-clock limit for converting a single file. A malformed or overly large
-# file can make geopandas spin indefinitely, leaving the upload stuck in
-# 'processing' forever. When exceeded, the worker process is forcibly killed and
-# the upload is marked as failed. Configurable via GEO_PROCESSING_TIMEOUT_SECONDS.
-GEO_PROCESSING_TIMEOUT_SECONDS = int(os.environ.get("GEO_PROCESSING_TIMEOUT_SECONDS", 60))
+_GEO_EXECUTOR = ThreadPoolExecutor(
+    max_workers=GEO_MAX_CONCURRENT_JOBS,
+    thread_name_prefix="geo-processing",
+)
 
 
-def _process_geo_file_worker(local_path: str, result_queue: "multiprocessing.Queue") -> None:
-    """Child-process entry point: run process_geo_file and push the outcome onto the queue.
+def _log_processing_job_failure(future) -> None:
+    """Log unexpected worker-pool failures that escaped normal upload handling."""
+    if future.cancelled():
+        logger.warning("GeoDataUpload processing worker was cancelled.")
+        return
 
-    Runs in a separate process so a runaway conversion can be terminated by the
-    parent. The result dict (GeoJSON bytes + metadata) is picklable; exceptions
-    are stringified because arbitrary exception types may not be.
-    """
-    try:
-        result_queue.put(("ok", process_geo_file(local_path)))
-    except Exception as exc:  # pylint: disable=broad-except # noqa: B902
-        result_queue.put(("error", str(exc)))
-
-
-def process_geo_file_with_timeout(
-    local_path: str, timeout_seconds: int = GEO_PROCESSING_TIMEOUT_SECONDS
-) -> Dict[str, Any]:
-    """Run process_geo_file in a child process, enforcing a hard wall-clock timeout.
-
-    Raises:
-        TimeoutError: if processing exceeds ``timeout_seconds`` (the child is killed).
-        RuntimeError: if the child process fails or dies without producing a result.
-    """
-    ctx = multiprocessing.get_context()
-    result_queue: "multiprocessing.Queue" = ctx.Queue()
-    proc = ctx.Process(
-        target=_process_geo_file_worker,
-        args=(local_path, result_queue),
-        daemon=True,
-    )
-    proc.start()
-
-    try:
-        # Block until the child publishes a result or the timeout elapses. Reading
-        # from the queue before join() avoids a deadlock when the result is large.
-        status, payload = result_queue.get(timeout=timeout_seconds)
-    except Empty as exc:
-        logger.warning(
-            "Geospatial processing exceeded %ss for %s; terminating worker process.",
-            timeout_seconds, local_path,
+    exception = future.exception()
+    if exception:
+        logger.error(
+            "Unhandled GeoDataUpload processing worker error.",
+            exc_info=(type(exception), exception, exception.__traceback__),
         )
-        proc.terminate()
-        proc.join(timeout=5)
-        if proc.is_alive():
-            proc.kill()
-        raise TimeoutError(
-            f"Processing timed out after {timeout_seconds} seconds and was stopped."
-        ) from exc
-    finally:
-        result_queue.close()
 
-    proc.join(timeout=5)
 
-    if status == "error":
-        raise RuntimeError(payload)
-    return payload
+def _elapsed_ms(started_at: float) -> int:
+    """Return elapsed milliseconds for compact operational logs."""
+    return round((perf_counter() - started_at) * 1000)
 
 
 class GeoService:
@@ -352,13 +84,14 @@ class GeoService:
         False if it failed and the upload was marked ``validation_failed``.
         """
         if os.environ.get("SKIP_GEO_FILE_ATTR_VALIDATION", "false").lower() == "true":
+            current_app.logger.info("GeoDataUpload %s validation skipped by configuration.", upload.id)
             return True
 
         is_valid, errors, summary = validate_geo_file(local_path)
         if is_valid:
             return True
 
-        logger.warning(
+        current_app.logger.warning(
             "Attribute validation failed for GeoDataUpload %s: %d error(s) in field(s): %s",
             upload.id,
             summary["total_errors"],
@@ -418,7 +151,7 @@ class GeoService:
         for tier in ("preview", "standard"):
             s3_key = f"geo/processed/{upload.id}/{tier}.geojson"
             write_url, actual_s3_key = DocumentServiceClient.get_presigned_write_url(s3_key)
-            DocumentServiceClient.upload_via_presigned_url(write_url, result["tiers"][tier])
+            DocumentServiceClient.upload_file_via_presigned_url(write_url, result["tiers"][tier])
             if tier == "preview":
                 upload.preview_s3_key = actual_s3_key
             else:
@@ -437,11 +170,10 @@ class GeoService:
                 upload.status = "failed"
                 upload.error_message = str(exc)
                 db.session.commit()
-                logger.info("Successfully marked GeoDataUpload %s as failed.", upload_id)
             else:
-                logger.error("Could not re-fetch GeoDataUpload %s after rollback.", upload_id)
+                current_app.logger.error("Could not re-fetch GeoDataUpload %s after rollback.", upload_id)
         except Exception as fallback_exc:  # pylint: disable=broad-except # noqa: B902
-            logger.error(
+            current_app.logger.error(
                 "CRITICAL: Failed to save the error state for upload %s. "
                 "The database might be unreachable: %s",
                 upload_id, fallback_exc
@@ -449,54 +181,68 @@ class GeoService:
 
     @classmethod
     def _process_upload_in_background(cls, app, upload_id: int) -> None:
-        """Download, convert, and re-upload a single GeoDataUpload (runs in daemon thread)."""
-        with _GEO_SEMAPHORE:
-            with app.app_context():
-                upload = db.session.get(GeoDataUpload, upload_id)
-                if not upload:
-                    logger.error("GeoDataUpload %s not found.", upload_id)
-                    return
+        """Download, convert, and re-upload a single GeoDataUpload."""
+        with app.app_context():
+            job_started_at = perf_counter()
+            upload = db.session.get(GeoDataUpload, upload_id)
+            if not upload:
+                current_app.logger.error("GeoDataUpload %s not found.", upload_id)
+                return
 
-                try:
-                    read_url = DocumentServiceClient.get_presigned_read_url(upload.raw_s3_key)
+            try:
+                current_app.logger.info(
+                    "GeoDataUpload %s processing started (filename=%s, file_type=%s).",
+                    upload.id,
+                    upload.filename,
+                    upload.file_type,
+                )
+                read_url = DocumentServiceClient.get_presigned_read_url(upload.raw_s3_key)
 
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        local_path = os.path.join(tmpdir, os.path.basename(upload.raw_s3_key))
-                        DocumentServiceClient.download_via_presigned_url(read_url, local_path)
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    local_path = os.path.join(tmpdir, os.path.basename(upload.raw_s3_key))
+                    DocumentServiceClient.download_via_presigned_url(read_url, local_path)
 
-                        # Update file size in KB if it's currently 0.0 (or unknown)
-                        if not upload.file_size_kb or upload.file_size_kb == 0.0:
-                            upload.file_size_kb = round(os.path.getsize(local_path) / 1024, 2)
-                            db.session.commit()
+                    # Update file size in KB if it's currently 0.0 (or unknown)
+                    if not upload.file_size_kb or upload.file_size_kb == 0.0:
+                        upload.file_size_kb = round(os.path.getsize(local_path) / 1024, 2)
+                        db.session.commit()
 
-                        if not cls._validate_or_fail(upload, local_path):
-                            return
+                    if not cls._validate_or_fail(upload, local_path):
+                        return
 
-                        result = process_geo_file_with_timeout(local_path)
-                        cls._upload_processed_tiers(upload, result)
+                    # Keep generated tier files under the same temporary
+                    # directory so they stay available until the presigned
+                    # uploads finish, then are removed with the source file.
+                    result = process_geo_file_with_timeout(local_path, tmpdir)
+                    resource_usage = result.get("resource_usage", {})
+                    cls._upload_processed_tiers(upload, result)
 
-                    metadata = result["metadata"]
-                    upload.feature_count = metadata["feature_count"]
-                    upload.geometry_type = metadata["geometry_type"]
-                    upload.crs_original = metadata["crs_original"]
-                    upload.bbox = metadata["bbox"]
-                    upload.status = "ready"
-                    db.session.commit()
-                    logger.info("Successfully processed GeoDataUpload %s", upload_id)
+                metadata = result["metadata"]
+                upload.feature_count = metadata["feature_count"]
+                upload.geometry_type = metadata["geometry_type"]
+                upload.crs_original = metadata["crs_original"]
+                upload.bbox = metadata["bbox"]
+                upload.status = "ready"
+                db.session.commit()
+                current_app.logger.info(
+                    "GeoDataUpload %s processing completed in %sms "
+                    "(feature_count=%s, geometry_type=%s, resource_usage=%s).",
+                    upload_id,
+                    _elapsed_ms(job_started_at),
+                    metadata["feature_count"],
+                    metadata["geometry_type"],
+                    resource_usage,
+                )
 
-                except Exception as exc:  # pylint: disable=broad-except # noqa: B902
-                    logger.exception("Error processing GeoDataUpload %s: %s", upload_id, exc)
-                    cls._mark_upload_failed(upload_id, exc)
+            except Exception as exc:  # pylint: disable=broad-except # noqa: B902
+                current_app.logger.exception("Error processing GeoDataUpload %s: %s", upload_id, exc)
+                cls._mark_upload_failed(upload_id, exc)
 
     @classmethod
-    def _spawn_processing_thread(cls, app, upload_id: int) -> None:
-        """Spawn a daemon thread to process the given upload."""
-        thread = threading.Thread(
-            target=cls._process_upload_in_background,
-            args=(app, upload_id),
-        )
-        thread.daemon = True
-        thread.start()
+    def submit_processing_job(cls, app, upload_id: int) -> None:
+        """Submit the upload to the bounded in-process GIS worker pool."""
+        future = _GEO_EXECUTOR.submit(cls._process_upload_in_background, app, upload_id)
+        future.add_done_callback(_log_processing_job_failure)
 
     # -- CRUD ----------------------------------------------------------------
 
@@ -517,7 +263,7 @@ class GeoService:
         db.session.add(upload)
         db.session.commit()
 
-        cls._spawn_processing_thread(app, upload.id)
+        cls.submit_processing_job(app, upload.id)
         return upload
 
     @classmethod
@@ -669,5 +415,5 @@ class GeoService:
         upload.validation_errors = None
         db.session.commit()
 
-        cls._spawn_processing_thread(app, upload.id)
+        cls.submit_processing_job(app, upload.id)
         return upload

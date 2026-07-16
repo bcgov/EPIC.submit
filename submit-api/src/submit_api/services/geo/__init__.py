@@ -18,7 +18,8 @@ Public surface:
   process_geo_file    — converts a .shp/.zip into tiered GeoJSON
   validate_geo_file   — validates shapefile attributes before conversion
 """
-from submit_api.services.geo.processor import GeoService, process_geo_file
+from submit_api.services.geo.ogr_converter import process_geo_file
+from submit_api.services.geo.processor import GeoService
 from submit_api.services.geo.validator import validate_geo_file
 
 __all__ = ["GeoService", "process_geo_file", "validate_geo_file"]
