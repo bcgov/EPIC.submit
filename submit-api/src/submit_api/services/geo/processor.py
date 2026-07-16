@@ -54,10 +54,16 @@ _GEO_EXECUTOR = ThreadPoolExecutor(
 
 def _log_processing_job_failure(future) -> None:
     """Log unexpected worker-pool failures that escaped normal upload handling."""
-    try:
-        future.result()
-    except Exception:  # pylint: disable=broad-except
-        logger.exception("Unhandled GeoDataUpload processing worker error.")
+    if future.cancelled():
+        logger.warning("GeoDataUpload processing worker was cancelled.")
+        return
+
+    exception = future.exception()
+    if exception:
+        logger.error(
+            "Unhandled GeoDataUpload processing worker error.",
+            exc_info=(type(exception), exception, exception.__traceback__),
+        )
 
 
 def _elapsed_ms(started_at: float) -> int:
