@@ -54,16 +54,6 @@ def _elapsed_ms(started_at: float) -> int:
     return round((perf_counter() - started_at) * 1000)
 
 
-def _file_size_bytes(file_path: str) -> int:
-    """Return a file size for logging without exposing temporary file paths."""
-    return os.path.getsize(file_path)
-
-
-def _tier_size_bytes(result: Dict[str, Any], tier: str) -> int:
-    """Return generated tier size for logging."""
-    return _file_size_bytes(result["tiers"][tier])
-
-
 class GeoService:
     """Service class for geospatial upload management."""
 
@@ -80,15 +70,8 @@ class GeoService:
             current_app.logger.info("GeoDataUpload %s validation skipped by configuration.", upload.id)
             return True
 
-        started_at = perf_counter()
-        current_app.logger.info("GeoDataUpload %s validation started.", upload.id)
         is_valid, errors, summary = validate_geo_file(local_path)
         if is_valid:
-            current_app.logger.info(
-                "GeoDataUpload %s validation passed in %sms.",
-                upload.id,
-                _elapsed_ms(started_at),
-            )
             return True
 
         current_app.logger.warning(
@@ -150,27 +133,12 @@ class GeoService:
         """Upload processed tiers to S3 and record their keys on the upload."""
         for tier in ("preview", "standard"):
             s3_key = f"geo/processed/{upload.id}/{tier}.geojson"
-            started_at = perf_counter()
-            current_app.logger.info(
-                "GeoDataUpload %s uploading %s tier to %s (%s bytes).",
-                upload.id,
-                tier,
-                s3_key,
-                _tier_size_bytes(result, tier),
-            )
             write_url, actual_s3_key = DocumentServiceClient.get_presigned_write_url(s3_key)
             DocumentServiceClient.upload_file_via_presigned_url(write_url, result["tiers"][tier])
             if tier == "preview":
                 upload.preview_s3_key = actual_s3_key
             else:
                 upload.standard_s3_key = actual_s3_key
-            current_app.logger.info(
-                "GeoDataUpload %s uploaded %s tier to %s in %sms.",
-                upload.id,
-                tier,
-                actual_s3_key,
-                _elapsed_ms(started_at),
-            )
 
     @staticmethod
     def _mark_upload_failed(upload_id: int, exc: Exception) -> None:
@@ -185,7 +153,6 @@ class GeoService:
                 upload.status = "failed"
                 upload.error_message = str(exc)
                 db.session.commit()
-                current_app.logger.info("Successfully marked GeoDataUpload %s as failed.", upload_id)
             else:
                 current_app.logger.error("Could not re-fetch GeoDataUpload %s after rollback.", upload_id)
         except Exception as fallback_exc:  # pylint: disable=broad-except # noqa: B902
@@ -208,31 +175,16 @@ class GeoService:
 
                 try:
                     current_app.logger.info(
-                        "GeoDataUpload %s processing started (filename=%s, file_type=%s, "
-                        "raw_s3_key=%s, configured_concurrency=%s).",
+                        "GeoDataUpload %s processing started (filename=%s, file_type=%s).",
                         upload.id,
                         upload.filename,
                         upload.file_type,
-                        upload.raw_s3_key,
-                        GEO_MAX_CONCURRENT_JOBS,
                     )
                     read_url = DocumentServiceClient.get_presigned_read_url(upload.raw_s3_key)
 
                     with tempfile.TemporaryDirectory() as tmpdir:
                         local_path = os.path.join(tmpdir, os.path.basename(upload.raw_s3_key))
-                        step_started_at = perf_counter()
-                        current_app.logger.info(
-                            "GeoDataUpload %s downloading raw GIS file from %s.",
-                            upload.id,
-                            upload.raw_s3_key,
-                        )
                         DocumentServiceClient.download_via_presigned_url(read_url, local_path)
-                        current_app.logger.info(
-                            "GeoDataUpload %s downloaded raw GIS file in %sms (%s bytes).",
-                            upload.id,
-                            _elapsed_ms(step_started_at),
-                            _file_size_bytes(local_path),
-                        )
 
                         # Update file size in KB if it's currently 0.0 (or unknown)
                         if not upload.file_size_kb or upload.file_size_kb == 0.0:
@@ -245,18 +197,8 @@ class GeoService:
                         # Keep generated tier files under the same temporary
                         # directory so they stay available until the presigned
                         # uploads finish, then are removed with the source file.
-                        step_started_at = perf_counter()
-                        current_app.logger.info("GeoDataUpload %s conversion started.", upload.id)
                         result = process_geo_file_with_timeout(local_path, tmpdir)
-                        current_app.logger.info(
-                            "GeoDataUpload %s conversion completed in %sms "
-                            "(preview_bytes=%s, standard_bytes=%s, resource_usage=%s).",
-                            upload.id,
-                            _elapsed_ms(step_started_at),
-                            _tier_size_bytes(result, "preview"),
-                            _tier_size_bytes(result, "standard"),
-                            result.get("resource_usage", {}),
-                        )
+                        resource_usage = result.get("resource_usage", {})
                         cls._upload_processed_tiers(upload, result)
 
                     metadata = result["metadata"]
@@ -268,13 +210,12 @@ class GeoService:
                     db.session.commit()
                     current_app.logger.info(
                         "GeoDataUpload %s processing completed in %sms "
-                        "(feature_count=%s, geometry_type=%s, crs_original=%s, bbox=%s).",
+                        "(feature_count=%s, geometry_type=%s, resource_usage=%s).",
                         upload_id,
                         _elapsed_ms(job_started_at),
                         metadata["feature_count"],
                         metadata["geometry_type"],
-                        metadata["crs_original"],
-                        metadata["bbox"],
+                        resource_usage,
                     )
 
                 except Exception as exc:  # pylint: disable=broad-except # noqa: B902
@@ -284,14 +225,12 @@ class GeoService:
     @classmethod
     def _spawn_processing_thread(cls, app, upload_id: int) -> None:
         """Spawn a daemon thread to process the given upload."""
-        current_app.logger.info("GeoDataUpload %s background processing thread starting.", upload_id)
         thread = threading.Thread(
             target=cls._process_upload_in_background,
             args=(app, upload_id),
         )
         thread.daemon = True
         thread.start()
-        current_app.logger.info("GeoDataUpload %s background processing thread started.", upload_id)
 
     # -- CRUD ----------------------------------------------------------------
 
@@ -312,14 +251,6 @@ class GeoService:
         db.session.add(upload)
         db.session.commit()
 
-        current_app.logger.info(
-            "GeoDataUpload %s created (filename=%s, file_type=%s, file_size_kb=%s, raw_s3_key=%s).",
-            upload.id,
-            filename,
-            file_type,
-            file_size_kb,
-            s3_key,
-        )
         cls._spawn_processing_thread(app, upload.id)
         return upload
 
