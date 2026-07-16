@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 import os
 import tempfile
-import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from time import perf_counter
 from typing import Any, Dict
@@ -46,7 +46,18 @@ logger = logging.getLogger(__name__)
 
 # Max number of concurrent geospatial processing jobs to prevent resource exhaustion (RAM/CPU/DB)
 GEO_MAX_CONCURRENT_JOBS = int(os.environ.get("GEO_MAX_CONCURRENT_JOBS", 3))
-_GEO_SEMAPHORE = threading.Semaphore(GEO_MAX_CONCURRENT_JOBS)
+_GEO_EXECUTOR = ThreadPoolExecutor(
+    max_workers=GEO_MAX_CONCURRENT_JOBS,
+    thread_name_prefix="geo-processing",
+)
+
+
+def _log_processing_job_failure(future) -> None:
+    """Log unexpected worker-pool failures that escaped normal upload handling."""
+    try:
+        future.result()
+    except Exception:  # pylint: disable=broad-except
+        logger.exception("Unhandled GeoDataUpload processing worker error.")
 
 
 def _elapsed_ms(started_at: float) -> int:
@@ -164,73 +175,68 @@ class GeoService:
 
     @classmethod
     def _process_upload_in_background(cls, app, upload_id: int) -> None:
-        """Download, convert, and re-upload a single GeoDataUpload (runs in daemon thread)."""
-        with _GEO_SEMAPHORE:
-            with app.app_context():
-                job_started_at = perf_counter()
-                upload = db.session.get(GeoDataUpload, upload_id)
-                if not upload:
-                    current_app.logger.error("GeoDataUpload %s not found.", upload_id)
-                    return
+        """Download, convert, and re-upload a single GeoDataUpload."""
+        with app.app_context():
+            job_started_at = perf_counter()
+            upload = db.session.get(GeoDataUpload, upload_id)
+            if not upload:
+                current_app.logger.error("GeoDataUpload %s not found.", upload_id)
+                return
 
-                try:
-                    current_app.logger.info(
-                        "GeoDataUpload %s processing started (filename=%s, file_type=%s).",
-                        upload.id,
-                        upload.filename,
-                        upload.file_type,
-                    )
-                    read_url = DocumentServiceClient.get_presigned_read_url(upload.raw_s3_key)
+            try:
+                current_app.logger.info(
+                    "GeoDataUpload %s processing started (filename=%s, file_type=%s).",
+                    upload.id,
+                    upload.filename,
+                    upload.file_type,
+                )
+                read_url = DocumentServiceClient.get_presigned_read_url(upload.raw_s3_key)
 
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        local_path = os.path.join(tmpdir, os.path.basename(upload.raw_s3_key))
-                        DocumentServiceClient.download_via_presigned_url(read_url, local_path)
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    local_path = os.path.join(tmpdir, os.path.basename(upload.raw_s3_key))
+                    DocumentServiceClient.download_via_presigned_url(read_url, local_path)
 
-                        # Update file size in KB if it's currently 0.0 (or unknown)
-                        if not upload.file_size_kb or upload.file_size_kb == 0.0:
-                            upload.file_size_kb = round(os.path.getsize(local_path) / 1024, 2)
-                            db.session.commit()
+                    # Update file size in KB if it's currently 0.0 (or unknown)
+                    if not upload.file_size_kb or upload.file_size_kb == 0.0:
+                        upload.file_size_kb = round(os.path.getsize(local_path) / 1024, 2)
+                        db.session.commit()
 
-                        if not cls._validate_or_fail(upload, local_path):
-                            return
+                    if not cls._validate_or_fail(upload, local_path):
+                        return
 
-                        # Keep generated tier files under the same temporary
-                        # directory so they stay available until the presigned
-                        # uploads finish, then are removed with the source file.
-                        result = process_geo_file_with_timeout(local_path, tmpdir)
-                        resource_usage = result.get("resource_usage", {})
-                        cls._upload_processed_tiers(upload, result)
+                    # Keep generated tier files under the same temporary
+                    # directory so they stay available until the presigned
+                    # uploads finish, then are removed with the source file.
+                    result = process_geo_file_with_timeout(local_path, tmpdir)
+                    resource_usage = result.get("resource_usage", {})
+                    cls._upload_processed_tiers(upload, result)
 
-                    metadata = result["metadata"]
-                    upload.feature_count = metadata["feature_count"]
-                    upload.geometry_type = metadata["geometry_type"]
-                    upload.crs_original = metadata["crs_original"]
-                    upload.bbox = metadata["bbox"]
-                    upload.status = "ready"
-                    db.session.commit()
-                    current_app.logger.info(
-                        "GeoDataUpload %s processing completed in %sms "
-                        "(feature_count=%s, geometry_type=%s, resource_usage=%s).",
-                        upload_id,
-                        _elapsed_ms(job_started_at),
-                        metadata["feature_count"],
-                        metadata["geometry_type"],
-                        resource_usage,
-                    )
+                metadata = result["metadata"]
+                upload.feature_count = metadata["feature_count"]
+                upload.geometry_type = metadata["geometry_type"]
+                upload.crs_original = metadata["crs_original"]
+                upload.bbox = metadata["bbox"]
+                upload.status = "ready"
+                db.session.commit()
+                current_app.logger.info(
+                    "GeoDataUpload %s processing completed in %sms "
+                    "(feature_count=%s, geometry_type=%s, resource_usage=%s).",
+                    upload_id,
+                    _elapsed_ms(job_started_at),
+                    metadata["feature_count"],
+                    metadata["geometry_type"],
+                    resource_usage,
+                )
 
-                except Exception as exc:  # pylint: disable=broad-except # noqa: B902
-                    current_app.logger.exception("Error processing GeoDataUpload %s: %s", upload_id, exc)
-                    cls._mark_upload_failed(upload_id, exc)
+            except Exception as exc:  # pylint: disable=broad-except # noqa: B902
+                current_app.logger.exception("Error processing GeoDataUpload %s: %s", upload_id, exc)
+                cls._mark_upload_failed(upload_id, exc)
 
     @classmethod
-    def _spawn_processing_thread(cls, app, upload_id: int) -> None:
-        """Spawn a daemon thread to process the given upload."""
-        thread = threading.Thread(
-            target=cls._process_upload_in_background,
-            args=(app, upload_id),
-        )
-        thread.daemon = True
-        thread.start()
+    def _submit_processing_job(cls, app, upload_id: int) -> None:
+        """Submit the upload to the bounded in-process GIS worker pool."""
+        future = _GEO_EXECUTOR.submit(cls._process_upload_in_background, app, upload_id)
+        future.add_done_callback(_log_processing_job_failure)
 
     # -- CRUD ----------------------------------------------------------------
 
@@ -251,7 +257,7 @@ class GeoService:
         db.session.add(upload)
         db.session.commit()
 
-        cls._spawn_processing_thread(app, upload.id)
+        cls._submit_processing_job(app, upload.id)
         return upload
 
     @classmethod
@@ -403,5 +409,5 @@ class GeoService:
         upload.validation_errors = None
         db.session.commit()
 
-        cls._spawn_processing_thread(app, upload.id)
+        cls._submit_processing_job(app, upload.id)
         return upload
