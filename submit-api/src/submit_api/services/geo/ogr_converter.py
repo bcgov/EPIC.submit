@@ -19,7 +19,9 @@ import logging
 import math
 import multiprocessing
 import os
+import resource
 import subprocess
+import sys
 import tempfile
 from collections import Counter
 from pathlib import Path
@@ -344,6 +346,23 @@ def process_geo_file(local_path: str, output_dir: str | None = None) -> Dict[str
     }
 
 
+def _max_rss_to_mb(max_rss: int) -> float:
+    """Convert ru_maxrss to MB; Linux reports KB, macOS reports bytes."""
+    divisor = 1024 * 1024 if sys.platform == "darwin" else 1024
+    return round(max_rss / divisor, 2)
+
+
+def _get_resource_usage() -> Dict[str, Any]:
+    """Return best-effort CPU and memory use for this worker and its GDAL subprocesses."""
+    self_usage = resource.getrusage(resource.RUSAGE_SELF)
+    child_usage = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return {
+        "user_cpu_seconds": round(self_usage.ru_utime + child_usage.ru_utime, 3),
+        "system_cpu_seconds": round(self_usage.ru_stime + child_usage.ru_stime, 3),
+        "max_rss_mb": _max_rss_to_mb(max(self_usage.ru_maxrss, child_usage.ru_maxrss)),
+    }
+
+
 def _process_geo_file_worker(
     local_path: str,
     output_dir: str,
@@ -351,7 +370,9 @@ def _process_geo_file_worker(
 ) -> None:
     """Child-process entry point for timeout-controlled conversion."""
     try:
-        result_queue.put(("ok", process_geo_file(local_path, output_dir)))
+        result = process_geo_file(local_path, output_dir)
+        result["resource_usage"] = _get_resource_usage()
+        result_queue.put(("ok", result))
     except Exception as exc:  # pylint: disable=broad-except # noqa: B902
         result_queue.put(("error", str(exc)))
 
