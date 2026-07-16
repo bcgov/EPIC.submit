@@ -13,7 +13,7 @@ def test_submit_processing_job_uses_bounded_executor():
     future = Mock()
 
     with patch.object(processor._GEO_EXECUTOR, "submit", return_value=future) as submit:
-        GeoService._submit_processing_job(app, 42)
+        GeoService.submit_processing_job(app, 42)
 
     submit.assert_called_once_with(GeoService._process_upload_in_background, app, 42)
     future.add_done_callback.assert_called_once_with(processor._log_processing_job_failure)

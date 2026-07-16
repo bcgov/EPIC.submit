@@ -233,7 +233,7 @@ class GeoService:
                 cls._mark_upload_failed(upload_id, exc)
 
     @classmethod
-    def _submit_processing_job(cls, app, upload_id: int) -> None:
+    def submit_processing_job(cls, app, upload_id: int) -> None:
         """Submit the upload to the bounded in-process GIS worker pool."""
         future = _GEO_EXECUTOR.submit(cls._process_upload_in_background, app, upload_id)
         future.add_done_callback(_log_processing_job_failure)
@@ -257,7 +257,7 @@ class GeoService:
         db.session.add(upload)
         db.session.commit()
 
-        cls._submit_processing_job(app, upload.id)
+        cls.submit_processing_job(app, upload.id)
         return upload
 
     @classmethod
@@ -409,5 +409,5 @@ class GeoService:
         upload.validation_errors = None
         db.session.commit()
 
-        cls._submit_processing_job(app, upload.id)
+        cls.submit_processing_job(app, upload.id)
         return upload
