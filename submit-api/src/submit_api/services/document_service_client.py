@@ -100,7 +100,7 @@ class DocumentServiceClient:
     def upload_file_via_presigned_url(
         presigned_url: str,
         file_path: str,
-        content_type: str = "application/geo+json",
+        content_type: str = "application/octet-stream",
     ):
         """Stream a local file directly to S3 via a presigned URL."""
         current_app.logger.info(f"Uploading file via presigned URL from {file_path}")

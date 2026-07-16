@@ -17,6 +17,6 @@ def test_upload_file_via_presigned_url_streams_file(tmp_path):
         DocumentServiceClient.upload_file_via_presigned_url("https://storage.example/upload", str(file_path))
 
     kwargs = put.call_args.kwargs
-    assert kwargs["headers"] == {"Content-Type": "application/geo+json"}
+    assert kwargs["headers"] == {"Content-Type": "application/octet-stream"}
     assert kwargs["data"].name == str(file_path)
     response.raise_for_status.assert_called_once()
