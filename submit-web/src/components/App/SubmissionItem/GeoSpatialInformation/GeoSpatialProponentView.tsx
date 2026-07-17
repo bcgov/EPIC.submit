@@ -145,10 +145,7 @@ export const GeoSpatialProponentView = () => {
 
   const handleCompleteForm = (formData: GeoSpatialSubmissionForm) => {
     if (!formData.geospatial?.length) {
-      saveSubmission(
-        formData,
-        SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value,
-      );
+      saveSubmission(formData, submissionItem?.status);
     } else {
       saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value);
     }
@@ -156,7 +153,7 @@ export const GeoSpatialProponentView = () => {
 
   const saveSubmission = async (
     _formData: GeoSpatialSubmissionForm,
-    status: SubmissionItemStatus,
+    status?: SubmissionItemStatus,
   ) => {
     try {
       setIsBackdropOpen(true);

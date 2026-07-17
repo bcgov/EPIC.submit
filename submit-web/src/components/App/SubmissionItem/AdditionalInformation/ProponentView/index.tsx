@@ -94,10 +94,7 @@ export const AdditionalInformationProponentView = () => {
 
   const handleCompleteForm = (formData: AdditionalInformationForm) => {
     if (!formData.uploadDocuments?.length) {
-      saveSubmission(
-        formData,
-        SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value,
-      );
+      saveSubmission(formData, submissionItem?.status);
     } else {
       saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value);
     }
@@ -105,7 +102,7 @@ export const AdditionalInformationProponentView = () => {
 
   const saveSubmission = async (
     _formData: AdditionalInformationForm,
-    status: SubmissionItemStatus,
+    status?: SubmissionItemStatus,
   ) => {
     try {
       setIsBackdropOpen(true);
