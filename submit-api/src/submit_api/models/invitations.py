@@ -7,7 +7,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone, UTC
 
-from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean, func, and_
+from sqlalchemy import Column, ForeignKey, String, Integer, TIMESTAMP, ARRAY, Boolean, func
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship
@@ -106,13 +106,12 @@ class Invitations(BaseModel):
 
     @classmethod
     def get_active_by_account_id(cls, account_id: int, project_ids: list = None):
-        """Get pending and revoked (non-expired) invitations for an account, optionally filtered by project ids."""
+        """Get pending invitations for an account, optionally filtered by project ids."""
         query = cls.query.filter(
             cls.account_id == account_id,
             # The list should excluded expired and revoked invitations
             # pylint: disable=invalid-unary-operand-type
-            ~(and_(cls.is_expired, cls.status == InvitationStatus.REVOKED.value)),
-            cls.status.in_([InvitationStatus.PENDING.value, InvitationStatus.REVOKED.value])
+            cls.status.in_([InvitationStatus.PENDING.value])
         )
         if project_ids:
             query = query.filter(cls.project_ids.op('@>')(project_ids))
