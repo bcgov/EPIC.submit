@@ -1,30 +1,34 @@
-import { PlainTableCell } from "@/components/Shared/Table/common";
-import {
-  TableRow,
-  Typography,
-  Box,
-  CircularProgress,
-  Tooltip,
-} from "@mui/material";
-import { SubmitLink } from "@/components/Shared/Text/SubmitLink";
 import UserStatusChip from "@/components/App/UserStatusChip";
-import { AccountUserWithRole } from "@/models/AccountUser";
-import { roleDetails, USER_MANAGEMENT_ROLE } from "@/models/Role";
-import { useNavigate } from "@tanstack/react-router";
-import { useUserStore } from "./userStore";
+import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { InvitationStatus } from "@/models/Invitation";
+import { PlainTableCell } from "@/components/Shared/Table/common";
+import { SubmitLink } from "@/components/Shared/Text/SubmitLink";
 import {
   useResendInvitation,
   useRevokeInvitation,
 } from "@/hooks/api/useInvitations";
-import { When } from "react-if";
-import { BCDesignTokens } from "epic.theme";
+import { AccountUserWithRole } from "@/models/AccountUser";
+import { InvitationStatus } from "@/models/Invitation";
+import { roleDetails, USER_MANAGEMENT_ROLE } from "@/models/Role";
 import InfoIcon from "@mui/icons-material/Info";
+import {
+  Box,
+  CircularProgress,
+  TableRow,
+  Tooltip,
+  Typography,
+} from "@mui/material";
+import { useNavigate } from "@tanstack/react-router";
+import { BCDesignTokens } from "epic.theme";
+import { When } from "react-if";
+import { useUserStore } from "./userStore";
+import { useModal } from "@/components/Shared/Modals/modalStore";
 
 export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   const { setSelectedUser } = useUserStore();
   const navigate = useNavigate();
+  const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
+
   const { mutate: resendInvitation, isPending: isResending } =
     useResendInvitation({
       onSuccess: () => {
@@ -50,9 +54,35 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
     user?.role?.role_name ===
     USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
 
+  const openRevokeModal = () => {
+    setOpenModal(
+      <ConfirmationModal
+        onConfirm={() => {
+          revokeInvite();
+        }}
+        title="Revoke Invitation"
+        description={
+          <>
+            <Typography variant="body1">
+              This action will revoke access to EPIC.submit. The invitation link
+              sent in the email to this user will be disabled and the user will
+              be deleted from the system. Once access is revoked, if you want to
+              invite the user again, you will have to create a new invitation by
+              clicking the “+ Add New User” button.
+            </Typography>
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              Please confirm you want to revoke this invitation.
+            </Typography>
+          </>
+        }
+        confirmText="Confirm"
+      />,
+    );
+  };
+
   const onUserClick = () => {
     if (isPending) {
-      revokeInvite();
+      openRevokeModal();
       return;
     }
     setSelectedUser(user);
@@ -67,6 +97,7 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
 
   const revokeInvite = () => {
     deleteInvitation(user.invitation_id);
+    setCloseModal();
   };
 
   return (
@@ -136,7 +167,11 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
             )}
             <When condition={isPending}>
               <SubmitLink onClick={onUserClick}>
-                {isRevoking ? <CircularProgress size={15} /> : "Revoke User"}
+                {isRevoking ? (
+                  <CircularProgress size={15} />
+                ) : (
+                  "Revoke Invitation"
+                )}
               </SubmitLink>
             </When>
             <When condition={!isPending}>
