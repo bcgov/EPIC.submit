@@ -27,7 +27,6 @@ import {
   useGetSubmissionPackage,
 } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
-import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
@@ -238,12 +237,6 @@ export const ConsultationRecordProponentView = () => {
             <Grid item xs={12}>
               <GenericDocumentUploadSection sections={sections} />
             </Grid>
-            {submissionPackage &&
-              submissionPackage?.update_requests?.length > 0 && (
-                <Grid item xs={12}>
-                  <UpdateRequestWidget submissionPackage={submissionPackage} />
-                </Grid>
-              )}
             <SubmissionActionButtons
               onSubmit={handleSubmit(handleCompleteForm)}
               saveAndClose={saveAndClose}
