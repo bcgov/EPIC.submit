@@ -19,7 +19,10 @@ import logging
 import math
 import multiprocessing
 import os
-import resource
+try:
+    import resource
+except ImportError:
+    resource = None  # Not available on Windows
 import subprocess
 import sys
 import tempfile
@@ -354,6 +357,12 @@ def _max_rss_to_mb(max_rss: int) -> float:
 
 def _get_resource_usage() -> Dict[str, Any]:
     """Return best-effort CPU and memory use for this worker and its GDAL subprocesses."""
+    if resource is None:
+        return {
+            "user_cpu_seconds": 0,
+            "system_cpu_seconds": 0,
+            "max_rss_mb": 0,
+        }
     self_usage = resource.getrusage(resource.RUSAGE_SELF)
     child_usage = resource.getrusage(resource.RUSAGE_CHILDREN)
     return {

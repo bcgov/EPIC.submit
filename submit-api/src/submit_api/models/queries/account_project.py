@@ -31,6 +31,9 @@ from submit_api.models.update_request import UpdateRequest, UpdateRequestType, U
 from submit_api.services.package_service import PackageService
 from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
 
+BATCH_SIZE = 50        # Projects fetched per DB query in staff visible computation
+MAX_BATCHES = 20       # Safety limit to prevent infinite loops
+
 
 class ProjectQueries:
     """Query module for complex projects queries"""
@@ -143,7 +146,23 @@ class ProjectQueries:
         if user is None:
             user = User.get_by_guid(TokenInfo.get_username())
 
-        # filtered_package_ids = cls.get_filtered_package_ids(search_options, user)
+        # Staff path: pre-compute full visible list, then slice for requested page
+        if not is_proponent and page and page_size:
+            # FULL_ACCESS optimization: skip package filtering entirely
+            if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
+                return cls._get_full_access_paginated(search_options, page, page_size, user)
+
+            # Non-FULL_ACCESS staff: pre-compute visible projects, then slice
+            visible_projects = cls._get_staff_visible_projects(
+                search_options, is_proponent, user
+            )
+            total = len(visible_projects)
+            start = (page - 1) * page_size
+            end = start + page_size
+            page_projects = visible_projects[start:end]
+            return page_projects, total
+
+        # Proponent path: existing behavior (unchanged)
         account_project_query = cls._filter_by_search_criteria(search_options)
         ordered_query = (
             account_project_query
@@ -163,6 +182,79 @@ class ProjectQueries:
 
         account_projects_list = cls.get_full_account_projects(is_proponent, account_projects)
         account_projects_list = cls._filter_packages_by_user_access(account_projects_list, user)
+
+        return account_projects_list, total
+
+    @classmethod
+    def _get_staff_visible_projects(
+        cls,
+        search_options: AccountProjectSearchOptions,
+        is_proponent: bool,
+        user: User
+    ) -> list:
+        """Fetch ALL matching projects in batches, filter packages, keep visible ones."""
+        visible_projects = []
+        offset = 0
+        batches_executed = 0
+
+        while batches_executed < MAX_BATCHES:
+            batches_executed += 1
+
+            # Fetch a batch from the database
+            query = cls._filter_by_search_criteria(search_options)
+            ordered_query = (
+                query
+                .add_columns(Project.name)
+                .order_by(Project.name)
+                .distinct()
+            )
+            batch_results = ordered_query.offset(offset).limit(BATCH_SIZE).all()
+            batch_projects = [ap for ap, _ in batch_results]
+
+            if not batch_projects:
+                break  # No more projects in DB
+
+            # Serialize and filter packages by user access
+            projects_list = cls.get_full_account_projects(is_proponent, batch_projects)
+            projects_list = cls._filter_packages_by_user_access(projects_list, user)
+
+            # Keep only projects with at least one visible package
+            visible = [p for p in projects_list if p.get("packages")]
+            visible_projects.extend(visible)
+
+            # If batch was smaller than BATCH_SIZE, DB is exhausted
+            if len(batch_results) < BATCH_SIZE:
+                break
+
+            offset += BATCH_SIZE
+
+        return visible_projects
+
+    @classmethod
+    def _get_full_access_paginated(
+        cls,
+        search_options: AccountProjectSearchOptions,
+        page: int,
+        page_size: int,
+        user: User
+    ) -> tuple:
+        """Optimized path for FULL_ACCESS staff — no package filtering needed."""
+        query = cls._filter_by_search_criteria(search_options)
+        ordered_query = (
+            query
+            .add_columns(Project.name)
+            .order_by(Project.name)
+            .distinct()
+        )
+        paginated_result = ordered_query.paginate(page=page, per_page=page_size)
+        account_projects = [ap for ap, _ in paginated_result.items]
+        total = paginated_result.total
+
+        account_projects_list = cls.get_full_account_projects(False, account_projects)
+        # FULL_ACCESS sees all packages — _filter_packages_by_user_access is a no-op
+        account_projects_list = cls._filter_packages_by_user_access(
+            account_projects_list, user
+        )
 
         return account_projects_list, total
 
