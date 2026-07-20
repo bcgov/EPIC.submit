@@ -14,7 +14,7 @@ import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "@/components/App/Submission/SubmissionItemTableRow";
 import { useQueryClient } from "@tanstack/react-query";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { SubmissionPackage, SubmissionPackageType, PACKAGE_STATUS } from "@/models/Package";
+import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
@@ -26,6 +26,7 @@ import {
   UPDATE_REQUEST_STATUS,
 } from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
+import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -40,9 +41,6 @@ export default function ProponentSubmissionItemTableRow({
   const { id, submissions, status, type_id } = item;
 
   const isIPD = packageType.name === SubmissionPackageType.IPD;
-
-  const isFormSubmission =
-    item.type.submission_method === SubmissionItemMethod.FORM_SUBMISSION;
 
   const name = useMemo(() => {
     return getSubmissionItemLabel(item.type.name);
@@ -68,16 +66,7 @@ export default function ProponentSubmissionItemTableRow({
     );
   }, [submissionPackage, type_id]);
 
-  const isPackageAcknowledged = useMemo(() => {
-    return submissionPackage?.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value) || false;
-  }, [submissionPackage]);
-
-  const isPackagedReachedEnd = useMemo(() => {
-    return submissionPackage?.status.includes(PACKAGE_STATUS.APPROVED.value) ||
-      submissionPackage?.status.includes(PACKAGE_STATUS.REJECTED.value) ||
-      submissionPackage?.status.includes(PACKAGE_STATUS.NOT_APPROVED.value) ||
-      submissionPackage?.status.includes(PACKAGE_STATUS.ACCEPTED.value);
-  }, [submissionPackage]);
+  const { isSubmitDisabled } = useSubmitAvailability(submissionPackage);
 
   const hasAccountProjectWork = Boolean(
     submissionPackage?.account_project_work?.id,
@@ -89,12 +78,7 @@ export default function ProponentSubmissionItemTableRow({
       item.submissions?.find((submission) => submission.is_updated)
     );
   }, [item.submissions]);
-  const showActionLabels = useMemo(() => {
-    return !isPackagedReachedEnd && (isFormSubmission ||
-      !submissionPackage?.submitted_on ||
-      (isPackageAcknowledged && hasOpenUpdateRequest) ||
-      !isPackageAcknowledged)
-  }, [hasOpenUpdateRequest, isPackageAcknowledged, isFormSubmission, submissionPackage, isPackagedReachedEnd]);
+
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
   const onActionClick = () => {
@@ -147,7 +131,7 @@ export default function ProponentSubmissionItemTableRow({
             paddingRight: "2% !important",
           }}
         >
-          <When condition={showActionLabels}>
+          <When condition={!isSubmitDisabled}>
             <Typography
               variant="body2"
               data-testid={`submission-item-action-${name}`}
