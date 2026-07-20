@@ -53,8 +53,9 @@ import WithdrawalBanner from "@/components/App/Submission/WithdrawalBanner";
 import { useDocumentChangeTracking } from "@/hooks/useDocumentChangeTracking";
 import { getUnaddressedUpdateRequestSections } from "@/utils/updateRequestHelpers";
 import { useSaveProponentNote } from "@/hooks/api/useUpdateRequests";
+import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 import { useState, useMemo } from "react";
-import { SUBMISSION_TYPE, SUBMISSION_STATUS } from "@/models/Submission";
+import { SUBMISSION_TYPE } from "@/models/Submission";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -383,7 +384,14 @@ export default function SubmissionPage() {
     item.submissions.some((s) => s.type === SUBMISSION_TYPE.DOCUMENT),
   );
 
-  const isPackageSubmitted = Boolean(submissionPackage?.submitted_on);
+  const {
+    isSubmitDisabled,
+    isPackageWithdrawn,
+    isPackageSubmitted,
+    isPackageAcknowledged,
+    pendingRequests,
+    openRequests,
+  } = useSubmitAvailability(submissionPackage);
 
   const isFirstSubmission =
     submissionPackage?.status.includes(PACKAGE_STATUS.SUBMITTED.value) ||
@@ -394,57 +402,6 @@ export default function SubmissionPage() {
       updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
       updateRequest.active &&
       updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
-  );
-
-  const pendingRequests =
-    submissionPackage?.update_requests.filter(
-      (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.PENDING_REVIEW.value &&
-        updateRequest.active,
-    ) || [];
-
-  const openRequests =
-    submissionPackage?.update_requests.filter(
-      (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-        updateRequest.active,
-    ) || [];
-
-  const isPackageAcknowledged = submissionPackage?.status.includes(
-    PACKAGE_STATUS.ACKNOWLEDGED.value,
-  );
-
-  // Check if there are any updated items that need to be submitted
-  const hasUpdatedItems = submissionPackage?.items.some((item) =>
-    item.submissions.some(
-      (submission) =>
-        submission.is_updated &&
-        submission.status === SUBMISSION_STATUS.PENDING,
-    ),
-  );
-
-  const isSubmitDisabled = useMemo(() => {
-    if (hasUpdatedItems) {
-      return false;
-    }
-    // Disable if package is submitted with no pending/open requests
-    return (
-      (isPackageSubmitted &&
-        pendingRequests.length === 0 &&
-        openRequests.length === 0) ||
-      // Disable if package is acknowledged with no open requests
-      (isPackageAcknowledged && openRequests.length === 0)
-    );
-  }, [
-    isPackageSubmitted,
-    pendingRequests.length,
-    openRequests.length,
-    isPackageAcknowledged,
-    hasUpdatedItems,
-  ]);
-
-  const isPackageWithdrawn = submissionPackage?.status.includes(
-    PACKAGE_STATUS.WITHDRAWN.value,
   );
 
   const isWithdrawDisabled = useMemo(() => {
