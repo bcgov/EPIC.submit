@@ -94,6 +94,9 @@ export default function SubmissionPage() {
 
   const managementPlanName = useManagementPlanName(submissionPackage);
 
+  const isManagementPlan =
+    submissionPackage?.type?.name === SubmissionPackageType.MANAGEMENT_PLAN;
+
   useMounted(() => {
     return () => {
       reset();
@@ -299,7 +302,9 @@ export default function SubmissionPage() {
                   onUpdateNote={handleUpdateNote}
                   onSendRequests={handleSendRequests}
                   onAcceptUpdate={handleAcceptUpdate}
-                  onWithdrawUpdate={handleWithdrawUpdate}
+                  onWithdrawUpdate={
+                    isManagementPlan ? undefined : handleWithdrawUpdate
+                  }
                   packageId={Number(submissionPackageId)}
                   isLoading={isSendingRequests}
                 />

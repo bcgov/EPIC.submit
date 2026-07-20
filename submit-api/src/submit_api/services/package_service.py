@@ -772,6 +772,8 @@ class PackageService:
             raise BadRequestError("Update request not found")
         if update_request.submission_package_id != package.id:
             raise BadRequestError("Update request does not belong to the specified package")
+        if package.type and package.type.name == PackageTypeEnum.MANAGEMENT_PLAN.value:
+            raise BadRequestError("Update requests for Management Plans cannot be withdrawn")
         if update_request.status != UpdateRequestStatus.OPEN.value:
             raise BadRequestError("Update request can only be withdrawn when status is OPEN")
 
