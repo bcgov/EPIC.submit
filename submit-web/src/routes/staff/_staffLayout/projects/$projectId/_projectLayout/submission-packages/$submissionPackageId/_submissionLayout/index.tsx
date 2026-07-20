@@ -24,7 +24,6 @@ import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
-import UpdateRequestWidget from "@/components/App/Submission/UpdateRequestWidget";
 import { SubmissionPackageType, PACKAGE_STATUS } from "@/models/Package";
 import AcknowledgeSubmissionModal from "@/components/App/Submission/Modals/AcknowledgeSubmissionModal";
 import { useUpdateRequests } from "@/hooks/useUpdateRequests";
@@ -268,19 +267,6 @@ export default function SubmissionPage() {
                 </WarningBox>
               </When>
               <InfoBox submissionPackage={submissionPackage} />
-              <When
-                condition={accountProject.account_project_works?.length === 0}
-              >
-                <Box
-                  sx={{
-                    pt: BCDesignTokens.layoutMarginXlarge,
-                    mb: BCDesignTokens.layoutMarginLarge,
-                    width: "100%",
-                  }}
-                >
-                  <UpdateRequestWidget submissionPackage={submissionPackage} />
-                </Box>
-              </When>
               <Box
                 sx={{
                   mb: BCDesignTokens.layoutMarginXlarge,
@@ -346,7 +332,7 @@ export default function SubmissionPage() {
                     loading={isLoading}
                   >
                     {submissionPackage?.type.name ===
-                    SubmissionPackageType.ADDITIONAL_INFORMATION ? (
+                      SubmissionPackageType.ADDITIONAL_INFORMATION ? (
                       <>
                         Acknowledge Submission <i>(optional)</i>
                       </>
