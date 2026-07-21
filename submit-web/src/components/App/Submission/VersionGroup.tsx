@@ -5,6 +5,7 @@ import {
   useGetPackageVersionsByOriginalPackageId,
   useCreateNewPackageVersion,
   useGetStaffSubmissionPackage,
+  useGetSubmissionPackage,
 } from "@/hooks/api/usePackages";
 import {
   PackageVersion,
@@ -29,6 +30,10 @@ import { useModal } from "@/components/Shared/Modals/modalStore";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { usePackageTableStore } from "./packageTableStore";
+import {
+  canProponentCreateNewVersion,
+  calculateIsLatestVersion,
+} from "./versionGroupUtils";
 
 type VersionGroupProps = Readonly<{
   currentPackageVersion: PackageVersion;
@@ -52,10 +57,18 @@ export default function VersionGroup({
     useGetPackageVersionsByOriginalPackageId({
       originalPackageId: currentPackageVersion.original_package_id,
     });
-  const { data: submissionPackage, isFetching: isPackageLoading } =
+  const { data: proponentPackage } = useGetSubmissionPackage({
+    packageId: Number(submissionPackageId),
+    enabled: isProponent,
+  });
+
+  const { data: staffPackage, isFetching: isPackageLoading } =
     useGetStaffSubmissionPackage({
       packageId: submissionPackageId,
+      enabled: !isProponent,
     });
+
+  const submissionPackage = isProponent ? proponentPackage : staffPackage;
 
   const queryClient = useQueryClient();
   const loadNewPackage = async (packageId: number) => {
@@ -77,7 +90,8 @@ export default function VersionGroup({
     }
   };
 
-  const { mutate: createNewPackageVersion } = useCreateNewPackageVersion({
+  const { mutate: createNewPackageVersion, isPending: isCreatingPackage } =
+    useCreateNewPackageVersion({
     onSuccess: (newPackage) => {
       notify.success("New package created successfully");
 
@@ -119,16 +133,47 @@ export default function VersionGroup({
     );
   };
 
+  const handleProponentCreateNewPackage = () => {
+    setOpenModal(
+      <ConfirmationModal
+        title="Create New Submission Package"
+        description={
+          "This option will create another submission package so you can resubmit documents. " +
+          "This new submission will go through the review process. Until this new package is " +
+          "successfully reviewed by the EAO, the last successfully reviewed submission is the " +
+          "one considered enforceable by the EAO.\n" +
+          "Do you want to create a new package?"
+        }
+        confirmText="Create New Package"
+        onConfirm={() => {
+          createNewPackageVersion({
+            originalPackageId: currentPackageVersion.original_package_id,
+            data: {
+              ...currentPackageVersion,
+              package_id: packageId,
+            },
+          });
+        }}
+      />,
+    );
+  };
+
   const last_approved_package_version = packageVersions?.find(
     (packageVersion) => packageVersion.is_approved,
   );
 
   const isLatestVersion = useMemo(() => {
-    if (!packageVersions) return false;
-    const latestVersion = Math.max(...packageVersions.map((v) => v.version));
-    return currentPackageVersion.version === latestVersion;
+    return calculateIsLatestVersion(packageVersions, currentPackageVersion.version);
   }, [packageVersions, currentPackageVersion.version]);
 
+  const canProponentCreateVersion = useMemo(() => {
+    return canProponentCreateNewVersion({
+      isProponent,
+      isLatestVersion,
+      packageStatus: submissionPackage?.status,
+    });
+  }, [isProponent, isLatestVersion, submissionPackage?.status]);
+  console.log(canProponentCreateNewVersion)
   const canCreateVersion =
     submissionPackage?.type.approval_type !== SubmissionPackageApprovalType.C;
 
@@ -165,6 +210,18 @@ export default function VersionGroup({
           New
         </Button>
       )}
+      {canProponentCreateVersion && canCreateVersion && (
+        <Button
+          color="secondary"
+          sx={{ width: "auto" }}
+          onClick={handleProponentCreateNewPackage}
+          startIcon={<AddIcon />}
+          disabled={isCreatingPackage}
+        >
+          + Create New
+        </Button>
+      )}
+      
       {!hideVersions &&
         packageVersions?.map((packageVersion) => (
           <Button

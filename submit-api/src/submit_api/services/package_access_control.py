@@ -23,6 +23,7 @@ from flask_restx import abort
 
 from submit_api.auth import jwt
 from submit_api.enums.package_operation import PackageOperation
+from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.enums.work_role import WorkRole
 from submit_api.models import Package as PackageModel
 from submit_api.models import User as UserModel
@@ -77,6 +78,15 @@ class PackageAccessControl:
         # Check FULL_ACCESS role - bypass all checks
         if user.type == UserType.STAFF and jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
             return True
+
+        # Check if user is a proponent with project-level permissions
+        if user.type == UserType.PROPONENT and operation == PackageOperation.CREATE:
+            has_access = PackageAccessControl._has_proponent_create_permission(package)
+            if has_access:
+                return True
+            if abort_on_failure:
+                abort(HTTPStatus.FORBIDDEN, f"Access denied for {operation.value} operation on this package")
+            return False
 
         # Determine package category and check access
         if package.account_project_work_id:
@@ -236,9 +246,6 @@ class PackageAccessControl:
         operation_value = operation.value
         for role_name, allowed_operations in W_ROLE_OPERATIONS.items():
             if jwt.contains_role([role_name]) and operation_value in allowed_operations:
-                # For APPROVE operation, also check Team Lead work role
-                if operation == PackageOperation.APPROVE:
-                    return staff_user_work.role == WorkRole.TEAM_LEAD.value
                 return True
 
         return False
@@ -265,3 +272,17 @@ class PackageAccessControl:
             return False
 
         return False
+
+    @staticmethod
+    def _has_proponent_create_permission(package: PackageModel) -> bool:
+        """Check if current proponent user has CREATE_PACKAGE permission on the package's project."""
+        from submit_api.services import authorization  # pylint: disable=import-outside-toplevel
+
+        try:
+            authorization.check_has_permissions_on_project(
+                permissions=[ProponentPermissionsEnum.CREATE_PACKAGE.value],
+                account_project_ids=[package.account_project_id]
+            )
+            return True
+        except Exception:  # pylint: disable=broad-except
+            return False
