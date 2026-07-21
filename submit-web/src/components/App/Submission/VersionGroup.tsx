@@ -173,7 +173,7 @@ export default function VersionGroup({
       packageStatus: submissionPackage?.status,
     });
   }, [isProponent, isLatestVersion, submissionPackage?.status]);
-  console.log(canProponentCreateNewVersion)
+
   const canCreateVersion =
     submissionPackage?.type.approval_type !== SubmissionPackageApprovalType.C;
 
