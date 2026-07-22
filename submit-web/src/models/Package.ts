@@ -9,6 +9,9 @@ export enum SubmissionPackageType {
   ADDITIONAL_INFORMATION = "Additional Information",
 }
 
+export const NON_WITHDRAWABLE_UPDATE_REQUEST_PACKAGE_TYPES: SubmissionPackageType[] =
+  [SubmissionPackageType.MANAGEMENT_PLAN, SubmissionPackageType.IEM];
+
 export enum SubmissionPackageApprovalType {
   A = "A",
   B = "B",
