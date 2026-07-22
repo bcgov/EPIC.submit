@@ -24,6 +24,7 @@ class PackageVersionSchema(Schema):
     original_package_id = fields.Int(data_key="original_package_id")
     version = fields.Int(data_key="version")
     is_approved = fields.Method('get_is_approved')
+    is_enforceable = fields.Method('get_is_enforceable')
 
     @staticmethod
     def get_package_id(obj):
@@ -32,8 +33,13 @@ class PackageVersionSchema(Schema):
 
     @staticmethod
     def get_is_approved(obj):
-        """Get package id."""
+        """Get if package is approved."""
         return obj.package.completed_on is not None
+    
+    @staticmethod
+    def get_is_enforceable(obj):
+        """Get if package is enforceable."""
+        return obj.package.enforceable
 
 
 class CreatePackageVersionSchema(Schema):

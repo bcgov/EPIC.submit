@@ -251,7 +251,11 @@ export default function SubmissionPage() {
                   </Typography>
                 </SuccessBox>
               </When>
-              <When condition={isRejectedOrReplaced}>
+              <When
+                condition={
+                  !submissionPackage.enforceable && isRejectedOrReplaced
+                }
+              >
                 <WarningBox
                   sx={{
                     mb: BCDesignTokens.layoutMarginMedium,

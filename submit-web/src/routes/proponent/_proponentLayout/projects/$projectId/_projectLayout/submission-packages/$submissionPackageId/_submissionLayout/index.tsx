@@ -106,8 +106,8 @@ export default function SubmissionPage() {
     (pv) => pv.package_id === submissionPackageId,
   );
 
-  const hasAnyApprovedPackageVersion = packageVersions?.some(
-    (pv) => pv.is_approved,
+  const hasAnyEnforceablePackageVersion = packageVersions?.some(
+    (pv) => pv.is_approved || pv.is_enforceable,
   );
 
   const isLatestApprovedPackageVersion =
@@ -327,7 +327,7 @@ export default function SubmissionPage() {
       (updateRequest) =>
         (updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value ||
           updateRequest.status ===
-          UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
+            UPDATE_REQUEST_STATUS.PENDING_REVIEW.value) &&
         updateRequest.active,
     );
 
@@ -522,7 +522,7 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  mb: hasAnyApprovedPackageVersion
+                  mb: hasAnyEnforceablePackageVersion
                     ? 0
                     : BCDesignTokens.layoutMarginXlarge,
                 }}
@@ -570,8 +570,9 @@ export default function SubmissionPage() {
               </When>
               <When
                 condition={
+                  !submissionPackage.enforceable &&
                   !isLatestApprovedPackageVersion &&
-                  hasAnyApprovedPackageVersion
+                  hasAnyEnforceablePackageVersion
                 }
               >
                 <WarningBox
@@ -617,7 +618,7 @@ export default function SubmissionPage() {
                   condition={
                     isValidating &&
                     submissionPackage.type.name ===
-                    SubmissionPackageType.ADDITIONAL_INFORMATION &&
+                      SubmissionPackageType.ADDITIONAL_INFORMATION &&
                     !hasDocuments
                   }
                 >

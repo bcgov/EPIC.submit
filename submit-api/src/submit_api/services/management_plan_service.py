@@ -162,11 +162,26 @@ class ManagementPlanService:
     @classmethod
     def require_revision_management_plan(cls, item, session):
         """Require revision for management plan."""
-        package = PackageModel.find_by_id(item.package_id)
         cls.update_item_status_mp_revision_required(item)
+        cls.update_package_metadata_mp_rejection(item, session)
+        cls.create_new_package_version(item, session)
+        cls._log_management_plan_revision_required_activity(item, session)
+        cls.deactivate_update_requests(item.package_id, session)
+        cls._create_rejection_email_queue(
+            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
+
+        # Make all package versions not enforceable
+        package = PackageModel.find_by_id(item.package_id)
+        package_versions = PackageVersion.get_all_by_original_package_id(package.version.original_package_id)
+        for pv in package_versions:
+            pv.package.enforceable = False
+            session.add(pv)
+
+        # Make previous package enforceable
         package.enforceable = True
         session.add(package)
         session.flush()
+
         current_app.logger.info(
             f"Management plan form requires revision for item {item.id}.")
         return item
@@ -181,6 +196,22 @@ class ManagementPlanService:
         item.reviewed_on = reviewed_on
         current_app.logger.info(
             f"Management plan form requires revision for item {item.id}.")
+
+    @classmethod
+    def _log_management_plan_revision_required_activity(cls, item, session):
+        """Log activity for management plan requiring revision."""
+        current_app.logger.info(
+            f"Logging activity for management plan requiring revision for package {item.package_id}.")
+        package = PackageModel.find_by_id(item.package_id)
+        if package.version:
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                action=ActivityActionType.MP_REVISION_REQUIRED.value,
+                entity_version=package.version.version,
+                session=session
+            )
+        current_app.logger.info(
+            f"Activity logged for management plan requiring revision for package {package.id}.")
 
     @staticmethod
     def get_package_submitted_to_eao_for(package):
