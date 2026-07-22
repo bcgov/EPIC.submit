@@ -45,6 +45,7 @@ class ActivityActionType(enum.Enum):
     MP_REVIEWED = "MP Reviewed"
     MP_REVIEW_REJECTED = "MP Review Rejected"
     MP_REVIEW_FAILED = "MP Review Failed"
+    MP_REVISION_REQUIRED = "EAO requested a new version"
     REVISION_REQUIRED = "Revision Required"
     REVISION_REQUESTED = "Revision Requested"
     START_IEM_REVIEW = "Start IEM Review"
