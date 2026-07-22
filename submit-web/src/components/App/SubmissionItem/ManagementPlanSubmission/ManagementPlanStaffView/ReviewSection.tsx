@@ -37,7 +37,6 @@ import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection
 import { NotificationBox } from "./NotificationBox";
 import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
 import ControlledSelect from "@/components/Shared/ControlledFormFields/ControlledSelect";
-import { getSubmittedDocumentsByPackageIdForStaffQueryOptions } from "@/hooks/api/useSubmittedDocuments";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema

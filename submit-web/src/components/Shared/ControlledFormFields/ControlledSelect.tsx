@@ -37,7 +37,7 @@ const ControlledSelect: FC<IFormInputProps> = ({
     control,
     formState: { defaultValues, errors },
   } = useFormContext();
-  console.log(options);
+
   const error = get(errors, name);
   const helperText = error?.message ?? " ";
 

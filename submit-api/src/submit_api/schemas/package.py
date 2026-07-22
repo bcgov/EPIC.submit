@@ -35,7 +35,7 @@ class PackageVersionSchema(Schema):
     def get_is_approved(obj):
         """Get if package is approved."""
         return obj.package.completed_on is not None
-    
+
     @staticmethod
     def get_is_enforceable(obj):
         """Get if package is enforceable."""
