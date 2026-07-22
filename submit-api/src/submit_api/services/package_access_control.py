@@ -23,7 +23,7 @@ from flask_restx import abort
 
 from submit_api.auth import jwt
 from submit_api.enums.package_operation import PackageOperation
-from submit_api.enums.work_role import WorkRole
+from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.models import Package as PackageModel
 from submit_api.models import User as UserModel
 from submit_api.models.user import UserType
@@ -57,46 +57,60 @@ class PackageAccessControl:
             HTTPStatus.NOT_FOUND: If package not found
             HTTPStatus.BAD_REQUEST: If package_id is invalid
         """
-        if not package_id:
-            if abort_on_failure:
-                abort(HTTPStatus.BAD_REQUEST, "Package ID is required")
+        package, user = PackageAccessControl._validate_package_and_user(package_id, abort_on_failure)
+        if not package or not user:
             return False
 
-        package = PackageModel.find_by_id(package_id)
-        if not package:
-            if abort_on_failure:
-                abort(HTTPStatus.NOT_FOUND, "Package not found")
-            return False
-
-        user = UserModel.get_by_guid(TokenInfo.get_username())
-        if not user:
-            if abort_on_failure:
-                abort(HTTPStatus.UNAUTHORIZED, "User not found")
-            return False
-
-        # Check FULL_ACCESS role - bypass all checks
-        if user.type == UserType.STAFF and jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
-            return True
-
-        # Determine package category and check access
-        if package.account_project_work_id:
-            # Work package (includes Additional Information)
-            has_access = PackageAccessControl._has_work_package_permission(
-                package.account_project_work_id, operation, user
-            )
-        elif package.type.name in MP_VIEW_PACKAGE_TYPES:
-            # MP-type package (Management Plan, IEM)
-            has_access = PackageAccessControl._has_mp_package_permission(
-                package.type.name, operation
-            )
-        else:
-            # Other packages - allow via EAO roles for backward compatibility
-            has_access = PackageAccessControl._has_eao_permission(operation)
+        has_access = PackageAccessControl._evaluate_access(package, user, operation)
 
         if not has_access and abort_on_failure:
             abort(HTTPStatus.FORBIDDEN, f"Access denied for {operation.value} operation on this package")
 
         return has_access
+
+    @staticmethod
+    def _validate_package_and_user(package_id, abort_on_failure):
+        """Validate and retrieve the package and user, aborting on failure if configured."""
+        if not package_id:
+            if abort_on_failure:
+                abort(HTTPStatus.BAD_REQUEST, "Package ID is required")
+            return None, None
+
+        package = PackageModel.find_by_id(package_id)
+        if not package:
+            if abort_on_failure:
+                abort(HTTPStatus.NOT_FOUND, "Package not found")
+            return None, None
+
+        user = UserModel.get_by_guid(TokenInfo.get_username())
+        if not user:
+            if abort_on_failure:
+                abort(HTTPStatus.UNAUTHORIZED, "User not found")
+            return None, None
+
+        return package, user
+
+    @staticmethod
+    def _evaluate_access(package, user, operation):
+        """Evaluate whether user has access for the given operation on package."""
+        # FULL_ACCESS role bypasses all checks
+        if user.type == UserType.STAFF and jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
+            return True
+
+        # Proponent CREATE is handled via project-level permissions
+        if user.type == UserType.PROPONENT and operation == PackageOperation.CREATE:
+            return PackageAccessControl._has_proponent_create_permission(package)
+
+        # Determine package category and check access
+        if package.account_project_work_id:
+            return PackageAccessControl._has_work_package_permission(
+                package.account_project_work_id, operation, user
+            )
+        if package.type.name in MP_VIEW_PACKAGE_TYPES:
+            return PackageAccessControl._has_mp_package_permission(
+                package.type.name, operation
+            )
+        return PackageAccessControl._has_eao_permission(operation)
 
     @staticmethod
     def check_package_type_access(
@@ -236,9 +250,6 @@ class PackageAccessControl:
         operation_value = operation.value
         for role_name, allowed_operations in W_ROLE_OPERATIONS.items():
             if jwt.contains_role([role_name]) and operation_value in allowed_operations:
-                # For APPROVE operation, also check Team Lead work role
-                if operation == PackageOperation.APPROVE:
-                    return staff_user_work.role == WorkRole.TEAM_LEAD.value
                 return True
 
         return False
@@ -265,3 +276,29 @@ class PackageAccessControl:
             return False
 
         return False
+
+    @staticmethod
+    def _has_proponent_create_permission(package: PackageModel) -> bool:
+        """Check if current proponent user has CREATE_PACKAGE permission on the package's project."""
+        user = UserModel.get_by_guid(TokenInfo.get_username())
+        if not user or not user.account_user or not user.account_user.role:
+            return False
+
+        account_project_id = package.account_project_id
+        user_roles = user.account_user.roles
+        required_permission = ProponentPermissionsEnum.CREATE_PACKAGE.value
+
+        # Find roles matching the package's project
+        matched_roles = [
+            role for role in user_roles
+            if role.account_project_id == account_project_id
+        ]
+
+        if not matched_roles:
+            return False
+
+        # Check that at least one matched role has the required permission
+        return any(
+            required_permission in role.permissions
+            for role in matched_roles
+        )
