@@ -37,7 +37,7 @@ class PackageType(BaseModel):
         comment="Whether this package type must be created by the system"
     )
     success_message = Column(
-        db.String(255), nullable=True,
+        db.Text, nullable=True,
         comment="Success message to display to user after submission"
     )
     phase = relationship('TrackPhase', foreign_keys=[phase_id], lazy='joined')

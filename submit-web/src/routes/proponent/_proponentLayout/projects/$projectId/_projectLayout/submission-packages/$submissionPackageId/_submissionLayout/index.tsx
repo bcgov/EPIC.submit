@@ -17,7 +17,7 @@ import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { PACKAGE_STATUS, SubmissionPackageType } from "@/models/Package";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { Case, Switch, Unless, When } from "react-if";
+import { Unless, When } from "react-if";
 import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
 import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
 import { useMounted } from "@/hooks/common";
@@ -35,8 +35,6 @@ import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
 import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
 import { SubmissionSuccessBox } from "@/components/App/Submission/SuccessBox";
-import { GreyBox } from "@/components/Shared/Layouts/GreyBox";
-import { AppConfig } from "@/utils/config";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
@@ -56,6 +54,9 @@ import { useSaveProponentNote } from "@/hooks/api/useUpdateRequests";
 import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 import { useState, useMemo } from "react";
 import { SUBMISSION_TYPE } from "@/models/Submission";
+import { useSubmissionBannerState } from "@/hooks/useSubmissionBannerState";
+import { ApprovalBanner } from "@/components/App/Submission/ApprovalBanner";
+import { RevisionRequiredBanner } from "@/components/App/Submission/RevisionRequiredBanner";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -387,22 +388,32 @@ export default function SubmissionPage() {
   const {
     isSubmitDisabled,
     isPackageWithdrawn,
-    isPackageSubmitted,
     isPackageAcknowledged,
-    pendingRequests,
+    hasUpdatedItems,
     openRequests,
   } = useSubmitAvailability(submissionPackage);
 
-  const isFirstSubmission =
-    submissionPackage?.status.includes(PACKAGE_STATUS.SUBMITTED.value) ||
-    submissionPackage?.status.includes(PACKAGE_STATUS.NEW_SUBMISSION.value);
-
-  const isRevisionRequired = submissionPackage?.update_requests.some(
-    (updateRequest) =>
-      updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-      updateRequest.active &&
-      updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+  const isRevisionRequired = Boolean(
+    submissionPackage?.update_requests.some(
+      (updateRequest) =>
+        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+        updateRequest.active &&
+        updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+    ),
   );
+
+  const {
+    showSubmissionConfirmation,
+    showApprovalBanner,
+    showNotApprovedBanner,
+    showRevisionRequiredBanner,
+    contactEmail,
+  } = useSubmissionBannerState({
+    submissionPackage,
+    hasUpdatedItems,
+    isSubmitDisabled,
+    isRevisionRequired,
+  });
 
   const isWithdrawDisabled = useMemo(() => {
     // Disable if versioning is not enabled
@@ -595,70 +606,40 @@ export default function SubmissionPage() {
                   nextPackageNumber={(currentPackageVersion?.version || 1) + 1}
                 />
               </When>
-              <Switch>
-                <Case
-                  condition={
-                    (isPackageSubmitted &&
-                      pendingRequests.length > 0 &&
-                      !isRevisionRequired) ||
-                    isFirstSubmission
-                  }
+              <When condition={showSubmissionConfirmation}>
+                <Box
+                  mb={BCDesignTokens.layoutMarginXlarge}
+                  sx={{ width: "100%" }}
                 >
-                  <Box
-                    mb={BCDesignTokens.layoutMarginXlarge}
-                    sx={{ width: "100%" }}
-                  >
-                    <SubmissionSuccessBox
-                      submissionPackageType={submissionPackage.type}
-                    />
-                  </Box>
-                </Case>
-                <Case
-                  condition={submissionPackage.status.includes(
-                    PACKAGE_STATUS.NOT_APPROVED.value,
-                  )}
-                >
-                  <WarningBox>
-                    <Typography variant="body1">
-                      Your {submissionPackage.type.title} has not been approved.
-                      To submit a new {submissionPackage.type.title} package,
-                      select Package {packageVersions?.at(0)?.version} above,
-                      upload your documents, and click the “Submit to EAO”
-                      button.
-                    </Typography>
-                    <Typography variant="body1" mt="20px">
-                      If you have any questions, please contact the EAO at{" "}
-                      <Link href={`mailto:${AppConfig.supportIpdEmail}`}>
-                        {AppConfig.supportIpdEmail}.
-                      </Link>
-                    </Typography>
-                  </WarningBox>
-                </Case>
-                <Case
-                  condition={
-                    openRequests.length === 0 &&
-                    pendingRequests.length === 0 &&
-                    isPackageSubmitted &&
-                    !isPackageWithdrawn
-                  }
-                >
-                  <GreyBox
-                    sx={{
-                      py: BCDesignTokens.layoutPaddingMedium,
-                      px: BCDesignTokens.layoutPaddingSmall,
-                    }}
-                  >
-                    <Typography variant="body1" color={"black"}>
-                      If you have any questions or need to add, replace, or
-                      delete documents in your submission, please contact the
-                      EAO at{" "}
-                      <Link href={`mailto:${AppConfig.supportMpEmail}`}>
-                        {AppConfig.supportMpEmail}.
-                      </Link>
-                    </Typography>
-                  </GreyBox>
-                </Case>
-              </Switch>
+                  <SubmissionSuccessBox
+                    submissionPackageType={submissionPackage.type}
+                    contactEmail={contactEmail}
+                  />
+                </Box>
+              </When>
+              <When condition={showApprovalBanner}>
+                <ApprovalBanner contactEmail={contactEmail} />
+              </When>
+              <When condition={showNotApprovedBanner}>
+                <WarningBox>
+                  <Typography variant="body1">
+                    Your {submissionPackage.type.title} has not been approved.
+                    To submit a new {submissionPackage.type.title} package,
+                    select Package {packageVersions?.at(0)?.version} above,
+                    upload your documents, and click the &quot;Submit to EAO&quot;
+                    button.
+                  </Typography>
+                  <Typography variant="body1" mt="20px">
+                    If you have any questions, please contact the EAO at{" "}
+                    <Link href={`mailto:${contactEmail}`}>
+                      {contactEmail}
+                    </Link>
+                  </Typography>
+                </WarningBox>
+              </When>
+              <When condition={showRevisionRequiredBanner}>
+                <RevisionRequiredBanner />
+              </When>
               <Box
                 sx={{
                   pt: BCDesignTokens.layoutPaddingXlarge,

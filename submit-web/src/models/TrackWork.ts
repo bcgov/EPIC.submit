@@ -6,6 +6,7 @@ export type TrackWork = {
   current_phase_id?: number;
   work_state?: string;
   title?: string;
+  contact_email?: string;
   current_phase?: TrackPhase;
 };
 

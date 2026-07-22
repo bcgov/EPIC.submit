@@ -26,6 +26,10 @@ class TrackWork(BaseModel):
     )
     work_state = Column(db.String(50), nullable=True, comment='Current state (e.g., IN_PROGRESS, COMPLETED)')
     title = Column(db.String(500), nullable=True, comment='Work title')
+    contact_email = Column(
+        db.String(200), nullable=True,
+        comment='Contact email for the work from EPIC.track'
+    )
     is_active = Column(db.Boolean, nullable=False, default=True, comment='Whether this work is currently active')
     is_deleted = Column(db.Boolean, nullable=False, default=False, comment='Soft delete flag')
 
@@ -54,6 +58,7 @@ class TrackWork(BaseModel):
             "current_phase": self.current_phase.to_dict() if self.current_phase else None,
             "work_state": self.work_state,
             "title": self.title,
+            "contact_email": self.contact_email,
         }
 
     def is_in_specific_phase(self, phase_name: str, work_type_name: str):

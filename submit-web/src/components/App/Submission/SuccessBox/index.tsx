@@ -2,13 +2,52 @@ import { PackageType } from "@/models/Package";
 import { Box, Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { AppConfig } from "@/utils/config";
+import { Fragment } from "react";
 
-type SuccessBoxProps = {
+type SubmissionSuccessBoxProps = {
   submissionPackageType: PackageType;
+  contactEmail?: string;
 };
+
 export const SubmissionSuccessBox = ({
   submissionPackageType,
-}: SuccessBoxProps) => {
+  contactEmail,
+}: SubmissionSuccessBoxProps) => {
+  const email = contactEmail || AppConfig.supportMpEmail;
+  const paragraphs = submissionPackageType.success_message
+    ? submissionPackageType.success_message.split("\n")
+    : [];
+
+  const renderParagraph = (text: string, index: number) => {
+    // Replace {{contact_email}} placeholder with a clickable link
+    if (text.includes("{{contact_email}}")) {
+      const parts = text.split("{{contact_email}}");
+      return (
+        <Typography
+          key={index}
+          variant="body1"
+          color="black"
+          mt={index > 0 ? "20px" : undefined}
+        >
+          {parts[0]}
+          <Link href={`mailto:${email}`}>{email}</Link>
+          {parts[1]}
+        </Typography>
+      );
+    }
+
+    return (
+      <Typography
+        key={index}
+        variant="body1"
+        color="black"
+        mt={index > 0 ? "20px" : undefined}
+      >
+        {text}
+      </Typography>
+    );
+  };
+
   return (
     <Box
       sx={{
@@ -26,18 +65,11 @@ export const SubmissionSuccessBox = ({
           padding: "8px",
         }}
       >
-        {submissionPackageType.success_message && (
-          <Typography variant="body1" color={"black"}>
-            {submissionPackageType.success_message}
-          </Typography>
-        )}
-        <Typography variant="body1" mt="40px" color={"black"}>
-          If you have any questions or need to add, replace, or delete documents
-          in your submission, please contact the EAO at {" "}
-          <Link href={`mailto:${AppConfig.supportMpEmail}`}>
-            {AppConfig.supportMpEmail}
-          </Link>
-        </Typography>
+        {paragraphs.map((paragraph, index) => (
+          <Fragment key={index}>
+            {renderParagraph(paragraph, index)}
+          </Fragment>
+        ))}
       </Box>
     </Box>
   );
