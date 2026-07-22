@@ -8,7 +8,11 @@ from sqlalchemy import func
 
 from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
-from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
+from submit_api.enums.package_type import (
+    NON_WITHDRAWABLE_UPDATE_REQUEST_PACKAGE_TYPES,
+    PackageApprovalType,
+    PackageTypeEnum,
+)
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel, Submission, User
@@ -772,8 +776,8 @@ class PackageService:
             raise BadRequestError("Update request not found")
         if update_request.submission_package_id != package.id:
             raise BadRequestError("Update request does not belong to the specified package")
-        if package.type and package.type.name == PackageTypeEnum.MANAGEMENT_PLAN.value:
-            raise BadRequestError("Update requests for Management Plans cannot be withdrawn")
+        if package.type and package.type.name in NON_WITHDRAWABLE_UPDATE_REQUEST_PACKAGE_TYPES:
+            raise BadRequestError("Update requests for this package type cannot be withdrawn")
         if update_request.status != UpdateRequestStatus.OPEN.value:
             raise BadRequestError("Update request can only be withdrawn when status is OPEN")
 

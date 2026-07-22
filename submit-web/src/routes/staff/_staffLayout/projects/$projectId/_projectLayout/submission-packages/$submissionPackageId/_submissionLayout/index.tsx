@@ -24,7 +24,11 @@ import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
-import { SubmissionPackageType, PACKAGE_STATUS } from "@/models/Package";
+import {
+  NON_WITHDRAWABLE_UPDATE_REQUEST_PACKAGE_TYPES,
+  SubmissionPackageType,
+  PACKAGE_STATUS,
+} from "@/models/Package";
 import AcknowledgeSubmissionModal from "@/components/App/Submission/Modals/AcknowledgeSubmissionModal";
 import { useUpdateRequests } from "@/hooks/useUpdateRequests";
 import { useStaffSubmissionPage } from "@/hooks/useStaffSubmissionPage";
@@ -94,8 +98,13 @@ export default function SubmissionPage() {
 
   const managementPlanName = useManagementPlanName(submissionPackage);
 
-  const isManagementPlan =
-    submissionPackage?.type?.name === SubmissionPackageType.MANAGEMENT_PLAN;
+  // Withdrawing an open update request is not permitted for certain package
+  // types (e.g. Management Plans, IEM).
+  const canWithdrawUpdate =
+    !!submissionPackage?.type?.name &&
+    !NON_WITHDRAWABLE_UPDATE_REQUEST_PACKAGE_TYPES.includes(
+      submissionPackage.type.name,
+    );
 
   useMounted(() => {
     return () => {
@@ -303,7 +312,7 @@ export default function SubmissionPage() {
                   onSendRequests={handleSendRequests}
                   onAcceptUpdate={handleAcceptUpdate}
                   onWithdrawUpdate={
-                    isManagementPlan ? undefined : handleWithdrawUpdate
+                    canWithdrawUpdate ? handleWithdrawUpdate : undefined
                   }
                   packageId={Number(submissionPackageId)}
                   isLoading={isSendingRequests}
