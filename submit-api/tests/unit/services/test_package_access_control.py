@@ -59,6 +59,14 @@ class TestProponentCreatePermission:
         mock_find_pkg.return_value = mock_package
         mock_get_user.return_value = mock_proponent_user
         mock_check_perms.return_value = None  # No exception means permission granted
+        # Set up user with CREATE_PACKAGE permission on the package's project
+        mock_role = Mock()
+        mock_role.account_project_id = mock_package.account_project_id
+        mock_role.permissions = ["CREATE_PACKAGE"]
+        mock_proponent_user.account_user = Mock()
+        mock_proponent_user.account_user.role = Mock()
+        mock_proponent_user.account_user.roles = [mock_role]
+        mock_get_user.return_value = mock_proponent_user
 
         result = PackageAccessControl.check_package_access(
             package_id=1,
@@ -67,10 +75,6 @@ class TestProponentCreatePermission:
         )
 
         assert result is True
-        mock_check_perms.assert_called_once_with(
-            permissions=["CREATE_PACKAGE"],
-            account_project_ids=[mock_package.account_project_id]
-        )
 
     @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
@@ -86,6 +90,14 @@ class TestProponentCreatePermission:
         mock_find_pkg.return_value = mock_package
         mock_get_user.return_value = mock_proponent_user
         mock_check_perms.side_effect = Exception("Forbidden")
+        # Set up user with a role that does NOT have CREATE_PACKAGE permission
+        mock_role = Mock()
+        mock_role.account_project_id = mock_package.account_project_id
+        mock_role.permissions = ["SUBMIT_PACKAGE"]
+        mock_proponent_user.account_user = Mock()
+        mock_proponent_user.account_user.role = Mock()
+        mock_proponent_user.account_user.roles = [mock_role]
+        mock_get_user.return_value = mock_proponent_user
 
         result = PackageAccessControl.check_package_access(
             package_id=1,
@@ -109,6 +121,14 @@ class TestProponentCreatePermission:
         mock_find_pkg.return_value = mock_package
         mock_get_user.return_value = mock_proponent_user
         mock_check_perms.side_effect = Exception("Forbidden")
+        # Set up user with no matching project role
+        mock_role = Mock()
+        mock_role.account_project_id = 999  # Different project
+        mock_role.permissions = ["CREATE_PACKAGE"]
+        mock_proponent_user.account_user = Mock()
+        mock_proponent_user.account_user.role = Mock()
+        mock_proponent_user.account_user.roles = [mock_role]
+        mock_get_user.return_value = mock_proponent_user
 
         with patch(f"{MODULE_PATH}.abort") as mock_abort:
             mock_abort.side_effect = SystemExit(403)
@@ -183,9 +203,12 @@ class TestProponentPermissionOnlyForCreate:
     ):
         """Proponent READ operation does not trigger _has_proponent_create_permission."""
         mock_find_pkg.return_value = mock_package
+        mock_proponent_user.account_user = Mock()
+        mock_proponent_user.account_user.role = Mock()
+        mock_proponent_user.account_user.roles = []
         mock_get_user.return_value = mock_proponent_user
 
-        PackageAccessControl.check_package_access(
+        result = PackageAccessControl.check_package_access(
             package_id=1,
             operation=PackageOperation.READ,
             abort_on_failure=False
@@ -193,6 +216,9 @@ class TestProponentPermissionOnlyForCreate:
 
         # check_has_permissions_on_project should NOT be called for READ
         mock_check_perms.assert_not_called()
+        # For READ, proponent create permission check is not used
+        # Result depends on MP role checks which return False with mocked jwt
+        assert result is False
 
     @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
@@ -206,15 +232,19 @@ class TestProponentPermissionOnlyForCreate:
     ):
         """Proponent EDIT operation does not trigger _has_proponent_create_permission."""
         mock_find_pkg.return_value = mock_package
+        mock_proponent_user.account_user = Mock()
+        mock_proponent_user.account_user.role = Mock()
+        mock_proponent_user.account_user.roles = []
         mock_get_user.return_value = mock_proponent_user
 
-        PackageAccessControl.check_package_access(
+        result = PackageAccessControl.check_package_access(
             package_id=1,
             operation=PackageOperation.EDIT,
             abort_on_failure=False
         )
 
         mock_check_perms.assert_not_called()
+        assert result is False
 
     @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
@@ -228,12 +258,16 @@ class TestProponentPermissionOnlyForCreate:
     ):
         """Proponent APPROVE operation does not trigger _has_proponent_create_permission."""
         mock_find_pkg.return_value = mock_package
+        mock_proponent_user.account_user = Mock()
+        mock_proponent_user.account_user.role = Mock()
+        mock_proponent_user.account_user.roles = []
         mock_get_user.return_value = mock_proponent_user
 
-        PackageAccessControl.check_package_access(
+        result = PackageAccessControl.check_package_access(
             package_id=1,
             operation=PackageOperation.APPROVE,
             abort_on_failure=False
         )
 
         mock_check_perms.assert_not_called()
+        assert result is False

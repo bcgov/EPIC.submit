@@ -5,13 +5,18 @@ import {
   MenuItem,
   IconButton,
   InputAdornment,
+  Box,
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import { get } from "lodash";
 import { BCDesignTokens } from "epic.theme";
 import CloseIcon from "@mui/icons-material/Close";
 
-export type SelectOptionType = { value: string | number; label: string };
+export type SelectOptionType = {
+  value: string | number;
+  label: string;
+  sublabel?: string;
+};
 
 type IFormInputProps = {
   name: string;
@@ -57,20 +62,21 @@ const ControlledSelect: FC<IFormInputProps> = ({
                 fontSize: "1.5rem",
               },
             },
-            endAdornment: clearable && field.value ? (
-              <InputAdornment position="end" sx={{ mr: 2 }}>
-                <IconButton
-                  size="small"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    field.onChange("");
-                  }}
-                  sx={{ p: 0.5 }}
-                >
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </InputAdornment>
-            ) : null,
+            endAdornment:
+              clearable && field.value ? (
+                <InputAdornment position="end" sx={{ mr: 2 }}>
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      field.onChange("");
+                    }}
+                    sx={{ p: 0.5 }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
             renderValue: (selected: unknown) => {
               if (!selected && selected !== 0) {
                 return placeholder ? (
@@ -78,7 +84,7 @@ const ControlledSelect: FC<IFormInputProps> = ({
                 ) : null;
               }
               const selectedOption = options.find(
-                (opt) => String(opt.value) === String(selected)
+                (opt) => String(opt.value) === String(selected),
               );
               return selectedOption?.label ?? String(selected);
             },
@@ -87,7 +93,14 @@ const ControlledSelect: FC<IFormInputProps> = ({
         >
           {options.map((option) => (
             <MenuItem key={option.value} value={option.value}>
-              {option.label}
+              <Box sx={{ display: "flex", flexDirection: "column" }}>
+                <span>{option.label}</span>
+                {option.sublabel && (
+                  <span style={{ fontSize: "14px", color: "#757575" }}>
+                    {option.sublabel}
+                  </span>
+                )}
+              </Box>
             </MenuItem>
           ))}
           {children}

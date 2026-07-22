@@ -15,6 +15,8 @@ export const DropdownOptions = {
   },
   REVISION_REQUIRED: {
     label: "The Holder has to provide a revision",
+    sublabel:
+      "This version will be enforceable until the requested revision is submitted and reviewed successfully by the Management Plan Team",
     value: "revision_required",
   },
 };

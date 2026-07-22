@@ -284,12 +284,21 @@ class PackageAccessControl:
         if not user or not user.account_user or not user.account_user.role:
             return False
 
+        account_project_id = package.account_project_id
         user_roles = user.account_user.roles
         required_permission = ProponentPermissionsEnum.CREATE_PACKAGE.value
-        account_project_id = package.account_project_id
 
-        for role in user_roles:
-            if role.account_project_id == account_project_id and required_permission in role.permissions:
-                return True
+        # Find roles matching the package's project
+        matched_roles = [
+            role for role in user_roles
+            if role.account_project_id == account_project_id
+        ]
 
-        return False
+        if not matched_roles:
+            return False
+
+        # Check that at least one matched role has the required permission
+        return any(
+            required_permission in role.permissions
+            for role in matched_roles
+        )

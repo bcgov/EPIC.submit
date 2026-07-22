@@ -136,6 +136,7 @@ export default function ReviewSection() {
     {
       value: DropdownOptions.REVISION_REQUIRED.value,
       label: DropdownOptions.REVISION_REQUIRED.label,
+      sublabel: DropdownOptions.REVISION_REQUIRED.sublabel,
     },
   ];
 
