@@ -22,7 +22,7 @@ import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/Packa
 import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
 import { useMounted } from "@/hooks/common";
 import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
-import { Box, Grid, Link, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import ItemsTable from "@/components/App/Submission/ItemsTable";
 import {
@@ -55,8 +55,11 @@ import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 import { useState, useMemo } from "react";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useSubmissionBannerState } from "@/hooks/useSubmissionBannerState";
-import { ApprovalBanner } from "@/components/App/Submission/ApprovalBanner";
-import { RevisionRequiredBanner } from "@/components/App/Submission/RevisionRequiredBanner";
+import {
+  ApprovalBanner,
+  NotApprovedBanner,
+  RevisionRequiredBanner,
+} from "@/components/App/Submission/Banners";
 
 export const Route = createFileRoute(
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -622,24 +625,14 @@ export default function SubmissionPage() {
                 <ApprovalBanner contactEmail={contactEmail} />
               </When>
               <When condition={showNotApprovedBanner}>
-                <WarningBox>
-                  <Typography variant="body1">
-                    Your {submissionPackage.type.title} has not been approved.
-                    To submit a new {submissionPackage.type.title} package,
-                    select Package {packageVersions?.at(0)?.version} above,
-                    upload your documents, and click the &quot;Submit to EAO&quot;
-                    button.
-                  </Typography>
-                  <Typography variant="body1" mt="20px">
-                    If you have any questions, please contact the EAO at{" "}
-                    <Link href={`mailto:${contactEmail}`}>
-                      {contactEmail}
-                    </Link>
-                  </Typography>
-                </WarningBox>
+                <NotApprovedBanner
+                  contactEmail={contactEmail}
+                  packageTypeName={submissionPackage.type.title}
+                  nextVersion={(packageVersions?.at(0)?.version || 1) + 1}
+                />
               </When>
               <When condition={showRevisionRequiredBanner}>
-                <RevisionRequiredBanner />
+                <RevisionRequiredBanner contactEmail={contactEmail} />
               </When>
               <Box
                 sx={{

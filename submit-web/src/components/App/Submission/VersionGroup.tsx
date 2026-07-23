@@ -219,7 +219,7 @@ export default function VersionGroup({
           startIcon={<AddIcon />}
           disabled={isCreatingPackage}
         >
-          + Create New
+          New
         </Button>
       )}
       
