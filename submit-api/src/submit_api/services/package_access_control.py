@@ -222,6 +222,10 @@ class PackageAccessControl:
 
         work_id = account_project_work.work_id
 
+        # Users with gis_extended_edit can bypass work assignment check
+        if jwt.contains_role([EpicSubmitRole.GIS_EXTENDED_EDIT.value]):
+            return True
+
         # Check if staff user has active assignment to this work
         staff_user_work = StaffUserWork.query.filter_by(
             staff_user_id=staff_user.id,
@@ -236,9 +240,6 @@ class PackageAccessControl:
         operation_value = operation.value
         for role_name, allowed_operations in W_ROLE_OPERATIONS.items():
             if jwt.contains_role([role_name]) and operation_value in allowed_operations:
-                # For APPROVE operation, also check Team Lead work role
-                if operation == PackageOperation.APPROVE:
-                    return staff_user_work.role == WorkRole.TEAM_LEAD.value
                 return True
 
         return False
