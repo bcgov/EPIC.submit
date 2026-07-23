@@ -9,6 +9,7 @@ from submit_api.services.package_access_control import PackageAccessControl
 
 
 MODULE_PATH = "submit_api.services.package_access_control"
+AUTH_MODULE_PATH = "submit_api.services.authorization"
 
 
 @pytest.fixture()
@@ -44,17 +45,20 @@ def mock_staff_user():
 class TestProponentCreatePermission:
     """Tests for proponent CREATE_PACKAGE permission in PackageAccessControl."""
 
+    @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
     @patch(f"{MODULE_PATH}.UserModel.get_by_guid")
     @patch(f"{MODULE_PATH}.PackageModel.find_by_id")
     @patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="proponent-guid")
     def test_proponent_with_create_permission_is_granted_access(
         self, mock_username, mock_find_pkg, mock_get_user,
-        mock_contains_role,
+        mock_contains_role, mock_check_perms,
         mock_package, mock_proponent_user
     ):
         """Proponent with CREATE_PACKAGE permission is granted access for CREATE operation."""
         mock_find_pkg.return_value = mock_package
+        mock_get_user.return_value = mock_proponent_user
+        mock_check_perms.return_value = None  # No exception means permission granted
         # Set up user with CREATE_PACKAGE permission on the package's project
         mock_role = Mock()
         mock_role.account_project_id = mock_package.account_project_id
@@ -72,17 +76,20 @@ class TestProponentCreatePermission:
 
         assert result is True
 
+    @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
     @patch(f"{MODULE_PATH}.UserModel.get_by_guid")
     @patch(f"{MODULE_PATH}.PackageModel.find_by_id")
     @patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="proponent-guid")
     def test_proponent_without_create_permission_is_denied(
         self, mock_username, mock_find_pkg, mock_get_user,
-        mock_contains_role,
+        mock_contains_role, mock_check_perms,
         mock_package, mock_proponent_user
     ):
         """Proponent without CREATE_PACKAGE permission is denied with False."""
         mock_find_pkg.return_value = mock_package
+        mock_get_user.return_value = mock_proponent_user
+        mock_check_perms.side_effect = Exception("Forbidden")
         # Set up user with a role that does NOT have CREATE_PACKAGE permission
         mock_role = Mock()
         mock_role.account_project_id = mock_package.account_project_id
@@ -100,17 +107,20 @@ class TestProponentCreatePermission:
 
         assert result is False
 
+    @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
     @patch(f"{MODULE_PATH}.UserModel.get_by_guid")
     @patch(f"{MODULE_PATH}.PackageModel.find_by_id")
     @patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="proponent-guid")
     def test_proponent_without_permission_aborts_with_403(
         self, mock_username, mock_find_pkg, mock_get_user,
-        mock_contains_role,
+        mock_contains_role, mock_check_perms,
         mock_package, mock_proponent_user
     ):
         """Proponent without CREATE_PACKAGE permission triggers 403 abort."""
         mock_find_pkg.return_value = mock_package
+        mock_get_user.return_value = mock_proponent_user
+        mock_check_perms.side_effect = Exception("Forbidden")
         # Set up user with no matching project role
         mock_role = Mock()
         mock_role.account_project_id = 999  # Different project
@@ -181,13 +191,14 @@ class TestProponentCreatePermission:
 class TestProponentPermissionOnlyForCreate:
     """Tests that proponent permission check is only applied for CREATE operation."""
 
+    @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
     @patch(f"{MODULE_PATH}.UserModel.get_by_guid")
     @patch(f"{MODULE_PATH}.PackageModel.find_by_id")
     @patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="proponent-guid")
     def test_proponent_read_does_not_use_create_permission_check(
         self, mock_username, mock_find_pkg, mock_get_user,
-        mock_contains_role,
+        mock_contains_role, mock_check_perms,
         mock_package, mock_proponent_user
     ):
         """Proponent READ operation does not trigger _has_proponent_create_permission."""
@@ -203,17 +214,20 @@ class TestProponentPermissionOnlyForCreate:
             abort_on_failure=False
         )
 
+        # check_has_permissions_on_project should NOT be called for READ
+        mock_check_perms.assert_not_called()
         # For READ, proponent create permission check is not used
         # Result depends on MP role checks which return False with mocked jwt
         assert result is False
 
+    @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
     @patch(f"{MODULE_PATH}.UserModel.get_by_guid")
     @patch(f"{MODULE_PATH}.PackageModel.find_by_id")
     @patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="proponent-guid")
     def test_proponent_edit_does_not_use_create_permission_check(
         self, mock_username, mock_find_pkg, mock_get_user,
-        mock_contains_role,
+        mock_contains_role, mock_check_perms,
         mock_package, mock_proponent_user
     ):
         """Proponent EDIT operation does not trigger _has_proponent_create_permission."""
@@ -229,15 +243,17 @@ class TestProponentPermissionOnlyForCreate:
             abort_on_failure=False
         )
 
+        mock_check_perms.assert_not_called()
         assert result is False
 
+    @patch(f"{AUTH_MODULE_PATH}.check_has_permissions_on_project")
     @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
     @patch(f"{MODULE_PATH}.UserModel.get_by_guid")
     @patch(f"{MODULE_PATH}.PackageModel.find_by_id")
     @patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="proponent-guid")
     def test_proponent_approve_does_not_use_create_permission_check(
         self, mock_username, mock_find_pkg, mock_get_user,
-        mock_contains_role,
+        mock_contains_role, mock_check_perms,
         mock_package, mock_proponent_user
     ):
         """Proponent APPROVE operation does not trigger _has_proponent_create_permission."""
@@ -253,4 +269,5 @@ class TestProponentPermissionOnlyForCreate:
             abort_on_failure=False
         )
 
+        mock_check_perms.assert_not_called()
         assert result is False
