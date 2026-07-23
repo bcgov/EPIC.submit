@@ -352,8 +352,7 @@ class PackageService:
                     new_package.submitted_by = user.auth_guid
 
             # Update item and package statuses
-            statuses_to_update = [ItemStatus.UNDER_REVIEW, ItemStatus.UNDER_CONSULTATION_CHECK]
-            items_to_update = [i for i in original_package.items if i.status in statuses_to_update]
+            items_to_update = cls._get_items_to_mark_review_not_completed(original_package.items)
             cls._update_items_status(items_to_update, ItemStatus.REVIEW_NOT_COMPLETED.value, session)
             cls._update_package_status(original_package.id, session, original_package)
 
@@ -531,6 +530,22 @@ class PackageService:
     def _update_package_status(package_id, session, package=None):
         """Update the status of the package based on the statuses of its items."""
         PackageItemQueries.update_package_status(package_id, session, package)
+
+    @staticmethod
+    def _get_items_to_mark_review_not_completed(items):
+        active_review_statuses = (ItemStatus.UNDER_REVIEW, ItemStatus.UNDER_CONSULTATION_CHECK)
+        items_to_update = [i for i in items if i.status in active_review_statuses]
+
+        is_under_consultation_check = any(
+            i.status == ItemStatus.UNDER_CONSULTATION_CHECK for i in items
+        )
+        if is_under_consultation_check:
+            items_to_update.extend(
+                i for i in items
+                if i.status == ItemStatus.SUBMITTED and
+                i.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value
+            )
+        return items_to_update
 
     @staticmethod
     def _update_items_status(items, status, session):

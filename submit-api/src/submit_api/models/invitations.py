@@ -114,7 +114,7 @@ class Invitations(BaseModel):
             cls.status.in_([InvitationStatus.PENDING.value])
         )
         if project_ids:
-            query = query.filter(cls.project_ids.op('@>')(project_ids))
+            query = query.filter(cls.project_ids.op('&&')(project_ids))
         return query.all()
 
     @classmethod

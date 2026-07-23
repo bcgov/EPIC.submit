@@ -20,4 +20,5 @@ class TrackWorkSchema(Schema):
     current_phase_id = fields.Int(data_key="current_phase_id", allow_none=True)
     work_state = fields.Str(data_key="work_state", allow_none=True)
     title = fields.Str(data_key="title", allow_none=True)
+    contact_email = fields.Str(data_key="contact_email", allow_none=True)
     current_phase = fields.Nested(TrackPhaseSchema, data_key="current_phase", allow_none=True)
