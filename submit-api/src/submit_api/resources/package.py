@@ -74,6 +74,9 @@ class Package(Resource):
         package = PackageService.get_package_by_id(package_id)
         if not package:
             return {"message": "Package not found"}, HTTPStatus.NOT_FOUND
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        if is_staff:
+            return StaffPackageSchema().dump(package), HTTPStatus.OK
         return PackageSchema().dump(package), HTTPStatus.OK
 
 
