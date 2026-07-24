@@ -58,7 +58,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   
   // Determine if actions should be disabled for GIS requests
   const isActionDisabled = isGISRequest && !hasGISPermissions;
-
+  // If this is a GIS request and user doesn't have GIS permissions, disable all actions
   // Hooks for note operations
   const { mutate: createUpdateRequestNote, isPending: isCreatingNote } =
     useCreatePackageUpdateRequesNote({
@@ -112,7 +112,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
           {onWithdrawUpdate && (
             isActionDisabled ? (
               <Tooltip title="Your current role does not allow you to perform this action">
-                <Box sx={{ opacity: 0.5, pointerEvents: "none" }}>
+                <Box sx={{ opacity: 0.5, cursor: "not-allowed" }}>
                   <ActionSplitButton
                     primaryAction={{
                       label: "Withdraw Update",
@@ -120,6 +120,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                       icon: <CloseIcon sx={{ fontSize: 13 }} />,
                     }}
                     secondaryActions={[]}
+                    disabled
                   />
                 </Box>
               </Tooltip>
@@ -150,13 +151,14 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
           {onAcceptUpdate && (
             isActionDisabled ? (
               <Tooltip title="Your current role does not allow you to perform this action">
-                <Box sx={{ opacity: 0.5, pointerEvents: "none" }}>
+                <Box sx={{ opacity: 0.5, cursor: "not-allowed" }}>
                   <ActionSplitButton
                     primaryAction={{
                       label: "Accept Update",
                       onClick: () => {},
                     }}
                     secondaryActions={[]}
+                    disabled
                   />
                 </Box>
               </Tooltip>

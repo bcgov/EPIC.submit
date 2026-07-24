@@ -14,6 +14,7 @@
  *   - Cannot send requests (onSendRequests is no-op)
  */
 import { LoadingButton } from "@/components/Shared/LoadingButton";
+import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Box, Link, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
@@ -287,6 +288,7 @@ export const SectionUpdateRequestPanel: React.FC<
               isLoading={isLoading}
               packageId={packageId}
               isProponentView={isProponentView}
+              isGISRequest={request.itemTypeName === GIS_ITEM_TYPE_NAME}
             />
           ))}
         </Box>
