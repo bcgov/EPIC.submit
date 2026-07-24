@@ -212,11 +212,13 @@ export default function DocumentRow({
                 />
               )}
             </Typography>
-            <GeoApprovedBadge
-              itemId={documentSubmission.item_id}
-              url={submitted_document?.url}
-              folder={submitted_document?.folder}
-            />
+            {!staff && (
+              <GeoApprovedBadge
+                itemId={documentSubmission.item_id}
+                url={submitted_document?.url}
+                folder={submitted_document?.folder}
+              />
+            )}
           </Box >
         </SubmitTableCell >
         <SubmitTableCell align="left" width={"10%"}>
