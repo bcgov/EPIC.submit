@@ -14,7 +14,13 @@
 """This module contains constants used in the application."""
 
 SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP = {
-    'Management Plan': 'EAO.ManagementPlanSupport@gov.bc.ca'
+    'Management Plan': 'EAO.ManagementPlanSupport@gov.bc.ca',
+    'IEM': 'EAO.ManagementPlanSupport@gov.bc.ca',
+}
+
+SUBMISSION_PACKAGE_TYPE_SENDER_MAP = {
+    'Management Plan': 'The Management Plan Team at the Environmental Assessment Office',
+    'IEM': 'EAO.ManagementPlanSupport@gov.bc.ca',
 }
 
 # Package types accessible via MP_VIEW role

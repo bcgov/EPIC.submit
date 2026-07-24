@@ -8,12 +8,11 @@ from submit_api.models import PackageItemType as PackageItemTypeModel
 from submit_api.models import Item as ItemModel
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.update_request import UpdateRequestStatus
-from submit_api.models.email_queue import EmailQueue as EmailQueueModel
-from submit_api.models.email_queue import EntityType
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.submission import SubmissionType
 from submit_api.schemas.submission import CreateSubmissionRequestSchema
 from submit_api.services.submission import SubmissionService
+from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.exceptions import BadRequestError
 
 
@@ -170,9 +169,4 @@ class PackageVersionService:
     @staticmethod
     def create_email_queue(package_id, template_name):
         """Create an email queue record."""
-        email_queue = EmailQueueModel(
-            entity_id=package_id,
-            entity_type=EntityType.PACKAGE.value,
-            template_name=template_name
-        )
-        email_queue.save()
+        SubmitEmailQueueService.queue_package_email(package_id, template_name)

@@ -17,8 +17,6 @@ from submit_api.models.account_project_non_work import AccountProjectNonWork
 from submit_api.models.account_project_work import AccountProjectWork
 from submit_api.models.account_terms_of_service import TermsOfService as TermsOfServiceModel
 from submit_api.models.db import session_scope
-from submit_api.models.email_queue import EmailQueue as EmailQueueModel
-from submit_api.models.email_queue import EntityType
 from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.invitations import InvitationStatus
 from submit_api.models.package import PackageStatus
@@ -29,9 +27,9 @@ from submit_api.models.user import UserType
 from submit_api.models.user_role import UserRole as UserRoleModel
 from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
+from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.services.package_service import PackageService
 from submit_api.services.user_service import UserService
-from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -192,15 +190,7 @@ class InvitationService:
     @classmethod
     def _create_email_queue_record(cls, invitation_id, session=None):
         """Create an email queue record for an update request."""
-        email_queue = EmailQueueModel(
-            entity_id=invitation_id, entity_type=EntityType.INVITATION.value,
-            template_name=NEW_USER_INVITATION_EMAIL_TEMPLATE
-        )
-        if not session:
-            email_queue.save()
-            return
-        session.add(email_queue)
-        session.commit()
+        SubmitEmailQueueService.queue_invitation_email(invitation_id, session=session)
 
     @staticmethod
     def accept_invitation(token, payload):  # pylint: disable=too-many-locals

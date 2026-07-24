@@ -22,8 +22,6 @@ from submit_api.models import PackageVersion as PackageVersionModel
 from submit_api.models import UpdateRequest as UpdateRequestModel
 from submit_api.models.account_project_work import AccountProjectWork as AccountProjectWorkModel
 from submit_api.models.db import session_scope
-from submit_api.models.email_queue import EmailQueue as EmailQueueModel
-from submit_api.models.email_queue import EntityType
 from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models.package_item_type import PackageItemType as PackageItemTypeModel
 from submit_api.models.package_metadata import PackageMetadata as PackageMetadataModel
@@ -39,6 +37,7 @@ from submit_api.services import authorization
 from submit_api.services.authorization import has_gis_extended_edit_role
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.geo import GeoService
+from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
@@ -375,12 +374,10 @@ class PackageService:
     @classmethod
     def _create_resubmission_email_queue(cls, package_id):
         """Create an email queue record for resubmission request."""
-        email_queue = EmailQueueModel(
-            entity_id=package_id,
-            entity_type=EntityType.PACKAGE.value,
-            template_name=MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
+        SubmitEmailQueueService.queue_package_email(
+            package_id,
+            MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
         )
-        email_queue.save()
 
     @staticmethod
     def _create_package_metadata(session, package_id, metadata):
@@ -1154,23 +1151,7 @@ class PackageService:
     def _create_email_queue_record(package, session):
         """Create email queue records for proponent and staff."""
         current_app.logger.info(f"Creating email queue records for package {package.id}")
-
-        # Email to the submitter (Proponent)
-        email_to_proponent = EmailQueueModel(
-            entity_id=package.id,
-            entity_type=EntityType.PACKAGE.value,
-            template_name=MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE
-        )
-        session.add(email_to_proponent)
-
-        # Email to the staff
-        email_to_staff = EmailQueueModel(
-            entity_id=package.id,
-            entity_type=EntityType.PACKAGE.value,
-            template_name=MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE
-        )
-        session.add(email_to_staff)
-
+        SubmitEmailQueueService.queue_package_submission_emails(package, session=session)
         current_app.logger.info(f"Email queue records created for package {package.id}")
 
     @classmethod
@@ -1223,11 +1204,10 @@ class PackageService:
     @classmethod
     def _update_request_creation_email_queue(cls, package_id):
         """Create an email queue record for an update request."""
-        email_queue = EmailQueueModel(
-            entity_id=package_id, entity_type=EntityType.PACKAGE.value,
-            template_name=MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE
+        SubmitEmailQueueService.queue_package_email(
+            package_id,
+            MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
         )
-        email_queue.save()
 
     @staticmethod
     def _log_activity_update_request(package):
