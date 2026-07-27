@@ -17,11 +17,8 @@ export const ApprovalBanner = ({ contactEmail }: ApprovalBannerProps) => {
         px: BCDesignTokens.layoutPaddingSmall,
       }}
     >
-      <Typography variant="body1" color="black">
-        Your submission has been approved.
-      </Typography>
       <Typography variant="body1" mt="20px" color="black">
-        If you have any questions, please contact the EAO at{" "}
+        If you have any questions or need assistance to add, replace, or delete documents in your submission, please contact the EAO at{" "}
         <Link href={`mailto:${contactEmail}`}>{contactEmail}</Link>
       </Typography>
     </Box>
