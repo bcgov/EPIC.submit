@@ -8,8 +8,7 @@ from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Package as PackageModel
 from submit_api.services.management_plan_service import ManagementPlanService
 from submit_api.services.activity_log_service import ActivityLogService
-from submit_api.models.email_queue import EmailQueue as EmailQueueModel
-from submit_api.models.email_queue import EntityType
+from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 
@@ -90,8 +89,4 @@ class IEMTermsOfEngagementService:
     @classmethod
     def _create_rejection_email_queue(cls, package_id, template_name):
         """Create an email queue record for an update request."""
-        email_queue = EmailQueueModel(
-            entity_id=package_id, entity_type=EntityType.PACKAGE.value,
-            template_name=template_name
-        )
-        email_queue.save()
+        SubmitEmailQueueService.queue_package_email(package_id, template_name)
