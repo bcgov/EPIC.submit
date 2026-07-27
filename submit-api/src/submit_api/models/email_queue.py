@@ -39,6 +39,7 @@ class EmailQueue(BaseModel):
     created_at = Column(DateTime, nullable=False, default=lambda: datetime.now(UTC))
     sent_at = Column(DateTime, nullable=True)
     error_message = Column(db.String(500), nullable=True)
+    payload = Column(db.JSON, nullable=True)
 
     @classmethod
     def find_pending(cls):

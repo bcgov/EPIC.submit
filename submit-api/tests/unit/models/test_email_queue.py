@@ -9,11 +9,13 @@ def test_find_pending(session):
         entity_type=EntityType.PACKAGE.value,
         template_name='test_template',
         status=EmailStatus.PENDING.value,
+        payload={'subject': 'Test email'},
     )
     session.add(eq)
     session.flush()
     results = EmailQueue.find_pending()
     assert any(e.status == EmailStatus.PENDING.value for e in results)
+    assert any(e.payload == {'subject': 'Test email'} for e in results)
 
 
 def test_find_all(session):

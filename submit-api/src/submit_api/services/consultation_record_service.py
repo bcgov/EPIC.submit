@@ -14,8 +14,7 @@ from submit_api.models.update_request import UpdateRequestType
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.package_service import PackageService
 from submit_api.utils.token_info import TokenInfo
-from submit_api.models.email_queue import EmailQueue as EmailQueueModel
-from submit_api.models.email_queue import EntityType
+from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
 
@@ -122,8 +121,4 @@ class ConsultationRecordService:
     @classmethod
     def _create_rejection_email_queue(cls, package_id, template_name):
         """Create an email queue record for an update request."""
-        email_queue = EmailQueueModel()
-        email_queue.entity_id = package_id
-        email_queue.entity_type = EntityType.PACKAGE.value
-        email_queue.template_name = template_name
-        email_queue.save()
+        SubmitEmailQueueService.queue_package_email(package_id, template_name)

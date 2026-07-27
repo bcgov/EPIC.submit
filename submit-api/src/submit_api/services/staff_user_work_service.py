@@ -78,55 +78,92 @@ class StaffUserWorkService:
         return staff_user_work
 
     @classmethod
-    def remove_staff_user_work(cls, email: str, work_id: int):
-        """Remove staff user work assignment.
+    def remove_staff_user_work_by_work_id(cls, work_id: int):
+        """Remove all staff user work assignments for a given work ID.
 
         Args:
-            email: Email address of the staff user
             work_id: Work ID from EPIC.track
 
         Raises:
-            ResourceNotFoundError: If user or work assignment not found
+            ResourceNotFoundError: If no active assignments found for the work ID
         """
-        # Lookup staff user by email from database
-        staff_user = StaffUser.get_by_email(email)
-        if not staff_user:
-            raise ResourceNotFoundError(f"Staff user with email '{email}' not found.")
-
-        # Find StaffUserWork record
-        staff_user_work = StaffUserWork.find_by_staff_user_and_work(
-            staff_user_id=staff_user.id,
-            work_id=work_id
-        )
-
-        if not staff_user_work:
+        assignments = StaffUserWork.find_by_work_id(work_id)
+        if not assignments:
             raise ResourceNotFoundError(
-                f"Work assignment not found for staff user '{email}' and work ID {work_id}."
+                f"No active work assignments found for work ID {work_id}."
             )
 
-        # Remove OPS Keycloak groups (SUBMIT/OPS_TEAM_LEAD and SUBMIT/OPS_TEAM_MEMBER)
-        username = staff_user.user.auth_guid
+        for assignment in assignments:
+            # Remove OPS Keycloak groups for each affected user
+            username = assignment.staff_user.user.auth_guid
+            cls._remove_keycloak_ops_groups(username)
+
+            assignment.is_active = False
+            assignment.persist()
+
+            current_app.logger.info(
+                f"Removed work assignment: staff_user_id={assignment.staff_user_id}, "
+                f"work_id={work_id}"
+            )
+
+    @classmethod
+    def remove_staff_user_works_by_auth_guid(cls, auth_guid: str):
+        """Remove all staff user work assignments for a user by their auth_guid.
+
+        Deactivates all work assignments and removes OPS_TEAM_MEMBER/OPS_TEAM_LEAD
+        Keycloak groups from the user.
+
+        Args:
+            auth_guid: The user's authentication GUID
+
+        Raises:
+            ResourceNotFoundError: If staff user not found for the given auth_guid
+        """
+        staff_user = StaffUser.get_by_guid(auth_guid)
+        if not staff_user:
+            raise ResourceNotFoundError(
+                f"Staff user not found for auth_guid '{auth_guid}'."
+            )
+
+        # Remove OPS Keycloak groups
+        cls._remove_keycloak_ops_groups(auth_guid)
+
+        # Deactivate all active work assignments
+        active_assignments = StaffUserWork.find_by_staff_user_id(staff_user.id)
+        for assignment in active_assignments:
+            assignment.is_active = False
+            assignment.persist()
+
+        current_app.logger.info(
+            f"Removed all work assignments for staff_user_id={staff_user.id} "
+            f"(auth_guid={auth_guid}), {len(active_assignments)} assignment(s) deactivated."
+        )
+
+    @classmethod
+    def _remove_keycloak_ops_groups(cls, username: str):
+        """Remove OPS Keycloak groups from a user.
+
+        Args:
+            username: The user's auth_guid used as Keycloak username
+        """
         try:
             user_groups = KeycloakService.get_user_groups(username)
             for _role, group_path in STAFF_WORK_ROLE_KEYCLOAK_GROUPS.items():
-                has_group = any(group.get('path') == f'/{group_path}' for group in user_groups)
+                has_group = any(
+                    group.get('path') == f'/{group_path}' for group in user_groups
+                )
                 if has_group:
                     group_id = KeycloakService.get_group_id_by_path(group_path)
-                    KeycloakService.delete_user_group(user_id=username, group_id=group_id)
-                    current_app.logger.info(f"Removed {group_path} group from user {username}")
+                    KeycloakService.delete_user_group(
+                        user_id=username, group_id=group_id
+                    )
+                    current_app.logger.info(
+                        f"Removed {group_path} group from user {username}"
+                    )
         except Exception as e:  # noqa: B902  # pylint: disable=broad-exception-caught
-            current_app.logger.warning(f"Failed to remove OPS groups from user {username}: {str(e)}")
-            # Don't fail the entire operation if group removal fails
-
-        # Set is_active=False for the assignment
-        staff_user_work.is_active = False
-        staff_user_work.persist()
-
-        current_app.logger.info(
-            f"Removed work assignment: staff_user_id={staff_user.id}, work_id={work_id}"
-        )
-
-        return staff_user_work
+            current_app.logger.warning(
+                f"Failed to remove OPS groups from user {username}: {str(e)}"
+            )
 
     @classmethod
     def get_works_for_staff_user(cls, staff_user_id: int):
