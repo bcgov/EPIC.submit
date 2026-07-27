@@ -20,7 +20,7 @@ from flask_restx import Namespace, Resource
 
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.staff_user_work import (
-    RemoveStaffUserWorkRequest, StaffUserWorkSchema, CreateStaffUserWorkRequest,
+    StaffUserWorkSchema, CreateStaffUserWorkRequest,
     StaffWorkRoleResponseSchema
 )
 from submit_api.services.staff_user_work_service import StaffUserWorkService
@@ -32,10 +32,6 @@ API = Namespace("staff-user-works", description="Endpoints for Staff User Work M
 
 create_request_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, CreateStaffUserWorkRequest(), "Create Staff User Work Request"
-)
-
-remove_request_model = ApiHelper.convert_ma_schema_to_restx_model(
-    API, RemoveStaffUserWorkRequest(), "Remove Staff User Work Request"
 )
 
 staff_user_work_model = ApiHelper.convert_ma_schema_to_restx_model(
@@ -98,36 +94,58 @@ class StaffUserWorkResource(Resource):
 
 
 @cors_preflight("DELETE, OPTIONS")
-@API.route("/remove", methods=["DELETE", "OPTIONS"])
-class StaffUserWorkRemove(Resource):
-    """Resource for removing staff user work assignments."""
+@API.route("/work/<int:work_id>", methods=["DELETE", "OPTIONS"])
+@API.doc(params={"work_id": "The work ID from EPIC.track"})
+class StaffUserWorkRemoveByWork(Resource):
+    """Resource for removing staff user work assignments by work ID."""
 
     @staticmethod
     @auth.require
     @ApiHelper.swagger_decorators(
         API,
-        endpoint_description="Remove staff user work assignment"
+        endpoint_description="Remove staff user work assignment by work ID"
     )
-    @API.expect(remove_request_model, validate=True)
     @API.response(code=200, description="Work assignment removed successfully")
-    @API.response(code=400, description="Invalid input")
-    @API.response(code=404, description="User or work assignment not found")
+    @API.response(code=404, description="Work assignment not found")
     @API.response(code=500, description="Internal server error")
     @cross_origin(origins=allowedorigins())
     @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
-    def delete():
-        """Remove a staff user work assignment."""
-        request_data = RemoveStaffUserWorkRequest().load(API.payload)
+    def delete(work_id):
+        """Remove a staff user work assignment by work ID."""
         try:
-            StaffUserWorkService.remove_staff_user_work(
-                email=request_data.get("email"),
-                work_id=request_data.get("work_id")
+            StaffUserWorkService.remove_staff_user_work_by_work_id(work_id=work_id)
+            return {
+                "message": f"Work assignment(s) removed for work ID {work_id}."
+            }, HTTPStatus.OK
+        except Exception as e:  # pylint:disable=broad-exception-caught  # noqa: B902
+            return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+@cors_preflight("DELETE, OPTIONS")
+@API.route("/user/<string:auth_guid>", methods=["DELETE", "OPTIONS"])
+@API.doc(params={"auth_guid": "The user's authentication GUID"})
+class StaffUserWorkRemoveByUser(Resource):
+    """Resource for removing all staff user work assignments by user auth_guid."""
+
+    @staticmethod
+    @auth.require
+    @ApiHelper.swagger_decorators(
+        API,
+        endpoint_description="Remove all staff user work assignments by user auth_guid"
+    )
+    @API.response(code=200, description="Work assignments removed successfully")
+    @API.response(code=404, description="User not found")
+    @API.response(code=500, description="Internal server error")
+    @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
+    def delete(auth_guid):
+        """Remove all staff user work assignments for a user by their auth_guid."""
+        try:
+            StaffUserWorkService.remove_staff_user_works_by_auth_guid(
+                auth_guid=auth_guid
             )
             return {
-                "message": (
-                    f"Work assignment removed for user '{request_data.get('email')}' "
-                    f"and work ID {request_data.get('work_id')}."
-                )
+                "message": f"All work assignments removed for user with auth_guid '{auth_guid}'."
             }, HTTPStatus.OK
         except Exception as e:  # pylint:disable=broad-exception-caught  # noqa: B902
             return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR

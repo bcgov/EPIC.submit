@@ -141,7 +141,9 @@ class InvitationDetailResource(Resource):
             return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
 
-    @API.response(code=HTTPStatus.CREATED, model=InvitationSchema, description="User created and role assigned")
+    @API.response(
+        code=HTTPStatus.CREATED, model=invitation_response_schema, description="User created and role assigned"
+    )
     @API.response(code=HTTPStatus.BAD_REQUEST, description="Invalid Token or Data")
     def post(self, token):
         """Accept an invitation and create a user."""

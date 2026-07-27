@@ -44,24 +44,6 @@ class CreateStaffUserWorkRequest(Schema):
     )
 
 
-class RemoveStaffUserWorkRequest(Schema):
-    """Remove staff user work request schema."""
-
-    class Meta:  # pylint: disable=too-few-public-methods
-        """Exclude unknown fields in the deserialized output."""
-
-        unknown = EXCLUDE
-
-    email = fields.Email(
-        required=True,
-        metadata={"description": "Email of the staff user"}
-    )
-    work_id = fields.Int(
-        required=True,
-        metadata={"description": "Work ID from EPIC.track"}
-    )
-
-
 class StaffWorkRoleResponseSchema(Schema):
     """Response schema for staff work role with email and basic details."""
 
