@@ -167,6 +167,6 @@ class PackageVersionService:
         session.flush()
 
     @staticmethod
-    def create_email_queue(package_id, template_name):
+    def create_email_queue(package_id, template_name, session=None):
         """Create an email queue record."""
-        SubmitEmailQueueService.queue_package_email(package_id, template_name)
+        SubmitEmailQueueService.queue_package_email(package_id, template_name, session=session)

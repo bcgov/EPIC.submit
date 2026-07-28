@@ -146,7 +146,7 @@ class SubmissionReviewService:
             SubmissionItemType.CONSULTATION_RECORD.value,
         ):
             PackageVersionService.create_email_queue(
-                item.package_id, SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE
+                item.package_id, SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE, session=session
             )
         current_app.logger.info(f"Recommendation sent to manager for item {item_id}.")
         return item

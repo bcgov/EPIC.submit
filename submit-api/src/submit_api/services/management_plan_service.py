@@ -34,7 +34,7 @@ class ManagementPlanService:
         cls._log_management_plan_rejection_activity(item, session)
         cls.deactivate_update_requests(item.package_id, session)
         cls._create_rejection_email_queue(
-            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
+            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, session)
         current_app.logger.info(
             f"Management plan form rejected for item {item.id}.")
         return item
@@ -168,7 +168,7 @@ class ManagementPlanService:
         cls._log_management_plan_revision_required_activity(item, session)
         cls.deactivate_update_requests(item.package_id, session)
         cls._create_rejection_email_queue(
-            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
+            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, session)
 
         # Make all package versions not enforceable
         package = PackageModel.find_by_id(item.package_id)
@@ -302,6 +302,6 @@ class ManagementPlanService:
         PackageVersionService.deactivate_update_requests(package_id, session, package)
 
     @classmethod
-    def _create_rejection_email_queue(cls, package_id, template_name):
+    def _create_rejection_email_queue(cls, package_id, template_name, session):
         """Create an email queue record for an update request."""
-        PackageVersionService.create_email_queue(package_id, template_name)
+        PackageVersionService.create_email_queue(package_id, template_name, session=session)

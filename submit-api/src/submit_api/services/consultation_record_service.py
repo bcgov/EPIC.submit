@@ -83,7 +83,7 @@ class ConsultationRecordService:
                 session=session
             )
         cls._create_rejection_email_queue(
-            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE)
+            item.package_id, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, session)
         item.status = ItemStatus.UNDER_CONSULTATION_CHECK.value
         session.add(item)
         session.flush()
@@ -119,6 +119,6 @@ class ConsultationRecordService:
             f"Update request created for new package {data.get('package_id')}.")
 
     @classmethod
-    def _create_rejection_email_queue(cls, package_id, template_name):
+    def _create_rejection_email_queue(cls, package_id, template_name, session):
         """Create an email queue record for an update request."""
-        SubmitEmailQueueService.queue_package_email(package_id, template_name)
+        SubmitEmailQueueService.queue_package_email(package_id, template_name, session=session)
