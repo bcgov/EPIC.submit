@@ -92,20 +92,20 @@ export default function VersionGroup({
 
   const { mutate: createNewPackageVersion, isPending: isCreatingPackage } =
     useCreateNewPackageVersion({
-    onSuccess: (newPackage) => {
-      notify.success("New package created successfully");
+      onSuccess: (newPackage) => {
+        notify.success("New package created successfully");
 
-      // Invalidate the old package so it's refetched when revisited
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-      });
+        // Invalidate the old package so it's refetched when revisited
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
+        });
 
-      loadNewPackage(newPackage.id);
-    },
-    onError: () => {
-      notify.error("Failed to create new package");
-    },
-  });
+        loadNewPackage(newPackage.id);
+      },
+      onError: () => {
+        notify.error("Failed to create new package");
+      },
+    });
 
   function handleUpdatePackageId(newPackageId: number) {
     reset();
@@ -158,13 +158,16 @@ export default function VersionGroup({
     );
   };
 
-  const last_approved_package_version = packageVersions?.find(
+  const latestApprovedPackageVersion = packageVersions?.find(
     (packageVersion) =>
       packageVersion.is_approved || packageVersion.is_enforceable,
   );
 
   const isLatestVersion = useMemo(() => {
-    return calculateIsLatestVersion(packageVersions, currentPackageVersion.version);
+    return calculateIsLatestVersion(
+      packageVersions,
+      currentPackageVersion.version,
+    );
   }, [packageVersions, currentPackageVersion.version]);
 
   const canProponentCreateVersion = useMemo(() => {
@@ -222,7 +225,7 @@ export default function VersionGroup({
           + Create New
         </Button>
       )}
-      
+
       {!hideVersions &&
         packageVersions?.map((packageVersion) => (
           <Button
@@ -235,7 +238,7 @@ export default function VersionGroup({
             }}
             onClick={() => handleUpdatePackageId(packageVersion.package_id)}
             startIcon={
-              packageVersion.id === last_approved_package_version?.id ? (
+              packageVersion.id === latestApprovedPackageVersion?.id ? (
                 <GppGoodOutlinedIcon />
               ) : undefined
             }

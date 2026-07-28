@@ -194,22 +194,11 @@ const getPackageVersionsByOriginalPackageId = ({
 };
 
 const addIsLatestFlag = (versions: PackageVersion[]): PackageVersion[] => {
-  // Find the latest approved version
-  const latestApprovedVersion = versions.find((pv) => pv.is_approved);
-
-  // Find the latest unapproved version that's newer than latest approved
-  let latestUnapprovedNewerThanApproved: PackageVersion | undefined;
-  if (latestApprovedVersion) {
-    latestUnapprovedNewerThanApproved = versions.find(
-      (pv) => !pv.is_approved && pv.version > latestApprovedVersion.version,
-    );
-  }
-
+  if (versions.length === 0) return versions;
+  const maxVersion = Math.max(...versions.map((pv) => pv.version));
   return versions.map((pv) => ({
     ...pv,
-    is_latest:
-      pv.id === latestApprovedVersion?.id ||
-      pv.id === latestUnapprovedNewerThanApproved?.id,
+    is_latest: pv.version === maxVersion,
   }));
 };
 
