@@ -252,9 +252,7 @@ class SubmitEmailQueueService:
             current_app.config.get('WEB_URL') or
             current_app.config.get('SITE_URL')
         )
-        if not base_url:
-            raise BadRequestError("BASE_APP_URL is required to build email links")
-        return base_url.rstrip('/')
+        return base_url.rstrip('/') if base_url else ''
 
     @staticmethod
     def _build_signup_url(token: str) -> str:
