@@ -50,3 +50,14 @@ python:
   connectTimeout: 60
 cors:
   origin: "https://dev.submit.eao.gov.bc.ca,"
+
+web:
+  url: https://dev.submit.eao.gov.bc.ca
+
+sender:
+  email: EAO.ManagementPlanSupport@gov.bc.ca
+
+bcServiceCard:
+  url: https://id.gov.bc.ca
+
+timezone: US/Pacific

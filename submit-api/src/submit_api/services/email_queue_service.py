@@ -200,6 +200,12 @@ class SubmitEmailQueueService:
 
     @staticmethod
     def _payload(sender: str, recipients: list[str], subject: str, body_args: dict) -> dict:
+        if not sender:
+            raise BadRequestError("Email sender is required")
+        if not recipients:
+            raise BadRequestError("At least one email recipient is required")
+        if not subject:
+            raise BadRequestError("Email subject is required")
         return {
             'sender': sender,
             'recipients': recipients,
@@ -241,8 +247,14 @@ class SubmitEmailQueueService:
 
     @staticmethod
     def _get_base_url() -> str:
-        base_url = current_app.config.get('BASE_APP_URL') or current_app.config.get('WEB_URL')
-        return base_url.rstrip('/') if base_url else ''
+        base_url = (
+            current_app.config.get('BASE_APP_URL') or
+            current_app.config.get('WEB_URL') or
+            current_app.config.get('SITE_URL')
+        )
+        if not base_url:
+            raise BadRequestError("BASE_APP_URL is required to build email links")
+        return base_url.rstrip('/')
 
     @staticmethod
     def _build_signup_url(token: str) -> str:

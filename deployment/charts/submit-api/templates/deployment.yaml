@@ -177,6 +177,31 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: CORS_ORIGIN
+            - name: BASE_APP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: BASE_APP_URL
+            - name: BC_SERVICE_CARD_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: BC_SERVICE_CARD_URL
+            - name: LEGISLATIVE_TIMEZONE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: LEGISLATIVE_TIMEZONE
+            - name: SENDER_EMAIL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: SENDER_EMAIL
+            - name: STAFF_SUPPORT_MAIL_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: STAFF_SUPPORT_MAIL_ID
           resources:
             limits:
               cpu: {{ .Values.resources.cpu.limit }}

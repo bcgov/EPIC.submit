@@ -341,7 +341,8 @@ class PackageService:
 
             PackageVersionService.create_email_queue(
                 new_package.id,
-                MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
+                MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
+                session=session
             )
             # Set up the submitter information from the original package
             if original_package.submitted_by:

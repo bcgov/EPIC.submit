@@ -17,3 +17,8 @@ data:
   INSTANCE_ADMIN_GROUP: {{ .Values.auth.keycloak.instanceAdminGroup }}
   CONNECT_TIMEOUT: "{{ .Values.python.connectTimeout }}"
   CORS_ORIGIN: "{{ .Values.cors.origin }}"
+  BASE_APP_URL: {{ .Values.web.url }}
+  BC_SERVICE_CARD_URL: {{ .Values.bcServiceCard.url }}
+  LEGISLATIVE_TIMEZONE: {{ .Values.timezone }}
+  SENDER_EMAIL: {{ .Values.sender.email }}
+  STAFF_SUPPORT_MAIL_ID: {{ .Values.sender.email }}
