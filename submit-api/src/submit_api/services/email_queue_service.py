@@ -269,7 +269,7 @@ class SubmitEmailQueueService:
         return submitted_on.astimezone(timezone).strftime('%Y-%m-%d %I:%M %p %Z')
 
     @staticmethod
-    def _get_sender_email(package: PackageModel, fallback_config: str = None) -> str:
+    def _get_sender_email(package: PackageModel, fallback_config: str = 'SENDER_EMAIL') -> str:
         sender = SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP.get(package.type.name)
         if not sender and fallback_config:
             sender = current_app.config.get(fallback_config)
