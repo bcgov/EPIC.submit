@@ -202,13 +202,11 @@ class SubmitEmailQueueService:
     def _payload(sender: str, recipients: list[str], subject: str, body_args: dict) -> dict:
         if not sender:
             raise BadRequestError("Email sender is required")
-        if not recipients:
-            raise BadRequestError("At least one email recipient is required")
         if not subject:
             raise BadRequestError("Email subject is required")
         return {
             'sender': sender,
-            'recipients': recipients,
+            'recipients': recipients or [],
             'subject': subject,
             'body_args': body_args,
             'cc': [],
@@ -221,6 +219,13 @@ class SubmitEmailQueueService:
 
     @staticmethod
     def _create_email_queue(entity_id: int, entity_type: str, template_name: str, payload: dict, session=None):
+        if not payload.get('recipients'):
+            current_app.logger.warning(
+                f"Skipping email queue for {template_name} because no recipients were found "
+                f"for {entity_type} {entity_id}"
+            )
+            return None
+
         email_queue = EmailQueueModel(
             entity_id=entity_id,
             entity_type=entity_type,
