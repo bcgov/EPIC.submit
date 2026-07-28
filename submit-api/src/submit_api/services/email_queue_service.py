@@ -39,9 +39,16 @@ EAO_MANAGER_GROUP_PATH = "SUBMIT/EAO_MANAGER"
 class SubmitEmailQueueService:
     """Create email queue rows with all data needed by the mailer."""
 
+    # Temporary no-op so email queue issues do not block Submit workflows.
+    EMAIL_QUEUE_DISABLED = True
+
     @classmethod
     def queue_package_submission_emails(cls, package: PackageModel, session=None):
         """Queue proponent and staff emails for a submitted package."""
+        if cls.EMAIL_QUEUE_DISABLED:
+            current_app.logger.info(f"Skipping package submission email queue for package {package.id}")
+            return []
+
         return [
             cls.queue_package_email(
                 package.id,
@@ -60,6 +67,10 @@ class SubmitEmailQueueService:
     @classmethod
     def queue_package_email(cls, package_id: int, template_name: str, session=None, package: PackageModel = None):
         """Queue one package-related email by template."""
+        if cls.EMAIL_QUEUE_DISABLED:
+            current_app.logger.info(f"Skipping {template_name} email queue for package {package_id}")
+            return None
+
         package = package or cls._get_package(package_id, session)
         if not package:
             raise BadRequestError(f"Package with ID {package_id} not found.")
@@ -89,6 +100,10 @@ class SubmitEmailQueueService:
     @classmethod
     def queue_invitation_email(cls, invitation_id: int, session=None, invitation: InvitationsModel = None):
         """Queue an invitation email."""
+        if cls.EMAIL_QUEUE_DISABLED:
+            current_app.logger.info(f"Skipping invitation email queue for invitation {invitation_id}")
+            return None
+
         invitation = invitation or cls._get_invitation(invitation_id, session)
         if not invitation:
             raise BadRequestError(f"Invitation with ID {invitation_id} not found.")
