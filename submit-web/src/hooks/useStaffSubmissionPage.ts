@@ -119,21 +119,6 @@ export function useStaffSubmissionPage({
     (pv) => pv.package_id === submissionPackageId,
   );
 
-  const isLatestApprovedPackageVersion =
-    currentPackageVersion?.is_latest && currentPackageVersion?.is_approved;
-
-  const isNewerThanLastApprovedButNotApproved =
-    currentPackageVersion?.is_latest && !currentPackageVersion?.is_approved;
-
-  const isRejectedOrReplaced =
-    (!approval_type &&
-      packageVersions?.at(0)?.package_id !== submissionPackageId &&
-      !currentPackageVersion?.is_approved) ||
-    (currentPackageVersion?.is_approved && !isLatestApprovedPackageVersion);
-
-  const displaySubmissionBanner =
-    isLatestApprovedPackageVersion || isRejectedOrReplaced;
-
   const isReadyForAcknowledgement = useMemo(
     () =>
       submissionPackage?.status.includes(
@@ -198,16 +183,14 @@ export function useStaffSubmissionPage({
   }, [updatingPackageState, refusingPackage]);
 
   return {
+    packageVersions,
+    currentPackageVersion,
     accountProject,
     submissionPackage,
     isFetching,
     updatePackageState,
     refusePackage,
     isLoading,
-    isLatestApprovedPackageVersion,
-    isNewerThanLastApprovedButNotApproved,
-    isRejectedOrReplaced,
-    displaySubmissionBanner,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,
