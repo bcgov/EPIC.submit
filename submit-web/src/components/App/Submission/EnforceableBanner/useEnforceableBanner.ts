@@ -126,12 +126,6 @@ export const useStaffEnforceableBanner = ({
       emptyEligibleSetBannerType: "not-enforceable",
     });
 
-    console.log("bannerType", bannerType);
-    console.log(
-      "currentPackageVersion?.is_latest",
-      currentPackageVersion?.is_latest,
-    );
-
     if (bannerType === "not-enforceable" && currentPackageVersion?.is_latest) {
       bannerType = "none";
     }
