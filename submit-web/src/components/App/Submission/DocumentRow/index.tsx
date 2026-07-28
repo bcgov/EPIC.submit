@@ -12,6 +12,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckIcon from "@mui/icons-material/Check";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import UndoIcon from "@mui/icons-material/Undo";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { ActionButton } from "./ActionButton";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { SubmissionPackage, PackageType } from "@/models/Package";
@@ -74,6 +76,22 @@ export default function DocumentRow({
     autoRefetch: false,
   });
   const uploads = geoUploads as any[];
+
+  const previewUpload = uploads?.find(
+    (u) => u.raw_s3_key === documentSubmission.submitted_document?.url,
+  );
+
+  const onPreviewClick = () => {
+    if (!previewUpload) {
+      notify.error("Preview is not available for this file.");
+      return;
+    }
+    if (previewUpload.status === "processing") {
+      notify.info("Geospatial processing is in progress. Please wait.");
+      return;
+    }
+    setShowPreviewModal(true);
+  };
 
   const {
     pendingGetObject,
@@ -212,11 +230,13 @@ export default function DocumentRow({
                 />
               )}
             </Typography>
-            <GeoApprovedBadge
-              itemId={documentSubmission.item_id}
-              url={submitted_document?.url}
-              folder={submitted_document?.folder}
-            />
+            {!staff && (
+              <GeoApprovedBadge
+                itemId={documentSubmission.item_id}
+                url={submitted_document?.url}
+                folder={submitted_document?.folder}
+              />
+            )}
           </Box >
         </SubmitTableCell >
         <SubmitTableCell align="left" width={"10%"}>
@@ -255,6 +275,18 @@ export default function DocumentRow({
               gap: 2,
             }}
           >
+            {staff && isGISDocument && (
+              <Tooltip title="Preview">
+                <IconButton
+                  onClick={onPreviewClick}
+                  aria-label="Preview geospatial file"
+                  size="small"
+                  sx={{ color: BCDesignTokens.typographyColorLink }}
+                >
+                  <VisibilityOutlinedIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
             {showUndoVerificationButton && (
               isGISDocument && !hasGISPermissions ? (
                 <Tooltip title="Your current role does not allow you to perform this action">
