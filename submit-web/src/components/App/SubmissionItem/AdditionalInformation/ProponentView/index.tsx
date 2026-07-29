@@ -94,7 +94,12 @@ export const AdditionalInformationProponentView = () => {
 
   const handleCompleteForm = (formData: AdditionalInformationForm) => {
     if (!formData.uploadDocuments?.length) {
-      saveSubmission(formData, submissionItem?.status);
+      saveSubmission(
+        formData,
+        submissionItem?.status != SUBMISSION_ITEM_STATUS.COMPLETED.value
+          ? submissionItem?.status
+          : SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value,
+      );
     } else {
       saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value);
     }

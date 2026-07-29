@@ -103,7 +103,9 @@ export const EngagementPlanProponentView = () => {
     if (!formData.engagementPlan?.length) {
       saveSubmission(
         formData,
-        SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value,
+        submissionItem?.status != SUBMISSION_ITEM_STATUS.COMPLETED.value
+          ? submissionItem?.status
+          : SUBMISSION_ITEM_STATUS.PARTIALLY_COMPLETED.value,
       );
     } else {
       saveSubmission(formData, SUBMISSION_ITEM_STATUS.COMPLETED.value);
@@ -112,7 +114,7 @@ export const EngagementPlanProponentView = () => {
 
   const saveSubmission = async (
     _formData: EngagementPlanSubmissionForm,
-    status: SubmissionItemStatus,
+    status?: SubmissionItemStatus,
   ) => {
     try {
       setIsBackdropOpen(true);
