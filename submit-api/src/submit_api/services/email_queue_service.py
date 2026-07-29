@@ -125,12 +125,14 @@ class SubmitEmailQueueService:
         account_project = cls._get_account_project(package.account_project_id)
         project = cls._get_project(account_project)
         document_names = cls._get_document_names(package)
+        staff_support_email = current_app.config.get('STAFF_SUPPORT_MAIL_ID') or current_app.config.get('SENDER_EMAIL')
         cls._debug(
             f"build_package_submission_payload package_id={package.id} template={template_name} "
             f"package_type={package.type.name if package.type else None} sender={sender_email} "
             f"submitter_found={bool(submitter)} "
             f"submitter_email={submitter.work_email_address if submitter else None} "
-            f"staff_support={current_app.config.get('STAFF_SUPPORT_MAIL_ID')}"
+            f"staff_support={current_app.config.get('STAFF_SUPPORT_MAIL_ID')} "
+            f"sender_config={current_app.config.get('SENDER_EMAIL')}"
         )
         body_args = {
             'project_name': project.name,
@@ -142,7 +144,7 @@ class SubmitEmailQueueService:
         }
 
         if template_name == MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE:
-            recipients = cls._as_recipients(current_app.config.get('STAFF_SUPPORT_MAIL_ID'))
+            recipients = cls._as_recipients(staff_support_email)
             subject = f"SUBMISSION - {project.name} - {package.name} - {package.submitted_on.strftime('%Y-%m-%d')}"
         else:
             recipients = cls._as_recipients(submitter.work_email_address if submitter else None)
