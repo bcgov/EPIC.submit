@@ -31,12 +31,11 @@ const basePackage: SubmissionPackage = {
 };
 
 describe("useSubmissionBannerState", () => {
-  it("returns showSubmissionConfirmation true when submitted and submit disabled", () => {
+  it("returns showSubmissionConfirmation true when submitted and no updated items", () => {
     const { result } = renderHook(() =>
       useSubmissionBannerState({
         submissionPackage: basePackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: false,
       }),
     );
@@ -52,7 +51,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: basePackage,
         hasUpdatedItems: true,
-        isSubmitDisabled: false,
         isRevisionRequired: false,
       }),
     );
@@ -70,7 +68,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: approvedPackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: false,
       }),
     );
@@ -89,7 +86,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: notApprovedPackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: false,
       }),
     );
@@ -103,7 +99,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: basePackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: false,
         isRevisionRequired: true,
       }),
     );
@@ -122,7 +117,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: approvedPackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: true,
       }),
     );
@@ -141,7 +135,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: withdrawnPackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: false,
       }),
     );
@@ -167,7 +160,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: workPackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: false,
       }),
     );
@@ -192,7 +184,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: workPackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: false,
       }),
     );
@@ -205,7 +196,6 @@ describe("useSubmissionBannerState", () => {
       useSubmissionBannerState({
         submissionPackage: basePackage,
         hasUpdatedItems: false,
-        isSubmitDisabled: true,
         isRevisionRequired: false,
       }),
     );

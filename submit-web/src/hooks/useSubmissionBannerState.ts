@@ -5,7 +5,6 @@ import { AppConfig } from "@/utils/config";
 interface SubmissionBannerStateInput {
   submissionPackage: SubmissionPackage | undefined;
   hasUpdatedItems: boolean;
-  isSubmitDisabled: boolean;
   isRevisionRequired: boolean;
 }
 
@@ -20,7 +19,6 @@ interface SubmissionBannerState {
 export function useSubmissionBannerState({
   submissionPackage,
   hasUpdatedItems,
-  isSubmitDisabled,
   isRevisionRequired,
 }: SubmissionBannerStateInput): SubmissionBannerState {
   return useMemo(() => {
@@ -56,11 +54,10 @@ export function useSubmissionBannerState({
     const showRevisionRequiredBanner =
       isRevisionRequired && !isApproved && !isNotApproved;
 
-    // Submission confirmation: shown when submitted, submit is disabled
-    // (no pending doc changes), and no terminal/revision banners apply
+    // Submission confirmation: shown when submitted, no pending doc changes,
+    // and no terminal/revision banners apply
     const showSubmissionConfirmation =
       Boolean(submissionPackage.submitted_on) &&
-      isSubmitDisabled &&
       !hasUpdatedItems &&
       !showApprovalBanner &&
       !showNotApprovedBanner &&
@@ -74,5 +71,5 @@ export function useSubmissionBannerState({
       showRevisionRequiredBanner,
       contactEmail,
     };
-  }, [submissionPackage, hasUpdatedItems, isSubmitDisabled, isRevisionRequired]);
+  }, [submissionPackage, hasUpdatedItems, isRevisionRequired]);
 }

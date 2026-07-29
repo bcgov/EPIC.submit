@@ -138,8 +138,8 @@ export default function VersionGroup({
       <ConfirmationModal
         title="Create New Submission Package"
         description={
-          "This option will create another submission package so you can resubmit documents. " +
-          "This new submission will go through the review process. Until this new package is " +
+          "This option will create another submission package so you can resubmit documents." +
+          "This new submission will go through the review process. \nUntil this new package is " +
           "successfully reviewed by the EAO, the last successfully reviewed submission is the " +
           "one considered enforceable by the EAO.\n" +
           "Do you want to create a new package?"
@@ -222,7 +222,7 @@ export default function VersionGroup({
           startIcon={<AddIcon />}
           disabled={isCreatingPackage}
         >
-          + Create New
+          New Submission
         </Button>
       )}
 

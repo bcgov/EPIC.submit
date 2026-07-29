@@ -1,9 +1,14 @@
 import { Link, Typography } from "@mui/material";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
-import { AppConfig } from "@/utils/config";
 import { BCDesignTokens } from "epic.theme";
 
-export const RevisionRequiredBanner = () => {
+type RevisionRequiredBannerProps = {
+  contactEmail: string;
+};
+
+export const RevisionRequiredBanner = ({
+  contactEmail,
+}: RevisionRequiredBannerProps) => {
   return (
     <WarningBox
       sx={{
@@ -22,9 +27,7 @@ export const RevisionRequiredBanner = () => {
       >
         If you have any questions or need to add, replace, or delete documents
         in your submission, please contact the EAO at{" "}
-        <Link href={`mailto:${AppConfig.supportMpEmail}`}>
-          {AppConfig.supportMpEmail}
-        </Link>
+        <Link href={`mailto:${contactEmail}`}>{contactEmail}</Link>
       </Typography>
     </WarningBox>
   );

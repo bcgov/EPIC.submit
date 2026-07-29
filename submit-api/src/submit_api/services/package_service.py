@@ -39,8 +39,7 @@ from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.geo import GeoService
 from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.utils.constants import (
-    MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
-    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
+    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     GIS_ITEM_TYPE_NAME)
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_version_service import PackageVersionService

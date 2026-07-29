@@ -1,5 +1,9 @@
 import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
-import { ApprovalBanner } from "@/components/App/Submission/ApprovalBanner";
+import {
+  ApprovalBanner,
+  NotApprovedBanner,
+  RevisionRequiredBanner,
+} from "@/components/App/Submission/Banners";
 import { EnforceableBanner } from "@/components/App/Submission/EnforceableBanner/EnforceableBanner";
 import { useEnforceableBanner } from "@/components/App/Submission/EnforceableBanner/useEnforceableBanner";
 import { InfoBox } from "@/components/App/Submission/InfoBox";
@@ -7,7 +11,6 @@ import ItemsTable from "@/components/App/Submission/ItemsTable";
 import { UnaddressedSectionsModal } from "@/components/App/Submission/Modals/UnaddressedSectionsModal";
 import WithdrawSubmissionModal from "@/components/App/Submission/Modals/WithdrawSubmissionModal";
 import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
-import { RevisionRequiredBanner } from "@/components/App/Submission/RevisionRequiredBanner";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { SubmissionSuccessBox } from "@/components/App/Submission/SuccessBox";
 import { isSubmissionItemReadyToSubmit } from "@/components/App/Submission/utils";
@@ -18,7 +21,6 @@ import type {
   SentRequest,
 } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel/types";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
-import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { PageGrid } from "@/components/Shared/PageGrid";
@@ -48,7 +50,7 @@ import {
 } from "@/models/UpdateRequest";
 import { getUnaddressedUpdateRequestSections } from "@/utils/updateRequestHelpers";
 import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
-import { Box, Grid, Link, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import {
   createFileRoute,
   Navigate,
@@ -296,20 +298,6 @@ export default function SubmissionPage() {
     }
 
     proceedWithSubmission();
-    setIsValidating(false);
-    updateStateSubmissionPackage({
-      packageId: submissionPackage.id,
-      data: {
-        status: PACKAGE_STATUS.SUBMITTED.value,
-      },
-    });
-
-    const isResubmission = Boolean(submissionPackage.submitted_on);
-    const successMessage = isResubmission
-      ? "Your submission package has been resubmitted successfully to the EAO."
-      : "Your submission package has been submitted successfully to the EAO.";
-
-    notify.success(successMessage, 15000);
   };
 
   const handleWithdrawSubmission = () => {
@@ -410,7 +398,6 @@ export default function SubmissionPage() {
   } = useSubmissionBannerState({
     submissionPackage,
     hasUpdatedItems,
-    isSubmitDisabled,
     isRevisionRequired,
   });
 
@@ -580,22 +567,14 @@ export default function SubmissionPage() {
                 <ApprovalBanner contactEmail={contactEmail} />
               </When>
               <When condition={showNotApprovedBanner}>
-                <WarningBox>
-                  <Typography variant="body1">
-                    Your {submissionPackage.type.title} has not been approved.
-                    To submit a new {submissionPackage.type.title} package,
-                    select Package {packageVersions?.at(0)?.version} above,
-                    upload your documents, and click the &quot;Submit to
-                    EAO&quot; button.
-                  </Typography>
-                  <Typography variant="body1" mt="20px">
-                    If you have any questions, please contact the EAO at{" "}
-                    <Link href={`mailto:${contactEmail}`}>{contactEmail}</Link>
-                  </Typography>
-                </WarningBox>
+                <NotApprovedBanner
+                  contactEmail={contactEmail}
+                  packageTypeName={submissionPackage.type.title}
+                  nextVersion={(packageVersions?.at(0)?.version || 1) + 1}
+                />
               </When>
               <When condition={showRevisionRequiredBanner}>
-                <RevisionRequiredBanner />
+                <RevisionRequiredBanner contactEmail={contactEmail} />
               </When>
               <Box
                 sx={{
