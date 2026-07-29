@@ -251,7 +251,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
               color: BCDesignTokens.typographyColorPrimary,
             }}
           >
-            Review Geospatial File
+            {previewOnly ? "Geospatial File Preview" : "Review Geospatial File"}
           </Typography>
         </DialogTitle>
       </Box>
@@ -371,7 +371,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
               </Box>
 
               {/* Alert Banner */}
-              {!isStaff && !isApproved && !isFailure && (
+              {!previewOnly && !isStaff && !isApproved && !isFailure && (
                 <Box sx={{ px: 2, pb: 2 }}>
                   <Alert severity="warning" sx={{ borderRadius: "8px", backgroundColor: BCDesignTokens.supportSurfaceColorWarning }} icon={false} variant="outlined">
                     <Typography variant="body1" fontWeight={700}>Please verify this geospatial file</Typography>

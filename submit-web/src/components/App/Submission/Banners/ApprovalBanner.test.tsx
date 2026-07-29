@@ -7,7 +7,7 @@ describe("ApprovalBanner", () => {
     render(<ApprovalBanner contactEmail="test@gov.bc.ca" />);
 
     expect(
-      screen.getByText("Your submission has been approved."),
+      screen.getByText(/If you have any questions or need assistance/),
     ).toBeInTheDocument();
   });
 

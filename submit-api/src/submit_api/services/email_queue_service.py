@@ -327,7 +327,7 @@ class SubmitEmailQueueService:
         try:
             group_id = KeycloakService.get_group_id_by_path(EAO_MANAGER_GROUP_PATH)
             members = KeycloakService.get_group_members(group_id)
-        except Exception:  # pylint: disable=broad-except
+        except (ValueError, OSError):
             return []
         return [member.get('email') for member in members if member.get('email')]
 

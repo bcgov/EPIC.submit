@@ -1,5 +1,30 @@
+import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
+import { EnforceableBanner } from "@/components/App/Submission/EnforceableBanner/EnforceableBanner";
+import { useStaffEnforceableBanner } from "@/components/App/Submission/EnforceableBanner/useEnforceableBanner";
+import { InfoBox } from "@/components/App/Submission/InfoBox";
+import ItemsTable from "@/components/App/Submission/ItemsTable";
+import AcknowledgeSubmissionModal from "@/components/App/Submission/Modals/AcknowledgeSubmissionModal";
+import ApproveSubmissionModal from "@/components/App/Submission/Modals/ApproveSubmissionModal";
+import RefuseSubmissionModal from "@/components/App/Submission/Modals/RefuseSubmissionModal";
+import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
+import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
+import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
+import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
+import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
+import { PageGrid } from "@/components/Shared/PageGrid";
+import BarTitle from "@/components/Shared/Text/BarTitle";
+import { useMounted } from "@/hooks/common";
+import { useManagementPlanName } from "@/hooks/useManagementPlanName";
+import { useStaffSubmissionPage } from "@/hooks/useStaffSubmissionPage";
+import { useUpdateRequests } from "@/hooks/useUpdateRequests";
+import {
+  NON_WITHDRAWABLE_UPDATE_REQUEST_PACKAGE_TYPES,
+  PACKAGE_STATUS,
+  SubmissionPackageType,
+} from "@/models/Package";
 import { Box, Grid, Typography } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   createFileRoute,
   Navigate,
@@ -7,33 +32,6 @@ import {
   useParams,
 } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
-import { PageGrid } from "@/components/Shared/PageGrid";
-import { InfoBox } from "@/components/App/Submission/InfoBox";
-import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
-import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
-import { usePackageTableStore } from "@/components/App/Submission/packageTableStore";
-import { useQueryClient } from "@tanstack/react-query";
-import ItemsTable from "@/components/App/Submission/ItemsTable";
-import { useMounted } from "@/hooks/common";
-import BarTitle from "@/components/Shared/Text/BarTitle";
-import { SuccessBox } from "@/components/Shared/Layouts/SuccessBox";
-import { When } from "react-if";
-import GppGoodOutlinedIcon from "@mui/icons-material/GppGoodOutlined";
-import WarningBox from "@/components/Shared/Layouts/WarningBox";
-import { useManagementPlanName } from "@/hooks/useManagementPlanName";
-import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
-import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
-import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
-import {
-  NON_WITHDRAWABLE_UPDATE_REQUEST_PACKAGE_TYPES,
-  SubmissionPackageType,
-  PACKAGE_STATUS,
-} from "@/models/Package";
-import AcknowledgeSubmissionModal from "@/components/App/Submission/Modals/AcknowledgeSubmissionModal";
-import { useUpdateRequests } from "@/hooks/useUpdateRequests";
-import { useStaffSubmissionPage } from "@/hooks/useStaffSubmissionPage";
-import ApproveSubmissionModal from "@/components/App/Submission/Modals/ApproveSubmissionModal";
-import RefuseSubmissionModal from "@/components/App/Submission/Modals/RefuseSubmissionModal";
 
 export const Route = createFileRoute(
   "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/",
@@ -57,15 +55,14 @@ export default function SubmissionPage() {
   const accountProjectId = Number(accountProjectIdParam);
 
   const {
+    packageVersions,
+    currentPackageVersion,
     accountProject,
     submissionPackage,
     isFetching,
     updatePackageState,
     refusePackage,
     isLoading,
-    isLatestApprovedPackageVersion,
-    isRejectedOrReplaced,
-    displaySubmissionBanner,
     canAcknowledge,
     showAcknowledgeButton,
     showApproveButtons,
@@ -75,6 +72,11 @@ export default function SubmissionPage() {
     submissionPackageId,
     accountProjectId,
     queryClient,
+  });
+
+  const { bannerType, hasBanner } = useStaffEnforceableBanner({
+    packageVersions,
+    currentPackageVersion,
   });
 
   const {
@@ -216,9 +218,7 @@ export default function SubmissionPage() {
                   display: "flex",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
-                  mb: displaySubmissionBanner
-                    ? 0
-                    : BCDesignTokens.layoutMarginXlarge,
+                  mb: hasBanner ? 0 : BCDesignTokens.layoutMarginXlarge,
                 }}
               >
                 <BarTitle title={managementPlanName} />
@@ -235,53 +235,11 @@ export default function SubmissionPage() {
                   />
                 </Box>
               </Box>
-              <When
-                condition={
-                  submissionPackage.enforceable ||
-                  Boolean(isLatestApprovedPackageVersion)
-                }
-              >
-                <SuccessBox
-                  sx={{
-                    mb: BCDesignTokens.layoutMarginMedium,
-                    py: BCDesignTokens.layoutPaddingXsmall,
-                    px: BCDesignTokens.layoutPaddingSmall,
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    width: "fit-content",
-                  }}
-                >
-                  <GppGoodOutlinedIcon fontSize="large" />
-                  <Typography
-                    variant="body2"
-                    color={BCDesignTokens.typographyColorPrimary}
-                  >
-                    This submission is the version the EAO has finalized for
-                    implementation.
-                  </Typography>
-                </SuccessBox>
-              </When>
-              <When
-                condition={
-                  !submissionPackage.enforceable && isRejectedOrReplaced
-                }
-              >
-                <WarningBox
-                  sx={{
-                    mb: BCDesignTokens.layoutMarginMedium,
-                    py: BCDesignTokens.layoutPaddingSmall,
-                  }}
-                >
-                  <Typography
-                    variant="body2"
-                    color={BCDesignTokens.typographyColorPrimary}
-                  >
-                    This version has failed review, or has been replaced with a
-                    newer version.
-                  </Typography>
-                </WarningBox>
-              </When>
+              <EnforceableBanner
+                bannerType={bannerType}
+                enforceableText="This submission is the version the EAO has finalized for implementation."
+                notEnforceableText="This version has failed review, or has been replaced with a newer version."
+              />
               <InfoBox submissionPackage={submissionPackage} />
               <Box
                 sx={{
@@ -350,7 +308,7 @@ export default function SubmissionPage() {
                     loading={isLoading}
                   >
                     {submissionPackage?.type.name ===
-                      SubmissionPackageType.ADDITIONAL_INFORMATION ? (
+                    SubmissionPackageType.ADDITIONAL_INFORMATION ? (
                       <>
                         Acknowledge Submission <i>(optional)</i>
                       </>
