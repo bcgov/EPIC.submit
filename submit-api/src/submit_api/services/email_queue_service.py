@@ -39,9 +39,21 @@ EAO_MANAGER_GROUP_PATH = "SUBMIT/EAO_MANAGER"
 class SubmitEmailQueueService:
     """Create email queue rows with all data needed by the mailer."""
 
+    @staticmethod
+    def _debug(message: str):
+        """Temporary email queue debug output."""
+        message = f"[submit-email-debug] {message}"
+        current_app.logger.warning(message)
+        print(message, flush=True)
+
     @classmethod
     def queue_package_submission_emails(cls, package: PackageModel, session=None):
         """Queue proponent and staff emails for a submitted package."""
+        cls._debug(
+            f"queue_package_submission_emails package_id={package.id} "
+            f"package_type={package.type.name if package.type else None} "
+            f"submitted_by={package.submitted_by} account_project_id={package.account_project_id}"
+        )
         return [
             cls.queue_package_email(
                 package.id,
@@ -60,6 +72,10 @@ class SubmitEmailQueueService:
     @classmethod
     def queue_package_email(cls, package_id: int, template_name: str, session=None, package: PackageModel = None):
         """Queue one package-related email by template."""
+        cls._debug(
+            f"queue_package_email package_id={package_id} template={template_name} "
+            f"package_provided={bool(package)}"
+        )
         package = package or cls._get_package(package_id, session)
         if not package:
             raise BadRequestError(f"Package with ID {package_id} not found.")
@@ -89,6 +105,7 @@ class SubmitEmailQueueService:
     @classmethod
     def queue_invitation_email(cls, invitation_id: int, session=None, invitation: InvitationsModel = None):
         """Queue an invitation email."""
+        cls._debug(f"queue_invitation_email invitation_id={invitation_id} invitation_provided={bool(invitation)}")
         invitation = invitation or cls._get_invitation(invitation_id, session)
         if not invitation:
             raise BadRequestError(f"Invitation with ID {invitation_id} not found.")
@@ -108,6 +125,13 @@ class SubmitEmailQueueService:
         account_project = cls._get_account_project(package.account_project_id)
         project = cls._get_project(account_project)
         document_names = cls._get_document_names(package)
+        cls._debug(
+            f"build_package_submission_payload package_id={package.id} template={template_name} "
+            f"package_type={package.type.name if package.type else None} sender={sender_email} "
+            f"submitter_found={bool(submitter)} "
+            f"submitter_email={submitter.work_email_address if submitter else None} "
+            f"staff_support={current_app.config.get('STAFF_SUPPORT_MAIL_ID')}"
+        )
         body_args = {
             'project_name': project.name,
             'submitter_name': submitter.full_name if submitter else '',
@@ -124,6 +148,10 @@ class SubmitEmailQueueService:
             recipients = cls._as_recipients(submitter.work_email_address if submitter else None)
             subject = f"Confirmation of receipt for {package.name}"
 
+        cls._debug(
+            f"package_submission_recipients package_id={package.id} template={template_name} "
+            f"recipients={recipients} subject={subject}"
+        )
         return cls._payload(sender_email, recipients, subject, body_args)
 
     @classmethod
@@ -131,6 +159,12 @@ class SubmitEmailQueueService:
         submitter = cls._get_submitter(package)
         sender_email = cls._get_sender_email(package)
         sender_name = cls._get_sender_name(package)
+        recipients = cls._as_recipients(submitter.work_email_address if submitter else None)
+        cls._debug(
+            f"build_update_request_payload package_id={package.id} sender={sender_email} "
+            f"submitter_found={bool(submitter)} "
+            f"submitter_email={submitter.work_email_address if submitter else None} recipients={recipients}"
+        )
         body_args = {
             'epic_submit_link': cls._get_base_url(),
             'submitter_name': submitter.full_name if submitter else '',
@@ -139,7 +173,7 @@ class SubmitEmailQueueService:
         }
         return cls._payload(
             sender_email,
-            cls._as_recipients(submitter.work_email_address if submitter else None),
+            recipients,
             'Action Required: Update Your Submission',
             body_args,
         )
@@ -147,6 +181,7 @@ class SubmitEmailQueueService:
     @classmethod
     def _build_resubmission_request_payload(cls, package: PackageModel) -> dict:
         recipients = [user.work_email_address for user in cls._get_project_admin_users(package)]
+        cls._debug(f"build_resubmission_request_payload package_id={package.id} recipients={recipients}")
         submission_link = (
             f"{cls._get_base_url()}/proponent/projects/"
             f"{package.account_project_id}/submission-packages/{package.id}"
@@ -167,6 +202,7 @@ class SubmitEmailQueueService:
         manager_emails = cls._get_eao_manager_emails()
         account_project = cls._get_account_project(package.account_project_id)
         project = cls._get_project(account_project)
+        cls._debug(f"build_awaiting_manager_approval_payload package_id={package.id} recipients={manager_emails}")
         body_args = {
             'package_name': package.name,
             'project_name': project.name,
@@ -183,6 +219,8 @@ class SubmitEmailQueueService:
     def _build_invitation_payload(cls, invitation: InvitationsModel) -> dict:
         project = cls._get_project_for_invitation(invitation)
         invitation_action_text = cls._get_invitation_action_text(invitation)
+        recipients = cls._as_recipients(invitation.email)
+        cls._debug(f"build_invitation_payload invitation_id={invitation.id} recipients={recipients}")
         body_args = {
             'epic_submit_link': cls._get_base_url(),
             'invitation_url': cls._build_signup_url(invitation.token),
@@ -193,13 +231,17 @@ class SubmitEmailQueueService:
         }
         return cls._payload(
             current_app.config.get('SENDER_EMAIL'),
-            cls._as_recipients(invitation.email),
+            recipients,
             'Invitation to collaborate on EPIC.submit',
             body_args,
         )
 
     @staticmethod
     def _payload(sender: str, recipients: list[str], subject: str, body_args: dict) -> dict:
+        SubmitEmailQueueService._debug(
+            f"payload_validation sender={sender} recipients={recipients} "
+            f"subject={subject} body_arg_keys={list((body_args or {}).keys())}"
+        )
         if not sender:
             raise BadRequestError("Email sender is required")
         if not recipients:
@@ -221,6 +263,10 @@ class SubmitEmailQueueService:
 
     @staticmethod
     def _create_email_queue(entity_id: int, entity_type: str, template_name: str, payload: dict, session=None):
+        SubmitEmailQueueService._debug(
+            f"create_email_queue entity_type={entity_type} entity_id={entity_id} "
+            f"template={template_name} recipients={payload.get('recipients')}"
+        )
         email_queue = EmailQueueModel(
             entity_id=entity_id,
             entity_type=entity_type,
