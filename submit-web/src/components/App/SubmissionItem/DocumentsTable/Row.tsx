@@ -33,6 +33,7 @@ type DocumentRowProps = Readonly<{
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
   isGeoSpatial?: boolean;
   onDocumentClick?: (documentItem: Submission) => void;
+  onUploadComplete?: (submission: Submission) => void;
 }>;
 
 export default function Row({
@@ -41,6 +42,7 @@ export default function Row({
   setIsPendingUpload,
   isGeoSpatial = false,
   onDocumentClick,
+  onUploadComplete,
 }: DocumentRowProps) {
   const queryClient = useQueryClient();
   const { submissionPackageId } = useParams({
@@ -147,13 +149,17 @@ export default function Row({
         url: uploadedFile,
         folder: submitted_document?.folder,
       };
-      await replaceSubmission({
+      const newSubmission = await replaceSubmission({
         submissionId: currentSubmission.id,
         data: {
           type: SUBMISSION_TYPE.DOCUMENT,
           data: documentData,
         },
       });
+
+      if (isGeoSpatial && onUploadComplete) {
+        onUploadComplete(newSubmission);
+      }
     } catch (e) {
       const errorMessage = isAxiosError(e)
         ? (e.response?.data?.message ?? "Failed to replace document")
