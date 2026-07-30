@@ -133,6 +133,7 @@ export default function DocumentsTable({
               setIsPendingUpload={setIsPendingUpload}
               isGeoSpatial={isGeoSpatial}
               onDocumentClick={onDocumentClick}
+              onUploadComplete={onUploadComplete}
             />
           ))}
         </TableBody>
