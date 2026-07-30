@@ -500,7 +500,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       </>
                     )}
                   </Box>
-                ) : (
+                ) : open ? (
                   <Map
                     ref={mapRef}
                     mapStyle={
@@ -619,7 +619,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       </Source>
                     )}
                   </Map>
-                )}
+                ) : null}
 
                 {/* Loading Overlay — only for GeoJSON fetching, not processing state */}
                 <Fade in={(loading || metaLoading) && !isProcessing}>
