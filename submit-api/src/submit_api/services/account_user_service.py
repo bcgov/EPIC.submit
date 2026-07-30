@@ -14,7 +14,7 @@ from submit_api.models import TermsOfService as TermsOfServiceModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.db import db
-from submit_api.services.keycloak import KeycloakService
+from submit_api.services.auth_service import AuthService
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -337,8 +337,8 @@ class AccountUserService:
         db.session.commit()
 
         # Update Keycloak login access
-        KeycloakService.toggle_user_enabled_status(
-            user_id=account_user.user.auth_guid, enabled=active
+        AuthService.toggle_user_enabled_status(
+            username=account_user.user.auth_guid, enabled=active
         )
 
         # Refresh and prepare user data

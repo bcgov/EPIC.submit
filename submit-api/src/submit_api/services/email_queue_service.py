@@ -20,7 +20,7 @@ from submit_api.models.submission import SubmissionType
 from submit_api.models.submission_review_entry import SubmissionReviewEntry
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.user_role import UserRole as UserRoleModel
-from submit_api.services.keycloak import KeycloakService
+from submit_api.services.auth_service import AuthService
 from submit_api.utils.constants import (
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
@@ -33,7 +33,7 @@ from submit_api.utils.constants import (
 )
 
 
-EAO_MANAGER_GROUP_PATH = "SUBMIT/EAO_MANAGER"
+EAO_MANAGER_GROUP_PATH = "SUBMIT/MPT_MANAGER"
 
 
 class SubmitEmailQueueService:
@@ -335,8 +335,7 @@ class SubmitEmailQueueService:
     @staticmethod
     def _get_eao_manager_emails() -> list[str]:
         try:
-            group_id = KeycloakService.get_group_id_by_path(EAO_MANAGER_GROUP_PATH)
-            members = KeycloakService.get_group_members(group_id)
+            members = AuthService.get_group_members("SUBMIT", "MPT_MANAGER")
         except (ValueError, OSError):
             return []
         return [member.get('email') for member in members if member.get('email')]

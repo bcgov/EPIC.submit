@@ -94,6 +94,9 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     DOCUMENT_SERVICE_URL = _get_config("DOCUMENT_SERVICE_URL")
 
+    # epic.auth service URL
+    AUTH_BASE_URL = os.getenv('AUTH_BASE_URL')
+
     BASE_APP_URL = os.getenv('BASE_APP_URL', os.getenv('SITE_URL', ''))
     SIGNUP_URL_PATH = os.getenv('SIGNUP_URL_PATH')
     BC_SERVICE_CARD_URL = os.getenv('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca')
