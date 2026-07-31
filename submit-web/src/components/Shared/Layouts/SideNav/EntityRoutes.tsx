@@ -10,8 +10,10 @@ import { BCDesignTokens } from "epic.theme";
 export default function EntityRoutes() {
   const account = useAccount();
   const isAdmin =
-    account?.userManagementRole?.role_name ===
-    USER_MANAGEMENT_ROLE.PROJECT_ADMIN;
+    account?.userManagementRoles?.some(
+      (r) => r.role_name === USER_MANAGEMENT_ROLE.PROJECT_ADMIN ||
+             r.role_name === USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
+    ) ?? false;
 
   return (
     <>

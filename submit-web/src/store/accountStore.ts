@@ -16,7 +16,6 @@ export type AccountStoreState = {
   userType?: UserType;
   hasAgreedToTerms: boolean;
   roles?: string[];
-  userManagementRole?: Role;
   userManagementRoles?: Role[];
   error?: AxiosError;
 };
@@ -31,7 +30,6 @@ export const initialAccountState = {
   userType: undefined,
   hasAgreedToTerms: false,
   roles: [],
-  userManagementRole: undefined,
   error: undefined,
 };
 export const useAccount = create<AccountStore>((set) => ({

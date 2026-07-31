@@ -5,7 +5,7 @@ type StyleProps = {
   label: string;
 };
 
-export type UserPackageStatus = "ACTIVE" | "PENDING" | "REJECTED" | "REVOKED" | "INACTIVE";
+export type UserPackageStatus = "ACTIVE" | "PENDING" | "REJECTED" | "REVOKED" | "INACTIVE" | "ACCESS_REVOKED";
 
 const statusStyles: Record<UserPackageStatus, StyleProps> = {
   ACTIVE: {
@@ -19,6 +19,10 @@ const statusStyles: Record<UserPackageStatus, StyleProps> = {
   REVOKED: {
     theme: "danger",
     label: "Revoked",
+  },
+  ACCESS_REVOKED: {
+    theme: "danger",
+    label: "Access Revoked",
   },
   REJECTED: {
     theme: "danger",

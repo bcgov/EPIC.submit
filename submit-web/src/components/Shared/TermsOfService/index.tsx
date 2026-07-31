@@ -49,12 +49,13 @@ export const TermsOfServiceProvider = ({ children }: { children: ReactNode }) =>
 
   const handleAgree = useCallback((acceptedVersionId: number | null) => {
     if (!showTermsModalFlag) {
-      if (!account?.userManagementRole?.account_user_id || !acceptedVersionId) return;
+      const accountUserId = account?.userManagementRoles?.[0]?.account_user_id;
+      if (!accountUserId || !acceptedVersionId) return;
 
       setVersionId(acceptedVersionId);
 
       recordTermsOfService({
-        account_user_id: account.userManagementRole.account_user_id,
+        account_user_id: accountUserId,
         terms_of_service_version_id: acceptedVersionId,
         has_agreed_to_terms: true,
       });
@@ -66,7 +67,7 @@ export const TermsOfServiceProvider = ({ children }: { children: ReactNode }) =>
   },
     [
       showTermsModalFlag,
-      account?.userManagementRole?.account_user_id,
+      account?.userManagementRoles,
       setVersionId,
       recordTermsOfService,
       setTermsAccepted,

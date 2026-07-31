@@ -115,15 +115,17 @@ export const getAccount = async (
     const user = await getOrCreateCurrentUser();
 
     if (user?.account_user) {
+      const allPermissions = user.account_user.roles?.flatMap(
+        (r: { permissions: string[] }) => r.permissions
+      ) || [];
       return {
         userId: user.id,
         isLoading: false,
         proponentId: user.account_user.account.proponent_id,
         accountId: user.account_user.account.id,
         userType: USER_TYPE.PROPONENT,
-        userManagementRole: user.account_user.role,
         userManagementRoles: user.account_user.roles,
-        roles: user.account_user.role.permissions,
+        roles: [...new Set(allPermissions)],
         hasAgreedToTerms: user.account_user.has_agreed_to_terms,
       };
     }

@@ -16,30 +16,30 @@
 to test api helper functions
 """
 import pytest
+from flask import Flask
 
 from src.submit_api.resources.apihelper import Api
 
 
-@pytest.fixture(scope="session")
-def app(app):
-    """Defining app test fixture"""
-    api = Api(app)
-    app.api = api
-    return app
+@pytest.fixture()
+def api_app():
+    """Create a fresh Flask app with the custom Api for testing."""
+    _app = Flask(__name__)
+    _app.config["TESTING"] = True
+    api = Api(_app)
+    _app.api = api
+    return _app
 
 
-def test_specs_url_http(app):
+def test_specs_url_http(api_app):
     """Test that the specs_url uses http scheme when port 3200 is in base_url."""
-    with app.test_request_context(base_url='http://localhost:3200/'):
-        print(app.extensions)
-        api = app.api
-        # api = Api(app)
+    with api_app.test_request_context(base_url='http://localhost:3200/'):
+        api = api_app.api
         assert api.specs_url == 'http://localhost:3200/swagger.json'
 
 
-def test_specs_url_https(app):
+def test_specs_url_https(api_app):
     """Test that the specs_url uses https scheme when port 3200 is not in base_url."""
-    with app.test_request_context(base_url='https://example.com/'):
-        # api = Api(app)
-        api = app.api
+    with api_app.test_request_context(base_url='https://example.com/'):
+        api = api_app.api
         assert api.specs_url == 'https://example.com/swagger.json'

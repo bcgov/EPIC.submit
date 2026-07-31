@@ -203,3 +203,22 @@ class EditUserTermsOfService(Resource):
 
         except ResourceNotFoundError as e:
             return jsonify({"error": str(e)}), HTTPStatus.NOT_FOUND
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/user/<int:account_user_id>/access-history", methods=["GET", "OPTIONS"])
+class AccountUserAccessHistory(Resource):
+    """Resource for fetching a user's access history."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(API, endpoint_description="Fetch access history for a user")
+    @API.response(code=HTTPStatus.OK, description="Success")
+    @API.response(HTTPStatus.NOT_FOUND, "User not found")
+    @auth.require
+    @cross_origin(origins=allowedorigins())
+    def get(account_user_id):
+        """Fetch access history for a user."""
+        history = AccountUserService.get_access_history(account_user_id)
+        if history is None:
+            return {"message": f"No user found for id {account_user_id}"}, HTTPStatus.NOT_FOUND
+        return jsonify(history), HTTPStatus.OK

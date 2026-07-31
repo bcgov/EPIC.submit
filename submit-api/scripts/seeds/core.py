@@ -48,7 +48,7 @@ def seed_proponent_user(
         existing_account_user = AccountUser.get_by_guid(guid)
         if existing_account_user:
             print(f"  ℹ Account user already exists (ID: {existing_account_user.id})")
-            return existing_user, existing_account_user, existing_account_user.role
+            return existing_user, existing_account_user, existing_account_user.roles[0] if existing_account_user.roles else None
 
     # Create user
     user = User.create_user({

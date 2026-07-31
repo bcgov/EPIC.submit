@@ -9,8 +9,6 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.orm import Session, declarative_base
 
-from submit_api.models import Package, PackageVersion, UserRole
-
 # revision identifiers, used by Alembic.
 revision = '7cadbb980cf7'
 down_revision = 'c5f4cd047da4'
@@ -25,11 +23,33 @@ def upgrade():
     op.add_column('user_roles', sa.Column('original_package_ids', sa.ARRAY(sa.Integer), nullable=True))
     op.add_column('invitations', sa.Column('original_package_ids', sa.ARRAY(sa.Integer), nullable=True))
     bind = op.get_bind()
-    session = Session(bind=bind)
+
+    # Use raw table references to avoid importing live ORM models
+    # (which may have columns not yet present at this migration step)
+    packages_table = sa.table(
+        'packages',
+        sa.column('id', sa.Integer),
+        sa.column('version_id', sa.Integer),
+    )
+    package_versions_table = sa.table(
+        'package_versions',
+        sa.column('id', sa.Integer),
+        sa.column('original_package_id', sa.Integer),
+    )
+    user_roles_table = sa.table(
+        'user_roles',
+        sa.column('id', sa.Integer),
+        sa.column('package_ids', sa.ARRAY(sa.Integer)),
+        sa.column('original_package_ids', sa.ARRAY(sa.Integer)),
+    )
 
     # Build mapping: package.id → version_id → original_package_id
-    packages = session.query(Package.id, Package.version_id).all()
-    versions = session.query(PackageVersion.id, PackageVersion.original_package_id).all()
+    packages = bind.execute(
+        sa.select(packages_table.c.id, packages_table.c.version_id)
+    ).fetchall()
+    versions = bind.execute(
+        sa.select(package_versions_table.c.id, package_versions_table.c.original_package_id)
+    ).fetchall()
 
     package_to_version = {p.id: p.version_id for p in packages}
     version_to_original = {v.id: v.original_package_id for v in versions}
@@ -41,14 +61,21 @@ def upgrade():
     }
 
     # Assign new original_package_ids for each user role
-    roles = session.query(UserRole).filter(UserRole.package_ids.isnot(None)).all()
+    roles = bind.execute(
+        sa.select(user_roles_table.c.id, user_roles_table.c.package_ids)
+        .where(user_roles_table.c.package_ids.isnot(None))
+    ).fetchall()
     for role in roles:
         mapped_ids = [
             package_to_original.get(pid)
             for pid in role.package_ids or []
             if package_to_original.get(pid) is not None
         ]
-        role.original_package_ids = mapped_ids
+        bind.execute(
+            user_roles_table.update()
+            .where(user_roles_table.c.id == role.id)
+            .values(original_package_ids=mapped_ids)
+        )
 
     # Update invitations using raw SQL to avoid ORM model dependency issues
     invitations_table = sa.table(
@@ -73,8 +100,6 @@ def upgrade():
             .where(invitations_table.c.id == invitation.id)
             .values(original_package_ids=mapped_ids)
         )
-
-    session.commit()
 
 
 def downgrade():

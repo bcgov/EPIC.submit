@@ -362,12 +362,13 @@ class ProjectQueries:
                         if work.get('work_id') in accessible_work_ids or has_gis_extended_edit
                     ]
         if user.type == UserType.PROPONENT:
-            if not user.account_user or not user.account_user.role:
+            if not user.account_user or not user.account_user.roles:
                 return []
-            user_role = user.account_user.role
 
-            if not user_role.active:
+            active_roles = user.account_user.roles
+            if not active_roles:
                 return []
+
             accessible_project_ids = cls.get_accessible_account_project_ids_for_user(user)
             if len(accessible_project_ids) == 0:
                 return []
@@ -375,22 +376,31 @@ class ProjectQueries:
                 account_project for account_project in account_project_list
                 if account_project.get("id") in accessible_project_ids
             ]
-            if user_role.role.role_name in [
+
+            # If any role grants full project access, return all packages
+            full_access_roles = [
                 RoleEnum.SUBMISSION_ADMIN.value,
                 RoleEnum.PROJECT_ADMIN.value,
                 RoleEnum.ACCOUNT_PRIMARY_ADMIN.value
-            ]:
+            ]
+            if any(r.role.role_name in full_access_roles for r in active_roles):
                 return account_project_list
-            if user_role.original_package_ids:
+
+            # Build a mapping of account_project_id -> allowed original_package_ids
+            project_allowed_packages = {}
+            for role in active_roles:
+                if role.original_package_ids and role.account_project_id:
+                    project_allowed_packages.setdefault(role.account_project_id, set()).update(
+                        role.original_package_ids
+                    )
+
+            if project_allowed_packages:
                 for account_project in account_project_list:
-                    allowed_packages = []
-                    original_packages = [
+                    allowed_ids = project_allowed_packages.get(account_project.get("id"), set())
+                    account_project["packages"] = [
                         package for package in account_project.get("packages")
-                        if package.get("version").get("orignial_package_id")
-                        in user_role.original_package_ids
+                        if package.get("version").get("original_package_id") in allowed_ids
                     ]
-                    allowed_packages.extend(original_packages)
-                    account_project["packages"] = allowed_packages
             else:
                 account_project_list = []
         # return account_project_query
