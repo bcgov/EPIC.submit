@@ -21,4 +21,4 @@ data:
   BC_SERVICE_CARD_URL: {{ .Values.bcServiceCard.url }}
   LEGISLATIVE_TIMEZONE: {{ .Values.timezone }}
   SENDER_EMAIL: {{ .Values.sender.email }}
-  STAFF_SUPPORT_MAIL_ID: {{ .Values.sender.email }}
+  STAFF_SUPPORT_MAIL_ID: {{ .Values.staffSupport.email }}

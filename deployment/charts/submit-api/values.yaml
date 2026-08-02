@@ -57,6 +57,9 @@ web:
 sender:
   email: EAO.ManagementPlanSupport@gov.bc.ca
 
+staffSupport:
+  email: EAO.ManagementPlanSupport@gov.bc.ca
+
 bcServiceCard:
   url: https://id.gov.bc.ca
 
