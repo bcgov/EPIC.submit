@@ -46,8 +46,8 @@ function NeedAccess() {
         <p>
           If you believe you should have access to EPIC.submit , please contact{" "}
           the Environmental Assessment Office at{" "}
-          <Link href={`mailto:${AppConfig.supportMpEmail}`}>
-            {AppConfig.supportMpEmail}
+          <Link href={`mailto:${AppConfig.epicSystemEmail}`}>
+            {AppConfig.epicSystemEmail}
           </Link>
           .
         </p>
