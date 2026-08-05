@@ -33,12 +33,20 @@ class AccountUser(BaseModel):
     extension_number = Column(db.String(50), nullable=True)
     account = db.relationship('Account', foreign_keys=[account_id], lazy='joined')
     user = db.relationship('User', foreign_keys=[user_id], lazy='joined')
-    roles = db.relationship('UserRole', back_populates='account_user', cascade='all, delete', passive_deletes=True)
+    roles = db.relationship(
+        'UserRole',
+        back_populates='account_user',
+        cascade='all, delete',
+        passive_deletes=True,
+        primaryjoin="and_(AccountUser.id == UserRole.account_user_id, UserRole.active == True)"
+    )
+    all_roles = db.relationship(
+        'UserRole',
+        primaryjoin="AccountUser.id == UserRole.account_user_id",
+        overlaps="account_user,roles",
+        viewonly=True,
+    )
 
-    @property
-    def role(self):
-        """Return the first role for backward compatibility."""
-        return self.roles[0] if self.roles else None
     terms_of_service_version_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.version'), nullable=True)
     terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.now(UTC), nullable=True)
     company_name = Column(db.String(255), nullable=True)
@@ -69,7 +77,7 @@ class AccountUser(BaseModel):
             "user_id": self.user_id,
             "extension_number": self.extension_number,
             "company_name": self.company_name,
-            "role": self.role.to_dict() if self.role else None,
+            "roles": [role.to_dict() for role in self.roles],
         }
 
     @classmethod

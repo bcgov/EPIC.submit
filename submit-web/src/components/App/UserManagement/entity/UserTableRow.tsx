@@ -23,11 +23,16 @@ import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
 import { useUserStore } from "./userStore";
 import { useModal } from "@/components/Shared/Modals/modalStore";
+import { useUserEffectiveRole } from "@/hooks/useUserEffectiveRole";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
+import { useAccount } from "@/store/accountStore";
 
 export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
   const { setSelectedUser } = useUserStore();
   const navigate = useNavigate();
   const { setOpen: setOpenModal, setClose: setCloseModal } = useModal();
+  const { accountId } = useAccount();
+  const { data: accountProjects } = useGetAccountProjectsByAccount({ accountId });
 
   const { mutate: resendInvitation, isPending: isResending } =
     useResendInvitation({
@@ -50,8 +55,9 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
 
   const isPending = user.status === InvitationStatus.PENDING;
   const isRevoked = user.status === InvitationStatus.REVOKED;
+  const effectiveRole = useUserEffectiveRole(user.roles, accountProjects?.length);
   const isSpecificSubmissionContributor =
-    user?.role?.role_name ===
+    effectiveRole.role_name ===
     USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR;
 
   const openRevokeModal = () => {
@@ -125,7 +131,7 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
           <Tooltip
             title={
               <Box>
-                {user.role.package_names?.map((packageName) => (
+                {user.roles?.flatMap((r) => r.package_names || []).map((packageName) => (
                   <Typography
                     key={packageName}
                     variant="body2"
@@ -138,7 +144,7 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
             }
           >
             <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-              {roleDetails[user.role.role_name]?.label}
+              {effectiveRole.role_name ? roleDetails[effectiveRole.role_name]?.label : ""}
               <InfoIcon
                 fontSize="small"
                 sx={{ color: BCDesignTokens.typographyColorPrimary }}
@@ -146,8 +152,8 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
             </span>
           </Tooltip>
         </When>
-        <When condition={user?.role && !isSpecificSubmissionContributor}>
-          {roleDetails[user.role.role_name]?.label}
+        <When condition={effectiveRole.role_name && !isSpecificSubmissionContributor}>
+          {effectiveRole.role_name ? roleDetails[effectiveRole.role_name]?.label : ""}
         </When>
       </PlainTableCell>
       <PlainTableCell align="left" width={"10%"}>

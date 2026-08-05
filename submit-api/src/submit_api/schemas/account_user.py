@@ -34,9 +34,10 @@ class AccountUserSchema(Schema):
 class EditRoleSchema(Schema):
     """Schema for editing a users role."""
 
-    role_name = fields.Str()
-    package_ids = fields.List(fields.Int(), allow_none=True)
+    role_name = fields.Str(required=True)
+    account_project_ids = fields.List(fields.Int(), required=True)
     original_package_ids = fields.List(fields.Int(), allow_none=True)
+    package_ids = fields.List(fields.Int(), allow_none=True)
 
 
 class EditTermsOfServiceSchema(Schema):

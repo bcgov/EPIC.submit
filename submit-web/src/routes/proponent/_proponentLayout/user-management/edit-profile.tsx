@@ -16,8 +16,10 @@ export const Route = createFileRoute(
   loader: ({ context }) => {
     const account = context.account;
     const isAdmin =
-      account?.userManagementRole?.role_name ===
-      USER_MANAGEMENT_ROLE.PROJECT_ADMIN;
+      account?.userManagementRoles?.some(
+        (r) => r.role_name === USER_MANAGEMENT_ROLE.PROJECT_ADMIN ||
+               r.role_name === USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
+      ) ?? false;
 
     return {
       isAdmin,

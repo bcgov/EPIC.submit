@@ -22,6 +22,7 @@ from submit_api.models import db
 from submit_api.exceptions import PermissionDeniedError
 from submit_api.models import User
 from submit_api.models.user import UserType
+from submit_api.models.user_status import UserStatusEnum
 from submit_api.utils.roles import EpicSubmitRole
 
 jwt = (
@@ -78,10 +79,16 @@ class Auth:  # pylint: disable=too-few-public-methods
                         return f(*args, **kwargs)
                     raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
 
-                if not user or not user.account_user or not user.account_user.role:
+                # Block revoked users from accessing the system
+                if user.status_id == UserStatusEnum.ACCESS_REVOKED.value:
+                    raise PermissionDeniedError("Access Denied - Your access has been revoked.", HTTPStatus.FORBIDDEN)
+
+                if not user or not user.account_user or not user.account_user.roles:
                     raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)
-                permissions: list = user.account_user.role.permissions
-                if set(permissions) & set(roles):
+                permissions: set = set()
+                for user_role in user.account_user.roles:
+                    permissions.update(user_role.permissions)
+                if permissions & set(roles):
                     return f(*args, **kwargs)
 
                 raise PermissionDeniedError("Access Denied", HTTPStatus.UNAUTHORIZED)

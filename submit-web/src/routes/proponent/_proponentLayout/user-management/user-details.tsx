@@ -1,5 +1,5 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
 import UserDetails from "@/components/App/UserManagement/entity/EditUserProfile/UserDetails";
 import { Grid } from "@mui/material";
 import { useUserStore } from "@/components/App/UserManagement/entity/userStore";
@@ -9,10 +9,9 @@ export const Route = createFileRoute(
 )({
   component: ProfileEditPage,
   loader: () => {
-    // Get the selected user from the store
     const selectedUser = useUserStore.getState().selectedUser;
     if (!selectedUser) {
-      throw new Error("No user selected");
+      throw redirect({ to: "/proponent/user-management" });
     }
     return { selectedUser };
   },
@@ -31,7 +30,7 @@ function ProfileEditPage() {
   const { selectedUser } = useUserStore();
 
   if (!selectedUser) {
-    return <Navigate to={"/error"} />;
+    return <Navigate to={"/proponent/user-management"} />;
   }
 
   return (

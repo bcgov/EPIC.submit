@@ -13,6 +13,7 @@ type UserRoleOptionsProps = {
   disabled?: boolean;
   selectionsNode?: React.ReactNode;
   selectedRole?: string;
+  excludeRoles?: string[];
 };
 
 export const UserRoleOptions = ({
@@ -20,6 +21,7 @@ export const UserRoleOptions = ({
   disabled = false,
   selectionsNode,
   selectedRole,
+  excludeRoles = [],
 }: UserRoleOptionsProps) => {
   const { accountId } = useAccount();
   const { data: accountProjects } = useGetAccountProjectsByAccount({
@@ -29,18 +31,28 @@ export const UserRoleOptions = ({
   const roleDetailOptions = useMemo<
     Record<string, { label: string; info: string }>
   >(() => {
+    let options = { ...roleDetails };
+
     if (accountProjects && accountProjects.length > 1) {
-      //multiple projects
       roleDetails[USER_MANAGEMENT_ROLE.PROJECT_ADMIN].label =
         "Project Administrator - All Projects";
-      return roleDetails;
+    } else {
+      options = Object.fromEntries(
+        Object.entries(options).filter(
+          ([key]) => key !== USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN,
+        ),
+      ) as typeof options;
     }
-    return Object.fromEntries(
-      Object.entries(roleDetails).filter(
-        ([key]) => key !== USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN,
-      ),
-    );
-  }, [accountProjects]);
+
+    // Filter out excluded roles
+    if (excludeRoles.length > 0) {
+      options = Object.fromEntries(
+        Object.entries(options).filter(([key]) => !excludeRoles.includes(key)),
+      ) as typeof options;
+    }
+
+    return options;
+  }, [accountProjects, excludeRoles]);
 
   return (
     <>

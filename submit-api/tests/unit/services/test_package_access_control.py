@@ -64,7 +64,6 @@ class TestProponentCreatePermission:
         mock_role.account_project_id = mock_package.account_project_id
         mock_role.permissions = ["CREATE_PACKAGE"]
         mock_proponent_user.account_user = Mock()
-        mock_proponent_user.account_user.role = Mock()
         mock_proponent_user.account_user.roles = [mock_role]
         mock_get_user.return_value = mock_proponent_user
 
@@ -95,7 +94,6 @@ class TestProponentCreatePermission:
         mock_role.account_project_id = mock_package.account_project_id
         mock_role.permissions = ["SUBMIT_PACKAGE"]
         mock_proponent_user.account_user = Mock()
-        mock_proponent_user.account_user.role = Mock()
         mock_proponent_user.account_user.roles = [mock_role]
         mock_get_user.return_value = mock_proponent_user
 
@@ -126,7 +124,6 @@ class TestProponentCreatePermission:
         mock_role.account_project_id = 999  # Different project
         mock_role.permissions = ["CREATE_PACKAGE"]
         mock_proponent_user.account_user = Mock()
-        mock_proponent_user.account_user.role = Mock()
         mock_proponent_user.account_user.roles = [mock_role]
         mock_get_user.return_value = mock_proponent_user
 
@@ -204,7 +201,6 @@ class TestProponentPermissionOnlyForCreate:
         """Proponent READ operation does not trigger _has_proponent_create_permission."""
         mock_find_pkg.return_value = mock_package
         mock_proponent_user.account_user = Mock()
-        mock_proponent_user.account_user.role = Mock()
         mock_proponent_user.account_user.roles = []
         mock_get_user.return_value = mock_proponent_user
 
@@ -233,7 +229,6 @@ class TestProponentPermissionOnlyForCreate:
         """Proponent EDIT operation does not trigger _has_proponent_create_permission."""
         mock_find_pkg.return_value = mock_package
         mock_proponent_user.account_user = Mock()
-        mock_proponent_user.account_user.role = Mock()
         mock_proponent_user.account_user.roles = []
         mock_get_user.return_value = mock_proponent_user
 
@@ -259,7 +254,6 @@ class TestProponentPermissionOnlyForCreate:
         """Proponent APPROVE operation does not trigger _has_proponent_create_permission."""
         mock_find_pkg.return_value = mock_package
         mock_proponent_user.account_user = Mock()
-        mock_proponent_user.account_user.role = Mock()
         mock_proponent_user.account_user.roles = []
         mock_get_user.return_value = mock_proponent_user
 

@@ -62,7 +62,7 @@ const newUser = yup.object().shape({
 type NewUserSchema = yup.InferType<typeof newUser>;
 
 export default function NewUserForm() {
-  const { accountId, proponentId, userManagementRole } = useAccount();
+  const { accountId, proponentId, userManagementRoles } = useAccount();
   const navigate = useNavigate();
   const { setOpen: setOpenModal, setClose: closeModal } = useModal();
 
@@ -149,9 +149,11 @@ export default function NewUserForm() {
 
   const handleCompleteForm = (formData: NewUserSchema) => {
     const { email, role_name, original_package_ids, project_ids } = formData;
-    const account_project_id = userManagementRole?.account_project_id;
+    const account_project_ids = userManagementRoles
+      ?.map((r) => r.account_project_id)
+      .filter((id): id is number => id !== null) || [];
 
-    if (!account_project_id) {
+    if (account_project_ids.length === 0) {
       notify.error("Error: you do not have access to any project.");
       return;
     }
@@ -162,13 +164,24 @@ export default function NewUserForm() {
         ? USER_MANAGEMENT_ROLE.PROJECT_ADMIN
         : role_name;
 
+    // Determine project_ids based on role:
+    // - SPECIFIC_PROJECT_ADMIN: use user-selected project_ids
+    // - All other admin/collaborator roles: all available projects
+    let effective_project_ids: number[] | undefined;
+    if (role_name === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN) {
+      effective_project_ids = project_ids?.map(Number);
+    } else {
+      // For Account Admin, Project Admin (all), Collaborators: all projects in account
+      effective_project_ids = accountProjects?.map((ap) => ap.project_id);
+    }
+
     const request = {
       proponent_id: proponentId,
       account_id: accountId,
       role_name: selected_role_name,
       email,
-      account_project_ids: [account_project_id],
-      project_ids: project_ids?.map(Number) ?? undefined,
+      account_project_ids,
+      project_ids: effective_project_ids,
       original_package_ids: original_package_ids?.map(Number) ?? undefined,
     };
     createInvite(request);

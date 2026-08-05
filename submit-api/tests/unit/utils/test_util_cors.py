@@ -34,8 +34,9 @@ TEST_CORS_METHODS_DATA = [
 
 
 @pytest.mark.parametrize('methods', TEST_CORS_METHODS_DATA)
-def test_cors_preflight_post(methods, app):
+def test_cors_preflight_post(methods, app, monkeypatch):
     """Assert that the options methos is added to the class and that the correct access controls are set."""
+    monkeypatch.delenv('CORS_ORIGIN', raising=False)
     app = Flask(__name__)
 
     @cors_preflight(methods)  # pylint: disable=too-few-public-methods

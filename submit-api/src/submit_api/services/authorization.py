@@ -28,7 +28,7 @@ def check_has_permissions_on_project(permissions=None, account_project_ids=None)
             return  # Full access, bypass all checks
         return
 
-    if not user or not user.account_user or not user.account_user.role or not account_project_ids:
+    if not user or not user.account_user or not user.account_user.roles or not account_project_ids:
         abort(HTTPStatus.UNAUTHORIZED)
 
     account_user: AccountUserModel = user.account_user
@@ -82,7 +82,7 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
         return
 
     # For proponent users, keep existing logic
-    if not user or not user.account_user or not user.account_user.role:
+    if not user or not user.account_user or not user.account_user.roles:
         abort(HTTPStatus.UNAUTHORIZED)
 
     account_user: AccountUserModel = user.account_user

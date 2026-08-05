@@ -2,9 +2,13 @@ import { Grid, IconButton, Box, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { ReactNode } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import EditIcon from "@mui/icons-material/Edit";
 import { roleDetails } from "@/models/Role";
+import { useModal } from "@/components/Shared/Modals/modalStore";
+import { EditAccessLevelModal } from "./EditAccessLevelModal";
+import { useUserEffectiveRole } from "@/hooks/useUserEffectiveRole";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
+import { useAccount } from "@/store/accountStore";
 
 interface UserInfoBoxProps {
   userData: AccountUserWithRole;
@@ -60,11 +64,14 @@ const InfoBoxItem = ({
 };
 
 const UserInfoBox = ({ userData, showEdit }: UserInfoBoxProps) => {
-  const roleNames = roleDetails[userData.role.role_name]?.label;
+  const { accountId } = useAccount();
+  const { data: accountProjects } = useGetAccountProjectsByAccount({ accountId });
+  const effectiveRole = useUserEffectiveRole(userData.roles, accountProjects?.length);
+  const roleNames = effectiveRole.role_name ? roleDetails[effectiveRole.role_name]?.label : undefined;
+  const { setOpen } = useModal();
 
-  const navigate = useNavigate();
   const handleEditClick = () => {
-    navigate({ to: "/proponent/user-management/edit-role" });
+    setOpen(<EditAccessLevelModal userData={userData} />);
   };
 
   return (

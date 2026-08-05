@@ -41,7 +41,6 @@ import { Route as StaffStaffLayoutProponentsProponentIdRouteImport } from './rou
 import { Route as ProponentProponentLayoutUserManagementUserDetailsRouteImport } from './routes/proponent/_proponentLayout/user-management/user-details'
 import { Route as ProponentProponentLayoutUserManagementProfileRouteImport } from './routes/proponent/_proponentLayout/user-management/profile'
 import { Route as ProponentProponentLayoutUserManagementNewUserRouteImport } from './routes/proponent/_proponentLayout/user-management/new-user'
-import { Route as ProponentProponentLayoutUserManagementEditRoleRouteImport } from './routes/proponent/_proponentLayout/user-management/edit-role'
 import { Route as ProponentProponentLayoutUserManagementEditProfileRouteImport } from './routes/proponent/_proponentLayout/user-management/edit-profile'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutRouteImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout'
@@ -239,12 +238,6 @@ const ProponentProponentLayoutUserManagementNewUserRoute =
     path: '/user-management/new-user',
     getParentRoute: () => ProponentProponentLayoutRoute,
   } as any)
-const ProponentProponentLayoutUserManagementEditRoleRoute =
-  ProponentProponentLayoutUserManagementEditRoleRouteImport.update({
-    id: '/user-management/edit-role',
-    path: '/user-management/edit-role',
-    getParentRoute: () => ProponentProponentLayoutRoute,
-  } as any)
 const ProponentProponentLayoutUserManagementEditProfileRoute =
   ProponentProponentLayoutUserManagementEditProfileRouteImport.update({
     id: '/user-management/edit-profile',
@@ -373,7 +366,6 @@ export interface FileRoutesByFullPath {
   '/proponent/aboutpage': typeof ProponentProponentLayoutAboutpageLazyRoute
   '/proponent/account-registration/': typeof ProponentAccountRegistrationIndexRoute
   '/proponent/user-management/edit-profile': typeof ProponentProponentLayoutUserManagementEditProfileRoute
-  '/proponent/user-management/edit-role': typeof ProponentProponentLayoutUserManagementEditRoleRoute
   '/proponent/user-management/new-user': typeof ProponentProponentLayoutUserManagementNewUserRoute
   '/proponent/user-management/profile': typeof ProponentProponentLayoutUserManagementProfileRoute
   '/proponent/user-management/user-details': typeof ProponentProponentLayoutUserManagementUserDetailsRoute
@@ -417,7 +409,6 @@ export interface FileRoutesByTo {
   '/proponent/aboutpage': typeof ProponentProponentLayoutAboutpageLazyRoute
   '/proponent/account-registration': typeof ProponentAccountRegistrationIndexRoute
   '/proponent/user-management/edit-profile': typeof ProponentProponentLayoutUserManagementEditProfileRoute
-  '/proponent/user-management/edit-role': typeof ProponentProponentLayoutUserManagementEditRoleRoute
   '/proponent/user-management/new-user': typeof ProponentProponentLayoutUserManagementNewUserRoute
   '/proponent/user-management/profile': typeof ProponentProponentLayoutUserManagementProfileRoute
   '/proponent/user-management/user-details': typeof ProponentProponentLayoutUserManagementUserDetailsRoute
@@ -461,7 +452,6 @@ export interface FileRoutesById {
   '/proponent/_proponentLayout/aboutpage': typeof ProponentProponentLayoutAboutpageLazyRoute
   '/proponent/account-registration/': typeof ProponentAccountRegistrationIndexRoute
   '/proponent/_proponentLayout/user-management/edit-profile': typeof ProponentProponentLayoutUserManagementEditProfileRoute
-  '/proponent/_proponentLayout/user-management/edit-role': typeof ProponentProponentLayoutUserManagementEditRoleRoute
   '/proponent/_proponentLayout/user-management/new-user': typeof ProponentProponentLayoutUserManagementNewUserRoute
   '/proponent/_proponentLayout/user-management/profile': typeof ProponentProponentLayoutUserManagementProfileRoute
   '/proponent/_proponentLayout/user-management/user-details': typeof ProponentProponentLayoutUserManagementUserDetailsRoute
@@ -510,7 +500,6 @@ export interface FileRouteTypes {
     | '/proponent/aboutpage'
     | '/proponent/account-registration/'
     | '/proponent/user-management/edit-profile'
-    | '/proponent/user-management/edit-role'
     | '/proponent/user-management/new-user'
     | '/proponent/user-management/profile'
     | '/proponent/user-management/user-details'
@@ -554,7 +543,6 @@ export interface FileRouteTypes {
     | '/proponent/aboutpage'
     | '/proponent/account-registration'
     | '/proponent/user-management/edit-profile'
-    | '/proponent/user-management/edit-role'
     | '/proponent/user-management/new-user'
     | '/proponent/user-management/profile'
     | '/proponent/user-management/user-details'
@@ -597,7 +585,6 @@ export interface FileRouteTypes {
     | '/proponent/_proponentLayout/aboutpage'
     | '/proponent/account-registration/'
     | '/proponent/_proponentLayout/user-management/edit-profile'
-    | '/proponent/_proponentLayout/user-management/edit-role'
     | '/proponent/_proponentLayout/user-management/new-user'
     | '/proponent/_proponentLayout/user-management/profile'
     | '/proponent/_proponentLayout/user-management/user-details'
@@ -857,13 +844,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentProponentLayoutUserManagementNewUserRouteImport
       parentRoute: typeof ProponentProponentLayoutRoute
     }
-    '/proponent/_proponentLayout/user-management/edit-role': {
-      id: '/proponent/_proponentLayout/user-management/edit-role'
-      path: '/user-management/edit-role'
-      fullPath: '/proponent/user-management/edit-role'
-      preLoaderRoute: typeof ProponentProponentLayoutUserManagementEditRoleRouteImport
-      parentRoute: typeof ProponentProponentLayoutRoute
-    }
     '/proponent/_proponentLayout/user-management/edit-profile': {
       id: '/proponent/_proponentLayout/user-management/edit-profile'
       path: '/user-management/edit-profile'
@@ -1031,7 +1011,6 @@ interface ProponentProponentLayoutRouteChildren {
   ProponentProponentLayoutProfileRoute: typeof ProponentProponentLayoutProfileRoute
   ProponentProponentLayoutAboutpageLazyRoute: typeof ProponentProponentLayoutAboutpageLazyRoute
   ProponentProponentLayoutUserManagementEditProfileRoute: typeof ProponentProponentLayoutUserManagementEditProfileRoute
-  ProponentProponentLayoutUserManagementEditRoleRoute: typeof ProponentProponentLayoutUserManagementEditRoleRoute
   ProponentProponentLayoutUserManagementNewUserRoute: typeof ProponentProponentLayoutUserManagementNewUserRoute
   ProponentProponentLayoutUserManagementProfileRoute: typeof ProponentProponentLayoutUserManagementProfileRoute
   ProponentProponentLayoutUserManagementUserDetailsRoute: typeof ProponentProponentLayoutUserManagementUserDetailsRoute
@@ -1048,8 +1027,6 @@ const ProponentProponentLayoutRouteChildren: ProponentProponentLayoutRouteChildr
       ProponentProponentLayoutAboutpageLazyRoute,
     ProponentProponentLayoutUserManagementEditProfileRoute:
       ProponentProponentLayoutUserManagementEditProfileRoute,
-    ProponentProponentLayoutUserManagementEditRoleRoute:
-      ProponentProponentLayoutUserManagementEditRoleRoute,
     ProponentProponentLayoutUserManagementNewUserRoute:
       ProponentProponentLayoutUserManagementNewUserRoute,
     ProponentProponentLayoutUserManagementProfileRoute:

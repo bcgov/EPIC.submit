@@ -101,9 +101,8 @@ function ContactInformationForm() {
     setNewlyCreatedAccount(true);
     setAccount({
       userId: data.user_id,
-      userManagementRole: data.roles[0],
       userManagementRoles: data.roles,
-      roles: data.roles[0].permissions,
+      roles: [...new Set(data.roles.flatMap((r: { permissions: string[] }) => r.permissions))],
       userType: USER_TYPE.PROPONENT,
       accountId: data.account_id,
       proponentId: invitation?.proponent_id || 0,

@@ -31,10 +31,6 @@ from pathlib import Path
 from queue import Empty
 from typing import Any, Dict
 
-import fiona
-from fiona.model import to_dict
-from shapely.geometry import shape
-
 from submit_api.services.geo.archive import find_shapefiles, safe_extract_zip
 
 
@@ -110,7 +106,7 @@ def _run_command(cmd: list[str], timeout_seconds: int = GEO_PROCESSING_TIMEOUT_S
         raise RuntimeError(f"GDAL conversion failed: {details}")
 
 
-def _format_crs(src: fiona.Collection) -> str:
+def _format_crs(src) -> str:
     """Return a compact CRS name for metadata."""
     if src.crs:
         to_string = getattr(src.crs, "to_string", None)
@@ -120,6 +116,8 @@ def _format_crs(src: fiona.Collection) -> str:
 
 def _get_source_info(shp_path: str) -> tuple[str, str]:
     """Return the OGR layer name and original CRS for a shapefile."""
+    import fiona  # pylint: disable=import-outside-toplevel
+
     with fiona.open(shp_path) as src:
         return src.name or Path(shp_path).stem, _format_crs(src)
 
@@ -201,6 +199,9 @@ def _check_output_size(path: str) -> None:
 
 def _merge_geojson_files(source_paths: list[str], output_path: str) -> None:
     """Merge GeoJSON FeatureCollections into one output file without byte buffering."""
+    import fiona  # pylint: disable=import-outside-toplevel
+    from fiona.model import to_dict  # pylint: disable=import-outside-toplevel
+
     with open(output_path, "w", encoding="utf-8") as target:
         target.write('{"type":"FeatureCollection","features":[')
         first_feature = True
@@ -252,6 +253,10 @@ def _merge_bounds(
 
 def _get_geojson_metadata(standard_path: str, crs_original: str) -> Dict[str, Any]:
     """Read final GeoJSON metadata one feature at a time."""
+    import fiona  # pylint: disable=import-outside-toplevel
+    from fiona.model import to_dict  # pylint: disable=import-outside-toplevel
+    from shapely.geometry import shape  # pylint: disable=import-outside-toplevel
+
     geometry_counts: Counter[str] = Counter()
     bounds: list[float] | None = None
     feature_count = 0
@@ -304,6 +309,8 @@ def _summarize_crs(crs_values: list[str]) -> str:
 
 def _convert_layers(shapefiles: list[str], layer_dir: str) -> tuple[list[str], list[str], list[str]]:
     """Convert source shapefiles into per-layer standard and preview outputs."""
+    import fiona  # pylint: disable=import-outside-toplevel
+
     standard_parts: list[str] = []
     preview_parts: list[str] = []
     crs_values: list[str] = []

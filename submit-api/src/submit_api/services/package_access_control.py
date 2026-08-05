@@ -285,7 +285,7 @@ class PackageAccessControl:
     def _has_proponent_create_permission(package: PackageModel) -> bool:
         """Check if current proponent user has CREATE_PACKAGE permission on the package's project."""
         user = UserModel.get_by_guid(TokenInfo.get_username())
-        if not user or not user.account_user or not user.account_user.role:
+        if not user or not user.account_user or not user.account_user.roles:
             return False
 
         account_project_id = package.account_project_id
