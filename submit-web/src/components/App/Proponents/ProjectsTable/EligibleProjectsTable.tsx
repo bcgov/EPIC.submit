@@ -9,6 +9,7 @@ export const EligibleProjectsTable = () => {
   const proponent = useProponentStore((state) => state.proponent);
 
   const pendingInvitation = useProponentStore((state) => state.pendingInvitation);
+  const pendingEntryIds = useProponentStore((state) => state.pendingEntryIds);
   const isLoading = useProponentStore((state) => state.isLoading);
   const isError = useProponentStore((state) => state.isError);
   const eligibleEntries = useProponentStore((state) => state.eligibleEntries);
@@ -68,10 +69,9 @@ export const EligibleProjectsTable = () => {
         </Box>
       ) : (
         <ProjectsTable
-          
           entries={eligibleEntries}
-          
-          pendingEntryIds={(pendingInvitation as any)?.eligibility_entry_ids}
+          pendingEntryIds={pendingEntryIds}
+          readonly={!!pendingInvitation}
           isLoading={isLoading}
           isError={isError}
           sx={{

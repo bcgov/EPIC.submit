@@ -24,6 +24,8 @@ interface ProponentState {
   onboardedEntries: EligibilityEntry[];
   eligibleEntries: EligibilityEntry[];
   pendingInvitation: Invitation | undefined;
+  // Entry ids already included in the pending invitation (kept selected & locked)
+  pendingEntryIds: string[];
 
   // Actions
   setProponent: (proponent: Proponent | null) => void;
@@ -39,8 +41,24 @@ const initialState = {
   isLoading: false,
   isError: false,
   pendingInvitation: undefined,
+  pendingEntryIds: [],
   onboardedEntries: [],
   eligibleEntries: [],
+};
+
+const getPendingEntryIds = (
+  invitation: Invitation | undefined,
+): string[] => {
+  if (!invitation?.eligible_entries) return [];
+
+  return invitation.eligible_entries.flatMap((selection) => [
+    ...(selection.work_ids ?? []).map(
+      (workId) => `${selection.project_id}:work:${workId}`,
+    ),
+    ...(selection.non_work_item_types ?? []).map(
+      (type) => `${selection.project_id}:non_work:${type}`,
+    ),
+  ]);
 };
 
 export const useProponentStore = create<ProponentState>((set) => ({
@@ -55,14 +73,14 @@ export const useProponentStore = create<ProponentState>((set) => ({
         proponent.status == "ONBOARDED"
           ? undefined
           : proponent.invitations
-              ?.filter(
-                (invitation) => invitation.status === InvitationStatus.PENDING,
-              )
-              .sort(
-                (a, b) =>
-                  new Date(b.expiry_date).getTime() -
-                  new Date(a.expiry_date).getTime(),
-              )[0];
+            ?.filter(
+              (invitation) => invitation.status === InvitationStatus.PENDING,
+            )
+            .sort(
+              (a, b) =>
+                new Date(b.expiry_date).getTime() -
+                new Date(a.expiry_date).getTime(),
+            )[0];
 
       // Eligibility entries logic
       const rawEntries = (proponent as any).eligibility_entries || [];
@@ -78,11 +96,13 @@ export const useProponentStore = create<ProponentState>((set) => ({
 
       set({
         pendingInvitation,
+        pendingEntryIds: getPendingEntryIds(pendingInvitation),
         onboardedEntries,
         eligibleEntries,
       });
     } else {
       set({
+        pendingEntryIds: [],
         onboardedEntries: [],
         eligibleEntries: [],
       });
