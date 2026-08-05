@@ -1,10 +1,10 @@
 import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
 import {
   EAO_SUBMISSION_ITEM_FILTERS,
-  FILTER_GROUPS,
   PROPONENT_SUBMISSION_ITEM_FILTERS,
-  SubmissionItemStatusEntry,
+  SubmissionItemStatus,
 } from "@/models/Submission";
+import { StatusEntry, FILTER_GROUPS } from "@/models/Status";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import {
@@ -71,7 +71,7 @@ function StatusFilter({
             acc.push(status);
           }
           return acc;
-        }, [] as SubmissionItemStatusEntry[]);
+        }, [] as StatusEntry<SubmissionItemStatus>[]);
 
   const handleChange = (event: SelectChangeEvent<string | string[]>) => {
     const value = event.target.value;

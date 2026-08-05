@@ -1,6 +1,7 @@
 import { InternalStaffDocument, SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
 import { AccountProjectWork } from "./AccountProjectWork";
+import { StatusEntry, buildRoleFilters } from "./Status";
 
 export enum SubmissionPackageType {
   MANAGEMENT_PLAN = "Management Plan",
@@ -81,7 +82,7 @@ export type PackageStatus =
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
-  { value: PackageStatus; label: string }
+  StatusEntry<PackageStatus>
 > = {
   IN_REVIEW: {
     value: "IN_REVIEW",
@@ -90,10 +91,14 @@ export const PACKAGE_STATUS: Record<
   UNDER_REVIEW: {
     value: "UNDER_REVIEW",
     label: "Under Review",
+    filter: ["eao"],
+    sortOrder: 4,
   },
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
+    filter: ["eao", "proponent"],
+    sortOrder: 13,
   },
   REJECTED: {
     value: "REJECTED",
@@ -102,6 +107,7 @@ export const PACKAGE_STATUS: Record<
   REVIEW_REJECTED: {
     value: "REVIEW_REJECTED",
     label: "Review Rejected",
+    filter: ["proponent"],
   },
   REVIEW_NOT_COMPLETED: {
     value: "REVIEW_NOT_COMPLETED",
@@ -110,18 +116,25 @@ export const PACKAGE_STATUS: Record<
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
+    sortOrder: 7,
   },
   SUBMITTED: {
     value: "SUBMITTED",
     label: "Submitted",
+    filter: ["proponent"],
+    sortOrder: 6,
   },
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
     label: "Partially Completed",
+    filter: ["proponent"],
+    sortOrder: 5,
   },
   NEW: {
     value: "NEW",
     label: "New",
+    filter: ["proponent"],
+    sortOrder: 1,
   },
   IN_PROGRESS: {
     value: "IN_PROGRESS",
@@ -130,14 +143,20 @@ export const PACKAGE_STATUS: Record<
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
+    filter: ["eao"],
+    sortOrder: 1,
   },
   UNDER_CONSULTATION_CHECK: {
     value: "UNDER_CONSULTATION_CHECK",
     label: "Under Consultation Check",
+    filter: ["eao"],
+    sortOrder: 5,
   },
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
+    filter: ["eao", "proponent"],
+    sortOrder: 9,
   },
   CREATED: {
     value: "CREATED",
@@ -146,22 +165,32 @@ export const PACKAGE_STATUS: Record<
   ACCEPTED: {
     value: "ACCEPTED",
     label: "Accepted",
+    filter: ["eao", "proponent"],
+    sortOrder: 11,
   },
   SATISFIED: {
     value: "SATISFIED",
     label: "Satisfied",
+    filter: ["eao", "proponent"],
+    sortOrder: 12,
   },
   AWAITING_MANAGER_APPROVAL: {
     value: "AWAITING_MANAGER_APPROVAL",
     label: "Awaiting Manager Approval",
+    filter: ["eao"],
+    sortOrder: 7,
   },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
     label: "Failed Consultation Check",
+    filter: ["eao"],
+    sortOrder: 8,
   },
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
+    filter: ["eao", "proponent"],
+    sortOrder: 10,
   },
   INTERNAL_VERIFICATION: {
     value: "INTERNAL_VERIFICATION",
@@ -186,6 +215,7 @@ export const PACKAGE_STATUS: Record<
   ACKNOWLEDGED: {
     value: "ACKNOWLEDGED",
     label: "Acknowledged",
+    filter: ["eao"],
   },
   READY_FOR_APPROVAL: {
     value: "READY_FOR_APPROVAL",
@@ -194,12 +224,23 @@ export const PACKAGE_STATUS: Record<
   NOT_APPROVED: {
     value: "NOT_APPROVED",
     label: "Not Approved",
+    filter: ["eao", "proponent"],
   },
   WITHDRAWN: {
     value: "WITHDRAWN",
     label: "Withdrawn",
   },
 };
+
+export const EAO_PACKAGE_STATUS_FILTERS = buildRoleFilters(
+  PACKAGE_STATUS,
+  "eao",
+);
+
+export const PROPONENT_PACKAGE_STATUS_FILTERS = buildRoleFilters(
+  PACKAGE_STATUS,
+  "proponent",
+);
 
 export type SubmissionPackageMeta = Record<string, any>;
 
