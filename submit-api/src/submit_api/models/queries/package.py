@@ -15,6 +15,7 @@
 from sqlalchemy import func
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.package_type import PackageApprovalType
+from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
 from submit_api.models import AccountProject, db
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.package import PackageStatus
@@ -205,11 +206,13 @@ class PackageItemQueries:
                 PackageStatus.MP_AWAITING_MANAGER_APPROVAL.value)
 
     @classmethod
-    def _add_awaiting_iem_manager_review(cls, aggregated_statuses: set, statuses: list[str]):
-        """Find packages that have been rejected during review"""
-        if any(status == ItemStatus.IEM_AWAITING_MANAGER_APPROVAL.value for status in statuses):
-            aggregated_statuses.add(
-                PackageStatus.IEM_AWAITING_MANAGER_APPROVAL.value)
+    def _add_in_progress_status_for_mp_iem(cls, aggregated_statuses: set, statuses: list[str]):
+        """Add IN_PROGRESS for MP/IEM packages when any item has moved beyond NEW."""
+        if PackageStatus.SUBMITTED.value in aggregated_statuses:
+            return
+        progress_statuses = (ItemStatus.PARTIALLY_COMPLETED.value, ItemStatus.COMPLETED.value)
+        if any(status in progress_statuses for status in statuses):
+            aggregated_statuses.add(PackageStatus.IN_PROGRESS.value)
 
     @classmethod
     def aggregate_item_statuses(cls, items: list):
@@ -230,10 +233,20 @@ class PackageItemQueries:
         if aggregated_statuses:
             return list(aggregated_statuses)
 
+        # Determine if package is MP or IEM (use IN_PROGRESS instead of PARTIALLY_COMPLETED/COMPLETED)
+        is_mp_or_iem = False
+        if items:
+            package = PackageModel.find_by_id(items[0].package_id)
+            if package and package.type:
+                is_mp_or_iem = package.type.name in MP_VIEW_PACKAGE_TYPES
+
         # Completion/submission statuses check only required items
         cls._add_submitted_status(aggregated_statuses, required_statuses, all_statuses)
-        cls._add_partially_completed_status(aggregated_statuses, required_statuses)
-        cls._add_completed_status(aggregated_statuses, required_statuses)
+        if is_mp_or_iem:
+            cls._add_in_progress_status_for_mp_iem(aggregated_statuses, required_statuses)
+        else:
+            cls._add_partially_completed_status(aggregated_statuses, required_statuses)
+            cls._add_completed_status(aggregated_statuses, required_statuses)
 
         # Other statuses check all items
         cls._add_passed_consultation_check(aggregated_statuses, all_statuses)

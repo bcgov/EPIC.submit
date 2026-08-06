@@ -2,9 +2,7 @@ import { Stack } from "@mui/material";
 import { useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { SUBMISSION_ITEM_TYPE, SubmissionItem } from "@/models/SubmissionItem";
-import { useMemo } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { filterOpenUpdateRequests } from "@/utils";
 import { SubmissionStatusChipStack } from "@/components/App/SubmissionStatusChip";
 import { Case, Default, Switch } from "react-if";
 import { CRStaffCell } from "./CRStaffCell";
@@ -24,21 +22,7 @@ export default function StaffStatusCell({
       }),
     );
 
-  const { status, type_id, type } = submissionItem;
-
-  const isUpdated = useMemo(() => {
-    // Check if any submission in this section has is_updated flag set to true
-    return Boolean(
-      submissionItem.submissions?.find((submission) => submission.is_updated)
-    );
-  }, [submissionItem.submissions]);
-
-  const isUpdateRequest = useMemo(() => {
-    if (!submissionPackage) return false;
-    return filterOpenUpdateRequests(submissionPackage.update_requests)
-      .flatMap((updateRequest) => updateRequest.submission_item_types)
-      .includes(type_id);
-  }, [submissionPackage, type_id]);
+  const { status, type } = submissionItem;
 
   if (isPackagePending) {
     return null;
@@ -58,8 +42,6 @@ export default function StaffStatusCell({
         >
           <CRStaffCell
             status={status}
-            isUpdateRequested={isUpdateRequest}
-            isUpdated={isUpdated}
             packageStatus={submissionPackage.status}
             submissionItemId={submissionItem.id}
           />
@@ -67,8 +49,6 @@ export default function StaffStatusCell({
         <Default>
           <SubmissionStatusChipStack
             status={status}
-            isUpdateRequested={isUpdateRequest}
-            isUpdated={isUpdated}
             packageStatus={submissionPackage.status}
           />
         </Default>

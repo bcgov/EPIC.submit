@@ -44,6 +44,25 @@ from submit_api.utils.constants import (
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_version_service import PackageVersionService
 
+# Canonical chip display order (D9).
+# Primary status first, then review stream, then overlays last.
+# Rule: Passed Consultation Check must never sort before Under Consultation Check.
+CANONICAL_STATUS_ORDER = (
+    # Primary / base statuses
+    'NEW', 'CREATED', 'IN_PROGRESS', 'SUBMITTED', 'NEW_SUBMISSION', 'RESUBMITTED',
+    # Terminal outcomes
+    'APPROVED', 'ACCEPTED', 'SATISFIED', 'REVIEWED', 'NO_REVISION_REQUIRED',
+    'VERIFIED', 'ACKNOWLEDGED', 'NOT_APPROVED', 'REVIEW_REJECTED', 'WITHDRAWN',
+    # Review stream statuses
+    'UNDER_CONSULTATION_CHECK', 'PASSED_CONSULTATION_CHECK',
+    'UNDER_REVIEW', 'AWAITING_MANAGER_APPROVAL',
+    # Acknowledgement stream
+    'INTERNAL_VERIFICATION', 'PENDING_ACKNOWLEDGEMENT',
+    'READY_FOR_ACKNOWLEDGEMENT', 'READY_FOR_APPROVAL',
+    # Overlays (always last)
+    'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
+)
+
 
 class PackageService:
     """Package management service."""
@@ -182,16 +201,23 @@ class PackageService:
     @staticmethod
     def _add_noncanonical_statuses(new_status, has_open_update_request, has_updated_submission,
                                    has_revision_required, user_type):
-        """Add noncanonical statuses to the status list."""
-        if has_open_update_request:
-            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+        """Add noncanonical statuses to the status list.
+
+        Suppression rules (D16):
+        - When UPDATED is present, UPDATE_REQUESTED and REVISION are hidden.
+        - Per-audience: entity sees REVISION_REQUIRED, EAO sees REVISION_REQUESTED.
+        """
         if has_updated_submission:
+            # Updated suppresses both Update Requested and Revision overlays
             new_status.append(NonCanonicalPackageStatus.UPDATED.value)
-        if has_revision_required:
-            status_to_add = (NonCanonicalPackageStatus.REVISION_REQUIRED.value
-                             if user_type == UserType.PROPONENT
-                             else NonCanonicalPackageStatus.REVISION_REQUESTED.value)
-            new_status.append(status_to_add)
+        else:
+            if has_open_update_request:
+                new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+            if has_revision_required:
+                status_to_add = (NonCanonicalPackageStatus.REVISION_REQUIRED.value
+                                 if user_type == UserType.PROPONENT
+                                 else NonCanonicalPackageStatus.REVISION_REQUESTED.value)
+                new_status.append(status_to_add)
 
     @staticmethod
     def _deduplicate_statuses(statuses):
@@ -203,6 +229,15 @@ class PackageService:
                 seen.add(status)
                 deduped.append(status)
         return deduped
+
+    @staticmethod
+    def _sort_statuses(statuses):
+        """Sort statuses in canonical D9 order."""
+        max_index = len(CANONICAL_STATUS_ORDER)
+        return sorted(
+            statuses,
+            key=lambda s: CANONICAL_STATUS_ORDER.index(s) if s in CANONICAL_STATUS_ORDER else max_index
+        )
 
     @staticmethod
     def calculate_package_statuses(package, user_type):
@@ -227,16 +262,23 @@ class PackageService:
 
         has_revision_required, has_updated_submission = PackageService._check_item_conditions(package)
         has_open_update_request = any(
-            ur.active and ur.status == 'OPEN'
+            ur.active and ur.status == 'OPEN' and ur.type == UpdateRequestType.UPDATE
             for ur in package.update_requests
         )
+        has_open_review_request = any(
+            ur.active and ur.status == 'OPEN' and ur.type == UpdateRequestType.REVIEW
+            for ur in package.update_requests
+        )
+        # A REVIEW-type open request also signals revision required (for the new version package)
+        if has_open_review_request:
+            has_revision_required = True
 
         PackageService._add_noncanonical_statuses(
             new_status, has_open_update_request, has_updated_submission,
             has_revision_required, user_type
         )
 
-        return PackageService._deduplicate_statuses(new_status)
+        return PackageService._sort_statuses(PackageService._deduplicate_statuses(new_status))
 
     @classmethod
     def get_package_by_id(cls, package_id):

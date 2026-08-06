@@ -108,7 +108,7 @@ const statusMap: Record<string, StyleProps> = {
 
   AWAITING_MANAGER_APPROVAL: {
     label: "Awaiting Manager Approval",
-    theme: "orange",
+    theme: "purple",
   },
   UPDATE_REQUESTED: {
     label: "Update Requested",

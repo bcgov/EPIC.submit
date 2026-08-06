@@ -33,7 +33,7 @@ from submit_api.utils.constants import (
 )
 
 
-EAO_MANAGER_GROUP_PATH = "SUBMIT/EAO_MANAGER"
+EAO_MANAGER_GROUP_PATH = "SUBMIT/MPT_MANAGER"
 
 
 class SubmitEmailQueueService:
