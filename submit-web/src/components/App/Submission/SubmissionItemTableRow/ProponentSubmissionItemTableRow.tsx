@@ -22,9 +22,6 @@ import {
 import { SubmissionItemMethod } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
-import {
-  UPDATE_REQUEST_STATUS,
-} from "@/models/UpdateRequest";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 
@@ -38,7 +35,7 @@ export default function ProponentSubmissionItemTableRow({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout",
   });
 
-  const { id, submissions, status, type_id } = item;
+  const { id, submissions, status } = item;
 
   const isIPD = packageType.name === SubmissionPackageType.IPD;
 
@@ -56,28 +53,11 @@ export default function ProponentSubmissionItemTableRow({
       .queryKey,
   );
 
-  const hasOpenUpdateRequest = useMemo(() => {
-    if (!submissionPackage) return false;
-    return submissionPackage.update_requests.some(
-      (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-        updateRequest.active &&
-        updateRequest.submission_item_types.includes(type_id),
-    );
-  }, [submissionPackage, type_id]);
-
   const { isSubmitDisabled } = useSubmitAvailability(submissionPackage);
 
   const hasAccountProjectWork = Boolean(
     submissionPackage?.account_project_work?.id,
   );
-
-  const isUpdated = useMemo(() => {
-    // Check if any submission in this section has is_updated flag set to true
-    return Boolean(
-      item.submissions?.find((submission) => submission.is_updated)
-    );
-  }, [item.submissions]);
 
   const actionLabel = has_document ? "Add/Edit Files" : "Fill/Edit Form";
 
@@ -116,8 +96,6 @@ export default function ProponentSubmissionItemTableRow({
           <Box ml={1} display={"flex"} justifyContent={"flex-start"}>
             <SubmissionStatusChipStack
               status={status}
-              isUpdateRequested={hasOpenUpdateRequest}
-              isUpdated={isUpdated}
               packageStatus={submissionPackage?.status}
               showOnlyUpdateChips={hasAccountProjectWork}
             />

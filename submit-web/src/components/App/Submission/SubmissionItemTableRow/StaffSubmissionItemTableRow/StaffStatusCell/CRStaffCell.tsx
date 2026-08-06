@@ -11,15 +11,11 @@ import {
 
 type CRStaffCellProps = Readonly<{
   status?: SubmissionItemStatus;
-  isUpdateRequested: boolean;
-  isUpdated: boolean;
   packageStatus: PackageStatus[];
   submissionItemId: number;
 }>;
 export const CRStaffCell = ({
   status,
-  isUpdateRequested,
-  isUpdated,
   packageStatus,
   submissionItemId,
 }: CRStaffCellProps) => {
@@ -29,8 +25,6 @@ export const CRStaffCell = ({
     <>
       <SubmissionStatusChipStack
         status={status}
-        isUpdateRequested={isUpdateRequested}
-        isUpdated={isUpdated}
         packageStatus={packageStatus}
       />
       {failedSubmissions && failedSubmissions.length > 0 && (

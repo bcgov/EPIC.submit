@@ -25,7 +25,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     VERIFIED: { label: "Verified", theme: "success" },
     ACKNOWLEDGED: { label: "Acknowledged", theme: "success" },
 
-    IN_PROGRESS: { label: "In Progress", theme: "info" },
+    IN_PROGRESS: { label: "In Progress", theme: "warning" },
     IN_REVIEW: { label: "In Review", theme: "info" },
     UNDER_REVIEW: { label: "Under Review", theme: "info" },
     UNDER_CONSULTATION_CHECK: {
@@ -66,7 +66,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
 
     AWAITING_MANAGER_APPROVAL: {
       label: "Awaiting Manager Approval",
-      theme: "orange",
+      theme: "purple",
     },
     UPDATE_REQUESTED: {
       label: "Update Requested",

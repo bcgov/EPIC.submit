@@ -148,10 +148,6 @@ class ProjectQueries:
 
         # Staff path: pre-compute full visible list, then slice for requested page
         if not is_proponent and page and page_size:
-            # FULL_ACCESS optimization: skip package filtering entirely
-            if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
-                return cls._get_full_access_paginated(search_options, page, page_size, user)
-
             # Non-FULL_ACCESS staff: pre-compute visible projects, then slice
             visible_projects = cls._get_staff_visible_projects(
                 search_options, is_proponent, user
@@ -229,34 +225,6 @@ class ProjectQueries:
             offset += BATCH_SIZE
 
         return visible_projects
-
-    @classmethod
-    def _get_full_access_paginated(
-        cls,
-        search_options: AccountProjectSearchOptions,
-        page: int,
-        page_size: int,
-        user: User
-    ) -> tuple:
-        """Optimized path for FULL_ACCESS staff — no package filtering needed."""
-        query = cls._filter_by_search_criteria(search_options)
-        ordered_query = (
-            query
-            .add_columns(Project.name)
-            .order_by(Project.name)
-            .distinct()
-        )
-        paginated_result = ordered_query.paginate(page=page, per_page=page_size)
-        account_projects = [ap for ap, _ in paginated_result.items]
-        total = paginated_result.total
-
-        account_projects_list = cls.get_full_account_projects(False, account_projects)
-        # FULL_ACCESS sees all packages — _filter_packages_by_user_access is a no-op
-        account_projects_list = cls._filter_packages_by_user_access(
-            account_projects_list, user
-        )
-
-        return account_projects_list, total
 
     @classmethod
     def _filter_by_search_criteria(cls, search_options: AccountProjectSearchOptions):
