@@ -668,12 +668,23 @@ class PackageService:
 
     @staticmethod
     def _deactivate_revision_required_requests(package, session):
-        """Update package submission details."""
+        """Move carried REVIEW-type requests to pending review on a within-package resubmission."""
         current_app.logger.info(f"Deactivating revision required requests for package {package.id}")
         revision_required_requests = [request for request in package.update_requests
                                       if request.type == UpdateRequestType.REVIEW]
         for request in revision_required_requests:
             request.status = UpdateRequestStatus.PENDING_REVIEW.value
+            session.add(request)
+
+    @staticmethod
+    def _close_carried_review_requests(package, session):
+        """Close REVIEW-type update requests carried into a new package version on first submission."""
+        current_app.logger.info(f"Closing carried review requests for package {package.id}")
+        carried_review_requests = [request for request in package.update_requests
+                                   if request.type == UpdateRequestType.REVIEW]
+        for request in carried_review_requests:
+            request.status = UpdateRequestStatus.CLOSED.value
+            request.active = False
             session.add(request)
 
     @staticmethod
@@ -734,7 +745,7 @@ class PackageService:
             package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._update_package_submission_details(package, session)
-        cls._deactivate_revision_required_requests(package, session)
+        cls._close_carried_review_requests(package, session)
         cls._create_email_queue_record(package, session)
         cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
 
