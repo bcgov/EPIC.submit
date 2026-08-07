@@ -47,7 +47,9 @@ export default function DocumentTableRow({
 
   return (
     <>
-      <TableRow sx={[expanded && { "& > *": { borderBottom: "unset" } }]}>
+      <TableRow
+        sx={[{ height: "48px" }, expanded && { "& > *": { borderBottom: "unset" } }]}
+      >
         <SubmitTableCell align="left">
           <Typography
             variant="body1"

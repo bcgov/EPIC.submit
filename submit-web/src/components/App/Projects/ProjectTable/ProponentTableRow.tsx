@@ -31,7 +31,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
     <>
       <StyledProjectTableRow>
         {isMP && (
-          <StyledProjectTableCell align="left" sx={{ py: 0, width: "5%" }}>
+          <StyledProjectTableCell align="left" sx={{ width: "5%" }}>
             {conditionNumber && (
               <Chip
                 label={`#${conditionNumber}`}
@@ -42,7 +42,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
             )}
           </StyledProjectTableCell>
         )}
-        <StyledProjectTableCell sx={{ py: 0, width: isMP ? "50%" : "55%" }}>
+        <StyledProjectTableCell sx={{ width: isMP ? "50%" : "55%" }}>
           <SubmitLink
             sx={{
               display: "flex",
