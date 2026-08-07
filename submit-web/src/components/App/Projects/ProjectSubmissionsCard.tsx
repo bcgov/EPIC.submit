@@ -62,10 +62,11 @@ export const ProjectSubmissionsCard = ({
   return (
     <Box
       sx={{
-        borderRadius: "3px",
-        border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-        boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
-        mb: 2,
+        borderRadius: "4px",
+        boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.2)",
+        mb: 1,
+        p: 2,
+        pt: 0,
       }}
     >
       <Box
@@ -73,7 +74,6 @@ export const ProjectSubmissionsCard = ({
         justifyContent={"space-between"}
         sx={{
           pt: BCDesignTokens.layoutPaddingMedium,
-          pl: BCDesignTokens.layoutPaddingMedium,
           pb: BCDesignTokens.layoutPaddingLarge,
         }}
       >

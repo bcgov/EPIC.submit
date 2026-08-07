@@ -254,3 +254,32 @@ def test_submit_package_state(client, session, jwt):
                 elif submission["type"] == "DOCUMENT":
                     assert submission["submitted_document"]
                     assert "url" in submission["submitted_document"]
+
+
+def test_acknowledge_rejected_for_review_based_package(client, session, jwt):
+    """ACKNOWLEDGED must be rejected for package types without an approval workflow.
+
+    Management Plan packages follow the review-based ladder (no approval_type), so
+    acknowledging them via the state endpoint would incorrectly overwrite every
+    item status. The endpoint must reject the verb with a 400.
+    """
+    # Setup proponent and create a Management Plan package (type_id 1, no approval_type)
+    headers, account_project = setup_authenticated_proponent(session, jwt)
+    payload = TestPackageScenarios.get_payload()
+    package_response = client.post(
+        f"/api/packages/account-projects/{account_project.id}",
+        json=payload,
+        headers=headers,
+    )
+    assert package_response.status_code == HTTPStatus.CREATED
+    package_id = package_response.json["id"]
+
+    # Attempt to acknowledge the Management Plan package. The guard fires before
+    # any item mutation, so no item statuses are overwritten.
+    state_response = client.post(
+        f"/api/packages/{package_id}/state",
+        json={"status": "ACKNOWLEDGED"},
+        headers=headers,
+    )
+    assert state_response.status_code == HTTPStatus.BAD_REQUEST
+    assert "does not support acknowledgement" in state_response.json["message"]
