@@ -22,15 +22,13 @@ export const StatusCell = ({
   updateRequests,
 }: StatusCellProps) => {
   const { userType } = useAccount();
-  const entityUser = userType === USER_TYPE.PROPONENT;
+  const isStaff = userType === USER_TYPE.STAFF;
 
   const isNewVersion = useIsNewVersion({
     submission: submittedDocument,
     itemTypeId,
     updateRequests,
   });
-
-  if (entityUser) return null;
 
   return (
     <Stack direction="column" spacing={0.5} alignItems="flex-start">
@@ -39,13 +37,13 @@ export const StatusCell = ({
           status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION}
         />
       )}
-      {submittedDocument.status === SUBMISSION_STATUS.REJECTED && (
+      {isStaff && submittedDocument.status === SUBMISSION_STATUS.REJECTED && (
         <SubmissionStatusChip status={NON_CANONICAL_SUBMISSION_STATUS.FAILED} />
       )}
-      {submittedDocument.status === SUBMISSION_STATUS.VERIFIED && (
+      {isStaff && submittedDocument.status === SUBMISSION_STATUS.VERIFIED && (
         <SubmissionStatusChip status={SUBMISSION_STATUS.VERIFIED} />
       )}
-      {submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED && (
+      {isStaff && submittedDocument.status === SUBMISSION_STATUS.ACKNOWLEDGED && (
         <SubmissionStatusChip
           status={SUBMISSION_STATUS.ACKNOWLEDGED}
           showIcon

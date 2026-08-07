@@ -6,7 +6,7 @@ from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models.queries.package import PackageItemQueries, PackageSubmissionQueries
 from submit_api.services import authorization
-from submit_api.utils.constants import  MP_VIEW_PACKAGE_TYPES
+from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
 
 
 class ItemService:
