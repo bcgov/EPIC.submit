@@ -29,7 +29,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import SubmissionType, SubmissionStatus
-from submit_api.models.item_type import SubmissionItemType
+from submit_api.models.item_type import SubmissionItemType, SubmissionMethod
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
@@ -508,34 +508,64 @@ class PackageService:
         if package.submitted_on:
             return cls._validate_package_for_resubmit(package)
 
-        # Check if package has any document submissions
-        document_submissions = cls._get_document_submissions_from_package(package)
-        if not document_submissions:
-            current_app.logger.info(f"Package {package_id} has no documents")
-            raise BadRequestError("You must have at least one file uploaded to be able to submit your package.")
-
-        required_items = cls._get_required_items(package)
-        incomplete_required_items = [
-            item for item in required_items
-            if item.status.value != ItemStatus.COMPLETED.value
-        ]
-
-        if incomplete_required_items:
-            current_app.logger.info(
-                f"Package {package_id} has incomplete required items: "
-                f"{[item.type.name for item in incomplete_required_items]}"
-            )
-            raise BadRequestError("All required items must be completed before completing the package")
-
+        cls._validate_completeness(package)
         current_app.logger.info(f"Package {package_id} is ready to submit")
         return package
 
     @classmethod
+    def _validate_completeness(cls, package):
+        """Validate that required items have at least one document submission.
+
+        Shared validation used for first submission and work-package
+        pre-acknowledgement resubmission. Checks that each required item
+        has at least one document submission rather than relying on item
+        status, which can be in many valid states (ACKNOWLEDGED, VERIFIED, etc.)
+        during resubmission.
+        """
+        document_submissions = cls._get_document_submissions_from_package(package)
+        if not document_submissions:
+            current_app.logger.info(f"Package {package.id} has no documents")
+            raise BadRequestError(
+                "You must have at least one file uploaded to be able to submit your package."
+            )
+
+        required_items = cls._get_required_items(package)
+        items_missing_documents = [
+            item for item in required_items
+            if item.type.submission_method == SubmissionMethod.DOCUMENT_UPLOAD
+            and not any(
+                sub.type == SubmissionType.DOCUMENT
+                and not sub.deleted
+                for sub in item.submissions
+            )
+        ]
+
+        if items_missing_documents:
+            current_app.logger.info(
+                f"Package {package.id} has required items without documents: "
+                f"{[item.type.name for item in items_missing_documents]}"
+            )
+            raise BadRequestError(
+                "All required items must have at least one document before submitting the package"
+            )
+
+    @classmethod
     def _validate_package_for_resubmit(cls, package) -> PackageModel:
-        """Validate that the package is in a state that allows resubmission."""
+        """Validate resubmission eligibility using the five-rule model (D17).
+
+        Rules:
+        1. Work packages before acknowledgement: free resubmit with completeness validation.
+        2. Work packages after acknowledgement: requires open update request.
+        3. MP/IEM packages: always requires open update request.
+        4. After failed consultation check: existing update request satisfies rule 3.
+        5. After failed MP review / IPD Not Approved: new version goes through
+           first-submission path (submitted_on is None), not this method.
+        """
         current_app.logger.info(f"Validating package {package.id} for resubmission")
         if not package.submitted_on:
             raise BadRequestError("Cannot resubmit a package that has not been submitted")
+
+        # Terminal state guards
         if PackageStatus.APPROVED.value in package.status:
             raise BadRequestError("Cannot resubmit a package that has been approved")
         if PackageStatus.REJECTED.value in package.status:
@@ -543,23 +573,37 @@ class PackageService:
         if PackageStatus.NOT_APPROVED.value in package.status:
             raise BadRequestError("Cannot resubmit a package that has not been approved")
 
-        # Check if package is acknowledged
-        is_acknowledged = PackageStatus.ACKNOWLEDGED in package.status
+        is_work_package = bool(package.account_project_work_id)
+        is_acknowledged = PackageStatus.ACKNOWLEDGED.value in package.status
 
-        # Get open update requests
-        open_update_requests = [request for request in package.update_requests
-                                if request.status != UpdateRequestStatus.ACCEPTED.value]
+        # Collect non-closed update requests
+        open_update_requests = [
+            request for request in package.update_requests
+            if request.status != UpdateRequestStatus.ACCEPTED.value
+            and request.active
+        ]
 
-        # Block resubmission if acknowledged without open update requests
-        if is_acknowledged and not open_update_requests:
-            raise BadRequestError("Cannot resubmit an acknowledged package without an open update request")
+        if is_work_package:
+            # Rule 1: work package pre-acknowledgement — free resubmit with completeness
+            if not is_acknowledged:
+                cls._validate_completeness(package)
+                current_app.logger.info(
+                    f"Work package {package.id} passes pre-ack resubmission"
+                )
+                return package
 
-        # For non-acknowledged packages, require update requests (unless work-related)
-        if not is_acknowledged and not open_update_requests and not package.account_project_work_id:
-            raise BadRequestError("Cannot resubmit a package that has no update requests")
-
-        # Validate no empty submissions when package is acknowledged
-        if is_acknowledged:
+            # Rule 2: work package post-acknowledgement — requires update request
+            if not open_update_requests:
+                raise BadRequestError(
+                    "Cannot resubmit an acknowledged package without an open update request"
+                )
+            cls._validate_no_empty_submissions(package)
+        else:
+            # Rule 3: MP/IEM packages — always require update request
+            if not open_update_requests:
+                raise BadRequestError(
+                    "Cannot resubmit a package without an open update request"
+                )
             cls._validate_no_empty_submissions(package)
 
         current_app.logger.info(f"Package {package.id} is ready to resubmit")

@@ -55,15 +55,20 @@ export function useSubmitAvailability(
     ),
   );
 
+  const isWorkPackage = Boolean(submissionPackage?.account_project_work);
+
   const isSubmitDisabled = useMemo(() => {
     if (hasUpdatedItems) return false;
 
-    // Disable if package is submitted with no pending/open requests
+    // Rule 1: Work packages before acknowledgement can always resubmit
+    if (isWorkPackage && !isPackageAcknowledged) return false;
+
+    // Rule 2: Work packages after acknowledgement need open requests
+    // Rule 3: MP/IEM packages always need open requests
     return (
       (isPackageSubmitted &&
         pendingRequests.length === 0 &&
         openRequests.length === 0) ||
-      // Disable if package is acknowledged with no open requests
       (isPackageAcknowledged && openRequests.length === 0)
     );
   }, [
@@ -72,6 +77,7 @@ export function useSubmitAvailability(
     openRequests.length,
     isPackageAcknowledged,
     hasUpdatedItems,
+    isWorkPackage,
   ]);
 
   return {

@@ -155,16 +155,12 @@ export function SubmissionStatusChip({
 
 type SubmissionStatusChipStackProps = {
   status?: SubmissionItemStatus;
-  isUpdateRequested?: boolean;
-  isUpdated?: boolean;
   packageStatus?: PackageStatus[];
   showOnlyUpdateChips?: boolean;
   isFlaggedForUpdate?: boolean;
 };
 export const SubmissionStatusChipStack = ({
   status,
-  isUpdateRequested = false,
-  isUpdated = false,
   packageStatus,
   showOnlyUpdateChips = false,
   isFlaggedForUpdate = false,
@@ -199,16 +195,6 @@ export const SubmissionStatusChipStack = ({
         {isFlaggedForUpdate && (
           <SubmissionStatusChip
             status={NON_CANONICAL_SUBMISSION_STATUS.FLAGGED_FOR_UPDATE}
-          />
-        )}
-        {isUpdateRequested && !isUpdated && (
-          <SubmissionStatusChip
-            status={NON_CANONICAL_SUBMISSION_STATUS.UPDATE_REQUESTED}
-          />
-        )}
-        {isUpdated && (
-          <SubmissionStatusChip
-            status={NON_CANONICAL_SUBMISSION_STATUS.UPDATED}
           />
         )}
       </Stack>
