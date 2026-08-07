@@ -11,7 +11,7 @@ export default function StaffLayoutHead({ isManagementPlan }: StaffLayoutHeadPro
       <TableHead
         sx={{
           border: 0,
-          ".MuiTableCell-root": { lineHeight: 1.2 },
+          ".MuiTableCell-root": { lineHeight: 1.2, px: "1rem" },
         }}
       >
         <TableRow>

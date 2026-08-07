@@ -11,7 +11,7 @@ Expected behaviour:
   - Entity sees: Revision Required  (via canonical mapping REVIEW_REJECTED -> REVISION_REQUIRED)
   - EAO sees: Review Rejected  (canonical)
 """
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from submit_api.models.package import NonCanonicalPackageStatus, PackageStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
