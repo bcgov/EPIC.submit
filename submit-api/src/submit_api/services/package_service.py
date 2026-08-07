@@ -864,6 +864,15 @@ class PackageService:
             if not package:
                 raise BadRequestError("Package not found")
 
+            # Acknowledgement only applies to package types that follow the staged
+            # approval workflow (approval types A/B/C).
+            if package.type.approval_type not in (
+                PackageApprovalType.A,
+                PackageApprovalType.B,
+                PackageApprovalType.C,
+            ):
+                raise BadRequestError("This package type does not support acknowledgement.")
+
             for item in package.items:
                 item.status = ItemStatus.ACKNOWLEDGED
                 session.add(item)
@@ -952,6 +961,10 @@ class PackageService:
             package = cls.get_package_by_id(package_id)
             if not package:
                 raise BadRequestError("Package not found")
+
+            # Approval only applies to Type C packages.
+            if package.type.approval_type != PackageApprovalType.C:
+                raise BadRequestError("This package type does not support approval.")
 
             # Check for open update requests
             if cls._has_open_update_requests(package):
