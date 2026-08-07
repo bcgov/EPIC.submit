@@ -12,7 +12,7 @@ import React from "react";
 export const SubmitTableHeadCell = styled(TableCell)(() => ({
   color: BCDesignTokens.themeGray70,
   fontSize: BCDesignTokens.typographyFontSizeSmallBody,
-  fontWeight: BCDesignTokens.typographyFontWeightsBold,
+  fontWeight: BCDesignTokens.typographyFontWeightsRegular,
   "&:hover": {
     color: BCDesignTokens.surfaceColorMenusHover,
   },

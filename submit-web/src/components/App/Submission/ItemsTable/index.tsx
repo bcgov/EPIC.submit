@@ -69,7 +69,22 @@ export default function ItemsTable({
       component={Box}
       sx={{ height: "100%", overflow: "visible", mt: 2.25, mb: 1 }}
     >
-      <Table sx={{ tableLayout: "fixed" }}>
+      <Table
+        sx={{
+          tableLayout: "fixed",
+          // Align the first/last columns with the surrounding 16px content
+          // inset (matching the InfoBox). Body cells add a 0.5-spacing (4px)
+          // inner margin on their content, so their cell padding is 12px to
+          // land the text at 16px. Scoped to direct rows so nested sub-tables
+          // are unaffected.
+          "& > tbody > tr > td:first-of-type": {
+            paddingLeft: "12px !important",
+          },
+          "& > tbody > tr > td:last-of-type": {
+            paddingRight: "16px !important",
+          },
+        }}
+      >
         <ItemsTableHead approvalType={packageType.approval_type} />
         <TableBody>
           {renderItems(submissionItems)}
