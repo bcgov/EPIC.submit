@@ -97,14 +97,20 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
 
 type PackageStatusChipProps = Readonly<{
   status: PackageStatus | NonCanonicalPackageStatus;
+  label?: string;
 }>;
 
-export default function PackageStatusChip({ status }: PackageStatusChipProps) {
+export default function PackageStatusChip({
+  status,
+  label = "",
+}: PackageStatusChipProps) {
   const config = statusMap[status];
 
   if (!config || !config.label) {
     return null;
   }
 
-  return <StatusChip label={config.label} theme={config.theme} />;
+  return (
+    <StatusChip label={label ? label : config.label} theme={config.theme} />
+  );
 }

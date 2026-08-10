@@ -6,9 +6,17 @@ import { BCDesignTokens } from "epic.theme";
 import { useProjectFilters } from "./projectFilterStore";
 import DateSubmittedFromFilter from "./DateSubmittedFromFilter";
 import DateSubmittedToFilter from "./DateSubmittedToFilter";
+import {
+  EAO_PACKAGE_STATUS_FILTERS,
+  PackageStatus,
+  PROPONENT_PACKAGE_STATUS_FILTERS,
+} from "@/models/Package";
+import { USER_TYPE } from "@/models/User";
+import PackageStatusChip from "../PackageStatusChip";
 
-function ProjectFilters({userType}: {userType: string;}) {
+function ProjectFilters({ userType }: { userType: string }) {
   const { resetFilters } = useProjectFilters();
+  const isProponent = userType === USER_TYPE.PROPONENT;
 
   return (
     <Grid
@@ -17,10 +25,20 @@ function ProjectFilters({userType}: {userType: string;}) {
       sx={{ maxWidth: "1448px", justifyContent: "space-between" }}
     >
       <Grid item xs={2.5}>
-        <SearchFilter userType={userType}/>
+        <SearchFilter userType={userType} />
       </Grid>
       <Grid item xs={3.5}>
-        <StatusFilter />
+        <StatusFilter<PackageStatus>
+          label="Post-Decision Submission Status"
+          roleFilters={
+            isProponent
+              ? PROPONENT_PACKAGE_STATUS_FILTERS
+              : EAO_PACKAGE_STATUS_FILTERS
+          }
+          renderChip={(value, label) => (
+            <PackageStatusChip status={value} label={label} />
+          )}
+        />
       </Grid>
       <Grid item xs={2}>
         <DateSubmittedFromFilter />

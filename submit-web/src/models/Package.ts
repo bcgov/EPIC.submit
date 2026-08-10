@@ -82,7 +82,7 @@ export type PackageStatus =
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
-  StatusEntry<PackageStatus>
+  StatusEntry<PackageStatus | NonCanonicalPackageStatus>
 > = {
   IN_REVIEW: {
     value: "IN_REVIEW",
@@ -91,13 +91,11 @@ export const PACKAGE_STATUS: Record<
   UNDER_REVIEW: {
     value: "UNDER_REVIEW",
     label: "Under Review",
-    filter: ["eao"],
     sortOrder: 4,
   },
   APPROVED: {
     value: "APPROVED",
     label: "Approved",
-    filter: ["eao", "proponent"],
     sortOrder: 13,
   },
   REJECTED: {
@@ -107,7 +105,6 @@ export const PACKAGE_STATUS: Record<
   REVIEW_REJECTED: {
     value: "REVIEW_REJECTED",
     label: "Review Rejected",
-    filter: ["proponent"],
   },
   REVIEW_NOT_COMPLETED: {
     value: "REVIEW_NOT_COMPLETED",
@@ -122,12 +119,11 @@ export const PACKAGE_STATUS: Record<
     value: "SUBMITTED",
     label: "Submitted",
     filter: ["proponent"],
-    sortOrder: 6,
+    sortOrder: 3,
   },
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
     label: "Partially Completed",
-    filter: ["proponent"],
     sortOrder: 5,
   },
   NEW: {
@@ -139,24 +135,25 @@ export const PACKAGE_STATUS: Record<
   IN_PROGRESS: {
     value: "IN_PROGRESS",
     label: "In Progress",
+    filter: ["proponent"],
+    sortOrder: 2,
   },
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
-    filter: ["eao"],
     sortOrder: 1,
   },
   UNDER_CONSULTATION_CHECK: {
     value: "UNDER_CONSULTATION_CHECK",
     label: "Under Consultation Check",
-    filter: ["eao"],
-    sortOrder: 5,
+    filter: ["proponent"],
+    sortOrder: 4,
   },
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
-    filter: ["eao", "proponent"],
-    sortOrder: 9,
+    filter: ["proponent"],
+    sortOrder: 5,
   },
   CREATED: {
     value: "CREATED",
@@ -165,31 +162,26 @@ export const PACKAGE_STATUS: Record<
   ACCEPTED: {
     value: "ACCEPTED",
     label: "Accepted",
-    filter: ["eao", "proponent"],
     sortOrder: 11,
   },
   SATISFIED: {
     value: "SATISFIED",
     label: "Satisfied",
-    filter: ["eao", "proponent"],
     sortOrder: 12,
   },
   AWAITING_MANAGER_APPROVAL: {
     value: "AWAITING_MANAGER_APPROVAL",
     label: "Awaiting Manager Approval",
-    filter: ["eao"],
     sortOrder: 7,
   },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
     label: "Failed Consultation Check",
-    filter: ["eao"],
     sortOrder: 8,
   },
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
-    filter: ["eao", "proponent"],
     sortOrder: 10,
   },
   INTERNAL_VERIFICATION: {
@@ -215,7 +207,6 @@ export const PACKAGE_STATUS: Record<
   ACKNOWLEDGED: {
     value: "ACKNOWLEDGED",
     label: "Acknowledged",
-    filter: ["eao"],
   },
   READY_FOR_APPROVAL: {
     value: "READY_FOR_APPROVAL",
@@ -224,7 +215,6 @@ export const PACKAGE_STATUS: Record<
   NOT_APPROVED: {
     value: "NOT_APPROVED",
     label: "Not Approved",
-    filter: ["eao", "proponent"],
   },
   WITHDRAWN: {
     value: "WITHDRAWN",
