@@ -47,20 +47,22 @@ export const Route = createFileRoute(
   pendingComponent: PendingComponent,
   beforeLoad: ({ context: { account } }) => {
     if (!account || account.isLoading) return;
-    if (!account.userManagementRole) {
+    if (!account.userManagementRoles || account.userManagementRoles.length === 0) {
       return redirect({
         to: "/error",
       });
     }
 
-    if (
-      [
-        USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
-        USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
-        USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
-        USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
-      ].includes(account.userManagementRole?.role_name)
-    ) {
+    const allowedRoles = [
+      USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
+      USER_MANAGEMENT_ROLE.PROJECT_ADMIN,
+      USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
+      USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
+    ];
+    const hasAllowedRole = account.userManagementRoles.some(
+      (r) => allowedRoles.includes(r.role_name),
+    );
+    if (hasAllowedRole) {
       return;
     }
     return redirect({

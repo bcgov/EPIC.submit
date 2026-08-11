@@ -15,6 +15,7 @@ declare global {
       VITE_CENTRE_API_URL: string;
       VITE_USER_GUIDE: string;
       VITE_GEO_DOC_URL: string;
+      VITE_EPIC_SYSTEM_EMAIL: string;
       VITE_SUPPORT_MP_EMAIL: string;
       VITE_SUPPORT_IPD_EMAIL: string;
     };
@@ -49,6 +50,10 @@ const USER_GUIDE =
   window._env_?.VITE_USER_GUIDE || import.meta.env.VITE_USER_GUIDE || "";
 const GEO_DOC_URL =
   window._env_?.VITE_GEO_DOC_URL || import.meta.env.VITE_GEO_DOC_URL || "";
+const EPIC_SYSTEM_EMAIL =
+  window._env_?.VITE_EPIC_SYSTEM_EMAIL ||
+  import.meta.env.VITE_EPIC_SYSTEM_EMAIL ||
+  "";
 const SUPPORT_MP_EMAIL =
   window._env_?.VITE_SUPPORT_MP_EMAIL ||
   import.meta.env.VITE_SUPPORT_MP_EMAIL ||
@@ -68,6 +73,7 @@ export const AppConfig = {
   appTitle: APP_TITLE,
   appUrl: APP_URL,
   clientId: CLIENT_ID,
+  epicSystemEmail: EPIC_SYSTEM_EMAIL,
   supportMpEmail: SUPPORT_MP_EMAIL,
   supportIpdEmail: SUPPORT_IPD_EMAIL,
   userGuide: USER_GUIDE,

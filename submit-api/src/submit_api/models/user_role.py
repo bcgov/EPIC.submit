@@ -1,6 +1,8 @@
 """Mode for user role."""
 from __future__ import annotations
 
+from datetime import datetime, UTC
+
 from sqlalchemy import Column, Integer, ForeignKey, ARRAY
 
 from .base_model import BaseModel
@@ -21,6 +23,8 @@ class UserRole(BaseModel):
     original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs
     active = Column(db.Boolean, nullable=False, default=True)
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=False)
+    access_start = Column(db.DateTime, default=lambda: datetime.now(UTC), nullable=False)
+    access_end = Column(db.DateTime, nullable=True)  # NULL means ongoing/open-ended
     role = db.relationship("Role", lazy="joined")
     account_user = db.relationship("AccountUser", back_populates="roles", lazy="select")
 
@@ -61,7 +65,9 @@ class UserRole(BaseModel):
             "role_id": self.role_id,
             "role": self.role.to_dict(),
             "permissions": self.permissions,
-            "active": self.active
+            "active": self.active,
+            "access_start": self.access_start.isoformat() if self.access_start else None,
+            "access_end": self.access_end.isoformat() if self.access_end else None,
         }
 
     @classmethod
@@ -83,5 +89,35 @@ class UserRole(BaseModel):
 
     @classmethod
     def get_role_by_account_user_id(cls, account_user_id):
-        """Get the user for a given account."""
-        return cls.query.filter(cls.account_user_id == account_user_id).first()
+        """Get the first active user role for a given account user."""
+        return cls.query.filter(
+            cls.account_user_id == account_user_id,
+            cls.active.is_(True)
+        ).first()
+
+    @classmethod
+    def get_all_by_account_user_id(cls, account_user_id):
+        """Get all active user roles for a given account user."""
+        return cls.query.filter(
+            cls.account_user_id == account_user_id,
+            cls.active.is_(True)
+        ).all()
+
+    @classmethod
+    def get_access_history_by_account_user_id(cls, account_user_id):
+        """Get full access history (active and inactive) for a given account user."""
+        return cls.query.filter(
+            cls.account_user_id == account_user_id
+        ).order_by(cls.access_start.desc()).all()
+
+    @classmethod
+    def delete_all_by_account_user_id(cls, account_user_id):
+        """Soft-delete all active user roles: set access_end and mark inactive."""
+        now = datetime.now(UTC)
+        active_roles = cls.query.filter(
+            cls.account_user_id == account_user_id,
+            cls.active.is_(True)
+        ).all()
+        for role in active_roles:
+            role.active = False
+            role.access_end = now

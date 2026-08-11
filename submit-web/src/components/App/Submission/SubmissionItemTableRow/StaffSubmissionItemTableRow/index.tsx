@@ -19,6 +19,7 @@ import {
 } from "@/components/Shared/Table/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SUBMISSION_TYPE, SUBMISSION_STATUS } from "@/models/Submission";
+import { PackageStatus } from "@/models/Package";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "..";
 import SubmissionItemReviewConfirmation from "@/components/App/Submission/SubmissionItemReviewConfirmation";
@@ -64,17 +65,15 @@ export default function StaffSubmissionItemTableRow({
     submissionPackage.account_project_work?.id,
   );
 
-  const isUpdated = useMemo(() => {
-      // Check if any submission in this section has is_updated flag set to true
-      return Boolean(
-        item.submissions?.find((submission) => submission.is_updated)
-      );
-    }, [item.submissions]);
-
   const isPackageInEndStatus = useMemo(() => {
-    // Check if package is in one of the end statuses where updates cannot be requested
-    const endStatuses: string[] = ['APPROVED', 'ACCEPTED', 'REJECTED', 'NOT_APPROVED'];
-    return endStatuses.some(status => submissionPackage.status?.includes(status as any));
+    const endStatuses: PackageStatus[] = [
+      "APPROVED",
+      "ACCEPTED",
+      "REJECTED",
+      "NOT_APPROVED",
+      "REVIEW_REJECTED",
+    ];
+    return endStatuses.some((status) => submissionPackage.status?.includes(status));
   }, [submissionPackage.status]);
 
   // Check if this submission item is GIS (Geospatial Information)
@@ -136,7 +135,6 @@ export default function StaffSubmissionItemTableRow({
             <SubmissionStatusChipStack
               status={item.status}
               isFlaggedForUpdate={hasPendingRequest}
-              isUpdated={isUpdated}
               showOnlyUpdateChips={hasAccountProjectWork}
             />
           </Box>
@@ -151,7 +149,7 @@ export default function StaffSubmissionItemTableRow({
             gap={0.5}
             alignItems={"flex-end"}
           >
-            <When condition={submitted_on && !hasAccountProjectWork}>
+            <When condition={submitted_on && !hasAccountProjectWork && !isPackageInEndStatus}>
               <SubmissionItemReviewConfirmation
                 submissionItem={item}
                 onClick={handleClick}

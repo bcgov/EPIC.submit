@@ -104,5 +104,9 @@ class AccountService:
         user = UserModel.get_by_guid(TokenInfo.get_username())
         if not user:
             raise ResourceNotFoundError("User not found")
-        account_project_ids = [user.account_user.role.account_project_id] if user.account_user else None
+        account_project_ids = [
+            role.account_project_id
+            for role in user.account_user.roles
+            if role.account_project_id
+        ] if user.account_user else None
         return PackageQueries.get_latest_account_project_packages(account_id, account_project_ids)

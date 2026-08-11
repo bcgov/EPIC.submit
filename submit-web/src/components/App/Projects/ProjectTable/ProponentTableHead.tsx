@@ -12,7 +12,8 @@ export default function ProponentTableHead({ isManagementPlan }: ProponentTableH
       sx={{
         border: 0,
         ".MuiTableCell-root": {
-          p: BCDesignTokens.layoutPaddingXsmall,
+          px: "1rem",
+          py: BCDesignTokens.layoutPaddingXsmall,
         },
       }}
     >
@@ -31,7 +32,7 @@ export default function ProponentTableHead({ isManagementPlan }: ProponentTableH
         <SubmitTableHeadCell align="left" sx={{ width: "15%" }}>
           Submitted By
         </SubmitTableHeadCell>
-        <SubmitTableHeadCell align="left" sx={{ width: "15%" }}>
+        <SubmitTableHeadCell align="right" sx={{ width: "15%" }}>
           Status
         </SubmitTableHeadCell>
       </TableRow>

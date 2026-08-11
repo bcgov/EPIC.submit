@@ -24,7 +24,6 @@ export type AccountUser = {
   work_contact_number: string;
   company_name: string;
   account: Account;
-  role: Role;
   roles: Role[];
   has_agreed_to_terms: boolean;
 };
@@ -42,7 +41,7 @@ export type AccountUserWithRole = {
   company_name?: string;
   account?: Account;
   status: UserPackageStatus;
-  role: Role;
+  roles: Role[];
   invitation_id: number;
   user_id: number | null;
 };

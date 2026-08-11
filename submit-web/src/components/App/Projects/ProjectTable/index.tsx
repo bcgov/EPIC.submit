@@ -16,7 +16,7 @@ export default function ProjectTable({
 }: ProjectTableProps) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
-      <Table>
+      <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
         {!headless ? (
           <ProjectTableHead isManagementPlan={isManagementPlan} />
         ) : (

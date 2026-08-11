@@ -61,7 +61,7 @@ export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
           width="17%"
           align="right"
           sx={{
-            paddingRight: "2% !important",
+            paddingRight: "16px !important",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 0.5 }}>

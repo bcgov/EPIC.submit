@@ -29,7 +29,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import SubmissionType, SubmissionStatus
-from submit_api.models.item_type import SubmissionItemType
+from submit_api.models.item_type import SubmissionItemType, SubmissionMethod
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
 from submit_api.models.user import UserType
@@ -43,6 +43,25 @@ from submit_api.utils.constants import (
     GIS_ITEM_TYPE_NAME)
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_version_service import PackageVersionService
+
+# Canonical chip display order (D9).
+# Primary status first, then review stream, then overlays last.
+# Rule: Passed Consultation Check must never sort before Under Consultation Check.
+CANONICAL_STATUS_ORDER = (
+    # Primary / base statuses
+    'NEW', 'CREATED', 'IN_PROGRESS', 'SUBMITTED', 'NEW_SUBMISSION', 'RESUBMITTED',
+    # Terminal outcomes
+    'APPROVED', 'ACCEPTED', 'SATISFIED', 'REVIEWED', 'NO_REVISION_REQUIRED',
+    'VERIFIED', 'ACKNOWLEDGED', 'NOT_APPROVED', 'REVIEW_REJECTED', 'WITHDRAWN',
+    # Review stream statuses
+    'UNDER_CONSULTATION_CHECK', 'PASSED_CONSULTATION_CHECK',
+    'UNDER_REVIEW', 'AWAITING_MANAGER_APPROVAL',
+    # Acknowledgement stream
+    'INTERNAL_VERIFICATION', 'PENDING_ACKNOWLEDGEMENT',
+    'READY_FOR_ACKNOWLEDGEMENT', 'READY_FOR_APPROVAL',
+    # Overlays (always last)
+    'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
+)
 
 
 class PackageService:
@@ -182,16 +201,23 @@ class PackageService:
     @staticmethod
     def _add_noncanonical_statuses(new_status, has_open_update_request, has_updated_submission,
                                    has_revision_required, user_type):
-        """Add noncanonical statuses to the status list."""
-        if has_open_update_request:
-            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+        """Add noncanonical statuses to the status list.
+
+        Suppression rules (D16):
+        - When UPDATED is present, UPDATE_REQUESTED and REVISION are hidden.
+        - Per-audience: entity sees REVISION_REQUIRED, EAO sees REVISION_REQUESTED.
+        """
         if has_updated_submission:
+            # Updated suppresses both Update Requested and Revision overlays
             new_status.append(NonCanonicalPackageStatus.UPDATED.value)
-        if has_revision_required:
-            status_to_add = (NonCanonicalPackageStatus.REVISION_REQUIRED.value
-                             if user_type == UserType.PROPONENT
-                             else NonCanonicalPackageStatus.REVISION_REQUESTED.value)
-            new_status.append(status_to_add)
+        else:
+            if has_open_update_request:
+                new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+            if has_revision_required:
+                status_to_add = (NonCanonicalPackageStatus.REVISION_REQUIRED.value
+                                 if user_type == UserType.PROPONENT
+                                 else NonCanonicalPackageStatus.REVISION_REQUESTED.value)
+                new_status.append(status_to_add)
 
     @staticmethod
     def _deduplicate_statuses(statuses):
@@ -203,6 +229,15 @@ class PackageService:
                 seen.add(status)
                 deduped.append(status)
         return deduped
+
+    @staticmethod
+    def _sort_statuses(statuses):
+        """Sort statuses in canonical D9 order."""
+        max_index = len(CANONICAL_STATUS_ORDER)
+        return sorted(
+            statuses,
+            key=lambda s: CANONICAL_STATUS_ORDER.index(s) if s in CANONICAL_STATUS_ORDER else max_index
+        )
 
     @staticmethod
     def calculate_package_statuses(package, user_type):
@@ -227,16 +262,23 @@ class PackageService:
 
         has_revision_required, has_updated_submission = PackageService._check_item_conditions(package)
         has_open_update_request = any(
-            ur.active and ur.status == 'OPEN'
+            ur.active and ur.status == 'OPEN' and ur.type == UpdateRequestType.UPDATE
             for ur in package.update_requests
         )
+        has_open_review_request = any(
+            ur.active and ur.status == 'OPEN' and ur.type == UpdateRequestType.REVIEW
+            for ur in package.update_requests
+        )
+        # A REVIEW-type open request also signals revision required (for the new version package)
+        if has_open_review_request:
+            has_revision_required = True
 
         PackageService._add_noncanonical_statuses(
             new_status, has_open_update_request, has_updated_submission,
             has_revision_required, user_type
         )
 
-        return PackageService._deduplicate_statuses(new_status)
+        return PackageService._sort_statuses(PackageService._deduplicate_statuses(new_status))
 
     @classmethod
     def get_package_by_id(cls, package_id):
@@ -466,34 +508,64 @@ class PackageService:
         if package.submitted_on:
             return cls._validate_package_for_resubmit(package)
 
-        # Check if package has any document submissions
-        document_submissions = cls._get_document_submissions_from_package(package)
-        if not document_submissions:
-            current_app.logger.info(f"Package {package_id} has no documents")
-            raise BadRequestError("You must have at least one file uploaded to be able to submit your package.")
-
-        required_items = cls._get_required_items(package)
-        incomplete_required_items = [
-            item for item in required_items
-            if item.status.value != ItemStatus.COMPLETED.value
-        ]
-
-        if incomplete_required_items:
-            current_app.logger.info(
-                f"Package {package_id} has incomplete required items: "
-                f"{[item.type.name for item in incomplete_required_items]}"
-            )
-            raise BadRequestError("All required items must be completed before completing the package")
-
+        cls._validate_completeness(package)
         current_app.logger.info(f"Package {package_id} is ready to submit")
         return package
 
     @classmethod
+    def _validate_completeness(cls, package):
+        """Validate that required items have at least one document submission.
+
+        Shared validation used for first submission and work-package
+        pre-acknowledgement resubmission. Checks that each required item
+        has at least one document submission rather than relying on item
+        status, which can be in many valid states (ACKNOWLEDGED, VERIFIED, etc.)
+        during resubmission.
+        """
+        document_submissions = cls._get_document_submissions_from_package(package)
+        if not document_submissions:
+            current_app.logger.info(f"Package {package.id} has no documents")
+            raise BadRequestError(
+                "You must have at least one file uploaded to be able to submit your package."
+            )
+
+        required_items = cls._get_required_items(package)
+        items_missing_documents = [
+            item for item in required_items
+            if item.type.submission_method == SubmissionMethod.DOCUMENT_UPLOAD
+            and not any(
+                sub.type == SubmissionType.DOCUMENT
+                and not sub.deleted
+                for sub in item.submissions
+            )
+        ]
+
+        if items_missing_documents:
+            current_app.logger.info(
+                f"Package {package.id} has required items without documents: "
+                f"{[item.type.name for item in items_missing_documents]}"
+            )
+            raise BadRequestError(
+                "All required items must have at least one document before submitting the package"
+            )
+
+    @classmethod
     def _validate_package_for_resubmit(cls, package) -> PackageModel:
-        """Validate that the package is in a state that allows resubmission."""
+        """Validate resubmission eligibility using the five-rule model (D17).
+
+        Rules:
+        1. Work packages before acknowledgement: free resubmit with completeness validation.
+        2. Work packages after acknowledgement: requires open update request.
+        3. MP/IEM packages: always requires open update request.
+        4. After failed consultation check: existing update request satisfies rule 3.
+        5. After failed MP review / IPD Not Approved: new version goes through
+           first-submission path (submitted_on is None), not this method.
+        """
         current_app.logger.info(f"Validating package {package.id} for resubmission")
         if not package.submitted_on:
             raise BadRequestError("Cannot resubmit a package that has not been submitted")
+
+        # Terminal state guards
         if PackageStatus.APPROVED.value in package.status:
             raise BadRequestError("Cannot resubmit a package that has been approved")
         if PackageStatus.REJECTED.value in package.status:
@@ -501,23 +573,37 @@ class PackageService:
         if PackageStatus.NOT_APPROVED.value in package.status:
             raise BadRequestError("Cannot resubmit a package that has not been approved")
 
-        # Check if package is acknowledged
-        is_acknowledged = PackageStatus.ACKNOWLEDGED in package.status
+        is_work_package = bool(package.account_project_work_id)
+        is_acknowledged = PackageStatus.ACKNOWLEDGED.value in package.status
 
-        # Get open update requests
-        open_update_requests = [request for request in package.update_requests
-                                if request.status != UpdateRequestStatus.ACCEPTED.value]
+        # Collect non-closed update requests
+        open_update_requests = [
+            request for request in package.update_requests
+            if request.status != UpdateRequestStatus.ACCEPTED.value
+            and request.active
+        ]
 
-        # Block resubmission if acknowledged without open update requests
-        if is_acknowledged and not open_update_requests:
-            raise BadRequestError("Cannot resubmit an acknowledged package without an open update request")
+        if is_work_package:
+            # Rule 1: work package pre-acknowledgement — free resubmit with completeness
+            if not is_acknowledged:
+                cls._validate_completeness(package)
+                current_app.logger.info(
+                    f"Work package {package.id} passes pre-ack resubmission"
+                )
+                return package
 
-        # For non-acknowledged packages, require update requests (unless work-related)
-        if not is_acknowledged and not open_update_requests and not package.account_project_work_id:
-            raise BadRequestError("Cannot resubmit a package that has no update requests")
-
-        # Validate no empty submissions when package is acknowledged
-        if is_acknowledged:
+            # Rule 2: work package post-acknowledgement — requires update request
+            if not open_update_requests:
+                raise BadRequestError(
+                    "Cannot resubmit an acknowledged package without an open update request"
+                )
+            cls._validate_no_empty_submissions(package)
+        else:
+            # Rule 3: MP/IEM packages — always require update request
+            if not open_update_requests:
+                raise BadRequestError(
+                    "Cannot resubmit a package without an open update request"
+                )
             cls._validate_no_empty_submissions(package)
 
         current_app.logger.info(f"Package {package.id} is ready to resubmit")
@@ -626,12 +712,23 @@ class PackageService:
 
     @staticmethod
     def _deactivate_revision_required_requests(package, session):
-        """Update package submission details."""
+        """Move carried REVIEW-type requests to pending review on a within-package resubmission."""
         current_app.logger.info(f"Deactivating revision required requests for package {package.id}")
         revision_required_requests = [request for request in package.update_requests
                                       if request.type == UpdateRequestType.REVIEW]
         for request in revision_required_requests:
             request.status = UpdateRequestStatus.PENDING_REVIEW.value
+            session.add(request)
+
+    @staticmethod
+    def _close_carried_review_requests(package, session):
+        """Close REVIEW-type update requests carried into a new package version on first submission."""
+        current_app.logger.info(f"Closing carried review requests for package {package.id}")
+        carried_review_requests = [request for request in package.update_requests
+                                   if request.type == UpdateRequestType.REVIEW]
+        for request in carried_review_requests:
+            request.status = UpdateRequestStatus.CLOSED.value
+            request.active = False
             session.add(request)
 
     @staticmethod
@@ -692,7 +789,7 @@ class PackageService:
             package.items, ItemStatus.SUBMITTED.value, session)
         cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._update_package_submission_details(package, session)
-        cls._deactivate_revision_required_requests(package, session)
+        cls._close_carried_review_requests(package, session)
         cls._create_email_queue_record(package, session)
         cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
 
@@ -822,6 +919,15 @@ class PackageService:
             if not package:
                 raise BadRequestError("Package not found")
 
+            # Acknowledgement only applies to package types that follow the staged
+            # approval workflow (approval types A/B/C).
+            if package.type.approval_type not in (
+                PackageApprovalType.A,
+                PackageApprovalType.B,
+                PackageApprovalType.C,
+            ):
+                raise BadRequestError("This package type does not support acknowledgement.")
+
             for item in package.items:
                 item.status = ItemStatus.ACKNOWLEDGED
                 session.add(item)
@@ -910,6 +1016,10 @@ class PackageService:
             package = cls.get_package_by_id(package_id)
             if not package:
                 raise BadRequestError("Package not found")
+
+            # Approval only applies to Type C packages.
+            if package.type.approval_type != PackageApprovalType.C:
+                raise BadRequestError("This package type does not support approval.")
 
             # Check for open update requests
             if cls._has_open_update_requests(package):

@@ -6,6 +6,7 @@ from flask import current_app
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
+from submit_api.models.user_status import UserStatusEnum
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import Invitations as InvitationsModel
 from submit_api.models import Package as PackageModel
@@ -63,8 +64,9 @@ class AccountUserService:
         """Collect all unique package IDs from users and fetch their names."""
         all_package_ids = set()
         for user in users:
-            roles = getattr(user, "roles", [])
-            for role in roles:
+            # Collect from active roles and all_roles (for revoked users)
+            source_roles = user.roles if user.roles else getattr(user, 'all_roles', [])
+            for role in source_roles:
                 if role.original_package_ids:
                     all_package_ids.update(role.original_package_ids)
         return cls._fetch_package_names(list(all_package_ids))
@@ -75,22 +77,18 @@ class AccountUserService:
         user_data = user.to_dict()
         user_data["status"] = cls._fetch_user_status_name(user_data.get("user_id"))
 
-        # Map roles
+        # Map roles - use active roles first, fall back to all_roles for revoked users
         roles_data = []
-        if user.roles:
-            for role in user.roles:
-                role_dict = role.to_dict()
-                if role.active and role.original_package_ids:
-                    role_dict["package_names"] = [
-                        package_name_map[pkg_id] for pkg_id in role.original_package_ids if pkg_id in package_name_map
-                    ]
-                if role.active:
-                    roles_data.append(role_dict)
+        source_roles = user.roles if user.roles else getattr(user, 'all_roles', [])
+        for role in source_roles:
+            role_dict = role.to_dict()
+            if role.original_package_ids:
+                role_dict["package_names"] = [
+                    package_name_map[pkg_id] for pkg_id in role.original_package_ids if pkg_id in package_name_map
+                ]
+            roles_data.append(role_dict)
 
         user_data["roles"] = roles_data
-        # For backward compatibility, set "role" to the first active one or None
-        user_data["role"] = roles_data[0] if roles_data else None
-
         return user_data
 
     @staticmethod
@@ -268,25 +266,49 @@ class AccountUserService:
 
     @classmethod
     def update_role(cls, user_guid, account_user_id, updated_role_data):
-        """Update user's role."""
-        AccountUserService._validate_user_permission(user_guid, account_user_id)
+        """Update user's role using replace-all strategy.
 
-        user_role = UserRoleModel.get_role_by_account_user_id(account_user_id)
-        if not user_role:
-            current_app.logger.warning(f"User role with id {account_user_id} not found.")
-            raise ResourceNotFoundError(f"Item with id {account_user_id} not found.")
-
+        Deletes all existing user_role rows and creates new ones
+        for the desired state (role + project assignments).
+        """
         new_role_name = updated_role_data.get("role_name")
-        package_ids = updated_role_data.get("package_ids", None)
+        account_project_ids = updated_role_data.get("account_project_ids", [])
         original_package_ids = updated_role_data.get("original_package_ids", None)
+        package_ids = updated_role_data.get("package_ids", None)
+
+        AccountUserService._validate_user_permission(user_guid, account_user_id, new_role_name)
+
         role = AccountUserService._validate_fetch_role(new_role_name)
 
-        user_role.role_id = role.id
-        user_role.package_ids = package_ids
-        user_role.original_package_ids = original_package_ids
-        db.session.commit()
+        if not account_project_ids:
+            raise ResourceNotFoundError("account_project_ids is required.")
 
-        current_app.logger.info(f"User role {user_role.id} updated successfully.")
+        # Replace-all: delete existing roles and create new ones
+        UserRoleModel.delete_all_by_account_user_id(account_user_id)
+
+        # Only set original_package_ids for SPECIFIC_SUBMISSION_CONTRIBUTOR
+        effective_package_ids = (
+            original_package_ids
+            if new_role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value
+            else None
+        )
+
+        for account_project_id in account_project_ids:
+            UserRoleModel.create_user_role({
+                "account_user_id": account_user_id,
+                "role_id": role.id,
+                "account_project_id": account_project_id,
+                "package_ids": package_ids,
+                "original_package_ids": effective_package_ids,
+            })
+
+        db.session.commit()
+        db.session.expire_all()
+
+        current_app.logger.info(
+            f"User {account_user_id} role updated to {new_role_name} "
+            f"for projects {account_project_ids}."
+        )
 
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         user_dict = account_user.to_dict()
@@ -294,9 +316,15 @@ class AccountUserService:
         return user_dict
 
     @staticmethod
-    def _validate_user_permission(user_guid: str, account_user_id: int) -> None:
-        """Ensure a user is not updating their own role and restrict PROJECT_ADMIN from editing roles."""
-        # TODO: Move this to common authorization
+    def _validate_user_permission(user_guid: str, account_user_id: int, new_role_name: str = None) -> None:
+        """Validate permissions for editing a user's role.
+
+        Rules:
+        - Users cannot edit their own role
+        - Only ACCOUNT_PRIMARY_ADMIN and PROJECT_ADMIN can edit roles
+        - PROJECT_ADMIN cannot edit ACCOUNT_PRIMARY_ADMIN users
+        - PROJECT_ADMIN cannot assign ACCOUNT_PRIMARY_ADMIN role
+        """
         user = UserModel.get_by_guid(user_guid)
 
         # Prevent users from updating their own role
@@ -304,17 +332,37 @@ class AccountUserService:
             current_app.logger.warning("Users cannot update their own role.")
             raise PermissionDeniedError("Users cannot update their own role.")
 
-        # Check if user has ANY role that allows editing (e.g., PROJECT_ADMIN)
-        is_admin = False
+        # Determine the acting user's highest role
+        is_account_admin = False
+        is_project_admin = False
         if user.account_user and user.account_user.roles:
             for role in user.account_user.roles:
-                if role.role.role_name == RoleEnum.PROJECT_ADMIN.value:
-                    is_admin = True
+                if role.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+                    is_account_admin = True
                     break
+                if role.role.role_name == RoleEnum.PROJECT_ADMIN.value:
+                    is_project_admin = True
 
-        if not is_admin:
-            current_app.logger.warning("Only account admins are allowed to edit roles.")
-            raise PermissionDeniedError("Only account admins are allowed to edit roles.")
+        if not is_account_admin and not is_project_admin:
+            current_app.logger.warning("Only account/project admins are allowed to edit roles.")
+            raise PermissionDeniedError("Only account/project admins are allowed to edit roles.")
+
+        # Project Admins have restricted scope
+        if is_project_admin and not is_account_admin:
+            # Cannot edit Account Administrator users
+            target_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+            if target_user and target_user.roles:
+                for target_role in target_user.roles:
+                    if target_role.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+                        raise PermissionDeniedError(
+                            "Project Admins cannot edit Account Administrator users."
+                        )
+
+            # Cannot assign Account Administrator role
+            if new_role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+                raise PermissionDeniedError(
+                    "Project Admins cannot assign the Account Administrator role."
+                )
 
     @staticmethod
     def _validate_fetch_role(role_name):
@@ -331,29 +379,45 @@ class AccountUserService:
 
         # Update user and role status
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
-        # Iterate over all roles and set active status
-        for role in account_user.roles:
-            role.active = active
+        # Use all_roles to access both active and inactive roles
+        now = datetime.now(UTC)
+        for role in account_user.all_roles:
+            if active:
+                role.active = True
+                role.access_end = None
+            else:
+                role.active = False
+                role.access_end = now
+
+        # Update the User status_id accordingly
+        user = UserModel.find_by_id(account_user.user_id)
+        if active:
+            user.status_id = UserStatusEnum.ACTIVE.value
+        else:
+            user.status_id = UserStatusEnum.ACCESS_REVOKED.value
         db.session.commit()
 
         # Update Keycloak login access
         AuthService.toggle_user_enabled_status(
             username=account_user.user.auth_guid, enabled=active
+        current_app.logger.info(
+            f"User {account_user_id} {'reactivated' if active else 'deactivated'} successfully."
         )
+        return cls._build_user_response(account_user_id)
 
-        # Refresh and prepare user data
+    @classmethod
+    def _build_user_response(cls, account_user_id):
+        """Refresh user from DB and enrich with role/package data."""
         updated_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         user_dict = updated_user.to_dict()
         user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
 
-        role = user_dict.get("role")  # Compatibility
         roles = user_dict.get("roles", [])
 
         if not roles:
             user_dict["role"] = []
             user_dict["roles"] = []
         else:
-            # Process package names for all roles
             all_original_package_ids = set()
             for r in roles:
                 if r.get("original_package_ids"):
@@ -362,7 +426,7 @@ class AccountUserService:
             package_name_map = cls._fetch_package_names(list(all_original_package_ids))
 
             for r in roles:
-                ids = r.get("original_package_ids", [])
+                ids = r.get("original_package_ids") or []
                 r["package_names"] = [package_name_map[pid] for pid in ids if pid in package_name_map]
 
             # Re assign role for compatibility
@@ -394,3 +458,46 @@ class AccountUserService:
         db.session.commit()
 
         return AccountUserModel.get_users_by_account_user_id(account_user_id)
+
+    @classmethod
+    def get_access_history(cls, account_user_id):
+        """Get access history for a user, including project and package details."""
+        account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        if not account_user:
+            return None
+
+        history_roles = UserRoleModel.get_access_history_by_account_user_id(account_user_id)
+
+        # Collect all package IDs for name resolution
+        all_package_ids = set()
+        for role in history_roles:
+            if role.original_package_ids:
+                all_package_ids.update(role.original_package_ids)
+        package_name_map = cls._fetch_package_names(list(all_package_ids))
+
+        # Collect account_project_ids for project name resolution
+        account_project_ids = {r.account_project_id for r in history_roles if r.account_project_id}
+        account_projects = AccountProjectModel.get_all_in_ids(list(account_project_ids))
+        project_map = {ap.id: ap.project.name for ap in account_projects}
+
+        history = []
+        for role in history_roles:
+            entry = {
+                "id": role.id,
+                "account_project_id": role.account_project_id,
+                "project_name": project_map.get(role.account_project_id, "Unknown"),
+                "role_name": role.role.role_name,
+                "role_label": role.role.role_name,
+                "active": role.active,
+                "access_start": role.access_start.isoformat() if role.access_start else None,
+                "access_end": role.access_end.isoformat() if role.access_end else None,
+                "original_package_ids": role.original_package_ids,
+                "package_names": [
+                    package_name_map[pid]
+                    for pid in (role.original_package_ids or [])
+                    if pid in package_name_map
+                ],
+            }
+            history.append(entry)
+
+        return history

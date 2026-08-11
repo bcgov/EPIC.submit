@@ -123,6 +123,7 @@ export const useSaveUserProfile = ({
 
 type EditUserRequest = {
   role_name: string;
+  account_project_ids: number[];
   package_ids?: number[];
   original_package_ids?: number[];
 };
@@ -145,6 +146,8 @@ export const useSaveUserRole = ({
   account_user_id,
   options,
 }: UseSaveUserRoleParams) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: EditUserRequest) => {
       if (!account_user_id) {
@@ -154,9 +157,16 @@ export const useSaveUserRole = ({
       return editUserRole(account_user_id, data);
     },
     ...options,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_USERS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_USER, account_user_id, "access-history"],
+      });
+
       if (options?.onSuccess) {
-        options.onSuccess();
+        options.onSuccess(data);
       }
     },
     onError: (error: any) => {
@@ -190,6 +200,8 @@ export const useSaveUserStatus = ({
   account_user_id,
   options,
 }: UseSaveUserRoleParams) => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (data: EditUserStatusRequest) => {
       if (!account_user_id) {
@@ -200,6 +212,13 @@ export const useSaveUserStatus = ({
     },
     ...options,
     onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_USERS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY.ACCOUNT_USER, account_user_id, "access-history"],
+      });
+
       if (options?.onSuccess) {
         options.onSuccess(data);
       }
@@ -240,5 +259,40 @@ export const useRecordUserTermsOfService = (
   return useMutation<any, AxiosError, TermsUpdateRequest>({
     mutationFn: recordUserTermsOfService,
     ...options,
+  });
+};
+
+
+export type AccessHistoryEntry = {
+  id: number;
+  account_project_id: number;
+  project_name: string;
+  role_name: string;
+  role_label: string;
+  active: boolean;
+  access_start: string | null;
+  access_end: string | null;
+  original_package_ids: number[] | null;
+  package_names: string[];
+};
+
+const getAccessHistory = (accountUserId: number) => {
+  return submitRequest<AccessHistoryEntry[]>({
+    url: `/accounts/user/${accountUserId}/access-history`,
+  });
+};
+
+type UseGetAccessHistoryOptions = {
+  accountUserId?: number | null;
+};
+
+export const useGetAccessHistory = ({
+  accountUserId,
+}: UseGetAccessHistoryOptions) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.ACCOUNT_USER, accountUserId, "access-history"],
+    queryFn: () => getAccessHistory(accountUserId!),
+    enabled: Boolean(accountUserId),
+    ...defaultUseQueryOptions,
   });
 };

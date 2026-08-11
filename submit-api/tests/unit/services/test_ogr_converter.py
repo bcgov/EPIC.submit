@@ -24,13 +24,35 @@ def _write_geojson(path, features: list[dict]) -> None:
 
 def test_merge_geojson_files_streams_features_into_one_collection(tmp_path):
     """Multiple layer outputs are merged into one FeatureCollection."""
+    import sys
+    from types import ModuleType
+    from unittest.mock import MagicMock
+
     first = tmp_path / "first.geojson"
     second = tmp_path / "second.geojson"
     output = tmp_path / "merged.geojson"
     _write_geojson(first, [_feature(1)])
     _write_geojson(second, [_feature(2)])
 
-    ogr_converter._merge_geojson_files([str(first), str(second)], str(output))
+    # Create a mock fiona module that reads GeoJSON files natively
+    fiona_mock = MagicMock(spec=ModuleType)
+
+    def _fiona_open(path):
+        """Return a context manager yielding features from a GeoJSON file."""
+        data = json.loads(open(path, encoding="utf-8").read())
+        features = data.get("features", [])
+        ctx = MagicMock()
+        ctx.__enter__ = lambda self: features
+        ctx.__exit__ = lambda self, *a: None
+        return ctx
+
+    fiona_mock.open = _fiona_open
+
+    fiona_model_mock = MagicMock(spec=ModuleType)
+    fiona_model_mock.to_dict = lambda f: f  # identity: features are already dicts
+
+    with patch.dict(sys.modules, {"fiona": fiona_mock, "fiona.model": fiona_model_mock}):
+        ogr_converter._merge_geojson_files([str(first), str(second)], str(output))
 
     merged = json.loads(output.read_text(encoding="utf-8"))
     assert merged["type"] == "FeatureCollection"

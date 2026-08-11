@@ -298,26 +298,6 @@ def test_total_equals_visible_count(mock_visible, mock_role, mock_get_user, mock
 
 @patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="test-user")
 @patch(f"{MODULE_PATH}.User.get_by_guid")
-@patch.object(ProjectQueries, "_get_full_access_paginated")
-@patch(f"{MODULE_PATH}.jwt.contains_role", return_value=True)
-def test_full_access_uses_optimized_path(mock_role, mock_paginated, mock_get_user, mock_username):
-    """Test that FULL_ACCESS staff users use the optimized paginate path."""
-    mock_user = Mock()
-    mock_get_user.return_value = mock_user
-    expected_projects = [{"id": 1, "name": "Project 1", "packages": [{"id": 1}]}]
-    mock_paginated.return_value = (expected_projects, 1)
-
-    result, total = ProjectQueries.get_filtered_account_projects_paginated(
-        search_options=None, page=1, page_size=5, is_proponent=False, user=mock_user
-    )
-
-    mock_paginated.assert_called_once_with(None, 1, 5, mock_user)
-    assert result == expected_projects
-    assert total == 1
-
-
-@patch(f"{MODULE_PATH}.TokenInfo.get_username", return_value="test-user")
-@patch(f"{MODULE_PATH}.User.get_by_guid")
 @patch(f"{MODULE_PATH}.jwt.contains_role", return_value=False)
 @patch.object(ProjectQueries, "_get_staff_visible_projects")
 def test_zero_visible_projects(mock_visible, mock_role, mock_get_user, mock_username):

@@ -20,7 +20,8 @@ from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
 from submit_api.auth import auth
-from submit_api.exceptions import ResourceNotFoundError
+from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
+from submit_api.models.user_status import UserStatusEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.user import UserSchema
 from submit_api.services.user_service import UserService
@@ -48,6 +49,7 @@ class CurrentUser(Resource):
     )
     @API.response(code=200, model=user_model, description="User found")
     @API.response(code=201, model=user_model, description="User created")
+    @API.response(403, "Forbidden - Access Revoked")
     @API.response(404, "Not Found")
     @auth.require
     @cross_origin(origins=allowedorigins())
@@ -62,6 +64,13 @@ class CurrentUser(Resource):
 
         # Use get_or_provision method which will auto-create staff users with valid roles
         user = UserService.get_or_provision_by_auth_guid(guid, token_info)
+
+        # Block revoked users from accessing the system
+        if user.status_id == UserStatusEnum.ACCESS_REVOKED.value:
+            raise PermissionDeniedError(
+                "Access Denied - Your access has been revoked.",
+                HTTPStatus.FORBIDDEN
+            )
 
         return UserSchema().dump(user), HTTPStatus.OK
 

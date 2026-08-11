@@ -11,7 +11,7 @@ export default function StaffTableHead({ isManagementPlan }: StaffTableHeadProps
       <TableHead
         sx={{
           border: 0,
-          ".MuiTableCell-root": { lineHeight: 1.2 },
+          ".MuiTableCell-root": { lineHeight: 1.2, px: "1rem" },
         }}
       >
         <TableRow>
@@ -39,7 +39,7 @@ export default function StaffTableHead({ isManagementPlan }: StaffTableHeadProps
     <TableHead
       sx={{
         border: 0,
-        ".MuiTableCell-root": { lineHeight: 1.2 },
+        ".MuiTableCell-root": { lineHeight: 1.2, px: "1rem" },
       }}
     >
       <TableRow>

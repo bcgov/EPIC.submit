@@ -16,7 +16,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
   const navigate = useNavigate();
   const { userType } = useAccount();
 
-  const is_proponent = useMemo(()=>userType === USER_TYPE.PROPONENT, [userType]);
+  const is_proponent = useMemo(() => userType === USER_TYPE.PROPONENT, [userType]);
   const { name, ea_certificate } = accountProject.project;
   const hasAccountProjectWorks =
     (accountProject.account_project_works?.length ?? 0) > 0;

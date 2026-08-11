@@ -13,6 +13,7 @@ class UserStatusEnum(IntEnum):
 
     ACTIVE = 1
     INACTIVE = 2
+    ACCESS_REVOKED = 3
 
 
 class UserStatus(BaseModel):  # pylint: disable=too-few-public-methods

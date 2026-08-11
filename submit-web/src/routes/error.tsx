@@ -44,10 +44,10 @@ function ErrorPage() {
               return to our home page and try again. If the problem persists,
               contact our support team at{" "}
               <MuiLink
-                href={`mailto:${AppConfig.supportMpEmail}`}
+                href={`mailto:${AppConfig.epicSystemEmail}`}
                 sx={{ ml: BCDesignTokens.layoutMarginXsmall }}
               >
-                {AppConfig.supportMpEmail}
+                {AppConfig.epicSystemEmail}
               </MuiLink>
             </Typography>
           </Box>

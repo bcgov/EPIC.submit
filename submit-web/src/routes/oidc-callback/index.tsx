@@ -42,8 +42,15 @@ function OidcCallback() {
    the submit system yet. That is an expected state for fresh proponents*/
   const notInSystem = account?.error?.status === HTTP_STATUS.NOT_FOUND;
 
-  if (account?.error && !notInSystem) {
+  /** A 403 means the user has been revoked - send them to need-access */
+  const accessRevoked = account?.error?.status === HTTP_STATUS.FORBIDDEN;
+
+  if (account?.error && !notInSystem && !accessRevoked) {
     return <Navigate to="/error" />;
+  }
+
+  if (accessRevoked) {
+    return <Navigate to="/need-access" />;
   }
 
   if (account.userType === USER_TYPE.STAFF) {

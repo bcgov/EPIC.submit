@@ -8,8 +8,10 @@ import {
   FormLabel,
   Button,
   Alert,
+  Link,
 } from "@mui/material";
 import { useNavigate } from "@tanstack/react-router";
+import { AppConfig } from "@/utils/config";
 
 export default function ProjectConfirmationForm() {
   const [isCorrect, setIsCorrect] = useState<string>("");
@@ -58,7 +60,11 @@ export default function ProjectConfirmationForm() {
       )}
       {isCorrect === "no" && (
         <Alert severity="warning" sx={{ width: "100%" }}>
-          Please contact EAO.
+          Please contact the EAO at{" "}
+          <Link href={`mailto:${AppConfig.epicSystemEmail}`}>
+            {AppConfig.epicSystemEmail}
+          </Link>
+          .
         </Alert>
       )}
     </Box>

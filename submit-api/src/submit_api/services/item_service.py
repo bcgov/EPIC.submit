@@ -6,6 +6,7 @@ from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models.queries.package import PackageItemQueries, PackageSubmissionQueries
 from submit_api.services import authorization
+from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
 
 
 class ItemService:
@@ -48,7 +49,7 @@ class ItemService:
         derived from submission states, not item states.
         """
         package = PackageModel.find_by_id(package_id)
-        if package and package.type.name == 'Management Plan':
+        if package and package.type.name in MP_VIEW_PACKAGE_TYPES:
             PackageItemQueries.update_package_status(package_id, session)
         else:
             PackageSubmissionQueries.update_package_status_from_submissions(package_id, session, package)

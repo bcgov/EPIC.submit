@@ -18,6 +18,8 @@ from tests.utilities.factory_utils import factory_package_model
 from tests.utilities.factory_utils import factory_user_model
 from tests.utilities.factory_utils import set_global_token_info
 
+from submit_api.models import AccountUser, db
+
 
 fake = Faker()
 
@@ -89,11 +91,28 @@ def test_create_review_consultation_record_fail(client, session, jwt):
     claims = TestJwtClaims.staff_admin_role
     auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
-    factory_user_model(auth_guid=auth_guid)
+    user = factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value)
     package.submitted_on = fake.date_time_this_year()
+    package.submitted_by = auth_guid
     session.add(package)
     session.flush()
+
+    # Create an AccountUser linked to the user so emails can be sent
+    from submit_api.models.account_project import AccountProject
+    account_project = AccountProject.query.get(package.account_project_id)
+    account_user = AccountUser(
+        account_id=account_project.account_id,
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        position=fake.job(),
+        work_email_address=fake.email(),
+        work_contact_number=fake.phone_number(),
+        user_id=user.id,
+    )
+    db.session.add(account_user)
+    db.session.flush()
+
     cr_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONSULTATION_RECORD.value,
                                  status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
     factory_item_model(package=package, item_type_id=SubmissionItemTypeId.MANAGEMENT_PLAN_FORM.value,
@@ -379,12 +398,29 @@ def test_fail_management_plan_item(client, session, jwt):
     claims = TestJwtClaims.staff_admin_role
     auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
-    factory_user_model(auth_guid=auth_guid)
+    user = factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.MANAGEMENT_PLAN.value,
                                     submitted_to_eao_for='Satisfaction')
     package.submitted_on = fake.date_time_this_year()
+    package.submitted_by = auth_guid
     session.add(package)
     session.flush()
+
+    # Create an AccountUser linked to the user so emails can be sent
+    from submit_api.models.account_project import AccountProject
+    account_project = AccountProject.query.get(package.account_project_id)
+    account_user = AccountUser(
+        account_id=account_project.account_id,
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        position=fake.job(),
+        work_email_address=fake.email(),
+        work_contact_number=fake.phone_number(),
+        user_id=user.id,
+    )
+    db.session.add(account_user)
+    db.session.flush()
+
     contact_info_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONTACT_INFORMATION.value,
                                            status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
     factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONSULTATION_RECORD.value,
@@ -447,12 +483,29 @@ def test_fail_iem_item(client, session, jwt):
     claims = TestJwtClaims.staff_admin_role
     auth_guid = claims["preferred_username"]
     set_global_token_info(claims)
-    factory_user_model(auth_guid=auth_guid)
+    user = factory_user_model(auth_guid=auth_guid)
     package = factory_package_model(package_type_id=PackageTypeId.IEM.value,
                                     submitted_to_eao_for='Satisfaction')
     package.submitted_on = fake.date_time_this_year()
+    package.submitted_by = auth_guid
     session.add(package)
     session.flush()
+
+    # Create an AccountUser linked to the user so emails can be sent
+    from submit_api.models.account_project import AccountProject
+    account_project = AccountProject.query.get(package.account_project_id)
+    account_user = AccountUser(
+        account_id=account_project.account_id,
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        position=fake.job(),
+        work_email_address=fake.email(),
+        work_contact_number=fake.phone_number(),
+        user_id=user.id,
+    )
+    db.session.add(account_user)
+    db.session.flush()
+
     contact_info_item = factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONTACT_INFORMATION.value,
                                            status=ItemStatus.SUBMITTED.value, submitted_by=auth_guid)
     factory_item_model(package=package, item_type_id=SubmissionItemTypeId.CONSULTATION_RECORD.value,

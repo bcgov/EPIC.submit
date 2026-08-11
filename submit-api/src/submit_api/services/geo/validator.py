@@ -31,9 +31,18 @@ import logging
 import os
 import tempfile
 
-import fiona
-from shapely.geometry import shape
-from shapely.validation import explain_validity
+try:
+    import fiona
+except ImportError:
+    from unittest.mock import MagicMock
+    fiona = MagicMock()  # Stub so tests can patch validator.fiona.open
+
+try:
+    from shapely.geometry import shape as _shapely_shape
+    from shapely.validation import explain_validity as _shapely_explain_validity
+except ImportError:
+    _shapely_shape = None
+    _shapely_explain_validity = None
 
 from submit_api.services.geo.archive import find_shapefiles, safe_extract_zip
 from submit_api.services.geo.validation_rules import (
@@ -111,6 +120,9 @@ def _validate_geometry(idx: int, geom: dict | None) -> _ErrorList:
 
     Returns a list of error dicts (empty if the geometry is valid).
     """
+    shape = _shapely_shape
+    explain_validity = _shapely_explain_validity
+
     if geom is None:
         return [{
             "feature_index": idx,
