@@ -89,6 +89,7 @@ def test_excludes_projects_without_visible_packages(
 
     mock_user = Mock()
     search_options = Mock()
+    search_options.status = []
 
     result = ProjectQueries._get_staff_visible_projects(
         search_options, False, mock_user
@@ -125,6 +126,7 @@ def test_batch_loop_terminates_at_max_batches(
 
     mock_user = Mock()
     search_options = Mock()
+    search_options.status = []
 
     result = ProjectQueries._get_staff_visible_projects(
         search_options, False, mock_user
@@ -160,6 +162,7 @@ def test_stops_when_db_exhausted_mid_batch(
 
     mock_user = Mock()
     search_options = Mock()
+    search_options.status = []
 
     result = ProjectQueries._get_staff_visible_projects(
         search_options, False, mock_user
@@ -187,6 +190,7 @@ def test_stops_when_batch_returns_empty(
 
     mock_user = Mock()
     search_options = Mock()
+    search_options.status = []
 
     result = ProjectQueries._get_staff_visible_projects(
         search_options, False, mock_user
@@ -221,8 +225,11 @@ def test_proponent_path_does_not_use_staff_batch_loop(
     mock_get_full.return_value = [_make_project_dict("ProponentProject", has_packages=True)]
     mock_filter_packages.return_value = [_make_project_dict("ProponentProject", has_packages=True)]
 
+    search_options = Mock()
+    search_options.status = []
+
     result, total = ProjectQueries.get_filtered_account_projects_paginated(
-        search_options=Mock(),
+        search_options=search_options,
         page=1,
         page_size=10,
         is_proponent=True,

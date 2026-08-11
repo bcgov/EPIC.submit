@@ -183,8 +183,7 @@ class ProjectQueries:
             account_projects_list = cls._filter_packages_by_computed_status(
                 account_projects_list, search_options.status
             )
-            # Recompute total post-filter — see note in get_filtered_account_projects_paginated
-            # docstring/callers re: pagination not being addressed here.
+            # Recompute total post-filter
             total = len(account_projects_list)
 
         return account_projects_list, total
