@@ -1,16 +1,16 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { Grid } from "@mui/material";
-import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
-import { useAccount } from "@/store/accountStore";
-import { Else, If, Then } from "react-if";
-import { Projects, ProjectsSkeleton } from "@/components/App/Projects";
-import { useEffect } from "react";
-import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { PageGrid } from "@/components/Shared/PageGrid";
 import ProjectFilters from "@/components/App/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/App/Filters/projectFilterStore";
-import { USER_TYPE } from "@/models/User";
+import { Projects, ProjectsSkeleton } from "@/components/App/Projects";
+import { PageGrid } from "@/components/Shared/PageGrid";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { useGetAccountProjectsByAccount } from "@/hooks/api/useProjects";
 import { expandStatusFilters } from "@/models/Submission";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
+import { Grid } from "@mui/material";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { useEffect, useMemo } from "react";
+import { Else, If, Then } from "react-if";
 
 export const Route = createFileRoute("/proponent/_proponentLayout/projects/")({
   component: ProjectsPage,
@@ -34,6 +34,18 @@ export function ProjectsPage() {
     },
   });
 
+  const { data: unfilteredProjectsData } = useGetAccountProjectsByAccount({
+    accountId,
+    searchOptions: {},
+  });
+
+  const hasApprovedConditionProject = useMemo(
+    () =>
+      unfilteredProjectsData?.some((p) => p.project.has_approved_condition) ??
+      false,
+    [unfilteredProjectsData],
+  );
+
   useEffect(() => {
     if (isProjectsError) {
       notify.error("Failed to load projects");
@@ -47,7 +59,10 @@ export function ProjectsPage() {
   return (
     <PageGrid>
       <Grid item xs={12}>
-        <ProjectFilters userType={USER_TYPE.PROPONENT} />
+        <ProjectFilters
+          userType={USER_TYPE.PROPONENT}
+          hideStatusFilter={!hasApprovedConditionProject}
+        />
         <If condition={isProjectsLoading}>
           <Then>
             <ProjectsSkeleton />

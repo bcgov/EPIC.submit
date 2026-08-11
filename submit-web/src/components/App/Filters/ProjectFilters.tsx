@@ -1,20 +1,26 @@
-import { Box, Grid, Typography } from "@mui/material";
-import { SearchFilter } from "./SearchFilter";
-import StatusFilter from "./StatusFilter";
-import FilterAltOffOutlinedIcon from "@mui/icons-material/FilterAltOffOutlined";
-import { BCDesignTokens } from "epic.theme";
-import { useProjectFilters } from "./projectFilterStore";
-import DateSubmittedFromFilter from "./DateSubmittedFromFilter";
-import DateSubmittedToFilter from "./DateSubmittedToFilter";
 import {
   EAO_PACKAGE_STATUS_FILTERS,
-  PackageStatus,
+  PackageStatusFilterValue,
   PROPONENT_PACKAGE_STATUS_FILTERS,
 } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
+import FilterAltOffOutlinedIcon from "@mui/icons-material/FilterAltOffOutlined";
+import { Box, Grid, Typography } from "@mui/material";
+import { BCDesignTokens } from "epic.theme";
 import PackageStatusChip from "../PackageStatusChip";
+import DateSubmittedFromFilter from "./DateSubmittedFromFilter";
+import DateSubmittedToFilter from "./DateSubmittedToFilter";
+import { useProjectFilters } from "./projectFilterStore";
+import { SearchFilter } from "./SearchFilter";
+import StatusFilter from "./StatusFilter";
 
-function ProjectFilters({ userType }: { userType: string }) {
+function ProjectFilters({
+  userType,
+  hideStatusFilter,
+}: {
+  userType: string;
+  hideStatusFilter: boolean;
+}) {
   const { resetFilters } = useProjectFilters();
   const isProponent = userType === USER_TYPE.PROPONENT;
 
@@ -24,22 +30,24 @@ function ProjectFilters({ userType }: { userType: string }) {
       item
       sx={{ maxWidth: "1448px", justifyContent: "space-between" }}
     >
-      <Grid item xs={2.5}>
+      <Grid item xs={!hideStatusFilter ? 2.5 : 6}>
         <SearchFilter userType={userType} />
       </Grid>
-      <Grid item xs={3.5}>
-        <StatusFilter<PackageStatus>
-          label="Post-Decision Submission Status"
-          roleFilters={
-            isProponent
-              ? PROPONENT_PACKAGE_STATUS_FILTERS
-              : EAO_PACKAGE_STATUS_FILTERS
-          }
-          renderChip={(value, label) => (
-            <PackageStatusChip status={value} label={label} />
-          )}
-        />
-      </Grid>
+      {!hideStatusFilter && (
+        <Grid item xs={3.5}>
+          <StatusFilter<PackageStatusFilterValue>
+            label="Post-Decision Submission Status"
+            roleFilters={
+              isProponent
+                ? PROPONENT_PACKAGE_STATUS_FILTERS
+                : EAO_PACKAGE_STATUS_FILTERS
+            }
+            renderChip={(value, label) => (
+              <PackageStatusChip status={value} label={label} />
+            )}
+          />
+        </Grid>
+      )}
       <Grid item xs={2}>
         <DateSubmittedFromFilter />
       </Grid>

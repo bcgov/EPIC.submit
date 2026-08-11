@@ -1,13 +1,6 @@
-import { ReactNode } from "react";
 import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
-import {
-  EAO_SUBMISSION_ITEM_FILTERS,
-  FILTER_GROUPS,
-  PROPONENT_SUBMISSION_ITEM_FILTERS,
-} from "@/models/Submission";
 import { StatusEntry } from "@/models/Status";
-import { USER_TYPE } from "@/models/User";
-import { useAccount } from "@/store/accountStore";
+import { FILTER_GROUPS } from "@/models/Submission";
 import {
   Box,
   FormControl,
@@ -17,6 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { ReactNode } from "react";
 import { useProjectFilters } from "./projectFilterStore";
 
 type StatusFilterProps<T extends string = string> = {
@@ -27,7 +21,7 @@ type StatusFilterProps<T extends string = string> = {
   error?: boolean;
   onFocus?: () => void;
   availableStatuses?: T[];
-  roleFilters?: Record<string, StatusEntry<T>>;
+  roleFilters: Record<string, StatusEntry<T>>;
   renderChip?: (value: T, label?: string) => ReactNode;
 };
 
@@ -39,19 +33,10 @@ function StatusFilter<T extends string = string>({
   error,
   onFocus,
   availableStatuses,
-  roleFilters: roleFiltersProp,
+  roleFilters,
   renderChip,
 }: StatusFilterProps<T>) {
   const store = useProjectFilters();
-  const { userType } = useAccount();
-  const isProponent = userType === USER_TYPE.PROPONENT;
-
-  // Falls back to the submission item filters
-  const roleFilters =
-    roleFiltersProp ??
-    ((isProponent
-      ? PROPONENT_SUBMISSION_ITEM_FILTERS
-      : EAO_SUBMISSION_ITEM_FILTERS) as Record<string, StatusEntry<T>>);
 
   const chipRenderer =
     renderChip ??
@@ -82,7 +67,6 @@ function StatusFilter<T extends string = string>({
               acc.push({
                 value: status.value,
                 label: group.label,
-                isGroup: true,
               });
             }
           } else {

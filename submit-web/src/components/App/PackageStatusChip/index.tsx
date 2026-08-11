@@ -1,5 +1,5 @@
-import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
+import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 
 // Map statuses to labels and themes
 type StyleProps = {
@@ -14,6 +14,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     SATISFIED: { label: "Satisfied", theme: "success" },
     REVIEWED: { label: "Reviewed", theme: "success" },
     COMPLETED: { label: "Completed", theme: "success" },
+    REVIEW_COMPLETED: { label: "Review Completed", theme: "success" },
     PASSED_CONSULTATION_CHECK: {
       label: "Passed Consultation Check",
       theme: "success",

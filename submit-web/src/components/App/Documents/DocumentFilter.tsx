@@ -4,6 +4,13 @@ import { SearchFilter } from "@/components/App/Filters/SearchFilter";
 import StatusFilter from "@/components/App/Filters/StatusFilter";
 import { useGetPackageTypesByProjectId } from "@/hooks/api/usePackageTypes";
 import { AccountProject } from "@/models/Project";
+import {
+  EAO_SUBMISSION_ITEM_FILTERS,
+  PROPONENT_SUBMISSION_ITEM_FILTERS,
+  SubmissionItemStatus,
+} from "@/models/Submission";
+import { USER_TYPE } from "@/models/User";
+import { useAccount } from "@/store/accountStore";
 import FilterAltOffOutlinedIcon from "@mui/icons-material/FilterAltOffOutlined";
 import {
   Box,
@@ -17,12 +24,13 @@ import {
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useMemo, useState } from "react";
+import { SubmissionStatusChip } from "../SubmissionStatusChip";
 
 export type DocumentFilters = {
   name: string;
   workPhase: string[];
   submissionType: string[];
-  status: string[];
+  status: SubmissionItemStatus[];
   submittedOnStart: string;
   submittedOnEnd: string;
 };
@@ -32,7 +40,7 @@ type DocumentFilterProps = {
   setFilters: (filters: DocumentFilters) => void;
   selectedProject: AccountProject | undefined;
   projectSelected: boolean;
-  availableStatuses?: string[];
+  availableStatuses?: SubmissionItemStatus[];
 };
 
 export const DocumentFilter = ({
@@ -44,6 +52,9 @@ export const DocumentFilter = ({
 }: DocumentFilterProps) => {
   const [searchTerm, setSearchTerm] = useState(filters.name);
   const [showValidation, setShowValidation] = useState(false);
+
+  const { userType } = useAccount();
+  const isProponent = userType === USER_TYPE.PROPONENT;
 
   // Available Work/Phases from selected project
   const availableWorkPhases = useMemo(() => {
@@ -244,13 +255,21 @@ export const DocumentFilter = ({
 
         {/* Status */}
         <Grid item xs={1.5}>
-          <StatusFilter
-            multiple={true}
+          <StatusFilter<SubmissionItemStatus>
             value={filters.status}
             onChange={(val) => handleFilterChange("status", val)}
+            multiple={true}
             error={!projectSelected && showValidation}
             onFocus={handleValidationCheck}
             availableStatuses={availableStatuses}
+            roleFilters={
+              isProponent
+                ? PROPONENT_SUBMISSION_ITEM_FILTERS
+                : EAO_SUBMISSION_ITEM_FILTERS
+            }
+            renderChip={(value, label) => (
+              <SubmissionStatusChip status={value} label={label} />
+            )}
           />
         </Grid>
 
