@@ -1,3 +1,7 @@
+# NOTE: The `create_and_assign_group` and `get_or_create_staff_user_from_email` methods
+# in this service are NOT used by any frontend UI component. The corresponding API endpoint
+# (POST /staff-user) and frontend hook (useStaffAddUser) exist but are never called from
+# any UI page. Consider removing this dead code path or wiring it up in the staff UI.
 """Service for account management."""
 from flask import current_app
 

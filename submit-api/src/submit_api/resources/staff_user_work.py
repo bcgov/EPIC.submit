@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""API endpoints for managing staff user work assignments."""
+"""API endpoints for managing staff user work assignments. Consumed in the cronJob"""
 
 from http import HTTPStatus
 

@@ -399,7 +399,7 @@ class AccountUserService:
 
         # Update Keycloak login access
         AuthService.toggle_user_enabled_status(
-            username=account_user.user.auth_guid, enabled=active
+            username=account_user.user.auth_guid, enabled=active)
         current_app.logger.info(
             f"User {account_user_id} {'reactivated' if active else 'deactivated'} successfully."
         )

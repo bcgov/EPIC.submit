@@ -35,8 +35,8 @@ class KeycloakTokenService:
         config = current_app.config
         base_url = config.get("KEYCLOAK_BASE_URL")
         realm = config.get("KEYCLOAK_REALM_NAME")
-        admin_client_id = config.get("KEYCLOAK_ADMIN_CLIENT")
-        admin_secret = config.get("KEYCLOAK_ADMIN_SECRET")
+        admin_client_id = config.get("SERVICE_ACCOUNT_ID")
+        admin_secret = config.get("SERVICE_ACCOUNT_SECRET")
         timeout = int(config.get("CONNECT_TIMEOUT", 60))
         headers = {"Content-Type": "application/x-www-form-urlencoded"}
         token_url = (

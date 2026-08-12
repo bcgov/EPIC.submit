@@ -88,8 +88,8 @@ class _Config():  # pylint: disable=too-few-public-methods
     # Service account details
     KEYCLOAK_BASE_URL = os.getenv('KEYCLOAK_BASE_URL')
     KEYCLOAK_REALM_NAME = os.getenv('KEYCLOAK_REALM_NAME', 'eao-epic')
-    KEYCLOAK_ADMIN_CLIENT = _get_config("KEYCLOAK_ADMIN_CLIENT")
-    KEYCLOAK_ADMIN_SECRET = _get_config("KEYCLOAK_ADMIN_SECRET")
+    SERVICE_ACCOUNT_ID = _get_config("SERVICE_ACCOUNT_ID")
+    SERVICE_ACCOUNT_SECRET = _get_config("SERVICE_ACCOUNT_SECRET")
     CONNECT_TIMEOUT = _get_config("CONNECT_TIMEOUT", default=60)
 
     DOCUMENT_SERVICE_URL = _get_config("DOCUMENT_SERVICE_URL")
