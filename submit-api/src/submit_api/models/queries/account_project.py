@@ -14,11 +14,10 @@
 """Model to handle all complex queries related to Account Project."""
 
 from sqlalchemy import or_
-from sqlalchemy.orm import joinedload, aliased
+from sqlalchemy.orm import joinedload
 from submit_api.auth import jwt
 from submit_api.enums.role import RoleEnum
 from submit_api.utils.roles import EpicSubmitRole
-from submit_api.models.package import PackageStatus, NonCanonicalPackageStatus
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
@@ -27,7 +26,6 @@ from submit_api.models.staff_user_work import StaffUserWork
 from submit_api.models.user import UserType
 from submit_api.schemas.project import AccountProjectSchema, StaffAccountProjectSchema
 from submit_api.utils.token_info import TokenInfo
-from submit_api.models.update_request import UpdateRequest, UpdateRequestType, UpdateRequestStatus
 from submit_api.services.package_service import PackageService
 from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
 
@@ -179,6 +177,15 @@ class ProjectQueries:
         account_projects_list = cls.get_full_account_projects(is_proponent, account_projects)
         account_projects_list = cls._filter_packages_by_user_access(account_projects_list, user)
 
+        # Status is filtered on calculated/display status, not the raw
+        # DB column, so the SQL query intentionally skips the status filter here.
+        if search_options and search_options.status:
+            account_projects_list = cls._filter_packages_by_computed_status(
+                account_projects_list, search_options.status
+            )
+            # Recompute total post-filter
+            total = len(account_projects_list)
+
         return account_projects_list, total
 
     @classmethod
@@ -214,6 +221,11 @@ class ProjectQueries:
             projects_list = cls.get_full_account_projects(is_proponent, batch_projects)
             projects_list = cls._filter_packages_by_user_access(projects_list, user)
 
+            if search_options and search_options.status:
+                projects_list = cls._filter_packages_by_computed_status(
+                    projects_list, search_options.status
+                )
+
             # Keep only projects with at least one visible package
             visible = [p for p in projects_list if p.get("packages")]
             visible_projects.extend(visible)
@@ -236,9 +248,6 @@ class ProjectQueries:
         if search_options.search_text:
             query = cls._filter_by_search_text(
                 query, search_options.search_text)
-        if search_options.status:
-            query = cls._filter_by_submission_status(
-                query, search_options.status)
         if search_options.submitted_on_start or search_options.submitted_on_end:
             query = cls._filter_by_submission_dates(
                 query, search_options.submitted_on_start, search_options.submitted_on_end
@@ -375,6 +384,25 @@ class ProjectQueries:
         return account_project_list
 
     @classmethod
+    def _filter_packages_by_computed_status(cls, account_project_list, requested_statuses):
+        """Trim projects/packages down to those matching the calculated (display) status."""
+        if not requested_statuses:
+            return account_project_list
+
+        requested_values = {status.value for status in requested_statuses}
+
+        filtered_projects = []
+        for account_project in account_project_list:
+            matching_packages = [
+                package for package in account_project.get("packages", [])
+                if requested_values.intersection(package.get("status") or [])
+            ]
+            if matching_packages:
+                filtered_projects.append({**account_project, "packages": matching_packages})
+
+        return filtered_projects
+
+    @classmethod
     def _filter_by_search_text(cls, query, search_text):
         """Filter by search text across package and project name."""
         return query.filter(
@@ -383,77 +411,6 @@ class ProjectQueries:
                 Project.name.ilike(f"%{search_text}%"),
             )
         )
-
-    @classmethod
-    def _filter_by_submission_status(cls, query, statuses):
-        """Filter by submission status with revision and update handling."""
-        revision_required_value = PackageStatus.REVISION_REQUIRED.value
-        revision_requested_value = NonCanonicalPackageStatus.REVISION_REQUESTED.value
-        update_requested_value = NonCanonicalPackageStatus.UPDATE_REQUESTED.value
-        updated_value = NonCanonicalPackageStatus.UPDATED.value
-
-        canonical_statuses = [
-            PackageStatus.SUBMITTED.value if status.value == PackageStatus.NEW_SUBMISSION.value
-            else status.value
-            for status in statuses
-            if isinstance(status, PackageStatus) and status.value != revision_required_value
-            and status.value != revision_requested_value
-        ]
-
-        include_revision_required = any(
-            status.value in (revision_required_value, revision_requested_value)
-            for status in statuses
-        )
-        include_update_requested = any(
-            status.value == update_requested_value for status in statuses)
-        include_updated = any(
-            status.value == updated_value for status in statuses)
-
-        if canonical_statuses:
-            query = query.filter(Package.status.op("&&")(canonical_statuses))
-
-        if include_revision_required:
-            query = cls._revision_required_filter(query)
-
-        if include_update_requested or include_updated:
-            query = cls._update_status_filter(
-                query, include_update_requested, include_updated)
-
-        return query
-
-    @classmethod
-    def _revision_required_filter(cls, query):
-        """Filter packages requiring revision."""
-        review_request = aliased(UpdateRequest)
-        return query.join(
-            review_request, review_request.submission_package_id == Package.id
-        ).filter(
-            review_request.type == UpdateRequestType.REVIEW.value,
-            review_request.active.is_(True),
-            ~Package.status.op("@>")([
-                PackageStatus.COMPLETED.value,
-                PackageStatus.PARTIALLY_COMPLETED.value,
-            ])
-        )
-
-    @classmethod
-    def _update_status_filter(cls, query, include_update_requested, include_updated):
-        """Filter packages with update requests."""
-        update_request = aliased(UpdateRequest)
-        conditions = [
-            update_request.type == UpdateRequestType.UPDATE.value,
-            update_request.active.is_(True),
-        ]
-
-        if include_updated:
-            conditions.append(update_request.status ==
-                              UpdateRequestStatus.PENDING_REVIEW.value)
-
-        if include_update_requested:
-            conditions.append(update_request.status !=
-                              UpdateRequestStatus.ACCEPTED.value)
-
-        return query.join(update_request, update_request.submission_package_id == Package.id).filter(*conditions)
 
     @classmethod
     def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):

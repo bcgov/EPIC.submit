@@ -1,6 +1,7 @@
+import { AccountProjectWork } from "./AccountProjectWork";
+import { StatusEntry, buildRoleFilters } from "./Status";
 import { InternalStaffDocument, SubmissionItem } from "./SubmissionItem";
 import { UpdateRequest } from "./UpdateRequest";
-import { AccountProjectWork } from "./AccountProjectWork";
 
 export enum SubmissionPackageType {
   MANAGEMENT_PLAN = "Management Plan",
@@ -35,18 +36,54 @@ export type NonCanonicalPackageStatus =
   | "NO_REVISION_REQUIRED"
   | "RESUBMITTED"
   | "UPDATE_REQUESTED"
-  | "REVISION_REQUESTED";
+  | "REVISION_REQUESTED"
+  | "REVIEW_COMPLETED";
 
-export const NON_CANONICAL_PACKAGE_STATUS = Object.freeze<
-  Record<NonCanonicalPackageStatus, NonCanonicalPackageStatus>
->({
-  UPDATE_REQUESTED: "UPDATE_REQUESTED",
-  REVISION_REQUIRED: "REVISION_REQUIRED",
-  REVISION_REQUESTED: "REVISION_REQUESTED",
-  UPDATED: "UPDATED",
-  NO_REVISION_REQUIRED: "NO_REVISION_REQUIRED",
-  RESUBMITTED: "RESUBMITTED",
-});
+export const NON_CANONICAL_PACKAGE_STATUS: Record<
+  NonCanonicalPackageStatus,
+  StatusEntry<NonCanonicalPackageStatus>
+> = {
+  REVISION_REQUIRED: {
+    value: "REVISION_REQUIRED",
+    label: "Revision Required",
+    filter: ["proponent"],
+    sortOrder: 8,
+  },
+  NO_REVISION_REQUIRED: {
+    value: "NO_REVISION_REQUIRED",
+    label: "No Revision Required",
+  },
+  RESUBMITTED: {
+    value: "RESUBMITTED",
+    label: "Resubmitted",
+    filter: ["eao"],
+    sortOrder: 2,
+  },
+  UPDATED: {
+    value: "UPDATED",
+    label: "Updated",
+    filter: ["proponent", "eao"],
+    sortOrder: 10,
+  },
+  UPDATE_REQUESTED: {
+    value: "UPDATE_REQUESTED",
+    label: "Update Requested",
+    filter: ["proponent", "eao"],
+    sortOrder: 7,
+  },
+  REVISION_REQUESTED: {
+    value: "REVISION_REQUESTED",
+    label: "Revision Requested",
+    filter: ["eao"],
+    sortOrder: 9,
+  },
+  REVIEW_COMPLETED: {
+    value: "REVIEW_COMPLETED",
+    label: "Review Completed",
+    filter: ["proponent", "eao"],
+    sortOrder: 12,
+  },
+};
 
 export type PackageStatus =
   | "IN_REVIEW"
@@ -81,7 +118,7 @@ export type PackageStatus =
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
-  { value: PackageStatus; label: string }
+  StatusEntry<PackageStatus>
 > = {
   IN_REVIEW: {
     value: "IN_REVIEW",
@@ -90,6 +127,8 @@ export const PACKAGE_STATUS: Record<
   UNDER_REVIEW: {
     value: "UNDER_REVIEW",
     label: "Under Review",
+    filter: ["proponent", "eao"],
+    sortOrder: 11,
   },
   APPROVED: {
     value: "APPROVED",
@@ -102,6 +141,8 @@ export const PACKAGE_STATUS: Record<
   REVIEW_REJECTED: {
     value: "REVIEW_REJECTED",
     label: "Review Rejected",
+    filter: ["eao"],
+    sortOrder: 13,
   },
   REVIEW_NOT_COMPLETED: {
     value: "REVIEW_NOT_COMPLETED",
@@ -110,34 +151,50 @@ export const PACKAGE_STATUS: Record<
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
+    filter: ["proponent"],
+    sortOrder: 2,
   },
   SUBMITTED: {
     value: "SUBMITTED",
     label: "Submitted",
+    filter: ["proponent"],
+    sortOrder: 3,
   },
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
     label: "Partially Completed",
+    filter: ["proponent"],
+    sortOrder: 2,
   },
   NEW: {
     value: "NEW",
     label: "New",
+    filter: ["proponent"],
+    sortOrder: 1,
   },
   IN_PROGRESS: {
     value: "IN_PROGRESS",
     label: "In Progress",
+    // filter: ["proponent"],
+    // sortOrder: 2,
   },
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
     label: "New Submission",
+    filter: ["eao"],
+    sortOrder: 1,
   },
   UNDER_CONSULTATION_CHECK: {
     value: "UNDER_CONSULTATION_CHECK",
     label: "Under Consultation Check",
+    filter: ["proponent", "eao"],
+    sortOrder: 4,
   },
   PASSED_CONSULTATION_CHECK: {
     value: "PASSED_CONSULTATION_CHECK",
     label: "Passed Consultation Check",
+    filter: ["proponent", "eao"],
+    sortOrder: 5,
   },
   CREATED: {
     value: "CREATED",
@@ -158,6 +215,8 @@ export const PACKAGE_STATUS: Record<
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
     label: "Failed Consultation Check",
+    filter: ["eao"],
+    sortOrder: 6,
   },
   REVIEWED: {
     value: "REVIEWED",
@@ -199,6 +258,20 @@ export const PACKAGE_STATUS: Record<
     value: "WITHDRAWN",
     label: "Withdrawn",
   },
+};
+
+export type PackageStatusFilterValue =
+  | PackageStatus
+  | NonCanonicalPackageStatus;
+
+export const EAO_PACKAGE_STATUS_FILTERS = {
+  ...buildRoleFilters(PACKAGE_STATUS, "eao"),
+  ...buildRoleFilters(NON_CANONICAL_PACKAGE_STATUS, "eao"),
+};
+
+export const PROPONENT_PACKAGE_STATUS_FILTERS = {
+  ...buildRoleFilters(PACKAGE_STATUS, "proponent"),
+  ...buildRoleFilters(NON_CANONICAL_PACKAGE_STATUS, "proponent"),
 };
 
 export type SubmissionPackageMeta = Record<string, any>;

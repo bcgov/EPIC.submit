@@ -1,12 +1,6 @@
 import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
-import {
-  EAO_SUBMISSION_ITEM_FILTERS,
-  FILTER_GROUPS,
-  PROPONENT_SUBMISSION_ITEM_FILTERS,
-  SubmissionItemStatusEntry,
-} from "@/models/Submission";
-import { USER_TYPE } from "@/models/User";
-import { useAccount } from "@/store/accountStore";
+import { StatusEntry } from "@/models/Status";
+import { FILTER_GROUPS } from "@/models/Submission";
 import {
   Box,
   FormControl,
@@ -16,35 +10,44 @@ import {
   Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { ReactNode } from "react";
 import { useProjectFilters } from "./projectFilterStore";
 
-type StatusFilterProps = {
-  value?: string | string[];
-  onChange?: (value: string | string[]) => void;
+type StatusFilterProps<T extends string = string> = {
+  label?: string;
+  value?: T | T[];
+  onChange?: (value: T | T[]) => void;
   multiple?: boolean;
   error?: boolean;
   onFocus?: () => void;
-  availableStatuses?: string[];
+  availableStatuses?: T[];
+  roleFilters: Record<string, StatusEntry<T>>;
+  renderChip?: (value: T, label?: string) => ReactNode;
 };
 
-function StatusFilter({
+function StatusFilter<T extends string = string>({
+  label = "Status",
   value: controlledValue,
   onChange,
   multiple = true,
   error,
   onFocus,
   availableStatuses,
-}: StatusFilterProps) {
+  roleFilters,
+  renderChip,
+}: StatusFilterProps<T>) {
   const store = useProjectFilters();
-  const { userType } = useAccount();
-  const isProponent = userType === USER_TYPE.PROPONENT;
 
-  const roleFilters = isProponent
-    ? PROPONENT_SUBMISSION_ITEM_FILTERS
-    : EAO_SUBMISSION_ITEM_FILTERS;
+  const chipRenderer =
+    renderChip ??
+    ((value: T, label?: string) => (
+      <SubmissionStatusChip status={value} label={label} />
+    ));
 
   const internalValue =
-    controlledValue !== undefined ? controlledValue : store.filters.status;
+    controlledValue !== undefined
+      ? controlledValue
+      : (store.filters.status as unknown as T | T[]);
 
   const displayedStatuses = availableStatuses
     ? // Default to availableStatuses prop
@@ -64,17 +67,16 @@ function StatusFilter({
               acc.push({
                 value: status.value,
                 label: group.label,
-                isGroup: true,
               });
             }
           } else {
             acc.push(status);
           }
           return acc;
-        }, [] as SubmissionItemStatusEntry[]);
+        }, [] as StatusEntry<T>[]);
 
-  const handleChange = (event: SelectChangeEvent<string | string[]>) => {
-    const value = event.target.value;
+  const handleChange = (event: SelectChangeEvent<T | T[]>) => {
+    const value = event.target.value as T | T[];
 
     if (onChange) {
       onChange(value);
@@ -82,30 +84,30 @@ function StatusFilter({
     }
 
     if (multiple && Array.isArray(value)) {
-      if (value.includes("all")) {
+      if ((value as string[]).includes("all")) {
         store.setFilters({
           status: Object.values(roleFilters).map((status) => status.value),
         });
       } else if (value.length <= 3) {
-        store.setFilters({ status: value });
+        store.setFilters({ status: value as string[] });
       }
     } else if (!multiple && typeof value === "string") {
       store.setFilters({ status: value ? [value] : [] });
     }
   };
 
-  const handleMenuItemClick = (statusValue: string) => {
+  const handleMenuItemClick = (statusValue: T) => {
     if (multiple) return; // MUI handles multi-select toggling via onChange
 
-    let newValue = statusValue;
+    let newValue: T | "" = statusValue;
     if (newValue === internalValue) {
       newValue = "";
     }
 
     if (onChange) {
-      onChange(newValue);
+      onChange(newValue as T);
     } else {
-      store.setFilters({ status: newValue ? [newValue] : [] });
+      store.setFilters({ status: newValue ? [newValue as string] : [] });
     }
   };
 
@@ -114,7 +116,7 @@ function StatusFilter({
       <Select
         labelId="status-select-label"
         id="status-select"
-        placeholder="Status"
+        placeholder={label}
         value={internalValue}
         multiple={multiple}
         displayEmpty
@@ -138,7 +140,7 @@ function StatusFilter({
                   lineHeight: BCDesignTokens.typographyLineHeightsXxdense,
                 }}
               >
-                Status
+                {label}
               </Typography>
             );
           }
@@ -152,10 +154,7 @@ function StatusFilter({
                   );
                   return (
                     <Box key={value} mr={1}>
-                      <SubmissionStatusChip
-                        status={value}
-                        label={display?.label}
-                      />
+                      {chipRenderer(value as T, display?.label)}
                     </Box>
                   );
                 })}
@@ -164,9 +163,7 @@ function StatusFilter({
           }
 
           const display = displayedStatuses.find((d) => d.value === selected);
-          return (
-            <SubmissionStatusChip status={selected} label={display?.label} />
-          );
+          return chipRenderer(selected as T, display?.label);
         }}
       >
         {displayedStatuses.map((status) => (
@@ -175,7 +172,7 @@ function StatusFilter({
             value={status.value}
             onClick={() => handleMenuItemClick(status.value)}
           >
-            <SubmissionStatusChip status={status.value} label={status.label} />
+            {chipRenderer(status.value, status.label)}
           </MenuItem>
         ))}
       </Select>

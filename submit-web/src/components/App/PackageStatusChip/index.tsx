@@ -1,5 +1,5 @@
-import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
+import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 
 // Map statuses to labels and themes
 type StyleProps = {
@@ -14,6 +14,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     SATISFIED: { label: "Satisfied", theme: "success" },
     REVIEWED: { label: "Reviewed", theme: "success" },
     COMPLETED: { label: "Completed", theme: "success" },
+    REVIEW_COMPLETED: { label: "Review Completed", theme: "success" },
     PASSED_CONSULTATION_CHECK: {
       label: "Passed Consultation Check",
       theme: "success",
@@ -97,14 +98,20 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
 
 type PackageStatusChipProps = Readonly<{
   status: PackageStatus | NonCanonicalPackageStatus;
+  label?: string;
 }>;
 
-export default function PackageStatusChip({ status }: PackageStatusChipProps) {
+export default function PackageStatusChip({
+  status,
+  label = "",
+}: PackageStatusChipProps) {
   const config = statusMap[status];
 
   if (!config || !config.label) {
     return null;
   }
 
-  return <StatusChip label={config.label} theme={config.theme} />;
+  return (
+    <StatusChip label={label ? label : config.label} theme={config.theme} />
+  );
 }

@@ -1,3 +1,12 @@
+import {
+  StatusEntry,
+  FILTER_GROUPS,
+  expandStatusFilters,
+  buildRoleFilters,
+} from "./Status";
+
+export { FILTER_GROUPS, expandStatusFilters };
+
 // NonCanonicalSubmissionStatus are just for display purpose, they are not canonical business statuses
 export type NonCanonicalSubmissionStatus =
   | "PENDING_MANAGER_REVIEW"
@@ -55,20 +64,9 @@ export type SubmissionItemStatus =
 
 export type SubmissionFilterRole = "eao" | "proponent";
 
-export type SubmissionItemStatusEntry = {
-  value: SubmissionItemStatus;
-  label: string;
-  // Which filter UIs this status appears in
-  filter?: SubmissionFilterRole[];
-  // Groups multiple statuses under a single display option, e.g. "Completed").
-  // filterGroup?: string;
-  sortOrder?: number;
-  isGroup?: boolean;
-};
-
 export const SUBMISSION_ITEM_STATUS: Record<
   SubmissionItemStatus,
-  SubmissionItemStatusEntry
+  StatusEntry<SubmissionItemStatus>
 > = {
   NOT_APPLICABLE: {
     value: "NOT_APPLICABLE",
@@ -211,37 +209,15 @@ export const SUBMISSION_ITEM_STATUS: Record<
   },
 };
 
-export const EAO_SUBMISSION_ITEM_FILTERS = Object.fromEntries(
-  Object.entries(SUBMISSION_ITEM_STATUS).filter(([, s]) =>
-    s.filter?.includes("eao"),
-  ),
-) as Partial<Record<SubmissionItemStatus, SubmissionItemStatusEntry>>;
+export const EAO_SUBMISSION_ITEM_FILTERS = buildRoleFilters(
+  SUBMISSION_ITEM_STATUS,
+  "eao",
+);
 
-export const PROPONENT_SUBMISSION_ITEM_FILTERS = Object.fromEntries(
-  Object.entries(SUBMISSION_ITEM_STATUS).filter(([, s]) =>
-    s.filter?.includes("proponent"),
-  ),
-) as Partial<Record<SubmissionItemStatus, SubmissionItemStatusEntry>>;
-
-export const FILTER_GROUPS: Partial<
-  Record<SubmissionItemStatus, { label: string }>
-> = {
-  REVIEWED: { label: "Completed" },
-  ACCEPTED: { label: "Completed" },
-  SATISFIED: { label: "Completed" },
-  APPROVED: { label: "Completed" },
-  COMPLETED: { label: "Completed" },
-};
-
-export const expandStatusFilters = (statuses: string[]): string[] => {
-  return statuses.flatMap((s) => {
-    const groupLabel = FILTER_GROUPS[s as SubmissionItemStatus]?.label;
-    if (!groupLabel) return [s];
-    return Object.values(SUBMISSION_ITEM_STATUS)
-      .filter((entry) => FILTER_GROUPS[entry.value]?.label === groupLabel)
-      .map((entry) => entry.value);
-  });
-};
+export const PROPONENT_SUBMISSION_ITEM_FILTERS = buildRoleFilters(
+  SUBMISSION_ITEM_STATUS,
+  "proponent",
+);
 
 export type SubmittedForm = {
   id: number;
