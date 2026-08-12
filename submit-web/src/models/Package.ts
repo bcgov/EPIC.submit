@@ -148,6 +148,12 @@ export const PACKAGE_STATUS: Record<
     value: "REVIEW_NOT_COMPLETED",
     label: "Review Not Completed",
   },
+  PARTIALLY_COMPLETED: {
+    value: "PARTIALLY_COMPLETED",
+    label: "Partially Completed",
+    filter: ["proponent"],
+    sortOrder: 2,
+  },
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
@@ -159,12 +165,6 @@ export const PACKAGE_STATUS: Record<
     label: "Submitted",
     filter: ["proponent"],
     sortOrder: 3,
-  },
-  PARTIALLY_COMPLETED: {
-    value: "PARTIALLY_COMPLETED",
-    label: "Partially Completed",
-    filter: ["proponent"],
-    sortOrder: 2,
   },
   NEW: {
     value: "NEW",
