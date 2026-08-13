@@ -61,8 +61,6 @@ export function useDocumentRow({
 
   const isNewVersion = useIsNewVersion({
     submission: documentSubmission,
-    itemTypeId: submissionItem?.type_id,
-    updateRequests: submissionPackage?.update_requests,
   });
 
   // ─── Mutations ────────────────────────────────────────────────────────────

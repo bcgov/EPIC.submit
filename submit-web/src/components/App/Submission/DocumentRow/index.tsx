@@ -261,8 +261,6 @@ export default function DocumentRow({
           <Box ml={1}>
             <StatusCell
               submittedDocument={documentSubmission}
-              itemTypeId={submissionItem.type_id}
-              updateRequests={submissionPackage?.update_requests}
             />
           </Box>
         </SubmitTableCell>
