@@ -148,6 +148,12 @@ export const PACKAGE_STATUS: Record<
     value: "REVIEW_NOT_COMPLETED",
     label: "Review Not Completed",
   },
+  PARTIALLY_COMPLETED: {
+    value: "PARTIALLY_COMPLETED",
+    label: "Partially Completed",
+    filter: ["proponent"],
+    sortOrder: 2,
+  },
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
@@ -159,12 +165,6 @@ export const PACKAGE_STATUS: Record<
     label: "Submitted",
     filter: ["proponent"],
     sortOrder: 3,
-  },
-  PARTIALLY_COMPLETED: {
-    value: "PARTIALLY_COMPLETED",
-    label: "Partially Completed",
-    filter: ["proponent"],
-    sortOrder: 2,
   },
   NEW: {
     value: "NEW",
@@ -211,6 +211,8 @@ export const PACKAGE_STATUS: Record<
   AWAITING_MANAGER_APPROVAL: {
     value: "AWAITING_MANAGER_APPROVAL",
     label: "Awaiting Manager Approval",
+    filter: ["eao"],
+    sortOrder: 7,
   },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
