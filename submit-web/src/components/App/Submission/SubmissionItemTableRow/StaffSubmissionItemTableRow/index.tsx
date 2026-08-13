@@ -76,6 +76,16 @@ export default function StaffSubmissionItemTableRow({
     return endStatuses.some((status) => submissionPackage.status?.includes(status));
   }, [submissionPackage.status]);
 
+  const isPackageInEndStatusExcludingReviewRejected = useMemo(() => {
+    const endStatuses: PackageStatus[] = [
+      "APPROVED",
+      "ACCEPTED",
+      "REJECTED",
+      "NOT_APPROVED",
+    ];
+    return endStatuses.some((status) => submissionPackage.status?.includes(status));
+  }, [submissionPackage.status]);
+
   // Check if this submission item is GIS (Geospatial Information)
   const isGISItem = item.type.name === GIS_ITEM_TYPE_NAME;
 
@@ -149,7 +159,7 @@ export default function StaffSubmissionItemTableRow({
             gap={0.5}
             alignItems={"flex-end"}
           >
-            <When condition={submitted_on && !hasAccountProjectWork && !isPackageInEndStatus}>
+            <When condition={submitted_on && !hasAccountProjectWork && !isPackageInEndStatusExcludingReviewRejected}>
               <SubmissionItemReviewConfirmation
                 submissionItem={item}
                 onClick={handleClick}

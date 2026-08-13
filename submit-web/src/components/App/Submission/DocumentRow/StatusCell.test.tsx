@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { StatusCell } from "./StatusCell";
 import { SUBMISSION_STATUS, Submission } from "@/models/Submission";
-import { UpdateRequest } from "@/models/UpdateRequest";
 
 // ── Module mocks ────────────────────────────────────────────────────────────
 
@@ -38,21 +37,6 @@ const makeSubmission = (overrides: Partial<Submission> = {}): Submission => ({
   ...overrides,
 });
 
-const updateRequests: UpdateRequest[] = [
-  {
-    id: 1,
-    submission_item_types: [5],
-    reason: "Please update",
-    created_date: "2024-01-01",
-    created_by: "staff-1",
-    submission_package_id: 10,
-    active: true,
-    type: "UPDATE",
-    note: "",
-    status: "OPEN",
-  },
-];
-
 // ── Tests ───────────────────────────────────────────────────────────────────
 
 describe("StatusCell", () => {
@@ -70,11 +54,7 @@ describe("StatusCell", () => {
           <tbody>
             <tr>
               <td>
-                <StatusCell
-                  submittedDocument={makeSubmission()}
-                  itemTypeId={5}
-                  updateRequests={updateRequests}
-                />
+                <StatusCell submittedDocument={makeSubmission()} />
               </td>
             </tr>
           </tbody>
@@ -93,11 +73,7 @@ describe("StatusCell", () => {
           <tbody>
             <tr>
               <td>
-                <StatusCell
-                  submittedDocument={makeSubmission()}
-                  itemTypeId={5}
-                  updateRequests={updateRequests}
-                />
+                <StatusCell submittedDocument={makeSubmission()} />
               </td>
             </tr>
           </tbody>
@@ -116,11 +92,7 @@ describe("StatusCell", () => {
           <tbody>
             <tr>
               <td>
-                <StatusCell
-                  submittedDocument={makeSubmission()}
-                  itemTypeId={5}
-                  updateRequests={updateRequests}
-                />
+                <StatusCell submittedDocument={makeSubmission()} />
               </td>
             </tr>
           </tbody>

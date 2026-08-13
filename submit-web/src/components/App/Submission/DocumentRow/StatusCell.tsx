@@ -4,7 +4,6 @@ import {
   Submission,
   SUBMISSION_STATUS,
 } from "@/models/Submission";
-import { UpdateRequest } from "@/models/UpdateRequest";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { Stack } from "@mui/material";
@@ -12,22 +11,16 @@ import { useIsNewVersion } from "@/hooks/useIsNewVersion";
 
 type StatusCellProps = Readonly<{
   submittedDocument: Submission;
-  itemTypeId?: number;
-  updateRequests?: UpdateRequest[];
 }>;
 
 export const StatusCell = ({
   submittedDocument,
-  itemTypeId,
-  updateRequests,
 }: StatusCellProps) => {
   const { userType } = useAccount();
   const isStaff = userType === USER_TYPE.STAFF;
 
   const isNewVersion = useIsNewVersion({
     submission: submittedDocument,
-    itemTypeId,
-    updateRequests,
   });
 
   return (

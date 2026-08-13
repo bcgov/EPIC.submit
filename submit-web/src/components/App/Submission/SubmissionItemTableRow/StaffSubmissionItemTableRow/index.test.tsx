@@ -229,7 +229,7 @@ describe("StaffSubmissionItemTableRow", () => {
       expect(screen.getByText("Review")).toBeInTheDocument();
     });
 
-    it("hides Review link when package status is REVIEW_REJECTED", () => {
+    it("shows Review link when package status is REVIEW_REJECTED", () => {
       mockUseSuspenseQuery.mockReturnValue({
         data: makePackage(["REVIEW_REJECTED"]),
         isPending: false,
@@ -243,7 +243,7 @@ describe("StaffSubmissionItemTableRow", () => {
         />,
       );
 
-      expect(screen.queryByText("Review")).not.toBeInTheDocument();
+      expect(screen.getByText("Review")).toBeInTheDocument();
     });
 
     it("hides Review link when package status is APPROVED", () => {
@@ -281,7 +281,7 @@ describe("StaffSubmissionItemTableRow", () => {
       expect(screen.queryByText("Review")).not.toBeInTheDocument();
     });
 
-    it("hides View link for form-submission items when package is REVIEW_REJECTED", () => {
+    it("shows View link for form-submission items when package is REVIEW_REJECTED", () => {
       mockUseSuspenseQuery.mockReturnValue({
         data: makePackage(["REVIEW_REJECTED"]),
         isPending: false,
@@ -295,7 +295,7 @@ describe("StaffSubmissionItemTableRow", () => {
         />,
       );
 
-      expect(screen.queryByText("View")).not.toBeInTheDocument();
+      expect(screen.getByText("View")).toBeInTheDocument();
     });
   });
 });
