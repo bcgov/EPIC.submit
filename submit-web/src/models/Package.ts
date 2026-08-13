@@ -211,6 +211,8 @@ export const PACKAGE_STATUS: Record<
   AWAITING_MANAGER_APPROVAL: {
     value: "AWAITING_MANAGER_APPROVAL",
     label: "Awaiting Manager Approval",
+    filter: ["eao"],
+    sortOrder: 7,
   },
   FAILED_CONSULTATION_CHECK: {
     value: "FAILED_CONSULTATION_CHECK",
