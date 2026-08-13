@@ -44,7 +44,7 @@ export const roleDetails: Record<
   { label: string; info: string }
 > = {
   [USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN]: {
-    label: "Account Administrator",
+    label: "Regulated Party Account Administrator",
     info: "Full access to all submissions for all projects (including creating new submissions and submitting to EAO), manage all users, and system settings",
   },
   [USER_MANAGEMENT_ROLE.PROJECT_ADMIN]: {
@@ -53,7 +53,7 @@ export const roleDetails: Record<
   },
   [USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN]: {
     label: "Project Administrator - Specific Project(s)",
-    info: "Full access to all submissions for the selected projects (including creating new submissions and submitting to EAO), manage users (excluding Account Administrators)",
+    info: "Full access to all submissions for the selected projects (including creating new submissions and submitting to EAO), manage users (excluding Regulated Party Account Administrators)",
   },
   [USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN]: {
     label: "Collaborator - All Submissions",

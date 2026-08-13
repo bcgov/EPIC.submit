@@ -45,7 +45,7 @@ export const EligibleProjectsTable = () => {
         >
           {`Select the Eligible Project(s)/Work(s) you want to enable for ${proponent?.name} and click the "Enable in EPIC.submit" button.
           
-          The Account Administrator(s) for ${proponent?.name} will receive an email to inform them they can now access and submit documents for this project.`}
+          The Regulated Party Account Administrator(s) for ${proponent?.name} will receive an email to inform them they can now access and submit documents for this project.`}
         </Typography>
       )}
       {proponent?.status == "INELIGIBLE" || !hasEligibleItems ? (

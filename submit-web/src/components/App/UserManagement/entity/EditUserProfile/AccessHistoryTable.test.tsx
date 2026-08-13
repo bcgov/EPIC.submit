@@ -41,7 +41,7 @@ const accountAdminEntry: AccessHistoryEntry = {
   account_project_id: 30,
   project_name: "Copper Ridge Project",
   role_name: USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
-  role_label: "Account Administrator",
+  role_label: "Regulated Party Account Administrator",
   active: true,
   access_start: "2022-01-01T00:00:00Z",
   access_end: null,
@@ -117,7 +117,7 @@ describe("AccessHistoryTable", () => {
       render(<AccessHistoryTable accountUserId={1} />);
 
       expect(screen.getByText("Copper Ridge Project")).toBeInTheDocument();
-      expect(screen.getByText("Account Administrator")).toBeInTheDocument();
+      expect(screen.getByText("Regulated Party Account Administrator")).toBeInTheDocument();
     });
 
     it("formats dates correctly and shows -- for null dates", () => {
@@ -252,7 +252,7 @@ describe("AccessHistoryTable", () => {
   });
 
   describe("non-expandable rows", () => {
-    it("does not show expand arrow for Account Administrator", () => {
+    it("does not show expand arrow for Regulated Party Account Administrator", () => {
       mockUseGetAccessHistory.mockReturnValue({
         data: [accountAdminEntry],
         isPending: false,

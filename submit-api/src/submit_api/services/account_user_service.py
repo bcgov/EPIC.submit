@@ -348,19 +348,19 @@ class AccountUserService:
 
         # Project Admins have restricted scope
         if is_project_admin and not is_account_admin:
-            # Cannot edit Account Administrator users
+            # Cannot edit Regulated Party Account Administrator users
             target_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
             if target_user and target_user.roles:
                 for target_role in target_user.roles:
                     if target_role.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
                         raise PermissionDeniedError(
-                            "Project Admins cannot edit Account Administrator users."
+                            "Project Admins cannot edit Regulated Party Account Administrator users."
                         )
 
-            # Cannot assign Account Administrator role
+            # Cannot assign Regulated Party Account Administrator role
             if new_role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
                 raise PermissionDeniedError(
-                    "Project Admins cannot assign the Account Administrator role."
+                    "Project Admins cannot assign the Regulated Party Account Administrator role."
                 )
 
     @staticmethod
