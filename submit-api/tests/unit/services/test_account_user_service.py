@@ -109,6 +109,16 @@ def mock_fetch_packages():
         yield mock_pkg
 
 
+@pytest.fixture()
+def mock_auth_service():
+    """Patch AuthService.toggle_user_enabled_status to avoid request context."""
+    with patch.object(
+        account_user_service_module.AuthService,
+        "toggle_user_enabled_status",
+    ) as mock_svc:
+        yield mock_svc
+
+
 class TestReactivateDeactivateUserRevoke:
     """Tests for revoking (deactivating) a user."""
 
@@ -121,6 +131,7 @@ class TestReactivateDeactivateUserRevoke:
         mock_account_user_model,
         mock_fetch_status_revoked,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Revoking a user should set all roles to inactive."""
         from submit_api.services.account_user_service import AccountUserService
@@ -139,6 +150,7 @@ class TestReactivateDeactivateUserRevoke:
         mock_account_user_model,
         mock_fetch_status_revoked,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Revoking a user should set access_end on all roles."""
         from submit_api.services.account_user_service import AccountUserService
@@ -157,6 +169,7 @@ class TestReactivateDeactivateUserRevoke:
         mock_account_user_model,
         mock_fetch_status_revoked,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Revoking a user should set User.status_id to ACCESS_REVOKED (3)."""
         from submit_api.services.account_user_service import AccountUserService
@@ -175,6 +188,7 @@ class TestReactivateDeactivateUserRevoke:
         mock_account_user_model,
         mock_fetch_status_revoked,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Revoking should NOT call KeycloakService since it's intentionally disabled."""
         from submit_api.services.account_user_service import AccountUserService
@@ -199,6 +213,7 @@ class TestReactivateDeactivateUserReactivate:
         mock_account_user_model,
         mock_fetch_status_active,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Reactivating a user should set all roles to active."""
         # Set roles to inactive first
@@ -221,6 +236,7 @@ class TestReactivateDeactivateUserReactivate:
         mock_account_user_model,
         mock_fetch_status_active,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Reactivating a user should clear access_end on all roles."""
         from submit_api.services.account_user_service import AccountUserService
@@ -239,6 +255,7 @@ class TestReactivateDeactivateUserReactivate:
         mock_account_user_model,
         mock_fetch_status_active,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Reactivating a user should set User.status_id to ACTIVE (1)."""
         from submit_api.services.account_user_service import AccountUserService
@@ -261,6 +278,7 @@ class TestReactivateDeactivateUserNonePackageIds:
         mock_account_user_model,
         mock_fetch_status_revoked,
         mock_fetch_packages,
+        mock_auth_service,
     ):
         """Revoking should not crash when a role has None for original_package_ids."""
         from submit_api.services.account_user_service import AccountUserService

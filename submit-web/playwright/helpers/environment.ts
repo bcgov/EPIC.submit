@@ -52,9 +52,9 @@ export function getE2EEnvironment(): E2EEnvironment {
     PROPONENT_BCEID_USERNAME: getRequiredEnv("PROPONENT_BCEID_USERNAME"),
     PROPONENT_BCEID_PASSWORD: getRequiredEnv("PROPONENT_BCEID_PASSWORD"),
 
-    // Keycloak admin (optional)
-    KEYCLOAK_ADMIN_CLIENT: process.env.KEYCLOAK_ADMIN_CLIENT,
-    KEYCLOAK_ADMIN_SECRET: process.env.KEYCLOAK_ADMIN_SECRET,
+    // Service account (optional)
+    SERVICE_ACCOUNT_ID: process.env.SERVICE_ACCOUNT_ID,
+    SERVICE_ACCOUNT_SECRET: process.env.SERVICE_ACCOUNT_SECRET,
   };
 }
 

@@ -774,8 +774,8 @@ spec:
 **Keycloak Admin**:
 - `KEYCLOAK_BASE_URL` - Keycloak server URL
 - `KEYCLOAK_REALM_NAME` - eao-epic
-- `KEYCLOAK_ADMIN_CLIENT` - Admin client ID (from secret)
-- `KEYCLOAK_ADMIN_SECRET` - Admin client secret (from secret)
+- `SERVICE_ACCOUNT_ID` - Admin client ID (from secret)
+- `SERVICE_ACCOUNT_SECRET` - Admin client secret (from secret)
 
 **Application**:
 - `PYTHONBUFFERED` - 1 (unbuffered output)
@@ -840,8 +840,8 @@ Secrets are managed in OpenShift and referenced in Helm charts.
 - Source: Created by Patroni Helm chart
 
 **2. API Secret** (`submit-api`)
-- `KEYCLOAK_ADMIN_CLIENT` - Keycloak admin client ID
-- `KEYCLOAK_ADMIN_SECRET` - Keycloak admin client secret
+- `SERVICE_ACCOUNT_ID` - Service account client ID
+- `SERVICE_ACCOUNT_SECRET` - Service account client secret
 
 **3. CHES Secret** (`submit-cron-ches`)
 - `CHES_CLIENT_ID` - Email service client ID

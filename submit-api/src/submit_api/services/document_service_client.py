@@ -2,7 +2,7 @@
 import requests
 from flask import current_app
 from submit_api.utils.user_context import UserContext
-from submit_api.services.keycloak import KeycloakService
+from submit_api.services.keycloak_token_service import KeycloakTokenService
 
 
 class DocumentServiceClient:
@@ -21,8 +21,7 @@ class DocumentServiceClient:
             pass
 
         # Fallback to service account token
-        # pylint: disable=protected-access
-        return KeycloakService._get_admin_token()
+        return KeycloakTokenService.get_service_account_token()
 
     @classmethod
     def _get_presigned_url(cls, s3_key: str, action: str) -> str:

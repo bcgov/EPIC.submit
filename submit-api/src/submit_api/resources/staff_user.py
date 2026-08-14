@@ -61,6 +61,9 @@ class StaffUser(Resource):
         return StaffUserSchema().dump(staff), HTTPStatus.OK
 
 
+# NOTE: This endpoint is NOT used by any frontend UI component.
+# The frontend hook (useStaffAddUser in useStaffUser.ts) exists but is never
+# imported or called from any UI page. Consider removing or wiring it up.
 @cors_preflight("POST, OPTIONS")
 @API.route("/", methods=["POST", "OPTIONS"])
 class StaffUserCreate(Resource):

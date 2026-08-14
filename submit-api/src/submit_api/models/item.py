@@ -40,7 +40,8 @@ class Item(BaseModel):
         primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))',
         order_by='Submission.created_date.asc()',
         cascade='all, delete',
-        passive_deletes=True
+        passive_deletes=True,
+        back_populates='item'
     )
 
     # add unique constraint package_id and type_id
