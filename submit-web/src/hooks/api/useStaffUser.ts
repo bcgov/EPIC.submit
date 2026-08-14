@@ -1,3 +1,6 @@
+// NOTE: The hooks in this file (useStaffAddUser, useStaffUserById) are NOT used
+// by any UI component. They are dead code. Consider removing or wiring them up
+// in a staff user management page.
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { submitRequest } from "@/utils/axiosUtils";
 import { QUERY_KEY } from "./constants";

@@ -46,9 +46,9 @@ services:
       JWT_OIDC_CACHING_ENABLED: "True"
       JWT_OIDC_JWKS_CACHE_TIMEOUT: "3000000"
 
-      # Keycloak admin credentials (from GitHub secrets)
-      KEYCLOAK_ADMIN_CLIENT: ${KEYCLOAK_ADMIN_CLIENT}
-      KEYCLOAK_ADMIN_SECRET: ${KEYCLOAK_ADMIN_SECRET}
+      # Service account credentials (from GitHub secrets)
+      SERVICE_ACCOUNT_ID: ${SERVICE_ACCOUNT_ID}
+      SERVICE_ACCOUNT_SECRET: ${SERVICE_ACCOUNT_SECRET}
       KEYCLOAK_BASE_URL: https://dev.loginproxy.gov.bc.ca
       KEYCLOAK_URL_REALM: eao-epic
 

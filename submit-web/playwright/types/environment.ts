@@ -21,9 +21,9 @@ export interface E2EEnvironment {
   PROPONENT_BCEID_USERNAME: string;
   PROPONENT_BCEID_PASSWORD: string;
 
-  // Keycloak admin (for E2E setup/teardown)
-  KEYCLOAK_ADMIN_CLIENT?: string;
-  KEYCLOAK_ADMIN_SECRET?: string;
+  // Service account (for E2E setup/teardown)
+  SERVICE_ACCOUNT_ID?: string;
+  SERVICE_ACCOUNT_SECRET?: string;
 }
 
 /**

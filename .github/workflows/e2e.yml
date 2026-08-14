@@ -10,9 +10,9 @@ on:
   #     - '.github/workflows/e2e.yml'
 
 env:
-  # Use DEV Keycloak credentials from GitHub secrets
-  KEYCLOAK_ADMIN_CLIENT: ${{ secrets.KEYCLOAK_ADMIN_CLIENT_DEV }}
-  KEYCLOAK_ADMIN_SECRET: ${{ secrets.KEYCLOAK_ADMIN_SECRET_DEV }}
+  # Use DEV service account credentials from GitHub secrets
+  SERVICE_ACCOUNT_ID: ${{ secrets.SERVICE_ACCOUNT_ID_DEV }}
+  SERVICE_ACCOUNT_SECRET: ${{ secrets.SERVICE_ACCOUNT_SECRET_DEV }}
 
 jobs:
   e2e-tests:
