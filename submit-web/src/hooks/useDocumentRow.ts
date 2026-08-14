@@ -7,7 +7,6 @@ import {
   SubmissionPackageType,
 } from "@/models/Package";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
-import { SubmissionItem } from "@/models/SubmissionItem";
 import { isAxiosError } from "axios";
 import { useUpdateSubmissionStatus } from "./api/useSubmissions";
 import { useState } from "react";
@@ -15,14 +14,12 @@ import { useIsNewVersion } from "./useIsNewVersion";
 
 interface UseDocumentRowOptions {
   documentSubmission: Submission;
-  submissionItem?: SubmissionItem;
   submissionPackage?: SubmissionPackage;
   packageType?: PackageType;
 }
 
 export function useDocumentRow({
   documentSubmission,
-  submissionItem,
   submissionPackage,
   packageType,
 }: UseDocumentRowOptions) {
@@ -61,8 +58,6 @@ export function useDocumentRow({
 
   const isNewVersion = useIsNewVersion({
     submission: documentSubmission,
-    itemTypeId: submissionItem?.type_id,
-    updateRequests: submissionPackage?.update_requests,
   });
 
   // ─── Mutations ────────────────────────────────────────────────────────────
