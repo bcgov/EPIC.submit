@@ -110,7 +110,6 @@ export default function DocumentRow({
     openDocument,
   } = useDocumentRow({
     documentSubmission,
-    submissionItem,
     submissionPackage,
     packageType,
   });

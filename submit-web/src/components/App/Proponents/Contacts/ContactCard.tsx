@@ -31,7 +31,7 @@ export const ContactCard = ({
           mb: BCDesignTokens.layoutMarginSmall,
         }}
       >
-        {`${entityName} Account Administrator ${index + 1}`}
+        {`${entityName} Regulated Party Account Administrator ${index + 1}`}
       </Typography>
 
       <Typography variant="body1" sx={{ fontWeight: 700 }}>

@@ -17,7 +17,7 @@ interface EffectiveRole {
  *   distinguish "Project Admin (all)" from "Project Admin - Specific Projects")
  *
  * Logic:
- * - ACCOUNT_PRIMARY_ADMIN in any role → Account Administrator
+ * - ACCOUNT_PRIMARY_ADMIN in any role → Regulated Party Account Administrator
  * - PROJECT_ADMIN assigned to ALL projects → Project Administrator
  * - PROJECT_ADMIN assigned to SOME projects → Project Administrator - Specific Projects
  * - SUBMISSION_ADMIN → Collaborator - All Submissions

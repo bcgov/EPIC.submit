@@ -117,7 +117,7 @@ export function EditAccessLevelModal({
   });
 
   const effectiveRole = useUserEffectiveRole(userData.roles, accountProjects?.length);
-  // Project Admins cannot assign Account Administrator role
+  // Project Admins cannot assign Regulated Party Account Administrator role
   const excludedRoles = useMemo(
     () =>
       isCurrentUserAccountAdmin

@@ -52,8 +52,8 @@ export default function PageNotFound() {
               <li>{`Telephone Device for the Deaf (TDD) across B.C.: 711`}</li>
               <li>
                 {`If you would like to email us please contact `}
-                <Link href={`mailto:${AppConfig.supportMpEmail}`}>
-                  {AppConfig.supportMpEmail}
+                <Link href={`mailto:${AppConfig.epicSystemEmail}`}>
+                  {AppConfig.epicSystemEmail}
                 </Link>
               </li>
             </ul>

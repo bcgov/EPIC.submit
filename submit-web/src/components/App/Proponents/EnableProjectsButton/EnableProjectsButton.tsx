@@ -72,7 +72,7 @@ export const EnableProjectsButton = ({
                 ))}
             </List>
             <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
-              When you click the Confirm button below, the Account Administrator for {proponent?.name} will receive an email notification and assigned users will be able to submit documents in EPIC.submit.
+              When you click the Confirm button below, the Regulated Party Account Administrator for {proponent?.name} will receive an email notification and assigned users will be able to submit documents in EPIC.submit.
             </Typography>
           </>
         }
