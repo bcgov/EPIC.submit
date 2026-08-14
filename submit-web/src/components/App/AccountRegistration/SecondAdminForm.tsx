@@ -1,4 +1,4 @@
-import { useCallback, useState, useMemo } from "react";
+﻿import { useCallback, useState, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -127,7 +127,7 @@ export default function SecondAdminForm() {
     >
       <FormControl component="fieldset" sx={{ mb: 1 }}>
         <FormLabel component="legend" sx={{ fontWeight: 700, mb: 0.5 }}>
-          Would you like to invite another Account Administrator now?
+          Would you like to invite another Regulated Party Account Administrator now?
         </FormLabel>
         <RadioGroup
           aria-label="invite-admin"
@@ -139,12 +139,12 @@ export default function SecondAdminForm() {
           <FormControlLabel
             value="yes"
             control={<Radio />}
-            label="Yes, I would like to invite another Account Administrator now"
+            label="Yes, I would like to invite another Regulated Party Account Administrator now"
           />
           <FormControlLabel
             value="no"
             control={<Radio />}
-            label="No, I don’t want to invite a second Account Administrator now"
+            label="No, I don’t want to invite a second Regulated Party Account Administrator now"
           />
         </RadioGroup>
       </FormControl>
@@ -157,7 +157,7 @@ export default function SecondAdminForm() {
           }}
         >
           <Typography variant="body1" fontWeight={700}>
-            Enter the new Account Administrator's email address.
+            Enter the new Regulated Party Account Administrator's email address.
           </Typography>
           <Typography variant="body1" color={BCDesignTokens.themeGray70}>
             The user will receive an email invitation to join your account.

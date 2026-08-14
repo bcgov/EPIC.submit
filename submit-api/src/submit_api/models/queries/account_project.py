@@ -227,8 +227,7 @@ class ProjectQueries:
                 )
 
             # Keep only projects with at least one visible package
-            visible = [p for p in projects_list if p.get("packages")]
-            visible_projects.extend(visible)
+            visible_projects.extend(p for p in projects_list if p.get("packages"))
 
             # If batch was smaller than BATCH_SIZE, DB is exhausted
             if len(batch_results) < BATCH_SIZE:
