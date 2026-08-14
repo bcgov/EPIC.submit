@@ -22,7 +22,7 @@ from sqlalchemy import text
 from submit_api.auth import auth
 from submit_api.models import db
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.services.keycloak import KeycloakService
+from submit_api.services.auth_service import AuthService
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.util import allowedorigins, cors_preflight
 
@@ -104,7 +104,7 @@ class MigrateUserIdsToUsernames(Resource):
 
             # Fetch all users from Keycloak
             current_app.logger.info("Fetching users from Keycloak...")
-            users = KeycloakService.get_users()
+            users = AuthService.get_users()
 
             if not users:
                 # Recreate constraints before returning

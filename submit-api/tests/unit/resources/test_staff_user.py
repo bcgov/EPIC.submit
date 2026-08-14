@@ -67,20 +67,18 @@ def test_create_staff_user_success(client, session, jwt):
     email = fake.email()
     group_name = "EAO_VIEW"
 
-    # Mock Keycloak service responses
-    mock_keycloak_user = {
+    # Mock AuthService responses
+    mock_auth_user = {
         "username": f"{fake.user_name()}@idir",
-        "firstName": fake.first_name(),
-        "lastName": fake.last_name(),
-        "email": email
+        "first_name": fake.first_name(),
+        "last_name": fake.last_name(),
+        "email_address": email
     }
 
-    with patch('submit_api.services.staff_user_service.KeycloakService.get_user_by_email') as mock_get_user, \
-         patch('submit_api.services.staff_user_service.KeycloakService.get_group_id_by_path') as mock_get_group, \
-         patch('submit_api.services.staff_user_service.KeycloakService.update_user_group') as mock_update_group:
+    with patch('submit_api.services.staff_user_service.AuthService.get_user_by_email') as mock_get_user, \
+         patch('submit_api.services.staff_user_service.AuthService.update_user_group') as mock_update_group:
 
-        mock_get_user.return_value = mock_keycloak_user
-        mock_get_group.return_value = "group-id-123"
+        mock_get_user.return_value = mock_auth_user
         mock_update_group.return_value = None
 
         payload = {
@@ -97,9 +95,8 @@ def test_create_staff_user_success(client, session, jwt):
         assert email in data["message"]
         assert group_name in data["message"]
 
-        # Verify Keycloak methods were called
+        # Verify AuthService methods were called
         mock_get_user.assert_called_once_with(email)
-        mock_get_group.assert_called_once_with(group_name)
         mock_update_group.assert_called_once()
 
 
@@ -132,12 +129,12 @@ def test_create_staff_user_missing_group_name(client, session, jwt):
 
 
 def test_create_staff_user_keycloak_error(client, session, jwt):
-    """Test creating staff user when Keycloak service fails."""
+    """Test creating staff user when auth service fails."""
     email = fake.email()
     group_name = "EAO_VIEW"
 
-    with patch('submit_api.services.staff_user_service.KeycloakService.get_user_by_email') as mock_get_user:
-        mock_get_user.side_effect = Exception("Keycloak connection error")
+    with patch('submit_api.services.staff_user_service.AuthService.get_user_by_email') as mock_get_user:
+        mock_get_user.side_effect = Exception("Auth service connection error")
 
         payload = {
             "email": email,
@@ -214,19 +211,17 @@ def test_create_staff_user_idempotent(client, session, jwt):
     group_name = "EAO_VIEW"
     username = f"{fake.user_name()}@idir"
 
-    mock_keycloak_user = {
+    mock_auth_user = {
         "username": username,
-        "firstName": fake.first_name(),
-        "lastName": fake.last_name(),
-        "email": email
+        "first_name": fake.first_name(),
+        "last_name": fake.last_name(),
+        "email_address": email
     }
 
-    with patch('submit_api.services.staff_user_service.KeycloakService.get_user_by_email') as mock_get_user, \
-         patch('submit_api.services.staff_user_service.KeycloakService.get_group_id_by_path') as mock_get_group, \
-         patch('submit_api.services.staff_user_service.KeycloakService.update_user_group') as mock_update_group:
+    with patch('submit_api.services.staff_user_service.AuthService.get_user_by_email') as mock_get_user, \
+         patch('submit_api.services.staff_user_service.AuthService.update_user_group') as mock_update_group:
 
-        mock_get_user.return_value = mock_keycloak_user
-        mock_get_group.return_value = "group-id-123"
+        mock_get_user.return_value = mock_auth_user
         mock_update_group.return_value = None
 
         payload = {

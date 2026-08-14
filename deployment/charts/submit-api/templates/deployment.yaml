@@ -157,16 +157,16 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: INSTANCE_ADMIN_GROUP
-            - name: KEYCLOAK_ADMIN_CLIENT
+            - name: SERVICE_ACCOUNT_ID
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}
-                  key: KEYCLOAK_ADMIN_CLIENT
-            - name: KEYCLOAK_ADMIN_SECRET
+                  key: SERVICE_ACCOUNT_ID
+            - name: SERVICE_ACCOUNT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ .Release.Name }}
-                  key: KEYCLOAK_ADMIN_SECRET
+                  key: SERVICE_ACCOUNT_SECRET
             - name: CONNECT_TIMEOUT
               valueFrom:
                 configMapKeyRef:

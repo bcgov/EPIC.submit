@@ -45,6 +45,8 @@ auth:
     instanceAdminGroup: INSTANCE_ADMIN
     adminClientId:
     adminClientSecret:
+  epicAuth:
+    baseUrl: http://epic-auth-api:8080
 python:
   pythonBuffered: 1
   connectTimeout: 60

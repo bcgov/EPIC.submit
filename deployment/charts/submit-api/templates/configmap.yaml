@@ -18,6 +18,7 @@ data:
   CONNECT_TIMEOUT: "{{ .Values.python.connectTimeout }}"
   CORS_ORIGIN: "{{ .Values.cors.origin }}"
   BASE_APP_URL: {{ .Values.web.url }}
+  AUTH_BASE_URL: {{ .Values.auth.epicAuth.baseUrl }}
   BC_SERVICE_CARD_URL: {{ .Values.bcServiceCard.url }}
   LEGISLATIVE_TIMEZONE: {{ .Values.timezone }}
   SENDER_EMAIL: {{ .Values.sender.email }}

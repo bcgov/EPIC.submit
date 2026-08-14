@@ -441,8 +441,8 @@ docker compose -f docker-compose.e2e.yml down -v
 ```
 
 **Required GitHub Secrets**:
-- `KEYCLOAK_ADMIN_CLIENT_DEV` - Keycloak admin client ID
-- `KEYCLOAK_ADMIN_SECRET_DEV` - Keycloak admin client secret
+- `SERVICE_ACCOUNT_ID_DEV` - Service account client ID
+- `SERVICE_ACCOUNT_SECRET_DEV` - Service account client secret
 - `STAFF_USERNAME` - Staff test user
 - `STAFF_PASSWORD` - Staff test password
 - `PROPONENT_USERNAME` - Proponent test user
@@ -621,7 +621,7 @@ curl http://localhost:3200/ops/healthz
 **Common Causes**:
 1. **Migration failures**: Schema conflicts, missing dependencies
 2. **Database connection issues**: Wrong credentials, db not ready
-3. **Missing secrets**: `KEYCLOAK_ADMIN_CLIENT` or `KEYCLOAK_ADMIN_SECRET` not set
+3. **Missing secrets**: `SERVICE_ACCOUNT_ID` or `SERVICE_ACCOUNT_SECRET` not set
 
 **Solutions**:
 ```bash
