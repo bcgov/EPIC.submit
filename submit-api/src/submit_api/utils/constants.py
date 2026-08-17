@@ -60,8 +60,8 @@ GIS_ITEM_TYPE_NAME = "Geospatial Information"
 
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_SUBJECT = 'Management Plan Submission Confirmation'
-MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'management_plan_update_request_created.html'
+MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'update_request_created.html'
 NEW_USER_INVITATION_EMAIL_TEMPLATE = 'new_user_invitation.html'
-MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE = 'management_plan_submission_notify_staff.html'
+MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE = 'submission_notify_staff.html'
 SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE = 'submission_awaiting_manager_approval.html'
-MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE = 'resubmission_request.html'
+MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE = 'management_plan_resubmission_request.html'
