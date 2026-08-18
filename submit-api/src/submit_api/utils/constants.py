@@ -18,11 +18,6 @@ SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP = {
     'IEM': 'EAO.ManagementPlanSupport@gov.bc.ca',
 }
 
-SUBMISSION_PACKAGE_TYPE_SENDER_MAP = {
-    'Management Plan': 'The Management Plan Team at the Environmental Assessment Office',
-    'IEM': 'EAO.ManagementPlanSupport@gov.bc.ca',
-}
-
 # Package types accessible via MP_VIEW role
 # Add new package types here when they should be accessible to users with mp_view permission
 MP_VIEW_PACKAGE_TYPES = [
@@ -59,7 +54,6 @@ STAFF_WORK_ROLE_KEYCLOAK_GROUPS = {
 GIS_ITEM_TYPE_NAME = "Geospatial Information"
 
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
-MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_SUBJECT = 'Management Plan Submission Confirmation'
 MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'update_request_created.html'
 NEW_USER_INVITATION_ACCOUNT_ADMIN_EMAIL_TEMPLATE = 'new_user_invitation_account_admin.html'
 NEW_USER_INVITATION_PROJECT_ADMIN_EMAIL_TEMPLATE = 'new_user_invitation_project_admin.html'

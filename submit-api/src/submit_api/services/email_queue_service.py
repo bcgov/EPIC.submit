@@ -34,7 +34,6 @@ from submit_api.utils.constants import (
     SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE,
     SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP,
-    SUBMISSION_PACKAGE_TYPE_SENDER_MAP,
 )
 from submit_api.utils.token_info import TokenInfo
 
@@ -154,12 +153,10 @@ class SubmitEmailQueueService:
     def _build_update_request_payload(cls, package: PackageModel) -> dict:
         submitter = cls._get_submitter(package)
         sender_email = cls._get_sender_email(package)
-        sender_name = cls._get_sender_name(package)
         body_args = {
             'epic_submit_link': cls._get_base_url(),
             'submitter_name': submitter.full_name if submitter else '',
             'package_name': package.name,
-            'sender_name': sender_name,
         }
         return cls._payload(
             sender_email,
@@ -243,14 +240,12 @@ class SubmitEmailQueueService:
     @classmethod
     def _build_invitation_payload(cls, invitation: InvitationsModel) -> dict:
         project = cls._get_project_for_invitation(invitation)
-        invitation_action_text = cls._get_invitation_action_text(invitation)
         body_args = {
             'epic_submit_link': cls._get_base_url(),
             'invitation_url': cls._build_signup_url(invitation.token),
             'project_name': project.name or '',
             'bc_service_card_url': current_app.config.get('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca'),
             'certificate_holder_name': (project.proponent.name if project.proponent else '') or '',
-            'invitation_action_text': invitation_action_text,
         }
         return cls._payload(
             current_app.config.get('SENDER_EMAIL'),
@@ -350,11 +345,6 @@ class SubmitEmailQueueService:
         if not sender:
             raise BadRequestError(f"Sender email not found for package type: {package.type.name}")
         return sender
-
-    @staticmethod
-    def _get_sender_name(package: PackageModel) -> str:
-        sender_name = SUBMISSION_PACKAGE_TYPE_SENDER_MAP.get(package.type.name)
-        return sender_name or package.type.name
 
     @staticmethod
     def _get_submitter(package: PackageModel) -> AccountUserModel:
@@ -460,13 +450,3 @@ class SubmitEmailQueueService:
         if not project:
             raise BadRequestError(f"Project was not found for invitation id: {invitation.id}")
         return project
-
-    @staticmethod
-    def _get_invitation_action_text(invitation: InvitationsModel) -> str:
-        if not invitation.role:
-            return "join"
-        if invitation.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
-            return "manage"
-        if invitation.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
-            return "collaborate on"
-        return "join"
