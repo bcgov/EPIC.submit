@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import BadRequestError
 from submit_api.models import AccountProject
@@ -26,11 +27,15 @@ from submit_api.utils.constants import (
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
-    NEW_USER_INVITATION_EMAIL_TEMPLATE,
+    NEW_USER_INVITATION_ACCOUNT_ADMIN_EMAIL_TEMPLATE,
+    NEW_USER_INVITATION_COLLABORATOR_EMAIL_TEMPLATE,
+    NEW_USER_INVITATION_PROJECT_ADMIN_EMAIL_TEMPLATE,
+    SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE,
+    SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP,
-    SUBMISSION_PACKAGE_TYPE_SENDER_MAP,
 )
+from submit_api.utils.token_info import TokenInfo
 
 
 EAO_MANAGER_GROUP_PATH = "SUBMIT/MPT_MANAGER"
@@ -42,20 +47,34 @@ class SubmitEmailQueueService:
     @classmethod
     def queue_package_submission_emails(cls, package: PackageModel, session=None):
         """Queue proponent and staff emails for a submitted package."""
-        return [
-            cls.queue_package_email(
-                package.id,
-                MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
-                session=session,
-                package=package,
-            ),
+        emails = []
+        if cls._send_submission_confirmation_on_submit(package):
+            emails.append(
+                cls.queue_package_email(
+                    package.id,
+                    MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
+                    session=session,
+                    package=package,
+                )
+            )
+        emails.append(
             cls.queue_package_email(
                 package.id,
                 MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE,
                 session=session,
                 package=package,
             ),
-        ]
+        )
+        return emails
+
+    @staticmethod
+    def _send_submission_confirmation_on_submit(package: PackageModel) -> bool:
+        supports_acknowledgement = package.type.approval_type in (
+            PackageApprovalType.A,
+            PackageApprovalType.B,
+            PackageApprovalType.C,
+        )
+        return package.type.name == PackageTypeEnum.MANAGEMENT_PLAN.value or not supports_acknowledgement
 
     @classmethod
     def queue_package_email(cls, package_id: int, template_name: str, session=None, package: PackageModel = None):
@@ -75,6 +94,10 @@ class SubmitEmailQueueService:
             payload = cls._build_resubmission_request_payload(package)
         elif template_name == SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE:
             payload = cls._build_awaiting_manager_approval_payload(package)
+        elif template_name == SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE:
+            payload = cls._build_withdrawn_confirmation_payload(package)
+        elif template_name == SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE:
+            payload = cls._build_acknowledged_confirmation_payload(package)
         else:
             raise BadRequestError(f"Unsupported email template: {template_name}")
 
@@ -96,7 +119,7 @@ class SubmitEmailQueueService:
         return cls._create_email_queue(
             entity_id=invitation.id,
             entity_type=EntityType.INVITATION.value,
-            template_name=NEW_USER_INVITATION_EMAIL_TEMPLATE,
+            template_name=cls._get_invitation_template(invitation),
             payload=cls._build_invitation_payload(invitation),
             session=session,
         )
@@ -130,12 +153,10 @@ class SubmitEmailQueueService:
     def _build_update_request_payload(cls, package: PackageModel) -> dict:
         submitter = cls._get_submitter(package)
         sender_email = cls._get_sender_email(package)
-        sender_name = cls._get_sender_name(package)
         body_args = {
             'epic_submit_link': cls._get_base_url(),
             'submitter_name': submitter.full_name if submitter else '',
             'package_name': package.name,
-            'sender_name': sender_name,
         }
         return cls._payload(
             sender_email,
@@ -180,16 +201,51 @@ class SubmitEmailQueueService:
         )
 
     @classmethod
+    def _build_withdrawn_confirmation_payload(cls, package: PackageModel) -> dict:
+        current_user = cls._get_current_account_user()
+        submission_link = (
+            f"{cls._get_base_url()}/proponent/projects/"
+            f"{package.account_project_id}/submission-packages/{package.id}"
+        )
+        body_args = {
+            'package_name': package.name,
+            'submission_link': submission_link,
+        }
+        return cls._payload(
+            current_app.config.get('SENDER_EMAIL'),
+            cls._as_recipients(current_user.work_email_address if current_user else None),
+            f'Submission withdrawn - {package.name}',
+            body_args,
+        )
+
+    @classmethod
+    def _build_acknowledged_confirmation_payload(cls, package: PackageModel) -> dict:
+        submitter = cls._get_submitter(package)
+        account_project = cls._get_account_project(package.account_project_id)
+        project = cls._get_project(account_project)
+        body_args = {
+            'submitter_name': submitter.full_name if submitter else '',
+            'certificate_holder_name': project.proponent.name if project.proponent else '',
+            'package_name': package.name,
+            'submission_date': cls._format_submission_date(package.submitted_on),
+            'documents': cls._get_document_names(package),
+        }
+        return cls._payload(
+            cls._get_sender_email(package, fallback_config='SENDER_EMAIL'),
+            cls._as_recipients(submitter.work_email_address if submitter else None),
+            f'Submission acknowledged - {package.name}',
+            body_args,
+        )
+
+    @classmethod
     def _build_invitation_payload(cls, invitation: InvitationsModel) -> dict:
         project = cls._get_project_for_invitation(invitation)
-        invitation_action_text = cls._get_invitation_action_text(invitation)
         body_args = {
             'epic_submit_link': cls._get_base_url(),
             'invitation_url': cls._build_signup_url(invitation.token),
             'project_name': project.name or '',
             'bc_service_card_url': current_app.config.get('BC_SERVICE_CARD_URL', 'https://id.gov.bc.ca'),
             'certificate_holder_name': (project.proponent.name if project.proponent else '') or '',
-            'invitation_action_text': invitation_action_text,
         }
         return cls._payload(
             current_app.config.get('SENDER_EMAIL'),
@@ -197,6 +253,19 @@ class SubmitEmailQueueService:
             'Invitation to collaborate on EPIC.submit',
             body_args,
         )
+
+    @staticmethod
+    def _get_invitation_template(invitation: InvitationsModel) -> str:
+        if invitation.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+            return NEW_USER_INVITATION_ACCOUNT_ADMIN_EMAIL_TEMPLATE
+        if invitation.role.role_name == RoleEnum.PROJECT_ADMIN.value:
+            return NEW_USER_INVITATION_PROJECT_ADMIN_EMAIL_TEMPLATE
+        if invitation.role.role_name in (
+            RoleEnum.SUBMISSION_ADMIN.value,
+            RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value,
+        ):
+            return NEW_USER_INVITATION_COLLABORATOR_EMAIL_TEMPLATE
+        raise BadRequestError(f"Unsupported invitation role: {invitation.role.role_name}")
 
     @staticmethod
     def _payload(sender: str, recipients: list[str], subject: str, body_args: dict) -> dict:
@@ -278,16 +347,15 @@ class SubmitEmailQueueService:
         return sender
 
     @staticmethod
-    def _get_sender_name(package: PackageModel) -> str:
-        sender_name = SUBMISSION_PACKAGE_TYPE_SENDER_MAP.get(package.type.name)
-        return sender_name or package.type.name
-
-    @staticmethod
     def _get_submitter(package: PackageModel) -> AccountUserModel:
         if package.submitted_by_user and package.submitted_by_user.account_user:
             return package.submitted_by_user.account_user
         submitter = AccountUserModel.get_by_guid(package.submitted_by)
         return submitter
+
+    @staticmethod
+    def _get_current_account_user() -> AccountUserModel:
+        return AccountUserModel.get_by_guid(TokenInfo.get_username())
 
     @staticmethod
     def _get_account_project(account_project_id: int) -> AccountProject:
@@ -382,13 +450,3 @@ class SubmitEmailQueueService:
         if not project:
             raise BadRequestError(f"Project was not found for invitation id: {invitation.id}")
         return project
-
-    @staticmethod
-    def _get_invitation_action_text(invitation: InvitationsModel) -> str:
-        if not invitation.role:
-            return "join"
-        if invitation.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
-            return "manage"
-        if invitation.role.role_name == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
-            return "collaborate on"
-        return "join"
