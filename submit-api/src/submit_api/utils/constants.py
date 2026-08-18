@@ -68,3 +68,4 @@ NEW_USER_INVITATION_COLLABORATOR_EMAIL_TEMPLATE = 'new_user_invitation_collabora
 MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE = 'management_plan_submission_notify_staff.html'
 SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE = 'submission_awaiting_manager_approval.html'
 MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE = 'resubmission_request.html'
+SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE = 'submission_withdrawn_confirmation.html'

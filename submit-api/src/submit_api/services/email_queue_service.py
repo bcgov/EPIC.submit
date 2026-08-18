@@ -30,9 +30,11 @@ from submit_api.utils.constants import (
     NEW_USER_INVITATION_COLLABORATOR_EMAIL_TEMPLATE,
     NEW_USER_INVITATION_PROJECT_ADMIN_EMAIL_TEMPLATE,
     SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE,
+    SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP,
     SUBMISSION_PACKAGE_TYPE_SENDER_MAP,
 )
+from submit_api.utils.token_info import TokenInfo
 
 
 EAO_MANAGER_GROUP_PATH = "SUBMIT/MPT_MANAGER"
@@ -77,6 +79,8 @@ class SubmitEmailQueueService:
             payload = cls._build_resubmission_request_payload(package)
         elif template_name == SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE:
             payload = cls._build_awaiting_manager_approval_payload(package)
+        elif template_name == SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE:
+            payload = cls._build_withdrawn_confirmation_payload(package)
         else:
             raise BadRequestError(f"Unsupported email template: {template_name}")
 
@@ -178,6 +182,24 @@ class SubmitEmailQueueService:
             cls._get_sender_email(package, fallback_config='SENDER_EMAIL'),
             manager_emails,
             f"Submission awaiting Manager approval - {project.name} - {package.name}",
+            body_args,
+        )
+
+    @classmethod
+    def _build_withdrawn_confirmation_payload(cls, package: PackageModel) -> dict:
+        current_user = cls._get_current_account_user()
+        submission_link = (
+            f"{cls._get_base_url()}/proponent/projects/"
+            f"{package.account_project_id}/submission-packages/{package.id}"
+        )
+        body_args = {
+            'package_name': package.name,
+            'submission_link': submission_link,
+        }
+        return cls._payload(
+            current_app.config.get('SENDER_EMAIL'),
+            cls._as_recipients(current_user.work_email_address if current_user else None),
+            f'Submission withdrawn - {package.name}',
             body_args,
         )
 
@@ -303,6 +325,10 @@ class SubmitEmailQueueService:
             return package.submitted_by_user.account_user
         submitter = AccountUserModel.get_by_guid(package.submitted_by)
         return submitter
+
+    @staticmethod
+    def _get_current_account_user() -> AccountUserModel:
+        return AccountUserModel.get_by_guid(TokenInfo.get_username())
 
     @staticmethod
     def _get_account_project(account_project_id: int) -> AccountProject:
