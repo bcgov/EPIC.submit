@@ -39,8 +39,12 @@ from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.services.geo import GeoService
 from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.utils.constants import (
-    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
-    GIS_ITEM_TYPE_NAME)
+    GIS_ITEM_TYPE_NAME,
+    MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
+    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
+    SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
+    SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
+)
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_version_service import PackageVersionService
 
@@ -943,6 +947,13 @@ class PackageService:
             else:
                 package.status = [PackageStatus.ACKNOWLEDGED.value]
             session.add(package)
+            if package.type.name != PackageTypeEnum.MANAGEMENT_PLAN.value:
+                SubmitEmailQueueService.queue_package_email(
+                    package.id,
+                    SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
+                    session=session,
+                    package=package
+                )
             session.flush()
             return package
 
@@ -1110,7 +1121,13 @@ class PackageService:
             cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
 
             # Create new package version (Package 2)
-            PackageVersionService.create_new_package_version(package_id, session)
+            new_package = PackageVersionService.create_new_package_version(package_id, session)
+            SubmitEmailQueueService.queue_package_email(
+                new_package.id,
+                SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
+                session=session,
+                package=new_package
+            )
             session.flush()
             return package
 
