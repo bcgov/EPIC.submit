@@ -42,6 +42,7 @@ from submit_api.utils.constants import (
     GIS_ITEM_TYPE_NAME,
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
+    SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
 )
 from submit_api.utils.token_info import TokenInfo
@@ -946,6 +947,13 @@ class PackageService:
             else:
                 package.status = [PackageStatus.ACKNOWLEDGED.value]
             session.add(package)
+            if package.type.name != PackageTypeEnum.MANAGEMENT_PLAN.value:
+                SubmitEmailQueueService.queue_package_email(
+                    package.id,
+                    SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
+                    session=session,
+                    package=package
+                )
             session.flush()
             return package
 

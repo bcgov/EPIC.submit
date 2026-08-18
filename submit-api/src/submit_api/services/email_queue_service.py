@@ -6,6 +6,7 @@ from zoneinfo import ZoneInfo
 from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
+from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import BadRequestError
 from submit_api.models import AccountProject
@@ -29,6 +30,7 @@ from submit_api.utils.constants import (
     NEW_USER_INVITATION_ACCOUNT_ADMIN_EMAIL_TEMPLATE,
     NEW_USER_INVITATION_COLLABORATOR_EMAIL_TEMPLATE,
     NEW_USER_INVITATION_PROJECT_ADMIN_EMAIL_TEMPLATE,
+    SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE,
     SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP,
@@ -46,20 +48,34 @@ class SubmitEmailQueueService:
     @classmethod
     def queue_package_submission_emails(cls, package: PackageModel, session=None):
         """Queue proponent and staff emails for a submitted package."""
-        return [
-            cls.queue_package_email(
-                package.id,
-                MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
-                session=session,
-                package=package,
-            ),
+        emails = []
+        if cls._send_submission_confirmation_on_submit(package):
+            emails.append(
+                cls.queue_package_email(
+                    package.id,
+                    MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
+                    session=session,
+                    package=package,
+                )
+            )
+        emails.append(
             cls.queue_package_email(
                 package.id,
                 MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE,
                 session=session,
                 package=package,
             ),
-        ]
+        )
+        return emails
+
+    @staticmethod
+    def _send_submission_confirmation_on_submit(package: PackageModel) -> bool:
+        supports_acknowledgement = package.type.approval_type in (
+            PackageApprovalType.A,
+            PackageApprovalType.B,
+            PackageApprovalType.C,
+        )
+        return package.type.name == PackageTypeEnum.MANAGEMENT_PLAN.value or not supports_acknowledgement
 
     @classmethod
     def queue_package_email(cls, package_id: int, template_name: str, session=None, package: PackageModel = None):
@@ -81,6 +97,8 @@ class SubmitEmailQueueService:
             payload = cls._build_awaiting_manager_approval_payload(package)
         elif template_name == SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE:
             payload = cls._build_withdrawn_confirmation_payload(package)
+        elif template_name == SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE:
+            payload = cls._build_acknowledged_confirmation_payload(package)
         else:
             raise BadRequestError(f"Unsupported email template: {template_name}")
 
@@ -200,6 +218,25 @@ class SubmitEmailQueueService:
             current_app.config.get('SENDER_EMAIL'),
             cls._as_recipients(current_user.work_email_address if current_user else None),
             f'Submission withdrawn - {package.name}',
+            body_args,
+        )
+
+    @classmethod
+    def _build_acknowledged_confirmation_payload(cls, package: PackageModel) -> dict:
+        submitter = cls._get_submitter(package)
+        account_project = cls._get_account_project(package.account_project_id)
+        project = cls._get_project(account_project)
+        body_args = {
+            'submitter_name': submitter.full_name if submitter else '',
+            'certificate_holder_name': project.proponent.name if project.proponent else '',
+            'package_name': package.name,
+            'submission_date': cls._format_submission_date(package.submitted_on),
+            'documents': cls._get_document_names(package),
+        }
+        return cls._payload(
+            cls._get_sender_email(package, fallback_config='SENDER_EMAIL'),
+            cls._as_recipients(submitter.work_email_address if submitter else None),
+            f'Submission acknowledged - {package.name}',
             body_args,
         )
 
