@@ -21,7 +21,8 @@ spec:
     spec:
       initContainers:
         - name: pre-hook-update-db
-          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          image: "{{ tpl .Values.image.repository . }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - /opt/app-root/pre-hook-update-db.sh
           env:
@@ -152,21 +153,6 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: KEYCLOAK_REALM_NAME
-            - name: INSTANCE_ADMIN_GROUP
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Release.Name }}
-                  key: INSTANCE_ADMIN_GROUP
-            - name: SERVICE_ACCOUNT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}
-                  key: SERVICE_ACCOUNT_ID
-            - name: SERVICE_ACCOUNT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}
-                  key: SERVICE_ACCOUNT_SECRET
             - name: CONNECT_TIMEOUT
               valueFrom:
                 configMapKeyRef:
@@ -177,31 +163,55 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: CORS_ORIGIN
-            - name: BASE_APP_URL
+            - name: DOCUMENT_SERVICE_URL
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
-                  key: BASE_APP_URL
-            - name: BC_SERVICE_CARD_URL
+                  key: DOCUMENT_SERVICE_URL
+            - name: GEO_MAX_CONCURRENT_JOBS
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
-                  key: BC_SERVICE_CARD_URL
-            - name: LEGISLATIVE_TIMEZONE
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Release.Name }}
-                  key: LEGISLATIVE_TIMEZONE
+                  key: GEO_MAX_CONCURRENT_JOBS
+            - name: GEO_MAX_SHAPEFILES
+              value: "{{ .Values.geo.maxShapefiles }}"
+            - name: GEO_PROCESSING_TIMEOUT_SECONDS
+              value: "{{ .Values.geo.processingTimeoutSeconds }}"
             - name: SENDER_EMAIL
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: SENDER_EMAIL
+            - name: BASE_APP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: BASE_APP_URL
             - name: STAFF_SUPPORT_MAIL_ID
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: STAFF_SUPPORT_MAIL_ID
+            - name: SIGNUP_URL_PATH
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: SIGNUP_URL_PATH
+            - name: AUTH_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: AUTH_BASE_URL
+            - name: SERVICE_ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: SERVICE_ACCOUNT_ID
+            - name: SERVICE_ACCOUNT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}
+                  key: SERVICE_ACCOUNT_SECRET
           resources:
             limits:
               cpu: {{ .Values.resources.cpu.limit }}
