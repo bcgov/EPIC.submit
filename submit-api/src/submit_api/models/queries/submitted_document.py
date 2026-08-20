@@ -13,7 +13,7 @@
 # limitations under the License.
 """Model to handle all complex operations related to Submitted Documents."""
 
-from sqlalchemy import cast, and_, or_, String
+from sqlalchemy import cast, and_, or_, String, func
 from submit_api.models.account_project import AccountProject
 from submit_api.models.account_project_search_options import DocumentSearchOptions, ProjectDocumentSearchOptions
 from submit_api.models.db import db
@@ -115,8 +115,32 @@ class DocumentQueries:
 
     @classmethod
     def get_documents_paginated(cls, search_options: ProjectDocumentSearchOptions):
-        """Get paginated documents (global or project-specific)."""
+        """Get paginated documents (global or project-specific).
+
+        Deduplicates by root_submission_id so only the latest version of each
+        document lineage appears in the listing. Previous versions are accessible
+        via the /submissions/{id}/versions endpoint.
+        """
         session = db.session
+
+        # Subquery: for each root_submission_id, find the max version
+        # (major_version * 1000 + minor_version gives a single sortable integer)
+        latest_version_subquery = (
+            session.query(
+                Submission.root_submission_id,
+                func.max(
+                    Submission.major_version * 1000 + Submission.minor_version
+                ).label("max_version_rank")
+            )
+            .filter(
+                Submission.type == SubmissionType.DOCUMENT,
+                Submission.active.is_(True),
+                Submission.deleted.is_(False),
+                or_(Submission.status != SubmissionStatus.PENDING, Submission.status.is_(None))
+            )
+            .group_by(Submission.root_submission_id)
+            .subquery("latest_versions")
+        )
 
         query = session.query(
             SubmittedDocument.id.label("id"),
@@ -143,6 +167,16 @@ class DocumentQueries:
         query = query.outerjoin(AccountProjectWork, AccountProjectWork.id == Package.account_project_work_id)
         query = query.outerjoin(TrackWork, TrackWork.id == AccountProjectWork.work_id)
         query = query.outerjoin(TrackPhase, TrackPhase.id == TrackWork.current_phase_id)
+
+        # Join to the subquery to keep only the latest version per root_submission_id
+        query = query.join(
+            latest_version_subquery,
+            and_(
+                Submission.root_submission_id == latest_version_subquery.c.root_submission_id,
+                (Submission.major_version * 1000 + Submission.minor_version) ==
+                latest_version_subquery.c.max_version_rank
+            )
+        )
 
         query = query.filter(
             Submission.type == SubmissionType.DOCUMENT,

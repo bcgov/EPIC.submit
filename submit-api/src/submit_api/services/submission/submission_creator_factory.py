@@ -8,6 +8,7 @@ from submit_api.models import Item as ItemModel
 from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
+from submit_api.models.package_version import PackageVersion as PackageVersionModel
 from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
@@ -107,10 +108,16 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
     def _create(self, item_id, request_data, session):
         """Create a new document submission."""
         submitted_document = self._create_submitted_document(session, request_data)
-        submission: SubmissionModel = self._create_submission(session, {
+        root_submission_id = self._resolve_root_submission_id_from_previous_version(
+            item_id, submitted_document.folder
+        )
+        submission_data = {
             "item_id": item_id,
-            "submitted_document_id": submitted_document.id
-        })
+            "submitted_document_id": submitted_document.id,
+        }
+        if root_submission_id:
+            submission_data["root_submission_id"] = root_submission_id
+        submission: SubmissionModel = self._create_submission(session, submission_data)
 
         return submission
 
@@ -362,6 +369,103 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             current_app.logger.info("Move operation completed for submission_id: %s. New submission is %s.",
                                     submission_id, moved_submission.id)
             return moved_submission
+
+    @staticmethod
+    def _find_previous_version_item(item_id):
+        """Find the matching item on the previous package version.
+
+        Returns the previous item if this is a revision package (version 2+)
+        and a matching item exists on the prior version, otherwise None.
+        """
+        item = ItemModel.find_by_id(item_id)
+        if not item:
+            return None
+
+        package = PackageModel.find_by_id(item.package_id)
+        if not package or not package.version:
+            return None
+
+        # Only relevant if this is version 2+
+        if package.version.version <= 1:
+            return None
+
+        # Find the previous version's package
+        previous_version = PackageVersionModel.query.filter_by(
+            original_package_id=package.version.original_package_id,
+            version=package.version.version - 1
+        ).first()
+
+        if not previous_version or not previous_version.package:
+            return None
+
+        # Find matching item by type_id on the previous package
+        return ItemModel.query.filter_by(
+            package_id=previous_version.package.id,
+            type_id=item.type_id
+        ).first()
+
+    @staticmethod
+    def _resolve_root_submission_id_from_previous_version(item_id, folder=None):
+        """Look up root_submission_id from the previous package version's matching item.
+
+        When a document is uploaded to a revision package (version 2+), this finds
+        the corresponding submission on the previous package version (matched by item
+        type_id and document folder) and returns its root_submission_id so the new
+        submission continues the same version lineage.
+        """
+        previous_item = SubmissionCreatorFactory._find_previous_version_item(
+            item_id
+        )
+        if not previous_item:
+            return None
+
+        # Find active document submissions on the previous item
+        previous_submissions = (
+            SubmissionModel.query
+            .filter_by(
+                item_id=previous_item.id,
+                type=SubmissionType.DOCUMENT,
+                deleted=False
+            )
+            .filter(SubmissionModel.status != SubmissionStatus.PENDING)
+            .order_by(
+                SubmissionModel.major_version.desc(),
+                SubmissionModel.minor_version.desc()
+            )
+            .all()
+        )
+
+        if not previous_submissions:
+            return None
+
+        # If a folder is provided, try to match by folder for specificity
+        if folder:
+            matching = [
+                s for s in previous_submissions
+                if s.submitted_document
+                and s.submitted_document.folder == folder
+            ]
+            if len(matching) == 1:
+                return matching[0].root_submission_id
+            if len(matching) > 1:
+                current_app.logger.debug(
+                    "Multiple previous submissions found for "
+                    "folder '%s' on item %s. "
+                    "Skipping root_submission_id linkage.",
+                    folder, previous_item.id
+                )
+                return None
+
+        # No folder match or no folder provided — link only if one
+        if len(previous_submissions) == 1:
+            return previous_submissions[0].root_submission_id
+
+        current_app.logger.debug(
+            "Multiple previous submissions found on item %s. "
+            "Skipping root_submission_id linkage.",
+            previous_item.id
+        )
+        return None
 
     @classmethod
     def get_document_version(cls, item_id, original_submission_id=None):
