@@ -27,7 +27,7 @@ import {
 } from "@/components/Shared/PermissionGate/utils";
 import { NotificationBox } from "./NotificationBox";
 import NotesSection from "@/components/App/SubmissionItem/NotesSection";
-import AddRequestSection from "@/components/App/SubmissionItem/AddRequestSection";
+import RevisionRequiredWidget from "./RevisionRequiredWidget";
 import { When } from "react-if";
 import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
 
@@ -69,6 +69,18 @@ export default function ReviewSection() {
       SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
     );
 
+    // Merge section_notes: prefer manager's over staff's
+    const sectionNotes =
+      managerAnswers?.section_notes ??
+      staffAnswers?.section_notes ??
+      {};
+
+    // Derive submission_item_types from section_notes keys
+    const submissionItemTypes =
+      managerAnswers?.submission_item_types ??
+      staffAnswers?.submission_item_types ??
+      Object.keys(sectionNotes).map(Number).filter(Boolean);
+
     return {
       staff: {
         passedConsultationCheck: staffAnswers?.passedConsultationCheck ?? "",
@@ -77,11 +89,8 @@ export default function ReviewSection() {
         passedConsultationCheck: managerAnswers?.passedConsultationCheck ?? "",
       },
       update_request: {
-        reason: managerAnswers?.reason ?? staffAnswers?.reason ?? "",
-        submission_item_types:
-          managerAnswers?.submission_item_types ??
-          staffAnswers?.submission_item_types ??
-          [],
+        section_notes: sectionNotes,
+        submission_item_types: submissionItemTypes,
       },
     };
   }, [submissionItem]);
@@ -193,7 +202,7 @@ export default function ReviewSection() {
             </PermissionsGate>
             <UndoTMRecommendationButton submissionItem={submissionItem} />
             <When condition={failedConsultationCheck}>
-              <AddRequestSection disabled={isFormDisabled} />
+              <RevisionRequiredWidget disabled={isFormDisabled} />
             </When>
             <NotesSection />
             <NotificationBox />
