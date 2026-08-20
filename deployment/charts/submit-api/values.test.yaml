@@ -3,7 +3,7 @@ replicaCount: 1
 image:
   repository: image-registry.openshift-image-registry.svc:5000/c72cba-tools/submit-api
   pullPolicy: Always
-  tag: "dev"
+  tag: "test"
 
 resources:
   cpu:
@@ -32,27 +32,27 @@ auth:
     alg: RS256
     aud: epic-submit
     cacheEnabled: true
-    issuer: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
+    issuer: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic
     cacheTimeout: "300"
-    wellKnownConfig: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
+    wellKnownConfig: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic/.well-known/openid-configuration
   keycloak:
-    uri: https://dev.loginproxy.gov.bc.ca
+    uri: https://test.loginproxy.gov.bc.ca
     realm: eao-epic
   serviceAccount:
     id: ""
     secret: ""
   epicAuth:
-    baseUrl: https://auth-api-c72cba-dev.apps.gold.devops.gov.bc.ca
+    baseUrl: https://auth-api-c72cba-test.apps.gold.devops.gov.bc.ca
 
 python:
   pythonBuffered: 1
   connectTimeout: 60
 
 cors:
-  origin: "https://dev.submit.eao.gov.bc.ca,http://localhost:5173,"
+  origin: "https://test.submit.eao.gov.bc.ca,"
 
 web:
-  url: https://dev.submit.eao.gov.bc.ca
+  url: https://test.submit.eao.gov.bc.ca
 
 sender:
   email: EAO.ManagementPlanSupport@gov.bc.ca
@@ -62,7 +62,7 @@ staffSupportMailId: EAO.ManagementPlanSupport@gov.bc.ca
 signupUrlPath: /proponent/account-registration
 
 documentService:
-  url: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
+  url: https://epic-document-api-c8b80a-test.apps.gold.devops.gov.bc.ca/api
 
 geo:
   maxConcurrentJobs: "4"

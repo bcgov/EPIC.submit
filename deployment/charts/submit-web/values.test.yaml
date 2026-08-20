@@ -1,16 +1,16 @@
 app:
   name: submit
-  url: https://dev.submit.eao.gov.bc.ca
-  api: https://submit-api-c72cba-dev.apps.gold.devops.gov.bc.ca/api
-  env: dev
+  url: https://test.submit.eao.gov.bc.ca
+  api: https://submit-api-c72cba-test.apps.gold.devops.gov.bc.ca/api
+  env: test
   version: 1.0.0
   title: EPIC.submit
-  objectStorageUrl: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
-  oidcAuthority: https://dev.loginproxy.gov.bc.ca/auth/realms/eao-epic
+  objectStorageUrl: https://epic-document-api-c8b80a-test.apps.gold.devops.gov.bc.ca/api
+  oidcAuthority: https://test.loginproxy.gov.bc.ca/auth/realms/eao-epic
   clientId: epic-submit
-  conditionsLibraryUrl: https://condition-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
+  conditionsLibraryUrl: https://condition-api-c8b80a-test.apps.gold.devops.gov.bc.ca/api
   user_guide: /docs/Holder-User-Guide-EPIC.submit-v1.1.pdf
-  centreApiUrl: https://centre-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
+  centreApiUrl: https://centre-api-c8b80a-test.apps.gold.devops.gov.bc.ca
   geoDocUrl: https://www2.gov.bc.ca/assets/download/C92C40FD8897448F916AB4FE518A4539
   epicSystemEmail: EAO.EPICsystem@gov.bc.ca
   supportMpEmail: EAO.ManagementPlanSupport@gov.bc.ca
@@ -26,11 +26,11 @@ resources:
 
 image:
   name: submit-web
-  tag: dev
+  tag: test
   repository: image-registry.openshift-image-registry.svc:5000/c72cba-tools/
 
 keycloak:
-  url: "https://dev.loginproxy.gov.bc.ca"
+  url: "https://test.loginproxy.gov.bc.ca"
   realm: eao-epic
   client: epic-submit
 

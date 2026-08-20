@@ -14,12 +14,12 @@ data:
   PYTHONBUFFERED: "{{ .Values.python.pythonBuffered }}"
   KEYCLOAK_BASE_URL: {{ .Values.auth.keycloak.uri }}
   KEYCLOAK_REALM_NAME: {{ .Values.auth.keycloak.realm }}
-  INSTANCE_ADMIN_GROUP: {{ .Values.auth.keycloak.instanceAdminGroup }}
   CONNECT_TIMEOUT: "{{ .Values.python.connectTimeout }}"
   CORS_ORIGIN: "{{ .Values.cors.origin }}"
   BASE_APP_URL: {{ .Values.web.url }}
   AUTH_BASE_URL: {{ .Values.auth.epicAuth.baseUrl }}
-  BC_SERVICE_CARD_URL: {{ .Values.bcServiceCard.url }}
-  LEGISLATIVE_TIMEZONE: {{ .Values.timezone }}
   SENDER_EMAIL: {{ .Values.sender.email }}
-  STAFF_SUPPORT_MAIL_ID: {{ .Values.sender.email }}
+  STAFF_SUPPORT_MAIL_ID: {{ .Values.staffSupportMailId }}
+  SIGNUP_URL_PATH: {{ .Values.signupUrlPath }}
+  DOCUMENT_SERVICE_URL: {{ .Values.documentService.url }}
+  GEO_MAX_CONCURRENT_JOBS: "{{ .Values.geo.maxConcurrentJobs }}"
