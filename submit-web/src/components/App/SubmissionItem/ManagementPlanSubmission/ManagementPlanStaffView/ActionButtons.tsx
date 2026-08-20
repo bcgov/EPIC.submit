@@ -84,14 +84,9 @@ export default function ActionButtons() {
         validateAtKey,
         data,
       );
-      const passed = decisionData.passedReview === DropdownOptions.YES.value;
-      const updateRequestData = passed
-        ? {}
-        : managementPlanReviewSchema.validateSyncAt("update_request", data);
       const requestBody = {
         form_answers: {
           ...decisionData,
-          ...updateRequestData,
         },
         type: isStaff
           ? SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION
@@ -122,19 +117,10 @@ export default function ActionButtons() {
         getValues(),
       );
 
-      const passed = staffDecision.passedReview === DropdownOptions.YES.value;
-      const updateRequestData = passed
-        ? {}
-        : managementPlanReviewSchema.validateSyncAt(
-            "update_request",
-            getValues(),
-          );
-
       const requestBody = {
         status: SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW,
         form_answers: {
           ...staffDecision,
-          ...updateRequestData,
         },
         type: SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
       };
@@ -167,12 +153,6 @@ export default function ActionButtons() {
         managerDecision.passedReview ===
         DropdownOptions.REVISION_REQUIRED.value;
 
-      const updateRequestData = passed
-        ? {}
-        : managementPlanReviewSchema.validateSyncAt(
-            "update_request",
-            getValues(),
-          );
       const requestBody = {
         status: revisionRequired
           ? SUBMISSION_REVIEW_STATUS.REVISION_REQUIRED
@@ -181,7 +161,6 @@ export default function ActionButtons() {
             : SUBMISSION_REVIEW_STATUS.REJECTED,
         form_answers: {
           ...managerDecision,
-          ...updateRequestData,
         },
         type: SUBMISSION_REVIEW_ENTRY_TYPE.MANAGER_CONFIRMATION,
       };

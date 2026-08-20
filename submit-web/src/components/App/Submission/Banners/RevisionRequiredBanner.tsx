@@ -4,10 +4,12 @@ import { BCDesignTokens } from "epic.theme";
 
 type RevisionRequiredBannerProps = {
   contactEmail: string;
+  showDecisionLetterText?: boolean;
 };
 
 export const RevisionRequiredBanner = ({
   contactEmail,
+  showDecisionLetterText = false,
 }: RevisionRequiredBannerProps) => {
   return (
     <WarningBox
@@ -19,6 +21,8 @@ export const RevisionRequiredBanner = ({
     >
       <Typography variant="body1" color={BCDesignTokens.typographyColorPrimary}>
         Your plan requires revisions.
+        {showDecisionLetterText &&
+          " Please refer to the decision letter from the EAO."}
       </Typography>
       <Typography
         variant="body1"

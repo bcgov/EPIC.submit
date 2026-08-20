@@ -118,3 +118,41 @@ class TestNewPackageRevisionWording:
         assert NonCanonicalPackageStatus.REVISION_REQUESTED.value in result_staff
         # UPDATE request also present
         assert NonCanonicalPackageStatus.UPDATE_REQUESTED.value in result_staff
+
+
+class TestCanonicalRevisionRequiredStatus:
+    """Tests for canonical REVISION_REQUIRED status mapping (no update request needed)."""
+
+    def test_entity_sees_revision_required_from_canonical_status(self):
+        """Entity sees REVISION_REQUIRED when package has canonical REVISION_REQUIRED status."""
+        package = _make_package(
+            canonical_statuses=[PackageStatus.REVISION_REQUIRED.value],
+        )
+
+        result = PackageService.calculate_package_statuses(package, UserType.PROPONENT)
+
+        assert PackageStatus.REVISION_REQUIRED.value in result
+
+    def test_eao_sees_revision_requested_from_canonical_status(self):
+        """EAO sees REVISION_REQUESTED when package has canonical REVISION_REQUIRED status."""
+        package = _make_package(
+            canonical_statuses=[PackageStatus.REVISION_REQUIRED.value],
+        )
+
+        result = PackageService.calculate_package_statuses(package, UserType.STAFF)
+
+        assert NonCanonicalPackageStatus.REVISION_REQUESTED.value in result
+        assert PackageStatus.REVISION_REQUIRED.value not in result
+
+    def test_canonical_revision_required_no_duplicate_with_overlay(self):
+        """Canonical REVISION_REQUIRED does not produce duplicate statuses."""
+        package = _make_package(
+            canonical_statuses=[PackageStatus.REVISION_REQUIRED.value],
+        )
+
+        result_proponent = PackageService.calculate_package_statuses(package, UserType.PROPONENT)
+        result_staff = PackageService.calculate_package_statuses(package, UserType.STAFF)
+
+        # Check no duplicates
+        assert len(result_proponent) == len(set(result_proponent))
+        assert len(result_staff) == len(set(result_staff))

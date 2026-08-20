@@ -28,23 +28,6 @@ export const managementPlanReviewSchema = yup.lazy((value) => {
   const hasStaffDecision = !!staffDecision;
   const hasManagerDecision = !!managerDecision;
 
-  const noDecision =
-    staffDecision === DropdownOptions.NO.value ||
-    managerDecision === DropdownOptions.NO.value;
-
-  const updateRequestSchema = noDecision
-    ? yup.object().shape({
-        reason: yup.string().required("Reason is required"),
-        submission_item_types: yup
-          .array()
-          .nullable()
-          .required("Submission items are required")
-          .typeError("Submission items are required")
-          .of(yup.number())
-          .min(1, "Please select at least one item"),
-      })
-    : yup.object().strip(); // remove from validated object if not needed
-
   const baseShape: Record<string, any> = {
     staff: yup.object().shape({
       passedReview: hasManagerDecision
@@ -56,7 +39,6 @@ export const managementPlanReviewSchema = yup.lazy((value) => {
         ? yup.string().notRequired()
         : yup.string().required("Manager decision is required"),
     }),
-    update_request: updateRequestSchema,
   };
 
   return yup.object().shape(baseShape);

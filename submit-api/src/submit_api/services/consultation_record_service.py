@@ -118,6 +118,17 @@ class ConsultationRecordService:
                         'type': UpdateRequestType.REVIEW,
                     })
             return requests
+
+        # Old format fallback: reason + submission_item_types at top level
+        reason = entry.get('reason')
+        item_types = entry.get('submission_item_types')
+        if reason and item_types:
+            return [{
+                'package_id': item.package_id,
+                'item_types': item_types,
+                'reason': reason,
+                'type': UpdateRequestType.REVIEW,
+            }]
         return []
 
     @classmethod
