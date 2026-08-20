@@ -118,17 +118,6 @@ class ConsultationRecordService:
                         'type': UpdateRequestType.REVIEW,
                     })
             return requests
-
-        # Backward compatibility: old format with reason + submission_item_types
-        item_types = entry.get('submission_item_types')
-        reason = entry.get('reason')
-        if item_types:
-            return [{
-                'package_id': item.package_id,
-                'item_types': item_types,
-                'reason': reason,
-                'type': UpdateRequestType.REVIEW,
-            }]
         return []
 
     @classmethod

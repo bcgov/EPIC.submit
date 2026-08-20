@@ -129,6 +129,7 @@ export default function RevisionRequiredWidget({
     });
     // Remove MP note from form
     const currentNotes = getValues("update_request.section_notes") || {};
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { [String(managementPlanTypeId)]: _, ...rest } = currentNotes;
     setValue("update_request.section_notes", rest);
     // Remove from submission_item_types
