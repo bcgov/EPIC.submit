@@ -9,7 +9,7 @@ describe("RevisionRequiredBanner", () => {
     );
 
     expect(
-      screen.getByText(/Your plan requires revisions\./),
+      screen.getByText("Your plan requires revisions. Please refer to the decision letter from the EAO."),
     ).toBeInTheDocument();
   });
 
