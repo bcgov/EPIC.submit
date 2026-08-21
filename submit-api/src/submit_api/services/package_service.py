@@ -154,6 +154,10 @@ class PackageService:
                 UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,
                 UserType.STAFF: PackageStatus.REVIEW_REJECTED.value
             },
+            PackageStatus.REVISION_REQUIRED.value: {
+                UserType.PROPONENT: PackageStatus.REVISION_REQUIRED.value,
+                UserType.STAFF: NonCanonicalPackageStatus.REVISION_REQUESTED.value
+            },
             PackageStatus.SATISFIED.value: {
                 UserType.PROPONENT: PackageStatus.NO_REVISION_REQUIRED.value,
                 UserType.STAFF: PackageStatus.SATISFIED.value

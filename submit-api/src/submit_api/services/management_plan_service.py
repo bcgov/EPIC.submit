@@ -10,6 +10,7 @@ from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import PackageVersion, SubmissionReview, SubmissionReviewEntry
 from submit_api.models import Package as PackageModel
 from submit_api.models import PackageMetadata
+from submit_api.models.package import PackageStatus
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.update_request import UpdateRequestType, UpdateRequest
@@ -28,9 +29,7 @@ class ManagementPlanService:
         """Reject management plan form."""
         cls.update_item_status_mp_rejection(item)
         cls.update_package_metadata_mp_rejection(item, session)
-        _, new_item = cls.create_new_package_version(item, session)
-        update_request_data = cls.prepare_update_request_data(new_item, item)
-        cls.create_mp_update_request(update_request_data, session)
+        cls.create_new_package_version(item, session)
         cls._log_management_plan_rejection_activity(item, session)
         cls.deactivate_update_requests(item.package_id, session)
         cls._create_rejection_email_queue(
@@ -115,6 +114,7 @@ class ManagementPlanService:
                 f"Package version not found for item {item.id}.")
         new_package = PackageVersionService.create_new_package_version(package.id, session)
         PackageVersionService.copy_contact_information(package, new_package)
+        new_package.status = [PackageStatus.REVISION_REQUIRED.value]
         current_app.logger.info(
             f"New package version created for {new_package.name}.")
         new_items = new_package.items

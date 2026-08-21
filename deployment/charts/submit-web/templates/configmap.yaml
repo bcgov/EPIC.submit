@@ -17,8 +17,10 @@ data:
         "VITE_OIDC_AUTHORITY": "{{ .Values.app.oidcAuthority }}",
         "VITE_CLIENT_ID": "{{ .Values.app.clientId }}",
         "VITE_CONDITIONS_LIBRARY_URL": "{{ .Values.app.conditionsLibraryUrl }}",
-        "VITE_USER_GUIDE": "{{ .Values.app.user_guide}}",
-        "VITE_EPIC_SYSTEM_EMAIL": "{{ .Values.app.epicSystemEmail}}",
-        "VITE_SUPPORT_MP_EMAIL": "{{ .Values.app.supportMpEmail}}",
-        "VITE_SUPPORT_IPD_EMAIL": "{{ .Values.app.supportIpdEmail}}"
+        "VITE_USER_GUIDE": "{{ .Values.app.user_guide }}",
+        "VITE_CENTRE_API_URL": "{{ .Values.app.centreApiUrl }}",
+        "VITE_GEO_DOC_URL": "{{ .Values.app.geoDocUrl }}",
+        "VITE_EPIC_SYSTEM_EMAIL": "{{ .Values.app.epicSystemEmail }}",
+        "VITE_SUPPORT_MP_EMAIL": "{{ .Values.app.supportMpEmail }}",
+        "VITE_SUPPORT_IPD_EMAIL": "{{ .Values.app.supportIpdEmail }}"
       }

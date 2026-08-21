@@ -41,7 +41,7 @@ import { useDocumentChangeTracking } from "@/hooks/useDocumentChangeTracking";
 import { useManagementPlanName } from "@/hooks/useManagementPlanName";
 import { useSubmissionBannerState } from "@/hooks/useSubmissionBannerState";
 import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
-import { PACKAGE_STATUS, SubmissionPackageType } from "@/models/Package";
+import { PACKAGE_STATUS, NON_CANONICAL_PACKAGE_STATUS, SubmissionPackageType } from "@/models/Package";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import {
@@ -381,12 +381,15 @@ export default function SubmissionPage() {
   } = useSubmitAvailability(submissionPackage);
 
   const isRevisionRequired = Boolean(
-    submissionPackage?.update_requests.some(
-      (updateRequest) =>
-        updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
-        updateRequest.active &&
-        updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
-    ),
+    submissionPackage?.status.includes(
+      NON_CANONICAL_PACKAGE_STATUS.REVISION_REQUIRED.value,
+    ) ||
+      submissionPackage?.update_requests.some(
+        (updateRequest) =>
+          updateRequest.status === UPDATE_REQUEST_STATUS.OPEN.value &&
+          updateRequest.active &&
+          updateRequest.type === UPDATE_REQUEST_TYPE.REVIEW.value,
+      ),
   );
 
   const {
@@ -574,7 +577,13 @@ export default function SubmissionPage() {
                 />
               </When>
               <When condition={showRevisionRequiredBanner}>
-                <RevisionRequiredBanner contactEmail={contactEmail} />
+                <RevisionRequiredBanner
+                  contactEmail={contactEmail}
+                  showDecisionLetterText={
+                    submissionPackage.type.name ===
+                    SubmissionPackageType.MANAGEMENT_PLAN
+                  }
+                />
               </When>
               <Box
                 sx={{

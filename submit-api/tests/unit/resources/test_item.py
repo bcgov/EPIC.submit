@@ -123,11 +123,13 @@ def test_create_review_consultation_record_fail(client, session, jwt):
     # Generate authentication headers
     headers = factory_auth_header(jwt=jwt, claims=claims)
 
-    # Payload for the review
+    # Payload for the review (new format with section_notes)
     payload = {
         "form_answers": {
             "passedConsultationCheck": "NO",
-            "reason": fake.paragraph(),
+            "section_notes": {
+                str(SubmissionItemTypeId.CONSULTATION_RECORD.value): fake.paragraph()
+            },
             "submission_item_types": [SubmissionItemTypeId.CONSULTATION_RECORD.value]
         },
         "status": SubmissionReviewStatus.REJECTED.value,
@@ -156,6 +158,7 @@ def test_create_review_consultation_record_fail(client, session, jwt):
     assert review_form == payload["form_answers"]
     assert deserialized_data["status"].value == payload["status"]
     assert deserialized_data["item_id"] == cr_item.id
+    session.expire(package)
     assert len(package.update_requests) == 1
 
 
