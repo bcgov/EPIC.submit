@@ -15,6 +15,40 @@ from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
 from submit_api.utils.token_info import TokenInfo
 
 
+def _find_previous_version_item(item_id):
+    """Find the matching item on the previous package version.
+
+    Returns the previous item if this is a revision package (version 2+)
+    and a matching item exists on the prior version, otherwise None.
+    """
+    item = ItemModel.find_by_id(item_id)
+    if not item:
+        return None
+
+    package = PackageModel.find_by_id(item.package_id)
+    if not package or not package.version:
+        return None
+
+    # Only relevant if this is version 2+
+    if package.version.version <= 1:
+        return None
+
+    # Find the previous version's package
+    previous_version = PackageVersionModel.query.filter_by(
+        original_package_id=package.version.original_package_id,
+        version=package.version.version - 1
+    ).first()
+
+    if not previous_version or not previous_version.package:
+        return None
+
+    # Find matching item by type_id on the previous package
+    return ItemModel.query.filter_by(
+        package_id=previous_version.package.id,
+        type_id=item.type_id
+    ).first()
+
+
 class SubmissionCreatorFactory(Protocol):
     """Submission creator factory protocol."""
 
@@ -413,7 +447,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         type_id and document folder) and returns its root_submission_id so the new
         submission continues the same version lineage.
         """
-        previous_item = SubmissionCreatorFactory._find_previous_version_item(
+        previous_item = DocumentSubmissionCreator._find_previous_version_item(
             item_id
         )
         if not previous_item:

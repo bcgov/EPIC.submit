@@ -88,8 +88,10 @@ export default function ActionButtons() {
 
       const isNo =
         decisionData.passedConsultationCheck === DropdownOptions.NO.value;
+      // For Save & Exit, include section_notes without strict validation
+      // so drafts can be saved with incomplete notes
       const updateRequestData = isNo
-        ? consultationSchema.validateSyncAt("update_request", data)
+        ? (data.update_request || {})
         : {};
       const requestBody = {
         form_answers: {

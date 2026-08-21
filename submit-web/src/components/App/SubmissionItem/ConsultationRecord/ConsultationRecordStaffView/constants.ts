@@ -28,14 +28,28 @@ export const consultationSchema = yup.lazy((value = {}) => {
 
   const updateRequestSchema = noDecision
     ? yup.object().shape({
-      reason: yup.string().required("Reason is required"),
+      section_notes: yup.lazy((notesValue) => {
+        if (!notesValue || typeof notesValue !== "object") {
+          return yup.object().required("At least one section note is required");
+        }
+        // Validate each key in the section_notes object has a non-empty string
+        const shape: Record<string, any> = {};
+        Object.keys(notesValue).forEach((key) => {
+          shape[key] = yup
+            .string()
+            .required("Request Note is required")
+            .test(
+              "not-empty",
+              "Request Note is required",
+              (val) => !!val && val.trim().length > 0,
+            );
+        });
+        return yup.object().shape(shape);
+      }),
       submission_item_types: yup
         .array()
-        .nullable()
-        .required("Submission items are required")
-        .typeError("Submission items are required")
         .of(yup.number())
-        .min(1, "Please select at least one item"),
+        .min(1, "At least one section is required"),
     })
     : yup.object().strip(); // remove from validated object if not needed
 

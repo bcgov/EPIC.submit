@@ -276,6 +276,3 @@ class TestResolveRootSubmissionIdFromPreviousVersion:
 
         # Falls through folder matching (no match), but single submission links
         assert result == 110
-
-
-

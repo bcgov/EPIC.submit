@@ -9,7 +9,7 @@ describe("RevisionRequiredBanner", () => {
     );
 
     expect(
-      screen.getByText("Your plan requires revisions."),
+      screen.getByText(/Your plan requires revisions\./),
     ).toBeInTheDocument();
   });
 
@@ -36,5 +36,47 @@ describe("RevisionRequiredBanner", () => {
       name: "custom.eao@gov.bc.ca",
     });
     expect(link).toHaveAttribute("href", "mailto:custom.eao@gov.bc.ca");
+  });
+
+  it("renders decision letter text when showDecisionLetterText is true", () => {
+    render(
+      <RevisionRequiredBanner
+        contactEmail="EAO.ManagementPlanSupport@gov.bc.ca"
+        showDecisionLetterText={true}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        /Please refer to the decision letter from the EAO\./,
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("does not render decision letter text when showDecisionLetterText is false", () => {
+    render(
+      <RevisionRequiredBanner
+        contactEmail="EAO.ManagementPlanSupport@gov.bc.ca"
+        showDecisionLetterText={false}
+      />,
+    );
+
+    expect(
+      screen.queryByText(
+        /Please refer to the decision letter from the EAO\./,
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not render decision letter text by default", () => {
+    render(
+      <RevisionRequiredBanner contactEmail="EAO.ManagementPlanSupport@gov.bc.ca" />,
+    );
+
+    expect(
+      screen.queryByText(
+        /Please refer to the decision letter from the EAO\./,
+      ),
+    ).not.toBeInTheDocument();
   });
 });
