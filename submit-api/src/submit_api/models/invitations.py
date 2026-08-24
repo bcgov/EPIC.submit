@@ -22,18 +22,14 @@ class Invitations(BaseModel):
     __tablename__ = 'invitations'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    account_id = Column(Integer, ForeignKey(
-        'accounts.id', ondelete='CASCADE'), nullable=False)
+    account_id = Column(Integer, ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False)
     project_ids = Column(ARRAY(Integer), nullable=False)
     package_ids = Column(ARRAY(Integer), nullable=True)
-    original_package_ids = Column(
-        ARRAY(Integer), nullable=True)  # For original package IDs
-    # Structured project/work/non-work selections
-    eligible_entries = Column(JSON, nullable=True)
+    original_package_ids = Column(ARRAY(Integer), nullable=True)  # For original package IDs
+    eligible_entries = Column(JSON, nullable=True)  # Structured project/work/non-work selections
     token = Column(String(255), unique=True, nullable=False)
     email = Column(String(255), nullable=True)  # Optional email for client
-    status = Column(
-        String(50), default=InvitationStatus.PENDING.value, nullable=False)
+    status = Column(String(50), default=InvitationStatus.PENDING.value, nullable=False)
     expiry_date = Column(TIMESTAMP, default=datetime.now(UTC))
     role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     is_first_time = Column(Boolean, default=False)
@@ -75,8 +71,7 @@ class Invitations(BaseModel):
     @classmethod
     def validate_token(cls, token):
         """Validate token and check if it is still active."""
-        invitation = cls.query.filter_by(
-            token=token, status=InvitationStatus.PENDING.value).first()
+        invitation = cls.query.filter_by(token=token, status=InvitationStatus.PENDING.value).first()
         if invitation and invitation.expiry_date > datetime.now():
             return invitation
         return None
@@ -127,8 +122,7 @@ class Invitations(BaseModel):
         """Get pending and used invitations for the given account ids."""
         return cls.query.filter(
             cls.account_id.in_(account_ids),
-            cls.status.in_([InvitationStatus.PENDING.value,
-                           InvitationStatus.USED.value])
+            cls.status.in_([InvitationStatus.PENDING.value, InvitationStatus.USED.value])
         ).all()
 
     @classmethod
