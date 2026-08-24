@@ -1,4 +1,4 @@
-import { ProponentStatus } from "@/models/Proponent";
+import { ProponentStatus, ProponentStatusFilterOptions } from "@/models/Proponent";
 import { Box } from "@mui/material";
 import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
 import { BCDesignTokens } from "epic.theme";
@@ -7,6 +7,7 @@ const STATUS_LABELS = {
   ELIGIBLE: "Eligible",
   INVITE_GENERATED: "Invite Generated",
   PENDING_ONBOARDING: "Pending Onboarding",
+  INVITE_EXPIRED: "Invite Expired",
   INELIGIBLE: "Ineligible",
   ONBOARDED: "Onboarded",
 } as const;
@@ -20,7 +21,7 @@ type StatusStyle = {
   };
 };
 
-const statusStyles: Record<ProponentStatus, StatusStyle> = {
+const statusStyles: Record<ProponentStatusFilterOptions, StatusStyle> = {
   ELIGIBLE: {
     label: STATUS_LABELS.ELIGIBLE,
     theme: "purple",
@@ -33,6 +34,10 @@ const statusStyles: Record<ProponentStatus, StatusStyle> = {
     label: STATUS_LABELS.PENDING_ONBOARDING,
     theme: "info",
   },
+  INVITE_EXPIRED: {
+    label: STATUS_LABELS.INVITE_EXPIRED,
+    theme: "danger",
+  },
   INELIGIBLE: {
     label: STATUS_LABELS.INELIGIBLE,
     theme: "orange",
@@ -44,7 +49,7 @@ const statusStyles: Record<ProponentStatus, StatusStyle> = {
 };
 
 type ProponentStatusChipProps = Readonly<{
-  status: ProponentStatus | null | undefined;
+  status: ProponentStatusFilterOptions | null | undefined;
 }>;
 
 export function ProponentStatusChip({ status }: ProponentStatusChipProps) {

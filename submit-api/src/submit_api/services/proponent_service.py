@@ -1,6 +1,6 @@
 """Service for proponent management."""
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.enums.proponent_status import ProponentStatus
+from submit_api.enums.proponent_status import NonCanonicalProponentStatus, ProponentStatus
 from submit_api.enums.role import RoleEnum
 from submit_api.enums.non_work_item import NonWorkItemType
 from submit_api.models.account import Account
@@ -36,11 +36,13 @@ class ProponentService:
         if not proponent:
             return None
 
-        proponent_dict = proponent.to_dict()
+        expired_ids = cls._expired_invite_proponent_ids([proponent])
+        proponent_dict = cls._with_effective_status(proponent, expired_ids)
 
         include_invitations = options.get('include_invitations', False)
         include_projects = options.get('include_projects', False)
-        include_eligibility_entries = options.get('include_eligibility_entries', False)
+        include_eligibility_entries = options.get(
+            'include_eligibility_entries', False)
         include_administrators = options.get('include_administrators', False)
 
         if not any([include_invitations, include_projects, include_eligibility_entries, include_administrators]):
@@ -55,10 +57,12 @@ class ProponentService:
             proponent_dict.update(cls._get_projects(proponent_id, account_ids))
 
         if include_eligibility_entries:
-            proponent_dict.update(cls._get_eligibility_entries(proponent_id, account_ids))
+            proponent_dict.update(
+                cls._get_eligibility_entries(proponent_id, account_ids))
 
         if include_administrators and account_ids:
-            proponent_dict["administrators"] = cls._get_administrators(account_ids)
+            proponent_dict["administrators"] = cls._get_administrators(
+                account_ids)
 
         return proponent_dict
 
@@ -105,7 +109,8 @@ class ProponentService:
             apnw_list = AccountProjectNonWork.find_by_account_project_id(ap.id)
             for apnw in apnw_list:
                 if apnw.is_active:
-                    onboarded_non_work_items.add((ap.project_id, apnw.non_work_item_type.value))
+                    onboarded_non_work_items.add(
+                        (ap.project_id, apnw.non_work_item_type.value))
 
         eligibility_entries = []
 
@@ -172,12 +177,41 @@ class ProponentService:
         return administrators
 
     @classmethod
+    def _expired_invite_proponent_ids(cls, proponents) -> set[int]:
+        """Proponent ids whose stored status is INVITE_GENERATED but the invite has expired."""
+        candidates = [p for p in proponents if p.status ==
+                      ProponentStatus.INVITE_GENERATED]
+        if not candidates:
+            return set()
+
+        account_map = Account.get_account_id_map_by_proponent_ids(
+            [p.id for p in candidates])
+        all_account_ids = [aid for ids in account_map.values() for aid in ids]
+        expired_account_ids = Invitations.get_expired_pending_account_ids(
+            all_account_ids)
+
+        return {
+            proponent_id
+            for proponent_id, account_ids in account_map.items()
+            if expired_account_ids.intersection(account_ids)
+        }
+
+    @classmethod
+    def _with_effective_status(cls, proponent, expired_ids: set[int]) -> dict:
+        proponent_dict = proponent.to_dict()
+        if proponent.id in expired_ids:
+            proponent_dict["status"] = NonCanonicalProponentStatus.INVITE_EXPIRED.value
+        return proponent_dict
+
+    @classmethod
     def get_all_proponents(cls, include_deleted=False, approved_conditions_only=None):
         """Get all proponents from the Proponent table."""
-        return Proponent.get_all_proponents(
+        proponents = Proponent.get_all_proponents(
             include_deleted=include_deleted,
-            approved_conditions_only=approved_conditions_only
+            approved_conditions_only=approved_conditions_only,
         )
+        expired_ids = cls._expired_invite_proponent_ids(proponents)
+        return [cls._with_effective_status(p, expired_ids) for p in proponents]
 
     @classmethod
     def _parse_eligibility_entries(cls, eligibility_entry_ids):
@@ -202,7 +236,8 @@ class ProponentService:
             elif entry_type == 'non_work':
                 try:
                     non_work_type = NonWorkItemType[entry_value]
-                    non_work_selections.setdefault(project_id, []).append(non_work_type)
+                    non_work_selections.setdefault(
+                        project_id, []).append(non_work_type)
                 except KeyError:
                     pass
 
@@ -241,7 +276,8 @@ class ProponentService:
         """Create AccountProjectNonWork associations."""
         if account_project.project_id in non_work_selections:
             for non_work_type in non_work_selections[account_project.project_id]:
-                AccountProjectNonWork.get_or_create(account_project.id, non_work_type)
+                AccountProjectNonWork.get_or_create(
+                    account_project.id, non_work_type)
 
     @classmethod
     def add_eligible_account_projects(cls, proponent_id, proponent_data):
@@ -251,9 +287,11 @@ class ProponentService:
 
         proponent = Proponent.find_by_id(proponent_id)
         if not proponent:
-            raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
+            raise ResourceNotFoundError(
+                f"Proponent with id {proponent_id} not found")
         if proponent.status is not ProponentStatus.ONBOARDED:
-            raise BadRequestError("Can only enable projects for onboarded proponents.")
+            raise BadRequestError(
+                "Can only enable projects for onboarded proponents.")
 
         account = Account.get_by_proponent_id(proponent_id)
         account_users = AccountUser.get_users_by_account_id(account.id)
@@ -267,11 +305,15 @@ class ProponentService:
             InvitationService.get_or_create_account_projects(
                 account.id, list(project_ids), session
             )
-            account_projects = AccountProject.get_all_in_project_ids(list(project_ids))
+            account_projects = AccountProject.get_all_in_project_ids(
+                list(project_ids))
 
             for account_project in account_projects:
-                cls._assign_admin_roles(account_users, account_project, session)
-                cls._create_work_associations(account_project, work_selections, legacy_project_ids)
-                cls._create_non_work_associations(account_project, non_work_selections)
+                cls._assign_admin_roles(
+                    account_users, account_project, session)
+                cls._create_work_associations(
+                    account_project, work_selections, legacy_project_ids)
+                cls._create_non_work_associations(
+                    account_project, non_work_selections)
 
             session.flush()

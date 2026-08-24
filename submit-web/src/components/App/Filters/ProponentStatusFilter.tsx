@@ -1,5 +1,5 @@
 import { useProponentsHoldersTable } from "@/components/App/Proponents/ProponentsHoldersTable/proponentsHoldersTableStore";
-import { ProponentStatus } from "@/models/Proponent";
+import { ProponentStatus, ProponentStatusFilterOptions } from "@/models/Proponent";
 import {
   Box,
   FormControl,
@@ -11,9 +11,11 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { ProponentStatusChip } from "@/components/App/ProponentStatusChip";
 
-const PROPONENT_STATUS_OPTIONS: ProponentStatus[] = [
+const PROPONENT_STATUS_OPTIONS: ProponentStatusFilterOptions[] = [
   "ELIGIBLE",
+  "INVITE_GENERATED",
   "PENDING_ONBOARDING",
+  "INVITE_EXPIRED",
   "INELIGIBLE",
   "ONBOARDED",
 ];

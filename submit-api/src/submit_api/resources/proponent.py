@@ -61,12 +61,13 @@ class AllProponents(Resource):
                                   If not provided, returns all proponents regardless of approved conditions.
         """
         approved_conditions_param = request.args.get("approved-conditions")
-        approved_conditions_only = approved_conditions_param.lower() == "true" if approved_conditions_param else None
+        approved_conditions_only = approved_conditions_param.lower(
+        ) == "true" if approved_conditions_param else None
         proponents = ProponentService.get_all_proponents(
             include_deleted=False,
             approved_conditions_only=approved_conditions_only
         )
-        return ProponentSchema(many=True).dump(proponents), HTTPStatus.OK
+        return proponents, HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
@@ -86,10 +87,14 @@ class Proponent(Resource):
     @cross_origin(origins=allowedorigins())
     def get(proponent_id):
         """Get a proponent by id."""
-        include_invitations = request.args.get("include-invitations", "false").lower() == "true"
-        include_projects = request.args.get("include-projects", "false").lower() == "true"
-        include_eligibility_entries = request.args.get("include-eligibility-entries", "false").lower() == "true"
-        include_administrators = request.args.get("include-administrators", "false").lower() == "true"
+        include_invitations = request.args.get(
+            "include-invitations", "false").lower() == "true"
+        include_projects = request.args.get(
+            "include-projects", "false").lower() == "true"
+        include_eligibility_entries = request.args.get(
+            "include-eligibility-entries", "false").lower() == "true"
+        include_administrators = request.args.get(
+            "include-administrators", "false").lower() == "true"
         proponent = ProponentService.get_proponent(
             proponent_id,
             include_invitations=include_invitations,
@@ -98,7 +103,8 @@ class Proponent(Resource):
             include_administrators=include_administrators,
         )
         if not proponent:
-            raise ResourceNotFoundError(f"Proponent with id {proponent_id} not found")
+            raise ResourceNotFoundError(
+                f"Proponent with id {proponent_id} not found")
         return proponent, HTTPStatus.OK
 
 
