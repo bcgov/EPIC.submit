@@ -209,6 +209,23 @@ describe("StaffSubmissionItemTableRow", () => {
 
       expect(screen.queryByText("Request Update")).not.toBeInTheDocument();
     });
+
+    it("hides Request Update when package status is REVISION_REQUESTED", () => {
+      mockUseSuspenseQuery.mockReturnValue({
+        data: makePackage(["REVISION_REQUESTED"]),
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.queryByText("Request Update")).not.toBeInTheDocument();
+    });
   });
 
   describe("Review action visibility", () => {

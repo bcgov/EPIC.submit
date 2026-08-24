@@ -395,14 +395,12 @@ class AccountUserService:
             user.status_id = UserStatusEnum.ACTIVE.value
         else:
             user.status_id = UserStatusEnum.ACCESS_REVOKED.value
-        db.session.commit()
 
-        # Update Keycloak login access
-        AuthService.toggle_user_enabled_status(
-            username=account_user.user.auth_guid, enabled=active)
-        current_app.logger.info(
-            f"User {account_user_id} {'reactivated' if active else 'deactivated'} successfully."
-        )
+        # Toggle user enabled status in auth service
+        AuthService.toggle_user_enabled_status(account_user.user.auth_guid, active)
+
+        db.session.commit()
+        current_app.logger.info(f"User {account_user_id} {'activated' if active else 'deactivated'} successfully.")
         return cls._build_user_response(account_user_id)
 
     @classmethod
