@@ -19,7 +19,7 @@ import {
 } from "@/components/Shared/Table/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SUBMISSION_TYPE, SUBMISSION_STATUS } from "@/models/Submission";
-import { PackageStatus } from "@/models/Package";
+import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "..";
 import SubmissionItemReviewConfirmation from "@/components/App/Submission/SubmissionItemReviewConfirmation";
@@ -66,14 +66,17 @@ export default function StaffSubmissionItemTableRow({
   );
 
   const isPackageInEndStatus = useMemo(() => {
-    const endStatuses: PackageStatus[] = [
+    const endStatuses: Array<PackageStatus | NonCanonicalPackageStatus> = [
       "APPROVED",
       "ACCEPTED",
       "REJECTED",
       "NOT_APPROVED",
       "REVIEW_REJECTED",
+      "REVISION_REQUESTED",
     ];
-    return endStatuses.some((status) => submissionPackage.status?.includes(status));
+    return endStatuses.some((status) =>
+      submissionPackage.status?.includes(status as PackageStatus),
+    );
   }, [submissionPackage.status]);
 
   const isPackageInEndStatusExcludingReviewRejected = useMemo(() => {
