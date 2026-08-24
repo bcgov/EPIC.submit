@@ -1,4 +1,4 @@
-import { ProponentStatus, ProponentStatusFilterOptions } from "@/models/Proponent";
+import { ProponentStatusFilterOptions } from "@/models/Proponent";
 import { Box } from "@mui/material";
 import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
 import { BCDesignTokens } from "epic.theme";
