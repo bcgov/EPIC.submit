@@ -60,7 +60,7 @@ export function useSubmissionBannerState({
 
     // Revision required only if not in a terminal state
     const showRevisionRequiredBanner =
-      isRevisionRequired && !isApproved && !isNotApproved;
+      isRevisionRequired && !showApprovalBanner;
 
     // Submission confirmation: shown when submitted, no pending doc changes,
     // and no terminal/revision banners apply
