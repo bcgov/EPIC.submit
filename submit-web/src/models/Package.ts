@@ -175,8 +175,8 @@ export const PACKAGE_STATUS: Record<
   IN_PROGRESS: {
     value: "IN_PROGRESS",
     label: "In Progress",
-    // filter: ["proponent"],
-    // sortOrder: 2,
+    filter: ["proponent"],
+    sortOrder: 2,
   },
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",

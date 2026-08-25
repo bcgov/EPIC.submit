@@ -23,6 +23,16 @@ export const checkIfStaff = (roles?: string[]) => {
   );
 };
 
+export const checkIfMPT = (roles?: string[]) => {
+  if (!roles) {
+    return false;
+  }
+  return hasPermission({
+    permissions: roles,
+    scopes: [EPIC_SUBMIT_ROLE.mp_view],
+  });
+};
+
 export const checkIfGISUser = (roles?: string[]) => {
   if (!roles) {
     return false;
