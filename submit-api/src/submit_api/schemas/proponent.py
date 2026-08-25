@@ -4,6 +4,7 @@ This module defines the schema for the proponent entity.
 """
 
 from marshmallow import EXCLUDE, Schema, fields
+
 from submit_api.enums.proponent_status import ProponentStatus
 
 

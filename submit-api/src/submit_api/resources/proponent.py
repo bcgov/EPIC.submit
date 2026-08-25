@@ -66,7 +66,7 @@ class AllProponents(Resource):
             include_deleted=False,
             approved_conditions_only=approved_conditions_only
         )
-        return ProponentSchema(many=True).dump(proponents), HTTPStatus.OK
+        return proponents, HTTPStatus.OK
 
 
 @cors_preflight("GET, OPTIONS")
