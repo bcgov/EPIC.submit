@@ -1,6 +1,6 @@
 """Service for proponent management."""
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
-from submit_api.enums.proponent_status import ProponentStatus
+from submit_api.enums.proponent_status import NonCanonicalProponentStatus, ProponentStatus
 from submit_api.enums.role import RoleEnum
 from submit_api.enums.non_work_item import NonWorkItemType
 from submit_api.models.account import Account
@@ -36,7 +36,8 @@ class ProponentService:
         if not proponent:
             return None
 
-        proponent_dict = proponent.to_dict()
+        expired_ids = cls._expired_invite_proponent_ids([proponent])
+        proponent_dict = cls._with_effective_status(proponent, expired_ids)
 
         include_invitations = options.get('include_invitations', False)
         include_projects = options.get('include_projects', False)
@@ -172,12 +173,41 @@ class ProponentService:
         return administrators
 
     @classmethod
+    def _expired_invite_proponent_ids(cls, proponents) -> set[int]:
+        """Proponent ids whose stored status is INVITE_GENERATED but the invite has expired."""
+        candidates = [p for p in proponents if p.status ==
+                      ProponentStatus.INVITE_GENERATED]
+        if not candidates:
+            return set()
+
+        account_map = Account.get_account_id_map_by_proponent_ids(
+            [p.id for p in candidates])
+        all_account_ids = [aid for ids in account_map.values() for aid in ids]
+        expired_account_ids = Invitations.get_expired_pending_account_ids(
+            all_account_ids)
+
+        return {
+            proponent_id
+            for proponent_id, account_ids in account_map.items()
+            if expired_account_ids.intersection(account_ids)
+        }
+
+    @classmethod
+    def _with_effective_status(cls, proponent, expired_ids: set[int]) -> dict:
+        proponent_dict = proponent.to_dict()
+        if proponent.id in expired_ids:
+            proponent_dict["status"] = NonCanonicalProponentStatus.INVITE_EXPIRED.value
+        return proponent_dict
+
+    @classmethod
     def get_all_proponents(cls, include_deleted=False, approved_conditions_only=None):
         """Get all proponents from the Proponent table."""
-        return Proponent.get_all_proponents(
+        proponents = Proponent.get_all_proponents(
             include_deleted=include_deleted,
-            approved_conditions_only=approved_conditions_only
+            approved_conditions_only=approved_conditions_only,
         )
+        expired_ids = cls._expired_invite_proponent_ids(proponents)
+        return [cls._with_effective_status(p, expired_ids) for p in proponents]
 
     @classmethod
     def _parse_eligibility_entries(cls, eligibility_entry_ids):
