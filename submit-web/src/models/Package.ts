@@ -151,14 +151,10 @@ export const PACKAGE_STATUS: Record<
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
     label: "Partially Completed",
-    filter: ["proponent"],
-    sortOrder: 2,
   },
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
-    filter: ["proponent"],
-    sortOrder: 2,
   },
   SUBMITTED: {
     value: "SUBMITTED",
