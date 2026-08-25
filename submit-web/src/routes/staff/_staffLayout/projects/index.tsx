@@ -2,7 +2,7 @@ import ProjectFilters from "@/components/App/Filters/ProjectFilters";
 import { useProjectFilters } from "@/components/App/Filters/projectFilterStore";
 import { Projects, ProjectsSkeleton } from "@/components/App/Projects";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { checkIfManager, checkIfMPT } from "@/components/Shared/PermissionGate/utils";
+import { checkIfMPT } from "@/components/Shared/PermissionGate/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { getAccountProjects } from "@/hooks/api/useProjects";
@@ -52,7 +52,6 @@ function ProjectsPage() {
     getNextPageParam: (lastPage) => lastPage.next_cursor,
   });
 
-  const isManager = useMemo(() => checkIfManager(roles), [roles]);
   const isMPT = useMemo(() => checkIfMPT(roles), [roles]);
 
   useEffect(() => {
