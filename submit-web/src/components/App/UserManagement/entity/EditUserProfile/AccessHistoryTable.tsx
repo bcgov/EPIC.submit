@@ -250,10 +250,10 @@ export function AccessHistoryTable({ accountUserId }: AccessHistoryTableProps) {
         >
           <TableHead>
             <TableRow>
-              <TableCell sx={{ ...tableHeaderSx, width: "25%" }}>Project</TableCell>
+              <TableCell sx={{ ...tableHeaderSx, width: "45%" }}>Project</TableCell>
               <TableCell sx={{ ...tableHeaderSx, width: "25%" }}>Access Level</TableCell>
-              <TableCell sx={{ ...tableHeaderSx, width: "25%" }}>From</TableCell>
-              <TableCell sx={{ ...tableHeaderSx, width: "25%" }}>To</TableCell>
+              <TableCell sx={{ ...tableHeaderSx, width: "15%" }}>From</TableCell>
+              <TableCell sx={{ ...tableHeaderSx, width: "15%" }}>To</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
