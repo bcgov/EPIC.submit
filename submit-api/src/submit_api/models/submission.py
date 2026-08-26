@@ -10,6 +10,7 @@ from sqlalchemy import Column, Enum, ForeignKey, Index
 
 from .base_model import BaseModel
 from .db import db
+from .item import Item
 from ..enums.package_type import PackageApprovalType
 
 
@@ -106,7 +107,6 @@ class Submission(BaseModel):
 
         If package_id is provided, only returns versions belonging to that package.
         """
-        from submit_api.models.item import Item
         query = (cls.query
                  .filter_by(root_submission_id=root_submission_id, deleted=False)
                  .filter(cls.status != SubmissionStatus.PENDING))

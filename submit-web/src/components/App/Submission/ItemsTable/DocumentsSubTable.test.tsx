@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import DocumentsSubTable from "./DocumentsSubTable";
 import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
 
@@ -11,7 +11,7 @@ vi.mock("@/hooks/api/useSubmissions", () => ({
 }));
 
 vi.mock("@/hooks/common", () => ({
-  useMounted: (cb: () => void) => {
+  useMounted: () => {
     // Simulate useEffect by not calling during render
     // The component will render with expanded=false, then after effect expanded=true
     // For testing purposes, we just don't call it to avoid infinite loop
