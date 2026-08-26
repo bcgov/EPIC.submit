@@ -216,6 +216,38 @@ def test_accept_invitation_invalid_token(client, session):
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
 
+def test_accept_invitation_duplicate_user(client, session, jwt):
+    """Test accepting invitation when user already exists returns 409."""
+    _, account_project = setup_authenticated_proponent(session, jwt)
+    invitation = factory_invitation_model(
+        account_id=account_project.account_id,
+        project_ids=[account_project.project_id]
+    )
+
+    factory_track_phase(session)
+
+    # Create a user with a known auth_guid
+    existing_auth_guid = fake.uuid4()
+    factory_user_model(auth_guid=existing_auth_guid)
+
+    # Attempt to accept invitation with the same auth_guid
+    payload = {
+        "auth_guid": existing_auth_guid,
+        "email": fake.email(),
+        "first_name": fake.first_name(),
+        "last_name": fake.last_name(),
+        "position": fake.job(),
+        "work_email_address": fake.email(),
+        "work_contact_number": fake.phone_number(),
+        "has_agreed_to_terms": True,
+        "terms_of_service_version_id": 1
+    }
+
+    response = client.post(f"/api/invitations/{invitation.token}", json=payload)
+
+    assert response.status_code == HTTPStatus.CONFLICT
+
+
 def test_get_invitation_by_id(client, session, jwt):
     """Test retrieving invitation by ID."""
     headers, account_project = setup_authenticated_proponent(session, jwt)

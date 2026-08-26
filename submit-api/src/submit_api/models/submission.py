@@ -101,10 +101,17 @@ class Submission(BaseModel):
         ).order_by(cls.created_date.desc()).first()
 
     @classmethod
-    def find_all_versions(cls, root_submission_id: int):
-        """Fetch all versions of a submission given its root submission ID, excluding PENDING."""
-        return (cls.query
-                .filter_by(root_submission_id=root_submission_id, deleted=False)
-                .filter(cls.status != SubmissionStatus.PENDING)
-                .order_by(cls.major_version.desc(), cls.minor_version.desc())
-                .all())
+    def find_all_versions(cls, root_submission_id: int, package_id: int = None):
+        """Fetch all versions of a submission given its root submission ID, excluding PENDING.
+
+        If package_id is provided, only returns versions belonging to that package.
+        """
+        from submit_api.models.item import Item
+        query = (cls.query
+                 .filter_by(root_submission_id=root_submission_id, deleted=False)
+                 .filter(cls.status != SubmissionStatus.PENDING))
+
+        if package_id:
+            query = query.join(Item, Item.id == cls.item_id).filter(Item.package_id == package_id)
+
+        return query.order_by(cls.major_version.desc(), cls.minor_version.desc()).all()

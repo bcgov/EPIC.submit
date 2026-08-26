@@ -15,7 +15,7 @@
 
 from http import HTTPStatus
 
-from flask import current_app, jsonify
+from flask import current_app, jsonify, request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource, abort
 
@@ -105,7 +105,8 @@ class SubmissionVersions(Resource):
     @auth.require
     def get(submission_id):
         """Fetch all versions of a submission based on its root submission ID."""
-        submissions = SubmissionService.get_all_versions(submission_id)
+        package_id = request.args.get('package_id', type=int)
+        submissions = SubmissionService.get_all_versions(submission_id, package_id=package_id)
         if submissions is None:
             return {"message": "Submission not found"}, HTTPStatus.NOT_FOUND
         return SubmissionSchema(many=True).dump(submissions), HTTPStatus.OK

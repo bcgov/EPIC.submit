@@ -1,4 +1,4 @@
-import { PACKAGE_STATUS, PackageStatus } from "@/models/Package";
+import { PackageStatus } from "@/models/Package";
 import {
   NON_CANONICAL_SUBMISSION_STATUS,
   SUBMISSION_ITEM_STATUS,
@@ -161,7 +161,6 @@ type SubmissionStatusChipStackProps = {
 };
 export const SubmissionStatusChipStack = ({
   status,
-  packageStatus,
   showOnlyUpdateChips = false,
   isFlaggedForUpdate = false,
 }: SubmissionStatusChipStackProps) => {
@@ -170,16 +169,14 @@ export const SubmissionStatusChipStack = ({
     if (showOnlyUpdateChips) {
       return true;
     }
-    if (userType === USER_TYPE.STAFF) {
+    if (
+      userType === USER_TYPE.STAFF ||
+      userType === USER_TYPE.PROPONENT
+    ) {
       return status === SUBMISSION_ITEM_STATUS.SUBMITTED.value;
-    } else if (userType === USER_TYPE.PROPONENT) {
-      return (
-        status === SUBMISSION_ITEM_STATUS.SUBMITTED.value &&
-        !packageStatus?.includes(PACKAGE_STATUS.SUBMITTED.value)
-      );
     }
     return false;
-  }, [status, packageStatus, userType, showOnlyUpdateChips]);
+  }, [status, userType, showOnlyUpdateChips]);
   return (
     <Box sx={{ display: "inline-block" }}>
       <Stack

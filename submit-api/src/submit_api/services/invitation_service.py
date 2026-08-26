@@ -9,7 +9,7 @@ from submit_api.enums.non_work_item import NonWorkItemType
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.enums.work_type import WorkTypeName
-from submit_api.exceptions import BadRequestError, ResourceNotFoundError
+from submit_api.exceptions import BadRequestError, ResourceExistsError, ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import User
 from submit_api.models.account import Account as AccountModel
@@ -210,6 +210,15 @@ class InvitationService:
             raise ValueError("Invalid or inactive Terms and Conditions reference.")
 
         with session_scope() as session:
+            # Check if user already exists with the given auth_guid
+            auth_guid = payload.get("auth_guid")
+            existing_user = User.get_by_guid(auth_guid)
+            if existing_user:
+                raise ResourceExistsError(
+                    "A user with this account already exists. "
+                    "Please contact your administrator if you need access."
+                )
+
             user = InvitationService._create_user(payload, session)
 
             account_user = InvitationService._create_account_user(

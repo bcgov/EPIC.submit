@@ -216,18 +216,26 @@ export const softDeleteSubmission = (submissionId: number) => {
   });
 };
 
-export const useGetSubmissionVersions = (submissionId: number) => {
+export const useGetSubmissionVersions = (
+  submissionId: number,
+  packageId?: number,
+) => {
   return useQuery({
-    queryKey: [QUERY_KEY.SUBMISSION_VERSIONS, submissionId],
-    queryFn: () => getSubmissionVersions(submissionId),
+    queryKey: [QUERY_KEY.SUBMISSION_VERSIONS, submissionId, packageId],
+    queryFn: () => getSubmissionVersions(submissionId, packageId),
     ...defaultUseQueryOptions,
     retry: false,
   });
 };
 
-export const getSubmissionVersions = (submissionId: number) => {
+export const getSubmissionVersions = (
+  submissionId: number,
+  packageId?: number,
+) => {
+  const params = packageId ? { package_id: packageId } : undefined;
   return submitRequest<Submission[]>({
     url: `/submissions/${submissionId}/versions`,
+    params,
   });
 };
 
