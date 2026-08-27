@@ -1,7 +1,6 @@
 """Tests for account user resource endpoints (role and status)."""
 import copy
 from http import HTTPStatus
-from unittest.mock import patch
 
 from faker import Faker
 
@@ -108,13 +107,10 @@ class TestEditUserStatus:
 
         payload = {"active": False}
 
-        with patch(
-            "submit_api.services.account_user_service.AuthService.toggle_user_enabled_status"
-        ):
-            response = client.patch(
-                f"{ACCOUNTS_URL}/user/{target_account_user.id}/status",
-                json=payload,
-                headers=headers,
-            )
+        response = client.patch(
+            f"{ACCOUNTS_URL}/user/{target_account_user.id}/status",
+            json=payload,
+            headers=headers,
+        )
 
         assert response.status_code == HTTPStatus.OK

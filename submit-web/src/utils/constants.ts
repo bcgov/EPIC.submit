@@ -10,6 +10,14 @@ export const HTTP_STATUS = {
   INTERNAL_SERVER_ERROR: 500,
 };
 
+// Machine-readable error code the API returns when a user's access has been
+// revoked. The axios interceptor keys off this to eject the user immediately,
+// even if their token is still valid (e.g. revoked from another browser).
+export const ACCESS_REVOKED_ERROR_CODE = "ACCESS_REVOKED";
+
+// Route a revoked user is redirected to.
+export const NEED_ACCESS_PATH = "/need-access";
+
 export const DEFAULT_ACCEPTED_FILE_TYPES = [
   "pdf",
   "doc",
