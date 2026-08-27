@@ -22,7 +22,9 @@ import {
   AcceptInvitationResponse,
   useAcceptInvitation,
 } from "@/hooks/api/useInvitations";
+import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useAccount } from "@/store/accountStore";
+import { isAxiosError } from "axios";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
@@ -120,6 +122,19 @@ function ContactInformationForm() {
     useAcceptInvitation({
       token: invitation?.token,
       onSuccess: onCreateAccountSuccess,
+      onError: (error: Error) => {
+        let errorMessage =
+          "Account registration failed. Please try again or contact support.";
+        if (isAxiosError(error) && error.response) {
+          const data = error.response.data;
+          if (typeof data === "string" && data.length > 0) {
+            errorMessage = data;
+          } else if (data?.message) {
+            errorMessage = data.message;
+          }
+        }
+        notify.error(errorMessage);
+      },
     });
 
   const methods = useForm({

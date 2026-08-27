@@ -359,7 +359,7 @@ class SubmissionService:
         return deleted_submission
 
     @classmethod
-    def get_all_versions(cls, submission_id):
+    def get_all_versions(cls, submission_id, package_id=None):
         """Fetch all versions of a submission by its root submission ID."""
         with session_scope():
             submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
@@ -369,7 +369,7 @@ class SubmissionService:
 
             root_submission_id = submission.root_submission_id or submission.id
             current_app.logger.debug("Fetching all versions for root_submission_id: %s.", root_submission_id)
-            return SubmissionModel.find_all_versions(root_submission_id)
+            return SubmissionModel.find_all_versions(root_submission_id, package_id=package_id)
 
     @classmethod
     def _check_assigned_on_package(cls, item_id):

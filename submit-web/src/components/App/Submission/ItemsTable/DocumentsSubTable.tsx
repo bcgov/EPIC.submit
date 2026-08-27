@@ -19,17 +19,19 @@ type DocumentsSubTableProps = Readonly<{
   submission?: Submission;
   submissionId?: number;
   currentDocumentId?: number;
+  packageId?: number;
   onDocumentClick?: (documentItem: Submission) => void;
 }>;
 export default function DocumentsSubTable({
   submission,
   submissionId,
   currentDocumentId,
+  packageId,
   onDocumentClick,
 }: DocumentsSubTableProps) {
   const currentSubmissionId = submissionId ?? submission?.id;
   const { data: submissions, isPending: isSubmissionsLoading } =
-    useGetSubmissionVersions(currentSubmissionId ?? 0);
+    useGetSubmissionVersions(currentSubmissionId ?? 0, packageId);
   const [expanded, setExpanded] = useState(false);
 
   useMounted(() => {
