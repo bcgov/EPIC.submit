@@ -135,24 +135,27 @@ const getAccountProjectById = ({
 
 type UseGetAccountProjectByIdParams = {
   accountProjectId: number | null | undefined;
+  enabled?: boolean;
 };
 
 export const getAccountProjectQueryOptions = (
   accountProjectId?: number | null,
+  enabled: boolean = true,
 ) =>
   queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
     queryFn: () =>
       getAccountProjectById({ accountProjectId: accountProjectId as number }),
-    enabled: !!accountProjectId,
+    enabled: enabled && !!accountProjectId,
     ...defaultUseQueryOptions,
     staleTime: 0,
   });
 
 export const useGetAccountProject = ({
   accountProjectId,
+  enabled = true,
 }: UseGetAccountProjectByIdParams) => {
-  const options = getAccountProjectQueryOptions(accountProjectId);
+  const options = getAccountProjectQueryOptions(accountProjectId, enabled);
   return useQuery(options);
 };
 
@@ -169,15 +172,17 @@ const getAccountProjectByIdForStaff = ({
 
 type UseGetAccountProjectByIdForStaffParams = {
   accountProjectId: number;
+  enabled?: boolean;
 };
 
 export const getAccountProjectForStaffQueryOptions = (
   accountProjectId: number,
+  enabled: boolean = true,
 ) =>
   queryOptions({
     queryKey: [QUERY_KEY.ACCOUNT_PROJECT, accountProjectId],
     queryFn: () => getAccountProjectByIdForStaff({ accountProjectId }),
-    enabled: Boolean(accountProjectId),
+    enabled: enabled && Boolean(accountProjectId),
     ...defaultUseQueryOptions,
     // See getAccountProjectQueryOptions: always refetch on navigation so
     // changes made in another session are reflected without a hard refresh.
@@ -186,8 +191,9 @@ export const getAccountProjectForStaffQueryOptions = (
 
 export const useGetAccountProjectForStaff = ({
   accountProjectId,
+  enabled = true,
 }: UseGetAccountProjectByIdForStaffParams) => {
-  const options = getAccountProjectForStaffQueryOptions(accountProjectId);
+  const options = getAccountProjectForStaffQueryOptions(accountProjectId, enabled);
   return useQuery(options);
 };
 

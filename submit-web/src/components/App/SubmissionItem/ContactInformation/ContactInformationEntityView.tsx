@@ -9,14 +9,20 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useMemo, useEffect, useRef } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { SUBMISSION_ITEM_STATUS, SUBMISSION_TYPE } from "@/models/Submission";
-import { useGetAccountProject } from "@/hooks/api/useProjects";
 import Form from "@/components/Shared/Forms/common";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
+import {
+  useGetStaffSubmissionPackage,
+  useGetSubmissionPackage,
+} from "@/hooks/api/usePackages";
+import {
+  useGetAccountProject,
+  useGetAccountProjectForStaff,
+} from "@/hooks/api/useProjects";
 import { validatePhoneNumber } from "./utils";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
@@ -137,7 +143,19 @@ const contactInformationSchema = yup.object().shape({
 
 type ContactInformationForm = yup.InferType<typeof contactInformationSchema>;
 
-export const ContactInformationEntityView = () => {
+type ContactInformationEntityViewProps = {
+  /**
+   * Whether the form is rendered for a proponent (Entity) or EAO (staff) user.
+   * Controls which account-project data source is used and where navigation
+   * returns to after saving/cancelling. Defaults to "proponent".
+   */
+  variant?: "proponent" | "staff";
+};
+
+export const ContactInformationEntityView = ({
+  variant = "proponent",
+}: ContactInformationEntityViewProps = {}) => {
+  const isStaff = variant === "staff";
   const {
     projectId: accountProjectIdParam,
     submissionPackageId,
@@ -152,9 +170,16 @@ export const ContactInformationEntityView = () => {
     Number(submissionId),
   ]);
   const accountProjectId = Number(accountProjectIdParam);
-  const { data: accountProject } = useGetAccountProject({
+  const { data: proponentAccountProject } = useGetAccountProject({
     accountProjectId,
+    enabled: !isStaff,
   });
+  const { data: staffAccountProject } = useGetAccountProjectForStaff({
+    accountProjectId,
+    enabled: isStaff,
+  });
+  const accountProject = isStaff ? staffAccountProject : proponentAccountProject;
+  const returnPath = `/${isStaff ? "staff" : "proponent"}/projects/${accountProjectId}/submission-packages/${submissionPackageId}`;
 
   const { data: accountUsers } = useGetAccountUsers({
     accountId: accountProject?.account_id,
@@ -168,9 +193,18 @@ export const ContactInformationEntityView = () => {
     }));
   }, [accountUsers]);
 
-  const { data: packageData } = useGetSubmissionPackage({
-    packageId: Number(submissionPackageId),
-  });
+  const { data: proponentPackageData, refetch: refetchProponentPackage } =
+    useGetSubmissionPackage({
+      packageId: Number(submissionPackageId),
+      enabled: !isStaff,
+    });
+  const { data: staffPackageData, refetch: refetchStaffPackage } =
+    useGetStaffSubmissionPackage({
+      packageId: Number(submissionPackageId),
+      enabled: isStaff,
+    });
+  const packageData = isStaff ? staffPackageData : proponentPackageData;
+  const refetch = isStaff ? refetchStaffPackage : refetchProponentPackage;
 
   const isSubmitted = packageData?.submitted_on;
 
@@ -297,10 +331,6 @@ export const ContactInformationEntityView = () => {
     trigger,
   ]);
 
-  const { refetch } = useGetSubmissionPackage({
-    packageId: Number(submissionPackageId),
-  });
-
   const {
     mutateAsync: saveSubmission,
     isPending: isCreatingSubmissionPending,
@@ -357,7 +387,7 @@ export const ContactInformationEntityView = () => {
       await refetch();
       notify.success("Submission Contact Information saved successfully");
       navigate({
-        to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+        to: returnPath,
       });
     } catch (error) {
       let errorMessage = "Failed to create submission";
@@ -370,7 +400,7 @@ export const ContactInformationEntityView = () => {
 
   const handleCancel = () => {
     navigate({
-      to: `/proponent/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
+      to: returnPath,
     });
   };
 
