@@ -146,6 +146,19 @@ class Package(BaseModel):
         """Get all update requests for the package."""
         return self._update_requests
 
+    @property
+    def is_latest_version(self):
+        """Return True when this package is the latest version in its version lineage.
+
+        A package with no version record is treated as the latest (single-version lineage).
+        """
+        if not self.version:
+            return True
+        latest = PackageVersion.get_all_by_original_package_id(self.version.original_package_id)
+        if not latest:
+            return True
+        return self.version.version == latest[0].version
+
     @classmethod
     def get_package_by_id_with_items(cls, package_id: int):
         """Return model by package id."""

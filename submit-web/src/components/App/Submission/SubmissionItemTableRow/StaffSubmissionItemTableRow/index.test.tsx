@@ -21,6 +21,12 @@ vi.mock("@/hooks/usePackageRoles", () => ({
   usePackageRoles: (...args: unknown[]) => mockUsePackageRoles(...args),
 }));
 
+const mockUseContactInfoAlwaysEditable = vi.fn();
+vi.mock("@/hooks/useContactInfoAlwaysEditable", () => ({
+  useContactInfoAlwaysEditable: (...args: unknown[]) =>
+    mockUseContactInfoAlwaysEditable(...args),
+}));
+
 // useSuspenseQuery is used to fetch the submission package
 const mockUseSuspenseQuery = vi.fn();
 vi.mock("@tanstack/react-query", () => ({
@@ -104,7 +110,9 @@ describe("StaffSubmissionItemTableRow", () => {
     vi.clearAllMocks();
     // Default: user has the package create role
     mockUseHasRole.mockReturnValue(true);
-    mockUsePackageRoles.mockReturnValue({ create: "mp_create" });
+    mockUsePackageRoles.mockReturnValue({ create: "mp_create", edit: "mp_edit" });
+    // Default: item is not the always-editable contact information item
+    mockUseContactInfoAlwaysEditable.mockReturnValue(false);
   });
 
   describe("Request Update visibility", () => {
@@ -313,6 +321,74 @@ describe("StaffSubmissionItemTableRow", () => {
       );
 
       expect(screen.getByText("View")).toBeInTheDocument();
+    });
+  });
+
+  describe("Contact information edit link (EAO)", () => {
+    const makeContactItem = () => ({
+      ...makeItem(SubmissionItemMethod.FORM_SUBMISSION),
+      type: {
+        id: 1,
+        name: SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION,
+        submission_method: SubmissionItemMethod.FORM_SUBMISSION,
+      },
+    });
+
+    it("shows Edit link for contact info on latest version when staff has edit role", () => {
+      mockUseContactInfoAlwaysEditable.mockReturnValue(true);
+      mockUseHasRole.mockReturnValue(true);
+      mockUseSuspenseQuery.mockReturnValue({
+        data: makePackage(["APPROVED"]),
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeContactItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByText("Edit")).toBeInTheDocument();
+    });
+
+    it("hides Edit link when staff lacks the edit role", () => {
+      mockUseContactInfoAlwaysEditable.mockReturnValue(true);
+      mockUseHasRole.mockReturnValue(false);
+      mockUseSuspenseQuery.mockReturnValue({
+        data: makePackage(["APPROVED"]),
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeContactItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+    });
+
+    it("does not show Edit link when the item is not always-editable contact info", () => {
+      mockUseContactInfoAlwaysEditable.mockReturnValue(false);
+      mockUseHasRole.mockReturnValue(true);
+      mockUseSuspenseQuery.mockReturnValue({
+        data: makePackage(["IN_REVIEW"]),
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeContactItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.queryByText("Edit")).not.toBeInTheDocument();
     });
   });
 });
