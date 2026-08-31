@@ -14,13 +14,14 @@
 """Service to call epic.auth endpoints."""
 
 import requests
-from flask import current_app, request as flask_request
+from flask import current_app
 
 from submit_api.exceptions import (
     BadRequestError,
     BusinessError,
     ResourceNotFoundError,
 )
+from submit_api.services.keycloak_token_service import KeycloakTokenService
 from submit_api.utils.enums import HttpMethod
 
 AUTH_APP = "SUBMIT"
@@ -157,11 +158,16 @@ class AuthService:
 
 
 def _get_token() -> str:
-    """Extract the bearer token from the current request."""
-    auth_header = flask_request.headers.get("Authorization", None)
-    if auth_header and auth_header.startswith("Bearer "):
-        return auth_header.replace("Bearer ", "")
-    return None
+    """Obtain the SUBMIT service account token used to call epic.auth."""
+    try:
+        return KeycloakTokenService.get_service_account_token()
+    except requests.exceptions.RequestException as exc:
+        current_app.logger.error(
+            f"Failed to obtain service account token: {str(exc)}"
+        )
+        raise BusinessError(
+            "Unable to authenticate with the auth service", 503
+        ) from exc
 
 
 def _request_auth_service(
