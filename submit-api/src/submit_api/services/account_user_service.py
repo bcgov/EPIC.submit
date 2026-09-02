@@ -24,25 +24,71 @@ class AccountUserService:
     @classmethod
     def get_users_by_account_projects(cls, account_id, include_roles=False,
                                       include_invitees=False):
-        """Get all users associated with an account, optionally including roles & invitees."""
+        """Get users/invitees scoped to what the logged-in proponent user may see.
+
+        - Entity (account primary) admins see every user/invitation in the account.
+        - Other roles (e.g. project admins, collaborators) only see users and
+          invitations for the project(s) they are assigned to. With no project
+          role they see nothing.
+        """
         account_user = AccountUserModel.get_by_guid(TokenInfo.get_username())
         if not account_user:
             current_app.logger.warning("Unauthorized access attempt to account users.")
             raise PermissionDeniedError("Unauthorized access to account users.")
-        account_project_ids = None
-        if account_user.roles:
-            account_project_ids = [role.account_project_id for role in account_user.roles if role.account_project_id]
+
+        # Entity admins are not restricted to their assigned projects.
+        if cls._is_account_primary_admin(account_user):
+            return cls.get_users_by_account(
+                account_id,
+                include_roles=include_roles,
+                include_invitees=include_invitees,
+            )
+
+        account_project_ids = [
+            role.account_project_id for role in account_user.roles if role.account_project_id
+        ] if account_user.roles else []
+
+        # Non-admins must only see users/invitations for projects they have a role
+        # on. With no project role they get nothing (not everything).
+        if not account_project_ids:
+            return []
+
+        # A non-admin (e.g. project admin) must never see the entity/account
+        # primary admin, even when they share a project.
         return cls.get_users_by_account(
             account_id,
             include_roles=include_roles,
             include_invitees=include_invitees,
-            account_project_ids=account_project_ids
+            account_project_ids=account_project_ids,
+            exclude_account_admins=True
+        )
+
+    @staticmethod
+    def _is_account_primary_admin(account_user) -> bool:
+        """Return True if the account user holds an account primary admin role."""
+        return any(
+            role.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value
+            for role in (account_user.roles or [])
+        )
+
+    @staticmethod
+    def _user_is_account_admin(user) -> bool:
+        """Return True if an account user (ORM) holds an account primary admin role."""
+        source_roles = user.roles if user.roles else getattr(user, 'all_roles', [])
+        return any(
+            role.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value
+            for role in source_roles
         )
 
     @classmethod
-    def get_users_by_account(cls, account_id, include_roles=False, include_invitees=False, account_project_ids=None):
+    def get_users_by_account(cls, account_id, include_roles=False,  # pylint: disable=too-many-arguments
+                             include_invitees=False, *, account_project_ids=None,
+                             exclude_account_admins=False):
         """Get all users associated with an account, optionally including roles & invitees."""
         users = cls._fetch_users(account_id, account_project_ids)
+
+        if exclude_account_admins:
+            users = [user for user in users if not cls._user_is_account_admin(user)]
 
         # Collect all unique package IDs and fetch their names
         package_name_map = cls._collect_and_fetch_package_names(users)
@@ -53,7 +99,9 @@ class AccountUserService:
         if include_invitees:
             # we are fetching invitees as well since we are not creating users on invitations
             # fetch them since user list shows invitations as well..
-            invitees = cls._fetch_invitees(account_id, include_roles, account_project_ids)
+            invitees = cls._fetch_invitees(
+                account_id, include_roles, account_project_ids, exclude_account_admins
+            )
             user_list.extend(invitees)
 
         return user_list
@@ -131,16 +179,28 @@ class AccountUserService:
         return roles_map
 
     @staticmethod
-    def _fetch_invitees(account_id, include_roles, account_project_ids=None):
-        """Fetch invited users from the `invitations` table"""
+    def _fetch_invitees(account_id, include_roles, account_project_ids=None, exclude_account_admins=False):
+        """Fetch invited users from the `invitations` table.
+
+        When ``account_project_ids`` is provided the result is scoped to the
+        matching project ids. If that scope resolves to no project ids, no
+        invitees are returned so a proponent never sees invitations for a
+        project they cannot access. When ``exclude_account_admins`` is set,
+        pending invitations for the account primary admin role are omitted.
+        """
         project_ids = None
         if account_project_ids:
             project_ids = AccountProjectModel.get_project_ids_by_ids(account_project_ids)
+            if not project_ids:
+                return []
 
         invitees = InvitationsModel.get_active_by_account_id(account_id, project_ids)
 
         invited_users = []
         for invite in invitees:
+            if exclude_account_admins and invite.role \
+                    and invite.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
+                continue
             packages = []
             if invite.original_package_ids:
                 packages = PackageModel.get_all_latest_packages_by_original_package_ids(invite.original_package_ids)
