@@ -24,6 +24,7 @@ import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
+import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -54,6 +55,14 @@ export default function ProponentSubmissionItemTableRow({
   );
 
   const { isSubmitDisabled } = useSubmitAvailability(submissionPackage);
+
+  // Contact information on the latest version is always editable, in any status.
+  const isContactInfoAlwaysEditable = useContactInfoAlwaysEditable({
+    item,
+    submissionPackage,
+  });
+
+  const canEditItem = !isSubmitDisabled || isContactInfoAlwaysEditable;
 
   const hasAccountProjectWork = Boolean(
     submissionPackage?.account_project_work?.id,
@@ -109,7 +118,7 @@ export default function ProponentSubmissionItemTableRow({
             paddingRight: "2% !important",
           }}
         >
-          <When condition={!isSubmitDisabled}>
+          <When condition={canEditItem}>
             <Typography
               variant="body2"
               data-testid={`submission-item-action-${name}`}

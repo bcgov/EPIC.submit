@@ -10,6 +10,9 @@ import { get } from "lodash";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
 import { useGetAccountUserById } from "@/hooks/api/useAccountUsers";
 import { useMemo } from "react";
+import { useGetStaffSubmissionPackage } from "@/hooks/api/usePackages";
+import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
+import { ContactInformationEntityView } from "./ContactInformationEntityView";
 
 export const ContactInformationStaffView = () => {
   const {
@@ -28,6 +31,17 @@ export const ContactInformationStaffView = () => {
   const accountProjectId = Number(accountProjectIdParam);
   const { data: accountProject } = useGetAccountProjectForStaff({
     accountProjectId,
+  });
+
+  const { data: submissionPackage } = useGetStaffSubmissionPackage({
+    packageId: Number(submissionPackageId),
+  });
+
+  // Staff can edit contact information on the latest version of a package,
+  // in any status. Otherwise the historical read-only view is shown.
+  const isEditable = useContactInfoAlwaysEditable({
+    item: submissionItem,
+    submissionPackage,
   });
 
   const navigate = useNavigate();
@@ -113,6 +127,10 @@ export const ContactInformationStaffView = () => {
       to: `/staff/projects/${accountProjectId}/submission-packages/${submissionPackageId}`,
     });
   };
+
+  if (isEditable) {
+    return <ContactInformationEntityView variant="staff" />;
+  }
 
   if (!accountProject) return <Navigate to="/error" />;
 

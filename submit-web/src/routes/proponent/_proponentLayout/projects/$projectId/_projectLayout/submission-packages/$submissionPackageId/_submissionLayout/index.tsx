@@ -400,6 +400,7 @@ export default function SubmissionPage() {
     contactEmail,
   } = useSubmissionBannerState({
     submissionPackage,
+    packageVersions,
     hasUpdatedItems,
     isRevisionRequired,
   });

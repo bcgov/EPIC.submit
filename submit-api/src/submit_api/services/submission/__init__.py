@@ -3,7 +3,8 @@ from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError
-from submit_api.models import Item as ItemModel, Package as PackageModel
+from submit_api.models import Item as ItemModel, Package as PackageModel, User as UserModel
+from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package import PackageStatus
 from submit_api.models.update_request import UpdateRequestStatus
 from submit_api.models.db import db, session_scope
@@ -20,6 +21,7 @@ from submit_api.services.geo import GeoService
 from submit_api.services.item_service import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
+from submit_api.utils.token_info import TokenInfo
 
 
 class SubmissionService:
@@ -140,6 +142,11 @@ class SubmissionService:
         submission_item = ItemModel.find_by_id(submission.item_id)
         if not submission_item:
             raise ValueError("Item not found.")
+
+        # Contact information on the latest version is always editable, in any status.
+        if cls._is_always_editable_item(submission_item):
+            return submission
+
         if submission_item.status in [ItemStatus.ACCEPTED, ItemStatus.SATISFIED,
                                       ItemStatus.APPROVED, ItemStatus.PASSED_CONSULTATION_CHECK]:
             raise ValueError("Section is already completed.")
@@ -359,7 +366,7 @@ class SubmissionService:
         return deleted_submission
 
     @classmethod
-    def get_all_versions(cls, submission_id):
+    def get_all_versions(cls, submission_id, package_id=None):
         """Fetch all versions of a submission by its root submission ID."""
         with session_scope():
             submission: SubmissionModel = SubmissionModel.find_by_id(submission_id)
@@ -369,7 +376,7 @@ class SubmissionService:
 
             root_submission_id = submission.root_submission_id or submission.id
             current_app.logger.debug("Fetching all versions for root_submission_id: %s.", root_submission_id)
-            return SubmissionModel.find_all_versions(root_submission_id)
+            return SubmissionModel.find_all_versions(root_submission_id, package_id=package_id)
 
     @classmethod
     def _check_assigned_on_package(cls, item_id):
@@ -378,6 +385,27 @@ class SubmissionService:
         if not item:
             raise ValueError("Item not found.")
         authorization.has_access_to_package(item.package_id)
+        cls._authorize_staff_contact_info_edit(item)
+
+    @staticmethod
+    def _authorize_staff_contact_info_edit(item):
+        """Require EDIT permission when a staff user edits contact information.
+
+        Proponent access is already covered by ``has_access_to_package``. Staff users
+        pass that check with only READ (eao_view); editing contact information must
+        additionally require EDIT (eao_edit / full_access).
+        """
+        # pylint: disable=import-outside-toplevel
+        from submit_api.enums.package_operation import PackageOperation
+        from submit_api.models.user import UserType
+        from submit_api.services.package_access_control import PackageAccessControl
+
+        if not SubmissionService._is_always_editable_item(item):
+            return
+
+        user = UserModel.get_by_guid(TokenInfo.get_username())
+        if user and user.type == UserType.STAFF:
+            PackageAccessControl.check_package_access(item.package_id, PackageOperation.EDIT)
 
     @classmethod
     def get_package_by_submission_id(cls, submission_id):
@@ -453,6 +481,20 @@ class SubmissionService:
 
         return result
 
+    @staticmethod
+    def _is_always_editable_item(item):
+        """Return True when the item is always editable on the latest package version.
+
+        The Submission Contact Information item can be edited by both proponent and staff
+        users in any package status, as long as the package is the latest version.
+        """
+        if not item or not item.type:
+            return False
+        if item.type.name != SubmissionItemType.CONTACT_INFORMATION.value:
+            return False
+        package = item.package
+        return bool(package and package.is_latest_version)
+
     @classmethod
     def _validate_package_not_acknowledged(cls, item_id):
         """Validate that the package is not acknowledged without open update requests."""
@@ -463,6 +505,10 @@ class SubmissionService:
         package = item.package
         if not package:
             raise ValueError("Package not found.")
+
+        # Contact information on the latest version is always editable, in any status.
+        if cls._is_always_editable_item(item):
+            return
 
         # Block if package is approved, rejected, or not approved
         if PackageStatus.APPROVED in package.status:

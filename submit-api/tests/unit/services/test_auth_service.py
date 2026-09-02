@@ -9,6 +9,9 @@ import requests
 from submit_api.services.auth_service import AuthService, _request_auth_service
 
 
+SERVICE_ACCOUNT_TOKEN = "service-account-token-123"
+
+
 @pytest.fixture()
 def mock_app():
     """Create a minimal Flask app context for testing."""
@@ -21,8 +24,19 @@ def mock_app():
 
 @pytest.fixture()
 def mock_request_headers():
-    """Return mock headers with a valid Authorization header."""
-    return {"Authorization": "Bearer test-token-123"}
+    """Return mock headers with an incoming user Authorization header."""
+    return {"Authorization": "Bearer user-token-123"}
+
+
+@pytest.fixture(autouse=True)
+def mock_service_account_token():
+    """Patch the service account token used to call epic.auth."""
+    with patch(
+        "submit_api.services.auth_service.KeycloakTokenService."
+        "get_service_account_token",
+        return_value=SERVICE_ACCOUNT_TOKEN,
+    ) as mock_token:
+        yield mock_token
 
 
 class TestGetUserByEmail:
@@ -225,8 +239,10 @@ class TestRequestAuthServiceHeaders:
     """Tests for _request_auth_service header handling."""
 
     @patch("submit_api.services.auth_service.requests.get")
-    def test_includes_app_id_header(self, mock_get, mock_app, mock_request_headers):
-        """Test that App-Id: SUBMIT header is always included."""
+    def test_uses_service_account_token(
+        self, mock_get, mock_app, mock_request_headers
+    ):
+        """Test that the service account token is used, not the user token."""
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = []
@@ -237,13 +253,53 @@ class TestRequestAuthServiceHeaders:
 
         call_kwargs = mock_get.call_args[1]
         assert call_kwargs["headers"]["App-Id"] == "SUBMIT"
-        assert call_kwargs["headers"]["Authorization"] == "Bearer test-token-123"
+        assert (
+            call_kwargs["headers"]["Authorization"]
+            == f"Bearer {SERVICE_ACCOUNT_TOKEN}"
+        )
 
-    def test_no_token_raises_error(self, mock_app):
-        """Test that missing token raises BusinessError."""
+    @patch("submit_api.services.auth_service.requests.get")
+    def test_no_request_context_still_uses_service_account(
+        self, mock_get, mock_app
+    ):
+        """Test that calls work outside a user request context."""
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = []
+        mock_get.return_value = mock_response
+
+        with mock_app.app_context():
+            _request_auth_service("users")
+
+        call_kwargs = mock_get.call_args[1]
+        assert (
+            call_kwargs["headers"]["Authorization"]
+            == f"Bearer {SERVICE_ACCOUNT_TOKEN}"
+        )
+
+    def test_no_token_raises_error(
+        self, mock_app, mock_service_account_token
+    ):
+        """Test that a missing service account token raises BusinessError."""
         from submit_api.exceptions import BusinessError
 
-        with mock_app.test_request_context():
+        mock_service_account_token.return_value = None
+
+        with mock_app.app_context():
+            with pytest.raises(BusinessError):
+                _request_auth_service("users")
+
+    def test_token_retrieval_failure_raises_error(
+        self, mock_app, mock_service_account_token
+    ):
+        """Test that a token retrieval failure raises BusinessError."""
+        from submit_api.exceptions import BusinessError
+
+        mock_service_account_token.side_effect = (
+            requests.exceptions.ConnectionError("Connection refused")
+        )
+
+        with mock_app.app_context():
             with pytest.raises(BusinessError):
                 _request_auth_service("users")
 

@@ -22,13 +22,13 @@ import ControlledMultiSelect, {
 } from "@/components/Shared/ControlledFormFields/ControlledMultiSelect";
 import { When } from "react-if";
 import { useMemo } from "react";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import {
   getAccountPackagesByAccountIdQueryOptions,
   useGetAccountProjectsByAccount,
 } from "@/hooks/api/useProjects";
 import { useCreateInvitationToExistingProject } from "@/hooks/api/useInvitations";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import UserManagementModal from "./UserManagementModal";
@@ -65,6 +65,20 @@ export default function NewUserForm() {
   const { accountId, proponentId, userManagementRoles } = useAccount();
   const navigate = useNavigate();
   const { setOpen: setOpenModal, setClose: closeModal } = useModal();
+
+  // Project Admins cannot assign Regulated Party Account Administrator role
+  const isCurrentUserAccountAdmin =
+    userManagementRoles?.some(
+      (r) => r.role_name === USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN,
+    ) ?? false;
+
+  const excludeRoles = useMemo(
+    () =>
+      isCurrentUserAccountAdmin
+        ? []
+        : [USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN],
+    [isCurrentUserAccountAdmin],
+  );
 
   const { data: accountProjects } = useGetAccountProjectsByAccount({
     accountId,
@@ -301,6 +315,7 @@ export default function NewUserForm() {
                 <UserRoleOptions
                   error={Boolean(errors["role_name"])}
                   selectedRole={selectedRole}
+                  excludeRoles={excludeRoles}
                   selectionsNode={
                     <>
                       <When

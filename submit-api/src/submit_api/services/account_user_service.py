@@ -15,7 +15,6 @@ from submit_api.models import TermsOfService as TermsOfServiceModel
 from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.db import db
-from submit_api.services.auth_service import AuthService
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -389,20 +388,17 @@ class AccountUserService:
                 role.active = False
                 role.access_end = now
 
-        # Update the User status_id accordingly
+        # Update the User status_id accordingly. Access is enforced per-request
+        # against this DB status, so we intentionally do NOT enable/disable the
+        # user in Keycloak here.
         user = UserModel.find_by_id(account_user.user_id)
         if active:
             user.status_id = UserStatusEnum.ACTIVE.value
         else:
             user.status_id = UserStatusEnum.ACCESS_REVOKED.value
-        db.session.commit()
 
-        # Update Keycloak login access
-        AuthService.toggle_user_enabled_status(
-            username=account_user.user.auth_guid, enabled=active)
-        current_app.logger.info(
-            f"User {account_user_id} {'reactivated' if active else 'deactivated'} successfully."
-        )
+        db.session.commit()
+        current_app.logger.info(f"User {account_user_id} {'activated' if active else 'deactivated'} successfully.")
         return cls._build_user_response(account_user_id)
 
     @classmethod

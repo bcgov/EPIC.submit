@@ -67,6 +67,9 @@ instance/
 # Scrapy stuff:
 .scrapy
 
+# Devcontainers
+.devcontainer
+
 # Sphinx documentation
 docs/_build/
 
@@ -167,3 +170,4 @@ deployment/charts/submit-api/values.dev.yaml
 deployment/charts/submit-web/values.dev.yaml
 .windsurf/
 .kiro/
+.hidden/

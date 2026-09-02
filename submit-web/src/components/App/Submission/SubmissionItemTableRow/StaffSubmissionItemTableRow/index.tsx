@@ -19,7 +19,7 @@ import {
 } from "@/components/Shared/Table/common";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { SUBMISSION_TYPE, SUBMISSION_STATUS } from "@/models/Submission";
-import { PackageStatus } from "@/models/Package";
+import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 import EmptyRow from "@/components/App/Projects/ProjectTable/EmptyRow";
 import { SubmissionItemTableRowProps } from "..";
 import SubmissionItemReviewConfirmation from "@/components/App/Submission/SubmissionItemReviewConfirmation";
@@ -30,6 +30,7 @@ import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import { useHasRole } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -66,14 +67,17 @@ export default function StaffSubmissionItemTableRow({
   );
 
   const isPackageInEndStatus = useMemo(() => {
-    const endStatuses: PackageStatus[] = [
+    const endStatuses: Array<PackageStatus | NonCanonicalPackageStatus> = [
       "APPROVED",
       "ACCEPTED",
       "REJECTED",
       "NOT_APPROVED",
       "REVIEW_REJECTED",
+      "REVISION_REQUESTED",
     ];
-    return endStatuses.some((status) => submissionPackage.status?.includes(status));
+    return endStatuses.some((status) =>
+      submissionPackage.status?.includes(status as PackageStatus),
+    );
   }, [submissionPackage.status]);
 
   const isPackageInEndStatusExcludingReviewRejected = useMemo(() => {
@@ -94,6 +98,16 @@ export default function StaffSubmissionItemTableRow({
   
   // Check if user has the appropriate create role for this package type (includes full_access check)
   const hasPackageCreateRole = useHasRole(packageRoles.create);
+
+  // Staff can edit contact information on the latest version of a package, in
+  // any status, provided they have edit permission for the package type.
+  const hasPackageEditRole = useHasRole(packageRoles.edit);
+  const isContactInfoAlwaysEditable = useContactInfoAlwaysEditable({
+    item,
+    submissionPackage,
+  });
+  const canStaffEditContactInfo =
+    isContactInfoAlwaysEditable && hasPackageEditRole;
   
   // Check if user has GIS permissions (includes full_access check)
   const hasGISPermissions = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
@@ -159,7 +173,23 @@ export default function StaffSubmissionItemTableRow({
             gap={0.5}
             alignItems={"flex-end"}
           >
-            <When condition={submitted_on && !hasAccountProjectWork && !isPackageInEndStatusExcludingReviewRejected}>
+            <When condition={canStaffEditContactInfo}>
+              <Typography
+                variant="body2"
+                data-testid={`submission-item-action-${name}`}
+                onClick={handleClick}
+                sx={{
+                  color: BCDesignTokens.typographyColorLink,
+                  "&:hover": {
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                Edit
+              </Typography>
+            </When>
+            <When condition={!canStaffEditContactInfo && submitted_on && !hasAccountProjectWork && !isPackageInEndStatusExcludingReviewRejected}>
               <SubmissionItemReviewConfirmation
                 submissionItem={item}
                 onClick={handleClick}

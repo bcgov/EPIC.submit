@@ -402,11 +402,18 @@ class SubmitEmailQueueService:
 
     @staticmethod
     def _get_eao_manager_emails() -> list[str]:
+        """Retrieve EAO manager emails from the auth service."""
         try:
             members = AuthService.get_group_members("SUBMIT", "MPT_MANAGER")
         except (ValueError, OSError):
             return []
-        return [member.get('email') for member in members if member.get('email')]
+        emails = []
+        for member in members:
+            if isinstance(member, str):
+                emails.append(member)
+            elif isinstance(member, dict) and member.get('email'):
+                emails.append(member['email'])
+        return [e for e in emails if e]
 
     @staticmethod
     def _get_reviewer_name(package: PackageModel) -> str:

@@ -25,6 +25,7 @@ from submit_api.models.user_status import UserStatusEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.user import UserSchema
 from submit_api.services.user_service import UserService
+from submit_api.utils.constants import ACCESS_REVOKED_ERROR_CODE
 from submit_api.utils.util import allowedorigins, cors_preflight
 
 
@@ -69,7 +70,7 @@ class CurrentUser(Resource):
         if user.status_id == UserStatusEnum.ACCESS_REVOKED.value:
             raise PermissionDeniedError(
                 "Access Denied - Your access has been revoked.",
-                HTTPStatus.FORBIDDEN
+                error_code=ACCESS_REVOKED_ERROR_CODE,
             )
 
         return UserSchema().dump(user), HTTPStatus.OK

@@ -124,3 +124,15 @@ class Invitations(BaseModel):
             cls.account_id.in_(account_ids),
             cls.status.in_([InvitationStatus.PENDING.value, InvitationStatus.USED.value])
         ).all()
+
+    @classmethod
+    def get_expired_pending_account_ids(cls, account_ids: list[int]) -> set[int]:
+        """Return account ids that have a PENDING invitation past its expiry_date."""
+        if not account_ids:
+            return set()
+        rows = cls.query.filter(
+            cls.account_id.in_(account_ids),
+            cls.status == InvitationStatus.PENDING.value,
+            cls.is_expired,
+        ).with_entities(cls.account_id).distinct().all()
+        return {r[0] for r in rows}

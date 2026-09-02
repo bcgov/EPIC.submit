@@ -13,6 +13,11 @@
 # limitations under the License.
 """This module contains constants used in the application."""
 
+# Machine-readable error code returned to the client when a user's access has
+# been revoked. The frontend keys off this value to eject the user and redirect
+# them to the need-access page.
+ACCESS_REVOKED_ERROR_CODE = "ACCESS_REVOKED"
+
 SUBMISSION_PACKAGE_TYPE_EMAIL_SENDER_MAP = {
     'Management Plan': 'EAO.ManagementPlanSupport@gov.bc.ca',
     'IEM': 'EAO.ManagementPlanSupport@gov.bc.ca',

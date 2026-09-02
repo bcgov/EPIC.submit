@@ -274,6 +274,7 @@ export default function Row({
           >
             <DocumentsSubTable
               submission={currentSubmission}
+              packageId={Number(submissionPackageId)}
               onDocumentClick={onDocumentClick}
             />
           </SubmitTableCell>

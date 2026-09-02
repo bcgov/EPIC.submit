@@ -12,12 +12,14 @@ export type ProponentAdministrator = {
   work_email_address: string;
 };
 
+export type NonCanonicalProponentStatus = "INVITE_EXPIRED";
 export type ProponentStatus = "ELIGIBLE" | "INELIGIBLE" | "INVITE_GENERATED" | "PENDING_ONBOARDING" | "ONBOARDED";
+export type ProponentStatusFilterOptions = ProponentStatus | NonCanonicalProponentStatus
 
 export type Proponent = {
   id: number;
   name: string;
-  status?: ProponentStatus | null;
+  status?: ProponentStatus | NonCanonicalProponentStatus | null;
   is_deleted: boolean;
   invitations?: Invitation[];
   projects?: Project[];

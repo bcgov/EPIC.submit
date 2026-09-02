@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { BCDesignTokens } from "epic.theme";
-import { useFormContext, Controller } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
@@ -41,7 +41,23 @@ export default function RevisionRequiredWidget({
     }).queryKey,
   );
 
-  const { control, setValue, getValues, formState: { errors } } = useFormContext();
+  const { watch, setValue, getValues, formState: { errors } } = useFormContext();
+
+  // Watch the whole section_notes object so the note fields re-render on change.
+  // Note fields are bound to this object (not to a nested `section_notes.<id>`
+  // path) because a purely numeric path segment makes react-hook-form store
+  // section_notes as an ARRAY, which fails the object schema validation.
+  const sectionNotes: Record<string, string> =
+    watch("update_request.section_notes") || {};
+
+  const handleNoteChange = (typeId: number, value: string) => {
+    const current = getValues("update_request.section_notes") || {};
+    setValue(
+      "update_request.section_notes",
+      { ...current, [String(typeId)]: value },
+      { shouldValidate: true, shouldDirty: true },
+    );
+  };
 
   // Determine the Consultation Record item type_id from the package items
   const consultationRecordTypeId = useMemo(() => {
@@ -269,32 +285,28 @@ export default function RevisionRequiredWidget({
                 >
                   This note will be shared with the proponent.
                 </Typography>
-                  <Controller
-                    name={`update_request.section_notes.${section.typeId}`}
-                    control={control}
-                    defaultValue=""
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        multiline
-                        rows={4}
-                        fullWidth
-                        placeholder={`Describe what needs to be updated or added for ${section.name}...`}
-                        variant="outlined"
-                        disabled={disabled}
-                        error={!!error}
-                        helperText={error || ""}
-                        sx={{
-                          "& .MuiInputBase-input::placeholder": {
-                            color: "#9CA3AF",
-                            fontSize: "14px",
-                            fontWeight: 400,
-                            lineHeight: "21px",
-                            opacity: 1,
-                          },
-                        }}
-                      />
-                    )}
+                  <TextField
+                    value={sectionNotes[String(section.typeId)] ?? ""}
+                    onChange={(e) =>
+                      handleNoteChange(section.typeId, e.target.value)
+                    }
+                    multiline
+                    rows={4}
+                    fullWidth
+                    placeholder={`Describe what needs to be updated or added for ${section.name}...`}
+                    variant="outlined"
+                    disabled={disabled}
+                    error={!!error}
+                    helperText={error || ""}
+                    sx={{
+                      "& .MuiInputBase-input::placeholder": {
+                        color: "#9CA3AF",
+                        fontSize: "14px",
+                        fontWeight: 400,
+                        lineHeight: "21px",
+                        opacity: 1,
+                      },
+                    }}
                   />
                 </Box>
               </AccordionDetails>

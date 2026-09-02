@@ -19,6 +19,8 @@ BusinessException - error, status_code - Business rules error
 error - a description of the error {code / description: classname / full text}
 status_code - where possible use HTTP Error Codes
 """
+import json
+
 from werkzeug.exceptions import BadRequest, Conflict, Forbidden, NotFound, UnprocessableEntity
 from werkzeug.wrappers.response import Response
 
@@ -64,13 +66,23 @@ class ResourceNotFoundError(NotFound):
 
 
 class PermissionDeniedError(Forbidden):
-    """Exception raised when resource not found"""
+    """Exception raised when the user is not permitted to access a resource."""
 
-    def __init__(self, message, *args, **kwargs):
-        """Return a valid ResourceExistsError."""
+    def __init__(self, message, *args, error_code=None, **kwargs):
+        """Return a valid PermissionDeniedError with an optional machine-readable error_code."""
         super().__init__(*args, **kwargs)
         self.description = message
-        self.response = Response(message, status=Forbidden.code)
+        self.error_code = error_code
+        body = {"message": message}
+        if error_code:
+            body["error_code"] = error_code
+        # `data` is what flask-restx merges into its JSON error response.
+        self.data = body
+        self.response = Response(
+            json.dumps(body),
+            status=Forbidden.code,
+            content_type="application/json",
+        )
 
 
 class UnprocessableEntityError(UnprocessableEntity):

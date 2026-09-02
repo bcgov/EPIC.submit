@@ -151,14 +151,10 @@ export const PACKAGE_STATUS: Record<
   PARTIALLY_COMPLETED: {
     value: "PARTIALLY_COMPLETED",
     label: "Partially Completed",
-    filter: ["proponent"],
-    sortOrder: 2,
   },
   COMPLETED: {
     value: "COMPLETED",
     label: "Completed",
-    filter: ["proponent"],
-    sortOrder: 2,
   },
   SUBMITTED: {
     value: "SUBMITTED",
@@ -175,8 +171,8 @@ export const PACKAGE_STATUS: Record<
   IN_PROGRESS: {
     value: "IN_PROGRESS",
     label: "In Progress",
-    // filter: ["proponent"],
-    // sortOrder: 2,
+    filter: ["proponent"],
+    sortOrder: 2,
   },
   NEW_SUBMISSION: {
     value: "NEW_SUBMISSION",
