@@ -47,10 +47,11 @@ export function useSubmissionBannerState({
       : AppConfig.supportMpEmail;
 
     // Terminal state checks
-    const isLatest = version ? version.is_latest : true;
-    const isApproved = status.includes(PACKAGE_STATUS.APPROVED.value);
+    const acceptedStatuses = [PACKAGE_STATUS.APPROVED.value, PACKAGE_STATUS.REVIEWED.value, PACKAGE_STATUS.ACCEPTED.value];
+    const isApproved = acceptedStatuses.some(s => status.includes(s));
     const isNotApproved = status.includes(PACKAGE_STATUS.NOT_APPROVED.value);
     const isWithdrawn = status.includes(PACKAGE_STATUS.WITHDRAWN.value);
+    const isLatest = version ? version.is_latest : true;
 
     // Terminal banners take precedence
     const showNotApprovedBanner = isNotApproved;
