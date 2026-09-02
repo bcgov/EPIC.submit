@@ -77,7 +77,7 @@ class PackageService:
         return {
             # work related package statuses
             PackageStatus.NEW.value: {
-                UserType.PROPONENT: PackageStatus.NEW.value if version == 1 else '',
+                UserType.PROPONENT: PackageStatus.NEW.value,
                 UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
             },
             PackageStatus.IN_PROGRESS.value: {
