@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
-import { useSaveUserRole, useSaveUserStatus } from "./useAccountUsers";
+import {
+  useGetAccountUsers,
+  useSaveUserRole,
+  useSaveUserStatus,
+} from "./useAccountUsers";
 import { QUERY_KEY } from "./constants";
 
 // Mock the API calls
@@ -35,6 +39,57 @@ function createWrapper() {
       createElement(QueryClientProvider, { client: queryClient }, children),
   };
 }
+
+describe("useGetAccountUsers", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("requests the scoped list by default (no all_users param)", async () => {
+    mockSubmitRequest.mockResolvedValue([]);
+    const { wrapper } = createWrapper();
+
+    const { result } = renderHook(
+      () => useGetAccountUsers({ accountId: 4 }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(mockSubmitRequest).toHaveBeenCalledWith({
+      url: "/accounts/4/users",
+    });
+  });
+
+  it("requests all users when allUsers is true", async () => {
+    mockSubmitRequest.mockResolvedValue([]);
+    const { wrapper } = createWrapper();
+
+    const { result } = renderHook(
+      () => useGetAccountUsers({ accountId: 4, allUsers: true }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(mockSubmitRequest).toHaveBeenCalledWith({
+      url: "/accounts/4/users?all_users=true",
+    });
+  });
+
+  it("does not fetch when accountId is missing", () => {
+    mockSubmitRequest.mockResolvedValue([]);
+    const { wrapper } = createWrapper();
+
+    renderHook(() => useGetAccountUsers({ accountId: undefined }), { wrapper });
+
+    expect(mockSubmitRequest).not.toHaveBeenCalled();
+  });
+});
 
 describe("useSaveUserRole", () => {
   beforeEach(() => {

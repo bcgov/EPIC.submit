@@ -183,6 +183,9 @@ export const ContactInformationEntityView = ({
 
   const { data: accountUsers } = useGetAccountUsers({
     accountId: accountProject?.account_id,
+    // Submission contacts can be any user in the account, not just those
+    // assigned to the current project.
+    allUsers: true,
   });
 
   const accountUserOptions = useMemo(() => {

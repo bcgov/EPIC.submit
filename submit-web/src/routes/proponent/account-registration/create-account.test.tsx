@@ -90,7 +90,7 @@ describe("CreateAccount subtitle", () => {
       ),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/as an Account Administrator for Acme Corp/),
+      screen.getByText(/as a Regulated Party Account Administrator for Acme Corp/),
     ).toBeInTheDocument();
   });
 
@@ -98,7 +98,7 @@ describe("CreateAccount subtitle", () => {
     setStore(USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN, false);
     render(<CreateAccount />);
     expect(
-      screen.getByText(/as an Account Administrator for Acme Corp/),
+      screen.getByText(/as a Regulated Party Account Administrator for Acme Corp/),
     ).toBeInTheDocument();
     expect(
       screen.queryByText(/Thank you for taking a few minutes/),
@@ -113,7 +113,7 @@ describe("CreateAccount subtitle", () => {
     render(<CreateAccount />);
     expect(
       screen.getByText(
-        /as a Project Administrator for Acme Corp.*You cannot assign the Account Administrator role\./,
+        /as a Project Administrator for Acme Corp.*can manage users for those projects\./,
       ),
     ).toBeInTheDocument();
   });
@@ -131,7 +131,7 @@ describe("CreateAccount subtitle", () => {
     render(<CreateAccount />);
     expect(
       screen.getByText(
-        /as a Collaborator for Acme Corp.*Collaborators cannot submit packages to the EAO/,
+        /as a Collaborator for Acme Corp.*including uploading documents\./,
       ),
     ).toBeInTheDocument();
   });
@@ -148,7 +148,7 @@ describe("CreateAccount subtitle", () => {
     setStore(undefined, undefined);
     render(<CreateAccount />);
     expect(
-      screen.getByText(/as an Account Administrator for Acme Corp/),
+      screen.getByText(/as a Regulated Party Account Administrator for Acme Corp/),
     ).toBeInTheDocument();
   });
 });
