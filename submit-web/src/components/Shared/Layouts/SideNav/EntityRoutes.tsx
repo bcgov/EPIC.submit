@@ -14,13 +14,15 @@ export default function EntityRoutes() {
         }}
       />
       <ProjectsSubRoutes />
-      <MainListItem
-        route={{
-          name: "Documents",
-          path: "/proponent/documents",
-        }}
-        sx={{ mb: BCDesignTokens.layoutMarginSmall }}
-      />
+      <PermissionsGate scopes={[ACCOUNT_USER_PERMISSIONS.VIEW_ALL_DOCUMENTS]}>
+        <MainListItem
+          route={{
+            name: "Documents",
+            path: "/proponent/documents",
+          }}
+          sx={{ mb: BCDesignTokens.layoutMarginSmall }}
+        />
+      </PermissionsGate>
       <PermissionsGate scopes={[ACCOUNT_USER_PERMISSIONS.INVITE_USERS]}>
         <>
           <MainListItem

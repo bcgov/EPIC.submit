@@ -8,10 +8,12 @@ import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useGetAccountProjects } from "@/hooks/api/useProjects";
+import { hasPermission } from "@/components/Shared/PermissionGate/utils";
 import { useGetSubmittedDocuments } from "@/hooks/api/useSubmittedDocuments";
+import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { PaginatedDocumentsResponse } from "@/models/Submission";
 import { Box, Grid, Typography } from "@mui/material";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, notFound } from "@tanstack/react-router";
 import { BCDesignTokens } from "epic.theme";
 import { useEffect, useMemo, useState } from "react";
 import { When } from "react-if";
@@ -19,6 +21,17 @@ import { When } from "react-if";
 export const Route = createFileRoute("/proponent/_proponentLayout/documents/")({
   component: DocumentsPage,
   head: () => ({ meta: [{ title: "All Documents" }] }),
+  beforeLoad: async ({ context: { account } }) => {
+    if (
+      !account.isLoading &&
+      !hasPermission({
+        scopes: [ACCOUNT_USER_PERMISSIONS.VIEW_ALL_DOCUMENTS],
+        permissions: account?.roles || [],
+      })
+    ) {
+      throw notFound();
+    }
+  },
 });
 
 function DocumentsPage() {

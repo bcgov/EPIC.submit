@@ -78,7 +78,11 @@ class PackageService:
             # work related package statuses
             PackageStatus.NEW.value: {
                 UserType.PROPONENT: PackageStatus.NEW.value,
-                UserType.STAFF: PackageStatus.CREATED.value if version == 1 else ''
+                # Version 1 is a brand-new package: EAO sees "Created".
+                # A later version is created via the "+ Create New" button on an
+                # already-approved package, so the EAO should see "New" as well.
+                UserType.STAFF: (PackageStatus.CREATED.value if version == 1
+                                 else PackageStatus.NEW.value)
             },
             PackageStatus.IN_PROGRESS.value: {
                 UserType.PROPONENT: PackageStatus.IN_PROGRESS.value,

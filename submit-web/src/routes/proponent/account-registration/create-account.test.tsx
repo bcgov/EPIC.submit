@@ -76,6 +76,24 @@ describe("CreateAccount subtitle", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders only the Welcome line in bold, other paragraphs normal", () => {
+    setStore(USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN, false);
+    render(<CreateAccount />);
+
+    // Welcome line is bold (rendered as <strong>).
+    const welcome = screen.getByText("Welcome to EPIC.submit.");
+    expect(welcome.tagName).toBe("STRONG");
+
+    // The remaining paragraphs are normal weight (not <strong>).
+    const createAccountLine = screen.getByText(
+      "Please create your account as a Regulated Party Account Administrator for Acme Corp.",
+    );
+    expect(createAccountLine.tagName).not.toBe("STRONG");
+
+    const detailLine = screen.getByText(/full access to every project/);
+    expect(detailLine.tagName).not.toBe("STRONG");
+  });
+
   it("shows the first-time Account Administrator copy", () => {
     setStore(USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN, true);
     render(<CreateAccount />);
@@ -111,10 +129,14 @@ describe("CreateAccount subtitle", () => {
   it("shows Project Administrator copy for PROJECT_ADMIN", () => {
     setStore(USER_MANAGEMENT_ROLE.PROJECT_ADMIN, false);
     render(<CreateAccount />);
+    expect(screen.getByText("Welcome to EPIC.submit.")).toBeInTheDocument();
     expect(
       screen.getByText(
-        /as a Project Administrator for Acme Corp.*can manage users for those projects\./,
+        "Please create your account as a Project Administrator for Acme Corp.",
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/can manage users for those projects\./),
     ).toBeInTheDocument();
   });
 
@@ -129,10 +151,14 @@ describe("CreateAccount subtitle", () => {
   it("shows Collaborator copy for SUBMISSION_ADMIN", () => {
     setStore(USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN, false);
     render(<CreateAccount />);
+    expect(screen.getByText("Welcome to EPIC.submit.")).toBeInTheDocument();
     expect(
       screen.getByText(
-        /as a Collaborator for Acme Corp.*including uploading documents\./,
+        "Please create your account as a Collaborator for Acme Corp.",
       ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/including uploading documents\./),
     ).toBeInTheDocument();
   });
 
