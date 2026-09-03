@@ -40,12 +40,14 @@ class UserRole(BaseModel):
             RoleEnum.ACCOUNT_PRIMARY_ADMIN.value: [
                 ProponentPermissionsEnum.CREATE_PACKAGE.value,
                 ProponentPermissionsEnum.SUBMIT_PACKAGE.value,
-                ProponentPermissionsEnum.INVITE_USERS.value
+                ProponentPermissionsEnum.INVITE_USERS.value,
+                ProponentPermissionsEnum.VIEW_ALL_DOCUMENTS.value
             ],
             RoleEnum.PROJECT_ADMIN.value: [
                 ProponentPermissionsEnum.CREATE_PACKAGE.value,
                 ProponentPermissionsEnum.SUBMIT_PACKAGE.value,
-                ProponentPermissionsEnum.INVITE_USERS.value
+                ProponentPermissionsEnum.INVITE_USERS.value,
+                ProponentPermissionsEnum.VIEW_ALL_DOCUMENTS.value
             ],
             RoleEnum.SUBMISSION_ADMIN.value: [],
             RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value: []

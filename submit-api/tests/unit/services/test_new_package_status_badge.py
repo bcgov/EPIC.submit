@@ -2,8 +2,11 @@
 
 When a proponent creates a new package version from a package in an approved
 status (Approved/Accepted/Satisfied), the new package is created with the NEW
-status and a version greater than 1. The proponent should see the "New" badge
-for that package instead of falling back to "Created".
+status and a version greater than 1. Both the proponent (Entity) and the EAO
+(Staff) should see the "New" badge for that package.
+
+For a brand-new (version 1) package the Entity sees "New" while the EAO sees
+"Created".
 """
 from unittest.mock import Mock
 
@@ -43,13 +46,18 @@ class TestNewPackageStatusBadge:
 
         assert PackageStatus.NEW.value in result
 
-    def test_staff_does_not_see_new_on_later_version(self):
-        """Staff does not get a NEW/CREATED badge for a NEW package on a later version."""
+    def test_staff_sees_new_on_later_version(self):
+        """Staff sees New (not Created) for a NEW package created as a later version.
+
+        A later version in NEW status is produced by the proponent using the
+        "+ Create New" button on an already-approved package, so the EAO should
+        see the "New" badge rather than the version-1 "Created" badge.
+        """
         package = _make_package([PackageStatus.NEW.value], version=2)
 
         result = PackageService.calculate_package_statuses(package, UserType.STAFF)
 
-        assert PackageStatus.NEW.value not in result
+        assert PackageStatus.NEW.value in result
         assert PackageStatus.CREATED.value not in result
 
     def test_staff_sees_created_on_first_version(self):

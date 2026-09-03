@@ -12,7 +12,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import { When } from "react-if";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
-import { SubmissionItemMethod } from "@/models/SubmissionItem";
+import { SubmissionItemMethod, SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
@@ -108,6 +108,14 @@ export default function StaffSubmissionItemTableRow({
   });
   const canStaffEditContactInfo =
     isContactInfoAlwaysEditable && hasPackageEditRole;
+
+  // The latest version of a package shows an "Edit" link for contact info.
+  // Previous versions (and the latest when the user lacks edit rights) should
+  // still expose a read-only "View" link, regardless of the package's status.
+  const isContactInfoItem =
+    item.type.name === SUBMISSION_ITEM_TYPE.CONTACT_INFORMATION;
+  const shouldShowContactInfoViewLink =
+    isContactInfoItem && !canStaffEditContactInfo && Boolean(submitted_on);
   
   // Check if user has GIS permissions (includes full_access check)
   const hasGISPermissions = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
@@ -186,10 +194,26 @@ export default function StaffSubmissionItemTableRow({
                   },
                 }}
               >
-                Edit
+                View/Edit
               </Typography>
             </When>
-            <When condition={!canStaffEditContactInfo && submitted_on && !hasAccountProjectWork && !isPackageInEndStatusExcludingReviewRejected}>
+            <When condition={shouldShowContactInfoViewLink}>
+              <Typography
+                variant="body2"
+                data-testid={`submission-item-action-${name}`}
+                onClick={handleClick}
+                sx={{
+                  color: BCDesignTokens.typographyColorLink,
+                  "&:hover": {
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  },
+                }}
+              >
+                View
+              </Typography>
+            </When>
+            <When condition={!isContactInfoItem && !canStaffEditContactInfo && submitted_on && !hasAccountProjectWork && !isPackageInEndStatusExcludingReviewRejected}>
               <SubmissionItemReviewConfirmation
                 submissionItem={item}
                 onClick={handleClick}
