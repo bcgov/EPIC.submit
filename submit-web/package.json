@@ -47,7 +47,7 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "@faker-js/faker": "^9.9.0",
+    "@faker-js/faker": "^10.5.0",
     "@playwright/test": "^1.57.0",
     "@tanstack/eslint-plugin-query": "^5.43.1",
     "@tanstack/react-query-devtools": "^5.59.16",
