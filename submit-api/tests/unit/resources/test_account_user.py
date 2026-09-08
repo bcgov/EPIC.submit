@@ -114,3 +114,60 @@ class TestEditUserStatus:
         )
 
         assert response.status_code == HTTPStatus.OK
+
+
+class TestListAccountUsers:
+    """Tests for GET /accounts/{account_id}/users endpoint."""
+
+    def test_scoped_list_excludes_users_from_other_projects(self, client, session, jwt):
+        """Default (scoped) listing hides users assigned only to other projects."""
+        headers, account_project = setup_authenticated_proponent(session, jwt)
+        account_id = account_project.account_id
+
+        # Another project under the same account, with a user only on that project.
+        other_project = factory_project_model(name="Other Project")
+        other_account_project = factory_account_project_model(account_id, other_project.id)
+        _, other_account_user, _ = create_proponent_with_role(
+            session,
+            auth_guid=fake.uuid4(),
+            account_id=account_id,
+            role_name=RoleEnum.PROJECT_ADMIN.value,
+            account_project_id=other_account_project.id,
+        )
+        session.flush()
+
+        response = client.get(f"{ACCOUNTS_URL}/{account_id}/users", headers=headers)
+
+        assert response.status_code == HTTPStatus.OK
+        returned_ids = [u["id"] for u in response.json]
+        assert other_account_user.id not in returned_ids
+
+    def test_all_users_returns_users_from_other_projects(self, client, session, jwt):
+        """With all_users=true, users from other projects in the account are included."""
+        headers, account_project = setup_authenticated_proponent(session, jwt)
+        account_id = account_project.account_id
+
+        other_project = factory_project_model(name="Other Project")
+        other_account_project = factory_account_project_model(account_id, other_project.id)
+        _, other_account_user, _ = create_proponent_with_role(
+            session,
+            auth_guid=fake.uuid4(),
+            account_id=account_id,
+            role_name=RoleEnum.PROJECT_ADMIN.value,
+            account_project_id=other_account_project.id,
+        )
+        session.flush()
+
+        response = client.get(
+            f"{ACCOUNTS_URL}/{account_id}/users?all_users=true", headers=headers
+        )
+
+        assert response.status_code == HTTPStatus.OK
+        returned_ids = [u["id"] for u in response.json]
+        assert other_account_user.id in returned_ids
+
+    def test_list_requires_authentication(self, client, session):
+        """Unauthenticated request is rejected."""
+        response = client.get(f"{ACCOUNTS_URL}/1/users")
+
+        assert response.status_code == HTTPStatus.UNAUTHORIZED

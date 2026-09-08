@@ -350,7 +350,7 @@ describe("StaffSubmissionItemTableRow", () => {
         />,
       );
 
-      expect(screen.getByText("Edit")).toBeInTheDocument();
+      expect(screen.getByText("View/Edit")).toBeInTheDocument();
     });
 
     it("hides Edit link when staff lacks the edit role", () => {
@@ -369,7 +369,7 @@ describe("StaffSubmissionItemTableRow", () => {
         />,
       );
 
-      expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+      expect(screen.queryByText("View/Edit")).not.toBeInTheDocument();
     });
 
     it("does not show Edit link when the item is not always-editable contact info", () => {
@@ -389,6 +389,87 @@ describe("StaffSubmissionItemTableRow", () => {
       );
 
       expect(screen.queryByText("Edit")).not.toBeInTheDocument();
+    });
+
+    it("shows View link for contact info on a previous version (end status package)", () => {
+      // Previous versions are not the latest version, so contact info is not editable
+      mockUseContactInfoAlwaysEditable.mockReturnValue(false);
+      mockUseHasRole.mockReturnValue(true);
+      mockUseSuspenseQuery.mockReturnValue({
+        data: makePackage(["APPROVED"]),
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeContactItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByText("View")).toBeInTheDocument();
+      expect(screen.queryByText("View/Edit")).not.toBeInTheDocument();
+    });
+
+    it("shows View link (not Edit) when contact info is latest version but user lacks edit role", () => {
+      mockUseContactInfoAlwaysEditable.mockReturnValue(true);
+      // User lacks edit role -> canStaffEditContactInfo is false
+      mockUseHasRole.mockReturnValue(false);
+      mockUseSuspenseQuery.mockReturnValue({
+        data: makePackage(["APPROVED"]),
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeContactItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByText("View")).toBeInTheDocument();
+      expect(screen.queryByText("View/Edit")).not.toBeInTheDocument();
+    });
+
+    it("does not show a duplicate View link when contact info is editable (View/Edit only)", () => {
+      mockUseContactInfoAlwaysEditable.mockReturnValue(true);
+      mockUseHasRole.mockReturnValue(true);
+      mockUseSuspenseQuery.mockReturnValue({
+        data: makePackage(["APPROVED"]),
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeContactItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByText("View/Edit")).toBeInTheDocument();
+      expect(screen.queryByText("View")).not.toBeInTheDocument();
+    });
+
+    it("does not show View link for contact info before the package is submitted", () => {
+      mockUseContactInfoAlwaysEditable.mockReturnValue(false);
+      mockUseHasRole.mockReturnValue(true);
+      mockUseSuspenseQuery.mockReturnValue({
+        data: { ...makePackage(["IN_REVIEW"]), submitted_on: null },
+        isPending: false,
+      });
+
+      renderInTable(
+        <StaffSubmissionItemTableRow
+          item={makeContactItem()}
+          packageType={defaultPackageType}
+          onRequestUpdate={vi.fn()}
+        />,
+      );
+
+      expect(screen.queryByText("View")).not.toBeInTheDocument();
     });
   });
 });

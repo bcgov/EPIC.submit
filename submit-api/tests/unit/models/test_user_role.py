@@ -20,6 +20,21 @@ def test_get_permissions_from_role_admin():
     assert ProponentPermissionsEnum.SUBMIT_PACKAGE.value in perms
 
 
+def test_admin_roles_have_view_all_documents_permission():
+    """Admin roles are granted the view all documents permission."""
+    for role in (RoleEnum.ACCOUNT_PRIMARY_ADMIN, RoleEnum.PROJECT_ADMIN):
+        perms = UserRole.get_permissions_from_role(role.value)
+        assert ProponentPermissionsEnum.VIEW_ALL_DOCUMENTS.value in perms
+
+
+def test_collaborator_roles_lack_view_all_documents_permission():
+    """Collaborator roles are not granted the view all documents permission."""
+    for role in (RoleEnum.SUBMISSION_ADMIN, RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR):
+        perms = UserRole.get_permissions_from_role(role.value)
+        assert ProponentPermissionsEnum.VIEW_ALL_DOCUMENTS.value not in perms
+        assert perms == []
+
+
 def test_get_permissions_from_role_unknown():
     """Returns an empty list for an unrecognised role name."""
     perms = UserRole.get_permissions_from_role('UNKNOWN_ROLE')

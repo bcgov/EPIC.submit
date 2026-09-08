@@ -11,20 +11,26 @@ import { Options } from "./types";
 import { AccountUserWithRole } from "@/models/AccountUser";
 import { isAxiosError } from "axios";
 
-const getAccountUsers = (accountId: number) => {
+const getAccountUsers = (accountId: number, allUsers?: boolean) => {
   return submitRequest<AccountUserWithRole[]>({
-    url: `/accounts/${accountId}/users`,
+    url: `/accounts/${accountId}/users${allUsers ? "?all_users=true" : ""}`,
   });
 };
 
 type GetAccountUsersOptions = {
   accountId?: number;
+  // When true, fetch every user in the account regardless of project scope
+  // (used e.g. for selecting submission contacts).
+  allUsers?: boolean;
 };
 
-export const useGetAccountUsers = ({ accountId }: GetAccountUsersOptions) => {
+export const useGetAccountUsers = ({
+  accountId,
+  allUsers,
+}: GetAccountUsersOptions) => {
   return useQuery({
-    queryKey: [QUERY_KEY.ACCOUNT_USERS, accountId],
-    queryFn: () => getAccountUsers(accountId!),
+    queryKey: [QUERY_KEY.ACCOUNT_USERS, accountId, allUsers],
+    queryFn: () => getAccountUsers(accountId!, allUsers),
     enabled: Boolean(accountId),
     ...defaultUseQueryOptions,
   });

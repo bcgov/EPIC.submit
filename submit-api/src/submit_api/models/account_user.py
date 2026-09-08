@@ -123,7 +123,17 @@ class AccountUser(BaseModel):
         """Get account users by account id, optionally filtered by project ids."""
         query = cls.query.filter(cls.account_id == account_id)
         if account_project_ids:
-            query = query.join(UserRole).filter(
-                UserRole.account_project_id.in_(account_project_ids)
+            # Only match on active role assignments so revoked/soft-deleted roles
+            # do not pull a user into a project scope they no longer belong to.
+            # Use a subquery on user_roles to avoid row multiplication (a user may
+            # hold several active roles) without a DISTINCT over eager-loaded
+            # columns (some are JSON and have no equality operator).
+            matching_user_ids = (
+                db.session.query(UserRole.account_user_id)
+                .filter(
+                    UserRole.account_project_id.in_(account_project_ids),
+                    UserRole.active.is_(True)
+                )
             )
+            query = query.filter(cls.id.in_(matching_user_ids))
         return query.all()

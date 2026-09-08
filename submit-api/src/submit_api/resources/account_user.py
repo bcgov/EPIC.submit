@@ -41,7 +41,8 @@ account_user_list_model = ApiHelper.convert_ma_schema_to_restx_model(
 @API.doc(params={
     "account_id": "The account identifier",
     "include_invitees": "Include invitees (true/false)",
-    "include_roles": "Include roles (true/false)"
+    "include_roles": "Include roles (true/false)",
+    "all_users": "Return every user in the account, unscoped by project (true/false)"
 })
 class AccountUsers(Resource):
     """Resource for listing users associated with an account."""
@@ -53,11 +54,23 @@ class AccountUsers(Resource):
     @auth.require
     @cross_origin(origins=allowedorigins())
     def get(account_id):
-        """Fetch all users of a specific account."""
+        """Fetch users of a specific account.
+
+        By default the list is scoped to what the logged-in proponent may see
+        (project assignment + role). Pass ``all_users=true`` to get every user in
+        the account regardless of project scope (e.g. for selecting submission
+        contacts).
+        """
         include_roles = request.args.get("include_roles", "false").lower() == "true"
         include_invitees = request.args.get("include_invitees", "false").lower() == "true"
+        all_users = request.args.get("all_users", "false").lower() == "true"
 
-        users = AccountUserService.get_users_by_account_projects(account_id, include_roles, include_invitees)
+        if all_users:
+            users = AccountUserService.get_users_by_account(
+                account_id, include_roles=include_roles, include_invitees=include_invitees
+            )
+        else:
+            users = AccountUserService.get_users_by_account_projects(account_id, include_roles, include_invitees)
         if not users:
             return {"message": "No users found"}, HTTPStatus.NOT_FOUND
 
