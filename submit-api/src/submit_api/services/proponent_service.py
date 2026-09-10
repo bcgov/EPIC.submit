@@ -153,12 +153,15 @@ class ProponentService:
         """Filter account users down to active primary admins and format them."""
         administrators = []
         for user in account_users:
-            user_role = getattr(user, "role", None)
-            if not user_role or not user_role.active:
-                continue
-            if user_role.role.role_name != RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
-                continue
             if not user.user_id:
+                continue
+            is_primary_admin = any(
+                user_role.active
+                and user_role.role
+                and user_role.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value
+                for user_role in user.roles
+            )
+            if not is_primary_admin:
                 continue
             administrators.append({
                 "id": user.id,
