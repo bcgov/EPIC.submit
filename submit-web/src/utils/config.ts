@@ -18,6 +18,9 @@ declare global {
       VITE_EPIC_SYSTEM_EMAIL: string;
       VITE_SUPPORT_MP_EMAIL: string;
       VITE_SUPPORT_IPD_EMAIL: string;
+      VITE_SHOW_UPGRADE_BANNER: string;
+      VITE_SHOW_POST_UPGRADE_BANNER: string;
+      VITE_USER_GUIDE_VERSION: string;
     };
   }
 }
@@ -62,6 +65,18 @@ const SUPPORT_IPD_EMAIL =
   window._env_?.VITE_SUPPORT_IPD_EMAIL ||
   import.meta.env.VITE_SUPPORT_IPD_EMAIL ||
   "";
+const SHOW_UPGRADE_BANNER =
+  window._env_?.VITE_SHOW_UPGRADE_BANNER ||
+  import.meta.env.VITE_SHOW_UPGRADE_BANNER ||
+  "";
+const SHOW_POST_UPGRADE_BANNER =
+  window._env_?.VITE_SHOW_POST_UPGRADE_BANNER ||
+  import.meta.env.VITE_SHOW_POST_UPGRADE_BANNER ||
+  "";
+const USER_GUIDE_VERSION =
+  window._env_?.VITE_USER_GUIDE_VERSION ||
+  import.meta.env.VITE_USER_GUIDE_VERSION ||
+  "";
 
 export const AppConfig = {
   apiUrl: `${API_URL}`,
@@ -77,7 +92,11 @@ export const AppConfig = {
   supportMpEmail: SUPPORT_MP_EMAIL,
   supportIpdEmail: SUPPORT_IPD_EMAIL,
   userGuide: USER_GUIDE,
+  userGuideVersion: USER_GUIDE_VERSION,
   geoDocUrl: GEO_DOC_URL,
+  showUpgradeBanner: String(SHOW_UPGRADE_BANNER).toLowerCase() === "true",
+  showPostUpgradeBanner:
+    String(SHOW_POST_UPGRADE_BANNER).toLowerCase() === "true",
 };
 
 const trimmedAppUrl = APP_URL?.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;
