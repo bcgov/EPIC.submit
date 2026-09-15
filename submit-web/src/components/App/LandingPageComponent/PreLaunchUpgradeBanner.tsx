@@ -17,7 +17,7 @@ export const PreLaunchUpgradeBanner = () => {
       sx={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: "center",
+        justifyContent: "flex-start",
         maxWidth: 1112,
         width: "100%",
         minHeight: 187,
@@ -29,18 +29,24 @@ export const PreLaunchUpgradeBanner = () => {
         mx: "auto",
       }}
     >
-      <Box sx={{ p: BCDesignTokens.layoutPaddingSmall }}>
+      <Box
+        sx={{
+          pt: 0,
+          px: BCDesignTokens.layoutPaddingSmall,
+          pb: BCDesignTokens.layoutPaddingSmall,
+        }}
+      >
         <Typography
           variant="h6"
           fontWeight="bold"
           color={BCDesignTokens.typographyColorPrimary}
-          gutterBottom
         >
           Upgrades are coming to EPIC.submit
         </Typography>
         <Typography
           variant="body1"
           color={BCDesignTokens.typographyColorPrimary}
+          sx={{ mt: "2em" }}
         >
           We are making improvements to EPIC.submit. To finish the update,{" "}
           <Box
@@ -48,13 +54,13 @@ export const PreLaunchUpgradeBanner = () => {
             sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
           >
             the site will be unavailable for a few hours on September 22,
-            starting at 7 pm PDT.
+            starting at 4 pm PDT.
           </Box>
         </Typography>
         <Typography
           variant="body1"
           color={BCDesignTokens.typographyColorPrimary}
-          sx={{ mt: BCDesignTokens.layoutMarginMedium }}
+          sx={{ mt: "2em" }}
         >
           Please plan your submissions around this window.
         </Typography>

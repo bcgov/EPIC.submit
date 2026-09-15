@@ -13,7 +13,7 @@ describe("PreLaunchUpgradeBanner", () => {
   it("renders the downtime window phrase in bold", () => {
     render(<PreLaunchUpgradeBanner />);
     const boldPhrase = screen.getByText(
-      /the site will be unavailable for a few hours on September 22, starting at 7 pm PDT\./i,
+      /the site will be unavailable for a few hours on September 22, starting at 4 pm PDT\./i,
     );
     expect(boldPhrase).toBeInTheDocument();
     // The date/time phrase is emphasised via a bold span.
