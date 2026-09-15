@@ -26,7 +26,7 @@ export const PostUpgradeBanner = () => {
         maxWidth: 1112,
         width: "100%",
         minHeight: 323,
-        p: BCDesignTokens.layoutPaddingSmall,
+        p: "0.5rem 1rem 0.5rem 1rem",
         gap: BCDesignTokens.layoutMarginSmall,
         borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
         border: `1px solid ${BCDesignTokens.iconsColorInfo}`,
@@ -34,12 +34,11 @@ export const PostUpgradeBanner = () => {
         mx: "auto",
       }}
     >
-      <Box sx={{ p: BCDesignTokens.layoutPaddingSmall }}>
+      <Box>
         <Typography
           variant="h6"
           fontWeight="bold"
           color={BCDesignTokens.typographyColorPrimary}
-          gutterBottom
         >
           EPIC.submit has been upgraded
         </Typography>
@@ -47,6 +46,7 @@ export const PostUpgradeBanner = () => {
         <Typography
           variant="body1"
           color={BCDesignTokens.typographyColorPrimary}
+          sx={{ mt: "2em" }}
         >
           You may notice some changes to how EPIC.submit looks and works. Some
           of the improvements you'll see:
@@ -82,7 +82,7 @@ export const PostUpgradeBanner = () => {
         <Typography
           variant="body1"
           color={BCDesignTokens.typographyColorPrimary}
-          sx={{ mt: BCDesignTokens.layoutMarginMedium }}
+          sx={{ mt: "2em" }}
         >
           Please refer to the updated{" "}
           <Link
