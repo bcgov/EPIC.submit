@@ -310,10 +310,10 @@ export default function SubmissionPage() {
                     {submissionPackage?.type.name ===
                     SubmissionPackageType.ADDITIONAL_INFORMATION ? (
                       <>
-                        Acknowledge Submission <i>(optional)</i>
+                        Acknowledge Submission Receipt <i>(optional)</i>
                       </>
                     ) : (
-                      "Acknowledge Submission"
+                      "Acknowledge Submission Receipt"
                     )}
                   </Button>
                 )}
