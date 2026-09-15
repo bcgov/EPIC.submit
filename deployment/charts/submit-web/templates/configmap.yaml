@@ -22,5 +22,8 @@ data:
         "VITE_GEO_DOC_URL": "{{ .Values.app.geoDocUrl }}",
         "VITE_EPIC_SYSTEM_EMAIL": "{{ .Values.app.epicSystemEmail }}",
         "VITE_SUPPORT_MP_EMAIL": "{{ .Values.app.supportMpEmail }}",
-        "VITE_SUPPORT_IPD_EMAIL": "{{ .Values.app.supportIpdEmail }}"
+        "VITE_SUPPORT_IPD_EMAIL": "{{ .Values.app.supportIpdEmail }}",
+        "VITE_SHOW_UPGRADE_BANNER": "{{ .Values.app.showUpgradeBanner }}",
+        "VITE_SHOW_POST_UPGRADE_BANNER": "{{ .Values.app.showPostUpgradeBanner }}",
+        "VITE_USER_GUIDE_VERSION": "{{ .Values.app.userGuideVersion }}"
       }

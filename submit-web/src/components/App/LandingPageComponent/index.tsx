@@ -5,8 +5,16 @@ import { BCDesignTokens } from "epic.theme";
 import { UserGuideButton } from "@/components/App/UserGuideButton";
 import { BCeIDLogin } from "@/components/App/LandingPageComponent/BCeIDLogin";
 import { BCServiceCardLogin } from "@/components/App/LandingPageComponent/BCServiceCardLogin";
+import { PreLaunchUpgradeBanner } from "@/components/App/LandingPageComponent/PreLaunchUpgradeBanner";
+import { PostUpgradeBanner } from "@/components/App/LandingPageComponent/PostUpgradeBanner";
 
 export const LandingPageComponent = () => {
+  // The pre-launch warning banner takes precedence: once the post-launch
+  // informational banner is enabled at deploy time it replaces the pre-launch
+  // notice in the same position.
+  const showPostUpgradeBanner =
+    AppConfig.showPostUpgradeBanner && !AppConfig.showUpgradeBanner;
+
   return (
     <Container maxWidth={"lg"} sx={{ mb: BCDesignTokens.layoutMarginXlarge }}>
       <Box
@@ -23,6 +31,26 @@ export const LandingPageComponent = () => {
           including the Initial Project Description and Engagement Plan.
         </Typography>
       </Box>
+      {AppConfig.showUpgradeBanner && (
+        <Box
+          px={3}
+          mb={BCDesignTokens.layoutMarginLarge}
+          display="flex"
+          justifyContent="center"
+        >
+          <PreLaunchUpgradeBanner />
+        </Box>
+      )}
+      {showPostUpgradeBanner && (
+        <Box
+          px={3}
+          mb={BCDesignTokens.layoutMarginLarge}
+          display="flex"
+          justifyContent="center"
+        >
+          <PostUpgradeBanner />
+        </Box>
+      )}
       <Grid container spacing={4}>
         {/* Left Section */}
         <Grid item xs={12} md={7}>
