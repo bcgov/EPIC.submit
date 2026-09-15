@@ -31,15 +31,8 @@ export function useDocumentRow({
   const name = documentSubmission.submitted_document?.name || "";
   const url = documentSubmission.submitted_document?.url || "";
 
-  // TODO(SUBMIT-1014 backend follow-up): once the backend stops emitting
-  // READY_FOR_ACKNOWLEDGEMENT in favour of PENDING_ACKNOWLEDGEMENT, drop the
-  // READY_FOR_ACKNOWLEDGEMENT check here and remove the status from Package.ts.
-  const isPackageReadyForAcknowledgement = !!submissionPackage?.status.some(
-    (s) =>
-      [
-        PACKAGE_STATUS.READY_FOR_ACKNOWLEDGEMENT.value,
-        PACKAGE_STATUS.PENDING_ACKNOWLEDGEMENT.value,
-      ].includes(s),
+  const isPackageReadyForAcknowledgement = !!submissionPackage?.status.includes(
+    PACKAGE_STATUS.PENDING_ACKNOWLEDGEMENT.value,
   );
 
   const isPackageAcknowledged = !!submissionPackage?.status.includes(

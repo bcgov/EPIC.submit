@@ -110,7 +110,6 @@ export type PackageStatus =
   | "INTERNAL_VERIFICATION"
   | "VERIFIED"
   | "PENDING_ACKNOWLEDGEMENT"
-  | "READY_FOR_ACKNOWLEDGEMENT"
   | "READY_FOR_APPROVAL"
   | "ACKNOWLEDGED"
   | "NOT_APPROVED"
@@ -235,10 +234,6 @@ export const PACKAGE_STATUS: Record<
   PENDING_ACKNOWLEDGEMENT: {
     value: "PENDING_ACKNOWLEDGEMENT",
     label: "Pending Acknowledgement",
-  },
-  READY_FOR_ACKNOWLEDGEMENT: {
-    value: "READY_FOR_ACKNOWLEDGEMENT",
-    label: "Ready for Acknowledgement",
   },
   ACKNOWLEDGED: {
     value: "ACKNOWLEDGED",
