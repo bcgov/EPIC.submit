@@ -87,10 +87,6 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
       label: "Pending Acknowledgement",
       theme: "purple",
     },
-    READY_FOR_ACKNOWLEDGEMENT: {
-      label: "Ready for Acknowledgement",
-      theme: "purple",
-    },
     READY_FOR_APPROVAL: { label: "Ready for Approval", theme: "purple" },
 
     CREATED: { label: "Created", theme: "neutral" },

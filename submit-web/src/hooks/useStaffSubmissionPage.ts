@@ -119,14 +119,6 @@ export function useStaffSubmissionPage({
     (pv) => pv.package_id === submissionPackageId,
   );
 
-  const isReadyForAcknowledgement = useMemo(
-    () =>
-      submissionPackage?.status.includes(
-        PACKAGE_STATUS.READY_FOR_ACKNOWLEDGEMENT.value,
-      ),
-    [submissionPackage],
-  );
-
   const isPackageAcknowledged = useMemo(
     () => submissionPackage?.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value),
     [submissionPackage],
@@ -150,10 +142,7 @@ export function useStaffSubmissionPage({
   const hasAcknowledgeOrApproveRole =
     hasExtendedEdit && !(hasGISRole && !hasFullAccess);
 
-  const canAcknowledge =
-    (approval_type === SubmissionPackageApprovalType.A
-      ? isPackageVerified
-      : isReadyForAcknowledgement) && hasAcknowledgeOrApproveRole;
+  const canAcknowledge = isPackageVerified && hasAcknowledgeOrApproveRole;
 
   const isPackagePastApproval = useMemo(
     () =>

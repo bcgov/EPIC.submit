@@ -32,7 +32,7 @@ export function useDocumentRow({
   const url = documentSubmission.submitted_document?.url || "";
 
   const isPackageReadyForAcknowledgement = !!submissionPackage?.status.includes(
-    PACKAGE_STATUS.READY_FOR_ACKNOWLEDGEMENT.value,
+    PACKAGE_STATUS.PENDING_ACKNOWLEDGEMENT.value,
   );
 
   const isPackageAcknowledged = !!submissionPackage?.status.includes(
@@ -43,14 +43,8 @@ export function useDocumentRow({
     packageType?.name === SubmissionPackageType.ADDITIONAL_INFORMATION;
 
   const showUndoVerificationButton =
-    isAdditionalInfo &&
     !isPackageAcknowledged &&
     documentSubmission.status === SUBMISSION_STATUS.VERIFIED;
-
-  const showUndoAcknowledgementButton =
-    !isAdditionalInfo &&
-    documentSubmission.status === SUBMISSION_STATUS.ACKNOWLEDGED &&
-    !submissionPackage?.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value);
 
   const showDefaultActionButton =
     !submissionPackage?.completed_on &&
@@ -80,18 +74,6 @@ export function useDocumentRow({
     }
   };
 
-  const handleAcknowledge = async () => {
-    try {
-      await updateSubmissionStatus({
-        submissionId: documentSubmission.id,
-        status: SUBMISSION_STATUS.ACKNOWLEDGED,
-      });
-      notify.success("Document acknowledged");
-    } catch (e) {
-      notify.error("Failed to acknowledge document");
-    }
-  };
-
   const handleUndoVerification = async () => {
     try {
       await updateSubmissionStatus({
@@ -101,18 +83,6 @@ export function useDocumentRow({
       notify.success("Verification undone");
     } catch (e) {
       notify.error("Failed to undo verification");
-    }
-  };
-
-  const handleUndoAcknowledge = async () => {
-    try {
-      await updateSubmissionStatus({
-        submissionId: documentSubmission.id,
-        status: SUBMISSION_STATUS.VERIFIED,
-      });
-      notify.success("Acknowledgement undone");
-    } catch (e) {
-      notify.error("Failed to undo acknowledgement");
     }
   };
 
@@ -138,13 +108,10 @@ export function useDocumentRow({
     isPackageReadyForAcknowledgement,
     isAdditionalInfo,
     showUndoVerificationButton,
-    showUndoAcknowledgementButton,
     showDefaultActionButton,
     isNewVersion,
     handleVerify,
-    handleAcknowledge,
     handleUndoVerification,
-    handleUndoAcknowledge,
     openDocument,
   };
 }
