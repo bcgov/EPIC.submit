@@ -1,15 +1,16 @@
+from urllib.parse import urljoin
+
 from flask import current_app
 from submit_api.data_classes.email_details import EmailDetails
+from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import BadRequestError
+from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.package import Package as PackageModel
 from submit_api.models.project import Project as ProjectModel
-from submit_api.enums.role import RoleEnum
-from submit_api.models.account_project import AccountProject as AccountProjectModel
+from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
 
 from submit_cron.models import db
-from submit_api.utils.constants import NEW_USER_INVITATION_EMAIL_TEMPLATE
-from urllib.parse import urljoin
 
 
 class InvitationEmailService:  # pylint: disable=too-few-public-methods

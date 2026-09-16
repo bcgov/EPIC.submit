@@ -3,15 +3,16 @@ from flask import current_app
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
 from submit_api.models import AccountProject
-from submit_api.models.project import Project as ProjectModel
-from submit_api.models.package import Package as PackageModel
-from submit_api.models.user import User as UserModel
 from submit_api.models.account_user import AccountUser as AccountUserModel
+from submit_api.models.package import Package as PackageModel
+from submit_api.models.project import Project as ProjectModel
 from submit_api.models.submission import SubmissionType
+from submit_api.models.user import User as UserModel
+from submit_api.utils.constants import (
+    MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE)
 
-from submit_cron.utils import constants
 from submit_cron.models import db
-from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE
+from submit_cron.utils import constants
 from submit_cron.utils.datetime import convert_utc_to_local_str
 
 

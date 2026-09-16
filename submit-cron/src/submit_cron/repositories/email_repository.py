@@ -1,9 +1,11 @@
 from typing import List
-from sqlalchemy import Table, Column, Integer, String, Text, MetaData, select, DateTime, func
+
+from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, Text, func, select
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Session
 
 from submit_cron.models.email_job import EmailJob
+
 
 metadata = MetaData()
 
@@ -51,7 +53,7 @@ class EmailRepository:
         stmt = (
             email_queue_table.update()
             .where(email_queue_table.c.id == email_id)
-            .values(status="SENT", error_message=None, payload=None, sent_at=func.now())
+            .values(status="SENT", error_message=None, sent_at=func.now())
         )
         self.session.execute(stmt)
         self.session.commit()

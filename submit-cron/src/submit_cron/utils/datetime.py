@@ -1,8 +1,10 @@
 """Datetime object helper."""
 
 from datetime import datetime
+
 import pytz
 from flask import current_app
+
 
 # Constants
 PACIFIC_TZ = pytz.timezone('US/Pacific')

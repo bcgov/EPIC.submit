@@ -54,7 +54,7 @@ export const PreLaunchUpgradeBanner = () => {
             sx={{ fontWeight: BCDesignTokens.typographyFontWeightsBold }}
           >
             the site will be unavailable for a few hours on September 22,
-            starting at 4 pm PDT.
+            starting at 3 pm PDT.
           </Box>
         </Typography>
         <Typography

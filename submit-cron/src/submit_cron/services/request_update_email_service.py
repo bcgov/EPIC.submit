@@ -2,9 +2,9 @@ from flask import current_app
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
 from submit_api.models.package import Package as PackageModel
+from submit_api.utils.constants import MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE
 
 from submit_cron.utils import constants
-from submit_api.utils.constants import MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE
 
 
 class RequestUpdateEmailService:  # pylint: disable=too-few-public-methods

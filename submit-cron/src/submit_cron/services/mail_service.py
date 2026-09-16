@@ -1,23 +1,22 @@
 from datetime import datetime
+from functools import partial
 from typing import List
 
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError
+from submit_api.models.email_queue import EmailQueue, EmailStatus
 from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.package import Package as PackageModel
-from submit_api.models.email_queue import EmailQueue, EmailStatus
-from functools import partial
+from submit_api.utils.constants import (
+    MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE, MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
+    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
+    NEW_USER_INVITATION_EMAIL_TEMPLATE)
 
-from submit_cron.services.package_submission_email_service import PackageSubmissionEmailService
-from submit_cron.services.ches_service import ChesApiService
 from submit_cron.models import db
+from submit_cron.services.ches_service import ChesApiService
 from submit_cron.services.invitation_email_service import InvitationEmailService
+from submit_cron.services.package_submission_email_service import PackageSubmissionEmailService
 from submit_cron.services.request_update_email_service import RequestUpdateEmailService
-from submit_api.utils.constants import MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE, \
-    MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE, \
-    NEW_USER_INVITATION_EMAIL_TEMPLATE, \
-    MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE, \
-    MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE
 from submit_cron.services.resubmission_email_service import ResubmissionEmailService
 
 

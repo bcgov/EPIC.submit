@@ -24,8 +24,6 @@ from flask import Flask
 from utils.logger import setup_logging
 from datetime import datetime
 
-from submit_api.models.project import  Project
-
 import config
 
 setup_logging(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'logging.conf'))  # important to do this first
@@ -91,6 +89,10 @@ def run(job_name, target_system=''):
         elif job_name == 'SYNC_CONDITION':
             SyncApprovedCondition.sync_approved_condition()
             application.logger.info(f'<<<< Completed Sync Approved Condition >>>>')
+        elif job_name == 'PENDING_ACCESS_REMINDER':
+            from tasks.pending_access_reminder import PendingAccessReminder
+            PendingAccessReminder.run()
+            application.logger.info(f'<<<< Completed Pending Access Reminder >>>>')
 
 
 if __name__ == "__main__":

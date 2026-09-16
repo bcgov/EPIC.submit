@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 from submit_api.data_classes.email_details import EmailDetails
 from submit_api.exceptions import BadRequestError

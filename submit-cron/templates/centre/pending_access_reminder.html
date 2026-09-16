@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Your EPIC Access Request for {{ application_name }} Has Been Submitted</title>
+  <title>Reminder: Pending EPIC Access Requests</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -38,6 +38,21 @@
     .grey-box p {
       margin: 0 0 10px 0;
     }
+    .grey-box a {
+      color: #1a5a96;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .grey-box a:hover {
+      text-decoration: underline;
+    }
+    .user-list {
+      list-style: none;
+      padding-left: 0;
+    }
+    .user-list li {
+      margin: 8px 0;
+    }
     .footer {
       font-size: 12px;
       color: #666;
@@ -52,9 +67,6 @@
     .cta-link:hover {
       text-decoration: underline;
     }
-    .label-black {
-      color: black;
-    }
   </style>
 </head>
 <body>
@@ -66,22 +78,28 @@
     <div class="content">
       <p>Hello,</p>
 
-      <p>Your request for access to {{ application_name }} has been submitted successfully.</p>
+      <p>This is a reminder:</p>
 
-      <p><strong>Request Details:</strong></p>
+      <p>The user(s) below requested access to an EPIC application over {{ hours }}h ago. This request hasn't been processed yet. Click the user name to access their request in EPIC.auth.</p>
 
+      <p><strong>Users</strong></p>
       <div class="grey-box">
-        <p><strong><span class="label-black">Application:</span></strong> {{ application_name }}</p>
-        <p><strong><span class="label-black">Requested on:</span></strong> {{ requested_at }}</p>
+        <ul class="user-list">
+          {% for user in users %}
+          <li><a href="{{ user.url }}">{{ user.name }}</a></li>
+          {% endfor %}
+        </ul>
       </div>
 
-      <p>
-        Super Users for this application have been notified and will review your request.
-        You will receive an email when your request has been processed.
-      </p>
+      <p>You can also visit the user list to view all requests on one page.</p>
+
+      <div class="grey-box">
+        <p><a class="cta-link" href="{{ review_all_url }}">Review Request(s) in EPIC.centre</a></p>
+      </div>
+
+      <p>A confirmation email will be sent to the requester when their access level is updated in EPIC.centre.</p>
 
       <p>Thank you,</p>
-
       <p><strong>EPIC.centre System</strong></p>
     </div>
 

@@ -1,12 +1,14 @@
 """Initilizations for db, migration and marshmallow."""
 
 from contextlib import contextmanager
+
 from flask import current_app
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 
 # DB initialize in __init__ file
 # db variable use for create models from here

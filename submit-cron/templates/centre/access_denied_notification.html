@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Your EPIC Access Request for {{ application_name }} Has Been Submitted</title>
+  <title>EPIC Access Request: {{ user_name }} for {{ application_name }}</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -38,6 +38,14 @@
     .grey-box p {
       margin: 0 0 10px 0;
     }
+    .grey-box a {
+      color: #1a5a96;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .grey-box a:hover {
+      text-decoration: underline;
+    }
     .footer {
       font-size: 12px;
       color: #666;
@@ -52,9 +60,6 @@
     .cta-link:hover {
       text-decoration: underline;
     }
-    .label-black {
-      color: black;
-    }
   </style>
 </head>
 <body>
@@ -66,20 +71,9 @@
     <div class="content">
       <p>Hello,</p>
 
-      <p>Your request for access to {{ application_name }} has been submitted successfully.</p>
-
-      <p><strong>Request Details:</strong></p>
-
-      <div class="grey-box">
-        <p><strong><span class="label-black">Application:</span></strong> {{ application_name }}</p>
-        <p><strong><span class="label-black">Requested on:</span></strong> {{ requested_at }}</p>
-      </div>
-
-      <p>
-        Super Users for this application have been notified and will review your request.
-        You will receive an email when your request has been processed.
-      </p>
-
+      <p>Your access request for {{application_name}} has been denied.</p>
+      <p>If you have any questions or believe you should have been approved, please email <a class="cta-link" href="mailto:EAO.EPICsystem@gov.bc.ca">EAO.EPICsystem@gov.bc.ca</a>.</p>
+    
       <p>Thank you,</p>
 
       <p><strong>EPIC.centre System</strong></p>
