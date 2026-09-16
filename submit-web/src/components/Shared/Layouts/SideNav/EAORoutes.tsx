@@ -6,14 +6,14 @@ export default function EAORoutes() {
     <>
       <MainListItem
         route={{
-          name: "Projects",
+          name: "Submission Review",
           path: "/staff/projects",
         }}
         sx={{ mb: BCDesignTokens.layoutMarginSmall }}
       />
       <MainListItem
         route={{
-          name: "Documents",
+          name: "Document Library",
           path: "/staff/documents",
         }}
         sx={{ mb: BCDesignTokens.layoutMarginSmall }}
