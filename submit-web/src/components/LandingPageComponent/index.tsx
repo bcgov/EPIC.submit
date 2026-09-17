@@ -14,6 +14,8 @@ import { BCDesignTokens } from "epic.theme";
 import { IDENTITY_PROVIDERS } from "@/models/User";
 import { UserGuideButton } from "@/components/UserGuideButton";
 import { useAuth } from "react-oidc-context";
+import { When } from "react-if";
+import { PreLaunchUpgradeBanner } from "./PreLaunchUpgradeBanner";
 
 export const LandingPageComponent = () => {
   const { signinRedirect } = useAuth();
@@ -34,6 +36,11 @@ export const LandingPageComponent = () => {
           reports.
         </Typography>
       </Box>
+      <When condition={AppConfig.showUpgradeBanner}>
+        <Box px={3} mb={BCDesignTokens.layoutMarginMedium}>
+          <PreLaunchUpgradeBanner />
+        </Box>
+      </When>
       <Grid container spacing={4}>
         {/* Left Section */}
         <Grid item xs={12} md={7}>

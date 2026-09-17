@@ -13,6 +13,7 @@ declare global {
       VITE_OBJECT_STORAGE_URL: string;
       VITE_CONDITIONS_LIBRARY_URL: string;
       VITE_USER_GUIDE: string;
+      VITE_SHOW_UPGRADE_BANNER: string;
     };
   }
 }
@@ -39,6 +40,10 @@ const CLIENT_ID =
   window._env_?.VITE_CLIENT_ID || import.meta.env.VITE_CLIENT_ID;
 const USER_GUIDE =
   window._env_?.VITE_USER_GUIDE || import.meta.env.VITE_USER_GUIDE || "";
+const SHOW_UPGRADE_BANNER =
+  window._env_?.VITE_SHOW_UPGRADE_BANNER ||
+  import.meta.env.VITE_SHOW_UPGRADE_BANNER ||
+  "";
 
 const SUPPORT_EMAIL = "EAO.ManagementPlanSupport@gov.bc.ca";
 
@@ -53,6 +58,7 @@ export const AppConfig = {
   clientId: CLIENT_ID,
   supportEmail: SUPPORT_EMAIL,
   userGuide: USER_GUIDE,
+  showUpgradeBanner: String(SHOW_UPGRADE_BANNER).toLowerCase() === "true",
 };
 
 const trimmedAppUrl = APP_URL?.endsWith("/") ? APP_URL.slice(0, -1) : APP_URL;
