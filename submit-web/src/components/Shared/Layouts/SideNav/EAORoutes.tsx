@@ -25,6 +25,13 @@ export default function EAORoutes() {
         }}
         sx={{ mb: BCDesignTokens.layoutMarginSmall }}
       />
+      <MainListItem
+        route={{
+          name: "Configurations",
+          path: "/staff/configurations",
+        }}
+        sx={{ mb: BCDesignTokens.layoutMarginSmall }}
+      />
     </>
   );
 }
