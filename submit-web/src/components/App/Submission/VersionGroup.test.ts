@@ -35,6 +35,15 @@ describe("VersionGroup - Proponent '+ Create New' button visibility logic", () =
       expect(result).toBe(true);
     });
 
+    it("returns true when proponent is on latest version and status is NO_REVISION_REQUIRED", () => {
+      const result = canProponentCreateNewVersion({
+        isProponent: true,
+        isLatestVersion: true,
+        packageStatus: ["NO_REVISION_REQUIRED"],
+      });
+      expect(result).toBe(true);
+    });
+
     it("returns false when status is IN_REVIEW (not a terminal success state)", () => {
       const result = canProponentCreateNewVersion({
         isProponent: true,
@@ -119,12 +128,13 @@ describe("VersionGroup - Proponent '+ Create New' button visibility logic", () =
   });
 
   describe("PROPONENT_CREATE_ELIGIBLE_STATUSES", () => {
-    it("contains exactly APPROVED, ACCEPTED, and SATISFIED", () => {
+    it("contains APPROVED, ACCEPTED, SATISFIED, REVIEWED, and NO_REVISION_REQUIRED", () => {
       expect(PROPONENT_CREATE_ELIGIBLE_STATUSES).toEqual([
         "APPROVED",
         "ACCEPTED",
         "SATISFIED",
         "REVIEWED",
+        "NO_REVISION_REQUIRED",
       ]);
     });
   });
