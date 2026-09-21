@@ -24,6 +24,7 @@ export enum SUBMISSION_ITEM_TYPE {
   ENGAGEMENT_PLAN = "Engagement Plan",
   GEOSPATIAL_INFORMATION = "Geospatial Information",
   UPLOAD_DOCUMENT = "Upload Files/Documents",
+  EARLY_ENGAGEMENT_CHECKLIST = "Early Engagement Proponent Checklist"
 }
 
 export const SubmissionItemTypeLabelMap = {
@@ -36,6 +37,7 @@ export const SubmissionItemTypeLabelMap = {
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: "Engagement Plan",
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: "Geospatial Information",
   [SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT]: "Upload Files/Documents",
+  [SUBMISSION_ITEM_TYPE.EARLY_ENGAGEMENT_CHECKLIST]: "Early Engagement Proponent Checklist"
 };
 
 export const SUBMISSION_ITEM_MODAL_CONTENT: Record<
