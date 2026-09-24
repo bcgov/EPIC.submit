@@ -19,7 +19,7 @@ import {
   SubmitPrimaryRowTableCell,
   SubmitTablePrimaryRow,
 } from "@/components/Shared/Table/common";
-import { SubmissionItemMethod } from "@/models/SubmissionItem";
+import { SubmissionItemMethod, SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { useMemo } from "react";
 import { getSubmissionItemLabel } from "@/utils";
 import { SUBMISSION_TYPE } from "@/models/Submission";
@@ -39,6 +39,7 @@ export default function ProponentSubmissionItemTableRow({
   const { id, submissions, status } = item;
 
   const isIPD = packageType.name === SubmissionPackageType.IPD;
+  const isOptional = item.type.name === SUBMISSION_ITEM_TYPE.EARLY_ENGAGEMENT_CHECKLIST;
 
   const name = useMemo(() => {
     return getSubmissionItemLabel(item.type.name);
@@ -95,8 +96,21 @@ export default function ProponentSubmissionItemTableRow({
               fontWeight={900}
               sx={{ mx: 0.5, fontSize: "1rem", lineHeight: "1.688rem" }}
             >
-              {name}
-            </Typography>
+            {name}
+            {isOptional && (
+              <Typography
+                component="span"
+                sx={{
+                  fontStyle: "italic",
+                  color: BCDesignTokens.typographyColorDisabled,
+                  fontWeight: 400,
+                  fontSize: "inherit",
+                }}
+              >
+                {" "}(optional)
+              </Typography>
+            )}
+              </Typography>
           </MuiLink>
         </SubmitPrimaryRowTableCell>
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />

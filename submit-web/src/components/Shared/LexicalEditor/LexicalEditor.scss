@@ -1,0 +1,230 @@
+/* Styles for the shared Lexical rich text editor.
+ * Adapted from the source project; table, mention, typeahead and debug
+ * styles were dropped since those plugins are not used here.
+ */
+
+.ltr {
+  text-align: left;
+}
+
+.rtl {
+  text-align: right;
+}
+
+.editor-container {
+  position: relative;
+  border-radius: 4px;
+  background-color: #fff;
+
+  .editor-inner {
+    position: relative;
+    padding: 1rem 0.75rem;
+    border-radius: 4px;
+  }
+}
+
+.editor-content {
+  line-height: 21px;
+  font-weight: 400;
+  text-align: left;
+
+  .editor-input {
+    min-height: 150px;
+    resize: none;
+    font-size: 16px;
+    position: relative;
+    tab-size: 1;
+    outline: 0;
+    caret-color: #444;
+  }
+
+  .editor-placeholder {
+    color: #999;
+    overflow: hidden;
+    position: absolute;
+    text-overflow: ellipsis;
+    top: 15px;
+    left: 10px;
+    font-size: 15px;
+    user-select: none;
+    display: inline-block;
+    pointer-events: none;
+  }
+
+  .editor-text-bold {
+    font-weight: bold;
+  }
+
+  .editor-text-italic {
+    font-style: italic;
+  }
+
+  .editor-text-underline {
+    text-decoration: underline;
+  }
+
+  .editor-text-strikethrough {
+    text-decoration: line-through;
+  }
+
+  .editor-text-underlineStrikethrough {
+    text-decoration: underline line-through;
+  }
+
+  .editor-text-code {
+    background-color: rgb(240, 242, 245);
+    padding: 1px 0.25rem;
+    font-family: Menlo, Consolas, Monaco, monospace;
+    font-size: 94%;
+  }
+
+  .editor-link {
+    color: rgb(33, 111, 219);
+    text-decoration: none;
+  }
+
+  .editor-paragraph {
+    margin: 0;
+    position: relative;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .editor-heading-h1 {
+    font-size: 24px;
+    color: rgb(5, 5, 5);
+    font-weight: 400;
+    margin: 0;
+    margin-bottom: 12px;
+    padding: 0;
+  }
+
+  .editor-heading-h2 {
+    font-size: 15px;
+    color: rgb(101, 103, 107);
+    font-weight: 700;
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+    text-transform: uppercase;
+  }
+
+  .editor-quote {
+    margin: 0;
+    margin-left: 20px;
+    font-size: 15px;
+    color: rgb(101, 103, 107);
+    border-left-color: rgb(206, 208, 212);
+    border-left-width: 4px;
+    border-left-style: solid;
+    padding-left: 16px;
+  }
+
+  .editor-list-ol,
+  .editor-list-ul {
+    padding: 0;
+    margin: 0;
+    margin-left: 8px;
+  }
+
+  .editor-listitem {
+    margin: 0.25rem 1.5rem;
+  }
+
+  .editor-nested-listitem {
+    list-style-type: none;
+  }
+
+  .editor-list-ol1 {
+    padding: 0;
+    margin: 0;
+    list-style-position: outside;
+  }
+  .editor-list-ol2 {
+    padding: 0;
+    margin: 0;
+    list-style-type: upper-alpha;
+    list-style-position: outside;
+  }
+  .editor-list-ol3 {
+    padding: 0;
+    margin: 0;
+    list-style-type: lower-alpha;
+    list-style-position: outside;
+  }
+  .editor-list-ol4 {
+    padding: 0;
+    margin: 0;
+    list-style-type: upper-roman;
+    list-style-position: outside;
+  }
+  .editor-list-ol5 {
+    padding: 0;
+    margin: 0;
+    list-style-type: lower-roman;
+    list-style-position: outside;
+  }
+
+  a {
+    margin: 0;
+    text-decoration: none;
+    color: #255a90;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  vertical-align: middle;
+
+  .toolbar-item {
+    border: 0;
+    display: flex;
+    background: none;
+    border-radius: 8px;
+    padding: 4px;
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 2px;
+
+    .MuiSvgIcon-root {
+      font-size: 1.25rem;
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    &.spaced {
+      margin-right: 2px;
+    }
+
+    &.active {
+      background-color: rgba(223, 232, 250, 0.5);
+
+      i {
+        opacity: 1;
+      }
+    }
+
+    &:hover:not([disabled]) {
+      background-color: #eee;
+    }
+  }
+
+  .divider {
+    width: 1px;
+    background-color: #eee;
+    margin: 0 4px;
+  }
+}

@@ -5,6 +5,7 @@ import { BCDesignTokens } from "epic.theme";
 import { UserGuideButton } from "@/components/App/UserGuideButton";
 import { BCeIDLogin } from "@/components/App/LandingPageComponent/BCeIDLogin";
 import { BCServiceCardLogin } from "@/components/App/LandingPageComponent/BCServiceCardLogin";
+import { BannerRenderer } from "@/components/App/LandingPageComponent/BannerRenderer";
 
 export const LandingPageComponent = () => {
   return (
@@ -23,6 +24,7 @@ export const LandingPageComponent = () => {
           including the Initial Project Description and Engagement Plan.
         </Typography>
       </Box>
+      <BannerRenderer />
       <Grid container spacing={4}>
         {/* Left Section */}
         <Grid item xs={12} md={7}>

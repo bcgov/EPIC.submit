@@ -16,6 +16,7 @@
 
 from .account import Account
 from .account_project import AccountProject
+from .banner_configuration import BannerConfiguration
 from .role import Role
 from .account_user import AccountUser
 from .user_role import UserRole

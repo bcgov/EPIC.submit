@@ -8,7 +8,7 @@ export default function EaoSideNavBar() {
         sx={{
           overflow: "auto",
           borderRight: "1px solid #0000001A",
-          width: 240,
+          width: 260,
           height: "calc(100vh - 88px)",
           zIndex: 0,
           position: "static",

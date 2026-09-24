@@ -1,22 +1,23 @@
-import {
-  SUBMISSION_ITEM_TYPE,
-  SubmissionItem as TypeSubmissionItem,
-} from "@/models/SubmissionItem";
-import { ManagementPlanSubmissionProponentView } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanProponentView";
-import { ConsultationRecordUpdateForm } from "@/components/App/SubmissionItem/ConsultationRecord/ConsultationRecordUpdateForm";
+import { AdditionalInformationProponentView } from "@/components/App/SubmissionItem/AdditionalInformation/ProponentView";
+import { AdditionalInformationUpdateForm } from "@/components/App/SubmissionItem/AdditionalInformation/UpdateForm";
 import { ConsultationRecordProponentView } from "@/components/App/SubmissionItem/ConsultationRecord/ConsultationRecordProponentView";
-import { ManagementPlanUpdateForm } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanUpdateForm";
+import { ConsultationRecordUpdateForm } from "@/components/App/SubmissionItem/ConsultationRecord/ConsultationRecordUpdateForm";
 import { ContactInformationEntityView } from "@/components/App/SubmissionItem/ContactInformation/ContactInformationEntityView";
+import { EarlyEngagementChecklistProponentView } from "@/components/App/SubmissionItem/EAChecklist/ProponentView/index";
+import { EngagementPlanProponentView } from "@/components/App/SubmissionItem/EPSubmission/EPProponentView";
+import { EngagementPlanUpdateForm } from "@/components/App/SubmissionItem/EPSubmission/EPUpdateForm";
+import { GeoSpatialProponentView } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialProponentView";
+import { GeoSpatialUpdateForm } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialUpdateForm";
 import { IemSubmissionProponentView } from "@/components/App/SubmissionItem/IEMSubmission/IEMProponentView";
 import { IEMUpdateForm } from "@/components/App/SubmissionItem/IEMSubmission/IEMUpdateForm";
 import { IPDSubmissionProponentView } from "@/components/App/SubmissionItem/IPDSubmission/IPDProponentView";
-import { GeoSpatialProponentView } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialProponentView";
-import { GeoSpatialUpdateForm } from "@/components/App/SubmissionItem/GeoSpatialInformation/GeoSpatialUpdateForm";
-import { EngagementPlanProponentView } from "@/components/App/SubmissionItem/EPSubmission/EPProponentView";
-import { AdditionalInformationProponentView } from "@/components/App/SubmissionItem/AdditionalInformation/ProponentView";
-import { AdditionalInformationUpdateForm } from "@/components/App/SubmissionItem/AdditionalInformation/UpdateForm";
 import { IPDUpdateForm } from "@/components/App/SubmissionItem/IPDSubmission/IPDUpdateForm";
-import { EngagementPlanUpdateForm } from "@/components/App/SubmissionItem/EPSubmission/EPUpdateForm";
+import { ManagementPlanSubmissionProponentView } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanProponentView";
+import { ManagementPlanUpdateForm } from "@/components/App/SubmissionItem/ManagementPlanSubmission/ManagementPlanUpdateForm";
+import {
+  SubmissionItem as TypeSubmissionItem, SUBMISSION_ITEM_TYPE
+} from "@/models/SubmissionItem";
+import { EarlyEngagementChecklistUpdateForm } from "../EAChecklist/UpdateForm/index";
 
 type ItemFormProps = {
   submissionItem: TypeSubmissionItem;
@@ -31,6 +32,7 @@ const createFormMap = {
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanProponentView,
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: GeoSpatialProponentView,
   [SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT]: AdditionalInformationProponentView,
+  [SUBMISSION_ITEM_TYPE.EARLY_ENGAGEMENT_CHECKLIST]: EarlyEngagementChecklistProponentView,
 };
 
 export const ProponentItemForm = ({ submissionItem }: ItemFormProps) => {
@@ -47,6 +49,7 @@ const updateFormMap = {
   [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: EngagementPlanUpdateForm,
   [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: GeoSpatialUpdateForm,
   [SUBMISSION_ITEM_TYPE.UPLOAD_DOCUMENT]: AdditionalInformationUpdateForm,
+  [SUBMISSION_ITEM_TYPE.EARLY_ENGAGEMENT_CHECKLIST]: EarlyEngagementChecklistUpdateForm,
 };
 
 export const ProponentItemUpdateForm = ({ submissionItem }: ItemFormProps) => {

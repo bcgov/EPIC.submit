@@ -11,14 +11,14 @@ Use this only with approved production testing access. The scripts intentionally
 Synthetic proponent:
 
 ```text
-ZZZ EPIC.submit Smoke Test Proponent
+ZZZ EPIC.submit Developer Test Proponent
 ```
 
 Synthetic projects:
 
 ```text
-ZZZ Smoke - MPT/IEM Project - DO NOT USE
-ZZZ Smoke - IPD/Additional Info Project - DO NOT USE
+ZZZ Developer Testing - MPT/IEM Project - DO NOT USE
+ZZZ Developer Testing - IPD/Additional Info Project - DO NOT USE
 ```
 
 The `ZZZ` prefix is intentional so the records are easy to search and clearly not real project data.
@@ -30,7 +30,7 @@ The `ZZZ` prefix is intentional so the records are easy to search and clearly no
 Management Plan testing uses the Conditions-backed smoke project:
 
 ```text
-ZZZ Smoke - MPT/IEM Project - DO NOT USE
+ZZZ Developer Testing - MPT/IEM Project - DO NOT USE
 ```
 
 This project has:
@@ -38,7 +38,7 @@ This project has:
 - a Submit project with `has_approved_condition = true`
 - a matching Conditions project
 - one approved Management Plan condition
-- one approved Management Plan named `ZZZ Smoke Management Plan`
+- one approved Management Plan named `ZZZ Developer Testing Management Plan`
 
 Use the UI for the rest of the flow:
 
@@ -55,7 +55,7 @@ Use the UI for the rest of the flow:
 IEM testing also uses the Conditions-backed smoke project:
 
 ```text
-ZZZ Smoke - MPT/IEM Project - DO NOT USE
+ZZZ Developer Testing - MPT/IEM Project - DO NOT USE
 ```
 
 The Conditions seed includes one IEM condition with:
@@ -71,7 +71,7 @@ Note: IEM visibility depends on the deployed Submit code exposing condition-back
 IPD testing uses the work-backed smoke project:
 
 ```text
-ZZZ Smoke - IPD/Additional Info Project - DO NOT USE
+ZZZ Developer Testing - IPD/Additional Info Project - DO NOT USE
 ```
 
 This project has one synthetic `track_works` row in an enabled Early Engagement / Assessment phase. During onboarding, Submit should create the default Initial Project Description & Engagement Plan package when this work is selected.
@@ -91,7 +91,7 @@ Use the UI for the rest of the flow:
 Additional Information testing uses the same work-backed smoke project:
 
 ```text
-ZZZ Smoke - IPD/Additional Info Project - DO NOT USE
+ZZZ Developer Testing - IPD/Additional Info Project - DO NOT USE
 ```
 
 Use the UI for the rest of the flow:
@@ -116,7 +116,7 @@ insert into proponents (
 )
 values (
   999900001,
-  'ZZZ EPIC.submit Smoke Test Proponent',
+  'ZZZ EPIC.submit Developer Test Proponent',
   'ELIGIBLE',
   false,
   now(),
@@ -126,13 +126,14 @@ values (
 );
 
 insert into projects (
-  name, proponent_id, ea_certificate, epic_guid, has_approved_condition
+  id, name, proponent_id, ea_certificate, epic_guid, has_approved_condition
 )
 values (
-  'ZZZ Smoke - MPT/IEM Project - DO NOT USE',
   999900001,
-  'ZZZ-SMOKE-EAC',
-  'ZZZ-SUBMIT-SMOKE-CONDITIONS',
+  'ZZZ Developer Testing - MPT/IEM Project - DO NOT USE',
+  999900001,
+  'ZZZ-DEV-TESTING-EAC',
+  'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS',
   true
 );
 
@@ -140,10 +141,11 @@ insert into projects (
   name, proponent_id, ea_certificate, epic_guid, has_approved_condition
 )
 values (
-  'ZZZ Smoke - IPD/Additional Info Project - DO NOT USE',
+  999900002,
+  'ZZZ Developer Testing - IPD/Additional Info Project - DO NOT USE',
   999900001,
   null,
-  'ZZZ-SUBMIT-SMOKE-WORK',
+  'ZZZ-SUBMIT-DEV-TESTING-WORK',
   false
 );
 
@@ -156,7 +158,7 @@ select
   p.id,
   tp.id,
   'IN_PROGRESS',
-  'ZZZ Smoke IPD / Additional Info Work',
+  'ZZZ Developer Testing IPD / Additional Info Work',
   'EAO.ManagementPlanSupport@gov.bc.ca',
   true,
   false,
@@ -171,7 +173,7 @@ join track_phases tp
  and tp.enable_submit = true
  and tp.is_active = true
  and tp.is_deleted = false
-where p.epic_guid = 'ZZZ-SUBMIT-SMOKE-WORK'
+where p.epic_guid = 'ZZZ-SUBMIT-DEV-TESTING-WORK'
 limit 1;
 
 commit;
@@ -189,8 +191,8 @@ insert into condition.projects (
   created_date, updated_date, created_by, updated_by
 )
 values (
-  'ZZZ-SUBMIT-SMOKE-CONDITIONS',
-  'ZZZ Smoke - MPT/IEM Project - DO NOT USE',
+  'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS',
+  'ZZZ Developer Testing - MPT/IEM Project - DO NOT USE',
   'Smoke Test',
   true,
   now(),
@@ -206,10 +208,10 @@ insert into condition.documents (
   created_date, updated_date, created_by, updated_by
 )
 select
-  'ZZZ-SUBMIT-SMOKE-CERT',
+  'ZZZ-SUBMIT-DEV-TESTING-CERT',
   dt.id,
   dc.id,
-  'ZZZ Smoke Certificate',
+  'ZZZ Developer Testing Certificate',
   'zzz-smoke-certificate.pdf',
   current_date,
   2018,
@@ -217,7 +219,7 @@ select
   false,
   false,
   true,
-  'ZZZ-SUBMIT-SMOKE-CONDITIONS',
+  'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS',
   now(),
   now(),
   'prod-smoke-seed',
@@ -237,11 +239,11 @@ with mp_condition as (
     created_date, updated_date, created_by, updated_by
   )
   values (
-    'ZZZ-SUBMIT-SMOKE-CONDITIONS',
-    'ZZZ-SUBMIT-SMOKE-CERT',
-    'ZZZ Smoke Management Plan Condition',
+    'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS',
+    'ZZZ-SUBMIT-DEV-TESTING-CERT',
+    'ZZZ Developer Testing Management Plan Condition',
     9001,
-    'Submit the ZZZ Smoke Management Plan to EAO for approval before construction.',
+    'Submit the ZZZ Developer Testing Management Plan to EAO for approval before construction.',
     array['Smoke Test']::text[],
     array[]::text[],
     now(),
@@ -266,7 +268,7 @@ mp_plan as (
   )
   select
     id,
-    'ZZZ Smoke Management Plan',
+    'ZZZ Developer Testing Management Plan',
     true,
     now(),
     now(),
@@ -309,9 +311,9 @@ with iem_condition as (
     created_date, updated_date, created_by, updated_by
   )
   values (
-    'ZZZ-SUBMIT-SMOKE-CONDITIONS',
-    'ZZZ-SUBMIT-SMOKE-CERT',
-    'ZZZ Smoke IEM Condition',
+    'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS',
+    'ZZZ-SUBMIT-DEV-TESTING-CERT',
+    'ZZZ Developer Testing IEM Condition',
     9002,
     'Submit Independent Environmental Monitor Terms of Engagement to EAO for review.',
     array['Smoke Test']::text[],
@@ -371,7 +373,7 @@ select id, entity_type, entity_id, template_name, status, sent_at, error_message
 from email_queue
 where created_at >= now() - interval '1 day'
   and (
-    payload::text like '%ZZZ Smoke%'
+    payload::text like '%ZZZ Developer Testing%'
     or payload::text like '%ZZZ EPIC.submit%'
   )
 order by id desc;
@@ -386,8 +388,8 @@ join package_types pt on pt.id = p.type_id
 join account_projects ap on ap.id = p.account_project_id
 join projects pr on pr.id = ap.project_id
 where pr.epic_guid in (
-  'ZZZ-SUBMIT-SMOKE-CONDITIONS',
-  'ZZZ-SUBMIT-SMOKE-WORK'
+  'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS',
+  'ZZZ-SUBMIT-DEV-TESTING-WORK'
 )
 order by p.id desc;
 ```
@@ -407,8 +409,8 @@ create temp table smoke_project_ids on commit drop as
 select id
 from projects
 where epic_guid in (
-  'ZZZ-SUBMIT-SMOKE-CONDITIONS',
-  'ZZZ-SUBMIT-SMOKE-WORK'
+  'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS',
+  'ZZZ-SUBMIT-DEV-TESTING-WORK'
 );
 
 create temp table smoke_account_ids on commit drop as
@@ -490,24 +492,24 @@ delete from condition.condition_attributes
 where condition_id in (
   select id
   from condition.conditions
-  where project_id = 'ZZZ-SUBMIT-SMOKE-CONDITIONS'
+  where project_id = 'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS'
 );
 
 delete from condition.management_plans
 where condition_id in (
   select id
   from condition.conditions
-  where project_id = 'ZZZ-SUBMIT-SMOKE-CONDITIONS'
+  where project_id = 'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS'
 );
 
 delete from condition.conditions
-where project_id = 'ZZZ-SUBMIT-SMOKE-CONDITIONS';
+where project_id = 'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS';
 
 delete from condition.documents
-where project_id = 'ZZZ-SUBMIT-SMOKE-CONDITIONS';
+where project_id = 'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS';
 
 delete from condition.projects
-where project_id = 'ZZZ-SUBMIT-SMOKE-CONDITIONS';
+where project_id = 'ZZZ-SUBMIT-DEV-TESTING-CONDITIONS';
 
 commit;
 ```
