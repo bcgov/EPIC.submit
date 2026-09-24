@@ -49,8 +49,10 @@ vi.mock("@/components/Shared/LexicalEditor/LexicalEditor", () => ({
   ),
 }));
 
+const generateHtml = vi.fn(() => "<p>Typed banner content</p>");
+
 vi.mock("@lexical/html", () => ({
-  $generateHtmlFromNodes: () => "<p>Typed banner content</p>",
+  $generateHtmlFromNodes: () => generateHtml(),
 }));
 
 const mockGet = vi.mocked(useGetBannerConfigurations);
@@ -63,14 +65,12 @@ const updateMutate = vi.fn();
 describe("BannerConfigurationForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    generateHtml.mockReturnValue("<p>Typed banner content</p>");
     mockCreate.mockReturnValue({ mutate: createMutate } as any);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUpdate.mockReturnValue({ mutate: updateMutate } as any);
   });
 
   it("renders the type dropdown, content editor and enable toggle", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockGet.mockReturnValue({ data: [], isLoading: false } as any);
     render(<BannerConfigurationForm />);
 
@@ -91,7 +91,6 @@ describe("BannerConfigurationForm", () => {
         },
       ],
       isLoading: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     render(<BannerConfigurationForm />);
 
@@ -101,7 +100,6 @@ describe("BannerConfigurationForm", () => {
   });
 
   it("creates a new banner when none exists", async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockGet.mockReturnValue({ data: [], isLoading: false } as any);
     render(<BannerConfigurationForm />);
 
@@ -128,7 +126,6 @@ describe("BannerConfigurationForm", () => {
         },
       ],
       isLoading: false,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     render(<BannerConfigurationForm />);
 
@@ -144,7 +141,6 @@ describe("BannerConfigurationForm", () => {
   });
 
   it("blocks submission when content is empty", async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockGet.mockReturnValue({ data: [], isLoading: false } as any);
     render(<BannerConfigurationForm />);
 
@@ -154,5 +150,61 @@ describe("BannerConfigurationForm", () => {
       expect(screen.getByText("Content is required.")).toBeInTheDocument();
     });
     expect(createMutate).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ["empty paragraph", "<p></p>"],
+    ["paragraph with only a line break", "<p><br></p>"],
+    ["markup with no visible text", "<p>   </p>"],
+  ])(
+    "treats %s as empty content and blocks submission",
+    async (_label, html) => {
+      generateHtml.mockReturnValue(html);
+      mockGet.mockReturnValue({ data: [], isLoading: false } as any);
+      render(<BannerConfigurationForm />);
+
+      fireEvent.click(screen.getByText("edit-content"));
+      fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+      await waitFor(() => {
+        expect(screen.getByText("Content is required.")).toBeInTheDocument();
+      });
+      expect(createMutate).not.toHaveBeenCalled();
+    },
+  );
+
+  it("does not let a crafted nested tag reconstruct into markup that reads as text", async () => {
+    // A single-pass regex tag strip (/<[^>]*>/g) would turn this into
+    // "<script>alert(1)</script>", leaving visible text and passing the
+    // emptiness check with unsafe content. The DOM parser reads only real
+    // text, so the crafted string is correctly seen as non-empty and stored
+    // verbatim for the render-time sanitizer to handle.
+    generateHtml.mockReturnValue("<scr<p></p>ipt>alert(1)</script>");
+    mockGet.mockReturnValue({ data: [], isLoading: false } as any);
+    render(<BannerConfigurationForm />);
+
+    fireEvent.click(screen.getByText("edit-content"));
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(createMutate).toHaveBeenCalled();
+    });
+    const [payloadArg] = createMutate.mock.calls[0];
+    expect(payloadArg.data.content).toBe("<scr<p></p>ipt>alert(1)</script>");
+  });
+
+  it("keeps normal typed content and submits it unchanged", async () => {
+    generateHtml.mockReturnValue("<p>Hello world</p>");
+    mockGet.mockReturnValue({ data: [], isLoading: false } as any);
+    render(<BannerConfigurationForm />);
+
+    fireEvent.click(screen.getByText("edit-content"));
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => {
+      expect(createMutate).toHaveBeenCalled();
+    });
+    const [payloadArg] = createMutate.mock.calls[0];
+    expect(payloadArg.data.content).toBe("<p>Hello world</p>");
   });
 });

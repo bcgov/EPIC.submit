@@ -1,3 +1,12 @@
+/**
+ * @vitest-environment jsdom
+ *
+ * DOMPurify depends on a spec-compliant DOM. The suite default (happy-dom) has a
+ * known bug where DOMPurify only inspects parent elements and leaves disallowed
+ * children such as <script> and <iframe> in place (capricorn86/happy-dom#1810),
+ * so sanitize() cannot be trusted there. jsdom provides the DOM DOMPurify
+ * expects, so this file overrides the environment to exercise the real sanitizer.
+ */
 import { describe, it, expect } from "vitest";
 import { sanitizeBannerHtml } from "./sanitizeBannerHtml";
 
@@ -41,7 +50,6 @@ describe("sanitizeBannerHtml", () => {
   });
 
   it("strips javascript: URLs from links", () => {
-    // eslint-disable-next-line no-script-url
     const output = sanitizeBannerHtml('<a href="javascript:alert(1)">x</a>');
     expect(output).not.toContain("javascript:");
   });

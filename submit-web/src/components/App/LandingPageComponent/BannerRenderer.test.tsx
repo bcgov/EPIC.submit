@@ -26,14 +26,12 @@ describe("BannerRenderer", () => {
   });
 
   it("renders nothing when there is no active banner", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseGetActiveBanner.mockReturnValue({ data: null } as any);
     const { container } = render(<BannerRenderer />);
     expect(container).toBeEmptyDOMElement();
   });
 
   it("renders the sanitized banner content", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseGetActiveBanner.mockReturnValue(mockBanner() as any);
     render(<BannerRenderer />);
     expect(
@@ -44,7 +42,6 @@ describe("BannerRenderer", () => {
   it("sanitizes the content through DOMPurify before rendering", () => {
     const sanitizeSpy = vi.spyOn(DOMPurify, "sanitize");
     const dirty = "<p>Safe text</p><script>alert('x')</script>";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseGetActiveBanner.mockReturnValue(mockBanner({ content: dirty }) as any);
 
     render(<BannerRenderer />);
@@ -55,7 +52,6 @@ describe("BannerRenderer", () => {
   });
 
   it("uses the status role for informational banners", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockUseGetActiveBanner.mockReturnValue(mockBanner() as any);
     render(<BannerRenderer />);
     expect(screen.getByRole("status")).toBeInTheDocument();
@@ -63,7 +59,6 @@ describe("BannerRenderer", () => {
 
   it("uses the alert role for warning banners", () => {
     mockUseGetActiveBanner.mockReturnValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockBanner({ banner_type: "Warning" }) as any,
     );
     render(<BannerRenderer />);
@@ -72,7 +67,6 @@ describe("BannerRenderer", () => {
 
   it("renders nothing when the active banner has empty content", () => {
     mockUseGetActiveBanner.mockReturnValue(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockBanner({ content: "" }) as any,
     );
     const { container } = render(<BannerRenderer />);
