@@ -28,4 +28,6 @@ export const QUERY_KEY = Object.freeze({
   PACKAGE_DOCUMENT_SUBMISSIONS: "package-document-submissions",
   ACCOUNT_SUBMISSION_PACKAGES: "account-submission-packages",
   GEO_UPLOADS: "geo/uploads",
+  BANNER_CONFIGURATIONS: "banner-configurations",
+  ACTIVE_BANNER_CONFIGURATION: "banner-configurations/active",
 });
