@@ -27,8 +27,8 @@ describe("EAORoutes", () => {
 
     render(<EAORoutes />);
 
-    expect(screen.getByText("Projects")).toBeInTheDocument();
-    expect(screen.getByText("Documents")).toBeInTheDocument();
+    expect(screen.getByText("Submission Review")).toBeInTheDocument();
+    expect(screen.getByText("Document Library")).toBeInTheDocument();
     expect(screen.getByText("Proponents/Holders")).toBeInTheDocument();
   });
 
