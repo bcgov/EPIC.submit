@@ -126,9 +126,10 @@ values (
 );
 
 insert into projects (
-  name, proponent_id, ea_certificate, epic_guid, has_approved_condition
+  id, name, proponent_id, ea_certificate, epic_guid, has_approved_condition
 )
 values (
+  999900001,
   'ZZZ Developer Testing - MPT/IEM Project - DO NOT USE',
   999900001,
   'ZZZ-DEV-TESTING-EAC',
@@ -140,6 +141,7 @@ insert into projects (
   name, proponent_id, ea_certificate, epic_guid, has_approved_condition
 )
 values (
+  999900002,
   'ZZZ Developer Testing - IPD/Additional Info Project - DO NOT USE',
   999900001,
   null,
