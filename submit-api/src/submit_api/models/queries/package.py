@@ -308,19 +308,11 @@ class PackageSubmissionQueries:
                 aggregated_statuses.append(PackageStatus.PENDING_ACKNOWLEDGEMENT.value)
 
     @classmethod
-    def _add_ready_for_acknowledgement_status(
-        cls, aggregated_statuses, statuses: set[SubmissionStatus]
-    ):
-        """Add READY_FOR_ACKNOWLEDGEMENT when all docs are acknowledged."""
-        if statuses == {SubmissionStatus.ACKNOWLEDGED.value}:
-            aggregated_statuses.append(PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value)
-
-    @classmethod
     def aggregate_submission_statuses(cls, package) -> list[str]:
         """Derive package display status(es) from the aggregate state of its submissions and update requests.
 
         This handles the logic for Type A/B/C staged workflows up to
-        READY_FOR_ACKNOWLEDGEMENT status, as further package status changes are done at
+        VERIFIED status, as further package status changes are done at
         the package level and do not require aggregated submission statuses.
 
         For packages without an approval_type (e.g. Additional Information, which has
@@ -357,7 +349,6 @@ class PackageSubmissionQueries:
         elif approval_type in [PackageApprovalType.B, PackageApprovalType.C]:
             cls._add_internal_verification_status(aggregated_statuses, statuses)
             cls._add_verified_status(aggregated_statuses, statuses, approval_type=approval_type)
-            cls._add_ready_for_acknowledgement_status(aggregated_statuses, statuses)
 
         else:
             # Still apply verification progression so status doesn't fall through
