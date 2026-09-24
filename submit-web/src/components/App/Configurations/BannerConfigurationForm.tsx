@@ -49,11 +49,24 @@ type BannerFormValues = {
 
 const EMPTY_HTML_PATTERNS = ["", "<p></p>", "<p><br></p>"];
 
+/**
+ * Extract the human-readable text from an HTML string using the browser's DOM
+ * parser rather than a regex. A regex like `/<[^>]*>/g` only strips tags in a
+ * single pass, so crafted input (e.g. `<scr<p></p>ipt>`) can reassemble into a
+ * live tag after one replacement. Parsing to a document and reading
+ * `textContent` never reconstructs markup, so it is a safe way to test for
+ * "visually empty" content.
+ */
+const extractTextContent = (html: string) => {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return doc.body.textContent ?? "";
+};
+
 const isEmptyHtml = (html: string) => {
   const trimmed = html.trim();
   return (
     EMPTY_HTML_PATTERNS.includes(trimmed) ||
-    trimmed.replace(/<[^>]*>/g, "").trim().length === 0
+    extractTextContent(trimmed).trim().length === 0
   );
 };
 
