@@ -1,6 +1,6 @@
 import { Box, IconButton, TableRow, Typography, Tooltip } from "@mui/material";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
-import { SubmissionItem } from "@/models/SubmissionItem";
+import { SubmissionItem, SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import {
   SubmitTableCell,
   SubmitTableRow,
@@ -57,6 +57,8 @@ export default function DocumentRow({
     documentSubmission;
   const packageType = propsPackageType || submissionPackage?.type;
   const name = submitted_document?.name || "";
+
+  const isEAChecklist = submissionItem.type.name === SUBMISSION_ITEM_TYPE.EARLY_ENGAGEMENT_CHECKLIST;
 
   // Check if this is a GIS document (item type name "Geospatial Information")
   const isGISDocument = submissionItem.type.name === GIS_ITEM_TYPE_NAME;
@@ -344,7 +346,7 @@ export default function DocumentRow({
                 </PermissionsGate>
               )
             )}
-            {splitButtonConfig ? (
+            {splitButtonConfig && !isEAChecklist ? (
               isGISDocument && !hasGISPermissions ? (
                 <Tooltip title="Your current role does not allow you to perform this action">
                   <Box>
