@@ -27,6 +27,7 @@ from .account import API as ACCOUNT_API
 from .account_terms_of_service import API as ACCOUNT_TERMS_OF_SERVICE_API
 from .account_user import API as ACCOUNT_USER_API
 from .activity_log import API as ACTIVITY_LOG_API
+from .banner_configuration import API as BANNER_CONFIGURATION_API
 from .apihelper import Api
 from .geo import API as GEO_UPLOAD_API
 from .internal_document import API as INTERNAL_DOCUMENT_API
@@ -89,6 +90,7 @@ API.add_namespace(SUBMITTED_DOCUMENT_API)
 API.add_namespace(SUBMISSION_ITEM_NOTE_API)
 API.add_namespace(STAFF_USER_API)
 API.add_namespace(STAFF_USER_WORK_API)
+API.add_namespace(BANNER_CONFIGURATION_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,

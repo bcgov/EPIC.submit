@@ -34,6 +34,7 @@ import { Route as ProponentProponentLayoutProfileRouteImport } from './routes/pr
 import { Route as StaffStaffLayoutProponentsIndexRouteImport } from './routes/staff/_staffLayout/proponents/index'
 import { Route as StaffStaffLayoutProjectsIndexRouteImport } from './routes/staff/_staffLayout/projects/index'
 import { Route as StaffStaffLayoutDocumentsIndexRouteImport } from './routes/staff/_staffLayout/documents/index'
+import { Route as StaffStaffLayoutConfigurationsIndexRouteImport } from './routes/staff/_staffLayout/configurations/index'
 import { Route as ProponentProponentLayoutUserManagementIndexRouteImport } from './routes/proponent/_proponentLayout/user-management/index'
 import { Route as ProponentProponentLayoutProjectsIndexRouteImport } from './routes/proponent/_proponentLayout/projects/index'
 import { Route as ProponentProponentLayoutDocumentsIndexRouteImport } from './routes/proponent/_proponentLayout/documents/index'
@@ -194,6 +195,12 @@ const StaffStaffLayoutDocumentsIndexRoute =
   StaffStaffLayoutDocumentsIndexRouteImport.update({
     id: '/documents/',
     path: '/documents/',
+    getParentRoute: () => StaffStaffLayoutRoute,
+  } as any)
+const StaffStaffLayoutConfigurationsIndexRoute =
+  StaffStaffLayoutConfigurationsIndexRouteImport.update({
+    id: '/configurations/',
+    path: '/configurations/',
     getParentRoute: () => StaffStaffLayoutRoute,
   } as any)
 const ProponentProponentLayoutUserManagementIndexRoute =
@@ -373,6 +380,7 @@ export interface FileRoutesByFullPath {
   '/proponent/documents/': typeof ProponentProponentLayoutDocumentsIndexRoute
   '/proponent/projects/': typeof ProponentProponentLayoutProjectsIndexRoute
   '/proponent/user-management/': typeof ProponentProponentLayoutUserManagementIndexRoute
+  '/staff/configurations/': typeof StaffStaffLayoutConfigurationsIndexRoute
   '/staff/documents/': typeof StaffStaffLayoutDocumentsIndexRoute
   '/staff/projects/': typeof StaffStaffLayoutProjectsIndexRoute
   '/staff/proponents/': typeof StaffStaffLayoutProponentsIndexRoute
@@ -416,6 +424,7 @@ export interface FileRoutesByTo {
   '/proponent/documents': typeof ProponentProponentLayoutDocumentsIndexRoute
   '/proponent/projects': typeof ProponentProponentLayoutProjectsIndexRoute
   '/proponent/user-management': typeof ProponentProponentLayoutUserManagementIndexRoute
+  '/staff/configurations': typeof StaffStaffLayoutConfigurationsIndexRoute
   '/staff/documents': typeof StaffStaffLayoutDocumentsIndexRoute
   '/staff/projects': typeof StaffStaffLayoutProjectsIndexRoute
   '/staff/proponents': typeof StaffStaffLayoutProponentsIndexRoute
@@ -459,6 +468,7 @@ export interface FileRoutesById {
   '/proponent/_proponentLayout/documents/': typeof ProponentProponentLayoutDocumentsIndexRoute
   '/proponent/_proponentLayout/projects/': typeof ProponentProponentLayoutProjectsIndexRoute
   '/proponent/_proponentLayout/user-management/': typeof ProponentProponentLayoutUserManagementIndexRoute
+  '/staff/_staffLayout/configurations/': typeof StaffStaffLayoutConfigurationsIndexRoute
   '/staff/_staffLayout/documents/': typeof StaffStaffLayoutDocumentsIndexRoute
   '/staff/_staffLayout/projects/': typeof StaffStaffLayoutProjectsIndexRoute
   '/staff/_staffLayout/proponents/': typeof StaffStaffLayoutProponentsIndexRoute
@@ -507,6 +517,7 @@ export interface FileRouteTypes {
     | '/proponent/documents/'
     | '/proponent/projects/'
     | '/proponent/user-management/'
+    | '/staff/configurations/'
     | '/staff/documents/'
     | '/staff/projects/'
     | '/staff/proponents/'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/proponent/documents'
     | '/proponent/projects'
     | '/proponent/user-management'
+    | '/staff/configurations'
     | '/staff/documents'
     | '/staff/projects'
     | '/staff/proponents'
@@ -592,6 +604,7 @@ export interface FileRouteTypes {
     | '/proponent/_proponentLayout/documents/'
     | '/proponent/_proponentLayout/projects/'
     | '/proponent/_proponentLayout/user-management/'
+    | '/staff/_staffLayout/configurations/'
     | '/staff/_staffLayout/documents/'
     | '/staff/_staffLayout/projects/'
     | '/staff/_staffLayout/proponents/'
@@ -793,6 +806,13 @@ declare module '@tanstack/react-router' {
       path: '/documents'
       fullPath: '/staff/documents/'
       preLoaderRoute: typeof StaffStaffLayoutDocumentsIndexRouteImport
+      parentRoute: typeof StaffStaffLayoutRoute
+    }
+    '/staff/_staffLayout/configurations/': {
+      id: '/staff/_staffLayout/configurations/'
+      path: '/configurations'
+      fullPath: '/staff/configurations/'
+      preLoaderRoute: typeof StaffStaffLayoutConfigurationsIndexRouteImport
       parentRoute: typeof StaffStaffLayoutRoute
     }
     '/proponent/_proponentLayout/user-management/': {
@@ -1089,6 +1109,7 @@ const StaffStaffLayoutProjectsProjectIdProjectLayoutRouteWithChildren =
 
 interface StaffStaffLayoutRouteChildren {
   StaffStaffLayoutProponentsProponentIdRoute: typeof StaffStaffLayoutProponentsProponentIdRoute
+  StaffStaffLayoutConfigurationsIndexRoute: typeof StaffStaffLayoutConfigurationsIndexRoute
   StaffStaffLayoutDocumentsIndexRoute: typeof StaffStaffLayoutDocumentsIndexRoute
   StaffStaffLayoutProjectsIndexRoute: typeof StaffStaffLayoutProjectsIndexRoute
   StaffStaffLayoutProponentsIndexRoute: typeof StaffStaffLayoutProponentsIndexRoute
@@ -1098,6 +1119,8 @@ interface StaffStaffLayoutRouteChildren {
 const StaffStaffLayoutRouteChildren: StaffStaffLayoutRouteChildren = {
   StaffStaffLayoutProponentsProponentIdRoute:
     StaffStaffLayoutProponentsProponentIdRoute,
+  StaffStaffLayoutConfigurationsIndexRoute:
+    StaffStaffLayoutConfigurationsIndexRoute,
   StaffStaffLayoutDocumentsIndexRoute: StaffStaffLayoutDocumentsIndexRoute,
   StaffStaffLayoutProjectsIndexRoute: StaffStaffLayoutProjectsIndexRoute,
   StaffStaffLayoutProponentsIndexRoute: StaffStaffLayoutProponentsIndexRoute,

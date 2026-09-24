@@ -60,8 +60,9 @@ export const EligibilityEntryCard = ({ entry }: EligibilityEntryCardProps) => {
           </Box>
           <Divider sx={{ borderColor: BCDesignTokens.themeGray40 }} />
           <Typography variant="body1" px={1.5} py={1.5}>
-            Submit your Initial Project Description &amp; Engagement Plan, and
-            any other additional documents for the {entry.current_phase} Phase.
+            You will be able to submit Managements Plans, Independent
+            Environmental Monitor Terms of Engagement, and certain reports
+            for this Project.
           </Typography>
         </Box>
       </Box>

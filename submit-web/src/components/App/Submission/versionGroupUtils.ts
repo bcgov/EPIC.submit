@@ -1,18 +1,23 @@
-import { PackageStatus, PackageVersion } from "@/models/Package";
+import {
+  NonCanonicalPackageStatus,
+  PackageStatus,
+  PackageVersion,
+} from "@/models/Package";
 
-export const PROPONENT_CREATE_ELIGIBLE_STATUSES: PackageStatus[] = [
-  "APPROVED",
-  "ACCEPTED",
-  "SATISFIED",
-  "REVIEWED",
-];
+// NO_REVISION_REQUIRED is the proponent-facing (non-canonical) mapping of the
+// SATISFIED status (see package_service._map_canonical_statuses), so the entity
+// side must treat it as an eligible terminal success state too.
+export const PROPONENT_CREATE_ELIGIBLE_STATUSES: (
+  | PackageStatus
+  | NonCanonicalPackageStatus
+)[] = ["APPROVED", "ACCEPTED", "SATISFIED", "REVIEWED", "NO_REVISION_REQUIRED"];
 
 /**
  * Determines whether the proponent user can create a new package version.
  * Button is visible only when:
  * 1. User is a proponent (not staff)
  * 2. User is viewing the latest package version
- * 3. Package status includes one of the terminal success states (APPROVED, ACCEPTED, SATISFIED)
+ * 3. Package status includes one of the terminal success states (APPROVED, ACCEPTED, SATISFIED, REVIEWED, NO_REVISION_REQUIRED)
  */
 export function canProponentCreateNewVersion({
   isProponent,
@@ -25,8 +30,8 @@ export function canProponentCreateNewVersion({
 }): boolean {
   if (!isProponent || !isLatestVersion) return false;
   if (!packageStatus) return false;
-  return PROPONENT_CREATE_ELIGIBLE_STATUSES.some((status) =>
-    packageStatus.includes(status),
+  return packageStatus.some((status) =>
+    PROPONENT_CREATE_ELIGIBLE_STATUSES.includes(status),
   );
 }
 
