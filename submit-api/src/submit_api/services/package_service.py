@@ -628,19 +628,25 @@ class PackageService:
 
     @staticmethod
     def _get_items_to_mark_review_not_completed(items):
-        active_review_statuses = (ItemStatus.UNDER_REVIEW, ItemStatus.UNDER_CONSULTATION_CHECK)
-        items_to_update = [i for i in items if i.status in active_review_statuses]
-
-        is_under_consultation_check = any(
-            i.status == ItemStatus.UNDER_CONSULTATION_CHECK for i in items
+        # When a new package version is created, any reviewable section on the original package
+        # that has not reached a terminal review outcome is considered abandoned and must be
+        # flagged REVIEW_NOT_COMPLETED. This covers two cases:
+        #   - the section is actively being reviewed (UNDER_REVIEW / UNDER_CONSULTATION_CHECK), or
+        #   - the section was (re)submitted but review had not started yet (SUBMITTED).
+        # so old submissions no longer linger with a stale "Submitted" badge.
+        open_review_statuses = (
+            ItemStatus.UNDER_REVIEW,
+            ItemStatus.UNDER_CONSULTATION_CHECK,
         )
-        if is_under_consultation_check:
-            items_to_update.extend(
-                i for i in items
-                if i.status == ItemStatus.SUBMITTED and
-                i.type.name == SubmissionItemType.MANAGEMENT_PLAN_FORM.value
-            )
-        return items_to_update
+        reviewable_types = (
+            SubmissionItemType.CONSULTATION_RECORD.value,
+            SubmissionItemType.MANAGEMENT_PLAN_FORM.value,
+        )
+        return [
+            i for i in items
+            if i.status in open_review_statuses
+            or (i.status == ItemStatus.SUBMITTED and i.type.name in reviewable_types)
+        ]
 
     @staticmethod
     def _update_items_status(items, status, session):

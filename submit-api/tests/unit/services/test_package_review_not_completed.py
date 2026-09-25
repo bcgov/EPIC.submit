@@ -32,7 +32,7 @@ class TestGetItemsToMarkReviewNotCompleted:
         assert contact not in result
 
     def test_under_review_includes_active_items_only(self):
-        """Without a CC in progress, only actively-reviewed items are marked."""
+        """Actively-reviewed items are marked, terminal-outcome items are left alone."""
         cr = _item(SubmissionItemType.CONSULTATION_RECORD.value, ItemStatus.PASSED_CONSULTATION_CHECK)
         mp = _item(SubmissionItemType.MANAGEMENT_PLAN_FORM.value, ItemStatus.UNDER_REVIEW)
 
@@ -40,11 +40,45 @@ class TestGetItemsToMarkReviewNotCompleted:
 
         assert result == [mp]
 
-    def test_submitted_management_plan_not_marked_without_consultation_check(self):
-        """A SUBMITTED MP is not marked when the package is not under consultation check."""
+    def test_submitted_reviewable_sections_marked_before_review_starts(self):
+        """SUBMITTED CR and MP are marked even when no review has started yet.
+
+        This is the case where EAO creates a new package before the CC/MP review
+        begins, so the superseded reviewable sections should not keep a stale
+        "Submitted" badge.
+        """
         contact = _item(SubmissionItemType.CONTACT_INFORMATION.value, ItemStatus.SUBMITTED)
+        cr = _item(SubmissionItemType.CONSULTATION_RECORD.value, ItemStatus.SUBMITTED)
         mp = _item(SubmissionItemType.MANAGEMENT_PLAN_FORM.value, ItemStatus.SUBMITTED)
 
-        result = PackageService._get_items_to_mark_review_not_completed([contact, mp])
+        result = PackageService._get_items_to_mark_review_not_completed([contact, cr, mp])
+
+        assert cr in result
+        assert mp in result
+        # Contact information is not a reviewable section - must be left alone.
+        assert contact not in result
+
+    def test_resubmitted_management_plan_marked_before_review_starts(self):
+        """A resubmitted MP (SUBMITTED again) is marked when superseded before review."""
+        mp = _item(SubmissionItemType.MANAGEMENT_PLAN_FORM.value, ItemStatus.SUBMITTED)
+
+        result = PackageService._get_items_to_mark_review_not_completed([mp])
+
+        assert result == [mp]
+
+    def test_contact_information_never_marked(self):
+        """Contact information is never flagged regardless of status."""
+        contact = _item(SubmissionItemType.CONTACT_INFORMATION.value, ItemStatus.SUBMITTED)
+
+        result = PackageService._get_items_to_mark_review_not_completed([contact])
+
+        assert result == []
+
+    def test_terminal_status_items_not_marked(self):
+        """Items already in a terminal review state are not re-flagged."""
+        cr = _item(SubmissionItemType.CONSULTATION_RECORD.value, ItemStatus.APPROVED)
+        mp = _item(SubmissionItemType.MANAGEMENT_PLAN_FORM.value, ItemStatus.REVIEW_REJECTED)
+
+        result = PackageService._get_items_to_mark_review_not_completed([cr, mp])
 
         assert result == []
