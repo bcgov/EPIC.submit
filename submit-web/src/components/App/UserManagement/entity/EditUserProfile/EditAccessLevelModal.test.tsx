@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { EditAccessLevelModal } from "./EditAccessLevelModal";
 import { AccountUserWithRole } from "@/models/AccountUser";
@@ -250,6 +250,77 @@ describe("EditAccessLevelModal", () => {
 
       await waitFor(() => {
         expect(mockUpdateStatus).toHaveBeenCalledWith({ active: false });
+      });
+    });
+  });
+
+  describe("specific submissions picker", () => {
+    const accountPackagesData = [
+      {
+        project_id: "102",
+        packages: [{ id: 3, name: "Shared Plan", original_package_id: 33 }],
+      },
+      {
+        project_id: "101",
+        packages: [{ id: 1, name: "Shared Plan", original_package_id: 11 }],
+      },
+    ];
+
+    const buildContributorUser = (
+      originalPackageIds: number[],
+    ): AccountUserWithRole => ({
+      id: 10,
+      account_id: 1,
+      full_name: "Test User",
+      work_email_address: "test@example.com",
+      status: "ACTIVE",
+      roles: [
+        {
+          account_project_id: 1,
+          account_user_id: 10,
+          package_ids: [],
+          original_package_ids: originalPackageIds,
+          package_names: [],
+          role_id: 1,
+          role_name: USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR,
+          permissions: [],
+        },
+      ],
+      invitation_id: 1,
+      user_id: 100,
+    });
+
+    beforeEach(() => {
+      mockAccountPackages.mockReturnValue(accountPackagesData);
+      mockAccountProjects.mockReturnValue(accountProjectsData);
+    });
+
+    it("renders submission options as 'Project: Submission Name' sorted by project", async () => {
+      render(<EditAccessLevelModal userData={buildContributorUser([])} />);
+
+      const combobox = screen.getByRole("combobox");
+      combobox.focus();
+      await userEvent.keyboard("{ArrowDown}");
+
+      const listbox = await screen.findByRole("listbox");
+      const optionLabels = within(listbox)
+        .getAllByRole("option")
+        .map((o) => o.textContent);
+
+      expect(optionLabels).toEqual([
+        "Project Alpha: Shared Plan",
+        "Project Beta: Shared Plan",
+      ]);
+    });
+
+    it("renders a pre-selected submission chip in 'Project: Submission Name' format", async () => {
+      // original_package_id 11 belongs to project 101 (Project Alpha).
+      render(<EditAccessLevelModal userData={buildContributorUser([11])} />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("Project Alpha: Shared Plan"),
+        ).toBeInTheDocument();
       });
     });
   });

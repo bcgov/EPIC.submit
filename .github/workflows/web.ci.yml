@@ -4,11 +4,13 @@ on:
   pull_request:
     branches:
       - develop
+      - "release**"
     paths:
       - "submit-web/**"
   push:
     branches:
       - develop
+      - "release**"
   workflow_dispatch:
     inputs:
       environment:
