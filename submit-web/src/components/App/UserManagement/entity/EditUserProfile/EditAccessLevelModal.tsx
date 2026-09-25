@@ -62,7 +62,8 @@ const editAccessSchema = yup.object().shape({
     .of(yup.string())
     .when("role_name", {
       is: (value: string) =>
-        value === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN,
+        value === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN ||
+        value === USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
       then: (schema) => schema.min(1, "Please select at least one project."),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -200,7 +201,8 @@ export function EditAccessLevelModal({
     if (
       effectiveRole.project_ids.length > 0 &&
       accountProjects &&
-      selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN
+      (selectedRole === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN ||
+        selectedRole === USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN)
     ) {
       const matchingProjectIds = accountProjects
         .filter((ap) => effectiveRole.project_ids.includes(ap.id))
@@ -245,11 +247,13 @@ export function EditAccessLevelModal({
     let projectIds: number[];
 
     if (
-      formData.role_name === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN &&
+      (formData.role_name === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN ||
+        formData.role_name === USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN) &&
       formData.project_ids &&
       formData.project_ids.length > 0
     ) {
-      // Specific project admin: use selected account_project_ids from dropdown
+      // Specific project admin & Collaborator - All Submissions in Project(s):
+      // use selected account_project_ids from dropdown
       projectIds = formData.project_ids.map(Number);
     } else if (
       roleName === USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR
@@ -364,11 +368,12 @@ export function EditAccessLevelModal({
                     <When
                       condition={
                         selectedRole ===
-                        USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN
+                          USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN ||
+                        selectedRole === USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN
                       }
                     >
                       <Typography sx={{ fontWeight: 700 }}>
-                        Which Project(s) would you like to assign this user
+                        Which project(s) would you like to assign this user
                         to?
                       </Typography>
                       <ControlledMultiSelect

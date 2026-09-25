@@ -413,3 +413,86 @@ def test_renew_invitation_not_found(client, session, jwt):
     response = client.patch("/api/invitations/id/99999/renew", headers=headers)
 
     assert response.status_code == HTTPStatus.NOT_FOUND
+
+
+def test_create_submission_admin_invitation_scoped_to_selected_project(client, session, jwt):
+    """Collaborator - All Submissions invitation is scoped to only the selected project."""
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+
+    account = factory_account_model(proponent_id=1234)
+    project1 = factory_project_model(name="Project 1", proponent_id=1234)
+    project2 = factory_project_model(name="Project 2", proponent_id=1234)
+    account_project1 = factory_account_project_model(account_id=account.id, project_id=project1.id)
+    factory_account_project_model(account_id=account.id, project_id=project2.id)
+
+    # Adding user selects ONLY project 1 for the collaborator.
+    payload = {
+        "proponent_id": 1234,
+        "account_id": account.id,
+        "account_project_ids": [account_project1.id],
+        "role_name": RoleEnum.SUBMISSION_ADMIN.value,
+        "email": fake.email(),
+    }
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.post("/api/invitations", json=payload, headers=headers)
+
+    assert response.status_code == HTTPStatus.CREATED
+    data = response.get_json()
+    # Only project 1 is scoped; project 2 must NOT be included.
+    assert data["project_ids"] == [project1.id]
+    assert project2.id not in data["project_ids"]
+
+    # The persisted invitation carries the SUBMISSION_ADMIN role and the
+    # single selected project only.
+    from submit_api.models.invitations import Invitations as InvitationsModel
+    invitation = InvitationsModel.find_by_id(data["id"])
+    assert invitation.role.role_name == RoleEnum.SUBMISSION_ADMIN.value
+    assert invitation.project_ids == [project1.id]
+
+
+def test_create_submission_admin_invitation_scoped_to_multiple_selected_projects(client, session, jwt):
+    """Collaborator - All Submissions invitation can span several selected projects."""
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+
+    account = factory_account_model(proponent_id=2234)
+    project1 = factory_project_model(name="Alpha", proponent_id=2234)
+    project2 = factory_project_model(name="Beta", proponent_id=2234)
+    project3 = factory_project_model(name="Gamma", proponent_id=2234)
+    account_project1 = factory_account_project_model(account_id=account.id, project_id=project1.id)
+    account_project2 = factory_account_project_model(account_id=account.id, project_id=project2.id)
+    factory_account_project_model(account_id=account.id, project_id=project3.id)
+
+    # Select projects 1 and 2, but not 3.
+    payload = {
+        "proponent_id": 2234,
+        "account_id": account.id,
+        "account_project_ids": [account_project1.id, account_project2.id],
+        "role_name": RoleEnum.SUBMISSION_ADMIN.value,
+        "email": fake.email(),
+    }
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.post("/api/invitations", json=payload, headers=headers)
+
+    assert response.status_code == HTTPStatus.CREATED
+    data = response.get_json()
+    assert sorted(data["project_ids"]) == sorted([project1.id, project2.id])
+    assert project3.id not in data["project_ids"]
+
+
+def test_create_submission_admin_invitation_unauthorized(client, session):
+    """Creating a Collaborator - All Submissions invitation without auth returns 401."""
+    payload = {
+        "proponent_id": 1234,
+        "account_id": 1,
+        "account_project_ids": [1],
+        "role_name": RoleEnum.SUBMISSION_ADMIN.value,
+        "email": fake.email(),
+    }
+
+    response = client.post("/api/invitations", json=payload)
+
+    assert response.status_code == HTTPStatus.UNAUTHORIZED
