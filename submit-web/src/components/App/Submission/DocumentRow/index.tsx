@@ -110,6 +110,7 @@ export default function DocumentRow({
 
   const showVerifyButton =
     staff &&
+    !isEAChecklist &&
     (submissionPackage?.account_project_work || isAdditionalInfo) &&
     (documentSubmission.status === SUBMISSION_STATUS.SUBMITTED ||
       (documentSubmission.status === SUBMISSION_STATUS.PENDING && isNewVersion));

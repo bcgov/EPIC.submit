@@ -35,6 +35,7 @@ import UserManagementModal from "./UserManagementModal";
 import { useQuery } from "@tanstack/react-query";
 import NewUserFormSkeleton from "./NewUserFormSkeleton";
 import { isAxiosError } from "axios";
+import { buildSubmissionPackageOptions } from "@/components/App/UserManagement/entity/submissionPackageOptions";
 
 const newUser = yup.object().shape({
   email: yup.string().email().required("Please enter a valid email address."),
@@ -207,14 +208,8 @@ export default function NewUserForm() {
   };
 
   const accountPackageOptions: OptionType[] = useMemo(
-    () =>
-      accountPackages?.flatMap((accountProject) =>
-        Object.values(accountProject.packages).map((pkg) => ({
-          value: String(pkg.original_package_id),
-          label: pkg.name,
-        })),
-      ) || [],
-    [accountPackages],
+    () => buildSubmissionPackageOptions(accountPackages, accountProjects),
+    [accountPackages, accountProjects],
   );
 
   const accountProjectOptions: OptionType[] = useMemo(

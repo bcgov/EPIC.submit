@@ -4,8 +4,12 @@ on:
   pull_request:
     branches:
       - develop
+      - "release**"
     paths:
       - "submit-api/**"
+  push:
+    branches:
+      - "release**"
 
 defaults:
   run:

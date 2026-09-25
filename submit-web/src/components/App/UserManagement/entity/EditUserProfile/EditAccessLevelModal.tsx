@@ -42,6 +42,7 @@ import { useAccount } from "@/store/accountStore";
 import { useUserStore } from "@/components/App/UserManagement/entity/userStore";
 import { UserPackageStatus } from "@/components/App/UserStatusChip";
 import Form from "@/components/Shared/Forms/common";
+import { buildSubmissionPackageOptions } from "@/components/App/UserManagement/entity/submissionPackageOptions";
 
 const REVOKE_VALUE = "REVOKE";
 
@@ -166,14 +167,8 @@ export function EditAccessLevelModal({
   const selectedRole = watch("role_name");
 
   const accountPackageOptions: OptionType[] = useMemo(
-    () =>
-      accountPackages?.flatMap((accountProject) =>
-        Object.values(accountProject.packages).map((pkg) => ({
-          value: String(pkg.original_package_id),
-          label: pkg.name,
-        })),
-      ) || [],
-    [accountPackages],
+    () => buildSubmissionPackageOptions(accountPackages, accountProjects),
+    [accountPackages, accountProjects],
   );
 
   const accountProjectOptions: OptionType[] = useMemo(
