@@ -126,7 +126,7 @@ describe("EditAccessLevelModal", () => {
 
     // When the role is PROJECT_ADMIN (all), the dropdown should not be visible
     // and projects should not be rendered as chips
-    expect(screen.queryByText("Which Project(s) would you like to assign this user to?")).not.toBeInTheDocument();
+    expect(screen.queryByText("Which project(s) would you like to assign this user to?")).not.toBeInTheDocument();
   });
 
   it("does not disable other role options when Revoke Access is selected", async () => {
@@ -250,6 +250,58 @@ describe("EditAccessLevelModal", () => {
 
       await waitFor(() => {
         expect(mockUpdateStatus).toHaveBeenCalledWith({ active: false });
+      });
+    });
+  });
+
+  describe("Collaborator - All Submissions in Project(s) (SUBMISSION_ADMIN)", () => {
+    it("reveals the project selector when SUBMISSION_ADMIN is the effective role", () => {
+      // SUBMISSION_ADMIN scoped to projects 1 and 3
+      const userData = buildUserData(USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN, [1, 3]);
+
+      render(<EditAccessLevelModal userData={userData} />);
+
+      expect(
+        screen.getByText(
+          "Which project(s) would you like to assign this user to?",
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it("prepopulates project_ids from the collaborator's current projects", async () => {
+      const userData = buildUserData(USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN, [1, 3]);
+
+      render(<EditAccessLevelModal userData={userData} />);
+
+      // Selected projects render as chips
+      await waitFor(() => {
+        expect(screen.getByText("Project Alpha")).toBeInTheDocument();
+      });
+      expect(screen.getByText("Project Gamma")).toBeInTheDocument();
+      // Unselected project must not be preselected
+      expect(screen.queryByText("Project Beta")).not.toBeInTheDocument();
+    });
+
+    it("sends only the selected account_project_ids on save (not all projects)", async () => {
+      const userData = buildUserData(USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN, [1, 3]);
+
+      render(<EditAccessLevelModal userData={userData} />);
+
+      // Wait for prefill so the form holds projects 1 and 3
+      await waitFor(() => {
+        expect(screen.getByText("Project Alpha")).toBeInTheDocument();
+      });
+
+      const saveButton = screen.getByRole("button", { name: /save/i });
+      await userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockUpdateRole).toHaveBeenCalledWith(
+          expect.objectContaining({
+            role_name: USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
+            account_project_ids: [1, 3],
+          }),
+        );
       });
     });
   });

@@ -121,3 +121,98 @@ class TestAcceptInvitationDuplicateUser:
                 assert "user_id" in result
                 assert result["user_id"] == 99
                 mock_create_user.assert_called_once()
+
+
+class TestAcceptInvitationSubmissionAdminScoping:
+    """Collaborator - All Submissions in Project(s) is scoped per selected project."""
+
+    @pytest.fixture()
+    def valid_payload(self):
+        """Return a valid payload for accept_invitation."""
+        return {
+            "auth_guid": "new-collab-guid",
+            "first_name": "Casey",
+            "last_name": "Collab",
+            "position": "Analyst",
+            "work_email_address": "casey@example.com",
+            "work_contact_number": "5551234567",
+            "company_name": "Test Corp",
+            "has_agreed_to_terms": True,
+            "terms_of_service_version_id": 1,
+        }
+
+    @pytest.fixture()
+    def submission_admin_invitation(self):
+        """Return a mock SUBMISSION_ADMIN invitation scoped to two projects."""
+        invitation = MagicMock()
+        invitation.account_id = 1
+        invitation.role_id = 3
+        invitation.project_ids = [101, 102]
+        invitation.eligible_entries = None
+        invitation.package_ids = []
+        invitation.original_package_ids = None
+        return invitation
+
+    @patch("submit_api.services.invitation_service.TermsOfServiceModel")
+    @patch("submit_api.services.invitation_service.InvitationsModel")
+    @patch("submit_api.services.invitation_service.User")
+    def test_creates_one_role_per_selected_project(
+        self, mock_user_class, mock_invitations_model, mock_terms_model,
+        valid_payload, submission_admin_invitation
+    ):
+        """A role is assigned for every selected project and none for others."""
+        mock_invitations_model.validate_token.return_value = submission_admin_invitation
+        mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
+        mock_user_class.get_by_guid.return_value = None
+
+        with patch("submit_api.services.invitation_service.session_scope") as mock_scope:
+            mock_session = MagicMock()
+            mock_scope.return_value.__enter__ = MagicMock(return_value=mock_session)
+            mock_scope.return_value.__exit__ = MagicMock(return_value=False)
+
+            with patch.object(InvitationService, "_create_user") as mock_create_user, \
+                 patch.object(InvitationService, "_create_account_user") as mock_create_account_user, \
+                 patch.object(InvitationService, "get_or_create_account_projects"), \
+                 patch("submit_api.services.invitation_service.AccountProjectModel") as mock_ap_model, \
+                 patch.object(InvitationService, "_assign_user_role") as mock_assign_role, \
+                 patch.object(InvitationService, "_process_eligible_entries") as mock_process, \
+                 patch.object(InvitationService, "_create_default_package_if_needed"), \
+                 patch.object(InvitationService, "_update_proponent_status_by_account"):
+
+                mock_user = MagicMock()
+                mock_user.id = 99
+                mock_create_user.return_value = mock_user
+
+                mock_account_user = MagicMock()
+                mock_account_user.user_id = 99
+                mock_account_user.id = 10
+                mock_create_account_user.return_value = mock_account_user
+
+                # Two account projects for the two selected project ids.
+                ap1 = MagicMock()
+                ap1.id = 1
+                ap1.project_id = 101
+                ap2 = MagicMock()
+                ap2.id = 2
+                ap2.project_id = 102
+                mock_ap_model.get_all_in_project_ids.return_value = [ap1, ap2]
+
+                mock_assign_role.return_value = {
+                    "role_id": 3,
+                    "role_name": "SUBMISSION_ADMIN",
+                    "permissions": [],
+                    "account_project_id": 1,
+                    "package_ids": [],
+                    "original_package_ids": None,
+                }
+                mock_process.return_value = []
+
+                result = InvitationService.accept_invitation("token", valid_payload)
+
+                # One role assignment per selected project (2), and only for those.
+                assert mock_assign_role.call_count == 2
+                assigned_account_project_ids = sorted(
+                    call.args[1] for call in mock_assign_role.call_args_list
+                )
+                assert assigned_account_project_ids == [1, 2]
+                assert len(result["roles"]) == 2

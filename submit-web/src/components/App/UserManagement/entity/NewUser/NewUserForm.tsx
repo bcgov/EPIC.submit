@@ -53,7 +53,8 @@ const newUser = yup.object().shape({
     .of(yup.string()) // Ensures project IDs are strings
     .when("role_name", {
       is: (value: string) =>
-        value === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN,
+        value === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN ||
+        value === USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN,
       then: (schema) => schema.min(1, "Please select at least one project."),
       otherwise: (schema) => schema.notRequired(),
     }),
@@ -179,13 +180,17 @@ export default function NewUserForm() {
         : role_name;
 
     // Determine project_ids based on role:
-    // - SPECIFIC_PROJECT_ADMIN: use user-selected project_ids
-    // - All other admin/collaborator roles: all available projects
+    // - SPECIFIC_PROJECT_ADMIN and SUBMISSION_ADMIN (Collaborator - All Submissions
+    //   in Project(s)): use the user-selected subset of projects
+    // - All other admin roles: all available projects
     let effective_project_ids: number[] | undefined;
-    if (role_name === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN) {
+    if (
+      role_name === USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN ||
+      role_name === USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN
+    ) {
       effective_project_ids = project_ids?.map(Number);
     } else {
-      // For Account Admin, Project Admin (all), Collaborators: all projects in account
+      // For Account Admin, Project Admin (all): all projects in account
       effective_project_ids = accountProjects?.map((ap) => ap.project_id);
     }
 
@@ -337,11 +342,13 @@ export default function NewUserForm() {
                       <When
                         condition={
                           selectedRole ===
-                          USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN
+                            USER_MANAGEMENT_ROLE.SPECIFIC_PROJECT_ADMIN ||
+                          selectedRole ===
+                            USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN
                         }
                       >
                         <Typography sx={{ fontWeight: 700 }}>
-                          Which Project(s) would you like to assign this user
+                          Which project(s) would you like to assign this user
                           to?
                         </Typography>
                         <ControlledMultiSelect
