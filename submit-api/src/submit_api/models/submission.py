@@ -43,15 +43,12 @@ ALLOWED_TRANSITIONS: dict[PackageApprovalType, dict[SubmissionStatus, set[Submis
         SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED},
     },
     PackageApprovalType.B: {
-        SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED},
-        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED, SubmissionStatus.ACKNOWLEDGED},
-        SubmissionStatus.ACKNOWLEDGED: {SubmissionStatus.VERIFIED},
+        SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED},
+        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED},
     },
     PackageApprovalType.C: {
-        SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED},
-        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED, SubmissionStatus.ACKNOWLEDGED},
-        SubmissionStatus.ACKNOWLEDGED: {SubmissionStatus.VERIFIED, SubmissionStatus.APPROVED},
-        SubmissionStatus.APPROVED: {SubmissionStatus.ACKNOWLEDGED},
+        SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED},
+        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED},
     },
 }
 

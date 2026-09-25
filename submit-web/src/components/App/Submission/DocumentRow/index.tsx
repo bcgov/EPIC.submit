@@ -1,4 +1,4 @@
-import { Box, IconButton, TableRow, Typography, Tooltip } from "@mui/material";
+import { Box, Button, IconButton, TableRow, Typography, Tooltip } from "@mui/material";
 import { Submission, SUBMISSION_STATUS } from "@/models/Submission";
 import { SubmissionItem, SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import {
@@ -10,8 +10,6 @@ import SubmissionItemReviewConfirmation from "@/components/App/Submission/Submis
 import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CheckIcon from "@mui/icons-material/Check";
-import DoneAllIcon from "@mui/icons-material/DoneAll";
-import UndoIcon from "@mui/icons-material/Undo";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { ActionButton } from "./ActionButton";
@@ -19,9 +17,6 @@ import PermissionsGate from "@/components/Shared/PermissionGate";
 import { SubmissionPackage, PackageType } from "@/models/Package";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 import { GeoApprovedBadge } from "@/components/Shared/GeoApprovedBadge";
-import ActionSplitButton, {
-  SplitButtonAction,
-} from "@/components/Shared/ActionSplitButton/ActionSplitButton";
 import { BCDesignTokens } from "epic.theme";
 import { useDocumentRow } from "@/hooks/useDocumentRow";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
@@ -103,12 +98,9 @@ export default function DocumentRow({
     isAdditionalInfo,
     isNewVersion,
     showUndoVerificationButton,
-    showUndoAcknowledgementButton,
     showDefaultActionButton,
     handleVerify,
-    handleAcknowledge,
     handleUndoVerification,
-    handleUndoAcknowledge,
     openDocument,
   } = useDocumentRow({
     documentSubmission,
@@ -116,73 +108,12 @@ export default function DocumentRow({
     packageType,
   });
 
-  const getVerifyModeSplitButton = (): {
-    primary: SplitButtonAction;
-    secondary: SplitButtonAction[];
-  } | null => {
-    const status = documentSubmission.status;
-    const smallIcon = { width: 16, height: 16 };
-
-    if (
-      status === SUBMISSION_STATUS.SUBMITTED ||
-      (status === SUBMISSION_STATUS.PENDING && isNewVersion)
-    ) {
-      const secondary: SplitButtonAction[] = [];
-      if (!isAdditionalInfo) {
-        secondary.push({
-          label: "Verify & Acknowledge",
-          icon: (
-            <DoneAllIcon
-              fontSize="small"
-              sx={{ color: BCDesignTokens.themeGray70 }}
-            />
-          ),
-          onClick: handleAcknowledge,
-        });
-      }
-
-      return {
-        primary: {
-          label: "Verify",
-          icon: <CheckIcon sx={smallIcon} />,
-          onClick: handleVerify,
-        },
-        secondary: isAdditionalInfo ? [] : secondary,
-      };
-    }
-
-    if (status === SUBMISSION_STATUS.VERIFIED) {
-      if (isAdditionalInfo) return null;
-      return {
-        primary: {
-          label: "Acknowledge",
-          icon: <CheckIcon sx={smallIcon} />,
-          onClick: handleAcknowledge,
-        },
-        secondary: isAdditionalInfo
-          ? [] // Link will be shown next to it instead of dropdown
-          : [
-            {
-              label: "Undo Verification",
-              icon: (
-                <UndoIcon
-                  fontSize="small"
-                  sx={{ color: BCDesignTokens.themeGray70 }}
-                />
-              ),
-              onClick: handleUndoVerification,
-            },
-          ],
-      };
-    }
-
-    return null;
-  };
-
-  const splitButtonConfig =
-    staff && (submissionPackage?.account_project_work || isAdditionalInfo)
-      ? getVerifyModeSplitButton()
-      : null;
+  const showVerifyButton =
+    staff &&
+    !isEAChecklist &&
+    (submissionPackage?.account_project_work || isAdditionalInfo) &&
+    (documentSubmission.status === SUBMISSION_STATUS.SUBMITTED ||
+      (documentSubmission.status === SUBMISSION_STATUS.PENDING && isNewVersion));
 
   return (
     <>
@@ -286,7 +217,7 @@ export default function DocumentRow({
                 </IconButton>
               </Tooltip>
             )}
-            {showUndoVerificationButton && (
+            {staff && showUndoVerificationButton && (
               isGISDocument && !hasGISPermissions ? (
                 <Tooltip title="Your current role does not allow you to perform this action">
                   <Typography
@@ -316,59 +247,32 @@ export default function DocumentRow({
                 </PermissionsGate>
               )
             )}
-            {showUndoAcknowledgementButton && (
-              isGISDocument && !hasGISPermissions ? (
-                <Tooltip title="Your current role does not allow you to perform this action">
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      cursor: "not-allowed",
-                      color: BCDesignTokens.typographyColorPlaceholder,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Undo Acknowledgement
-                  </Typography>
-                </Tooltip>
-              ) : (
-                <PermissionsGate scopes={[packageRoles.edit]}>
-                  <Typography
-                    variant="body2"
-                    onClick={handleUndoAcknowledge}
-                    sx={{
-                      cursor: "pointer",
-                      color: BCDesignTokens.typographyColorLink,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Undo Acknowledgement
-                  </Typography>
-                </PermissionsGate>
-              )
-            )}
-            {splitButtonConfig && !isEAChecklist ? (
+            {showVerifyButton ? (
               isGISDocument && !hasGISPermissions ? (
                 <Tooltip title="Your current role does not allow you to perform this action">
                   <Box>
-                    <ActionSplitButton
-                      primaryAction={{
-                        ...splitButtonConfig.primary,
-                        onClick: () => { } // Disabled click
-                      }}
-                      secondaryActions={splitButtonConfig.secondary.map(action => ({
-                        ...action,
-                        onClick: () => { } // Disabled click
-                      }))}
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      size="small"
+                      startIcon={<CheckIcon fontSize="small" />}
                       disabled
-                    />
+                    >
+                      Verify
+                    </Button>
                   </Box>
                 </Tooltip>
               ) : (
                 <PermissionsGate scopes={[packageRoles.edit]}>
-                  <ActionSplitButton
-                    primaryAction={splitButtonConfig.primary}
-                    secondaryActions={splitButtonConfig.secondary}
-                  />
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    size="small"
+                    startIcon={<CheckIcon fontSize="small" />}
+                    onClick={handleVerify}
+                  >
+                    Verify
+                  </Button>
                 </PermissionsGate>
               )
             ) : showDefaultActionButton ? (

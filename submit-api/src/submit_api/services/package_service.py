@@ -61,8 +61,7 @@ CANONICAL_STATUS_ORDER = (
     'UNDER_CONSULTATION_CHECK', 'PASSED_CONSULTATION_CHECK',
     'UNDER_REVIEW', 'AWAITING_MANAGER_APPROVAL',
     # Acknowledgement stream
-    'INTERNAL_VERIFICATION', 'PENDING_ACKNOWLEDGEMENT',
-    'READY_FOR_ACKNOWLEDGEMENT', 'READY_FOR_APPROVAL',
+    'INTERNAL_VERIFICATION', 'PENDING_ACKNOWLEDGEMENT', 'READY_FOR_APPROVAL',
     # Overlays (always last)
     'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
 )
@@ -104,10 +103,6 @@ class PackageService:
             PackageStatus.PENDING_ACKNOWLEDGEMENT.value: {
                 UserType.PROPONENT: PackageStatus.SUBMITTED.value,
                 UserType.STAFF: PackageStatus.PENDING_ACKNOWLEDGEMENT.value
-            },
-            PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value: {
-                UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-                UserType.STAFF: PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value
             },
             PackageStatus.ACKNOWLEDGED.value: {
                 UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
@@ -1159,14 +1154,13 @@ class PackageService:
 
         # Check if package is in a withdrawable status
         # Proponents see SUBMITTED for: SUBMITTED, INTERNAL_VERIFICATION, VERIFIED,
-        # PENDING_ACKNOWLEDGEMENT, READY_FOR_ACKNOWLEDGEMENT
+        # PENDING_ACKNOWLEDGEMENT
         # Proponents see ACKNOWLEDGED for: ACKNOWLEDGED, READY_FOR_APPROVAL
         withdrawable_statuses = [
             PackageStatus.SUBMITTED,
             PackageStatus.INTERNAL_VERIFICATION,
             PackageStatus.VERIFIED,
             PackageStatus.PENDING_ACKNOWLEDGEMENT,
-            PackageStatus.READY_FOR_ACKNOWLEDGEMENT,
             PackageStatus.ACKNOWLEDGED,
             PackageStatus.READY_FOR_APPROVAL
         ]
