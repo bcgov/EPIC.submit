@@ -77,6 +77,7 @@ export default function SubmissionPage() {
   const { bannerType, hasBanner } = useStaffEnforceableBanner({
     packageVersions,
     currentPackageVersion,
+    submissionPackage
   });
 
   const {
