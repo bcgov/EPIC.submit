@@ -1,11 +1,12 @@
 import { useMemo } from "react";
-import { PackageVersion } from "@/models/Package";
+import { PackageVersion, SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 
 export type EnforceableBannerType = "enforceable" | "not-enforceable" | "none";
 
 type EnforceableBannerParams = {
   packageVersions?: PackageVersion[];
   currentPackageVersion?: PackageVersion;
+  submissionPackage?: SubmissionPackage;
 };
 
 type EnforceableBannerResult = {
@@ -118,6 +119,7 @@ export const useEnforceableBanner = ({
 export const useStaffEnforceableBanner = ({
   packageVersions,
   currentPackageVersion,
+  submissionPackage
 }: EnforceableBannerParams): EnforceableBannerResult => {
   return useMemo(() => {
     let bannerType = getBaseBannerType({
@@ -130,6 +132,10 @@ export const useStaffEnforceableBanner = ({
       bannerType = "none";
     }
 
+    if (submissionPackage?.type.name === SubmissionPackageType.IPD){
+      bannerType = "none";
+    }
+
     return { bannerType, hasBanner: bannerType !== "none" };
-  }, [packageVersions, currentPackageVersion]);
+  }, [packageVersions, currentPackageVersion, submissionPackage]);
 };
