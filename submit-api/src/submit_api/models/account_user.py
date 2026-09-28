@@ -50,6 +50,7 @@ class AccountUser(BaseModel):
     terms_of_service_version_id = Column(db.Integer, db.ForeignKey('account_terms_of_service.version'), nullable=True)
     terms_of_service_accepted_date = db.Column(db.DateTime, default=datetime.now(UTC), nullable=True)
     company_name = Column(db.String(255), nullable=True)
+    last_login_at = Column(db.DateTime, nullable=True)
 
     terms_of_service = db.relationship(
         'TermsOfService',
@@ -77,8 +78,14 @@ class AccountUser(BaseModel):
             "user_id": self.user_id,
             "extension_number": self.extension_number,
             "company_name": self.company_name,
+            "last_login_at": self.last_login_at.isoformat() if self.last_login_at else None,
             "roles": [role.to_dict() for role in self.roles],
         }
+
+    def touch_last_login(self, session=None):
+        """Stamp the current UTC time as this proponent's last login and persist."""
+        self.last_login_at = datetime.now(UTC)
+        return self.persist(session)
 
     @classmethod
     def create_account_user(cls, data, session=None) -> AccountUser:

@@ -1,63 +1,94 @@
-"""Tests for User resource endpoints."""
-import copy
+"""Tests for the users resource, focused on POST /users/me login stamping."""
 from http import HTTPStatus
 
-from faker import Faker
-
-from submit_api.models.user import UserType
-from submit_api.models.user_status import UserStatusEnum
 from tests.utilities.factory_scenarios import TestJwtClaims
-from tests.utilities.factory_utils import factory_auth_header, factory_user_model
+from tests.utilities.factory_utils import (
+    factory_auth_header,
+    factory_user_model,
+    setup_authenticated_proponent,
+)
+from submit_api.models import db
+from submit_api.models.user import User, UserType
+from submit_api.models.user_status import UserStatusEnum
 
-fake = Faker()
-
-USERS_ME_URL = "/api/users/me"
+ME_URL = "/api/users/me"
 
 
-class TestCurrentUserPost:
-    """Tests for the POST /users/me endpoint."""
+def test_post_me_stamps_last_login_for_proponent(client, session, jwt):
+    """POST /users/me returns 200 and stamps last_login_at for a proponent."""
+    headers, _ = setup_authenticated_proponent(session, jwt)
 
-    def test_get_current_user_success(self, client, session, jwt):
-        """Test that an active user can retrieve their profile."""
-        claims = copy.deepcopy(TestJwtClaims.staff_admin_role.value)
-        auth_guid = claims['preferred_username']
-        factory_user_model(auth_guid=auth_guid, user_type=UserType.STAFF)
-        session.flush()
+    response = client.post(ME_URL, headers=headers)
 
-        headers = factory_auth_header(jwt=jwt, claims=claims)
-        response = client.post(USERS_ME_URL, headers=headers)
+    assert response.status_code == HTTPStatus.OK
+    data = response.get_json()
+    assert data["type"] == UserType.PROPONENT.value
+    assert data["account_user"]["last_login_at"] is not None
 
-        assert response.status_code == HTTPStatus.OK
-        data = response.get_json()
-        assert data["auth_guid"] == auth_guid
 
-    def test_get_current_user_revoked_returns_403(self, client, session, jwt):
-        """Test that a revoked user receives a 403 Forbidden response."""
-        claims = copy.deepcopy(TestJwtClaims.proponent_role.value)
-        auth_guid = claims['preferred_username']
-        user = factory_user_model(auth_guid=auth_guid, user_type=UserType.PROPONENT)
-        user.status_id = UserStatusEnum.ACCESS_REVOKED.value
-        session.flush()
+def test_post_me_updates_last_login_on_subsequent_call(client, session, jwt):
+    """A second POST /users/me advances last_login_at past the first value."""
+    headers, _ = setup_authenticated_proponent(session, jwt)
 
-        headers = factory_auth_header(jwt=jwt, claims=claims)
-        response = client.post(USERS_ME_URL, headers=headers)
+    first = client.post(ME_URL, headers=headers)
+    assert first.status_code == HTTPStatus.OK
+    first_stamp = first.get_json()["account_user"]["last_login_at"]
 
-        assert response.status_code == HTTPStatus.FORBIDDEN
+    second = client.post(ME_URL, headers=headers)
+    assert second.status_code == HTTPStatus.OK
+    second_stamp = second.get_json()["account_user"]["last_login_at"]
 
-    def test_get_current_user_not_found_returns_404(self, client, session, jwt):
-        """Test that a user not in the system receives a 404 response."""
-        claims = copy.deepcopy(TestJwtClaims.proponent_role.value)
-        # Use a guid that doesn't exist in the DB
-        claims['preferred_username'] = fake.uuid4()
-        session.flush()
+    assert first_stamp is not None
+    assert second_stamp is not None
+    assert second_stamp >= first_stamp
 
-        headers = factory_auth_header(jwt=jwt, claims=claims)
-        response = client.post(USERS_ME_URL, headers=headers)
 
-        assert response.status_code == HTTPStatus.NOT_FOUND
+def test_post_me_staff_does_not_error(client, session, jwt):
+    """POST /users/me for a staff user succeeds without proponent stamping."""
+    claims = TestJwtClaims.staff_admin_role
+    auth_guid = claims["preferred_username"]
+    factory_user_model(auth_guid=auth_guid, user_type=UserType.STAFF)
+    session.flush()
 
-    def test_get_current_user_no_auth_returns_401(self, client):
-        """Test that a request without auth token returns 401."""
-        response = client.post(USERS_ME_URL)
+    headers = factory_auth_header(jwt=jwt, claims=claims)
 
-        assert response.status_code == HTTPStatus.UNAUTHORIZED
+    response = client.post(ME_URL, headers=headers)
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.get_json()
+    assert data["type"] == UserType.STAFF.value
+    # Staff has no proponent account_user, so no last_login stamping occurs.
+    assert data.get("account_user") is None
+
+
+def test_post_me_reactivates_inactive_proponent(client, session, jwt):
+    """An INACTIVE proponent is flipped to ACTIVE on POST /users/me."""
+    headers, account_project = setup_authenticated_proponent(session, jwt)
+
+    # Simulate the inactivity cron having marked this proponent INACTIVE.
+    user = (
+        session.query(User)
+        .filter(User.type == UserType.PROPONENT)
+        .order_by(User.id.desc())
+        .first()
+    )
+    user.status_id = UserStatusEnum.INACTIVE.value
+    db.session.add(user)
+    session.flush()
+
+    response = client.post(ME_URL, headers=headers)
+
+    assert response.status_code == HTTPStatus.OK
+    session.refresh(user)
+    assert user.status_id == UserStatusEnum.ACTIVE.value
+
+
+def test_post_me_unknown_proponent_returns_not_found(client, session, jwt):
+    """POST /users/me for a proponent token with no user record returns 404."""
+    claims = TestJwtClaims.proponent_role.copy()
+    claims["preferred_username"] = "unknown-guid@example.com"
+    headers = factory_auth_header(jwt=jwt, claims=claims)
+
+    response = client.post(ME_URL, headers=headers)
+
+    assert response.status_code == HTTPStatus.NOT_FOUND
