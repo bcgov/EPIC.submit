@@ -37,7 +37,7 @@ describe("UserRoleOptions", () => {
       screen.getByLabelText("Project Administrator - Specific Project(s)"),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText("Collaborator - All Submissions"),
+      screen.getByLabelText("Collaborator - All Submissions in Project(s)"),
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText("Collaborator - Specific Submissions"),
@@ -64,7 +64,7 @@ describe("UserRoleOptions", () => {
       screen.getByLabelText("Project Administrator - Specific Project(s)"),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText("Collaborator - All Submissions"),
+      screen.getByLabelText("Collaborator - All Submissions in Project(s)"),
     ).toBeInTheDocument();
     expect(
       screen.getByLabelText("Collaborator - Specific Submissions"),
@@ -86,7 +86,7 @@ describe("UserRoleOptions", () => {
       screen.queryByLabelText("Regulated Party Account Administrator"),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByLabelText("Collaborator - All Submissions"),
+      screen.queryByLabelText("Collaborator - All Submissions in Project(s)"),
     ).not.toBeInTheDocument();
 
     // Remaining options are still shown
@@ -96,5 +96,29 @@ describe("UserRoleOptions", () => {
     expect(
       screen.getByLabelText("Collaborator - Specific Submissions"),
     ).toBeInTheDocument();
+  });
+
+  it("renders selectionsNode under the selected Collaborator - All Submissions in Project(s) role", () => {
+    render(
+      <UserRoleOptions
+        error={false}
+        selectedRole={USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN}
+        selectionsNode={<div data-testid="project-selector" />}
+      />,
+    );
+
+    expect(screen.getByTestId("project-selector")).toBeInTheDocument();
+  });
+
+  it("does not render selectionsNode when no role is selected", () => {
+    render(
+      <UserRoleOptions
+        error={false}
+        selectedRole={""}
+        selectionsNode={<div data-testid="project-selector" />}
+      />,
+    );
+
+    expect(screen.queryByTestId("project-selector")).not.toBeInTheDocument();
   });
 });

@@ -31,10 +31,13 @@ export const UserRoleOptions = ({
   const roleDetailOptions = useMemo<
     Record<string, { label: string; info: string }>
   >(() => {
-    let options = { ...roleDetails };
+    // Clone each entry so we never mutate the shared roleDetails constant.
+    let options = Object.fromEntries(
+      Object.entries(roleDetails).map(([key, detail]) => [key, { ...detail }]),
+    ) as Record<string, { label: string; info: string }>;
 
     if (accountProjects && accountProjects.length > 1) {
-      roleDetails[USER_MANAGEMENT_ROLE.PROJECT_ADMIN].label =
+      options[USER_MANAGEMENT_ROLE.PROJECT_ADMIN].label =
         "Project Administrator - All Projects";
     } else {
       options = Object.fromEntries(

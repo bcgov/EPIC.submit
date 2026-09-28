@@ -20,7 +20,7 @@ interface EffectiveRole {
  * - ACCOUNT_PRIMARY_ADMIN in any role → Regulated Party Account Administrator
  * - PROJECT_ADMIN assigned to ALL projects → Project Administrator
  * - PROJECT_ADMIN assigned to SOME projects → Project Administrator - Specific Projects
- * - SUBMISSION_ADMIN → Collaborator - All Submissions
+ * - SUBMISSION_ADMIN → Collaborator - All Submissions in Project(s)
  * - SPECIFIC_SUBMISSION_CONTRIBUTOR → Collaborator - Specific Submissions
  * - No roles → empty string
  */

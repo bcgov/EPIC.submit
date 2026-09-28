@@ -56,8 +56,8 @@ export const roleDetails: Record<
     info: "Full access to all submissions for the selected projects (including creating new submissions and submitting to EAO), manage users (excluding Regulated Party Account Administrators)",
   },
   [USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN]: {
-    label: "Collaborator - All Submissions",
-    info: "Access all existing submissions to view and contribute.",
+    label: "Collaborator - All Submissions in Project(s)",
+    info: "Can view and edit all submissions, current and future, in the selected project(s). Cannot create new submissions or manage users.",
   },
   [USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR]: {
     label: "Collaborator - Specific Submissions",
