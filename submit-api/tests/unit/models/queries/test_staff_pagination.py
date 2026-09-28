@@ -67,13 +67,12 @@ def _make_mock_query(batch_results_sequence):
 @patch(f"{MODULE_PATH}.ProjectQueries._filter_packages_by_user_access")
 @patch(f"{MODULE_PATH}.ProjectQueries.get_full_account_projects")
 @patch(f"{MODULE_PATH}.ProjectQueries._filter_by_search_criteria")
-def test_excludes_projects_without_visible_packages(
+def test_keeps_projects_with_visible_packages(
     mock_filter_search, mock_get_full, mock_filter_packages
 ):
-    """Staff users only receive projects with visible packages (empty excluded)."""
+    """Staff users receive projects that have at least one visible package."""
     batch_rows = [
         _make_batch_row("ProjectA"),
-        _make_batch_row("ProjectB"),
         _make_batch_row("ProjectC"),
     ]
     mock_query = _make_mock_query([batch_rows])
@@ -81,7 +80,6 @@ def test_excludes_projects_without_visible_packages(
 
     serialized = [
         _make_project_dict("ProjectA", has_packages=True),
-        _make_project_dict("ProjectB", has_packages=False),
         _make_project_dict("ProjectC", has_packages=True),
     ]
     mock_get_full.return_value = serialized
@@ -96,11 +94,143 @@ def test_excludes_projects_without_visible_packages(
     )
 
     assert len(result) == 2
-    assert all(p.get("packages") for p in result)
     project_names = [p["name"] for p in result]
     assert "ProjectA" in project_names
     assert "ProjectC" in project_names
-    assert "ProjectB" not in project_names
+
+
+@patch(f"{MODULE_PATH}.ProjectQueries._filter_packages_by_user_access")
+@patch(f"{MODULE_PATH}.ProjectQueries.get_full_account_projects")
+@patch(f"{MODULE_PATH}.ProjectQueries._filter_by_search_criteria")
+def test_keeps_projects_with_no_packages_yet(
+    mock_filter_search, mock_get_full, mock_filter_packages
+):
+    """Onboarded/activated projects with zero packages stay visible to staff.
+
+    A project that has no packages at all (e.g. RP just onboarded, or a newly
+    activated project) must be returned so EAO can see it before any package
+    exists.
+    """
+    batch_rows = [
+        _make_batch_row("HasPackages"),
+        _make_batch_row("NoPackagesYet"),
+    ]
+    mock_query = _make_mock_query([batch_rows])
+    mock_filter_search.return_value = mock_query
+
+    serialized = [
+        _make_project_dict("HasPackages", has_packages=True),
+        _make_project_dict("NoPackagesYet", has_packages=False),
+    ]
+    mock_get_full.return_value = serialized
+    # Access filtering is a no-op here (nothing to filter out)
+    mock_filter_packages.side_effect = lambda projects, user: projects
+
+    mock_user = Mock()
+    search_options = Mock()
+    search_options.status = []
+
+    result = ProjectQueries._get_staff_visible_projects(
+        search_options, False, mock_user
+    )
+
+    project_names = [p["name"] for p in result]
+    assert "HasPackages" in project_names
+    assert "NoPackagesYet" in project_names
+    assert len(result) == 2
+
+
+@patch(f"{MODULE_PATH}.ProjectQueries._filter_packages_by_user_access")
+@patch(f"{MODULE_PATH}.ProjectQueries.get_full_account_projects")
+@patch(f"{MODULE_PATH}.ProjectQueries._filter_by_search_criteria")
+def test_excludes_projects_whose_packages_are_all_inaccessible(
+    mock_filter_search, mock_get_full, mock_filter_packages
+):
+    """A project that HAS packages but none visible to this staff user is dropped.
+
+    This is distinct from a project with no packages: the per-work/per-role
+    package access control must still hide projects whose only packages the
+    user cannot see.
+    """
+    batch_rows = [
+        _make_batch_row("Visible"),
+        _make_batch_row("AllFilteredOut"),
+    ]
+    mock_query = _make_mock_query([batch_rows])
+    mock_filter_search.return_value = mock_query
+
+    serialized = [
+        _make_project_dict("Visible", has_packages=True),
+        _make_project_dict("AllFilteredOut", has_packages=True),
+    ]
+    mock_get_full.return_value = serialized
+
+    def strip_second_project_packages(projects, user):
+        for project in projects:
+            if project["name"] == "AllFilteredOut":
+                project["packages"] = []
+        return projects
+
+    mock_filter_packages.side_effect = strip_second_project_packages
+
+    mock_user = Mock()
+    search_options = Mock()
+    search_options.status = []
+
+    result = ProjectQueries._get_staff_visible_projects(
+        search_options, False, mock_user
+    )
+
+    project_names = [p["name"] for p in result]
+    assert "Visible" in project_names
+    assert "AllFilteredOut" not in project_names
+    assert len(result) == 1
+
+
+@patch(f"{MODULE_PATH}.ProjectQueries._filter_packages_by_user_access")
+@patch(f"{MODULE_PATH}.ProjectQueries.get_full_account_projects")
+@patch(f"{MODULE_PATH}.ProjectQueries._filter_by_search_criteria")
+def test_empty_project_excluded_when_status_filter_active(
+    mock_filter_search, mock_get_full, mock_filter_packages
+):
+    """When a status filter is active, empty-package projects are excluded.
+
+    An empty project matches no package status, so it should not appear in
+    status-filtered results.
+    """
+    batch_rows = [
+        _make_batch_row("HasMatchingPackage"),
+        _make_batch_row("NoPackagesYet"),
+    ]
+    mock_query = _make_mock_query([batch_rows])
+    mock_filter_search.return_value = mock_query
+
+    serialized = [
+        _make_project_dict("HasMatchingPackage", has_packages=True),
+        _make_project_dict("NoPackagesYet", has_packages=False),
+    ]
+    mock_get_full.return_value = serialized
+    mock_filter_packages.side_effect = lambda projects, user: projects
+
+    mock_user = Mock()
+    search_options = Mock()
+    search_options.status = ["SUBMITTED"]
+
+    with patch.object(
+        ProjectQueries,
+        "_filter_packages_by_computed_status",
+        side_effect=lambda projects, statuses: [
+            p for p in projects if p.get("packages")
+        ],
+    ):
+        result = ProjectQueries._get_staff_visible_projects(
+            search_options, False, mock_user
+        )
+
+    project_names = [p["name"] for p in result]
+    assert "HasMatchingPackage" in project_names
+    assert "NoPackagesYet" not in project_names
+    assert len(result) == 1
 
 
 @patch(f"{MODULE_PATH}.ProjectQueries._filter_packages_by_user_access")
