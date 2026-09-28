@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
 from flask import current_app
+from sqlalchemy import or_
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
@@ -167,7 +168,7 @@ class SubmitEmailQueueService:
 
     @classmethod
     def _build_resubmission_request_payload(cls, package: PackageModel) -> dict:
-        recipients = [user.work_email_address for user in cls._get_project_admin_users(package)]
+        recipients = cls._get_resubmission_recipient_emails(package)
         submission_link = (
             f"{cls._get_base_url()}/proponent/projects/"
             f"{package.account_project_id}/submission-packages/{package.id}"
@@ -381,24 +382,29 @@ class SubmitEmailQueueService:
         ]
 
     @staticmethod
-    def _get_project_admin_users(package: PackageModel) -> list[AccountUserModel]:
-        admin_role_names = [RoleEnum.PROJECT_ADMIN.value, RoleEnum.ACCOUNT_PRIMARY_ADMIN.value]
-        admin_roles = RoleModel.query.filter(RoleModel.role_name.in_(admin_role_names)).all()
-        admin_role_ids = [role.id for role in admin_roles]
-        if not admin_role_ids:
-            return []
-
-        admin_users = (
+    def _get_resubmission_recipient_emails(package: PackageModel) -> list[str]:
+        account_project = SubmitEmailQueueService._get_account_project(package.account_project_id)
+        admin_roles = [
+            RoleEnum.ACCOUNT_PRIMARY_ADMIN.value,
+            RoleEnum.PROJECT_ADMIN.value,
+        ]
+        recipient_users = (
             AccountUserModel.query
             .join(UserRoleModel, AccountUserModel.id == UserRoleModel.account_user_id)
+            .join(RoleModel, UserRoleModel.role_id == RoleModel.id)
             .filter(
-                UserRoleModel.account_project_id == package.account_project_id,
-                UserRoleModel.role_id.in_(admin_role_ids),
+                AccountUserModel.account_id == account_project.account_id,
                 UserRoleModel.active,
+                RoleModel.role_name.in_(admin_roles),
+                # RP admins are account-wide; project admins must match this package's project.
+                or_(
+                    RoleModel.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value,
+                    UserRoleModel.account_project_id == package.account_project_id,
+                ),
             )
             .all()
         )
-        return admin_users
+        return [user.work_email_address for user in recipient_users]
 
     @staticmethod
     def _get_eao_manager_emails() -> list[str]:
