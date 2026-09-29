@@ -217,17 +217,31 @@ class ProjectQueries:
             if not batch_projects:
                 break  # No more projects in DB
 
-            # Serialize and filter packages by user access
+            # Serialize projects, capturing which have no packages at all before
+            # access filtering. Newly onboarded/activated projects with zero
+            # packages must remain visible to EAO staff.
             projects_list = cls.get_full_account_projects(is_proponent, batch_projects)
+            empty_project_ids = {
+                p.get("id") for p in projects_list if not p.get("packages")
+            }
+
+            # Filter packages by the staff user's access
             projects_list = cls._filter_packages_by_user_access(projects_list, user)
 
-            if search_options and search_options.status:
+            status_requested = bool(search_options and search_options.status)
+            if status_requested:
                 projects_list = cls._filter_packages_by_computed_status(
                     projects_list, search_options.status
                 )
 
-            # Keep only projects with at least one visible package
-            visible_projects.extend(p for p in projects_list if p.get("packages"))
+            # Keep projects with at least one visible package. Also keep projects
+            # that have no packages yet (so onboarded/activated projects show up),
+            # unless a status filter is active — an empty project matches no status.
+            visible_projects.extend(
+                p for p in projects_list
+                if p.get("packages")
+                or (not status_requested and p.get("id") in empty_project_ids)
+            )
 
             # If batch was smaller than BATCH_SIZE, DB is exhausted
             if len(batch_results) < BATCH_SIZE:
