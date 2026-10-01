@@ -9,6 +9,7 @@ import { useAccount } from "@/store/accountStore";
 import { Box, Stack } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import NoteAddOutlinedIcon from "@mui/icons-material/NoteAddOutlined";
 import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
 import { BCDesignTokens } from "epic.theme";
 import { ReactNode, useMemo } from "react";
@@ -70,6 +71,15 @@ const statusMap: Record<string, StyleProps> = {
     theme: "info",
     icon: (
       <RefreshIcon
+        sx={{ fontSize: "16px", color: BCDesignTokens.themeBlue100 }}
+      />
+    ),
+  },
+  NEW_DOCUMENT: {
+    label: "New Document",
+    theme: "info",
+    icon: (
+      <NoteAddOutlinedIcon
         sx={{ fontSize: "16px", color: BCDesignTokens.themeBlue100 }}
       />
     ),

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { SubmissionStatusChipStack } from "./index";
+import { SubmissionStatusChip, SubmissionStatusChipStack } from "./index";
 import { SUBMISSION_ITEM_STATUS } from "@/models/Submission";
 import { PACKAGE_STATUS } from "@/models/Package";
 
@@ -119,5 +119,28 @@ describe("SubmissionStatusChipStack", () => {
 
       expect(screen.queryByTestId("chip-Approved")).not.toBeInTheDocument();
     });
+  });
+});
+
+describe("SubmissionStatusChip", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("renders the New Document label for NEW_DOCUMENT status", () => {
+    render(<SubmissionStatusChip status="NEW_DOCUMENT" />);
+    expect(screen.getByTestId("chip-New Document")).toBeInTheDocument();
+  });
+
+  it("renders the New Version label for NEW_VERSION status", () => {
+    render(<SubmissionStatusChip status="NEW_VERSION" />);
+    expect(screen.getByTestId("chip-New Version")).toBeInTheDocument();
+  });
+
+  it("renders nothing for an unknown status", () => {
+    const { container } = render(
+      <SubmissionStatusChip status="DOES_NOT_EXIST" />,
+    );
+    expect(container).toBeEmptyDOMElement();
   });
 });

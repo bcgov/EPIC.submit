@@ -56,6 +56,18 @@ def _get_config(config_key: str, **kwargs):
     return value
 
 
+def _force_psycopg2_driver(database_uri: str) -> str:
+    """Pin the PostgreSQL URL to the psycopg2 driver.
+
+    SQLAlchemy 2.1 changed the default ``postgresql://`` driver from psycopg2 to
+    psycopg (v3). This project ships ``psycopg2-binary`` only, so the driver is
+    made explicit to avoid a ``No module named 'psycopg'`` error.
+    """
+    if database_uri and database_uri.startswith('postgresql://'):
+        return database_uri.replace('postgresql://', 'postgresql+psycopg2://', 1)
+    return database_uri
+
+
 class _Config():  # pylint: disable=too-few-public-methods
     """Base class configuration that should set reasonable defaults for all the other configurations."""
 
@@ -72,7 +84,7 @@ class _Config():  # pylint: disable=too-few-public-methods
     DB_NAME = os.getenv('DATABASE_NAME', '')
     DB_HOST = os.getenv('DATABASE_HOST', '')
     DB_PORT = os.getenv('DATABASE_PORT', '5432')
-    SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}'
+    SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}'
     SQLALCHEMY_ECHO = os.getenv('SQLALCHEMY_ECHO', 'False')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -133,8 +145,9 @@ class TestConfig(_Config):  # pylint: disable=too-few-public-methods
     DB_NAME = os.getenv("DATABASE_TEST_NAME", "postgres")
     DB_HOST = os.getenv("DATABASE_TEST_HOST", "localhost")
     DB_PORT = os.getenv("DATABASE_TEST_PORT", "5432")
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_TEST_URL',
-                                        f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}')
+    SQLALCHEMY_DATABASE_URI = _force_psycopg2_driver(
+        os.getenv('DATABASE_TEST_URL',
+                  f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}'))
     JWT_OIDC_TEST_MODE = True
     # JWT_OIDC_ISSUER = _get_config('JWT_OIDC_TEST_ISSUER')
     JWT_OIDC_TEST_AUDIENCE = os.getenv("JWT_OIDC_TEST_AUDIENCE")
@@ -229,7 +242,7 @@ class DockerConfig(_Config):  # pylint: disable=too-few-public-methods
     DB_NAME = os.getenv('DATABASE_DOCKER_NAME')
     DB_HOST = os.getenv('DATABASE_DOCKER_HOST')
     DB_PORT = os.getenv('DATABASE_DOCKER_PORT', '5432')
-    SQLALCHEMY_DATABASE_URI = f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}'
+    SQLALCHEMY_DATABASE_URI = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{int(DB_PORT)}/{DB_NAME}'
 
     print(f'SQLAlchemy URL (Docker): {SQLALCHEMY_DATABASE_URI}')
 
