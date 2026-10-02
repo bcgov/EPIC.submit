@@ -8,7 +8,6 @@ from flask import current_app
 from submit_api.enums.non_work_item import NonWorkItemType
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
-from submit_api.enums.work_type import WorkTypeName
 from submit_api.exceptions import BadRequestError, ResourceExistsError, ResourceNotFoundError
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import User
@@ -19,7 +18,9 @@ from submit_api.models.account_terms_of_service import TermsOfService as TermsOf
 from submit_api.models.db import session_scope
 from submit_api.models.invitations import Invitations as InvitationsModel
 from submit_api.models.invitations import InvitationStatus
+from submit_api.models.package import Package as PackageModel
 from submit_api.models.package import PackageStatus
+from submit_api.models.package_type import PackageType as PackageTypeModel
 from submit_api.models.proponent import Proponent as ProponentModel
 from submit_api.models.role import Role as RoleModel
 from submit_api.models.track_work import TrackWork
@@ -485,17 +486,44 @@ class InvitationService:
 
     @staticmethod
     def _create_default_package_if_needed(account_project_works, account_project):
-        """Create default submission package if required by EAO."""
-        if any(
-            apw.work.is_in_specific_phase('Early Engagement', WorkTypeName.ASSESSMENT)
-            for apw in account_project_works
-        ):
-            PackageService.create_first_package(account_project.id, {
-                "type": "IPD",
-                "name": "Initial Project Description & Engagement Plan",
-                "status": [PackageStatus.NEW.value],
-                "metadata": {}
-            })
+        """Create mandatory default packages for each submit-enabled work phase.
+
+        For every account project work whose current phase has ``enable_submit``
+        turned on, any ``PackageType`` configured as ``mandatory`` for that phase
+        is created once. If the mandatory package already exists for the work it
+        is not created again, so this method is safe to invoke repeatedly for the
+        same work. This is fully data-driven: adding a mandatory package type for
+        a new phase requires no code change here.
+        """
+        for account_project_work in account_project_works:
+            work = account_project_work.work
+            current_phase = work.current_phase if work else None
+            if not current_phase or not current_phase.enable_submit:
+                continue
+
+            mandatory_package_types = [
+                package_type
+                for package_type in PackageTypeModel.find_by_phase_id(current_phase.id)
+                if package_type.mandatory
+            ]
+
+            for package_type in mandatory_package_types:
+                if PackageModel.exists_for_work_and_type(account_project_work.id, package_type.id):
+                    continue
+                InvitationService._create_mandatory_package(
+                    account_project, account_project_work, package_type
+                )
+
+    @staticmethod
+    def _create_mandatory_package(account_project, account_project_work, package_type):
+        """Create a single mandatory package for a work's phase."""
+        PackageService.create_first_package(account_project.id, {
+            "type": package_type.name,
+            "name": package_type.title or package_type.name,
+            "status": [PackageStatus.NEW.value],
+            "account_project_work_id": account_project_work.id,
+            "metadata": {}
+        })
 
     @staticmethod
     def _update_proponent_status_by_account(account_id, status):
