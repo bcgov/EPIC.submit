@@ -216,3 +216,116 @@ class TestAcceptInvitationSubmissionAdminScoping:
                 )
                 assert assigned_account_project_ids == [1, 2]
                 assert len(result["roles"]) == 2
+
+
+class TestCreateDefaultPackageIfNeeded:
+    """Dynamic, idempotent creation of mandatory default packages per work phase."""
+
+    @staticmethod
+    def _make_account_project_work(apw_id, phase_id, enable_submit):
+        """Build a mock account project work whose work sits in a given phase."""
+        phase = MagicMock()
+        phase.id = phase_id
+        phase.enable_submit = enable_submit
+
+        work = MagicMock()
+        work.current_phase = phase
+
+        account_project_work = MagicMock()
+        account_project_work.id = apw_id
+        account_project_work.work = work
+        return account_project_work
+
+    @staticmethod
+    def _make_package_type(type_id, name, mandatory, title=None):
+        """Build a mock package type."""
+        package_type = MagicMock()
+        package_type.id = type_id
+        package_type.name = name
+        package_type.title = title
+        package_type.mandatory = mandatory
+        return package_type
+
+    @patch("submit_api.services.invitation_service.PackageService")
+    @patch("submit_api.services.invitation_service.PackageModel")
+    @patch("submit_api.services.invitation_service.PackageTypeModel")
+    def test_creates_mandatory_package_when_phase_enabled(
+        self, mock_package_type_model, mock_package_model, mock_package_service
+    ):
+        """A mandatory package type for a submit-enabled phase is created once."""
+        account_project = MagicMock()
+        account_project.id = 7
+        apw = self._make_account_project_work(apw_id=20, phase_id=5, enable_submit=True)
+
+        ipd_type = self._make_package_type(
+            type_id=3, name="IPD", mandatory=True,
+            title="Initial Project Description & Engagement Plan"
+        )
+        mock_package_type_model.find_by_phase_id.return_value = [ipd_type]
+        mock_package_model.exists_for_work_and_type.return_value = False
+
+        InvitationService._create_default_package_if_needed([apw], account_project)
+
+        mock_package_type_model.find_by_phase_id.assert_called_once_with(5)
+        mock_package_model.exists_for_work_and_type.assert_called_once_with(20, 3)
+        mock_package_service.create_first_package.assert_called_once()
+        account_project_id_arg, request_data = mock_package_service.create_first_package.call_args.args
+        assert account_project_id_arg == 7
+        assert request_data["type"] == "IPD"
+        assert request_data["name"] == "Initial Project Description & Engagement Plan"
+        assert request_data["account_project_work_id"] == 20
+
+    @patch("submit_api.services.invitation_service.PackageService")
+    @patch("submit_api.services.invitation_service.PackageModel")
+    @patch("submit_api.services.invitation_service.PackageTypeModel")
+    def test_skips_when_package_already_created(
+        self, mock_package_type_model, mock_package_model, mock_package_service
+    ):
+        """An existing mandatory package is not created again (idempotent)."""
+        account_project = MagicMock()
+        account_project.id = 7
+        apw = self._make_account_project_work(apw_id=20, phase_id=5, enable_submit=True)
+
+        ipd_type = self._make_package_type(type_id=3, name="IPD", mandatory=True)
+        mock_package_type_model.find_by_phase_id.return_value = [ipd_type]
+        mock_package_model.exists_for_work_and_type.return_value = True
+
+        InvitationService._create_default_package_if_needed([apw], account_project)
+
+        mock_package_model.exists_for_work_and_type.assert_called_once_with(20, 3)
+        mock_package_service.create_first_package.assert_not_called()
+
+    @patch("submit_api.services.invitation_service.PackageService")
+    @patch("submit_api.services.invitation_service.PackageModel")
+    @patch("submit_api.services.invitation_service.PackageTypeModel")
+    def test_skips_when_phase_not_submit_enabled(
+        self, mock_package_type_model, mock_package_model, mock_package_service
+    ):
+        """No package types are inspected when the phase is not submit-enabled."""
+        account_project = MagicMock()
+        account_project.id = 7
+        apw = self._make_account_project_work(apw_id=20, phase_id=5, enable_submit=False)
+
+        InvitationService._create_default_package_if_needed([apw], account_project)
+
+        mock_package_type_model.find_by_phase_id.assert_not_called()
+        mock_package_service.create_first_package.assert_not_called()
+
+    @patch("submit_api.services.invitation_service.PackageService")
+    @patch("submit_api.services.invitation_service.PackageModel")
+    @patch("submit_api.services.invitation_service.PackageTypeModel")
+    def test_skips_non_mandatory_package_types(
+        self, mock_package_type_model, mock_package_model, mock_package_service
+    ):
+        """Non-mandatory package types for the phase are ignored."""
+        account_project = MagicMock()
+        account_project.id = 7
+        apw = self._make_account_project_work(apw_id=20, phase_id=5, enable_submit=True)
+
+        optional_type = self._make_package_type(type_id=4, name="OPTIONAL", mandatory=False)
+        mock_package_type_model.find_by_phase_id.return_value = [optional_type]
+
+        InvitationService._create_default_package_if_needed([apw], account_project)
+
+        mock_package_model.exists_for_work_and_type.assert_not_called()
+        mock_package_service.create_first_package.assert_not_called()
