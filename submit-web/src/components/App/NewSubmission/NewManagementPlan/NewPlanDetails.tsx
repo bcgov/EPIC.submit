@@ -21,6 +21,7 @@ import { NewManagementPlanForm } from "./types";
 import { get } from "lodash";
 import { SubmissionPackageType } from "@/models/Package";
 import { AppConfig } from "@/utils/config";
+import { getManagementPlanName } from "./utils";
 
 const YES = "yes";
 const NO = "no";
@@ -59,12 +60,10 @@ export const NewPlanDetails = ({
   };
   const mainCondition = formData?.main_condition;
 
-  const managementPlanName = useMemo(() => {
-    return (
-      mainCondition?.condition_attributes?.deliverable_name?.[0] ??
-      get(formData, "main_condition.condition_name")
-    );
-  }, [mainCondition, formData]);
+  const managementPlanName = useMemo(
+    () => getManagementPlanName(mainCondition),
+    [mainCondition],
+  );
 
   const submissionPackageType = useMemo(() => {
     const type = get(formData, "main_condition.condition_attributes");

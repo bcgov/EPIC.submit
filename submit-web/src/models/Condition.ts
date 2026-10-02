@@ -7,7 +7,7 @@ export type Condition = {
 };
 
 export type ConditionAttribute = {
-  deliverable_name: string;
+  deliverable_name?: string[];
   milestone_related_to_plan_submission: string;
   parties_required_to_be_consulted: string;
   requires_consultation: string;

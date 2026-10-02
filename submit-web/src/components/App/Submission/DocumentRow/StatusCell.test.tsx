@@ -15,6 +15,11 @@ vi.mock("@/hooks/useIsNewVersion", () => ({
   useIsNewVersion: (...args: unknown[]) => mockUseIsNewVersion(...args),
 }));
 
+const mockUseIsNewDocument = vi.fn();
+vi.mock("@/hooks/useIsNewDocument", () => ({
+  useIsNewDocument: (...args: unknown[]) => mockUseIsNewDocument(...args),
+}));
+
 vi.mock("@/components/App/SubmissionStatusChip", () => ({
   SubmissionStatusChip: ({ status }: { status: string }) => (
     <span data-testid={`chip-${status}`}>{status}</span>
@@ -42,6 +47,7 @@ const makeSubmission = (overrides: Partial<Submission> = {}): Submission => ({
 describe("StatusCell", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseIsNewDocument.mockReturnValue(false);
   });
 
   describe("New Version badge", () => {
@@ -100,6 +106,96 @@ describe("StatusCell", () => {
       );
 
       expect(screen.queryByTestId("chip-NEW_VERSION")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("New Document badge", () => {
+    it("shows New Document chip for staff when isNewDocument is true (added doc)", () => {
+      mockUseAccount.mockReturnValue({ userType: "STAFF" });
+      mockUseIsNewVersion.mockReturnValue(false);
+      mockUseIsNewDocument.mockReturnValue(true);
+
+      render(
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <StatusCell
+                  submittedDocument={makeSubmission({ minor_version: 1 })}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>,
+      );
+
+      expect(screen.getByTestId("chip-NEW_DOCUMENT")).toBeInTheDocument();
+      expect(screen.queryByTestId("chip-NEW_VERSION")).not.toBeInTheDocument();
+    });
+
+    it("does not show New Document chip for proponent", () => {
+      mockUseAccount.mockReturnValue({ userType: "PROPONENT" });
+      mockUseIsNewVersion.mockReturnValue(false);
+      mockUseIsNewDocument.mockReturnValue(true);
+
+      render(
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <StatusCell
+                  submittedDocument={makeSubmission({ minor_version: 1 })}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>,
+      );
+
+      expect(screen.queryByTestId("chip-NEW_DOCUMENT")).not.toBeInTheDocument();
+    });
+
+    it("shows only New Version (not New Document) when both hooks return true", () => {
+      mockUseAccount.mockReturnValue({ userType: "STAFF" });
+      mockUseIsNewVersion.mockReturnValue(true);
+      mockUseIsNewDocument.mockReturnValue(true);
+
+      render(
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <StatusCell submittedDocument={makeSubmission()} />
+              </td>
+            </tr>
+          </tbody>
+        </table>,
+      );
+
+      expect(screen.getByTestId("chip-NEW_VERSION")).toBeInTheDocument();
+      expect(screen.queryByTestId("chip-NEW_DOCUMENT")).not.toBeInTheDocument();
+    });
+
+    it("does not show New Document chip when isNewDocument is false", () => {
+      mockUseAccount.mockReturnValue({ userType: "STAFF" });
+      mockUseIsNewVersion.mockReturnValue(false);
+      mockUseIsNewDocument.mockReturnValue(false);
+
+      render(
+        <table>
+          <tbody>
+            <tr>
+              <td>
+                <StatusCell
+                  submittedDocument={makeSubmission({ minor_version: 1 })}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>,
+      );
+
+      expect(screen.queryByTestId("chip-NEW_DOCUMENT")).not.toBeInTheDocument();
     });
   });
 

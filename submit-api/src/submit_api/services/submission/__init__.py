@@ -47,6 +47,28 @@ class SubmissionService:
             raise ValueError("Submission not found.")
         return submission
 
+    @staticmethod
+    def _should_flag_is_updated(item):
+        """Return True when a change to this item should flag its submission as updated.
+
+        A submission is "updated" (and therefore eligible for the New Version /
+        New Document badges) when the change happens after a submission already
+        exists for the package lineage. That covers two windows:
+
+        1. The current package has already been submitted (``submitted_on`` set) —
+           e.g. IPD documents added/replaced before acknowledgement.
+        2. The package is a revision version (version >= 2) created for an update
+           request / resubmission, which is not yet submitted (``submitted_on`` is
+           None) but always has a prior submitted version in its lineage — e.g.
+           MP / work-package resubmissions.
+        """
+        if not item or not item.package:
+            return False
+        package = item.package
+        if package.submitted_on:
+            return True
+        return bool(package.version and package.version.version >= 2)
+
     @classmethod
     def create_submission(cls, item_id, request_data):
         """Create a new submission."""
@@ -63,9 +85,10 @@ class SubmissionService:
             status = request_data.get("status")
             cls.update_submission_item_status(item_id, status, session)
 
-            # Set is_updated flag on the submission only if package has already been submitted
+            # Flag the submission as updated when the change happens within an
+            # update-request / resubmission window (see _should_flag_is_updated).
             item = ItemModel.find_by_id(item_id)
-            if item and item.package.submitted_on:
+            if cls._should_flag_is_updated(item):
                 submission.is_updated = True
                 session.add(submission)
 
@@ -101,10 +124,11 @@ class SubmissionService:
 
         new_submission = submission_creator.replace(submission_id, submission_data)
 
-        # Set is_updated flag on the submission only if package has already been submitted
+        # Flag the submission as updated when the change happens within an
+        # update-request / resubmission window (see _should_flag_is_updated).
         with session_scope() as session:
             item = ItemModel.find_by_id(new_submission.item_id)
-            if item and item.package.submitted_on:
+            if cls._should_flag_is_updated(item):
                 new_submission.is_updated = True
                 session.add(new_submission)
 
@@ -305,9 +329,10 @@ class SubmissionService:
             if submission.submitted_document.folder == 'geospatial':
                 url_to_delete = submission.submitted_document.url
 
-        # Set is_updated flag on the submission before deleting (only if package has been submitted)
+        # Flag the submission as updated before deleting when the change happens
+        # within an update-request / resubmission window (see _should_flag_is_updated).
         item = ItemModel.find_by_id(submission.item_id)
-        if item and item.package.submitted_on:
+        if cls._should_flag_is_updated(item):
             submission.is_updated = True
             db.session.add(submission)
             db.session.commit()
@@ -354,10 +379,11 @@ class SubmissionService:
         cls._validate_package_not_acknowledged(submission.item_id)
         cls._validate_package_is_open(submission.id)
 
-        # Set is_updated flag on the submission before soft deleting (only if package has been submitted)
+        # Flag the submission as updated before soft deleting when the change happens
+        # within an update-request / resubmission window (see _should_flag_is_updated).
         with session_scope() as session:
             item = ItemModel.find_by_id(submission.item_id)
-            if item and item.package.submitted_on:
+            if cls._should_flag_is_updated(item):
                 submission.is_updated = True
                 session.add(submission)
 

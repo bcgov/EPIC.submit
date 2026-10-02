@@ -4,6 +4,7 @@ Flask-Migrate
 Flask-Mail
 Flask-Moment
 Flask-SQLAlchemy
+SQLAlchemy<2.1
 SQLAlchemy-Continuum
 flask-restx
 flask-marshmallow==1.4.0
@@ -18,7 +19,7 @@ itsdangerous
 werkzeug
 sqlalchemy-utils
 Flask-Caching
-sqlalchemy
+sqlalchemy<2.1
 secure
 python-dotenv
 requests
