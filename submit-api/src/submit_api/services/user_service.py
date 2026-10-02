@@ -1,9 +1,12 @@
 """Service for account management."""
 from flask import current_app
+from sqlalchemy.exc import SQLAlchemyError
+
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import User, db
 from submit_api.models.user import UserType
 from submit_api.models.staff_user import StaffUser
+from submit_api.models.user_status import UserStatusEnum
 from submit_api.utils.roles import EpicSubmitRole
 
 
@@ -50,7 +53,34 @@ class UserService:
         if not user:
             raise ResourceNotFoundError(f"User with auth guid {_guid} not found")
 
+        cls._record_proponent_login(user)
+
         return user
+
+    @classmethod
+    def _record_proponent_login(cls, user):
+        """Stamp last_login_at and reactivate an inactive proponent on login.
+
+        No-op for staff or a proponent without an account_user. When the user
+        was marked INACTIVE by the inactivity cron, logging in flips them back
+        to ACTIVE. An ACCESS_REVOKED status is deliberately left untouched: that
+        is an explicit admin action and is not cleared by logging in.
+
+        Best-effort: a failure here must never block login, so a DB error is
+        rolled back and logged rather than propagated.
+        """
+        if not (user and user.type == UserType.PROPONENT and user.account_user):
+            return
+        try:
+            if user.status_id == UserStatusEnum.INACTIVE.value:
+                user.status_id = UserStatusEnum.ACTIVE.value
+                db.session.add(user)
+            user.account_user.touch_last_login()
+        except SQLAlchemyError as ex:
+            db.session.rollback()
+            current_app.logger.warning(
+                "Failed to record login for user %s: %s", user.id, ex
+            )
 
     @classmethod
     def _has_staff_roles(cls, token_info):
