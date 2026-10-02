@@ -5,7 +5,7 @@ import { theme } from "@/styles/theme";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { SubmissionPackage } from "@/models/Package";
-import { get } from "lodash";
+import { getManagementPlanName } from "./utils";
 
 export const ExistingPlanDetails = ({
   existingPlan,
@@ -36,6 +36,7 @@ export const ExistingPlanDetails = ({
   };
 
   const mainCondition = formData.main_condition;
+  const managementPlanName = getManagementPlanName(mainCondition);
   const consultedParties = Array.isArray(
     mainCondition?.condition_attributes?.parties_required_to_be_consulted,
   )
@@ -71,7 +72,7 @@ export const ExistingPlanDetails = ({
           variant="body1"
           fontWeight={theme.typography.fontWeightBold}
         >
-          {get(mainCondition, "condition_attributes.deliverable_name[0]", "")}
+          {managementPlanName}
         </Typography>
       </Grid>
       <Grid item xs={12}>
