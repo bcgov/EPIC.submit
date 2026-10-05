@@ -1023,7 +1023,7 @@ class PackageService:
         ).update({Submission.is_updated: False}, synchronize_session='fetch')
 
     @classmethod
-    def approve_package(cls, package_id):
+    def approve_package(cls, package_id, decision_date=None):
         """Approve the package.
 
         Only Team Leads and users with full_access role can approve packages.
@@ -1058,6 +1058,8 @@ class PackageService:
                         session.add(submission)
 
             package.status = [PackageStatus.APPROVED.value]
+            if decision_date is not None:
+                package.decision_date = decision_date
             session.add(package)
             session.flush()
             return package
@@ -1308,6 +1310,8 @@ class PackageService:
     def update_package_state(cls, package_id, request_data):
         """Update the state of the package based on the provided status."""
         status = request_data.get("status")
+        if status == PackageStatus.APPROVED.value:
+            return cls.approve_package(package_id, decision_date=request_data.get("decision_date"))
         state_updater = cls._get_state_updater(status)
         return state_updater(package_id)
 
