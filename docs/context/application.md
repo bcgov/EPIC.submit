@@ -6,10 +6,9 @@
 
 ## Application Type
 
-This is a **full-stack web application** composed of three main services:
+This is a **full-stack web application** composed of two main services:
 - **Frontend**: React-based Single Page Application (SPA)
 - **Backend**: Python Flask REST API
-- **Background Service**: Python cron job scheduler
 
 The application is built as a microservices architecture with separate deployable components that work together as an integrated system.
 
@@ -59,11 +58,6 @@ The application is built as a microservices architecture with separate deployabl
 - **Security**: python-secure library for response headers
 - **Testing**: pytest
 - **Code Quality**: pylint, flake8, autopep8
-
-### Background Jobs (submit-cron)
-- **Framework**: Python Flask
-- **Scheduler**: Custom job scheduler (APScheduler-like implementation)
-- **Purpose**: Synchronizes project metadata from Epic.Track database
 
 ### Database
 - **Engine**: PostgreSQL
@@ -162,10 +156,6 @@ The application is built as a microservices architecture with separate deployabl
 - Staff routes: projects, submissions, invitations, documents
 - Public routes: login, logout, error handling
 
-### Cron Jobs (submit-cron)
-- **ENGAGEMENT_PUBLISH** - Scheduled job for engagement publishing
-- **Project Metadata Sync** - Periodically syncs project data from Epic.Track
-
 ## Project Structure
 
 ```
@@ -228,12 +218,6 @@ EPIC.submit/
 │   ├── docker-compose.yml      # Local development services
 │   ├── Dockerfile              # Container image definition
 │   └── setup.py                # Python package configuration
-│
-├── submit-cron/                # Background job scheduler
-│   ├── src/submit_cron/        # Cron job implementations
-│   ├── requirements/           # Dependencies
-│   ├── Makefile                # Build commands
-│   └── run_*.sh                # Job execution scripts
 │
 ├── deployment/                 # Deployment configurations
 │   ├── charts/                 # Helm charts for OpenShift

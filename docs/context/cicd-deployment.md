@@ -28,10 +28,9 @@ The CI/CD pipeline is separated into:
 
 ### Components
 
-Three separate microservices with independent CI/CD pipelines:
+Two separate microservices with independent CI/CD pipelines:
 1. **submit-api** - Backend Flask API
 2. **submit-web** - Frontend React application
-3. **submit-cron** - Background job scheduler
 
 ---
 
@@ -148,16 +147,6 @@ USE_TEST_KEYCLOAK_DOCKER: YES
 
 **Steps**: Same as API CD workflow but for submit-web
 
-#### Cron CD Workflow ([cron-cd.yaml](.github/workflows/cron-cd.yaml))
-
-**Trigger**:
-- Push to `develop` branch with changes in `submit-cron/**` or `submit-api/**`
-- Manual workflow dispatch
-
-**Note**: Cron service depends on submit-api changes, so it rebuilds when API changes
-
-**Steps**: Same as API CD workflow but for submit-cron
-
 ### 3. Deployment and Promotion Workflows
 
 #### Deploy Workflow ([deploy.yml](.github/workflows/deploy.yml))
@@ -176,7 +165,6 @@ USE_TEST_KEYCLOAK_DOCKER: YES
    ```bash
    oc tag submit-api:dev submit-api:{environment}
    oc tag submit-web:dev submit-web:{environment}
-   oc tag submit-cron:dev submit-cron:{environment}
    ```
 
 2. **Wait for Rollout**
@@ -184,7 +172,6 @@ USE_TEST_KEYCLOAK_DOCKER: YES
    ```bash
    oc rollout status dc/submit-api -n {namespace}-{environment} -w
    oc rollout status dc/submit-web -n {namespace}-{environment} -w
-   oc rollout status dc/submit-cron -n {namespace}-{environment} -w
    ```
 
 #### Promote Workflow ([promote.yml](.github/workflows/promote.yml))
@@ -205,7 +192,6 @@ USE_TEST_KEYCLOAK_DOCKER: YES
    TIMESTAMP=$(date +%Y-%m-%d-%H%M)
    oc tag submit-api:{target_env} submit-api:{target_env}-backup-${TIMESTAMP}
    oc tag submit-web:{target_env} submit-web:{target_env}-backup-${TIMESTAMP}
-   oc tag submit-cron:{target_env} submit-cron:{target_env}-backup-${TIMESTAMP}
    ```
 
 2. **Promote Images**
@@ -213,7 +199,6 @@ USE_TEST_KEYCLOAK_DOCKER: YES
    ```bash
    oc tag submit-api:{source_env} submit-api:{target_env}
    oc tag submit-web:{source_env} submit-web:{target_env}
-   oc tag submit-cron:{source_env} submit-cron:{target_env}
    ```
 
 3. **Rollout to Target Environment**
@@ -221,7 +206,6 @@ USE_TEST_KEYCLOAK_DOCKER: YES
    ```bash
    oc rollout restart deployment/submit-api -n {namespace}-{target_env}
    oc rollout restart deployment/submit-web -n {namespace}-{target_env}
-   oc rollout restart deployment/submit-cron -n {namespace}-{target_env}
    ```
 
 ### 4. Quality and Security Workflows
@@ -424,15 +408,6 @@ test tag → promote → prod tag
 - Production-ready static file serving
 - Optimized for OpenShift
 
-### Submit Cron (Python)
-
-**Dockerfile**: Similar to submit-api
-
-**Purpose**: Background job scheduler
-- Runs scheduled tasks
-- Executes email notifications
-- Syncs project metadata from Epic.Track
-
 ---
 
 ## Helm Charts
@@ -447,7 +422,6 @@ deployment/charts/
 ├── submit-api-bc/        # API build config chart
 ├── submit-web/           # Web deployment chart
 ├── submit-web.bc/        # Web build config chart
-├── submit-cron/          # Cron deployment chart
 └── submit-patroni/       # PostgreSQL database chart
 ```
 
@@ -584,56 +558,6 @@ resources:
 
 replicas:
   count: 1
-```
-
-### Submit Cron Helm Chart
-
-**Location**: `deployment/charts/submit-cron/`
-
-**Key Features**:
-
-1. **Deployment**
-   - Runs scheduled jobs
-   - Cron schedule: `*/5 * * * *` (every 5 minutes)
-   - Job: Email notifications (`run_emailer.sh`)
-
-2. **Secrets**
-   - CHES (Common Hosted Email Service) credentials
-   - Database connection
-
-**Values** ([values.yaml](deployment/charts/submit-cron/values.yaml)):
-```yaml
-name: submit-cron
-imageNamespace: c8b80a-tools
-env: dev
-imageTag: dev
-
-database:
-  host: submit-patroni
-  port: "5432"
-
-resources:
-  requests:
-    cpu: 100m
-    memory: 100Mi
-  limits:
-    cpu: 250m
-    memory: 200Mi
-
-cronTab: "*/5 * * * * default cd /submit-cron && ./run_emailer.sh"
-
-chesSecrets:
-  create: true
-  tokenEndPoint: "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
-  apiEndPoint: "https://ches-dev.api.gov.bc.ca"
-  clientId: ""
-  clientSecret: ""
-
-web:
-  url: "https://dev.submit.eao.gov.bc.ca"
-
-sender:
-  email: "EAO.ManagementPlanSupport@gov.bc.ca"
 ```
 
 ### Submit Patroni (PostgreSQL) Helm Chart
@@ -793,18 +717,6 @@ spec:
 - `REACT_APP_CONDITIONS_LIBRARY_URL` - Conditions API URL
 - `REACT_APP_ENV` - Environment name (dev/test/prod)
 
-#### Submit Cron
-
-**Database**: Same as API
-
-**Email (CHES)**:
-- `CHES_TOKEN_ENDPOINT` - OAuth token endpoint
-- `CHES_API_ENDPOINT` - CHES API URL
-- `CHES_CLIENT_ID` - Client ID (from secret)
-- `CHES_CLIENT_SECRET` - Client secret (from secret)
-- `SENDER_EMAIL` - From email address
-- `WEB_URL` - Frontend URL for email links
-
 ### URL Patterns by Environment
 
 #### Dev Environment
@@ -843,11 +755,7 @@ Secrets are managed in OpenShift and referenced in Helm charts.
 - `SERVICE_ACCOUNT_ID` - Service account client ID
 - `SERVICE_ACCOUNT_SECRET` - Service account client secret
 
-**3. CHES Secret** (`submit-cron-ches`)
-- `CHES_CLIENT_ID` - Email service client ID
-- `CHES_CLIENT_SECRET` - Email service client secret
-
-**4. GitHub Actions Secrets**
+**3. GitHub Actions Secrets**
 - `OPENSHIFT_LOGIN_REGISTRY` - OpenShift API server URL
 - `OPENSHIFT_SA_TOKEN` - Service account token for deployments
 - `OPENSHIFT_SA_NAME` - Service account name
@@ -904,7 +812,6 @@ Input: environment = "test"
 Tag dev images as test:
   - submit-api:dev → submit-api:test
   - submit-web:dev → submit-web:test
-  - submit-cron:dev → submit-cron:test
     ↓
 Wait for rollout status
     ↓
@@ -921,12 +828,10 @@ Input: source = "test", target = "prod"
 Backup current prod images:
   - submit-api:prod → submit-api:prod-backup-{timestamp}
   - submit-web:prod → submit-web:prod-backup-{timestamp}
-  - submit-cron:prod → submit-cron:prod-backup-{timestamp}
     ↓
 Promote test images to prod:
   - submit-api:test → submit-api:prod
   - submit-web:test → submit-web:prod
-  - submit-cron:test → submit-cron:prod
     ↓
 Rollout restart deployments in prod
     ↓
@@ -1007,16 +912,6 @@ requests:
   memory: 100Mi
 limits:
   cpu: 200m
-  memory: 200Mi
-```
-
-### Cron Resources
-```yaml
-requests:
-  cpu: 100m
-  memory: 100Mi
-limits:
-  cpu: 250m
   memory: 200Mi
 ```
 

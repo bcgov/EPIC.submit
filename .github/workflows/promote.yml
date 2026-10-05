@@ -38,7 +38,6 @@ jobs:
 
           oc tag submit-api:${{ github.event.inputs.target_env }} submit-api:${{ github.event.inputs.target_env }}-backup-${TIMESTAMP}
           oc tag submit-web:${{ github.event.inputs.target_env }} submit-web:${{ github.event.inputs.target_env }}-backup-${TIMESTAMP}
-          oc tag submit-cron:${{ github.event.inputs.target_env }} submit-cron:${{ github.event.inputs.target_env }}-backup-${TIMESTAMP}
 
       - name: Promote images from source to target
         run: |
@@ -48,7 +47,6 @@ jobs:
 
           oc tag submit-api:${{ github.event.inputs.source_env }} submit-api:${{ github.event.inputs.target_env }}
           oc tag submit-web:${{ github.event.inputs.source_env }} submit-web:${{ github.event.inputs.target_env }}
-          oc tag submit-cron:${{ github.event.inputs.source_env }} submit-cron:${{ github.event.inputs.target_env }}
 
       - name: Rollout to target environment
         run: |
@@ -56,4 +54,3 @@ jobs:
 
           oc rollout restart deployment/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }}
           oc rollout restart deployment/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }}
-          oc rollout restart deployment/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.target_env }}

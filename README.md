@@ -309,15 +309,6 @@ you have to add a some dev dependencies and set them up in the app and then you 
   
 - **Accessed By**:
   - Submit API  
-  - Epic.Cron (scheduled synchronization)  
-
----
-
-### ⏱️ Epic.Cron
-- **Type**: Background scheduler (cron job)  
-- **Function**:
-  - Periodically synchronizes project metadata from Epic.Track to the EPIC.submit database  
-  - Ensures consistent and up-to-date project references in submissions  
 
 ---
 
