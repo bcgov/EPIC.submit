@@ -37,7 +37,6 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d-%H%M%S)
           oc tag submit-api:${{ github.event.inputs.environment }} submit-api:backup-${{ github.event.inputs.environment }}-$TIMESTAMP
           oc tag submit-web:${{ github.event.inputs.environment }} submit-web:backup-${{ github.event.inputs.environment }}-$TIMESTAMP
-          oc tag submit-cron:${{ github.event.inputs.environment }} submit-cron:backup-${{ github.event.inputs.environment }}-$TIMESTAMP
           echo "Backup tags created with timestamp: $TIMESTAMP"
 
       - name: Tag Images and Rollout
@@ -46,8 +45,6 @@ jobs:
           oc project ${{ secrets.OPENSHIFT_REPOSITORY }}-tools
           oc tag submit-api:${{ github.event.inputs.source_tag }} submit-api:${{ github.event.inputs.environment }}
           oc tag submit-web:${{ github.event.inputs.source_tag }} submit-web:${{ github.event.inputs.environment }}
-          oc tag submit-cron:${{ github.event.inputs.source_tag }} submit-cron:${{ github.event.inputs.environment }}
           
           oc rollout restart deployment/submit-api -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}
           oc rollout restart deployment/submit-web -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}
-          oc rollout restart deployment/submit-cron -n ${{ secrets.OPENSHIFT_REPOSITORY }}-${{ github.event.inputs.environment }}
