@@ -189,3 +189,27 @@ class Package(BaseModel):
         """Return only the account_project_id for a given package id."""
         result = db.session.query(cls.account_project_id).filter(cls.id == package_id).scalar()
         return result
+
+    @classmethod
+    def exists_for_work_and_type(cls, account_project_work_id: int, type_id: int) -> bool:
+        """Return True if a package of the given type already exists for the account project work."""
+        return db.session.query(
+            cls.query.filter_by(
+                account_project_work_id=account_project_work_id,
+                type_id=type_id
+            ).exists()
+        ).scalar()
+
+    @classmethod
+    def exists_for_account_project_and_type(cls, account_project_id: int, type_id: int) -> bool:
+        """Return True if a package of the given type already exists for the account project.
+
+        Used for phase-scoped package types that are not tied to a specific work
+        (``account_project_work_id`` is null).
+        """
+        return db.session.query(
+            cls.query.filter_by(
+                account_project_id=account_project_id,
+                type_id=type_id
+            ).exists()
+        ).scalar()

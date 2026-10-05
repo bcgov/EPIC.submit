@@ -17,7 +17,7 @@ const RefuseSubmissionFormSchema = yup.object().shape({
     .transform((value, original) =>
       dayjs.isDayjs(original) ? original.toDate() : value,
     )
-    .required("Please enter the decision date"),
+    .required("Decision Date is required"),
   reason: yup.string().optional().nullable(),
 });
 
@@ -38,7 +38,7 @@ const RefuseSubmissionModal = ({
 }: RefuseSubmissionModalProps) => {
   const methods = useForm<RefuseSubmissionForm>({
     resolver: yupResolver(RefuseSubmissionFormSchema),
-    mode: "onSubmit",
+    mode: "onChange",
     defaultValues: {
       decisionDate: new Date(),
       reason: "",
@@ -66,6 +66,7 @@ const RefuseSubmissionModal = ({
       onSecondaryAction={onCancel}
       confirmText="Confirm Package is NOT Accepted"
       secondaryActionText="Cancel"
+      confirmDisabled={!methods.formState.isValid}
       description={
         <Box
           sx={{
@@ -91,18 +92,13 @@ const RefuseSubmissionModal = ({
                   Not approving this package will require the entity to submit a
                   new package. Any open update requests will be cancelled.
                 </Typography>
-                <Typography
-                  variant="body2"
-                  sx={{ fontWeight: 700, mt: "10px" }}
-                >
-                  Please confirm this decision has been communicated to the
-                  proponent BEFORE clicking the "Confirm Package is NOT
-                  Accepted" button as an automated notification will be sent to
-                  the proponent when you confirm the decision.
-                </Typography>
               </Box>
             </Box>
           </WarningBox>
+          <Typography variant="body1">
+            This decision will be recorded internally. No further changes can be
+            made to this package after it has been approved.
+          </Typography>
           <FormProvider {...methods}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -111,7 +107,11 @@ const RefuseSubmissionModal = ({
                 </Typography>
               </Grid>
               <Grid item xs={12} sx={{ pt: "0px !important" }}>
-                <ControlledDatePicker name="decisionDate" sx={{ mb: 0 }} />
+                <ControlledDatePicker
+                  name="decisionDate"
+                  disableFuture
+                  sx={{ mb: 0 }}
+                />
               </Grid>
             </Grid>
             <Grid container spacing={2}>

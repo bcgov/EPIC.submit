@@ -21,6 +21,7 @@ type ConfirmationModalProps = {
   onConfirm: () => void;
   confirmText?: string;
   confirmButtonColor?: ConfirmButtonColorType;
+  confirmDisabled?: boolean;
   hideSecondary?: boolean;
   // Either show cancel or secondary action, but not both
   cancelText?: string;
@@ -35,6 +36,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onConfirm,
   confirmText,
   confirmButtonColor = "primary",
+  confirmDisabled = false,
   hideSecondary,
   cancelText,
   onCancel,
@@ -99,6 +101,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           variant="contained"
           onClick={handleConfirm}
           color={confirmButtonColor}
+          disabled={confirmDisabled}
         >
           {confirmText ?? "Confirm"}
         </LoadingButton>

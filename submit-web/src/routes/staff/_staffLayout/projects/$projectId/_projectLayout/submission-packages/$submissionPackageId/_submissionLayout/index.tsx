@@ -136,11 +136,12 @@ export default function SubmissionPage() {
   const handleApproveSubmissionClick = () => {
     setOpenModal(
       <ApproveSubmissionModal
-        onConfirm={() => {
+        onConfirm={(data) => {
           updatePackageState({
             packageId: submissionPackageId,
             data: {
               status: PACKAGE_STATUS.APPROVED.value,
+              decision_date: data.decisionDate,
             },
           });
         }}

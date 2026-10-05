@@ -80,6 +80,7 @@ class PostPackageState(Schema):
         unknown = EXCLUDE
 
     status = fields.Str(data_key="status")
+    decision_date = fields.DateTime(data_key="decision_date", required=False, allow_none=True)
 
 
 class RefusePackageSchema(Schema):
