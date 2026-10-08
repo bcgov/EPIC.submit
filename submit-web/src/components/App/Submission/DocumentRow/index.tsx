@@ -26,6 +26,7 @@ import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import { useGetGeoUploads } from "@/hooks/api/useGeo";
 import { useHasRole } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
@@ -52,6 +53,7 @@ export default function DocumentRow({
     documentSubmission;
   const packageType = propsPackageType || submissionPackage?.type;
   const name = submitted_document?.name || "";
+  const isVirusRejected = submitted_document?.is_virus_rejected ?? false;
 
   const isEAChecklist = submissionItem.type.name === SUBMISSION_ITEM_TYPE.EARLY_ENGAGEMENT_CHECKLIST;
 
@@ -79,6 +81,7 @@ export default function DocumentRow({
   );
 
   const onPreviewClick = () => {
+    if (isVirusRejected) return;
     if (!previewUpload) {
       notify.error("Preview is not available for this file.");
       return;
@@ -147,18 +150,22 @@ export default function DocumentRow({
                 cursor: "pointer",
               }}
             >
-              {staff ? (
+              {staff && !isVirusRejected ? (
                 <SubmissionItemReviewConfirmation
                   submissionItem={submissionItem}
                   onClick={openDocument}
                 >
-                  <DocumentLink name={name} loading={pendingGetObject} />
+                  <DocumentLink
+                    name={name}
+                    loading={pendingGetObject}
+                  />
                 </SubmissionItemReviewConfirmation>
               ) : (
                 <DocumentLink
                   name={name}
                   loading={pendingGetObject}
                   onClick={openDocument}
+                  disabled={isVirusRejected}
                 />
               )}
             </Typography>
@@ -169,6 +176,7 @@ export default function DocumentRow({
                 folder={submitted_document?.folder}
               />
             )}
+            {isVirusRejected && <SecurityRejectedBadge />}
           </Box >
         </SubmitTableCell >
         <SubmitTableCell align="left" width={"10%"}>
@@ -211,6 +219,7 @@ export default function DocumentRow({
                   onClick={onPreviewClick}
                   aria-label="Preview geospatial file"
                   size="small"
+                  disabled={isVirusRejected}
                   sx={{ color: BCDesignTokens.typographyColorLink }}
                 >
                   <VisibilityOutlinedIcon fontSize="small" />
