@@ -146,6 +146,7 @@ class DocumentQueries:
             SubmittedDocument.id.label("id"),
             SubmittedDocument.name.label("name"),
             SubmittedDocument.url.label("url"),
+            SubmittedDocument.virus_scan_result,
             Project.name.label("project_name"),
             TrackWork.title.label("work"),
             TrackPhase.display_name.label("phase_display_name"),

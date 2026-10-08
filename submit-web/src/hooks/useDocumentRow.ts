@@ -88,6 +88,7 @@ export function useDocumentRow({
 
   const openDocument = async () => {
     try {
+      if (submitted_document?.is_virus_rejected) return;
       if (pendingGetObject) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
