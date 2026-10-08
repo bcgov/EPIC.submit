@@ -47,7 +47,14 @@ function ProponentsHolders() {
         <Grid item xs={12}>
           <ContentBox
             mainLabel="Proponents/Holders Information"
-            sx={{ width: "100%", height: "fit-content" }}
+            sx={{
+              width: "100%",
+              height: "fit-content",
+              // Align the header's left edge with the body text and table below it.
+              "& > .MuiBox-root:first-of-type": {
+                paddingLeft: "16px",
+              },
+            }}
             contentBoxVariant="secondary"
           >
             <Typography variant="subtitle1" sx={{ mb: 2 }}>
