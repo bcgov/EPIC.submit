@@ -98,33 +98,52 @@ class StaffUserWorkService:
         return staff_user_work
 
     @classmethod
-    def remove_staff_user_work_by_work_id(cls, work_id: int):
-        """Remove all staff user work assignments for a given work ID.
+    def remove_staff_user_work(cls, work_id: int, email: str):
+        """Remove a single staff user's work assignment for a given work ID.
+
+        Deactivates the assignment that matches both ``work_id`` and the staff
+        user identified by ``email``. The user's OPS Keycloak groups are only
+        removed when they have no remaining active work assignments, so a user
+        who still belongs to other works keeps their EPIC.submit access.
 
         Args:
             work_id: Work ID from EPIC.track
+            email: Email address of the staff user to remove from the work
 
         Raises:
-            ResourceNotFoundError: If no active assignments found for the work ID
+            ResourceNotFoundError: If the staff user or the active assignment
+                for the given work ID is not found
         """
-        assignments = StaffUserWork.find_by_work_id(work_id)
-        if not assignments:
+        staff_user = StaffUser.get_by_email(email)
+        if not staff_user:
             raise ResourceNotFoundError(
-                f"No active work assignments found for work ID {work_id}."
+                f"Staff user with email '{email}' not found."
             )
 
-        for assignment in assignments:
-            username = assignment.staff_user.user.auth_guid
+        assignment = StaffUserWork.find_by_staff_user_and_work(
+            staff_user.id, work_id
+        )
+        if not assignment or not assignment.is_active:
+            raise ResourceNotFoundError(
+                f"No active work assignment found for email '{email}' "
+                f"and work ID {work_id}."
+            )
+
+        assignment.is_active = False
+        assignment.persist()
+
+        current_app.logger.info(
+            f"Removed work assignment: "
+            f"staff_user_id={assignment.staff_user_id}, "
+            f"work_id={work_id}, email={email}"
+        )
+
+        # Only strip OPS groups when the user has no other active works,
+        # otherwise we would revoke access they still need for other works.
+        remaining = StaffUserWork.find_by_staff_user_id(staff_user.id)
+        if not remaining:
+            username = staff_user.user.auth_guid
             cls._remove_ops_groups(username)
-
-            assignment.is_active = False
-            assignment.persist()
-
-            current_app.logger.info(
-                f"Removed work assignment: "
-                f"staff_user_id={assignment.staff_user_id}, "
-                f"work_id={work_id}"
-            )
 
     @classmethod
     def remove_staff_user_works_by_auth_guid(cls, auth_guid: str):

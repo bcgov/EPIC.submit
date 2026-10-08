@@ -15,6 +15,7 @@
 
 from http import HTTPStatus
 
+from flask import request
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
@@ -95,27 +96,41 @@ class StaffUserWorkResource(Resource):
 
 @cors_preflight("DELETE, OPTIONS")
 @API.route("/work/<int:work_id>", methods=["DELETE", "OPTIONS"])
-@API.doc(params={"work_id": "The work ID from EPIC.track"})
+@API.doc(params={
+    "work_id": "The work ID from EPIC.track",
+    "email": "The email of the staff user to remove from the work"
+})
 class StaffUserWorkRemoveByWork(Resource):
-    """Resource for removing staff user work assignments by work ID."""
+    """Resource for removing a single staff user work assignment."""
 
     @staticmethod
     @auth.require
     @ApiHelper.swagger_decorators(
         API,
-        endpoint_description="Remove staff user work assignment by work ID"
+        endpoint_description="Remove a staff user work assignment by work ID and email"
     )
     @API.response(code=200, description="Work assignment removed successfully")
+    @API.response(code=400, description="Missing required query parameter")
     @API.response(code=404, description="Work assignment not found")
     @API.response(code=500, description="Internal server error")
     @cross_origin(origins=allowedorigins())
     @auth.has_one_of_staff_roles([EpicSubmitRole.MANAGE_USERS.value])
     def delete(work_id):
-        """Remove a staff user work assignment by work ID."""
-        try:
-            StaffUserWorkService.remove_staff_user_work_by_work_id(work_id=work_id)
+        """Remove a single staff user work assignment by work ID and email."""
+        email = request.args.get("email")
+        if not email:
             return {
-                "message": f"Work assignment(s) removed for work ID {work_id}."
+                "message": "Query parameter 'email' is required."
+            }, HTTPStatus.BAD_REQUEST
+        try:
+            StaffUserWorkService.remove_staff_user_work(
+                work_id=work_id, email=email
+            )
+            return {
+                "message": (
+                    f"Work assignment removed for email '{email}' "
+                    f"and work ID {work_id}."
+                )
             }, HTTPStatus.OK
         except Exception as e:  # pylint:disable=broad-exception-caught  # noqa: B902
             return {"message": str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
