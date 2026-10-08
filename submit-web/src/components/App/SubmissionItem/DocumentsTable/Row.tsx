@@ -26,6 +26,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DocumentsSubTable from "@/components/App/Submission/ItemsTable/DocumentsSubTable";
 import { GEO_MAX_FILE_SIZE_BYTES, GEO_MAX_FILE_SIZE_MB } from "@/utils/constants";
+import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -90,6 +91,7 @@ export default function Row({
   });
 
   const { submitted_document, version, submitted_by } = currentSubmission;
+  const isVirusRejected = submitted_document?.is_virus_rejected ?? false;
 
   const downloadDocument = async () => {
     try {
@@ -110,6 +112,7 @@ export default function Row({
   };
 
   const openDocument = () => {
+    if (isVirusRejected) return;
     if (isGeoSpatial && onDocumentClick) {
       onDocumentClick(currentSubmission);
     } else {
@@ -213,7 +216,9 @@ export default function Row({
               name={submitted_document?.name ?? ""}
               loading={pendingGetObject}
               onClick={openDocument}
+              disabled={isVirusRejected}
             />
+            {isVirusRejected && <SecurityRejectedBadge />}
             <GeoApprovedBadge
               itemId={currentSubmission.item_id}
               url={submitted_document?.url}

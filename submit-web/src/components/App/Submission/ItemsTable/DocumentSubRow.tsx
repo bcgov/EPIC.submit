@@ -7,6 +7,7 @@ import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { StatusCell } from "@/components/App/Submission/DocumentRow/StatusCell";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
+import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -22,10 +23,11 @@ export default function DocumentSubRow({
   const { submitted_document, version, submitted_by } = documentSubmission;
 
   const { name, url, folder } = submitted_document || { name: "", url: "", folder: "" };
+  const isVirusRejected = submitted_document?.is_virus_rejected ?? false;
 
   const downloadDocument = async () => {
     try {
-      if (pendingGetObject) return;
+      if (pendingGetObject || isVirusRejected) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
     } catch (error) {
@@ -39,6 +41,7 @@ export default function DocumentSubRow({
   };
 
   const openDocument = () => {
+    if (isVirusRejected) return;
     if (onDocumentClick && folder === "geospatial") {
       onDocumentClick(documentSubmission);
     } else {
@@ -64,7 +67,9 @@ export default function DocumentSubRow({
             name={name}
             onClick={openDocument}
             loading={pendingGetObject}
+            disabled={isVirusRejected}
           />
+          {isVirusRejected && <SecurityRejectedBadge />}
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="left" width={"10%"}>

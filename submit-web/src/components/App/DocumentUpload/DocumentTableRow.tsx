@@ -18,6 +18,7 @@ import { useFormContext } from "react-hook-form";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
 import { GeoApprovedBadge } from "@/components/Shared/GeoApprovedBadge";
+import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 export const StyledHeadTableCell = styled(TableCell, {
   shouldForwardProp: (prop) => prop !== "error",
@@ -106,6 +107,7 @@ export default function DocumentTableRow({
   onDocumentClick,
 }: DocumentTableRowProps) {
   const { submitted_by, version, submitted_document } = documentItem;
+  const isVirusRejected = submitted_document?.is_virus_rejected ?? false;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
   const { setValue, trigger, getValues } = useFormContext(); // Get form context directly
@@ -116,6 +118,7 @@ export default function DocumentTableRow({
 
   const downloadDocument = async () => {
     try {
+      if (isVirusRejected) return;
       if (pendingGetObject || !submitted_document) return;
       setPendingGetObject(true);
       await getObjectFromS3({
@@ -193,6 +196,7 @@ export default function DocumentTableRow({
                   : downloadDocument
               }
               loading={pendingGetObject}
+              disabled={isVirusRejected}
             />
           </Typography>
           <GeoApprovedBadge
@@ -200,6 +204,7 @@ export default function DocumentTableRow({
             url={submitted_document?.url}
             folder={submitted_document?.folder}
           />
+          {isVirusRejected && <SecurityRejectedBadge />}
         </Box>
       </DocumentTableCell>
       <DocumentTableCell align="left">{submitted_by}</DocumentTableCell>

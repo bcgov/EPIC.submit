@@ -7,6 +7,7 @@ from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionStatus
+from submit_api.models.submitted_document import VirusScanResult
 
 
 class SubmittedFormSchema(Schema):
@@ -34,8 +35,13 @@ class SubmittedDocumentSchema(Schema):
     name = fields.Str(data_key="name")
     url = fields.Str(data_key="url")
     folder = fields.Str(data_key="folder")
+    is_virus_rejected = fields.Method("get_is_virus_rejected")
     created_date = fields.DateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
+
+    def get_is_virus_rejected(self, obj):
+        """Return whether the document failed its background security check."""
+        return obj.virus_scan_result == VirusScanResult.REJECTED.value
 
 
 class SubmissionSchema(Schema):
@@ -129,6 +135,11 @@ class PaginatedProjectDocumentItemSchema(Schema):
     status = fields.Enum(data_key="status", enum=ItemStatus)
     url = fields.Str(data_key="url")
     root_submission_id = fields.Int(data_key="root_submission_id")
+    is_virus_rejected = fields.Method("get_is_virus_rejected")
+
+    def get_is_virus_rejected(self, obj):
+        """Return whether the document failed its background security check."""
+        return obj.virus_scan_result == VirusScanResult.REJECTED.value
 
     def get_phase(self, obj):
         """Get the phase name."""

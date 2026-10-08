@@ -1,6 +1,6 @@
 import { useState } from "react";
 import dateUtils from "@/utils/dateUtils";
-import { TableRow, Typography } from "@mui/material";
+import { Box, TableRow } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { PaginatedSubmittedDocument } from "@/models/Submission";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -12,6 +12,7 @@ import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { isAxiosError } from "axios";
 import { SubmissionStatusChip } from "../SubmissionStatusChip";
+import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 type DocumentRowProps = Readonly<{
   submittedDocument: PaginatedSubmittedDocument;
@@ -20,7 +21,7 @@ type DocumentRowProps = Readonly<{
 export default function DocumentTableRow({
   submittedDocument,
 }: DocumentRowProps) {
-  const { name, url, version, submitted_on, status, work, phase } =
+  const { name, url, version, submitted_on, status, work, phase, is_virus_rejected } =
     submittedDocument;
 
   const [expanded, setExpanded] = useState(false);
@@ -28,7 +29,7 @@ export default function DocumentTableRow({
 
   const downloadDocument = async () => {
     try {
-      if (pendingGetObject) return;
+      if (pendingGetObject || is_virus_rejected) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
     } catch (error) {
@@ -51,13 +52,13 @@ export default function DocumentTableRow({
         sx={[{ height: "48px" }, expanded && { "& > *": { borderBottom: "unset" } }]}
       >
         <SubmitTableCell align="left">
-          <Typography
-            variant="body1"
-            color="inherit"
+          <Box
             sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 0.5,
               overflow: "clip",
               textOverflow: "ellipsis",
-              cursor: "pointer",
               mx: 0.5,
             }}
           >
@@ -65,8 +66,10 @@ export default function DocumentTableRow({
               onClick={openDocument}
               name={name}
               loading={pendingGetObject}
+              disabled={is_virus_rejected}
             />
-          </Typography>
+            {is_virus_rejected && <SecurityRejectedBadge />}
+          </Box>
         </SubmitTableCell>
         <SubmitTableCell align="left">{work}</SubmitTableCell>
         <SubmitTableCell align="left">{phase}</SubmitTableCell>

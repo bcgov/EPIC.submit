@@ -5,11 +5,13 @@ type DocumentLinkProps = {
   name: string | React.ReactNode;
   loading: boolean;
   onClick?: () => void;
+  disabled?: boolean;
 };
 export const DocumentLink = ({
   name,
   loading,
   onClick = () => {},
+  disabled = false,
 }: DocumentLinkProps) => {
   if (loading) {
     return (
@@ -21,6 +23,13 @@ export const DocumentLink = ({
       >
         Preparing your file..
         <LinearProgress sx={{ width: "250px" }} />
+      </Typography>
+    );
+  }
+  if (disabled) {
+    return (
+      <Typography component="span" color="text.disabled" sx={{ cursor: "default" }}>
+        {name}
       </Typography>
     );
   }
