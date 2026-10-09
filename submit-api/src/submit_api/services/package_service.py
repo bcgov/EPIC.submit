@@ -1065,7 +1065,7 @@ class PackageService:
             return package
 
     @classmethod
-    def refuse_package(cls, package_id, decision_date):
+    def refuse_package(cls, package_id, decision_date, reason=None):
         """Do not approve the package."""
         with session_scope() as session:
             package = cls.get_package_by_id(package_id)
@@ -1108,6 +1108,16 @@ class PackageService:
 
             # Add works
             new_package.account_project_work = package.account_project_work
+
+            # Log activity
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id if package.version else package.id,
+                action=ActivityActionType.NOT_APPROVED.value,
+                entity_version=package.version.version if package.version else 1,
+                note=reason,
+                decision_date=decision_date,
+                session=session
+            )
 
             session.flush()
             return new_package

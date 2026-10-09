@@ -15,4 +15,6 @@ export type ActivityLog = {
   action: string;
   actor_id: number;
   activity_at: string;
+  note: string;
+  decision_date: string;
 };

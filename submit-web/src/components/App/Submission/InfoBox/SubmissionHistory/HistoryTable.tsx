@@ -34,9 +34,11 @@ export const HistoryTableCell = styled(TableCell)(() => ({
 }));
 const HistoryTableBody = ({
   activityLogs,
+  isStaff,
   loading,
 }: {
   activityLogs?: ActivityLog[];
+  isStaff: boolean,
   loading: boolean;
 }) => {
   if (loading) {
@@ -61,7 +63,7 @@ const HistoryTableBody = ({
   if (!activityLogs || activityLogs.length === 0) {
     return (
       <TableRow key="no-history">
-        <HistoryTableCell colSpan={3} align="center">
+        <HistoryTableCell colSpan={4} align="center">
           <Typography variant="body2">No history available</Typography>
         </HistoryTableCell>
       </TableRow>
@@ -69,15 +71,25 @@ const HistoryTableBody = ({
   }
 
   return activityLogs.map((log, index) => (
-    <TableRow key={log.id || `activity-log-${index}`}>
-      <HistoryTableCell>{log.action}</HistoryTableCell>
-      <HistoryTableCell align="left">
-        {dateUtils.formatDate(log.activity_at)}
-      </HistoryTableCell>
-      <HistoryTableCell align="right">
-        {log.entity_version}
-      </HistoryTableCell>
-    </TableRow>
+    <>
+      <TableRow key={log.id || `activity-log-${index}`}>
+        <HistoryTableCell>{log.action}</HistoryTableCell>
+        <HistoryTableCell align="left">
+          {dateUtils.formatDate(log.activity_at)}
+        </HistoryTableCell>
+        <HistoryTableCell align="left">
+          {dateUtils.formatDate(log.decision_date)}
+        </HistoryTableCell>
+        <HistoryTableCell align="right">
+          {log.entity_version}
+        </HistoryTableCell>
+      </TableRow>
+      {isStaff && log.note && (
+        <TableRow>
+          <TableCell colSpan={4}>Reason for not approving the package: {log.note}</TableCell>
+        </TableRow>
+      )}
+    </>
   ));
 };
 
@@ -125,11 +137,12 @@ export const HistoryTable = ({ packageId }: HistoryTableProps) => {
               </Typography>
             </SubmitTableHeadCell>
             <SubmitTableHeadCell>Date</SubmitTableHeadCell>
+            <SubmitTableHeadCell>Decision Date</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          <HistoryTableBody activityLogs={activityLogs} loading={isLoading} />
+          <HistoryTableBody activityLogs={activityLogs} isStaff={isAdmin} loading={isLoading} />
         </TableBody>
       </Table>
     </TableContainer>
