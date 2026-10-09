@@ -26,6 +26,8 @@ class ActivityLogService:
             entity_type=ActivityTypeEnum.PACKAGE.value,
             entity_version: int = 1,
             visibility: str = VisibilityTypeEnum.STAFF.value,
+            note: str = None,
+            decision_date=None,
             session=None,
     ) -> Optional[ActivityLog]:
         """Logs an activity in the activity_logs table."""
@@ -48,7 +50,9 @@ class ActivityLogService:
             action=action,
             actor_id=actor_id,
             actor_type=actor_type,
-            visibility=visibility
+            visibility=visibility,
+            note=note,
+            decision_date=decision_date
         )
 
         session.add(new_activity)
@@ -70,7 +74,7 @@ class ActivityLogService:
 
     @staticmethod
     def _create_activity_log_object(  # pylint: disable=too-many-arguments,R0917
-            entity_type, entity_id, entity_version, action, actor_id, actor_type, visibility
+            entity_type, entity_id, entity_version, action, actor_id, actor_type, visibility, note, decision_date
     ) -> ActivityLog:
         """Creates an ActivityLog object without adding it to a session."""
         return ActivityLog(
@@ -81,5 +85,7 @@ class ActivityLogService:
             actor_id=actor_id or TokenInfo.get_username(),
             actor_type=actor_type,
             visibility=visibility,
-            activity_at=datetime.now(UTC)
+            activity_at=datetime.now(UTC),
+            note=note,
+            decision_date=decision_date
         )
