@@ -37,7 +37,7 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
       return (
         <StatusChip
           label="Withdrawn"
-          theme="danger"
+          theme="warning"
           sx={{
             fontSize: "12px",
             fontWeight: 400,
