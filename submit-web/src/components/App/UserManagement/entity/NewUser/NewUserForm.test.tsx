@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor, within, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import NewUserForm from "./NewUserForm";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
@@ -130,7 +130,12 @@ describe("NewUserForm - Collaborator - All Submissions in Project(s)", () => {
   it("blocks submit and shows validation when no project is selected", async () => {
     render(<NewUserForm />);
 
-    await userEvent.type(screen.getByRole("textbox"), "collab@example.com");
+    // Set the email in a single change event. Typing character-by-character
+    // re-renders this heavy form (MUI Autocomplete + RHF) on every keystroke,
+    // which exceeds the default 5s test timeout in jsdom/happy-dom.
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "collab@example.com" },
+    });
     await selectCollaboratorAllInProjects();
 
     await userEvent.click(screen.getByRole("button", { name: /add user/i }));
@@ -146,7 +151,10 @@ describe("NewUserForm - Collaborator - All Submissions in Project(s)", () => {
   it("sends only the selected project subset (not all projects) on save", async () => {
     render(<NewUserForm />);
 
-    await userEvent.type(screen.getByRole("textbox"), "collab@example.com");
+    // Set the email in a single change event (see note above re: timeout).
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "collab@example.com" },
+    });
     await selectCollaboratorAllInProjects();
 
     // Open the project selector and choose a single project.

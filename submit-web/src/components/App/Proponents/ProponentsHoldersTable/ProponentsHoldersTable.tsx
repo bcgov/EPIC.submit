@@ -54,14 +54,14 @@ export const ProponentsHoldersTable = (props: TableProps) => {
       {
         id: "name",
         label: "Entities",
-        width: "50%",
+        width: "60%",
         sortable: true,
         getValue: (row) => row.name,
       },
       {
         id: "status",
         label: "Status",
-        width: "25%",
+        width: "15%",
         sortable: false,
         renderCell: (row) => <ProponentStatusChip status={row.status} />,
       },

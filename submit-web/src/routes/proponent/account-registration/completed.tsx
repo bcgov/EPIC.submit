@@ -13,7 +13,7 @@ function Completed() {
   return (
     <>
       <RegistrationPageTitle
-        mainTitle="Your Account is successfully set-up"
+        mainTitle="Your account is successfully set up"
         mainTitleExtension={<DoneRounded color="success" sx={{ fontSize: 32 }} />}
       />
       <RegistrationCompletedForm />

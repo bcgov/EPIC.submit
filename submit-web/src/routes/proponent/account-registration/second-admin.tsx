@@ -16,8 +16,8 @@ function SecondAdmin() {
         mainTitle="Invite a second Administrator to your account"
         subTitle={
           <Fragment>
-            We recommend having at least two Regulated Party Account Administrator on your
-            account. You can always add more Regulated Party Account Administrator to your
+            We recommend having at least two Regulated Party Account Administrators on your
+            account. You can always add more Regulated Party Account Administrators to your
             account after your account is created.
           </Fragment>
         }
