@@ -34,7 +34,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
       theme: "info",
     },
     SUBMITTED: { label: "Submitted", theme: "info" },
-    RESUBMITTED: { label: "Resubmitted", theme: "info" },
+    RESUBMITTED: { label: "Resubmitted", theme: "purple" },
 
     REVIEW_REJECTED: {
       label: "Review Rejected",

@@ -1,5 +1,5 @@
 import { Chip, SxProps, Theme } from "@mui/material";
-import { BCDesignTokens, EAOColors } from "epic.theme";
+import { BCDesignTokens } from "epic.theme";
 import React, { ReactNode } from "react";
 
 // Base styles that apply to all status chips
@@ -50,16 +50,17 @@ const themeColors: Record<StatusChipTheme, ThemeColors> = {
     background: "#FFDEB8",
   },
   purple: {
-    border: "#9B6BDA",
-    background: "#F6E4FF",
+    border: "#D8B4FE",
+    background: "#F3E8FF",
   },
   neutral: {
     border: BCDesignTokens.surfaceColorBorderMedium,
     background: BCDesignTokens.surfaceColorSecondaryButtonDisabled,
   },
+  // "decision" is the teal theme reserved for the entity "New" badge (v1 packages)
   decision: {
-    border: EAOColors.DecisionDark,
-    background: EAOColors.DecisionLight,
+    border: "#2B8C89",
+    background: "#E4F5F4",
   },
 };
 

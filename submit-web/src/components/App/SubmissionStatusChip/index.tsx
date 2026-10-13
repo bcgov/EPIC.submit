@@ -113,7 +113,7 @@ const statusMap: Record<string, StyleProps> = {
     theme: "warning",
   },
 
-  NEW_SUBMISSION: { label: "New Submission", theme: "decision" },
+  NEW_SUBMISSION: { label: "New Submission", theme: "purple" },
   NEW: { label: "New", theme: "decision" },
 
   AWAITING_MANAGER_APPROVAL: {
