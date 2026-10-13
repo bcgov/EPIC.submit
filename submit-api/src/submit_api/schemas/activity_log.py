@@ -102,6 +102,14 @@ class ActivityLogSchema(Schema):
         required=True,
         metadata={"description": "Who can see this entry ('PUBLIC' or 'STAFF_ONLY')."},
     )
+    note = fields.String(
+        required=False,
+        metadata={"description": "Additional information provided by staff."},
+    )
+    decision_date = fields.String(
+        required=False,
+        metadata={"description": "Used if the decision date is different from activity date."},
+    )
 
     @post_dump
     def apply_action_mapping(self, data, many, **kwargs):
