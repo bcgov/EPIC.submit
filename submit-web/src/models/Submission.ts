@@ -241,6 +241,7 @@ export type DocumentSubmission = {
   name: string;
   url: string;
   folder: string;
+  is_virus_rejected: boolean;
 };
 
 export type SubmissionStatus =
@@ -298,6 +299,7 @@ export type PaginatedSubmittedDocument = {
   submitted_on: string;
   status: string;
   root_submission_id: number;
+  is_virus_rejected: boolean;
 };
 
 export type PaginatedDocumentsResponse = {
