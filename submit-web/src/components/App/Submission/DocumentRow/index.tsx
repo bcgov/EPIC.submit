@@ -26,7 +26,6 @@ import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import { useGetGeoUploads } from "@/hooks/api/useGeo";
 import { useHasRole } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 const MapPreviewModal = lazy(() =>
   import("@/components/App/Map/MapPreviewModal").then((m) => ({
@@ -176,7 +175,6 @@ export default function DocumentRow({
                 folder={submitted_document?.folder}
               />
             )}
-            {isVirusRejected && <SecurityRejectedBadge />}
           </Box >
         </SubmitTableCell >
         <SubmitTableCell align="left" width={"10%"}>

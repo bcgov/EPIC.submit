@@ -7,7 +7,6 @@ import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { StatusCell } from "@/components/App/Submission/DocumentRow/StatusCell";
 import { isAxiosError } from "axios";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
-import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 type DocumentRowProps = Readonly<{
   documentSubmission: Submission;
@@ -69,7 +68,6 @@ export default function DocumentSubRow({
             loading={pendingGetObject}
             disabled={isVirusRejected}
           />
-          {isVirusRejected && <SecurityRejectedBadge />}
         </Typography>
       </SubmitTableCell>
       <SubmitTableCell align="left" width={"10%"}>

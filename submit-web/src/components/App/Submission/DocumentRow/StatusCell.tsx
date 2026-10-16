@@ -9,6 +9,7 @@ import { useAccount } from "@/store/accountStore";
 import { Stack } from "@mui/material";
 import { useIsNewVersion } from "@/hooks/useIsNewVersion";
 import { useIsNewDocument } from "@/hooks/useIsNewDocument";
+import { SecurityRejectedBadge } from "@/components/Shared/SecurityRejectedBadge";
 
 type StatusCellProps = Readonly<{
   submittedDocument: Submission;
@@ -30,6 +31,9 @@ export const StatusCell = ({
 
   return (
     <Stack direction="column" spacing={0.5} alignItems="flex-start">
+      {submittedDocument.submitted_document?.is_virus_rejected && (
+        <SecurityRejectedBadge />
+      )}
       {isNewVersion && (
         <SubmissionStatusChip
           status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION}
