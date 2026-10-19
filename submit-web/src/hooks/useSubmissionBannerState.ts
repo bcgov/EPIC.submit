@@ -50,6 +50,7 @@ export function useSubmissionBannerState({
     const acceptedStatuses = [PACKAGE_STATUS.APPROVED.value, PACKAGE_STATUS.REVIEWED.value, PACKAGE_STATUS.ACCEPTED.value];
     const isApproved = acceptedStatuses.some(s => status.includes(s));
     const isNotApproved = status.includes(PACKAGE_STATUS.NOT_APPROVED.value);
+    const isProvided = status.includes(PACKAGE_STATUS.PROVIDED.value);
     const isWithdrawn = status.includes(PACKAGE_STATUS.WITHDRAWN.value);
     const isLatest = version ? version.is_latest : true;
 
@@ -57,7 +58,7 @@ export function useSubmissionBannerState({
     const showNotApprovedBanner = isNotApproved;
 
     // Approval banner shows on previous versions that are neither NotApproved nor Withdrawn
-    const showApprovalBanner = !showNotApprovedBanner && !isWithdrawn && (!isLatest || isApproved);
+    const showApprovalBanner = !showNotApprovedBanner && !isWithdrawn && !isProvided && (!isLatest || isApproved);
 
     // Revision required only if not in a terminal state
     const showRevisionRequiredBanner =

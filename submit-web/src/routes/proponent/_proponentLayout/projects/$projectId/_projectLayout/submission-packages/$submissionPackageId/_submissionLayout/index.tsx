@@ -564,6 +564,7 @@ export default function SubmissionPage() {
                   <SubmissionSuccessBox
                     submissionPackageType={submissionPackage.type}
                     contactEmail={contactEmail}
+                    isProvided={submissionPackage.status.includes(PACKAGE_STATUS.PROVIDED.value)}
                   />
                 </Box>
               </When>

@@ -55,7 +55,7 @@ CANONICAL_STATUS_ORDER = (
     # Primary / base statuses
     'NEW', 'CREATED', 'IN_PROGRESS', 'SUBMITTED', 'NEW_SUBMISSION', 'RESUBMITTED',
     # Terminal outcomes
-    'APPROVED', 'ACCEPTED', 'SATISFIED', 'REVIEWED', 'NO_REVISION_REQUIRED',
+    'APPROVED', 'ACCEPTED', 'SATISFIED', 'REVIEWED', 'PROVIDED', 'NO_REVISION_REQUIRED',
     'VERIFIED', 'ACKNOWLEDGED', 'NOT_APPROVED', 'REVIEW_REJECTED', 'WITHDRAWN',
     # Review stream statuses
     'UNDER_CONSULTATION_CHECK', 'PASSED_CONSULTATION_CHECK',
@@ -164,6 +164,10 @@ class PackageService:
             PackageStatus.REVIEWED.value: {
                 UserType.PROPONENT: PackageStatus.REVIEWED.value,
                 UserType.STAFF: PackageStatus.REVIEWED.value
+            },
+            PackageStatus.PROVIDED.value: {
+                UserType.PROPONENT: PackageStatus.PROVIDED.value,
+                UserType.STAFF: PackageStatus.PROVIDED.value
             },
             PackageStatus.WITHDRAWN.value: {
                 UserType.PROPONENT: PackageStatus.WITHDRAWN.value,
@@ -966,6 +970,44 @@ class PackageService:
             session.flush()
             return package
 
+    @classmethod
+    def mark_as_provided(cls, package_id):
+        """Complete an N/A management plan without a review decision."""
+        with session_scope() as session:
+            package = cls.get_package_by_id(package_id)
+            if not package:
+                raise ResourceNotFoundError("Package not found")
+            if not package.is_provided_plan:
+                raise BadRequestError("Only N/A management plans can be marked as provided")
+            if not package.submitted_on or package.completed_on or PackageStatus.WITHDRAWN in package.status:
+                raise BadRequestError("Package must be submitted and not already completed or withdrawn")
+
+            completed_on = datetime.now(UTC)
+            for item in package.items:
+                if item.type.name in (
+                    SubmissionItemType.MANAGEMENT_PLAN_FORM.value,
+                    SubmissionItemType.CONSULTATION_RECORD.value,
+                ):
+                    item.status = ItemStatus.PROVIDED
+                    item.reviewed_on = completed_on
+                    session.add(item)
+
+            package.completed_on = completed_on
+            package.status = [PackageStatus.PROVIDED.value]
+            for version in PackageVersionModel.get_all_by_original_package_id(package.version.original_package_id):
+                version.package.enforceable = version.package.id == package.id
+                session.add(version.package)
+            PackageVersionService.deactivate_update_requests(package.id, session, package)
+            ActivityLogService.log_activity(
+                entity_id=package.version.original_package_id,
+                entity_version=package.version.version,
+                action=ActivityActionType.MP_PROVIDED.value,
+                session=session,
+            )
+            session.add(package)
+            session.flush()
+            return package
+
     @staticmethod
     def _has_open_update_requests(package):
         """Check if package has open or pending review update requests."""
@@ -1311,6 +1353,7 @@ class PackageService:
                 PackageStatus.UNDER_REVIEW.value: cls.start_review,
                 PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
                 PackageStatus.ACKNOWLEDGED.value: cls.acknowledge_package,
+                PackageStatus.PROVIDED.value: cls.mark_as_provided,
                 PackageStatus.APPROVED.value: cls.approve_package,
             }
         )
@@ -1396,6 +1439,8 @@ class PackageService:
         package = cls.get_package_by_id(package_id)
         if not package:
             raise ResourceNotFoundError("Package not found")
+        if package.is_provided_plan:
+            raise BadRequestError("Provided plans do not require a review")
         if package.completed_on:
             raise BadRequestError(
                 "Cannot create a review for a package that has been completed")

@@ -216,6 +216,8 @@ class SubmissionReviewService:
             review.flush()
             item = ItemModel.find_by_id(item_id)
             package = PackageModel.find_by_id(item.package_id)
+            if package.is_provided_plan:
+                raise UnprocessableEntityError("Provided plans do not require a review decision.")
             if not package.submitted_on:
                 current_app.logger.error(f"Package {package.id} has not been submitted.")
                 raise UnprocessableEntityError("Package has not been submitted.")

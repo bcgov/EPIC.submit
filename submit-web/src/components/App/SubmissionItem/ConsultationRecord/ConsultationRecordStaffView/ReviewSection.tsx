@@ -30,6 +30,7 @@ import NotesSection from "@/components/App/SubmissionItem/NotesSection";
 import RevisionRequiredWidget from "./RevisionRequiredWidget";
 import { When } from "react-if";
 import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
+import { isProvidedPlan } from "@/utils/managementPlan";
 
 type ConsultationForm = yup.InferType<typeof consultationSchema>;
 
@@ -142,6 +143,10 @@ export default function ReviewSection() {
     }
     return baseOptions;
   }, [isSubsequentVersion]);
+
+  if (isProvidedPlan(submissionPackage)) {
+    return <Grid item xs={12}><NotesSection /></Grid>;
+  }
 
   return (
     <Grid item container data-testid="review-section" xs={12}>
