@@ -78,7 +78,10 @@ class AccountUser(BaseModel):
             "user_id": self.user_id,
             "extension_number": self.extension_number,
             "company_name": self.company_name,
-            "last_login_at": self.last_login_at.isoformat() if self.last_login_at else None,
+            # Return the raw datetime (not an ISO string) so AccountUserSchema's
+            # fields.DateTime can serialize it. Pre-stringifying here caused the
+            # schema to call .isoformat() on a str and raise AttributeError.
+            "last_login_at": self.last_login_at,
             "roles": [role.to_dict() for role in self.roles],
         }
 
