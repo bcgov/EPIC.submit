@@ -26,7 +26,7 @@ def test_provided_plan_requires_explicit_na(purpose, expected):
 
 @pytest.fixture
 def provided_package():
-    """A submitted plan with consultation records and an older version."""
+    """Return a submitted plan with consultation records and an older version."""
     return SimpleNamespace(
         id=2, is_provided_plan=True, submitted_on='2026-10-19', completed_on=None,
         status=[PackageStatus.SUBMITTED.value], enforceable=False, update_requests=[],
@@ -41,12 +41,14 @@ def test_mark_as_provided_completes_and_enforces_current_version(provided_packag
     """Completion updates both reviewable items and replaces the enforceable version."""
     previous_package = SimpleNamespace(id=1, enforceable=True)
     versions = [SimpleNamespace(package=previous_package), SimpleNamespace(package=provided_package)]
-    with patch('submit_api.services.package_service.session_scope'), \
-            patch.object(PackageService, 'get_package_by_id', return_value=provided_package), \
-            patch('submit_api.services.package_service.PackageVersionModel.get_all_by_original_package_id',
-                  return_value=versions), \
-            patch('submit_api.services.package_service.PackageVersionService.deactivate_update_requests') as close_requests, \
-            patch('submit_api.services.package_service.ActivityLogService.log_activity') as log_activity:
+    with (
+        patch('submit_api.services.package_service.session_scope'),
+        patch.object(PackageService, 'get_package_by_id', return_value=provided_package),
+        patch('submit_api.services.package_service.PackageVersionModel.get_all_by_original_package_id',
+              return_value=versions),
+        patch('submit_api.services.package_service.PackageVersionService.deactivate_update_requests') as close_requests,
+        patch('submit_api.services.package_service.ActivityLogService.log_activity') as log_activity,
+    ):
         result = PackageService.mark_as_provided(2)
 
     assert result.completed_on is not None
