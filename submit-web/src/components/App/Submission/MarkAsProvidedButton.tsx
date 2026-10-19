@@ -45,7 +45,7 @@ export default function MarkAsProvidedButton({
             })
           }
         >
-          Marked as Provided
+          Mark as Provided
         </LoadingButton>
       </UnfinishedUploadsCheck>
     </PermissionsGate>
