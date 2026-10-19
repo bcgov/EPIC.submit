@@ -53,31 +53,51 @@ export const ReviewCompletedNotification = ({
 
   const BoxContainer = isNotApplicable ? NeutralBox : SuccessBox;
 
+  // Body-black text (#2d2d2d) overrides the SuccessBox's green inherited
+  // colour, and the extra vertical padding adds breathing room above and
+  // below the banner content per the Figma frame. The green background and
+  // border come from SuccessBox and are left unchanged.
+  const bannerTextColor = "#2d2d2d";
+
   return (
-    <BoxContainer m="2em 0" data-testid="review-completed-notification">
+    <BoxContainer
+      m="2em 0"
+      sx={{ color: bannerTextColor, padding: "16px 12px 16px 8px" }}
+      data-testid="review-completed-notification"
+    >
       <Stack direction="row" alignItems={"center"} spacing={2}>
-        <Typography variant="body1" color="inherit">
+        <Typography variant="body1" color={bannerTextColor}>
           The Consultation Check was confirmed as:
         </Typography>
         <SubmissionStatusChip
           status={passedConsultationCheck ?? failedConsultationCheck}
         />
       </Stack>
-      <Grid container color={"inherit"}>
+      <Grid container color={bannerTextColor}>
         <Grid item xs={12} container>
-          <Grid item container width="400px">
+          <Grid item container width="520px">
             <Grid item xs={12}>
               <LabelValuePair
                 label="Decision recommended by"
                 value={staffRecommendation?.updated_by ?? ""}
-                labelProps={{ color: "inherit", width: "220px" }}
+                labelProps={{
+                  color: bannerTextColor,
+                  width: "220px",
+                  flexShrink: 0,
+                }}
+                valueProps={{ color: bannerTextColor, noWrap: true }}
               />
             </Grid>
             <Grid item xs={12}>
               <LabelValuePair
                 label="Confirmed by"
                 value={managerConfirmation?.updated_by ?? ""}
-                labelProps={{ color: "inherit", width: "220px" }}
+                labelProps={{
+                  color: bannerTextColor,
+                  width: "220px",
+                  flexShrink: 0,
+                }}
+                valueProps={{ color: bannerTextColor, noWrap: true }}
               />
             </Grid>
           </Grid>
@@ -92,7 +112,12 @@ export const ReviewCompletedNotification = ({
                       )
                     : ""
                 }
-                labelProps={{ color: "inherit", width: "50px" }}
+                labelProps={{
+                  color: bannerTextColor,
+                  width: "50px",
+                  flexShrink: 0,
+                }}
+                valueProps={{ color: bannerTextColor, noWrap: true }}
               />
             </Grid>
             <Grid item xs={12}>
@@ -105,7 +130,12 @@ export const ReviewCompletedNotification = ({
                       )
                     : ""
                 }
-                labelProps={{ color: "inherit", width: "50px" }}
+                labelProps={{
+                  color: bannerTextColor,
+                  width: "50px",
+                  flexShrink: 0,
+                }}
+                valueProps={{ color: bannerTextColor, noWrap: true }}
               />
             </Grid>
           </Grid>

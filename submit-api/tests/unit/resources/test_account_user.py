@@ -1,5 +1,6 @@
 """Tests for account user resource endpoints (role and status)."""
 import copy
+from datetime import datetime, UTC
 from http import HTTPStatus
 
 from faker import Faker
@@ -165,6 +166,37 @@ class TestListAccountUsers:
         assert response.status_code == HTTPStatus.OK
         returned_ids = [u["id"] for u in response.json]
         assert other_account_user.id in returned_ids
+
+    def test_all_users_serializes_last_login_at_without_error(self, client, session, jwt):
+        """A user with a non-null last_login_at serializes to an ISO string, not a 500.
+
+        Regression: AccountUser.to_dict() used to pre-stringify last_login_at, so
+        AccountUserSchema's fields.DateTime then called .isoformat() on a str and
+        raised AttributeError -> HTTP 500.
+        """
+        headers, account_project = setup_authenticated_proponent(session, jwt)
+        account_id = account_project.account_id
+
+        other_project = factory_project_model(name="Other Project")
+        other_account_project = factory_account_project_model(account_id, other_project.id)
+        _, other_account_user, _ = create_proponent_with_role(
+            session,
+            auth_guid=fake.uuid4(),
+            account_id=account_id,
+            role_name=RoleEnum.PROJECT_ADMIN.value,
+            account_project_id=other_account_project.id,
+        )
+        # Stamp a real login time so the DateTime field is exercised.
+        other_account_user.last_login_at = datetime.now(UTC)
+        session.flush()
+
+        response = client.get(
+            f"{ACCOUNTS_URL}/{account_id}/users?all_users=true", headers=headers
+        )
+
+        assert response.status_code == HTTPStatus.OK
+        stamped = next(u for u in response.json if u["id"] == other_account_user.id)
+        assert isinstance(stamped["last_login_at"], str)
 
     def test_list_requires_authentication(self, client, session):
         """Unauthenticated request is rejected."""

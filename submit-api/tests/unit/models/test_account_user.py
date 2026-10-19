@@ -125,6 +125,54 @@ def test_to_dict(session):
     assert 'full_name' in d
 
 
+def test_to_dict_returns_datetime_for_last_login_at(session):
+    """last_login_at is returned as a raw datetime so the schema can serialize it.
+
+    Pre-stringifying here previously caused AccountUserSchema.fields.DateTime to
+    call .isoformat() on a str and raise AttributeError.
+    """
+    user = factory_user_model(user_type=UserType.PROPONENT)
+    account = factory_account_model()
+    au = AccountUser.create_account_user(
+        {
+            'account_id': account.id,
+            'first_name': 'Jane',
+            'last_name': 'Doe',
+            'position': 'Dev',
+            'work_email_address': 'jane@test.com',
+            'work_contact_number': '555-1234',
+            'user_id': user.id,
+        },
+        session,
+    )
+    au.last_login_at = datetime.now(UTC)
+    session.flush()
+
+    d = au.to_dict()
+    assert isinstance(d['last_login_at'], datetime)
+
+
+def test_to_dict_last_login_at_none_when_never_logged_in(session):
+    """last_login_at is None in the dict when the user has never logged in."""
+    user = factory_user_model(user_type=UserType.PROPONENT)
+    account = factory_account_model()
+    au = AccountUser.create_account_user(
+        {
+            'account_id': account.id,
+            'first_name': 'Jane',
+            'last_name': 'Doe',
+            'position': 'Dev',
+            'work_email_address': 'jane2@test.com',
+            'work_contact_number': '555-1234',
+            'user_id': user.id,
+        },
+        session,
+    )
+    session.flush()
+
+    assert au.to_dict()['last_login_at'] is None
+
+
 def test_get_filtered_by_account_id_excludes_inactive_roles(session):
     """A user whose role on a project is revoked (inactive) is not returned for that project."""
     account = factory_account_model()
