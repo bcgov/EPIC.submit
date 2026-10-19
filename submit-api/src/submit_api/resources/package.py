@@ -310,7 +310,8 @@ class RefusePackage(Resource):
     def post(package_id):
         """Refuse package."""
         request_body = RefusePackageSchema().load(API.payload)
-        new_package = PackageService.refuse_package(package_id, request_body.get("decision_date"))
+        new_package = PackageService.refuse_package(
+            package_id, request_body.get("decision_date"), request_body.get("reason"))
         return PackageSchema().dump(new_package), HTTPStatus.CREATED
 
 

@@ -29,7 +29,7 @@ function ProponentStatusFilter() {
   };
 
   return (
-    <FormControl sx={{ width: "220px" }}>
+    <FormControl sx={{ width: "360px" }}>
       <Select
         labelId="proponent-status-select-label"
         id="proponent-status-select"

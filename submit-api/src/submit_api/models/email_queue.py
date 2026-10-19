@@ -24,6 +24,7 @@ class EntityType(Enum):
 
     PACKAGE = 'PACKAGE'
     INVITATION = 'INVITATION'
+    DOCUMENT = 'DOCUMENT'
 
 
 class EmailQueue(BaseModel):

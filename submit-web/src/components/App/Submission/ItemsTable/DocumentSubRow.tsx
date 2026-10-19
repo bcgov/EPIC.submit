@@ -22,10 +22,11 @@ export default function DocumentSubRow({
   const { submitted_document, version, submitted_by } = documentSubmission;
 
   const { name, url, folder } = submitted_document || { name: "", url: "", folder: "" };
+  const isVirusRejected = submitted_document?.is_virus_rejected ?? false;
 
   const downloadDocument = async () => {
     try {
-      if (pendingGetObject) return;
+      if (pendingGetObject || isVirusRejected) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });
     } catch (error) {
@@ -39,6 +40,7 @@ export default function DocumentSubRow({
   };
 
   const openDocument = () => {
+    if (isVirusRejected) return;
     if (onDocumentClick && folder === "geospatial") {
       onDocumentClick(documentSubmission);
     } else {
@@ -64,6 +66,7 @@ export default function DocumentSubRow({
             name={name}
             onClick={openDocument}
             loading={pendingGetObject}
+            disabled={isVirusRejected}
           />
         </Typography>
       </SubmitTableCell>

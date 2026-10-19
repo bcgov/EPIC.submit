@@ -30,6 +30,8 @@ class ActivityLog(BaseModel):
     )
     visibility = db.Column(db.String(20), nullable=False,
                            default='staff')  # can public see this entry ? 'staff' or 'public'
+    note = db.Column(db.String(500), nullable=True)
+    decision_date = db.Column(db.DateTime, nullable=True)
 
     def to_dict(self):
         """Creates a dict version for easy return."""
@@ -40,7 +42,9 @@ class ActivityLog(BaseModel):
             "entity_id": self.entity_id,
             "actor_id": self.actor_id,
             "actor_type": self.actor_type,
-            "visibility": self.visibility
+            "visibility": self.visibility,
+            "note": self.note,
+            "decision_date": self.decision_date
         }
 
     @classmethod
