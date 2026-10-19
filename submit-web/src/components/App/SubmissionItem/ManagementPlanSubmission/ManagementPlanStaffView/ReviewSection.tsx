@@ -34,7 +34,6 @@ import { NotificationBox } from "./NotificationBox";
 import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
 import ControlledSelect from "@/components/Shared/ControlledFormFields/ControlledSelect";
 import { isProvidedPlan } from "@/utils/managementPlan";
-import MarkAsProvidedButton from "./MarkAsProvidedButton";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema
@@ -124,7 +123,6 @@ export default function ReviewSection() {
     return (
       <Grid item xs={12}>
         <NotesSection />
-        <MarkAsProvidedButton submissionPackage={submissionPackage} />
       </Grid>
     );
   }

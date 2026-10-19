@@ -6,7 +6,6 @@ import { useUpdateStateSubmissionPackage } from "@/hooks/api/usePackages";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { PACKAGE_STATUS, SubmissionPackage } from "@/models/Package";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function MarkAsProvidedButton({
@@ -33,22 +32,22 @@ export default function MarkAsProvidedButton({
 
   return (
     <PermissionsGate scopes={[EPIC_SUBMIT_ROLE.mp_edit]}>
-      <Box mt={2}>
-        <UnfinishedUploadsCheck>
-          <LoadingButton
-            loading={isPending}
-            disabled={isPending}
-            onClick={() =>
-              mutate({
-                packageId: submissionPackage.id,
-                data: { status: PACKAGE_STATUS.PROVIDED.value },
-              })
-            }
-          >
-            Marked as Provided
-          </LoadingButton>
-        </UnfinishedUploadsCheck>
-      </Box>
+      <UnfinishedUploadsCheck>
+        <LoadingButton
+          variant="outlined"
+          color="primary"
+          loading={isPending}
+          disabled={isPending}
+          onClick={() =>
+            mutate({
+              packageId: submissionPackage.id,
+              data: { status: PACKAGE_STATUS.PROVIDED.value },
+            })
+          }
+        >
+          Marked as Provided
+        </LoadingButton>
+      </UnfinishedUploadsCheck>
     </PermissionsGate>
   );
 }
