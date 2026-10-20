@@ -49,7 +49,7 @@ def test_mark_as_provided_completes_and_enforces_current_version(provided_packag
         patch('submit_api.services.package_service.PackageVersionService.deactivate_update_requests') as close_requests,
         patch('submit_api.services.package_service.ActivityLogService.log_activity') as log_activity,
     ):
-        result = PackageService.mark_as_provided(2)
+        result = PackageService.update_package_state(2, {'status': 'PROVIDED'})
 
     assert result.completed_on is not None
     assert result.status == ['PROVIDED']
@@ -71,7 +71,7 @@ def test_mark_as_provided_rejects_ineligible_packages(provided_package, change):
     with patch('submit_api.services.package_service.session_scope'), \
             patch.object(PackageService, 'get_package_by_id', return_value=provided_package):
         with pytest.raises(BadRequestError):
-            PackageService.mark_as_provided(2)
+            PackageService.update_package_state(2, {'status': 'PROVIDED'})
 
 
 def test_provided_status_takes_precedence_over_other_item_statuses():

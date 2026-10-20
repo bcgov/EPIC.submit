@@ -971,7 +971,7 @@ class PackageService:
             return package
 
     @classmethod
-    def mark_as_provided(cls, package_id):
+    def _mark_as_provided(cls, package_id):
         """Complete an N/A management plan without a review decision."""
         with session_scope() as session:
             package = cls.get_package_by_id(package_id)
@@ -1353,7 +1353,7 @@ class PackageService:
                 PackageStatus.UNDER_REVIEW.value: cls.start_review,
                 PackageStatus.UNDER_CONSULTATION_CHECK.value: cls.start_cr_check,
                 PackageStatus.ACKNOWLEDGED.value: cls.acknowledge_package,
-                PackageStatus.PROVIDED.value: cls.mark_as_provided,
+                PackageStatus.PROVIDED.value: cls._mark_as_provided,
                 PackageStatus.APPROVED.value: cls.approve_package,
             }
         )
