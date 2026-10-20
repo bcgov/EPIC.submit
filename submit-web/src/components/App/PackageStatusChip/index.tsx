@@ -13,6 +13,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     ACCEPTED: { label: "Accepted", theme: "success" },
     SATISFIED: { label: "Satisfied", theme: "success" },
     REVIEWED: { label: "Reviewed", theme: "success" },
+    PROVIDED: { label: "Provided", theme: "success" },
     COMPLETED: { label: "Completed", theme: "success" },
     REVIEW_COMPLETED: { label: "Review Completed", theme: "success" },
     PASSED_CONSULTATION_CHECK: {

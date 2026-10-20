@@ -7,16 +7,20 @@ import { Fragment } from "react";
 type SubmissionSuccessBoxProps = {
   submissionPackageType: PackageType;
   contactEmail?: string;
+  isProvided?: boolean;
 };
 
 export const SubmissionSuccessBox = ({
   submissionPackageType,
   contactEmail,
+  isProvided = false,
 }: SubmissionSuccessBoxProps) => {
   const email = contactEmail || AppConfig.supportMpEmail;
-  const paragraphs = submissionPackageType.success_message
-    ? submissionPackageType.success_message.split("\n")
-    : [];
+  const paragraphs = isProvided
+    ? ["This plan has been provided to the EAO."]
+    : submissionPackageType.success_message
+      ? submissionPackageType.success_message.split("\n")
+      : [];
 
   const renderParagraph = (text: string, index: number) => {
     // Replace {{contact_email}} placeholder with a clickable link
@@ -51,8 +55,10 @@ export const SubmissionSuccessBox = ({
   return (
     <Box
       sx={{
-        background: BCDesignTokens.supportSurfaceColorSuccess,
-        border: `1px solid ${BCDesignTokens.supportBorderColorSuccess}`,
+        background: isProvided
+          ? BCDesignTokens.themeGray10
+          : BCDesignTokens.supportSurfaceColorSuccess,
+        border: `1px solid ${isProvided ? BCDesignTokens.themeGray40 : BCDesignTokens.supportBorderColorSuccess}`,
         borderRadius: 1,
       }}
     >
@@ -66,9 +72,7 @@ export const SubmissionSuccessBox = ({
         }}
       >
         {paragraphs.map((paragraph, index) => (
-          <Fragment key={index}>
-            {renderParagraph(paragraph, index)}
-          </Fragment>
+          <Fragment key={index}>{renderParagraph(paragraph, index)}</Fragment>
         ))}
       </Box>
     </Box>

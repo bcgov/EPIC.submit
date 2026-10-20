@@ -33,6 +33,7 @@ import NotesSection from "@/components/App/SubmissionItem/NotesSection";
 import { NotificationBox } from "./NotificationBox";
 import UndoTMRecommendationButton from "@/components/App/SubmissionItem/UndoTMRecommendationButton";
 import ControlledSelect from "@/components/Shared/ControlledFormFields/ControlledSelect";
+import { isProvidedPlan } from "@/utils/managementPlan";
 
 type managementPlanReviewForm = yup.InferType<
   typeof managementPlanReviewSchema
@@ -117,6 +118,14 @@ export default function ReviewSection() {
       sublabel: DropdownOptions.REVISION_REQUIRED.sublabel,
     },
   ];
+
+  if (submissionPackage && isProvidedPlan(submissionPackage)) {
+    return (
+      <Grid item xs={12}>
+        <NotesSection />
+      </Grid>
+    );
+  }
 
   return (
     <Grid item container data-testid="review-section">

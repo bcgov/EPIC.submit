@@ -3,6 +3,8 @@ import { EnforceableBanner } from "@/components/App/Submission/EnforceableBanner
 import { useStaffEnforceableBanner } from "@/components/App/Submission/EnforceableBanner/useEnforceableBanner";
 import { InfoBox } from "@/components/App/Submission/InfoBox";
 import ItemsTable from "@/components/App/Submission/ItemsTable";
+import MarkAsProvidedButton from "@/components/App/Submission/MarkAsProvidedButton";
+import { isProvidedPlan } from "@/utils/managementPlan";
 import AcknowledgeSubmissionModal from "@/components/App/Submission/Modals/AcknowledgeSubmissionModal";
 import ApproveSubmissionModal from "@/components/App/Submission/Modals/ApproveSubmissionModal";
 import RefuseSubmissionModal from "@/components/App/Submission/Modals/RefuseSubmissionModal";
@@ -301,6 +303,9 @@ export default function SubmissionPage() {
                 >
                   Save & Exit
                 </Button>
+                {isProvidedPlan(submissionPackage) && (
+                  <MarkAsProvidedButton submissionPackage={submissionPackage} />
+                )}
                 {showAcknowledgeButton && (
                   <Button
                     variant="outlined"

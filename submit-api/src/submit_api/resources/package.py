@@ -16,7 +16,7 @@
 from http import HTTPStatus
 
 from flask_cors import cross_origin
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, abort
 
 from submit_api.auth import auth, jwt
 from submit_api.enums.package_operation import PackageOperation
@@ -126,6 +126,8 @@ class PackageState(Resource):
         request_body = PostPackageState().load(API.payload)
         # Check authorization for package EDIT access
         is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        if request_body.get('status') == 'PROVIDED' and not is_staff:
+            abort(HTTPStatus.FORBIDDEN)
         if is_staff:
             PackageAccessControl.check_package_access(package_id, PackageOperation.EDIT)
         package = PackageService.update_package_state(package_id, request_body)

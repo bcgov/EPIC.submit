@@ -222,6 +222,9 @@ class PackageItemQueries:
                         else item.status
                         for item in items]
 
+        if ItemStatus.PROVIDED.value in all_statuses:
+            return [PackageStatus.PROVIDED.value]
+
         # Get required item statuses for completion/submission checks
         required_statuses = cls._get_required_item_statuses(items)
 

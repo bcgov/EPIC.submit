@@ -30,6 +30,7 @@ import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import { useHasRole } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
+import { isProvidedPlan } from "@/utils/managementPlan";
 import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
 
 export default function StaffSubmissionItemTableRow({
@@ -72,6 +73,7 @@ export default function StaffSubmissionItemTableRow({
       "ACCEPTED",
       "REJECTED",
       "NOT_APPROVED",
+      "PROVIDED",
       "REVIEW_REJECTED",
       "REVISION_REQUESTED",
     ];
@@ -216,6 +218,7 @@ export default function StaffSubmissionItemTableRow({
             <When condition={!isContactInfoItem && !canStaffEditContactInfo && submitted_on && !hasAccountProjectWork && !isPackageInEndStatusExcludingReviewRejected}>
               <SubmissionItemReviewConfirmation
                 submissionItem={item}
+                skipReview={isProvidedPlan(submissionPackage)}
                 onClick={handleClick}
               >
                 <Typography

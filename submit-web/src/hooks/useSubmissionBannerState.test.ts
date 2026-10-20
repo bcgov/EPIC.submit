@@ -204,4 +204,15 @@ describe("useSubmissionBannerState", () => {
       "EAO.ManagementPlanSupport@gov.bc.ca",
     );
   });
+  it("keeps the Provided confirmation on a completed previous version", () => {
+    const { result } = renderHook(() => useSubmissionBannerState({
+      submissionPackage: { ...basePackage, status: ["PROVIDED"] },
+      packageVersions: [{ ...basePackage.version!, is_latest: false, is_enforceable: true }],
+      hasUpdatedItems: false,
+      isRevisionRequired: false,
+    }));
+    expect(result.current.showSubmissionConfirmation).toBe(true);
+    expect(result.current.showApprovalBanner).toBe(false);
+  });
+
 });

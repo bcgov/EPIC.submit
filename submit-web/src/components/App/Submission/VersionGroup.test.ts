@@ -128,13 +128,14 @@ describe("VersionGroup - Proponent '+ Create New' button visibility logic", () =
   });
 
   describe("PROPONENT_CREATE_ELIGIBLE_STATUSES", () => {
-    it("contains APPROVED, ACCEPTED, SATISFIED, REVIEWED, and NO_REVISION_REQUIRED", () => {
+    it("contains APPROVED, ACCEPTED, SATISFIED, REVIEWED, NO_REVISION_REQUIRED, and PROVIDED", () => {
       expect(PROPONENT_CREATE_ELIGIBLE_STATUSES).toEqual([
         "APPROVED",
         "ACCEPTED",
         "SATISFIED",
         "REVIEWED",
         "NO_REVISION_REQUIRED",
+        "PROVIDED",
       ]);
     });
   });

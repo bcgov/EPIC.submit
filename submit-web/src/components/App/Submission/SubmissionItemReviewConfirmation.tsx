@@ -32,12 +32,14 @@ type SubmissionItemReviewConfirmationProps = Readonly<{
   submissionItem: SubmissionItem;
   onClick: () => void;
   children: React.ReactElement;
+  skipReview?: boolean;
 }>;
 
 export default function SubmissionItemReviewConfirmation({
   submissionItem,
   children,
   onClick,
+  skipReview = false,
 }: SubmissionItemReviewConfirmationProps) {
   const { userType } = useAccount();
   const { name: itemType, submission_method } = submissionItem.type;
@@ -103,6 +105,7 @@ export default function SubmissionItemReviewConfirmation({
 
   const bypass = useMemo(() => {
     if (userType !== USER_TYPE.STAFF) return true;
+    if (skipReview) return true;
     if (!hasDocument) return true;
     if (submissionItem.status !== SUBMISSION_ITEM_STATUS.SUBMITTED.value)
       return true;
@@ -110,7 +113,7 @@ export default function SubmissionItemReviewConfirmation({
     // (e.g. download) instead of attempting to start a review.
     if (!acceptedSubmissionItemTypes.includes(itemType) || !packageStatus)
       return true;
-  }, [hasDocument, userType, submissionItem.status, itemType, packageStatus]);
+  }, [hasDocument, userType, submissionItem.status, itemType, packageStatus, skipReview]);
 
   const handleBypassClick = () => {
     onClick();
