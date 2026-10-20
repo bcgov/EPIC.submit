@@ -29,6 +29,7 @@ const statusMap: Record<string, StyleProps> = {
   },
   APPROVED: { label: "Approved", theme: "success" },
   REVIEWED: { label: "Reviewed", theme: "success" },
+    PROVIDED: { label: "Provided", theme: "success" },
   ACCEPTED: { label: "Accepted", theme: "success" },
   SATISFIED: { label: "Satisfied", theme: "success" },
   NO_REVISION_REQUIRED: {

@@ -20,6 +20,13 @@ const basePackageType: PackageType = {
 };
 
 describe("SubmissionSuccessBox", () => {
+  it("replaces the submission message when the plan has been provided", () => {
+    render(<SubmissionSuccessBox submissionPackageType={basePackageType} isProvided />);
+
+    expect(screen.getByText("This plan has been provided to the EAO.")).toBeInTheDocument();
+    expect(screen.queryByText(/successfully submitted/)).not.toBeInTheDocument();
+  });
+
   it("renders single paragraph when success_message has no newline", () => {
     const singleLineType: PackageType = {
       ...basePackageType,

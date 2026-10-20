@@ -50,6 +50,7 @@ export type SubmissionItemStatus =
   | "REVISION_REQUIRED"
   | "APPROVED"
   | "REVIEWED"
+  | "PROVIDED"
   | "ACCEPTED"
   | "SATISFIED"
   | "UPDATE_REQUESTED"
@@ -136,6 +137,12 @@ export const SUBMISSION_ITEM_STATUS: Record<
     label: "Revision Required",
     filter: ["proponent"],
     sortOrder: 4,
+  },
+  PROVIDED: {
+    value: "PROVIDED",
+    label: "Provided",
+    filter: ["eao", "proponent"],
+    sortOrder: 13,
   },
   REVIEWED: {
     value: "REVIEWED",

@@ -43,6 +43,7 @@ class ActivityActionType(enum.Enum):
     MP_ACCEPTED = "MP Accepted"
     MP_SATISFIED = "MP Satisfied"
     MP_REVIEWED = "MP Reviewed"
+    MP_PROVIDED = "MP Provided"
     MP_REVIEW_REJECTED = "MP Review Rejected"
     MP_REVIEW_FAILED = "MP Review Failed"
     MP_REVISION_REQUIRED = "EAO requested a new version"

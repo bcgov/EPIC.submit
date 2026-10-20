@@ -10,7 +10,7 @@ import {
 export const PROPONENT_CREATE_ELIGIBLE_STATUSES: (
   | PackageStatus
   | NonCanonicalPackageStatus
-)[] = ["APPROVED", "ACCEPTED", "SATISFIED", "REVIEWED", "NO_REVISION_REQUIRED"];
+)[] = ["APPROVED", "ACCEPTED", "SATISFIED", "REVIEWED", "NO_REVISION_REQUIRED", "PROVIDED"];
 
 /**
  * Determines whether the proponent user can create a new package version.

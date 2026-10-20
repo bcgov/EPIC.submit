@@ -9,6 +9,7 @@ import enum
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.orm import joinedload
 
+from submit_api.enums.package_type import PackageTypeEnum
 from .package_version import PackageVersion
 from .base_model import BaseModel
 from .db import db
@@ -40,6 +41,7 @@ class PackageStatus(enum.Enum):
     SATISFIED = 'SATISFIED'
     REJECTED = 'REJECTED'
     REVIEWED = 'REVIEWED'
+    PROVIDED = 'PROVIDED'
     SUBMITTED = 'SUBMITTED'
     PARTIALLY_COMPLETED = 'PARTIALLY_COMPLETED'
     COMPLETED = 'COMPLETED'
@@ -135,6 +137,14 @@ class Package(BaseModel):
                                                lazy='joined',
                                                cascade='all, delete',
                                                passive_deletes=True)
+
+    @property
+    def is_provided_plan(self):
+        """Whether this management plan is provided without a review decision."""
+        if self.type.name != PackageTypeEnum.MANAGEMENT_PLAN.value or not self.meta:
+            return False
+        condition = (self.meta.json or {}).get('main_condition', {})
+        return condition.get('condition_attributes', {}).get('submitted_to_eao_for') == 'N/A'
 
     @property
     def update_requests(self):

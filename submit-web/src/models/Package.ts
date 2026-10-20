@@ -95,6 +95,7 @@ export type PackageStatus =
   | "REVIEW_REJECTED"
   | "REVIEW_NOT_COMPLETED"
   | "REVIEWED"
+  | "PROVIDED"
   | "COMPLETED"
   | "SUBMITTED"
   | "PARTIALLY_COMPLETED"
@@ -215,6 +216,7 @@ export const PACKAGE_STATUS: Record<
     filter: ["eao"],
     sortOrder: 6,
   },
+  PROVIDED: { value: "PROVIDED", label: "Provided" },
   REVIEWED: {
     value: "REVIEWED",
     label: "Reviewed",
