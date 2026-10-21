@@ -86,6 +86,7 @@ class TestAcceptInvitationDuplicateUser:
                  patch.object(InvitationService, "_assign_user_role") as mock_assign_role, \
                  patch.object(InvitationService, "_process_eligible_entries") as mock_process, \
                  patch.object(InvitationService, "_create_default_package_if_needed"), \
+                 patch.object(InvitationService, "_sync_report_packages_for_projects"), \
                  patch.object(InvitationService, "_update_proponent_status_by_account"):
 
                 mock_user = MagicMock()
@@ -177,6 +178,7 @@ class TestAcceptInvitationSubmissionAdminScoping:
                  patch.object(InvitationService, "_assign_user_role") as mock_assign_role, \
                  patch.object(InvitationService, "_process_eligible_entries") as mock_process, \
                  patch.object(InvitationService, "_create_default_package_if_needed"), \
+                 patch.object(InvitationService, "_sync_report_packages_for_projects"), \
                  patch.object(InvitationService, "_update_proponent_status_by_account"):
 
                 mock_user = MagicMock()
@@ -216,6 +218,134 @@ class TestAcceptInvitationSubmissionAdminScoping:
                 )
                 assert assigned_account_project_ids == [1, 2]
                 assert len(result["roles"]) == 2
+
+
+class TestAcceptInvitationTriggersReportSync:
+    """Invitation acceptance reconciles report obligations/packages per project."""
+
+    @pytest.fixture()
+    def valid_payload(self):
+        """Return a valid payload for accept_invitation."""
+        return {
+            "auth_guid": "report-sync-guid",
+            "first_name": "Rhea",
+            "last_name": "Party",
+            "position": "Admin",
+            "work_email_address": "rhea@example.com",
+            "work_contact_number": "5559990000",
+            "company_name": "Test Corp",
+            "has_agreed_to_terms": True,
+            "terms_of_service_version_id": 1,
+        }
+
+    @pytest.fixture()
+    def invitation(self):
+        """Return a mock invitation scoped to two projects."""
+        inv = MagicMock()
+        inv.account_id = 1
+        inv.role_id = 1
+        inv.project_ids = [101, 102]
+        inv.eligible_entries = None
+        inv.package_ids = []
+        inv.original_package_ids = None
+        return inv
+
+    @patch("submit_api.services.invitation_service.TermsOfServiceModel")
+    @patch("submit_api.services.invitation_service.InvitationsModel")
+    @patch("submit_api.services.invitation_service.User")
+    def test_reconcile_called_for_each_onboarded_project(
+        self, mock_user_class, mock_invitations_model, mock_terms_model,
+        valid_payload, invitation
+    ):
+        """Report-package reconcile runs once per project id from the invitation."""
+        mock_invitations_model.validate_token.return_value = invitation
+        mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
+        mock_user_class.get_by_guid.return_value = None
+
+        with patch("submit_api.services.invitation_service.session_scope") as mock_scope:
+            mock_session = MagicMock()
+            mock_scope.return_value.__enter__ = MagicMock(return_value=mock_session)
+            mock_scope.return_value.__exit__ = MagicMock(return_value=False)
+
+            with patch.object(InvitationService, "_create_user") as mock_create_user, \
+                 patch.object(InvitationService, "_create_account_user") as mock_create_account_user, \
+                 patch.object(InvitationService, "_get_project_ids_from_invitation") as mock_get_pids, \
+                 patch.object(InvitationService, "get_or_create_account_projects"), \
+                 patch("submit_api.services.invitation_service.AccountProjectModel") as mock_ap_model, \
+                 patch.object(InvitationService, "_assign_user_role") as mock_assign_role, \
+                 patch.object(InvitationService, "_process_eligible_entries") as mock_process, \
+                 patch.object(InvitationService, "_create_default_package_if_needed"), \
+                 patch.object(InvitationService, "_update_proponent_status_by_account"), \
+                 patch(
+                     "submit_api.services.invitation_service.ReportPackageSyncService"
+                 ) as mock_report_sync:
+
+                mock_user = MagicMock(id=99)
+                mock_create_user.return_value = mock_user
+                mock_create_account_user.return_value = MagicMock(user_id=99, id=10)
+                mock_get_pids.return_value = [101, 102]
+
+                ap1 = MagicMock(id=1, project_id=101)
+                ap2 = MagicMock(id=2, project_id=102)
+                mock_ap_model.get_all_in_project_ids.return_value = [ap1, ap2]
+                mock_assign_role.return_value = {
+                    "role_id": 1, "role_name": "admin", "permissions": [],
+                    "account_project_id": 1, "package_ids": [], "original_package_ids": [],
+                }
+                mock_process.return_value = []
+
+                InvitationService.accept_invitation("token", valid_payload)
+
+                synced = sorted(
+                    call.args[0] for call in mock_report_sync.reconcile_project.call_args_list
+                )
+                assert synced == [101, 102]
+
+    @patch("submit_api.services.invitation_service.TermsOfServiceModel")
+    @patch("submit_api.services.invitation_service.InvitationsModel")
+    @patch("submit_api.services.invitation_service.User")
+    def test_reconcile_failure_does_not_break_onboarding(
+        self, mock_user_class, mock_invitations_model, mock_terms_model,
+        app, valid_payload, invitation
+    ):
+        """A reconcile error is swallowed so invitation acceptance still succeeds."""
+        mock_invitations_model.validate_token.return_value = invitation
+        mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
+        mock_user_class.get_by_guid.return_value = None
+
+        with app.app_context(), \
+                patch("submit_api.services.invitation_service.session_scope") as mock_scope:
+            mock_session = MagicMock()
+            mock_scope.return_value.__enter__ = MagicMock(return_value=mock_session)
+            mock_scope.return_value.__exit__ = MagicMock(return_value=False)
+
+            with patch.object(InvitationService, "_create_user") as mock_create_user, \
+                 patch.object(InvitationService, "_create_account_user") as mock_create_account_user, \
+                 patch.object(InvitationService, "_get_project_ids_from_invitation") as mock_get_pids, \
+                 patch.object(InvitationService, "get_or_create_account_projects"), \
+                 patch("submit_api.services.invitation_service.AccountProjectModel") as mock_ap_model, \
+                 patch.object(InvitationService, "_assign_user_role") as mock_assign_role, \
+                 patch.object(InvitationService, "_process_eligible_entries") as mock_process, \
+                 patch.object(InvitationService, "_create_default_package_if_needed"), \
+                 patch.object(InvitationService, "_update_proponent_status_by_account"), \
+                 patch(
+                     "submit_api.services.invitation_service.ReportPackageSyncService"
+                 ) as mock_report_sync:
+
+                mock_create_user.return_value = MagicMock(id=99)
+                mock_create_account_user.return_value = MagicMock(user_id=99, id=10)
+                mock_get_pids.return_value = [101]
+                mock_ap_model.get_all_in_project_ids.return_value = [MagicMock(id=1, project_id=101)]
+                mock_assign_role.return_value = {
+                    "role_id": 1, "role_name": "admin", "permissions": [],
+                    "account_project_id": 1, "package_ids": [], "original_package_ids": [],
+                }
+                mock_process.return_value = []
+                mock_report_sync.reconcile_project.side_effect = RuntimeError("condition api down")
+
+                result = InvitationService.accept_invitation("token", valid_payload)
+
+                assert result["user_id"] == 99
 
 
 class TestCreateDefaultPackageIfNeeded:

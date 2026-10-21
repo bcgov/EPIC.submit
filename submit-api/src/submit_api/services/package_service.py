@@ -67,7 +67,7 @@ CANONICAL_STATUS_ORDER = (
 )
 
 
-class PackageService:
+class PackageService:  # pylint: disable=too-many-public-methods
     """Package management service."""
 
     @staticmethod
@@ -330,6 +330,34 @@ class PackageService:
             cls._create_items(session, package.id, package_type)
             session.commit()
         return PackageModel.find_by_id(package.id)
+
+    @classmethod
+    def create_report_package(cls, session, account_project_id, project_report_id, name):
+        """Create an empty Report package for a report obligation within the given session.
+
+        Used by the report-obligation sync. The package is linked to the obligation via
+        ``project_report_id`` and seeded with the Report package type's items. The Report
+        package type has versioning disabled, so no package version is created.
+        """
+        package_type = PackageTypeModel.find_by_name(PackageTypeEnum.REPORT.value)
+        if not package_type:
+            raise BadRequestError(
+                f"Package type '{PackageTypeEnum.REPORT.value}' is not configured."
+            )
+
+        package = PackageModel(
+            account_project_id=account_project_id,
+            name=name,
+            type_id=package_type.id,
+            project_report_id=project_report_id,
+            status=[PackageStatus.NEW.value],
+        )
+        session.add(package)
+        session.flush()
+
+        cls._create_package_metadata(session, package.id, None)
+        cls._create_items(session, package.id, package_type)
+        return package
 
     @staticmethod
     def _create_package(session, account_project_id, request_data, package_type):

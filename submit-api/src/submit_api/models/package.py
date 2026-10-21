@@ -101,6 +101,10 @@ class Package(BaseModel):
         'account_project_works.id', ondelete='SET NULL'), nullable=True)
     account_project_work = db.relationship('AccountProjectWork', foreign_keys=[
                            account_project_work_id], lazy='joined', back_populates='packages')
+    project_report_id = Column(db.Integer, ForeignKey(
+        'project_reports.id', ondelete='SET NULL'), nullable=True)
+    project_report = db.relationship('ProjectReport', foreign_keys=[
+                           project_report_id], lazy='joined')
     submitted_on = Column(db.DateTime, nullable=True)
     submitted_by = Column(db.String, ForeignKey(
         'users.auth_guid', name='packages_submitted_by_fkey'), nullable=True)
@@ -125,6 +129,8 @@ class Package(BaseModel):
         db.Index('idx_packages_account_project_id', 'account_project_id'),
         db.Index('idx_packages_account_project_work_id', 'account_project_work_id',
                  postgresql_where=db.text('account_project_work_id IS NOT NULL')),
+        db.Index('idx_packages_project_report_id', 'project_report_id',
+                 postgresql_where=db.text('project_report_id IS NOT NULL')),
     )
 
     _update_requests = db.relationship(
@@ -209,6 +215,18 @@ class Package(BaseModel):
                 type_id=type_id
             ).exists()
         ).scalar()
+
+    @classmethod
+    def exists_for_project_report(cls, project_report_id: int) -> bool:
+        """Return True if a package already exists for the given project report obligation."""
+        return db.session.query(
+            cls.query.filter_by(project_report_id=project_report_id).exists()
+        ).scalar()
+
+    @classmethod
+    def get_by_project_report_id(cls, project_report_id: int):
+        """Return the package linked to the given project report obligation, if any."""
+        return cls.query.filter_by(project_report_id=project_report_id).first()
 
     @classmethod
     def exists_for_account_project_and_type(cls, account_project_id: int, type_id: int) -> bool:

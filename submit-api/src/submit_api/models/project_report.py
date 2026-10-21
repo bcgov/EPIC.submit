@@ -28,21 +28,23 @@ class ProjectReport(BaseModel):  # pylint: disable=too-many-instance-attributes
     """Definition of the ProjectReport entity.
 
     A flat table holding one row per approved report phase for a project. Rows
-    are synced from the condition repository: new rows are inserted and existing
-    rows are updated in place, but rows removed from the source are never
-    removed here (removals are handled manually).
+    are synced from the condition repository, keyed on the condition submission id
+    (stored in ``report_id``): new rows are inserted and existing rows are updated
+    in place. Rows no longer returned are removed only when their package has no
+    uploaded documents.
     """
 
     __tablename__ = 'project_reports'
     __table_args__ = (
         UniqueConstraint(
-            'project_id', 'report_id', 'phase', 'timing', 'frequency',
-            name='uq_project_report_phase',
+            'project_id', 'report_id',
+            name='uq_project_report_submission',
         ),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     project_id = Column(Integer, ForeignKey('projects.id'), nullable=False)
+    # Condition repository submission id (stable per report phase row).
     report_id = Column(Integer, nullable=False)
     condition_number = Column(Integer, nullable=True)
     condition_subsection = Column(String(255), nullable=True)

@@ -25,6 +25,7 @@ from submit_api.models.package import NonCanonicalPackageStatus, PackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.project import AddProjectSchema, ProjectSchema, StaffAccountProjectSchema
 from submit_api.services.project_service import ProjectService
+from submit_api.services.report_package_sync_service import ReportPackageSyncService
 from submit_api.utils.util import allowedorigins, cors_preflight
 from submit_api.utils.roles import EpicSubmitRole
 
@@ -220,3 +221,22 @@ class ProjectsByAccountUser(Resource):
         """Get projects by user id."""
         projects = ProjectService.get_account_projects_by_user_id(user_id)
         return projects, HTTPStatus.OK
+
+
+@cors_preflight("POST, OPTIONS")
+@API.route("/<int:project_id>/report-packages/sync", methods=["POST", "OPTIONS"])
+class ProjectReportPackageSync(Resource):
+    """Resource for syncing a project's report obligations into submission packages."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Sync approved report obligations into packages for a project"
+    )
+    @API.response(code=HTTPStatus.OK, description="Sync summary")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
+    @cross_origin(origins=allowedorigins())
+    def post(project_id):
+        """Reconcile report obligations and packages for the given project."""
+        summary = ReportPackageSyncService.reconcile_project(project_id)
+        return summary, HTTPStatus.OK
