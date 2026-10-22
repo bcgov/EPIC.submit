@@ -1,6 +1,7 @@
 import dateUtils from "@/utils/dateUtils";
-import { Chip, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
+import { ConditionBadge } from "@/components/Shared/ConditionBadge";
 import { MANAGEMENT_PLAN_RELATED_TYPES, SubmissionPackage } from "@/models/Package";
 import { PackageStatusChipStack } from "@/components/App/PackageStatusChip/PackageStatusChipStack";
 import {
@@ -32,14 +33,7 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
       <StyledProjectTableRow>
         {isMPRelated && (
           <StyledProjectTableCell align="left" sx={{ width: "5%" }}>
-            {conditionNumber && (
-              <Chip
-                label={`#${conditionNumber}`}
-                size="small"
-                variant="outlined"
-                sx={{ height: "20px", fontSize: "0.7rem", fontWeight: "bold" }}
-              />
-            )}
+            <ConditionBadge conditionNumber={conditionNumber} />
           </StyledProjectTableCell>
         )}
         <StyledProjectTableCell sx={{ width: isMPRelated ? "50%" : "55%" }}>

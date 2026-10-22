@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - develop
+      - "release/**"
     paths:
       - "submit-web/**"
   workflow_dispatch:

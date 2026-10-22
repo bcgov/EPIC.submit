@@ -1,10 +1,15 @@
 import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { AccountProject } from "@/models/Project";
-import { MANAGEMENT_PLAN_RELATED_TYPES } from "@/models/Package";
+import {
+  MANAGEMENT_PLAN_RELATED_TYPES,
+  SubmissionPackageType,
+} from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
 import { useNavigate } from "@tanstack/react-router";
 import { ProjectSubmissionsCard } from "./ProjectSubmissionsCard";
+import { ReportsRecurringCard } from "./ReportsRecurring/ReportsRecurringCard";
+import { canViewReportsSection } from "@/components/Shared/PermissionGate/utils";
 import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
 import { useMemo } from "react";
 
@@ -14,12 +19,22 @@ type ProjectParam = {
 
 export const Project = ({ accountProject }: ProjectParam) => {
   const navigate = useNavigate();
-  const { userType } = useAccount();
+  const { userType, userManagementRoles } = useAccount();
 
   const is_proponent = useMemo(() => userType === USER_TYPE.PROPONENT, [userType]);
   const { name, ea_certificate } = accountProject.project;
   const hasAccountProjectWorks =
     (accountProject.account_project_works?.length ?? 0) > 0;
+
+  const reportPackages = useMemo(
+    () =>
+      accountProject.packages.filter(
+        (pkg) => pkg.type.name === SubmissionPackageType.REPORT,
+      ),
+    [accountProject.packages],
+  );
+  const showReportsSection =
+    is_proponent && canViewReportsSection(userManagementRoles);
 
   const handleNewSubmission = (workId?: number, isManagementPlan?: boolean) => {
     navigate({
@@ -70,6 +85,9 @@ export const Project = ({ accountProject }: ProjectParam) => {
             )}
             onNewSubmission={handleNewSubmission}
           />
+        )}
+        {showReportsSection && (
+          <ReportsRecurringCard reportPackages={reportPackages} />
         )}
     </ContentBox>
   );

@@ -275,6 +275,57 @@ def factory_package_model(
     return package
 
 
+def factory_project_report_model(
+    project_id,
+    report_id=None,
+    condition_number=7,
+    condition_subsection="2",
+    report_type="Annual Report",
+    report_sub_type=None,
+    report_name=None,
+    phase="Construction",
+    frequency="Annually",
+    timing="Within 30 days of the anniversary",
+    display_name="Annual Report",
+):
+    """Create a ProjectReport obligation model for tests."""
+    from submit_api.models.project_report import ProjectReport
+
+    project_report = ProjectReport(
+        project_id=project_id,
+        report_id=report_id or fake.random_int(min=1, max=999999),
+        condition_number=condition_number,
+        condition_subsection=condition_subsection,
+        report_type=report_type,
+        report_sub_type=report_sub_type,
+        report_name=report_name,
+        phase=phase,
+        frequency=frequency,
+        timing=timing,
+        display_name=display_name,
+    )
+    db.session.add(project_report)
+    db.session.commit()
+    return project_report
+
+
+def factory_report_package_model(account_project, project_report, name=None, package_type_id=1):
+    """Create a package linked to a report obligation (project_report_id set)."""
+    from submit_api.models.package import Package, PackageStatus
+
+    package = Package(
+        account_project_id=account_project.id,
+        name=name or (project_report.display_name or "Report"),
+        type_id=package_type_id,
+        project_report_id=project_report.id,
+        status=[PackageStatus.NEW.value],
+    )
+    db.session.add(package)
+    db.session.flush()
+    db.session.commit()
+    return package
+
+
 def factory_package_metadata_model(
     package_id, metadata: dict = None, submitted_to_eao_for=None
 ):

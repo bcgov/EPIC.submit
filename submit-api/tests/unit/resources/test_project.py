@@ -11,7 +11,8 @@ from submit_api import get_named_config
 from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
     factory_account_model, factory_account_project_model, factory_auth_header, setup_authenticated_proponent,
-    factory_project_model, factory_proponent_model, factory_user_model)
+    factory_project_model, factory_project_report_model, factory_proponent_model, factory_report_package_model,
+    factory_user_model)
 from submit_api.models.user import UserType
 
 fake = Faker()
@@ -53,6 +54,47 @@ def test_get_project_by_id(client, session, jwt):
     assert "proponent" in data["project"]
     assert data["project"]["proponent"] is not None
     assert data["project"]["proponent"]["name"] == proponent_name
+
+
+def test_get_project_by_id_includes_project_report_on_report_package(client, session, jwt):
+    """A report package in the project payload carries its nested project_report."""
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+
+    proponent_id = fake.random_int(min=1000, max=9999)
+    factory_proponent_model(id=proponent_id, name="Report Proponent", is_deleted=False)
+    account = factory_account_model(proponent_id=proponent_id)
+    project = factory_project_model(name="ReportProject", proponent_id=proponent_id)
+    account_project = factory_account_project_model(account_id=account.id, project_id=project.id)
+
+    project_report = factory_project_report_model(
+        project_id=project.id,
+        condition_number=7,
+        condition_subsection="2",
+        display_name="Annual Report",
+        frequency="Annually",
+        phase="Construction",
+    )
+    report_package = factory_report_package_model(account_project, project_report)
+
+    session.flush()
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.get(f"{PROJECTS_URL}/{account_project.id}", headers=headers)
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.get_json()
+
+    report_entry = next(
+        (p for p in data["packages"] if p["id"] == report_package.id), None
+    )
+    assert report_entry is not None
+    assert report_entry["project_report"] is not None
+    assert report_entry["project_report"]["condition_number"] == 7
+    assert report_entry["project_report"]["condition_subsection"] == "2"
+    assert report_entry["project_report"]["display_name"] == "Annual Report"
+    assert report_entry["project_report"]["frequency"] == "Annually"
+    assert report_entry["project_report"]["phase"] == "Construction"
 
 
 def test_get_project_by_id_no_access(client, session, jwt):
