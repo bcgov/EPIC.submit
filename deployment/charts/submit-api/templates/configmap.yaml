@@ -22,4 +22,5 @@ data:
   STAFF_SUPPORT_MAIL_ID: {{ .Values.staffSupportMailId }}
   SIGNUP_URL_PATH: {{ .Values.signupUrlPath }}
   DOCUMENT_SERVICE_URL: {{ .Values.documentService.url }}
+  CONDITION_API_BASE_URL: {{ .Values.conditionApi.baseUrl }}
   GEO_MAX_CONCURRENT_JOBS: "{{ .Values.geo.maxConcurrentJobs }}"

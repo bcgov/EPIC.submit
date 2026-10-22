@@ -168,6 +168,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: DOCUMENT_SERVICE_URL
+            - name: CONDITION_API_BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: CONDITION_API_BASE_URL
             - name: GEO_MAX_CONCURRENT_JOBS
               valueFrom:
                 configMapKeyRef:

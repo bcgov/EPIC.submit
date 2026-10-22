@@ -58,6 +58,11 @@ class Project(db.Model):
         }
 
     @classmethod
+    def find_by_id(cls, identifier: int):
+        """Return project by id."""
+        return db.session.get(cls, identifier)
+
+    @classmethod
     def get_all_projects_in_ids(cls, project_ids):
         """Get all projects in the given project ids."""
         return cls.query.filter(cls.id.in_(project_ids)).all()

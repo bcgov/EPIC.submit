@@ -106,6 +106,9 @@ class _Config():  # pylint: disable=too-few-public-methods
 
     DOCUMENT_SERVICE_URL = _get_config("DOCUMENT_SERVICE_URL")
 
+    # Condition repository API URL (for report obligation sync)
+    CONDITION_API_BASE_URL = os.getenv("CONDITION_API_BASE_URL")
+
     # epic.auth service URL
     AUTH_BASE_URL = os.getenv('AUTH_BASE_URL')
 

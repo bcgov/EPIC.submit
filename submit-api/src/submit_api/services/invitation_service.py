@@ -30,6 +30,7 @@ from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.services.package_service import PackageService
+from submit_api.services.report_package_sync_service import ReportPackageSyncService
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
 
@@ -255,12 +256,36 @@ class InvitationService:
             # Update proponent status
             InvitationService._update_proponent_status_by_account(invitation.account_id, ProponentStatus.ONBOARDED)
 
-            return {
+            result = {
                 "message": "User access granted successfully",
                 "user_id": account_user.user_id,
                 "roles": roles,
                 "account_id": invitation.account_id,
             }
+
+        # After the account projects are committed, pull each project's approved
+        # report obligations and create their packages. A Condition API failure
+        # must not break onboarding, so each project is isolated.
+        InvitationService._sync_report_packages_for_projects(project_ids)
+
+        return result
+
+    @staticmethod
+    def _sync_report_packages_for_projects(project_ids):
+        """Reconcile report obligations/packages for each onboarded project.
+
+        Report-package sync is a non-critical side effect of onboarding: any
+        failure (Condition API down, missing config, missing epic_guid, etc.) is
+        logged and swallowed so invitation acceptance always succeeds.
+        """
+        for project_id in project_ids:
+            try:
+                ReportPackageSyncService.reconcile_project(project_id)
+            except Exception as err:  # noqa: B902 pylint: disable=broad-except
+                current_app.logger.warning(
+                    "Report package sync skipped for project %s during onboarding: %s",
+                    project_id, err,
+                )
 
     @staticmethod
     def _validate_fetch_role(role_name):

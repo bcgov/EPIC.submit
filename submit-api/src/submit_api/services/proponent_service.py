@@ -1,4 +1,6 @@
 """Service for proponent management."""
+from flask import current_app
+
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.enums.proponent_status import NonCanonicalProponentStatus, ProponentStatus
 from submit_api.enums.role import RoleEnum
@@ -15,6 +17,7 @@ from submit_api.models.proponent import Proponent
 from submit_api.models.track_work import TrackWork
 from submit_api.services.invitation_service import InvitationService
 from submit_api.services.account_user_service import AccountUserService
+from submit_api.services.report_package_sync_service import ReportPackageSyncService
 
 
 class ProponentService:
@@ -302,9 +305,31 @@ class ProponentService:
             )
             account_projects = AccountProject.get_all_in_project_ids(list(project_ids))
 
+            onboarded_project_ids = set()
             for account_project in account_projects:
                 cls._assign_admin_roles(account_users, account_project, session)
                 cls._create_work_associations(account_project, work_selections, legacy_project_ids)
                 cls._create_non_work_associations(account_project, non_work_selections)
+                onboarded_project_ids.add(account_project.project_id)
 
             session.flush()
+
+        # After the account projects are committed, pull each project's approved
+        # report obligations and create their packages. A Condition API failure
+        # must not break onboarding, so each project is isolated.
+        cls._sync_report_packages_for_projects(onboarded_project_ids)
+
+    @staticmethod
+    def _sync_report_packages_for_projects(project_ids):
+        """Reconcile report obligations/packages for each onboarded project.
+
+        Failures are logged and skipped so onboarding always succeeds.
+        """
+        for project_id in project_ids:
+            try:
+                ReportPackageSyncService.reconcile_project(project_id)
+            except Exception as err:  # noqa: B902 pylint: disable=broad-except
+                current_app.logger.warning(
+                    "Report package sync skipped for project %s during onboarding: %s",
+                    project_id, err,
+                )

@@ -64,6 +64,9 @@ signupUrlPath: /proponent/account-registration
 documentService:
   url: https://epic-document-api-c8b80a-dev.apps.gold.devops.gov.bc.ca/api
 
+conditionApi:
+  baseUrl: https://condition-api-c8b80a-dev.apps.gold.devops.gov.bc.ca
+
 geo:
   maxConcurrentJobs: "4"
   maxShapefiles: "40"
