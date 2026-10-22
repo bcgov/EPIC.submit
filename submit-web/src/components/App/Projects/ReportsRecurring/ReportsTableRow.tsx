@@ -29,7 +29,7 @@ export const ReportsTableRow = ({ reportPackage }: ReportsTableRowProps) => {
 
   const onNameClick = () => {
     navigate({
-      to: `/proponent/projects/${reportPackage.account_project_id}/submission-packages/${reportPackage.id}`,
+      to: `/proponent/projects/${reportPackage.account_project_id}/reports/${reportPackage.id}`,
     });
   };
 

@@ -25,6 +25,7 @@ export type ProjectReport = {
   timing?: string | null;
   management_plan?: string | null;
   display_name?: string | null;
+  also_required_in_phases?: string[];
 };
 
 export const MANAGEMENT_PLAN_RELATED_TYPES: SubmissionPackageType[] =
