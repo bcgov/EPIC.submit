@@ -10,6 +10,7 @@ from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
+from submit_api.schemas.project_report import ProjectReportSchema
 from submit_api.schemas.account_project_work import AccountProjectWorkSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
@@ -183,6 +184,9 @@ class PackageSchema(Schema):
     account_project_work = fields.Nested(
         AccountProjectWorkSchema, data_key="account_project_work", allow_none=True)
     account_project_work_id = fields.Int(data_key="account_project_work_id")
+    project_report = fields.Nested(
+        ProjectReportSchema, data_key="project_report", allow_none=True)
+    project_report_id = fields.Int(data_key="project_report_id", allow_none=True)
     internal_staff_documents = fields.Nested(InternalStaffDocumentSchema,
                                              data_key="internal_staff_documents",
                                              many=True)

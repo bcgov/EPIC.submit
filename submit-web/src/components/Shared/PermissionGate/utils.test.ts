@@ -6,7 +6,13 @@ import {
   checkIfMPT,
   checkIfGISUser,
   hasPermission,
+  canViewReportsSection,
 } from "./utils";
+import { USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { Role } from "@/models/AccountUser";
+
+const roleWith = (roleName: USER_MANAGEMENT_ROLE): Role =>
+  ({ role_name: roleName }) as Role;
 
 describe("PermissionGate utils", () => {
   describe("checkIfMPT", () => {
@@ -103,6 +109,39 @@ describe("PermissionGate utils", () => {
           scopes: ["mp_extended_edit"],
         }),
       ).toBe(false);
+    });
+  });
+
+  describe("canViewReportsSection", () => {
+    it("returns true for Account Primary Administrator", () => {
+      expect(
+        canViewReportsSection([roleWith(USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN)]),
+      ).toBe(true);
+    });
+
+    it("returns true for Project Administrator", () => {
+      expect(
+        canViewReportsSection([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]),
+      ).toBe(true);
+    });
+
+    it("returns true for Collaborator - All Submissions", () => {
+      expect(
+        canViewReportsSection([roleWith(USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN)]),
+      ).toBe(true);
+    });
+
+    it("returns false for Collaborator - Specific Submissions", () => {
+      expect(
+        canViewReportsSection([
+          roleWith(USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR),
+        ]),
+      ).toBe(false);
+    });
+
+    it("returns false when there are no roles", () => {
+      expect(canViewReportsSection([])).toBe(false);
+      expect(canViewReportsSection(undefined)).toBe(false);
     });
   });
 });

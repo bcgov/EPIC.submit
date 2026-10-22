@@ -8,7 +8,24 @@ export enum SubmissionPackageType {
   IEM = "IEM",
   IPD = "IPD",
   ADDITIONAL_INFORMATION = "Additional Information",
+  REPORT = "Report",
 }
+
+export type ProjectReport = {
+  id: number;
+  project_id: number;
+  report_id: number;
+  condition_number?: number | null;
+  condition_subsection?: string | null;
+  report_type?: string | null;
+  report_sub_type?: string | null;
+  report_name?: string | null;
+  phase?: string | null;
+  frequency?: string | null;
+  timing?: string | null;
+  management_plan?: string | null;
+  display_name?: string | null;
+};
 
 export const MANAGEMENT_PLAN_RELATED_TYPES: SubmissionPackageType[] =
   [SubmissionPackageType.MANAGEMENT_PLAN, SubmissionPackageType.IEM];
@@ -294,6 +311,7 @@ export type SubmissionPackage = {
   items: Array<SubmissionItem>;
   account_project_id: number;
   account_project_work?: AccountProjectWork;
+  project_report?: ProjectReport | null;
   meta?: SubmissionPackageMeta;
   days_since_submission?: number;
   internal_staff_documents?: InternalStaffDocument[];
