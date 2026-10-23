@@ -10,7 +10,10 @@ import { ReportSubmissionsTable } from "@/components/App/Projects/ReportDetail/R
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { formatReportPageTitle } from "@/components/App/Projects/ReportDetail/reportTitle";
+import { canViewReportsSection } from "@/components/Shared/PermissionGate/utils";
+import { useAccount } from "@/store/accountStore";
 import { HTTP_STATUS } from "@/utils/constants";
+import AddIcon from "@mui/icons-material/Add";
 import { Box, Grid } from "@mui/material";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
@@ -23,6 +26,9 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { isAxiosError } from "axios";
 
+const ROUTE_ID =
+  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/";
+
 const PendingComponent = () => (
   <PageGrid>
     <Grid item xs={12}>
@@ -31,9 +37,7 @@ const PendingComponent = () => (
   </PageGrid>
 );
 
-export const Route = createFileRoute(
-  "/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId",
-)({
+export const Route = createFileRoute(ROUTE_ID)({
   component: ReportDetailPage,
   loader: ({ context: { queryClient }, params: { reportPackageId } }) =>
     queryClient.ensureQueryData(
@@ -65,9 +69,12 @@ export const Route = createFileRoute(
 function ReportDetailPage() {
   const navigate = useNavigate();
   const { projectId: accountProjectIdParam, reportPackageId } = useParams({
-    from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId",
+    from: ROUTE_ID,
   });
   const accountProjectId = Number(accountProjectIdParam);
+
+  const { userManagementRoles } = useAccount();
+  const canAddDocument = canViewReportsSection(userManagementRoles);
 
   const { data: accountProject } = useSuspenseQuery(
     getAccountProjectQueryOptions(accountProjectId),
@@ -123,7 +130,32 @@ function ReportDetailPage() {
                 border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
               }}
             >
-              <BarTitle title={pageTitle} />
+              <Box
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <BarTitle title={pageTitle} />
+                {canAddDocument && (
+                  <Button
+                    startIcon={<AddIcon />}
+                    onClick={() =>
+                      navigate({
+                        to: "/proponent/projects/$projectId/reports/$reportPackageId/add-document",
+                        params: {
+                          projectId: accountProjectIdParam,
+                          reportPackageId,
+                        },
+                      })
+                    }
+                  >
+                    Add Document
+                  </Button>
+                )}
+              </Box>
               <Box sx={{ width: "100%" }}>
                 <ReportInfoBox report={report} />
               </Box>
@@ -132,9 +164,7 @@ function ReportDetailPage() {
               </Box>
               <Button
                 color="secondary"
-                onClick={() =>
-                  navigate({ to: "/proponent/projects" })
-                }
+                onClick={() => navigate({ to: "/proponent/projects" })}
               >
                 Save &amp; Close
               </Button>

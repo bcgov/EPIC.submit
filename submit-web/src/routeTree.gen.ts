@@ -48,9 +48,10 @@ import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteImp
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutIndexRouteImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/index'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/index'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission'
-import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/index'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/add-document'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRouteImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
 import { Route as ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRouteImport } from './routes/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/index'
 import { Route as StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutInternalDocumentsIndexRouteImport } from './routes/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/internal-documents/index'
@@ -288,11 +289,11 @@ const ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute =
         ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
     } as any,
   )
-const ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute =
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRouteImport.update(
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRouteImport.update(
     {
-      id: '/reports/$reportPackageId',
-      path: '/reports/$reportPackageId',
+      id: '/reports/$reportPackageId/',
+      path: '/reports/$reportPackageId/',
       getParentRoute: () =>
         ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
     } as any,
@@ -310,6 +311,15 @@ const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSu
     {
       id: '/submission-packages/$submissionPackageId/_submissionLayout',
       path: '/submission-packages/$submissionPackageId',
+      getParentRoute: () =>
+        ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
+    } as any,
+  )
+const ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute =
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRouteImport.update(
+    {
+      id: '/reports/$reportPackageId/add-document',
+      path: '/reports/$reportPackageId/add-document',
       getParentRoute: () =>
         ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute,
     } as any,
@@ -399,9 +409,10 @@ export interface FileRoutesByFullPath {
   '/proponent/projects/$projectId/new-submission': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute
   '/proponent/projects/$projectId/': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute
   '/staff/projects/$projectId/': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutIndexRoute
-  '/proponent/projects/$projectId/reports/$reportPackageId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute
+  '/proponent/projects/$projectId/reports/$reportPackageId/add-document': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute
   '/proponent/projects/$projectId/submission-packages/$submissionPackageId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteWithChildren
   '/staff/projects/$projectId/submission-packages/$submissionPackageId': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteWithChildren
+  '/proponent/projects/$projectId/reports/$reportPackageId/': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute
   '/proponent/projects/$projectId/submission-packages/$submissionPackageId/': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute
   '/staff/projects/$projectId/submission-packages/$submissionPackageId/': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute
   '/proponent/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute
@@ -442,7 +453,8 @@ export interface FileRoutesByTo {
   '/proponent/projects/$projectId/new-submission': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute
   '/proponent/projects/$projectId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute
   '/staff/projects/$projectId': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutIndexRoute
-  '/proponent/projects/$projectId/reports/$reportPackageId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute
+  '/proponent/projects/$projectId/reports/$reportPackageId/add-document': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute
+  '/proponent/projects/$projectId/reports/$reportPackageId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute
   '/proponent/projects/$projectId/submission-packages/$submissionPackageId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute
   '/staff/projects/$projectId/submission-packages/$submissionPackageId': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute
   '/proponent/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute
@@ -489,9 +501,10 @@ export interface FileRoutesById {
   '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute
   '/proponent/_proponentLayout/projects/$projectId/_projectLayout/': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute
   '/staff/_staffLayout/projects/$projectId/_projectLayout/': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutIndexRoute
-  '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute
+  '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/add-document': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute
   '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteWithChildren
   '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteWithChildren
+  '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute
   '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute
   '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': typeof StaffStaffLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutIndexRoute
   '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId': typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutSubmissionsSubmissionIdRoute
@@ -539,9 +552,10 @@ export interface FileRouteTypes {
     | '/proponent/projects/$projectId/new-submission'
     | '/proponent/projects/$projectId/'
     | '/staff/projects/$projectId/'
-    | '/proponent/projects/$projectId/reports/$reportPackageId'
+    | '/proponent/projects/$projectId/reports/$reportPackageId/add-document'
     | '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
     | '/staff/projects/$projectId/submission-packages/$submissionPackageId'
+    | '/proponent/projects/$projectId/reports/$reportPackageId/'
     | '/proponent/projects/$projectId/submission-packages/$submissionPackageId/'
     | '/staff/projects/$projectId/submission-packages/$submissionPackageId/'
     | '/proponent/projects/$projectId/submission-packages/$submissionPackageId/submissions/$submissionId'
@@ -582,6 +596,7 @@ export interface FileRouteTypes {
     | '/proponent/projects/$projectId/new-submission'
     | '/proponent/projects/$projectId'
     | '/staff/projects/$projectId'
+    | '/proponent/projects/$projectId/reports/$reportPackageId/add-document'
     | '/proponent/projects/$projectId/reports/$reportPackageId'
     | '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
     | '/staff/projects/$projectId/submission-packages/$submissionPackageId'
@@ -628,9 +643,10 @@ export interface FileRouteTypes {
     | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/new-submission'
     | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/'
     | '/staff/_staffLayout/projects/$projectId/_projectLayout/'
-    | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId'
+    | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/add-document'
     | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
     | '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout'
+    | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/'
     | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
     | '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/'
     | '/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId'
@@ -922,11 +938,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRouteImport
       parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute
     }
-    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId': {
-      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId'
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/'
       path: '/reports/$reportPackageId'
-      fullPath: '/proponent/projects/$projectId/reports/$reportPackageId'
-      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRouteImport
+      fullPath: '/proponent/projects/$projectId/reports/$reportPackageId/'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRouteImport
       parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute
     }
     '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout': {
@@ -941,6 +957,13 @@ declare module '@tanstack/react-router' {
       path: '/submission-packages/$submissionPackageId'
       fullPath: '/proponent/projects/$projectId/submission-packages/$submissionPackageId'
       preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteImport
+      parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute
+    }
+    '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/add-document': {
+      id: '/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/add-document'
+      path: '/reports/$reportPackageId/add-document'
+      fullPath: '/proponent/projects/$projectId/reports/$reportPackageId/add-document'
+      preLoaderRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRouteImport
       parentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutRoute
     }
     '/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/': {
@@ -1032,8 +1055,9 @@ const ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSu
 interface ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteChildren {
   ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute
   ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute
-  ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute
   ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteWithChildren
+  ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute: typeof ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute
 }
 
 const ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteChildren: ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteChildren =
@@ -1042,10 +1066,12 @@ const ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteChildren: Propo
       ProponentProponentLayoutProjectsProjectIdProjectLayoutNewSubmissionRoute,
     ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute:
       ProponentProponentLayoutProjectsProjectIdProjectLayoutIndexRoute,
-    ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute:
-      ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdRoute,
+    ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute:
+      ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdAddDocumentRoute,
     ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRoute:
       ProponentProponentLayoutProjectsProjectIdProjectLayoutSubmissionPackagesSubmissionPackageIdSubmissionLayoutRouteWithChildren,
+    ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute:
+      ProponentProponentLayoutProjectsProjectIdProjectLayoutReportsReportPackageIdIndexRoute,
   }
 
 const ProponentProponentLayoutProjectsProjectIdProjectLayoutRouteWithChildren =

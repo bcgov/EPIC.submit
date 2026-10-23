@@ -236,6 +236,32 @@ def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=
     return item
 
 
+def factory_document_submission_model(item, created_by, folder="reports", name=None):
+    """Create a DOCUMENT submission with a submitted document in the given folder."""
+    from submit_api.models.submission import Submission, SubmissionType
+    from submit_api.models.submitted_document import SubmittedDocument
+
+    submitted_document = SubmittedDocument(
+        name=name or fake.file_name(extension="pdf"),
+        url=f"{folder}/{fake.uuid4()}.pdf",
+        folder=folder,
+    )
+    db.session.add(submitted_document)
+    db.session.flush()
+
+    submission = Submission(
+        item_id=item.id,
+        type=SubmissionType.DOCUMENT,
+        submitted_document_id=submitted_document.id,
+        created_by=created_by,
+        active=True,
+        deleted=False,
+    )
+    db.session.add(submission)
+    db.session.commit()
+    return submission
+
+
 def factory_package_model(
     account_project=None,
     name=None,
@@ -309,9 +335,21 @@ def factory_project_report_model(
     return project_report
 
 
-def factory_report_package_model(account_project, project_report, name=None, package_type_id=1):
-    """Create a package linked to a report obligation (project_report_id set)."""
+def factory_report_package_model(
+    account_project, project_report, name=None, package_type_id=None
+):
+    """Create a package linked to a report obligation (project_report_id set).
+
+    Defaults to the seeded 'Report' package type so ``package.type.name`` is
+    'Report'; pass ``package_type_id`` to override.
+    """
     from submit_api.models.package import Package, PackageStatus
+    from submit_api.models.package_type import PackageType
+    from submit_api.enums.package_type import PackageTypeEnum
+
+    if package_type_id is None:
+        report_type = PackageType.find_by_name(PackageTypeEnum.REPORT.value)
+        package_type_id = report_type.id if report_type else 1
 
     package = Package(
         account_project_id=account_project.id,
