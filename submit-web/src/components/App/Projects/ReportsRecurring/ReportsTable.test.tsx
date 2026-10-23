@@ -71,11 +71,11 @@ describe("ReportsTable", () => {
     noneCells.forEach((cell) => expect(cell).toHaveTextContent("-"));
   });
 
-  it("links the submission name to the per-package submission page", () => {
+  it("links the submission name to the per-phase report page", () => {
     render(<ReportsTable reportPackages={[makeReportPackage(5)]} />);
     fireEvent.click(screen.getByText("Annual Report 5"));
     expect(mockNavigate).toHaveBeenCalledWith({
-      to: "/proponent/projects/42/submission-packages/5",
+      to: "/proponent/projects/42/reports/5",
     });
   });
 });

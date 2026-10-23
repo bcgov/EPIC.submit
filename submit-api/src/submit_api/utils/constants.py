@@ -58,6 +58,18 @@ STAFF_WORK_ROLE_KEYCLOAK_GROUPS = {
 # Item type name for GIS/Geospatial submissions
 GIS_ITEM_TYPE_NAME = "Geospatial Information"
 
+# Canonical display order for report obligation phases. Mirrors the frontend
+# PHASE_ORDER. Unknown phases are ordered after these, by name.
+REPORT_PHASE_ORDER = [
+    "All Phases",
+    "Post-Issuance",
+    "Pre-Construction",
+    "Construction",
+    "Operations",
+    "Closure",
+    "Post-Closure",
+]
+
 MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE = 'management_plan_submission_verification.html'
 MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE = 'update_request_created.html'
 NEW_USER_INVITATION_ACCOUNT_ADMIN_EMAIL_TEMPLATE = 'new_user_invitation_account_admin.html'

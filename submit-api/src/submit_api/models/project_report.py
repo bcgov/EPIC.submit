@@ -81,3 +81,21 @@ class ProjectReport(BaseModel):  # pylint: disable=too-many-instance-attributes
     def get_by_project_id(cls, project_id: int):
         """Return all report rows for a given project id."""
         return cls.query.filter_by(project_id=project_id).all()
+
+    @classmethod
+    def get_sibling_phase_rows(cls, report):
+        """Return the other phase rows of the same obligation for a report row.
+
+        Sibling rows share the project and the obligation identity
+        (condition number, report type, report name), differing only by phase.
+        The report row itself is excluded.
+        """
+        return (
+            cls.query.filter(
+                cls.project_id == report.project_id,
+                cls.condition_number == report.condition_number,
+                cls.report_type == report.report_type,
+                cls.report_name == report.report_name,
+                cls.id != report.id,
+            ).all()
+        )
