@@ -25,8 +25,8 @@ const RED: FrequencyColors = {
 };
 
 const PURPLE: FrequencyColors = {
-  border: "#D8B4FE",
-  background: "#F3E8FF",
+  border: "#6A54A3",
+  background: "#DAD4E8",
   color: BCDesignTokens.typographyColorPrimary,
 };
 

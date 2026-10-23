@@ -36,6 +36,14 @@ export const S3_FOLDER = {
     value: "upload_documents",
     label: "Upload Documents",
   },
+  REPORTS: {
+    value: "reports",
+    label: "Reports",
+  },
+  REPORT_SUPPORTING_DOCUMENTS: {
+    value: "report_supporting_documents",
+    label: "Report Supporting Documents",
+  },
 };
 
 export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
