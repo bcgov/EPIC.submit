@@ -68,7 +68,7 @@ describe("RefuseSubmissionModal", () => {
       expect(screen.getByText("Decision Date is required")).toBeInTheDocument(),
     );
     expect(
-      screen.getByRole("button", { name: "Confirm Package is NOT Accepted" }),
+      screen.getByRole("button", { name: "Confirm Package is not Approved" }),
     ).toBeDisabled();
   });
 
@@ -77,7 +77,7 @@ describe("RefuseSubmissionModal", () => {
     render(<RefuseSubmissionModal {...defaultProps} onConfirm={onConfirm} />);
 
     const confirmButton = screen.getByRole("button", {
-      name: "Confirm Package is NOT Accepted",
+      name: "Confirm Package is not Approved",
     });
     await waitFor(() => expect(confirmButton).toBeEnabled());
 

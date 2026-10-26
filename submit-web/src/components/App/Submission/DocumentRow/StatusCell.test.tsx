@@ -133,7 +133,7 @@ describe("StatusCell", () => {
       expect(screen.queryByTestId("chip-NEW_VERSION")).not.toBeInTheDocument();
     });
 
-    it("does not show New Document chip for proponent", () => {
+    it("shows New Document chip for proponent when isNewDocument is true (added doc)", () => {
       mockUseAccount.mockReturnValue({ userType: "PROPONENT" });
       mockUseIsNewVersion.mockReturnValue(false);
       mockUseIsNewDocument.mockReturnValue(true);
@@ -152,7 +152,8 @@ describe("StatusCell", () => {
         </table>,
       );
 
-      expect(screen.queryByTestId("chip-NEW_DOCUMENT")).not.toBeInTheDocument();
+      expect(screen.getByTestId("chip-NEW_DOCUMENT")).toBeInTheDocument();
+      expect(screen.queryByTestId("chip-NEW_VERSION")).not.toBeInTheDocument();
     });
 
     it("shows only New Version (not New Document) when both hooks return true", () => {

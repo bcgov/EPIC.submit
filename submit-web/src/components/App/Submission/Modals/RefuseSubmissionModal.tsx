@@ -64,7 +64,7 @@ const RefuseSubmissionModal = ({
       })}
       confirmButtonColor="error"
       onSecondaryAction={onCancel}
-      confirmText="Confirm Package is NOT Accepted"
+      confirmText="Confirm Package is not Approved"
       secondaryActionText="Cancel"
       confirmDisabled={!methods.formState.isValid}
       description={

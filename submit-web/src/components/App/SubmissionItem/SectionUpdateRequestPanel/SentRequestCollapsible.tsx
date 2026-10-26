@@ -94,7 +94,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   };
 
   const headerRightContent = (
-    <Box sx={{ display: "flex", gap: 1, alignItems: "center", width: "25%", justifyContent: "space-between" }}>
+    <Box sx={{ display: "flex", gap: 1, alignItems: "center", justifyContent: "flex-end" }}>
       {/* STAFF: Show "Requested" badge and Withdraw Update button when request is OPEN */}
       {request.status === UPDATE_REQUEST_STATUS.OPEN.value && (
         <>
