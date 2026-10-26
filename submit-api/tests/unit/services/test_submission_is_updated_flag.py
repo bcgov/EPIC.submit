@@ -58,3 +58,80 @@ class TestShouldFlagIsUpdated:
         item = Mock()
         item.package = None
         assert SubmissionService._should_flag_is_updated(item) is False
+
+
+class TestUpdateSubmissionStatusClearsIsUpdated:
+    """Tests that verifying/acknowledging a document clears the is_updated badge flag."""
+
+    @staticmethod
+    def _patch_common(monkeypatch, submission, package):
+        """Patch the collaborators used by update_submission_status."""
+        from contextlib import contextmanager
+
+        from submit_api.services import submission as submission_module
+
+        @contextmanager
+        def fake_session_scope():
+            yield Mock()
+
+        monkeypatch.setattr(submission_module, "session_scope", fake_session_scope)
+        # Logger needs an app context; stub current_app so the no-op info() call is safe.
+        monkeypatch.setattr(submission_module, "current_app", Mock())
+        monkeypatch.setattr(
+            SubmissionService, "get_submission_by_id", classmethod(lambda cls, _id: submission)
+        )
+        monkeypatch.setattr(
+            SubmissionService, "get_package_by_submission_id", classmethod(lambda cls, _id: package)
+        )
+        # The package status is not ACKNOWLEDGED, so the status recompute branch runs;
+        # stub it out so we only exercise the is_updated clearing logic.
+        monkeypatch.setattr(
+            submission_module.PackageSubmissionQueries,
+            "update_package_status_from_submissions",
+            Mock(),
+        )
+
+    @staticmethod
+    def _make_submission(status):
+        """Build a mock submission flagged as updated."""
+        submission = Mock()
+        submission.status = status
+        submission.is_updated = True
+        return submission
+
+    @staticmethod
+    def _make_package(approval_type):
+        """Build a mock package with a configured approval type and non-ack status."""
+        package = Mock()
+        package.type.approval_type = approval_type
+        package.type.versioning_enabled = True
+        package.status = []
+        return package
+
+    def test_clears_is_updated_when_verified(self, monkeypatch):
+        """Verifying a document before acknowledgement clears the badge flag."""
+        from submit_api.enums.package_type import PackageApprovalType
+        from submit_api.models.submission import SubmissionStatus
+
+        submission = self._make_submission(SubmissionStatus.SUBMITTED)
+        package = self._make_package(PackageApprovalType.B)
+        self._patch_common(monkeypatch, submission, package)
+
+        result = SubmissionService.update_submission_status(1, "VERIFIED")
+
+        assert result.is_updated is False
+        assert result.status == "VERIFIED"
+
+    def test_does_not_clear_is_updated_on_undo_verification(self, monkeypatch):
+        """Undoing verification (back to SUBMITTED) keeps the badge flag set."""
+        from submit_api.enums.package_type import PackageApprovalType
+        from submit_api.models.submission import SubmissionStatus
+
+        submission = self._make_submission(SubmissionStatus.VERIFIED)
+        package = self._make_package(PackageApprovalType.B)
+        self._patch_common(monkeypatch, submission, package)
+
+        result = SubmissionService.update_submission_status(1, "SUBMITTED")
+
+        assert result.is_updated is True
+        assert result.status == "SUBMITTED"

@@ -220,6 +220,12 @@ class SubmissionService:
 
                 submission.status = status
 
+                # Clear the New Version / New Document badge once a staff member
+                # verifies or acknowledges the document. The badge is driven by
+                # is_updated, so resetting it here hides the badge after review.
+                if SubmissionStatus[status] in (SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED):
+                    submission.is_updated = False
+
                 session.add(submission)
                 session.flush()
                 # Only update package status if it's not already ACKNOWLEDGED

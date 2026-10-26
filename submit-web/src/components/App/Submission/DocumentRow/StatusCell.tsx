@@ -39,8 +39,8 @@ export const StatusCell = ({
           status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION}
         />
       )}
-      {/* New Document is staff-only and never shown alongside New Version */}
-      {isStaff && isNewDocument && !isNewVersion && (
+      {/* New Document shows for both staff and proponent, never alongside New Version */}
+      {isNewDocument && !isNewVersion && (
         <SubmissionStatusChip
           status={NON_CANONICAL_SUBMISSION_STATUS.NEW_DOCUMENT}
         />
