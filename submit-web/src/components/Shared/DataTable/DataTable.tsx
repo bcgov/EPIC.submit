@@ -214,9 +214,9 @@ export function DataTable<T>({
                       numSelected === selectableRowCount
                     }
                     onChange={handleSelectAllClick}
-                    inputProps={{
+                    slotProps={{ input: {
                       "aria-label": "select all",
-                    }}
+                    } }}
                   />
                 </SubmitCheckboxTableHeadCell>
               )}
@@ -320,9 +320,9 @@ export function DataTable<T>({
                         <OutlinedCheckbox
                           checked={isItemSelected || isItemSuccessful}
                           isItemSuccessful={isItemSuccessful}
-                          inputProps={{
+                          slotProps={{ input: {
                             "aria-labelledby": `checkbox-${rowId}`,
-                          }}
+                          } }}
                         />
                       </PlainCheckboxTableCell>
                     )}

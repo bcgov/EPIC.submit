@@ -86,22 +86,22 @@ function UserDetails({ user }: UserDetailsProps) {
             padding: "12px 20px",
           }}
         >
-          <Grid container direction="row" alignItems="center" spacing={1}>
-            <Grid item xs={10}>
+          <Grid container direction="row" spacing={1} sx={{
+            alignItems: "center"
+          }}>
+            <Grid size={10}>
               <Typography variant="h5" sx={{ fontWeight: 400 }}>
                 {userData.full_name}
               </Typography>
             </Grid>
             <Grid
-              item
-              xs={2}
               sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "flex-end",
                 gap: 1,
               }}
-            >
+              size={2}>
               <Typography color={BCDesignTokens.themeGray70}>
                 Status:
               </Typography>
@@ -109,8 +109,6 @@ function UserDetails({ user }: UserDetailsProps) {
             </Grid>
             {(showEdit || isRevoked) && (
               <Grid
-                item
-                xs={12}
                 sx={{
                   display: "flex",
                   alignItems: "center",
@@ -118,7 +116,7 @@ function UserDetails({ user }: UserDetailsProps) {
                   mt: 1,
                   gap: 2,
                 }}
-              >
+                size={12}>
                 {isRevoked && (
                   <Box
                     sx={{

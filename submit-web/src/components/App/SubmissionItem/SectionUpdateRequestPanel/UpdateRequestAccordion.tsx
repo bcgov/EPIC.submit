@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { AccordionHeading } from "@/components/Shared/AccordionHeading";
 import {
   Accordion,
   AccordionSummary,
@@ -49,8 +50,11 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
   status,
   isProponentView = false,
 }) => {
+  const accordionId = React.useId();
   return (
     <Accordion
+      slots={{ heading: AccordionHeading }}
+      slotProps={{ heading: { actions: headerRightContent } }}
       expanded={expanded}
       onChange={onToggle}
       sx={{
@@ -65,9 +69,11 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
       }}
     >
       <AccordionSummary
+        id={`${accordionId}-header`}
+        aria-controls={`${accordionId}-content`}
         sx={{
           minHeight: "46px",
-          height: "46px",
+          py: 1,
           "&.Mui-expanded": {
             minHeight: "46px",
           },
@@ -88,7 +94,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
             width: "100%",
           }}
         >
-          <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: "8px", minWidth: 0 }}>
             <ChevronRightIcon 
               sx={{
                 color: "#2d2d2d",
@@ -97,18 +103,20 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
               }} 
             />
             <Typography
+              component="span"
               variant="body1"
               sx={{
                 fontWeight: 700,
                 fontSize: "16px",
                 color: "#2d2d2d",
                 lineHeight: "27px",
+                minWidth: 0,
+                overflowWrap: "anywhere",
               }}
             >
               {itemTypeName}
             </Typography>
           </Box>
-          {headerRightContent}
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ backgroundColor: "white" }}>

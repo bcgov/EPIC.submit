@@ -51,6 +51,7 @@ export default function RequestSection({
   const { mutate: acceptUpdateRequest, isPending: isUpdating } =
     useAcceptUpdateRequest({
       packageId: updateRequest.submission_package_id,
+      accountProjectId: submissionPackage.account_project_id,
     });
 
   return (

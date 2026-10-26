@@ -29,21 +29,25 @@ export const PhaseGroupHeader = ({
       onClick={onToggle}
       aria-expanded={expanded}
       aria-label={buildGroupCountAriaLabel(phase, count)}
-      display="flex"
-      alignItems="center"
-      justifyContent="space-between"
-      width="100%"
       sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
         cursor: "pointer",
         userSelect: "none",
         textAlign: "left",
         border: "none",
         backgroundColor: BCDesignTokens.themeGold10,
         borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-        padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`,
-      }}
-    >
-      <Box display="flex" alignItems="center" gap={1}>
+        padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`
+      }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1
+        }}>
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {phase}
         </Typography>

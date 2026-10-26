@@ -137,7 +137,7 @@ export const GenericDocumentUploadSection: React.FC<
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <BarBlueTitle title={title} bold={false} />
       </Grid>
       {sections.map((section) => {
@@ -158,13 +158,15 @@ export const GenericDocumentUploadSection: React.FC<
           : DEFAULT_MAX_FILE_SIZE_MB;
 
         return (
-          <Grid item xs={12} key={section.name}>
+          <Grid key={section.name} size={12}>
             <Box sx={{ flexDirection: "column", display: "flex" }}>
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mt: BCDesignTokens.layoutMarginMedium }}>
                 <Typography
                   variant="body1"
                   color={BCDesignTokens.typographyColorPrimary}
-                  fontWeight={700}
+                  sx={{
+                    fontWeight: 700
+                  }}
                 >
                   Upload {section.label}
                 </Typography>
@@ -239,7 +241,9 @@ export const GenericDocumentUploadSection: React.FC<
               size: {sectionMaxSizeMb} MB.
             </Typography>
 
-            <Box my={BCDesignTokens.layoutMarginLarge}>
+            <Box sx={{
+              my: BCDesignTokens.layoutMarginLarge
+            }}>
               <DocumentTable
                 header={section.label}
                 documents={sectionDocuments}

@@ -26,7 +26,7 @@ const baseWorkPackage: SubmissionPackage = {
     version: 1,
     original_package_id: 1,
     is_approved: false,
-    is_latest: true,
+    is_latest: true, is_enforceable: false,
   },
 };
 

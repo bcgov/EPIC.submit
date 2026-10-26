@@ -35,7 +35,7 @@ export const PlanDetails = ({ onSubmit }: PlanDetailsProps) => {
     return (
       <TabBox title="Create New Submission">
         <Grid container spacing={3}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <CircularProgress size={40} />
           </Grid>
         </Grid>

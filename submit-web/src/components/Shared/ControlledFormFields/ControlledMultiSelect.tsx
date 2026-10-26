@@ -8,6 +8,8 @@ import {
 } from "@mui/material";
 import { Controller, useFormContext } from "react-hook-form";
 import CloseIcon from "@mui/icons-material/Close";
+import get from "lodash/get";
+import { mergeSlotProps } from "@mui/material/utils";
 import { BCDesignTokens } from "epic.theme";
 
 export type OptionType = { value: string; label: string };
@@ -32,7 +34,6 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
   const {
     control,
     formState: { defaultValues, errors },
-    setValue,
   } = useFormContext();
 
   const extendedOptions: OptionType[] = selectAll
@@ -43,20 +44,20 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
     ? (defaultValues[name] as OptionType[])
     : [];
 
-  const errorMessage = errors[name]?.message as string | undefined;
+  const errorMessage = get(errors, name)?.message as string | undefined;
 
   return (
     <Controller
       control={control}
       name={name}
       defaultValue={defaultValue}
-      render={({ field: { onChange, value } }) => {
+      render={({ field: { onChange, onBlur, ref, value } }) => {
         const selectedValues = extendedOptions.filter((option) =>
           (Array.isArray(value) ? value : []).includes(option.value),
         );
 
         return (
-          <Box sx={{ width: "100%" }}>
+          <Box sx={{ width: "100%" }} data-form-field={name}>
             {/* Display selected options as chips */}
             {selectedValues.length > 0 && (
               <Box
@@ -75,10 +76,7 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
                       const newSelection = selectedValues.filter(
                         (item) => item.value !== selected.value,
                       );
-                      setValue(
-                        name,
-                        newSelection.map((item) => item.value),
-                      );
+                      onChange(newSelection.map((item) => item.value));
                     }}
                     deleteIcon={<CloseIcon />}
                     sx={{
@@ -106,6 +104,7 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
             <Autocomplete
               {...otherProps}
               multiple={multiple}
+              onBlur={onBlur}
               options={extendedOptions.filter(
                 (option) =>
                   !selectedValues.some(
@@ -123,24 +122,24 @@ const ControlledMultiSelect: FC<IFormInputProps> = ({
                 }
 
                 if (selectAll && newValue.some((v) => v.value === "All")) {
-                  setValue(
-                    name,
-                    options.map((opt) => opt.value),
-                  );
+                  onChange(options.map((opt) => opt.value));
                 } else {
-                  setValue(
-                    name,
-                    newValue.map((v) => v.value),
-                  );
+                  onChange(newValue.map((v) => v.value));
                 }
               }}
               renderInput={(params) => (
                 <TextField
                   {...TextFieldProps}
                   {...params}
-                  error={Boolean(errors[name]?.message)}
+                  inputRef={ref}
+                  error={Boolean(get(errors, name)?.message)}
                   helperText={errorMessage || ""}
-                  InputProps={{ ...params.InputProps, startAdornment: null }} // Hide selected values
+                  slotProps={{
+                    ...params.slotProps,
+                    input: mergeSlotProps(TextFieldProps?.slotProps?.input, { ...params.slotProps.input, startAdornment: null }),
+                    htmlInput: mergeSlotProps(TextFieldProps?.slotProps?.htmlInput, params.slotProps.htmlInput),
+                    inputLabel: mergeSlotProps(TextFieldProps?.slotProps?.inputLabel, params.slotProps.inputLabel)
+                  }}
                 />
               )}
             />

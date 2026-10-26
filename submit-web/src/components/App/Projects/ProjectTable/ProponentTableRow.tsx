@@ -47,7 +47,12 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
             }}
             onClick={onSubmissionClick}
           >
-            <Typography fontSize="1rem" fontWeight="bold" color={BCDesignTokens.themeBlue90}>
+            <Typography
+              color={BCDesignTokens.themeBlue90}
+              sx={{
+                fontSize: "1rem",
+                fontWeight: "bold"
+              }}>
               {managementPlanName}
             </Typography>
           </SubmitLink>

@@ -53,10 +53,11 @@ export const ReportsTableRow = ({ reportPackage }: ReportsTableRowProps) => {
           onClick={onNameClick}
         >
           <Typography
-            fontSize="1rem"
-            fontWeight="bold"
             color={BCDesignTokens.themeBlue90}
-          >
+            sx={{
+              fontSize: "1rem",
+              fontWeight: "bold"
+            }}>
             {displayName}
           </Typography>
         </SubmitLink>
@@ -65,7 +66,12 @@ export const ReportsTableRow = ({ reportPackage }: ReportsTableRowProps) => {
         <FrequencyBadge frequency={report?.frequency} />
       </StyledProjectTableCell>
       <StyledProjectTableCell align="left" sx={{ width: REPORTS_COLUMNS[3].width }}>
-        <Typography fontSize="14px" sx={{ whiteSpace: "normal", wordBreak: "break-word" }}>
+        <Typography
+          sx={{
+            fontSize: "14px",
+            whiteSpace: "normal",
+            wordBreak: "break-word"
+          }}>
           {report?.timing ?? PLACEHOLDER}
         </Typography>
       </StyledProjectTableCell>

@@ -13,9 +13,13 @@ export default function SubmissionActionButtons({
   submitCondition?: boolean;
 }>) {
   return (
-    <Grid item xs={12} container spacing={2}>
+    <Grid container spacing={2} size={12}>
       {saveAndClose && (
-        <Grid item xs={12} sm="auto">
+        <Grid
+          size={{
+            xs: 12,
+            sm: "auto"
+          }}>
           <UnfinishedUploadsCheck>
             <Button color="secondary" onClick={saveAndClose}>
               Save & Continue Later
@@ -24,7 +28,11 @@ export default function SubmissionActionButtons({
         </Grid>
       )}
       {onSubmit && (
-        <Grid item xs={12} sm="auto">
+        <Grid
+          size={{
+            xs: 12,
+            sm: "auto"
+          }}>
           <UnfinishedUploadsCheck customCondition={submitCondition}>
             <Button onClick={onSubmit}>{submitButtonText}</Button>
           </UnfinishedUploadsCheck>

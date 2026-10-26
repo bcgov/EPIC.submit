@@ -27,7 +27,7 @@ function Configurations() {
       }}
     >
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <ContentBox
             mainLabel="Banner Configurations"
             sx={{ width: "100%", height: "fit-content" }}

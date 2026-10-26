@@ -16,16 +16,15 @@ type ReportsRecurringCardProps = {
 
 const AllPhasesHeader = ({ count }: { count: number }) => (
   <Box
-    display="flex"
-    alignItems="center"
-    gap={1}
     aria-label={buildGroupCountAriaLabel(ALL_PHASES, count)}
     sx={{
+      display: "flex",
+      alignItems: "center",
+      gap: 1,
       backgroundColor: BCDesignTokens.themeGold10,
       borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-      padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`,
-    }}
-  >
+      padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`
+    }}>
     <Typography variant="body2" sx={{ fontWeight: 600 }}>
       {ALL_PHASES}
     </Typography>
@@ -91,13 +90,12 @@ export const ReportsRecurringCard = ({
       }}
     >
       <Box
-        display="flex"
-        justifyContent="space-between"
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
           pt: BCDesignTokens.layoutPaddingMedium,
-          pb: BCDesignTokens.layoutPaddingLarge,
-        }}
-      >
+          pb: BCDesignTokens.layoutPaddingLarge
+        }}>
         <SubmissionTitle
           customTitle="Reports & Recurring Submissions"
           customStatus={PROJECT_STATUS.POST_DECISION}
@@ -111,7 +109,9 @@ export const ReportsRecurringCard = ({
       )}
 
       {hasObligations && (
-        <Box height="100%">
+        <Box sx={{
+          height: "100%"
+        }}>
           {groups.map((group) =>
             group.isAlwaysExpanded ? (
               <Box key={group.phase}>

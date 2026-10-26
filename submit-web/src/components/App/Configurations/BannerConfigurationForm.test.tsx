@@ -77,7 +77,7 @@ describe("BannerConfigurationForm", () => {
     expect(screen.getByText("Type")).toBeInTheDocument();
     expect(screen.getByText("Content")).toBeInTheDocument();
     expect(screen.getByText("edit-content")).toBeInTheDocument();
-    expect(screen.getByRole("checkbox")).toBeInTheDocument();
+    expect(screen.getByRole("switch")).toBeInTheDocument();
   });
 
   it("prefills content from the active banner", () => {

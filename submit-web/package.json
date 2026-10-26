@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run typecheck && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "test": "playwright test",
@@ -13,7 +13,11 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
+    "build:ui-contracts": "vite build --config playwright/mui-smoke/vite.config.ts",
+    "test:ui-contracts": "playwright test --config playwright.mui.config.ts",
+    "typecheck:ui-contracts": "tsc --noEmit -p tsconfig.mui.json"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -25,9 +29,9 @@
     "@lexical/list": "^0.23.1",
     "@lexical/react": "^0.23.1",
     "@lexical/utils": "^0.23.1",
-    "@mui/icons-material": "^5.15.21",
-    "@mui/material": "^5.15.20",
-    "@mui/x-date-pickers": "^7.19.0",
+    "@mui/icons-material": "9.5.0",
+    "@mui/material": "9.5.0",
+    "@mui/x-date-pickers": "9.16.0",
     "@tanstack/react-query": "^5.59.16",
     "@tanstack/react-router": "^1.161.3",
     "@tanstack/router-devtools": "^1.161.3",
@@ -35,24 +39,26 @@
     "axios": "^1.16.0",
     "dayjs": "^1.11.13",
     "dompurify": "^3.4.13",
-    "epic.theme": "latest",
+    "epic.theme": "file:vendor/epic.theme-2.0.0.tgz",
     "jwt-decode": "^4.0.0",
     "keycloak-js": "^25.0.1",
     "lexical": "^0.23.1",
     "maplibre-gl": "^5.20.2",
     "oidc-client-ts": "^3.0.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.52.1",
     "react-if": "^4.1.5",
     "react-imask": "^7.6.1",
+    "react-is": "18.3.1",
     "react-map-gl": "^8.1.0",
     "react-oidc-context": "^3.1.0",
     "yup": "^1.4.0",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.11.1",
     "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.57.0",
     "@tanstack/eslint-plugin-query": "^5.43.1",
@@ -62,11 +68,11 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/lodash": "^4.17.7",
-    "@types/node": "^20.14.9",
+    "@types/node": "^24.0.0",
     "@types/react": "^18.2.47",
     "@types/react-dom": "^18.2.18",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
     "@vitejs/plugin-react-swc": "^3.8.1",
     "dotenv": "^17.2.3",
     "eslint": "^8.57.0",
@@ -78,7 +84,7 @@
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "sass": "^1.77.6",
-    "typescript": "^4.9.5",
+    "typescript": "5.9.3",
     "vite": "^6.4.2",
     "vite-plugin-checker": "^0.10.0",
     "vite-plugin-env-compatible": "^2.0.1",
@@ -86,6 +92,11 @@
     "vitest": "^4.1.10"
   },
   "overrides": {
-    "minimatch": "^9.0.7"
+    "minimatch": "^9.0.7",
+    "react-is": "18.3.1"
+  },
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11 <12"
   }
 }

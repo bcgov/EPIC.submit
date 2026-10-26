@@ -48,8 +48,12 @@ export const NotificationBox = () => {
             SUBMISSION_REVIEW_STATUS.PENDING_MANAGER_REVIEW
         }
       >
-        <SuccessBox m="2em 0">
-          <Typography variant="body1" color="inherit">
+        <SuccessBox sx={{
+          m: "2em 0"
+        }}>
+          <Typography variant="body1" sx={{
+            color: "inherit"
+          }}>
             Your recommendation has been successfully sent to a Manager
           </Typography>
         </SuccessBox>

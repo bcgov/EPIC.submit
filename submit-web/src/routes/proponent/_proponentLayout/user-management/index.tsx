@@ -66,7 +66,7 @@ function UsersPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <If condition={isUsersLoading}>
           <Then>
             <DataSkeleton />

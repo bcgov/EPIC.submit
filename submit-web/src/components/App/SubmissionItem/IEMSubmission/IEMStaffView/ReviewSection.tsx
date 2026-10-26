@@ -116,18 +116,18 @@ export default function ReviewSection() {
     submissionItem?.review?.status === SUBMISSION_REVIEW_STATUS.APPROVED;
 
   return (
-    <Grid item container data-testid="review-section">
+    <Grid container data-testid="review-section">
       <Grid
-        item
-        xs={12}
         sx={{
           background: BCDesignTokens.themeBlue10,
           p: BCDesignTokens.layoutPaddingSmall,
         }}
-      >
+        size={12}>
         <FormProvider {...methods}>
           <form>
-            <Typography variant="h6" color={"#858A8C"}>
+            <Typography variant="h6" sx={{
+              color: "#858A8C"
+            }}>
               Independent Environmental Monitor Terms of Engagement Review
             </Typography>
             <Divider
@@ -220,12 +220,11 @@ export default function ReviewSection() {
                 >
                   <Box
                     sx={{
+                      width: "80%",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "flex-start",
-                    }}
-                    width={"80%"}
-                  >
+                      justifyContent: "flex-start"
+                    }}>
                     <Typography
                       variant="h6"
                       sx={{

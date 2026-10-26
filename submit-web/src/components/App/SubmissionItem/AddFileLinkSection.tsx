@@ -50,7 +50,7 @@ export default function AddFileLinkSection({
       });
       reset();
       setAddingLink(false);
-    } catch (error) {
+    } catch {
       setAddingLink(false);
       notify.error("Failed to save link");
     }
@@ -62,7 +62,9 @@ export default function AddFileLinkSection({
         data-cy="add-link-section"
         onSubmit={handleSubmit(handleSaveLinkText)}
       >
-        <Stack direction="row" spacing={2} alignItems="baseline">
+        <Stack direction="row" spacing={2} sx={{
+          alignItems: "baseline"
+        }}>
           <ControlledTextField
             name="link"
             sx={{

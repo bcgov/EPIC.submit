@@ -68,7 +68,9 @@ const setAccount = (roles: Role[]) =>
   });
 
 const roleWith = (roleName: USER_MANAGEMENT_ROLE): Role =>
-  ({ role_name: roleName }) as Role;
+  (({
+    role_name: roleName
+  }) as Role);
 
 describe("Project reports section gating", () => {
   beforeEach(() => {

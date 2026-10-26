@@ -2,95 +2,57 @@ name: SUBMIT WEB CI
 
 on:
   pull_request:
-    branches:
-      - develop
-      - "release**"
-    paths:
-      - "submit-web/**"
+    branches: [develop, "release/**"]
+    paths: ["submit-web/**", ".github/workflows/*web*.yml"]
   push:
-    branches:
-      - develop
-      - "release**"
+    branches: [develop, "release/**"]
+    paths: ["submit-web/**", ".github/workflows/*web*.yml"]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "Environment (dev/test/prod)"
-        required: true
-        default: "dev"
+  workflow_call:
 
-defaults:
-  run:
-    shell: bash
-    working-directory: ./submit-web
+permissions:
+  contents: read
 
 jobs:
-  setup-job:
-    runs-on: ubuntu-22.04
-
+  checks:
     if: github.repository == 'bcgov/EPIC.submit'
-
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: submit-web
     steps:
-      - uses: actions/checkout@v2
-      - run: "true"
-
-  linting:
-    needs: setup-job
-    runs-on: ubuntu-22.04
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: |
-          npm install --legacy-peer-deps
-      - name: Lint
-        id: lint
-        run: |
-          npm run lint
+          node-version-file: submit-web/.nvmrc
+          cache: npm
+          cache-dependency-path: submit-web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:unit
+      - run: npm run build
 
-  unit-test:
-    needs: setup-job
-    runs-on: ubuntu-22.04
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-
+  ui-contracts:
+    needs: checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: submit-web
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: |
-          npm install --legacy-peer-deps
-      - name: Run unit tests
-        id: unit-test
-        run: |
-          npm run test:unit
-
-  build-check:
-    needs: setup-job
-    runs-on: ubuntu-22.04
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+          node-version-file: submit-web/.nvmrc
+          cache: npm
+          cache-dependency-path: submit-web/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck:ui-contracts
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:ui-contracts
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: |
-          npm install --legacy-peer-deps
-      - name: build to check strictness
-        id: build
-        run: |
-          npm run build --quiet || true
+          name: mui-ui-contracts
+          path: |
+            submit-web/playwright-report/mui-smoke
+            submit-web/test-results

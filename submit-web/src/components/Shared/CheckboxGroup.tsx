@@ -12,8 +12,9 @@ export type CheckboxGroupProps = {
   value?: unknown[];
   controlled?: boolean;
   error?: boolean;
+  onBlur?: React.FocusEventHandler<HTMLDivElement>;
 };
-export const CheckboxGroup = ({
+export const CheckboxGroup = React.forwardRef<HTMLDivElement, CheckboxGroupProps>(function CheckboxGroup({
   onChange = () => {},
   disabled,
   value: values,
@@ -21,7 +22,8 @@ export const CheckboxGroup = ({
   defaultSelectedValues = [],
   controlled = false,
   error = false,
-}: CheckboxGroupProps) => {
+  onBlur,
+}, ref) {
   const [selectedValues, setSelectedValues] = useState(defaultSelectedValues);
 
   const getFormControlLabels = () => {
@@ -34,7 +36,7 @@ export const CheckboxGroup = ({
   const currentValues =
     controlled && !isNil(values) && isArray(values) ? values : selectedValues;
   return (
-    <FormGroup>
+    <FormGroup ref={ref} onBlur={onBlur}>
       {getFormControlLabels().map((child) => {
         if (!React.isValidElement(child)) return null;
         const { sx: childSx = {}, ...otherProps } = child.props;
@@ -81,4 +83,4 @@ export const CheckboxGroup = ({
       })}
     </FormGroup>
   );
-};
+});

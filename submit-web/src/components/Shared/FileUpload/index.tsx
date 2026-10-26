@@ -47,9 +47,10 @@ export const FileUpload = ({
       </Box>
       <Typography
         variant="body1"
-        fontWeight={BCDesignTokens.typographyFontWeightsBold}
-        sx={{ color: BCDesignTokens.typographyColorSecondary }}
-      >
+        sx={{
+          fontWeight: BCDesignTokens.typographyFontWeightsBold,
+          color: BCDesignTokens.typographyColorSecondary
+        }}>
         Drag and Drop a File Here or{" "}
         <span
           style={{

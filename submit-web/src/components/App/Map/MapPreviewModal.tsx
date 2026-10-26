@@ -225,12 +225,14 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
       maxWidth="xl"
       fullWidth
       keepMounted
-      PaperProps={{
-        sx: {
-          height: "90vh",
-          display: "flex",
-          flexDirection: "column",
-        },
+      slotProps={{
+        paper: {
+          sx: {
+            height: "90vh",
+            display: "flex",
+            flexDirection: "column",
+          },
+        }
       }}
     >
       <Box
@@ -275,12 +277,15 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
             <CircularProgress size={48} />
             <Typography
               variant="subtitle1"
-              fontWeight={600}
-              color="primary.main"
-            >
+              sx={{
+                fontWeight: 600,
+                color: "primary.main"
+              }}>
               Please wait while your file is being processed.
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" sx={{
+              color: "text.secondary"
+            }}>
               This should take no more than 30 seconds.
             </Typography>
           </Box>
@@ -296,7 +301,7 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                 }}
               >
                 <Grid container spacing={1}>
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
                       File Name:{" "}
                       <Typography
@@ -308,13 +313,15 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       </Typography>
                     </Typography>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid size={4}>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
                       File Size:{" "}
                       <Typography
                         component="span"
                         variant="body2"
-                        fontWeight={400}
+                        sx={{
+                          fontWeight: 400
+                        }}
                       >
                         {fileSizeKb !== undefined && fileSizeKb !== null
                           ? `${fileSizeKb.toFixed(1)} KB`
@@ -322,25 +329,29 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       </Typography>
                     </Typography>
                   </Grid>
-                  <Grid item xs={8}>
+                  <Grid size={8}>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
                       Uploaded By:{" "}
                       <Typography
                         component="span"
                         variant="body2"
-                        fontWeight={400}
+                        sx={{
+                          fontWeight: 400
+                        }}
                       >
                         {documentItem.submitted_by}
                       </Typography>
                     </Typography>
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid size={4}>
                     <Typography variant="body2" sx={{ fontWeight: 700 }}>
                       Version:{" "}
                       <Typography
                         component="span"
                         variant="body2"
-                        fontWeight={400}
+                        sx={{
+                          fontWeight: 400
+                        }}
                       >
                         {documentItem.version}.0
                       </Typography>
@@ -365,7 +376,9 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
             >
               {/* Header of Map Card */}
               <Box sx={{ pt: 2, px: 2, pb: 1 }}>
-                <Typography variant="subtitle1" fontWeight={700}>
+                <Typography variant="subtitle1" sx={{
+                  fontWeight: 700
+                }}>
                   Map Preview
                 </Typography>
               </Box>
@@ -374,7 +387,9 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
               {!previewOnly && !isStaff && !isApproved && !isFailure && (
                 <Box sx={{ px: 2, pb: 2 }}>
                   <Alert severity="warning" sx={{ borderRadius: "8px", backgroundColor: BCDesignTokens.supportSurfaceColorWarning }} icon={false} variant="outlined">
-                    <Typography variant="body1" fontWeight={700}>Please verify this geospatial file</Typography>
+                    <Typography variant="body1" sx={{
+                      fontWeight: 700
+                    }}>Please verify this geospatial file</Typography>
                     Review the map preview and file information to ensure this is the correct data (correct location, using the BC Albers Projection).
                     You must manually approve or reject each file before proceeding.
                   </Alert>
@@ -418,18 +433,20 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       <>
                         <Typography
                           variant="subtitle1"
-                          fontWeight={700}
-                          color="text.primary"
-                        >
+                          sx={{
+                            fontWeight: 700,
+                            color: "text.primary"
+                          }}>
                           Attribute validation failed
                         </Typography>
                         {missingColumns.length > 0 ? (
                           <>
                             <Typography
                               variant="body2"
-                              color="text.secondary"
-                              sx={{ maxWidth: 480 }}
-                            >
+                              sx={{
+                                color: "text.secondary",
+                                maxWidth: 480
+                              }}>
                               We couldn't process this file because the shapefile
                               is missing the following required column(s):
                             </Typography>
@@ -457,9 +474,10 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                         ) : (
                           <Typography
                             variant="body2"
-                            color="text.secondary"
-                            sx={{ maxWidth: 480 }}
-                          >
+                            sx={{
+                              color: "text.secondary",
+                              maxWidth: 480
+                            }}>
                             {errorMessage ||
                               "This file does not meet the required attribute standards."}
                           </Typography>
@@ -470,12 +488,15 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       <>
                         <Typography
                           variant="subtitle1"
-                          fontWeight={700}
-                          color="text.primary"
-                        >
+                          sx={{
+                            fontWeight: 700,
+                            color: "text.primary"
+                          }}>
                           We apologize. The file upload timed out.
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
+                        <Typography variant="body2" sx={{
+                          color: "text.secondary"
+                        }}>
                           Please try uploading the file again.
                         </Typography>
                       </>
@@ -483,16 +504,18 @@ export const MapPreviewModal: React.FC<MapPreviewModalProps> = ({
                       <>
                         <Typography
                           variant="subtitle1"
-                          fontWeight={700}
-                          color="text.primary"
-                        >
+                          sx={{
+                            fontWeight: 700,
+                            color: "text.primary"
+                          }}>
                           Geospatial processing failed
                         </Typography>
                         <Typography
                           variant="body2"
-                          color="text.secondary"
-                          sx={{ maxWidth: 480 }}
-                        >
+                          sx={{
+                            color: "text.secondary",
+                            maxWidth: 480
+                          }}>
                           {errorMessage ||
                             "We couldn't process this file. The geometry must be valid, with no NULL or self-intersecting geometry."}
                         </Typography>

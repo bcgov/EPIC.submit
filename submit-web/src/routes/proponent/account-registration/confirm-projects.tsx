@@ -66,9 +66,11 @@ function ConfirmProjects() {
           </Fragment>
         }
       />
-      <Grid container spacing={3} mb={6}>
+      <Grid container spacing={3} sx={{
+        mb: 6
+      }}>
         {eligibilityEntries.map((entry) => (
-          <Grid item key={entry.id}>
+          <Grid key={entry.id}>
             <EligibilityEntryCard entry={entry} />
           </Grid>
         ))}

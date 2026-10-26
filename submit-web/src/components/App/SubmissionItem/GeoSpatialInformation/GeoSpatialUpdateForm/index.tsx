@@ -170,9 +170,15 @@ export const GeoSpatialUpdateForm = () => {
 
   return (
     <SubmissionFormContainer>
-      <Box width={"100%"} display="flex" flexDirection="column" gap={4}>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 4
+        }}>
         <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <GeoSpatialGuidelines />
           </Grid>
         </Grid>

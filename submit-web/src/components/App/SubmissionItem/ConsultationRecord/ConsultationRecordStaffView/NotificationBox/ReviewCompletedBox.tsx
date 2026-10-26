@@ -61,11 +61,12 @@ export const ReviewCompletedNotification = ({
 
   return (
     <BoxContainer
-      m="2em 0"
-      sx={{ color: bannerTextColor, padding: "16px 12px 16px 8px" }}
+      sx={{ m: "2em 0", color: bannerTextColor, padding: "16px 12px 16px 8px" }}
       data-testid="review-completed-notification"
     >
-      <Stack direction="row" alignItems={"center"} spacing={2}>
+      <Stack direction="row" spacing={2} sx={{
+        alignItems: "center"
+      }}>
         <Typography variant="body1" color={bannerTextColor}>
           The Consultation Check was confirmed as:
         </Typography>
@@ -73,36 +74,38 @@ export const ReviewCompletedNotification = ({
           status={passedConsultationCheck ?? failedConsultationCheck}
         />
       </Stack>
-      <Grid container color={bannerTextColor}>
-        <Grid item xs={12} container>
-          <Grid item container width="520px">
-            <Grid item xs={12}>
+      <Grid container sx={{
+        color: bannerTextColor
+      }}>
+        <Grid container size={12}>
+          <Grid container sx={{
+            width: "520px"
+          }}>
+            <Grid size={12}>
               <LabelValuePair
                 label="Decision recommended by"
                 value={staffRecommendation?.updated_by ?? ""}
                 labelProps={{
                   color: bannerTextColor,
-                  width: "220px",
-                  flexShrink: 0,
+                  sx: { width: "220px", flexShrink: 0 },
                 }}
                 valueProps={{ color: bannerTextColor, noWrap: true }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <LabelValuePair
                 label="Confirmed by"
                 value={managerConfirmation?.updated_by ?? ""}
                 labelProps={{
                   color: bannerTextColor,
-                  width: "220px",
-                  flexShrink: 0,
+                  sx: { width: "220px", flexShrink: 0 },
                 }}
                 valueProps={{ color: bannerTextColor, noWrap: true }}
               />
             </Grid>
           </Grid>
-          <Grid item xs container>
-            <Grid item xs={12}>
+          <Grid container size="grow">
+            <Grid size={12}>
               <LabelValuePair
                 label="Date"
                 value={
@@ -114,13 +117,12 @@ export const ReviewCompletedNotification = ({
                 }
                 labelProps={{
                   color: bannerTextColor,
-                  width: "50px",
-                  flexShrink: 0,
+                  sx: { width: "50px", flexShrink: 0 },
                 }}
                 valueProps={{ color: bannerTextColor, noWrap: true }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <LabelValuePair
                 label="Date"
                 value={
@@ -132,8 +134,7 @@ export const ReviewCompletedNotification = ({
                 }
                 labelProps={{
                   color: bannerTextColor,
-                  width: "50px",
-                  flexShrink: 0,
+                  sx: { width: "50px", flexShrink: 0 },
                 }}
                 valueProps={{ color: bannerTextColor, noWrap: true }}
               />

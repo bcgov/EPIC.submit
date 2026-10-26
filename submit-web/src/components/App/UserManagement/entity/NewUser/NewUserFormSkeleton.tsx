@@ -6,14 +6,13 @@ export default function NewUserFormSkeleton() {
   return (
     <TableBox mainLabel={<Skeleton width={200} height={32} />}>
       <Box
-        flexDirection={"column"}
         sx={{
+          flexDirection: "column",
           width: "100%",
           display: "flex",
           justifyContent: "flex-start",
-          alignItems: "flex-start",
-        }}
-      >
+          alignItems: "flex-start"
+        }}>
         <Container
           maxWidth="sm"
           sx={{

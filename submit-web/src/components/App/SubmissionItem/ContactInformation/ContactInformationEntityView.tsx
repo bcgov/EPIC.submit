@@ -415,18 +415,20 @@ export const ContactInformationEntityView = ({
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(onSubmitHandler)} methods={methods}>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <BarBlueTitle title="Submission Contact Information" />
             </Grid>
-            <Grid item xs={12}>
-              <Typography variant="body1" lineHeight={"normal"}>
+            <Grid size={12}>
+              <Typography variant="body1" sx={{
+                lineHeight: "normal"
+              }}>
                 Provide the contact details for the person(s) we should reach
                 out to if we have questions about this submission package. You
                 can select from your saved contacts or add new contact
                 information below.
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography
                 variant="h6"
                 sx={{
@@ -437,16 +439,14 @@ export const ContactInformationEntityView = ({
               </Typography>
             </Grid>
             <Grid
-              item
               container
               sx={{
                 width: {
                   xs: "100%", // width for extra-small screens
                   md: "390px", // width for medium screens and up
                 },
-              }}
-            >
-              <Grid item xs={12}>
+              }}>
+              <Grid size={12}>
                 <ControlledSelect
                   name="primaryContact.accountUserId"
                   label="Add New Contact or Select Existing User"
@@ -455,7 +455,7 @@ export const ContactInformationEntityView = ({
                   fullWidth
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <ControlledTextField
                   name="primaryContact.givenName"
                   label="Given Name"
@@ -463,7 +463,7 @@ export const ContactInformationEntityView = ({
                   disabled={isPrimaryUserSelected}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <ControlledTextField
                   name="primaryContact.surname"
                   label="Surname"
@@ -471,7 +471,7 @@ export const ContactInformationEntityView = ({
                   disabled={isPrimaryUserSelected}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <ControlledTextField
                   name="primaryContact.company"
                   label="Company Name"
@@ -479,7 +479,7 @@ export const ContactInformationEntityView = ({
                   disabled={isPrimaryUserSelected}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <ControlledTextField
                   name="primaryContact.position"
                   label="Position/Role"
@@ -487,8 +487,8 @@ export const ContactInformationEntityView = ({
                   disabled={isPrimaryUserSelected}
                 />
               </Grid>
-              <Grid item xs={12} container spacing={1}>
-                <Grid item xs={8}>
+              <Grid container spacing={1} size={12}>
+                <Grid size={8}>
                   <ControlledTextField
                     name="primaryContact.workPhoneNumber"
                     mask="(000) 000-0000"
@@ -497,7 +497,7 @@ export const ContactInformationEntityView = ({
                     disabled={isPrimaryUserSelected}
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid size={4}>
                   <ControlledTextField
                     name="primaryContact.extensionNumber"
                     mask="0000"
@@ -507,7 +507,7 @@ export const ContactInformationEntityView = ({
                   />
                 </Grid>
               </Grid>
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <ControlledTextField
                   name="primaryContact.workEmailAddress"
                   label="Work Email Address"
@@ -516,7 +516,7 @@ export const ContactInformationEntityView = ({
                 />
               </Grid>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography
                 variant="h6"
                 sx={{
@@ -526,7 +526,12 @@ export const ContactInformationEntityView = ({
                 Secondary Contact
               </Typography>
             </Grid>
-            <Grid item md={4} xs={12} container>
+            <Grid
+              container
+              size={{
+                md: 4,
+                xs: 12
+              }}>
               <Grid
                 container
                 sx={{
@@ -536,7 +541,7 @@ export const ContactInformationEntityView = ({
                   },
                 }}
               >
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <ControlledSelect
                     name="secondaryContact.accountUserId"
                     label="Add New Contact or Select Existing User"
@@ -545,7 +550,7 @@ export const ContactInformationEntityView = ({
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <ControlledTextField
                     name="secondaryContact.givenName"
                     label="Given Name"
@@ -553,7 +558,7 @@ export const ContactInformationEntityView = ({
                     disabled={isSecondaryUserSelected}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <ControlledTextField
                     name="secondaryContact.surname"
                     label="Surname"
@@ -561,7 +566,7 @@ export const ContactInformationEntityView = ({
                     disabled={isSecondaryUserSelected}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <ControlledTextField
                     name="secondaryContact.company"
                     label="Company Name"
@@ -569,7 +574,7 @@ export const ContactInformationEntityView = ({
                     disabled={isSecondaryUserSelected}
                   />
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <ControlledTextField
                     name="secondaryContact.position"
                     label="Position/Role"
@@ -577,8 +582,8 @@ export const ContactInformationEntityView = ({
                     disabled={isSecondaryUserSelected}
                   />
                 </Grid>
-                <Grid item xs={12} container spacing={1}>
-                  <Grid item xs={8}>
+                <Grid container spacing={1} size={12}>
+                  <Grid size={8}>
                     <ControlledTextField
                       name="secondaryContact.workPhoneNumber"
                       mask="(000) 000-0000"
@@ -587,7 +592,7 @@ export const ContactInformationEntityView = ({
                       disabled={isSecondaryUserSelected}
                     />
                   </Grid>
-                  <Grid item xs={4}>
+                  <Grid size={4}>
                     <ControlledTextField
                       name="secondaryContact.extensionNumber"
                       mask="0000"
@@ -597,7 +602,7 @@ export const ContactInformationEntityView = ({
                     />
                   </Grid>
                 </Grid>
-                <Grid item xs={12}>
+                <Grid size={12}>
                   <ControlledTextField
                     name="secondaryContact.workEmailAddress"
                     label="Work Email Address"
@@ -607,13 +612,21 @@ export const ContactInformationEntityView = ({
                 </Grid>
               </Grid>
             </Grid>
-            <Grid item xs={12} container spacing={2}>
-              <Grid item xs={12} sm="auto">
+            <Grid container spacing={2} size={12}>
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: "auto"
+                }}>
                 <Button color="secondary" onClick={handleCancel}>
                   Close
                 </Button>
               </Grid>
-              <Grid item xs={12} sm="auto">
+              <Grid
+                size={{
+                  xs: 12,
+                  sm: "auto"
+                }}>
                 <Button type="submit">Save</Button>
               </Grid>
             </Grid>
