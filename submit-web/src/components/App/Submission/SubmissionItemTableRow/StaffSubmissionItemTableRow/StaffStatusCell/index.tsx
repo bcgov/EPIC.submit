@@ -30,12 +30,13 @@ export default function StaffStatusCell({
 
   return (
     <Stack
-      mr={2}
       direction={"column"}
-      alignItems={"flex-end"}
       spacing={1}
-      margin={0}
-    >
+      sx={{
+        mr: 2,
+        alignItems: "flex-end",
+        margin: 0
+      }}>
       <Switch>
         <Case
           condition={type.name === SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD}

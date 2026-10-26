@@ -31,12 +31,12 @@ export const ContactsSection = ({
       <Grid container spacing={2}>
         {administrators.map((administrator, index) => (
           <Grid
-            item
-            xs={12}
-            md={6}
             key={administrator.id ?? index}
             sx={{ display: "flex" }}
-          >
+            size={{
+              xs: 12,
+              md: 6
+            }}>
             <ContactCard
               administrator={administrator}
               entityName={entityName}

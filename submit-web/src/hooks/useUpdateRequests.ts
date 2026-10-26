@@ -228,7 +228,7 @@ export function useUpdateRequests({
           packageId: submissionPackageId,
           updateRequestId,
         });
-      } catch (error) {
+      } catch {
         // Error handling is done in the mutation's onError callback
       }
     },
@@ -242,7 +242,7 @@ export function useUpdateRequests({
           packageId: submissionPackageId,
           updateRequestId,
         });
-      } catch (error) {
+      } catch {
         // Error handling is done in the mutation's onError callback
       }
     },

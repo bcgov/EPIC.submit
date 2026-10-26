@@ -53,14 +53,13 @@ export default function DocumentTableRow({
         <SubmitTableCell align="left">
           <Typography
             variant="body1"
-            color="inherit"
             sx={{
+              color: "inherit",
               overflow: "clip",
               textOverflow: "ellipsis",
               cursor: "pointer",
-              mx: 0.5,
-            }}
-          >
+              mx: 0.5
+            }}>
             <DocumentLink
               onClick={openDocument}
               name={name}

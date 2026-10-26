@@ -50,8 +50,10 @@ export const ExistingPlanDetails = ({
       }}
       spacing={3}
     >
-      <Grid item xs={12}>
-        <WarningBox gap={2}>
+      <Grid size={12}>
+        <WarningBox sx={{
+          gap: 2
+        }}>
           <div style={{ marginBottom: "8px" }}>
             An existing submission for this condition has already been created.
           </div>
@@ -66,18 +68,22 @@ export const ExistingPlanDetails = ({
           </ul>
         </WarningBox>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography
           variant="body1"
-          fontWeight={theme.typography.fontWeightBold}
+          sx={{
+            fontWeight: theme.typography.fontWeightBold
+          }}
         >
           {get(mainCondition, "condition_attributes.deliverable_name[0]", "")}
         </Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography
           variant="body2"
-          fontWeight={theme.typography.fontWeightBold}
+          sx={{
+            fontWeight: theme.typography.fontWeightBold
+          }}
         >
           Condition{" "}
           {`${mainCondition?.condition_number} - ${mainCondition?.condition_name}`}
@@ -88,10 +94,12 @@ export const ExistingPlanDetails = ({
           mainCondition?.condition_attributes?.requires_consultation === "true"
         }
       >
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography
             variant="body2"
-            fontWeight={theme.typography.fontWeightBold}
+            sx={{
+              fontWeight: theme.typography.fontWeightBold
+            }}
           >
             Consultation Required
           </Typography>
@@ -100,10 +108,12 @@ export const ExistingPlanDetails = ({
       {consultedParties &&
         mainCondition?.condition_attributes?.requires_consultation ===
           "true" && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography
               variant="body2"
-              fontWeight={theme.typography.fontWeightBold}
+              sx={{
+                fontWeight: theme.typography.fontWeightBold
+              }}
             >
               List of parties to be consulted:
             </Typography>
@@ -121,7 +131,7 @@ export const ExistingPlanDetails = ({
             </ul>
           </Grid>
         )}
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Stack direction={"row"} spacing={1}>
           <Button variant="text" onClick={handleCancel}>
             Cancel

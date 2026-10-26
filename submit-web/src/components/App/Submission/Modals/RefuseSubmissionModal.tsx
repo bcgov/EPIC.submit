@@ -105,22 +105,26 @@ const RefuseSubmissionModal = ({
           </WarningBox>
           <FormProvider {...methods}>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="body1" fontWeight={"bold"}>
+              <Grid size={12}>
+                <Typography variant="body1" sx={{
+                  fontWeight: "bold"
+                }}>
                   Decision Date
                 </Typography>
               </Grid>
-              <Grid item xs={12} sx={{ pt: "0px !important" }}>
+              <Grid sx={{ pt: "0px !important" }} size={12}>
                 <ControlledDatePicker name="decisionDate" sx={{ mb: 0 }} />
               </Grid>
             </Grid>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="body1" fontWeight={"bold"}>
+              <Grid size={12}>
+                <Typography variant="body1" sx={{
+                  fontWeight: "bold"
+                }}>
                   Reason for not approving this package
                 </Typography>
               </Grid>
-              <Grid item xs={12} sx={{ pt: "0px !important" }}>
+              <Grid sx={{ pt: "0px !important" }} size={12}>
                 <ControlledTextField
                   name="reason"
                   fullWidth

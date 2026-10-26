@@ -15,12 +15,12 @@ export const DocumentLink = ({
     return (
       <Typography
         variant="body2"
-        color="inherit"
         component="span"
-        sx={{ mx: 0.5, color: BCDesignTokens.iconsColorLink }}
-      >
-        Preparing your file..
-        <LinearProgress sx={{ width: "250px" }} />
+        sx={{
+          mx: 0.5,
+          color: BCDesignTokens.iconsColorLink
+        }}>Preparing your file..
+                <LinearProgress sx={{ width: "250px" }} />
       </Typography>
     );
   }

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FormHelperText, Grid } from "@mui/material";
+import { FormHelperText, Stack } from "@mui/material";
 import Dropzone, { Accept } from "react-dropzone";
 import { BCDesignTokens } from "epic.theme";
 
@@ -89,12 +89,9 @@ const Uploader = ({
     >
       {({ getRootProps, getInputProps, isDragReject }) => (
         <section data-cy="uploader">
-          <Grid
+          <Stack
             {...getRootProps()}
-            container
             direction="column"
-            alignItems="center"
-            justifyContent="center"
             style={{
               padding: "0.38em",
               borderRadius: "8px",
@@ -109,10 +106,13 @@ const Uploader = ({
                   ? `1px dashed ${BCDesignTokens.surfaceColorPrimaryDangerButtonDefault}`
                   : `1px dashed ${BCDesignTokens.themeBlue60}`,
             }}
-          >
+            sx={{
+              alignItems: "center",
+              justifyContent: "center"
+            }}>
             <input {...getInputProps()} multiple={false} />
             {children}
-          </Grid>{" "}
+          </Stack>{" "}
           {sizeError && (
             <FormHelperText
               error

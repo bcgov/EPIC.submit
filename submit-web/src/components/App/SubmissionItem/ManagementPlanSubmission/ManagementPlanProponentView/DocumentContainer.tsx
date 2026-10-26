@@ -13,20 +13,18 @@ const DocumentContainer: React.FC<DocumentContainerProps> = ({ document }) => {
   return (
     <Grid
       container
-      item
       sx={{
         border: `1px solid #D6EBFF`,
         padding: BCDesignTokens.layoutPaddingSmall,
         mb: BCDesignTokens.layoutMarginSmall,
-      }}
-    >
+      }}>
       <Grid
         container
-        item
-        xs={11}
-        alignItems={"center"}
-        justifyContent={"flex-start"}
-      >
+        size={11}
+        sx={{
+          alignItems: "center",
+          justifyContent: "flex-start"
+        }}>
         <Box
           sx={{
             mr: BCDesignTokens.layoutMarginLarge,
@@ -35,16 +33,19 @@ const DocumentContainer: React.FC<DocumentContainerProps> = ({ document }) => {
           <DocumentIcon />
         </Box>
         <Box
-          display={"flex"}
-          flexDirection={"row"}
-          width={"70%"}
-          mr={BCDesignTokens.layoutMarginSmall}
-        >
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            width: "70%",
+            mr: BCDesignTokens.layoutMarginSmall
+          }}>
           <Typography
             variant="body1"
-            fontWeight={BCDesignTokens.typographyFontWeightsBold}
-            sx={{ color: "#222", mr: BCDesignTokens.layoutMarginSmall }}
-          >
+            sx={{
+              fontWeight: BCDesignTokens.typographyFontWeightsBold,
+              color: "#222",
+              mr: BCDesignTokens.layoutMarginSmall
+            }}>
             {document.name}
           </Typography>{" "}
           <CheckRoundedIcon
@@ -56,7 +57,7 @@ const DocumentContainer: React.FC<DocumentContainerProps> = ({ document }) => {
           />
         </Box>
       </Grid>
-      <Grid item xs={1}>
+      <Grid size={1}>
         <Button variant="text">Remove</Button>
       </Grid>
     </Grid>

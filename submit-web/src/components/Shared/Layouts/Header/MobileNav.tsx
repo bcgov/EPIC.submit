@@ -9,28 +9,31 @@ export default function MobileNav() {
   return (
     <Box
       sx={{
+        display: "flex",
         p: 1,
         borderBottom: "1px solid #0000001A",
-        justifyContent: "space-between",
-      }}
-      display={"flex"}
-    >
+        justifyContent: "space-between"
+      }}>
       <Typography
         variant="h5"
         color="info"
         component="div"
-        paddingLeft={"0.5rem"}
-        fontWeight={"bold"}
-      >
+        sx={{
+          paddingLeft: "0.5rem",
+          fontWeight: "bold"
+        }}>
         {AppConfig.appTitle || "EPIC.submit"}
       </Typography>
       <Box
-        display={"flex"}
-        justifyContent={"center"}
-        alignItems={"center"}
-        mr={theme.spacing(1)}
-      >
-        <Typography variant="body1" color="info" mr={1}>
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          mr: theme.spacing(1)
+        }}>
+        <Typography variant="body1" color="info" sx={{
+          mr: 1
+        }}>
           Menu
         </Typography>
         <MenuIcon

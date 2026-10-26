@@ -182,12 +182,11 @@ export const SubmissionStatusChipStack = ({
       <Stack
         direction="column"
         spacing={1}
-        width={"fit-content"}
-        alignItems={"flex-start"}
         sx={{
-          margin: 0,
-        }}
-      >
+          width: "fit-content",
+          alignItems: "flex-start",
+          margin: 0
+        }}>
         {!hideStatus && status && <SubmissionStatusChip status={status} />}
         {isFlaggedForUpdate && (
           <SubmissionStatusChip

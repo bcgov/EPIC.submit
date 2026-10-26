@@ -115,23 +115,34 @@ export const Conditions = () => {
           marginTop: "32px",
         }}
       >
-        <Grid item xs={12}>
-          <Typography variant="body1" fontWeight={"bold"}>
+        <Grid size={12}>
+          <Typography variant="body1" sx={{
+            fontWeight: "bold"
+          }}>
             What condition is this submission for?
           </Typography>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography
             variant="body2"
             color={BCDesignTokens.typographyColorPlaceholder}
-            mb={1}
+            sx={{
+              mb: 1
+            }}
           >
             Please note: you can only submit one management plan per condition.
           </Typography>
         </Grid>
-        <Grid item xs md={6} lg={4}>
+        <Grid
+          size={{
+            xs: "grow",
+            md: 6,
+            lg: 4
+          }}>
           {isLoading && !conditions ? (
-            <Box width={300}>
+            <Box sx={{
+              width: 300
+            }}>
               <Skeleton animation="wave" />
             </Box>
           ) : (
@@ -175,17 +186,27 @@ export const Conditions = () => {
         </Grid>
 
         {errorText && (
-          <Grid item xs={12} mb={"15px"}>
+          <Grid size={12} sx={{
+            mb: "15px"
+          }}>
             <Typography color="error" variant="body2">
               {errorText}
             </Typography>
           </Grid>
         )}
         {supportingConditions.map((input, index) => (
-          <Grid key={`input-${input}`} item xs={12} container spacing={1}>
-            <Grid item xs md={6} lg={4} key={input}>
+          <Grid key={`input-${input}`} container spacing={1} size={12}>
+            <Grid
+              key={input}
+              size={{
+                xs: "grow",
+                md: 6,
+                lg: 4
+              }}>
               {isLoading && !conditions ? (
-                <Box width={300}>
+                <Box sx={{
+                  width: 300
+                }}>
                   <Skeleton animation="wave" />
                 </Box>
               ) : (
@@ -242,7 +263,7 @@ export const Conditions = () => {
               )}
             </Grid>
 
-            <Grid item>
+            <Grid>
               <IconButton
                 onClick={() => {
                   setSupportingConditions(
@@ -255,7 +276,7 @@ export const Conditions = () => {
             </Grid>
           </Grid>
         ))}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <MuiLink
             sx={{
               cursor: "pointer",
@@ -266,13 +287,15 @@ export const Conditions = () => {
           </MuiLink>
         </Grid>
       </Grid>
-      <Grid container spacing={2} mt="5em">
-        <Grid item>
+      <Grid container spacing={2} sx={{
+        mt: "5em"
+      }}>
+        <Grid>
           <Button variant="text" onClick={handleCancel}>
             Cancel
           </Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleNext}>Next</Button>
         </Grid>
       </Grid>

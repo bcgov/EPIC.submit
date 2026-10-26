@@ -61,12 +61,15 @@ const TermsModal: React.FC<TermsModalProps> = ({
   return (
     <Dialog
       open
+      slotProps={{ paper: { "aria-label": "Terms and Conditions" } }}
       onClose={() => {}}
       maxWidth="lg"
       fullWidth
-      disableEscapeKeyDown
     >
       <DialogContent
+        role="region"
+        aria-label="Terms text"
+        tabIndex={0}
         onScroll={handleScroll}
         ref={scrollBoxRef}
         sx={{ maxHeight: "400px", overflowY: "auto" }}

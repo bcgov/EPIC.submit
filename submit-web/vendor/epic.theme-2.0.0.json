@@ -1,0 +1,16 @@
+{
+  "name": "epic.theme",
+  "version": "2.0.0",
+  "filename": "epic.theme-2.0.0.tgz",
+  "integrity": "sha512-4KhvR45JQSziCFEwgu1cKkFfO+ycdOy6r0krW5NQUM/p+ay/QtQmCGw+YHZnRIpjJnvW8zKfO04EhUvFlDw9xw==",
+  "shasum": "3b35d84d35477b1c9160af58f383fe96fb3c04e0",
+  "size": 1310224,
+  "sourceRepository": "https://github.com/bcgov/EPIC.common",
+  "sourceBaseCommit": "4158a0787d1edd4f815bc34bbccb0005af4b6a5d",
+  "sourceBranch": "codex/mui9-theme",
+  "themeSourceSha256": "78bda1a96c712b66351a50af02601acbbc3be55dd569f3b503a2dd0b38c86cf5",
+  "published": false,
+  "releaseChannel": "mui9",
+  "legacyLatest": "1.0.11",
+  "artifactSha256": "d59c2f7d2787fc2ccf9806323c818b384e663acf50af094e7d27176d033baaf6"
+}

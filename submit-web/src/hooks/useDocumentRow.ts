@@ -75,7 +75,7 @@ export function useDocumentRow({
         status: SUBMISSION_STATUS.VERIFIED,
       });
       notify.success("Document verified");
-    } catch (e) {
+    } catch {
       notify.error("Failed to verify document");
     }
   };
@@ -87,7 +87,7 @@ export function useDocumentRow({
         status: SUBMISSION_STATUS.ACKNOWLEDGED,
       });
       notify.success("Document acknowledged");
-    } catch (e) {
+    } catch {
       notify.error("Failed to acknowledge document");
     }
   };
@@ -99,7 +99,7 @@ export function useDocumentRow({
         status: SUBMISSION_STATUS.SUBMITTED,
       });
       notify.success("Verification undone");
-    } catch (e) {
+    } catch {
       notify.error("Failed to undo verification");
     }
   };
@@ -111,7 +111,7 @@ export function useDocumentRow({
         status: SUBMISSION_STATUS.VERIFIED,
       });
       notify.success("Acknowledgement undone");
-    } catch (e) {
+    } catch {
       notify.error("Failed to undo acknowledgement");
     }
   };

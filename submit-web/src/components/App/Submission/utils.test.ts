@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { isSubmissionItemReadyToSubmit } from "./utils";
+import type { SubmissionItemStatus } from "@/models/Submission";
 import { SubmissionPackage } from "@/models/Package";
 
 const basePackage: SubmissionPackage = {
@@ -24,13 +25,13 @@ const basePackage: SubmissionPackage = {
     version: 1,
     original_package_id: 1,
     is_approved: false,
-    is_latest: true,
+    is_latest: true, is_enforceable: false,
   },
 };
 
-const makeItem = (overrides: Partial<{ status: string; is_required: boolean }> = {}) => ({
+const makeItem = (overrides: Partial<{ status: SubmissionItemStatus; is_required: boolean }> = {}) => ({
   id: 1,
-  status: overrides.status ?? "COMPLETED",
+  status: overrides.status ?? ("COMPLETED" as const),
   type: { id: 1, name: "Section A", submission_method: "upload" },
   is_required: overrides.is_required ?? true,
 });

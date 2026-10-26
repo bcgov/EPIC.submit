@@ -70,13 +70,12 @@ export const ProjectSubmissionsCard = ({
       }}
     >
       <Box
-        display={"flex"}
-        justifyContent={"space-between"}
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
           pt: BCDesignTokens.layoutPaddingMedium,
-          pb: BCDesignTokens.layoutPaddingLarge,
-        }}
-      >
+          pb: BCDesignTokens.layoutPaddingLarge
+        }}>
         <SubmissionTitle customTitle={title} customStatus={status} />
         <When condition={userType === USER_TYPE.PROPONENT}>
           <CardInnerBox>
@@ -89,7 +88,9 @@ export const ProjectSubmissionsCard = ({
           </CardInnerBox>
         </When>
       </Box>
-      <Box height={"100%"}>
+      <Box sx={{
+        height: "100%"
+      }}>
         <When condition={!isWorkRelated}>
           <Typography
             variant="body2"
@@ -113,19 +114,23 @@ export const ProjectSubmissionsCard = ({
         </CardInnerBox>
         <When condition={!isWorkRelated && pastSubmissionPackages.length > 0}>
           <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
+            onClick={() => setReviewCompletedOpen((prev) => !prev)}
             sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
               cursor: "pointer",
               userSelect: "none",
               backgroundColor: BCDesignTokens.themeGold10,
               borderBottom: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`,
-            }}
-            onClick={() => setReviewCompletedOpen((prev) => !prev)}
-          >
-            <Box display="flex" alignItems="center" gap={1}>
+              padding: `${BCDesignTokens.layoutPaddingSmall} ${BCDesignTokens.layoutPaddingMedium}`
+            }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1
+              }}>
               <Typography
                 variant="body2"
                 sx={{ fontWeight: 600 }}

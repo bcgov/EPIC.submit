@@ -91,10 +91,13 @@ export default function ProponentSubmissionItemTableRow({
           >
             <Typography
               variant="h6"
-              color="inherit"
-              fontWeight={900}
-              sx={{ mx: 0.5, fontSize: "1rem", lineHeight: "1.688rem" }}
-            >
+              sx={{
+                color: "inherit",
+                fontWeight: 900,
+                mx: 0.5,
+                fontSize: "1rem",
+                lineHeight: "1.688rem"
+              }}>
               {name}
             </Typography>
           </MuiLink>
@@ -102,7 +105,12 @@ export default function ProponentSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"20%"}>
-          <Box ml={1} display={"flex"} justifyContent={"flex-start"}>
+          <Box
+            sx={{
+              ml: 1,
+              display: "flex",
+              justifyContent: "flex-start"
+            }}>
             <SubmissionStatusChipStack
               status={status}
               packageStatus={submissionPackage?.status}

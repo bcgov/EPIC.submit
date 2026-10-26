@@ -41,7 +41,9 @@ function Layout() {
       <ScrollToTop />
       <EAOAppBar />
       <DrawerProvider />
-      <Box minHeight={"calc(100vh - 88px)"}>
+      <Box sx={{
+        minHeight: "calc(100vh - 88px)"
+      }}>
         <Outlet />
       </Box>
       <Footer />

@@ -24,7 +24,9 @@ export const StatusCell = ({
   });
 
   return (
-    <Stack direction="column" spacing={0.5} alignItems="flex-start">
+    <Stack direction="column" spacing={0.5} sx={{
+      alignItems: "flex-start"
+    }}>
       {isNewVersion && (
         <SubmissionStatusChip
           status={NON_CANONICAL_SUBMISSION_STATUS.NEW_VERSION}

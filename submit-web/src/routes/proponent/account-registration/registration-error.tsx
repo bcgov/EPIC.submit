@@ -24,7 +24,12 @@ function RegistrationErrorComponent() {
       <Typography variant="body1" sx={{ mb: 4, mt: 2 }}>
         Please try again with a different user.
       </Typography>
-      <Box display="flex" justifyContent="center" gap={2}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          gap: 2
+        }}>
         <Button
           variant="contained"
           color="primary"

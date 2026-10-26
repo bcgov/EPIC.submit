@@ -40,7 +40,9 @@ const BreadcrumbNav: React.FC = () => {
 
             if (isCurrentPage) {
               return (
-                <Typography key={path} color="text.primary">
+                <Typography key={path} sx={{
+                  color: "text.primary"
+                }}>
                   {title}
                 </Typography>
               );

@@ -129,6 +129,7 @@ export const FoldersList = ({
       folderValue: string;
       targetSubmissionId?: number;
     }) => {
+      if (!submissionToMove.submitted_document) return;
       setLocked(true);
       setMoveTarget(targetSubmissionId ?? folderValue);
 
@@ -230,10 +231,14 @@ export const FoldersList = ({
                 <Stack
                   key={submission.id}
                   direction="row"
-                  justifyContent="space-between"
                   spacing={1}
+                  sx={{
+                    justifyContent: "space-between"
+                  }}
                 >
-                  <Stack direction="row" alignItems="center" spacing={1}>
+                  <Stack direction="row" spacing={1} sx={{
+                    alignItems: "center"
+                  }}>
                     <InsertDriveFileIcon />
                     <Typography variant="body2" sx={{ ml: 1 }}>
                       {submission.submitted_document?.name}
@@ -268,8 +273,10 @@ export const FoldersList = ({
         <Stack
           key={folder.value}
           direction="row"
-          justifyContent="space-between"
           spacing={1}
+          sx={{
+            justifyContent: "space-between"
+          }}
         >
           <Box sx={{ display: "flex", alignItems: "center" }}>
             <FolderIcon />

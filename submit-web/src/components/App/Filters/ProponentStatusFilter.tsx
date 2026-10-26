@@ -33,7 +33,6 @@ function ProponentStatusFilter() {
       <Select
         labelId="proponent-status-select-label"
         id="proponent-status-select"
-        placeholder="Status"
         value={statusFilters}
         multiple
         displayEmpty
@@ -64,7 +63,9 @@ function ProponentStatusFilter() {
           return (
             <div style={{ display: "flex", flexWrap: "wrap" }}>
               {(selected as string[]).map((value) => (
-                <Box key={value} mr={1}>
+                <Box key={value} sx={{
+                  mr: 1
+                }}>
                   <ProponentStatusChip status={value as ProponentStatus} />
                 </Box>
               ))}

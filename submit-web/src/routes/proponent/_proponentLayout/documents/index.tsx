@@ -140,7 +140,7 @@ function DocumentsPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <DocumentFilter
           filters={filters}
           setFilters={handleFilterChange}
@@ -166,13 +166,12 @@ function DocumentsPage() {
             </Typography>
           )}
           <Box
-            display={"flex"}
-            flexDirection="column"
             sx={{
+              display: "flex",
+              flexDirection: "column",
               pt: BCDesignTokens.layoutPaddingSmall,
-              pb: BCDesignTokens.layoutPaddingSmall,
-            }}
-          >
+              pb: BCDesignTokens.layoutPaddingSmall
+            }}>
             <When condition={selectedProjectId !== ""}>
               <Documents
                 data={documentsData as PaginatedDocumentsResponse}

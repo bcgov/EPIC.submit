@@ -40,7 +40,9 @@ export function NewSubmissionCard({
         }}
       >
         {submissionName && (
-          <Typography variant="h4" fontWeight={400}>
+          <Typography variant="h4" sx={{
+            fontWeight: 400
+          }}>
             {submissionName}
           </Typography>
         )}

@@ -82,7 +82,7 @@ const LexicalEditor = ({
   return (
     <LexicalComposer initialConfig={editorConfig}>
       <Grid container>
-        <Grid item xs={2}>
+        <Grid size={2}>
           <Tooltip title={label} arrow>
             <span>
               <InputLabel
@@ -104,7 +104,7 @@ const LexicalEditor = ({
             </span>
           </Tooltip>
         </Grid>
-        <Grid item xs={10} sx={{ textAlign: "right" }}>
+        <Grid sx={{ textAlign: "right" }} size={10}>
           {!disabled && <LexicalToolbar isAdvanced={isAdvanced} />}
         </Grid>
       </Grid>

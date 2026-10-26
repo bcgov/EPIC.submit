@@ -124,9 +124,6 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
       </IconButton>
       <Menu
         id="long-menu"
-        MenuListProps={{
-          "aria-labelledby": "long-button",
-        }}
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
@@ -157,10 +154,13 @@ export const ActionButton = ({ submission }: ActionButtonProps) => {
               },
             },
           },
+
+          list: {
+            "aria-labelledby": "long-button",
+          }
         }}
         transformOrigin={{ horizontal: "right", vertical: "top" }}
-        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-      >
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}>
         <MenuItem onClick={handleMove}>Move</MenuItem>
         <MenuItem onClick={handleDeleteClick}>Delete</MenuItem>
       </Menu>

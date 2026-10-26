@@ -201,9 +201,15 @@ export default function ActionButtons() {
   }, [isStaff, submissionReview]);
 
   return (
-    <Grid item xs={12} container spacing={2} mt="2em">
+    <Grid container spacing={2} size={12} sx={{
+      mt: "2em"
+    }}>
       <When condition={isStaff || isManager}>
-        <Grid item xs={12} sm="auto">
+        <Grid
+          size={{
+            xs: 12,
+            sm: "auto"
+          }}>
           <UnfinishedUploadsCheck>
             <LoadingButton
               color="secondary"
@@ -217,7 +223,11 @@ export default function ActionButtons() {
         </Grid>
       </When>
       <When condition={isStaff}>
-        <Grid item xs={12} sm="auto">
+        <Grid
+          size={{
+            xs: 12,
+            sm: "auto"
+          }}>
           <UnfinishedUploadsCheck>
             <LoadingButton
               disabled={isLoading || isSaveDisabled}
@@ -230,7 +240,11 @@ export default function ActionButtons() {
         </Grid>
       </When>
       <When condition={isManager}>
-        <Grid item xs={12} sm="auto">
+        <Grid
+          size={{
+            xs: 12,
+            sm: "auto"
+          }}>
           <UnfinishedUploadsCheck>
             <LoadingButton
               disabled={isLoading || isSaveDisabled}

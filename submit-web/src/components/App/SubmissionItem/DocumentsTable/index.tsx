@@ -109,7 +109,9 @@ export default function DocumentsTable({
         <TableBody>
           <SubmitTablePrimaryRow>
             <SubmitPrimaryRowTableCell>
-              <Typography fontWeight={"bold"}>
+              <Typography sx={{
+                fontWeight: "bold"
+              }}>
                 {getSubmissionItemLabel(submissionItem.type.name)}
               </Typography>
             </SubmitPrimaryRowTableCell>

@@ -37,13 +37,12 @@ export const UserTable = ({ users }: { users: AccountUserWithRole[] }) => {
       }
     >
       <Box
-        display={"flex"}
-        justifyContent={"space-between"}
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
           pt: BCDesignTokens.layoutPaddingMedium,
-          pb: BCDesignTokens.layoutPaddingXlarge,
-        }}
-      >
+          pb: BCDesignTokens.layoutPaddingXlarge
+        }}>
         <TableContainer component={Box} sx={{ height: "100%" }}>
           <Table>
             <UserTableHead />

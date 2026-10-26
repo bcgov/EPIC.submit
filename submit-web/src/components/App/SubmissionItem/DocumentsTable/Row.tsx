@@ -185,7 +185,7 @@ export default function Row({
           queryKey: [QUERY_KEY.GEO_UPLOADS],
         });
       }
-    } catch (e) {
+    } catch {
       notify.error("Failed to remove document");
     } finally {
       setIsRemovingDocument(false);

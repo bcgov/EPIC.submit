@@ -30,11 +30,15 @@ function NeedAccess() {
       <Toolbar />
       <Box sx={{ mt: BCDesignTokens.layoutMarginMedium }}>
         <YellowBar />
-        <Typography variant="h1" fontWeight="bold" gutterBottom>
+        <Typography variant="h1" gutterBottom sx={{
+          fontWeight: "bold"
+        }}>
           Need Access to EPIC.submit?
         </Typography>
       </Box>
-      <Stack gap={BCDesignTokens.layoutMarginSmall}>
+      <Stack sx={{
+        gap: BCDesignTokens.layoutMarginSmall
+      }}>
         <p>
           It appears you've arrived at EPIC.submit without a direct access link
           or previous registration

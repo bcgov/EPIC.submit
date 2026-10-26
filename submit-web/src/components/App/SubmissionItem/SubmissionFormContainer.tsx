@@ -38,7 +38,7 @@ export const SubmissionFormContainer = ({
   if (!accountProject) return <Navigate to="/error" />;
 
   return (
-    <Grid item xs={12}>
+    <Grid size={12}>
       <ContentBox
         mainLabel={accountProject?.project.name}
         topLabel={accountProject?.project?.proponent?.name || ""}
@@ -74,11 +74,10 @@ export const SubmissionFormContainer = ({
             <Grid
               container
               spacing={BCDesignTokens.layoutMarginMedium}
-              padding="16px"
               sx={{
-                flexDirection: "column",
-              }}
-            >
+                padding: "16px",
+                flexDirection: "column"
+              }}>
               {children}
             </Grid>
           </Box>

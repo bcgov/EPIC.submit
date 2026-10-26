@@ -71,7 +71,9 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
 
   const nameCell = (
     <StyledProjectTableCell sx={{ minWidth: "150px", width: isMPRelated ? "35%" : "40%" }} align="left">
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1} sx={{
+        alignItems: "center"
+      }}>
         <SubmitLink
           sx={{
             display: "flex",
@@ -86,7 +88,12 @@ export default function StaffTableRow({ submissionPackage }: ProjectRowProps) {
             status.includes(PACKAGE_STATUS.CREATED.value)
           }
         >
-          <Typography fontSize="1rem" fontWeight="bold" color="inherit">
+          <Typography
+            sx={{
+              fontSize: "1rem",
+              fontWeight: "bold",
+              color: "inherit"
+            }}>
             {managementPlanName}
           </Typography>
         </SubmitLink>

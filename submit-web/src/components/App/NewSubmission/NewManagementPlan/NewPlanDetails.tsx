@@ -103,19 +103,23 @@ export const NewPlanDetails = ({
       }}
       spacing={3}
     >
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography variant="body2">This submission is:</Typography>
         <Typography
           variant="body1"
-          fontWeight={theme.typography.fontWeightBold}
+          sx={{
+            fontWeight: theme.typography.fontWeightBold
+          }}
         >
           {managementPlanName}
         </Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography
           variant="body2"
-          fontWeight={theme.typography.fontWeightBold}
+          sx={{
+            fontWeight: theme.typography.fontWeightBold
+          }}
         >
           Condition{" "}
           {`${mainCondition?.condition_number} - ${mainCondition?.condition_name}`}
@@ -126,10 +130,12 @@ export const NewPlanDetails = ({
           mainCondition?.condition_attributes?.requires_consultation === "true"
         }
       >
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography
             variant="body2"
-            fontWeight={theme.typography.fontWeightBold}
+            sx={{
+              fontWeight: theme.typography.fontWeightBold
+            }}
           >
             Consultation Required
           </Typography>
@@ -138,10 +144,12 @@ export const NewPlanDetails = ({
       {consultedParties &&
         mainCondition?.condition_attributes?.requires_consultation ===
           "true" && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography
               variant="body2"
-              fontWeight={theme.typography.fontWeightBold}
+              sx={{
+                fontWeight: theme.typography.fontWeightBold
+              }}
             >
               List of parties to be consulted:
             </Typography>
@@ -159,7 +167,7 @@ export const NewPlanDetails = ({
             </ul>
           </Grid>
         )}
-      <Grid item xs={12}>
+      <Grid size={12}>
         <FormControl sx={{ width: "100%" }}>
           <FormLabel sx={{ fontWeight: theme.typography.fontWeightBold }}>
             Is this correct?
@@ -199,7 +207,7 @@ export const NewPlanDetails = ({
           )}
         </FormControl>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Stack direction={"row"} spacing={1}>
           <Button variant="text" onClick={handleCancel}>
             Cancel

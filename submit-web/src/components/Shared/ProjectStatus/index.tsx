@@ -40,9 +40,10 @@ export const ProjectStatus = ({ status }: ProjectStatusProps) => {
     <Stack
       spacing={1}
       direction="row"
-      alignItems={"center"}
-      color={style.color}
-    >
+      sx={{
+        alignItems: "center",
+        color: style.color
+      }}>
       <ModeStandby />
       <Caption2 color={style.color} bold>
         {style.label}

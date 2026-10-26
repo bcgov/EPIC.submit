@@ -24,16 +24,17 @@ const ControlledCheckboxGroup: FC<IFormInputProps> = ({
   const error = get(errors, name, "");
 
   return (
-    <FormControl error={Boolean(error)}>
+    <FormControl error={Boolean(error)} data-form-field={name}>
       <Controller
         control={control}
         name={name}
-        defaultValue={get(defaultValues, name, "")}
+        defaultValue={get(defaultValues, name, [])}
         render={({ field }) => {
           return (
             <CheckboxGroup
               {...otherProps}
               {...field}
+              ref={(element) => field.ref(element?.querySelector("input:not(:disabled)"))}
               controlled
               error={Boolean(error)}
             >

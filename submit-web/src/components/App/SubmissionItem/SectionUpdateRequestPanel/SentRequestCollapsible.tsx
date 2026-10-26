@@ -94,7 +94,7 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
   };
 
   const headerRightContent = (
-    <Box sx={{ display: "flex", gap: 1, alignItems: "center", width: "25%", justifyContent: "space-between" }}>
+    <Box sx={{ display: "flex", gap: 1, alignItems: "center",  justifyContent: "flex-end" }}>
       {/* STAFF: Show "Requested" badge and Withdraw Update button when request is OPEN */}
       {request.status === UPDATE_REQUEST_STATUS.OPEN.value && (
         <>
@@ -255,7 +255,6 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   placeholder="Describe what you updated and/or add other relevant details."
-                  inputProps={{ maxLength: maxNoteLength }}
                   sx={{
                     backgroundColor: "white",
                     marginBottom: 0,
@@ -278,6 +277,9 @@ export const SentRequestCollapsible: React.FC<SentRequestCollapsibleProps> = ({
                       color: "#9CA3AF",
                       opacity: 1,
                     },
+                  }}
+                  slotProps={{
+                    htmlInput: { maxLength: maxNoteLength }
                   }}
                 />
 

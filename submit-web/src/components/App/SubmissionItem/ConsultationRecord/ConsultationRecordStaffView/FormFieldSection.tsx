@@ -62,15 +62,15 @@ export default function FormFieldSection({
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Grid
-          item
           container
-          xs={12}
-          justifyContent={"space-between"}
-          alignItems={"space-between"}
-          sx={{ borderBottom: `2px solid ${BCDesignTokens.themeGold80}` }}
-        >
+          size={12}
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "space-between",
+            borderBottom: `2px solid ${BCDesignTokens.themeGold80}`
+          }}>
           <Typography
             variant="h4"
             color={BCDesignTokens.themeBlue100}
@@ -91,23 +91,20 @@ export default function FormFieldSection({
           />
         </Grid>
       </Grid>
-      <Grid item xs={12} container>
+      <Grid container size={12}>
         <When condition={!isHidden}>
-          <Grid
-            item
-            container
-            xs={12}
-            spacing={BCDesignTokens.layoutMarginSmall}
-          >
-            <Grid item xs={12}>
+          <Grid container spacing={BCDesignTokens.layoutMarginSmall} size={12}>
+            <Grid size={12}>
               <Typography
                 variant="body1"
-                fontWeight={BCDesignTokens.typographyFontWeightsBold}
+                sx={{
+                  fontWeight: BCDesignTokens.typographyFontWeightsBold
+                }}
               >
                 Names of consulted/engaged parties
               </Typography>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="body1">
                 These parties have been identified as requiring consultation.
                 Please include any additional parties that have been consulted
@@ -115,7 +112,7 @@ export default function FormFieldSection({
               </Typography>
             </Grid>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1" component="div">
               <ul
                 style={{
@@ -134,14 +131,14 @@ export default function FormFieldSection({
               </ul>
             </Typography>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1">
               Ensure that comment trackers clearly demonstrate that consulted
               parties have had the opportunity to respond to holder responses to
               the consulted parties comments.
             </Typography>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1">
               Were all parties listed above consulted/engaged on the development
               of this {PLAN}?
@@ -150,7 +147,7 @@ export default function FormFieldSection({
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1">
               Was the {PLAN} provided to all parties listed above for review and
               comment during {PLAN} development?
@@ -159,7 +156,7 @@ export default function FormFieldSection({
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1">
               Have written explanations been provided to each party listed above
               on how comments were fully and impartially considered and
@@ -171,7 +168,7 @@ export default function FormFieldSection({
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1">
               For comments not addressed in this {PLAN}, have written
               explanations been provided to the commenters as to why the
@@ -183,7 +180,7 @@ export default function FormFieldSection({
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1" sx={{ fontWeight: 700 }}>
               Notes/Comments
             </Typography>

@@ -38,7 +38,7 @@ export const S3_FOLDER = {
   },
 };
 
-export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP = {
+export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP: Partial<Record<SubmissionPackageType, Record<string, { value: string; label: string }[]>>> = {
   [SubmissionPackageType.MANAGEMENT_PLAN]: {
     [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
       S3_FOLDER.CONSULTATION_RECORDS,

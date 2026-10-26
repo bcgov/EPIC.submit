@@ -22,7 +22,9 @@ export const AdditionalInformationUpdateForm = () => {
 
   return (
     <SubmissionFormContainer>
-      <Box width={"100%"}>
+      <Box sx={{
+        width: "100%"
+      }}>
         <DocumentsTable
           folder={S3_FOLDER.UPLOAD_DOCUMENTS.value}
           setIsPendingUpload={setIsPendingUpload}

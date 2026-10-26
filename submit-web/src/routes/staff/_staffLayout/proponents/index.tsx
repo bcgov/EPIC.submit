@@ -24,8 +24,8 @@ function ProponentsHolders() {
       }}
     >
       <Grid container spacing={2}>
-        <Grid container item xs={12} spacing={2}>
-          <Grid item xs={3}>
+        <Grid container spacing={2} size={12}>
+          <Grid size={3}>
             <TextField
               value={searchText}
               variant="outlined"
@@ -35,16 +35,18 @@ function ProponentsHolders() {
                 width: "100%",
               }}
               placeholder="Search Proponents/Holders by Name"
-              InputProps={{
-                startAdornment: <SearchIcon htmlColor="#858a8c" />,
+              slotProps={{
+                input: {
+                  startAdornment: <SearchIcon htmlColor="#858a8c" />,
+                }
               }}
             />
           </Grid>
-          <Grid item xs={3}>
+          <Grid size={3}>
             <ProponentStatusFilter />
           </Grid>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <ContentBox
             mainLabel="Proponents/Holders Information"
             sx={{ width: "100%", height: "fit-content" }}

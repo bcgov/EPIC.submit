@@ -51,15 +51,14 @@ export default function DocumentSubRow({
       <SubmitTableCell width={"50%"}>
         <Typography
           variant="body1"
-          color="inherit"
           component="div"
           sx={{
+            color: "inherit",
             overflow: "clip",
             textOverflow: "ellipsis",
             cursor: "pointer",
-            mx: 0.5,
-          }}
-        >
+            mx: 0.5
+          }}>
           <DocumentLink
             name={name}
             onClick={openDocument}
@@ -75,7 +74,9 @@ export default function DocumentSubRow({
         <span style={{ marginRight: "24px" }} />
       </SubmitTableCell>
       <SubmitTableCell align="right" width={"20%"}>
-        <Box mr={2}>
+        <Box sx={{
+          mr: 2
+        }}>
           <StatusCell submittedDocument={documentSubmission} />
         </Box>
       </SubmitTableCell>

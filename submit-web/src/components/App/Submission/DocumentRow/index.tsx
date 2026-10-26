@@ -206,14 +206,13 @@ export default function DocumentRow({
           >
             <Typography
               variant="body1"
-              color="inherit"
               component="div"
               sx={{
+                color: "inherit",
                 overflow: "clip",
                 textOverflow: "ellipsis",
-                cursor: "pointer",
-              }}
-            >
+                cursor: "pointer"
+              }}>
               {staff ? (
                 <SubmissionItemReviewConfirmation
                   submissionItem={submissionItem}
@@ -257,7 +256,9 @@ export default function DocumentRow({
           )}
         </SubmitTableCell>
         <SubmitTableCell align="left" width={"18%"}>
-          <Box ml={1}>
+          <Box sx={{
+            ml: 1
+          }}>
             <StatusCell
               submittedDocument={documentSubmission}
             />

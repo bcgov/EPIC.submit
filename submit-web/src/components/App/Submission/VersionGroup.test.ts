@@ -110,8 +110,8 @@ describe("VersionGroup - Proponent '+ Create New' button visibility logic", () =
 
   describe("calculateIsLatestVersion", () => {
     const versions: PackageVersion[] = [
-      { id: 1, package_id: 9, version: 1, original_package_id: 5, is_approved: true, is_latest: false },
-      { id: 2, package_id: 10, version: 2, original_package_id: 5, is_approved: false, is_latest: true },
+      { id: 1, package_id: 9, version: 1, original_package_id: 5, is_approved: true, is_latest: false, is_enforceable: false, },
+      { id: 2, package_id: 10, version: 2, original_package_id: 5, is_approved: false, is_latest: true, is_enforceable: false, },
     ];
 
     it("returns true when current version equals the highest version number", () => {

@@ -35,7 +35,7 @@ function ProfileEditPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <UserDetails user={selectedUser} />
       </Grid>
     </PageGrid>

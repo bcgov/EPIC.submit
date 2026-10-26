@@ -1,3 +1,4 @@
+import { AccordionHeading } from "@/components/Shared/AccordionHeading";
 import {
   Accordion,
   AccordionDetails,
@@ -10,7 +11,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { BCDesignTokens } from "epic.theme";
 import { useFormContext } from "react-hook-form";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
@@ -30,6 +31,7 @@ interface SectionDef {
 export default function RevisionRequiredWidget({
   disabled = false,
 }: RevisionRequiredWidgetProps) {
+  const accordionId = useId();
   const { submissionPackageId } = useParams({
     from: "/staff/_staffLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -207,6 +209,23 @@ export default function RevisionRequiredWidget({
           const error = getSectionNoteError(section.typeId);
           return (
             <Accordion
+              slots={{ heading: AccordionHeading }}
+              slotProps={{ heading: { actions: section.typeId === managementPlanTypeId ? (<Link
+                    component="button"
+                    type="button"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      handleRemoveMPSection();
+                    }}
+                    sx={{
+                      color: BCDesignTokens.themeBlue90,
+                      cursor: "pointer",
+                      fontSize: "14px",
+                      textDecoration: "none",
+                    }}
+                  >
+                    Remove
+                  </Link>) : null } }}
               key={section.typeId}
               expanded={expandedSections.has(section.typeId)}
               onChange={() => handleToggle(section.typeId)}
@@ -220,6 +239,8 @@ export default function RevisionRequiredWidget({
               }}
             >
               <AccordionSummary
+                id={`${accordionId}-${section.typeId}-header`}
+                aria-controls={`${accordionId}-${section.typeId}-content`}
                 expandIcon={<ExpandMoreIcon />}
                 sx={{
                   flexDirection: "row-reverse",
@@ -243,23 +264,7 @@ export default function RevisionRequiredWidget({
                 >
                   {section.name}
                 </Typography>
-                {section.typeId === managementPlanTypeId && (
-                  <Link
-                    component="button"
-                    onClick={(e: React.MouseEvent) => {
-                      e.stopPropagation();
-                      handleRemoveMPSection();
-                    }}
-                    sx={{
-                      color: BCDesignTokens.themeBlue90,
-                      cursor: "pointer",
-                      fontSize: "14px",
-                      textDecoration: "none",
-                    }}
-                  >
-                    Remove
-                  </Link>
-                )}
+
               </AccordionSummary>
               <AccordionDetails>
                 <Box>

@@ -27,7 +27,9 @@ export const SubmissionSuccessBox = ({
           key={index}
           variant="body1"
           color="black"
-          mt={index > 0 ? "20px" : undefined}
+          sx={{
+            mt: index > 0 ? "20px" : undefined
+          }}
         >
           {parts[0]}
           <Link href={`mailto:${email}`}>{email}</Link>
@@ -41,7 +43,9 @@ export const SubmissionSuccessBox = ({
         key={index}
         variant="body1"
         color="black"
-        mt={index > 0 ? "20px" : undefined}
+        sx={{
+          mt: index > 0 ? "20px" : undefined
+        }}
       >
         {text}
       </Typography>
