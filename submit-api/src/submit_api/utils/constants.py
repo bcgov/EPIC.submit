@@ -58,6 +58,12 @@ STAFF_WORK_ROLE_KEYCLOAK_GROUPS = {
 # Item type name for GIS/Geospatial submissions
 GIS_ITEM_TYPE_NAME = "Geospatial Information"
 
+# S3 folders for report obligation document submissions. Mirror the frontend
+# S3_FOLDER values; the primary ("reports") folder holds the required report /
+# notification document, the supporting folder holds optional attachments.
+REPORTS_FOLDER = "reports"
+REPORT_SUPPORTING_DOCUMENTS_FOLDER = "report_supporting_documents"
+
 # Canonical display order for report obligation phases. Mirrors the frontend
 # PHASE_ORDER. Unknown phases are ordered after these, by name.
 REPORT_PHASE_ORDER = [

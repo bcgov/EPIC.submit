@@ -42,6 +42,7 @@ from submit_api.utils.constants import (
     GIS_ITEM_TYPE_NAME,
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
+    REPORTS_FOLDER,
     SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
 )
@@ -544,12 +545,40 @@ class PackageService:  # pylint: disable=too-many-public-methods
     def _get_and_validate_complete_package(cls, package_id) -> PackageModel:
         """Retrieve and validate that all required items in the package are completed."""
         package = PackageModel.find_by_id(package_id)
+
+        # Report obligations reuse one package for every submission of a recurring
+        # report/phase, so each submit (first or subsequent) is validated the same
+        # way: it must include a primary report/notification document. The
+        # update-request-gated resubmit rules do not apply.
+        if package.type.name == PackageTypeEnum.REPORT.value:
+            cls._validate_report_submission(package)
+            current_app.logger.info(f"Report package {package_id} is ready to submit")
+            return package
+
         if package.submitted_on:
             return cls._validate_package_for_resubmit(package)
 
         cls._validate_completeness(package)
         current_app.logger.info(f"Package {package_id} is ready to submit")
         return package
+
+    @classmethod
+    def _validate_report_submission(cls, package):
+        """Validate a report obligation submission has a primary report document.
+
+        A report submission must include at least one document in the primary
+        ("reports") folder. Supporting documents alone are not sufficient.
+        """
+        has_primary_document = any(
+            submission.submitted_document
+            and submission.submitted_document.folder == REPORTS_FOLDER
+            for submission in cls._get_document_submissions_from_package(package)
+        )
+        if not has_primary_document:
+            current_app.logger.info(
+                f"Report package {package.id} has no primary report document"
+            )
+            raise BadRequestError("Please upload a document.")
 
     @classmethod
     def _validate_completeness(cls, package):
@@ -812,7 +841,11 @@ class PackageService:  # pylint: disable=too-many-public-methods
                     "All geospatial files must be reviewed and approved before "
                     "submitting the package to the EAO."
                 )
-            if package.submitted_on:
+            # Report obligations reuse one package across submissions, so every
+            # report submit follows the first-submission path (append documents,
+            # set SUBMITTED) rather than the update-request-gated resubmit path.
+            is_report = package.type.name == PackageTypeEnum.REPORT.value
+            if package.submitted_on and not is_report:
                 submitted_package: PackageModel = cls._resubmit_package(package, session)
             else:
                 submitted_package: PackageModel = cls._submit_package(package, session)

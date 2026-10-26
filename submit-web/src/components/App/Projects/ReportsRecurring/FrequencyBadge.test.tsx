@@ -17,7 +17,8 @@ describe("getFrequencyColors", () => {
   it("uses a purple treatment for One Time distinct from As Needed", () => {
     const purple = getFrequencyColors(FREQUENCY_ONE_TIME);
     const red = getFrequencyColors(FREQUENCY_AS_NEEDED);
-    expect(purple.background).toBe("#F3E8FF");
+    expect(purple.border).toBe("#6A54A3");
+    expect(purple.background).toBe("#DAD4E8");
     expect(purple.background).not.toBe(red.background);
   });
 
