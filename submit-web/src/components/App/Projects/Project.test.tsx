@@ -24,8 +24,11 @@ vi.mock("./ProjectSubmissionsCard", () => ({
 // Capture the packages passed to the reports card.
 const reportsCardSpy = vi.fn();
 vi.mock("./ReportsRecurring/ReportsRecurringCard", () => ({
-  ReportsRecurringCard: (props: { reportPackages: SubmissionPackage[] }) => {
-    reportsCardSpy(props.reportPackages);
+  ReportsRecurringCard: (props: {
+    reportPackages: SubmissionPackage[];
+    audience?: string;
+  }) => {
+    reportsCardSpy(props.reportPackages, props.audience);
     return <div data-testid="reports-card" />;
   },
 }));
@@ -67,6 +70,29 @@ const setAccount = (roles: Role[]) =>
     userManagementRoles: roles,
   });
 
+const setStaffAccount = () =>
+  mockUseAccount.mockReturnValue({
+    userType: USER_TYPE.STAFF,
+    userManagementRoles: [],
+  });
+
+const makeStaffAccountProject = (reportIds: number[]): AccountProject => ({
+  id: 1,
+  project_id: 1,
+  account_id: 1,
+  project: {
+    id: 1,
+    name: "Cariboo Gold Project",
+    proponent_id: 1,
+    epic_guid: "guid",
+    has_approved_condition: true,
+  },
+  packages: [
+    makePackage(11, SubmissionPackageType.MANAGEMENT_PLAN),
+    ...reportIds.map((id) => makePackage(id, SubmissionPackageType.REPORT)),
+  ],
+});
+
 const roleWith = (roleName: USER_MANAGEMENT_ROLE): Role =>
   ({ role_name: roleName }) as Role;
 
@@ -91,6 +117,19 @@ describe("Project reports section gating", () => {
   it("hides the reports section for Collaborator - Specific Submissions", () => {
     setAccount([roleWith(USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR)]);
     render(<Project accountProject={makeAccountProject()} />);
+    expect(screen.queryByTestId("reports-card")).not.toBeInTheDocument();
+  });
+
+  it("renders the reports section with staff audience when a staff project has report packages", () => {
+    setStaffAccount();
+    render(<Project accountProject={makeStaffAccountProject([10, 12])} />);
+    expect(screen.getByTestId("reports-card")).toBeInTheDocument();
+    expect(reportsCardSpy).toHaveBeenCalledWith(expect.anything(), "staff");
+  });
+
+  it("hides the reports section for a staff project with no report packages", () => {
+    setStaffAccount();
+    render(<Project accountProject={makeStaffAccountProject([])} />);
     expect(screen.queryByTestId("reports-card")).not.toBeInTheDocument();
   });
 });
