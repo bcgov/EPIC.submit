@@ -10,7 +10,10 @@ import { useNavigate } from "@tanstack/react-router";
 import { ProjectSubmissionsCard } from "./ProjectSubmissionsCard";
 import { ReportsRecurringCard } from "./ReportsRecurring/ReportsRecurringCard";
 import { canViewReportsSection } from "@/components/Shared/PermissionGate/utils";
-import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
+import {
+  PROJECT_STATUS,
+  isPostDecisionStatus,
+} from "@/components/Shared/ProjectStatus/constants";
 import { useMemo } from "react";
 
 type ProjectParam = {
@@ -33,12 +36,27 @@ export const Project = ({ accountProject }: ProjectParam) => {
       ),
     [accountProject.packages],
   );
+  // The Reports & Recurring Submissions section is only relevant once a
+  // project reaches Post-Decision; report obligations do not exist before a
+  // certificate is issued. A project is treated as Post-Decision when any of
+  // its associated works is in a Post-Decision phase, or (fallback) the
+  // project already has approved conditions.
+  const isPostDecision = useMemo(() => {
+    const worksPostDecision = (accountProject.account_project_works ?? []).some(
+      (apw) => isPostDecisionStatus(apw.work.current_phase?.name),
+    );
+    return worksPostDecision || !!accountProject.project.has_approved_condition;
+  }, [accountProject.account_project_works, accountProject.project.has_approved_condition]);
+
   // Regulated Party: gated by account-management role. EAO/staff: shown
   // whenever the project has report obligations that survived the backend
   // access filter (mirrors the Management Plans section's presence check).
-  const showReportsSection = is_proponent
-    ? canViewReportsSection(userManagementRoles)
-    : reportPackages.length > 0;
+  // In all cases the section only appears for Post-Decision projects.
+  const showReportsSection =
+    isPostDecision &&
+    (is_proponent
+      ? canViewReportsSection(userManagementRoles)
+      : reportPackages.length > 0);
 
   const handleNewSubmission = (workId?: number, isManagementPlan?: boolean) => {
     navigate({

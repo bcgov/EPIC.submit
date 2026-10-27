@@ -1,4 +1,4 @@
-import { BCDesignTokens } from "epic.theme";
+﻿import { BCDesignTokens } from "epic.theme";
 
 type FrequencyColors = {
   border: string;
@@ -31,8 +31,8 @@ const PURPLE: FrequencyColors = {
 };
 
 const GOLD: FrequencyColors = {
-  border: BCDesignTokens.themeGold80,
-  background: BCDesignTokens.themeGold20,
+  border: "#F8BB47",
+  background: "#FEF1D8",
   color: BCDesignTokens.typographyColorPrimary,
 };
 

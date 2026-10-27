@@ -1,4 +1,4 @@
-import { Typography } from "@mui/material";
+﻿import { Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { useNavigate } from "@tanstack/react-router";
 import { SubmissionPackage } from "@/models/Package";
@@ -11,7 +11,6 @@ import {
 } from "@/components/App/Projects/ProjectTable/StyledComponents";
 import dateUtils from "@/utils/dateUtils";
 import { FrequencyBadge } from "./FrequencyBadge";
-import { REPORTS_COLUMNS } from "./reportsColumns";
 import { ReportsAudience, getReportStatus } from "./reportStatus";
 
 type ReportsTableRowProps = {
@@ -26,7 +25,8 @@ const NonePlaceholder = () => <span aria-label="None">{PLACEHOLDER}</span>;
 /**
  * A single obligation row: condition badge, linked submission name, frequency
  * badge, full (non-truncated) timing, the most recent Date Submitted, and the
- * report status. "-" cells are announced to screen readers as "None".
+ * report status. Column widths come from the shared <colgroup>, so no per-cell
+ * widths are set here. "-" cells are announced to screen readers as "None".
  */
 export const ReportsTableRow = ({
   reportPackage,
@@ -53,13 +53,13 @@ export const ReportsTableRow = ({
 
   return (
     <StyledProjectTableRow>
-      <StyledProjectTableCell align="left" sx={{ width: REPORTS_COLUMNS[0].width }}>
+      <StyledProjectTableCell align="left">
         <ConditionBadge
           conditionNumber={report?.condition_number}
           conditionSubsection={report?.condition_subsection}
         />
       </StyledProjectTableCell>
-      <StyledProjectTableCell sx={{ width: REPORTS_COLUMNS[1].width }}>
+      <StyledProjectTableCell>
         <SubmitLink
           sx={{
             display: "flex",
@@ -79,22 +79,25 @@ export const ReportsTableRow = ({
           </Typography>
         </SubmitLink>
       </StyledProjectTableCell>
-      <StyledProjectTableCell align="left" sx={{ width: REPORTS_COLUMNS[2].width }}>
+      <StyledProjectTableCell align="left">
         <FrequencyBadge frequency={report?.frequency} />
       </StyledProjectTableCell>
-      <StyledProjectTableCell align="left" sx={{ width: REPORTS_COLUMNS[3].width }}>
-        <Typography fontSize="14px" sx={{ whiteSpace: "normal", wordBreak: "break-word" }}>
+      <StyledProjectTableCell align="left">
+        <Typography
+          fontSize="14px"
+          sx={{ lineHeight: "1.2rem", whiteSpace: "normal", wordBreak: "break-word" }}
+        >
           {report?.timing ?? PLACEHOLDER}
         </Typography>
       </StyledProjectTableCell>
-      <StyledProjectTableCell align="left" sx={{ width: REPORTS_COLUMNS[4].width }}>
+      <StyledProjectTableCell align="left">
         {lastSubmitted ? (
           <Typography fontSize="14px">{lastSubmitted}</Typography>
         ) : (
           <NonePlaceholder />
         )}
       </StyledProjectTableCell>
-      <StyledProjectTableCell align="right" sx={{ width: REPORTS_COLUMNS[5].width }}>
+      <StyledProjectTableCell align="right">
         {status ? (
           <SubmissionStatusChip status={status} showIcon />
         ) : (

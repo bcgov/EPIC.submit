@@ -15,3 +15,11 @@ export const getProjectStatus = (
   displayName: string,
 ): ProjectStatusKey | string =>
   DISPLAY_NAME_TO_STATUS[displayName] ?? displayName;
+
+/**
+ * Whether a phase display name resolves to the Post-Decision project status.
+ * Used to gate Post-Decision-only sections (e.g. Reports & Recurring
+ * Submissions, Management Plans) off a work's current phase name.
+ */
+export const isPostDecisionStatus = (phaseName?: string | null): boolean =>
+  !!phaseName && getProjectStatus(phaseName) === PROJECT_STATUS.POST_DECISION;
