@@ -27,6 +27,8 @@ describe("getFrequencyColors", () => {
     const monthly = getFrequencyColors("Monthly");
     expect(annually.background).toBe(monthly.background);
     expect(annually.background).not.toBe(getFrequencyColors(FREQUENCY_ONE_TIME).background);
+    expect(annually.border).toBe("#F8BB47");
+    expect(annually.background).toBe("#FEF1D8");
   });
 
   it("falls back to a neutral treatment for unknown values", () => {
@@ -39,6 +41,14 @@ describe("FrequencyBadge", () => {
   it("renders the raw frequency text unchanged", () => {
     render(<FrequencyBadge frequency="Semi-Annually" />);
     expect(screen.getByText("Semi-Annually")).toBeInTheDocument();
+  });
+
+  it("renders regular-weight text at 22px total height (16px line + 3px padding)", () => {
+    render(<FrequencyBadge frequency="One Time" />);
+    const badge = screen.getByText("One Time");
+    expect(badge).toHaveStyle({ fontWeight: "400" });
+    expect(badge).toHaveStyle({ lineHeight: "16px" });
+    expect(badge).toHaveStyle({ padding: "3px 8px" });
   });
 
   it("renders nothing when frequency is missing", () => {

@@ -93,6 +93,40 @@ const makeStaffAccountProject = (reportIds: number[]): AccountProject => ({
   ],
 });
 
+const makeEarlyEngagementAccountProject = (): AccountProject => ({
+  id: 1,
+  project_id: 1,
+  account_id: 1,
+  project: {
+    id: 1,
+    name: "Cariboo Gold Project",
+    proponent_id: 1,
+    epic_guid: "guid",
+    // Pre-decision: no approved conditions yet.
+    has_approved_condition: false,
+  },
+  account_project_works: [
+    {
+      id: 1,
+      work_id: 1,
+      work: {
+        id: 1,
+        project_id: 1,
+        current_phase: {
+          id: 1,
+          name: "Early Engagement",
+          work_type_id: 1,
+          legislated: false,
+        },
+      },
+    },
+  ],
+  packages: [
+    makePackage(10, SubmissionPackageType.REPORT),
+    makePackage(12, SubmissionPackageType.REPORT),
+  ],
+});
+
 const roleWith = (roleName: USER_MANAGEMENT_ROLE): Role =>
   ({ role_name: roleName }) as Role;
 
@@ -130,6 +164,18 @@ describe("Project reports section gating", () => {
   it("hides the reports section for a staff project with no report packages", () => {
     setStaffAccount();
     render(<Project accountProject={makeStaffAccountProject([])} />);
+    expect(screen.queryByTestId("reports-card")).not.toBeInTheDocument();
+  });
+
+  it("hides the reports section for an Early Engagement project even for an allowed role", () => {
+    setAccount([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]);
+    render(<Project accountProject={makeEarlyEngagementAccountProject()} />);
+    expect(screen.queryByTestId("reports-card")).not.toBeInTheDocument();
+  });
+
+  it("hides the reports section for an Early Engagement staff project with report packages", () => {
+    setStaffAccount();
+    render(<Project accountProject={makeEarlyEngagementAccountProject()} />);
     expect(screen.queryByTestId("reports-card")).not.toBeInTheDocument();
   });
 });

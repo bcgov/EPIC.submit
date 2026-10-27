@@ -1,5 +1,6 @@
-import { Box, Table, TableBody, TableContainer } from "@mui/material";
+﻿import { Box, Table, TableBody, TableContainer } from "@mui/material";
 import { SubmissionPackage } from "@/models/Package";
+import { ReportsColGroup } from "./ReportsColGroup";
 import { ReportsTableHead } from "./ReportsTableHead";
 import { ReportsTableRow } from "./ReportsTableRow";
 import { REPORTS_TABLE_MIN_WIDTH_PX } from "./reportsColumns";
@@ -12,9 +13,10 @@ type ReportsTableProps = {
 };
 
 /**
- * Renders the six-column reports table for a single phase group. Column widths
- * are fixed so rows line up across groups, and the table scrolls horizontally
- * inside a narrow card (under ~760px) without scrolling the page sideways.
+ * Renders the six-column reports table for a single phase group. A shared
+ * <colgroup> fixes the column widths so the header row and every body row line
+ * up, and rows line up across groups. The table scrolls horizontally inside a
+ * narrow card (under ~760px) without scrolling the page sideways.
  */
 export const ReportsTable = ({
   reportPackages,
@@ -31,6 +33,7 @@ export const ReportsTable = ({
           minWidth: `${REPORTS_TABLE_MIN_WIDTH_PX}px`,
         }}
       >
+        <ReportsColGroup />
         {!headless && <ReportsTableHead />}
         <TableBody>
           {reportPackages.map((reportPackage) => (
