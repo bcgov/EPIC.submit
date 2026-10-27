@@ -54,7 +54,7 @@ const DocumentNameCell = ({ submission }: { submission: Submission }) => {
     <Tooltip title={name}>
       <Box
         sx={{
-          maxWidth: "360px",
+          maxWidth: "520px",
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
@@ -71,7 +71,7 @@ const DocumentNameCell = ({ submission }: { submission: Submission }) => {
                 textOverflow: "ellipsis",
                 whiteSpace: "nowrap",
                 display: "inline-block",
-                maxWidth: "360px",
+                maxWidth: "520px",
                 verticalAlign: "bottom",
               }}
             >
@@ -146,13 +146,13 @@ export const ReportSubmissionsTable = ({
           ) : (
             submissions.map((submission) => (
               <SubmitTableRow key={submission.id}>
-                <SubmitTableCell width="45%">
+                <SubmitTableCell width="55%">
                   <DocumentNameCell submission={submission} />
                 </SubmitTableCell>
                 <SubmitTableCell width="20%">
                   {submission.submitted_by || "-"}
                 </SubmitTableCell>
-                <SubmitTableCell width="20%">
+                <SubmitTableCell width="10%">
                   {dateUtils.formatDate(submission.created_date) || "-"}
                 </SubmitTableCell>
                 <SubmitTableCell width="15%">
