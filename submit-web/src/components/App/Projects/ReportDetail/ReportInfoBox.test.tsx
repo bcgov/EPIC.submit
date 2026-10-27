@@ -71,4 +71,14 @@ describe("ReportInfoBox", () => {
       "mailto:EAO.ManagementPlanSupport@gov.bc.ca",
     );
   });
+
+  it("uses border-box sizing so padding/border stay within its width (no overflow)", () => {
+    const { container } = render(<ReportInfoBox report={baseReport} />);
+    // The outer panel is the first element rendered by the component.
+    const outerBox = container.firstElementChild as HTMLElement;
+    expect(outerBox).toHaveStyle({
+      width: "100%",
+      boxSizing: "border-box",
+    });
+  });
 });

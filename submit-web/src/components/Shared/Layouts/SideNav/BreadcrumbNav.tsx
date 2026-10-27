@@ -18,10 +18,10 @@ const BreadcrumbNav: React.FC = () => {
 
         return match.meta.map((meta: any) => ({
           title: meta.title,
-          path: meta.path || match.pathname,
+          path: meta.path,
         }));
       })
-      .filter(Boolean) as RouteSegment[];
+      .filter((segment) => Boolean(segment.title)) as RouteSegment[];
   }, [matches]);
 
   return (
@@ -38,9 +38,11 @@ const BreadcrumbNav: React.FC = () => {
             const { title, path } = segment;
             const isCurrentPage = index === breadcrumbs.length - 1;
 
-            if (isCurrentPage) {
+            // The current page and any crumb without a path render as plain
+            // text. Only intermediate crumbs that define a path are links.
+            if (isCurrentPage || !path) {
               return (
-                <Typography key={path} sx={{
+                <Typography key={`${title}-${index}`} sx={{
                   color: "text.primary"
                 }}>
                   {title}
@@ -50,7 +52,7 @@ const BreadcrumbNav: React.FC = () => {
 
             return (
               <Link
-                key={path}
+                key={`${title}-${index}`}
                 style={{
                   color: theme.palette.primary.dark,
                   textDecoration: "underline",

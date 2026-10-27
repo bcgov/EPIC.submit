@@ -56,14 +56,9 @@ export const Route = createFileRoute(ROUTE_ID)({
   },
   pendingMs: 0,
   pendingComponent: PendingComponent,
-  head: ({ loaderData: reportPackage, params }) => ({
-    meta: [
-      {
-        title: formatReportPageTitle(reportPackage?.project_report),
-        path: `/proponent/projects/${params.projectId}/reports/${params.reportPackageId}`,
-      },
-    ],
-  }),
+  // The report-name breadcrumb is owned by the parent layout route
+  // ($reportPackageId.tsx). This leaf intentionally adds no meta so the
+  // crumb is not duplicated.
 });
 
 function ReportDetailPage() {

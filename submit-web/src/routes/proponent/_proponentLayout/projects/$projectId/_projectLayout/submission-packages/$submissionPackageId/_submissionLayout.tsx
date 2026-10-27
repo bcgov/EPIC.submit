@@ -1,4 +1,5 @@
 import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
+import { formatReportPageTitle } from "@/components/App/Projects/ReportDetail/reportTitle";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { getSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
@@ -70,7 +71,13 @@ export const Route = createFileRoute(
     });
   },
   head: ({ loaderData: submissionPackage }) => ({
-    meta: [{ title: submissionPackage?.name }],
+    meta: [
+      {
+        title:
+          formatReportPageTitle(submissionPackage?.project_report) ||
+          submissionPackage?.name,
+      },
+    ],
   }),
 });
 

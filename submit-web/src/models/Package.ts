@@ -305,6 +305,7 @@ export type SubmissionPackage = {
   description?: string;
   status: PackageStatus[];
   submitted_on?: string;
+  last_submitted_on?: string | null;
   completed_on?: string;
   submitted_by?: string;
   type_id: number;

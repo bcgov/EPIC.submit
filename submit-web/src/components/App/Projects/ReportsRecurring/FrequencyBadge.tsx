@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+﻿import { Box } from "@mui/material";
 import { getFrequencyColors } from "./frequencyColors";
 
 type FrequencyBadgeProps = {
@@ -7,7 +7,8 @@ type FrequencyBadgeProps = {
 
 /**
  * 11px pill-shaped frequency badge, styled distinctly from status badges.
- * Renders the raw frequency value unchanged.
+ * Renders the raw frequency value unchanged. The badge is 22px tall overall
+ * (16px line-height content + 3px top/bottom padding) with regular-weight text.
  */
 export const FrequencyBadge = ({ frequency }: FrequencyBadgeProps) => {
   if (!frequency) {
@@ -21,7 +22,7 @@ export const FrequencyBadge = ({ frequency }: FrequencyBadgeProps) => {
       component="span"
       sx={{
         display: "inline-flex",
-        padding: "2px 8px",
+        padding: "3px 8px",
         justifyContent: "center",
         alignItems: "center",
         borderRadius: "10px",
@@ -29,7 +30,9 @@ export const FrequencyBadge = ({ frequency }: FrequencyBadgeProps) => {
         background: colors.background,
         color: colors.color,
         fontSize: "11px",
-        fontWeight: 600,
+        lineHeight: "16px",
+        fontWeight: 400,
+        boxSizing: "border-box",
         whiteSpace: "nowrap",
         width: "fit-content",
       }}
