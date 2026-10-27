@@ -4,7 +4,7 @@
 
 Submit moves to Material UI and icons 9.5.0, MUI X Date Pickers 9.16.0, and epic.theme 2.0.0. React and React DOM remain 18.3.1; react-is is aligned to React. CI and the frontend container use Node 24; local Node/npm versions are not restricted by the project.
 
-Work started from Submit develop `5adde9a3` and Common main `4158a07`. The reviewed implementation is committed on `mui-upgrade` in both repositories. Existing working copies were preserved. The vendored artifact records its theme source commit and integrity in adjacent provenance metadata.
+The release PR branch `mui-upgrade-release-v2.1.0` was created directly from `origin/release/v2.1.0` at `b285267e`. The two migration commits were cherry-picked onto it; no develop branch history was merged. Release-specific rejected-document protections, review notices, optional-item labels and future-date restrictions were retained while updating MUI APIs. Existing working copies were preserved.
 
 Paired Common implementation: `41416e6`, followed by `a3c1bb0` removing local Node/npm restrictions, on `mui-upgrade`.
 
@@ -49,3 +49,9 @@ Roll back the Submit deployment to its previous immutable image and restore its 
 Project-owned engine ranges and `engine-strict` configuration were removed from Submit and the theme. Node 24 remains the optional `.nvmrc` selection and the CI/container default; developers can use Node 25 without a project-imposed upper bound. Dependency packages retain their own engine requirements.
 
 Node 25.8.1 with npm 11.11.0 passed theme tests/build and the clean packed-consumer check, and Submit lint, all 291 unit tests, production type checks/build and UI fixture type checks. A final clean install of the refreshed tarball had no engine warnings, and all 28 Chromium/WebKit checks passed on Node 25.
+
+## Release branch integration
+
+The release-based candidate passed lint, all 430 unit tests in 61 files, and all 28 Chromium/WebKit checks on Node 25.8.1. Release modal tests now exercise accessible date sections. A regression test covers preservation of rich helper text and error precedence. Rejected-document guards and release-only review behavior were retained.
+
+The PR remains draft until Common PR https://github.com/bcgov/EPIC.common/pull/56 is released as theme 2.0.0 and Submit adopts the registry package with a verified lockfile. Authenticated environment checks remain required before production.

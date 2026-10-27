@@ -60,7 +60,7 @@ const ControlledTextField: FC<IFormInputProps> = ({
             inputRef={ref}
             data-form-field={name}
             error={Boolean(error)}
-            helperText={String(error?.message ?? " ")}
+            helperText={error?.message?.toString() ?? otherProps.helperText ?? " "}
             onBlur={handleBlur}
             onChange={handleChange}
             slotProps={{
@@ -76,7 +76,7 @@ const ControlledTextField: FC<IFormInputProps> = ({
               },
               htmlInput: mergeSlotProps(slotProps?.htmlInput, { maxLength }),
               formHelperText: mergeSlotProps(slotProps?.formHelperText, {
-                sx: { color: BCDesignTokens.typographyColorDanger },
+                sx: error ? { color: BCDesignTokens.typographyColorDanger } : {},
               }),
             }}
           />

@@ -26,6 +26,16 @@ function renderControls(children: ReactNode) {
 }
 
 describe("shared field bindings", () => {
+  it("preserves rich helper text until validation supplies an error", async () => {
+    const form = renderControls(<ControlledTextField name="contact" label="Contact" helperText={<strong>Internal note only.</strong>} />);
+    expect(screen.getByText("Internal note only.")).toBeInTheDocument();
+    act(() => form().setError("contact", { type: "required", message: "Contact is required" }));
+    expect(await screen.findByText("Contact is required")).toBeInTheDocument();
+    expect(screen.queryByText("Internal note only.")).not.toBeInTheDocument();
+    act(() => form().clearErrors("contact"));
+    expect(await screen.findByText("Internal note only.")).toBeInTheDocument();
+  });
+
   it("preserves caller slots and handlers while registering the transformed value", async () => {
     const onChange = vi.fn();
     const onSlotChange = vi.fn();
