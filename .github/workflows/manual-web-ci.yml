@@ -2,10 +2,100 @@ name: MANUAL SUBMIT WEB CI
 
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment (dev/test/prod)"
+        required: true
+        default: "dev"
 
-permissions:
-  contents: read
+defaults:
+  run:
+    shell: bash
+    working-directory: ./submit-web
 
 jobs:
-  checks:
-    uses: ./.github/workflows/web.ci.yml
+  setup-job:
+    runs-on: ubuntu-22.04
+
+    if: github.repository == 'bcgov/EPIC.submit'
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: "true"
+
+  linting:
+    needs: setup-job
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node-version: [24.x]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: Lint
+        id: lint
+        run: |
+          npm run lint
+
+  testing:
+    needs: setup-job
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Test with Cypress
+        id: test
+        run: |
+          npx cypress run --component --headed --browser chrome
+
+      - name: Sets Codecov branch name
+        run: |
+          echo "CODECOV_BRANCH=PR_${{ github.head_ref }}" >> $GITHUB_ENV
+        if: github.event_name == 'pull_request'
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          flags: submit-web
+          name: codecov-submit-web
+          fail_ci_if_error: true
+          verbose: true
+          override_branch: ${{ env.CODECOV_BRANCH }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./submit-web/coverage
+
+  build-check:
+    needs: setup-job
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+      - name: Install dependencies
+        run: |
+          npm ci
+      - name: build to check strictness
+        id: build
+        run: |
+          npm run build

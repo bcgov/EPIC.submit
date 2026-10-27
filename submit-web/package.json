@@ -14,10 +14,7 @@
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
     "test:unit": "vitest run",
-    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
-    "build:ui-contracts": "vite build --config playwright/mui-smoke/vite.config.ts",
-    "test:ui-contracts": "playwright test --config playwright.mui.config.ts",
-    "typecheck:ui-contracts": "tsc --noEmit -p tsconfig.mui.json"
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -58,7 +55,6 @@
     "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.11.1",
     "@faker-js/faker": "^9.9.0",
     "@playwright/test": "^1.57.0",
     "@tanstack/eslint-plugin-query": "^5.43.1",
