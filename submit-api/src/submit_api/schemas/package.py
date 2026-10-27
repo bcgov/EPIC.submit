@@ -6,6 +6,7 @@ Manages the package
 from marshmallow import EXCLUDE, Schema, fields, post_dump, validate
 
 from submit_api.models.package import PackageStatus
+from submit_api.models.submission import SubmissionType
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
@@ -190,12 +191,31 @@ class PackageSchema(Schema):
     internal_staff_documents = fields.Nested(InternalStaffDocumentSchema,
                                              data_key="internal_staff_documents",
                                              many=True)
+    last_submitted_on = fields.Method('get_last_submitted_on', data_key="last_submitted_on")
 
     def get_submitted_by(self, obj):
         """Get submitted by."""
         submitted_by = obj.submitted_by_user.account_user.full_name \
             if obj.submitted_by_user and obj.submitted_by_user.account_user else None
         return submitted_by
+
+    def get_last_submitted_on(self, obj):
+        """Return the most recent document submission date (YYYY-MM-DD) or None.
+
+        Collects every document submission across the package's items, sorts
+        them by submission date descending, and returns the first one's date.
+        Read from the ORM object so an emptied ``items`` output does not matter.
+        """
+        document_dates = [
+            submission.created_date
+            for item in (obj.items or [])
+            for submission in (item.submissions or [])
+            if submission.type == SubmissionType.DOCUMENT and submission.created_date
+        ]
+        if not document_dates:
+            return None
+        latest = sorted(document_dates, reverse=True)[0]
+        return latest.strftime("%Y-%m-%d")
 
     def get_meta(self, obj):
         """Get meta."""

@@ -3,10 +3,12 @@ import { SubmissionPackage } from "@/models/Package";
 import { ReportsTableHead } from "./ReportsTableHead";
 import { ReportsTableRow } from "./ReportsTableRow";
 import { REPORTS_TABLE_MIN_WIDTH_PX } from "./reportsColumns";
+import { ReportsAudience } from "./reportStatus";
 
 type ReportsTableProps = {
   reportPackages: SubmissionPackage[];
   headless?: boolean;
+  audience?: ReportsAudience;
 };
 
 /**
@@ -14,7 +16,11 @@ type ReportsTableProps = {
  * are fixed so rows line up across groups, and the table scrolls horizontally
  * inside a narrow card (under ~760px) without scrolling the page sideways.
  */
-export const ReportsTable = ({ reportPackages, headless }: ReportsTableProps) => {
+export const ReportsTable = ({
+  reportPackages,
+  headless,
+  audience = "proponent",
+}: ReportsTableProps) => {
   return (
     <TableContainer component={Box} sx={{ height: "100%", overflowX: "auto" }}>
       <Table
@@ -28,7 +34,11 @@ export const ReportsTable = ({ reportPackages, headless }: ReportsTableProps) =>
         {!headless && <ReportsTableHead />}
         <TableBody>
           {reportPackages.map((reportPackage) => (
-            <ReportsTableRow key={reportPackage.id} reportPackage={reportPackage} />
+            <ReportsTableRow
+              key={reportPackage.id}
+              reportPackage={reportPackage}
+              audience={audience}
+            />
           ))}
         </TableBody>
       </Table>

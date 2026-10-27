@@ -7,11 +7,13 @@ import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
 import { ALL_PHASES, REPORTS_EMPTY_STATE_MESSAGE } from "./constants";
 import { groupReportsByPhase, buildGroupCountAriaLabel } from "./reportsGrouping";
 import { ReportsTable } from "./ReportsTable";
+import { ReportsAudience } from "./reportStatus";
 import { PhaseGroupHeader } from "./PhaseGroupHeader";
 import { CardInnerBox } from "@/components/App/Projects/ProjectSubmissionsCard";
 
 type ReportsRecurringCardProps = {
   reportPackages: SubmissionPackage[];
+  audience?: ReportsAudience;
 };
 
 const AllPhasesHeader = ({ count }: { count: number }) => (
@@ -46,9 +48,11 @@ const AllPhasesHeader = ({ count }: { count: number }) => (
 const CollapsiblePhaseGroup = ({
   phase,
   reportPackages,
+  audience,
 }: {
   phase: string;
   reportPackages: SubmissionPackage[];
+  audience: ReportsAudience;
 }) => {
   const [expanded, setExpanded] = useState(false);
   return (
@@ -61,7 +65,7 @@ const CollapsiblePhaseGroup = ({
       />
       <Collapse in={expanded}>
         <CardInnerBox sx={{ height: "100%", p: 0 }}>
-          <ReportsTable headless reportPackages={reportPackages} />
+          <ReportsTable headless reportPackages={reportPackages} audience={audience} />
         </CardInnerBox>
       </Collapse>
     </>
@@ -75,6 +79,7 @@ const CollapsiblePhaseGroup = ({
  */
 export const ReportsRecurringCard = ({
   reportPackages,
+  audience = "proponent",
 }: ReportsRecurringCardProps) => {
   const groups = groupReportsByPhase(reportPackages);
   const hasObligations = groups.length > 0;
@@ -117,7 +122,7 @@ export const ReportsRecurringCard = ({
               <Box key={group.phase}>
                 <AllPhasesHeader count={group.packages.length} />
                 <CardInnerBox sx={{ height: "100%", p: 0 }}>
-                  <ReportsTable reportPackages={group.packages} />
+                  <ReportsTable reportPackages={group.packages} audience={audience} />
                 </CardInnerBox>
               </Box>
             ) : (
@@ -125,6 +130,7 @@ export const ReportsRecurringCard = ({
                 key={group.phase}
                 phase={group.phase}
                 reportPackages={group.packages}
+                audience={audience}
               />
             ),
           )}

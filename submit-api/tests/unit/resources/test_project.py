@@ -11,8 +11,9 @@ from submit_api import get_named_config
 from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
     factory_account_model, factory_account_project_model, factory_auth_header, setup_authenticated_proponent,
-    factory_project_model, factory_project_report_model, factory_proponent_model, factory_report_package_model,
-    factory_user_model)
+    factory_document_submission_model, factory_item_model, factory_project_model, factory_project_report_model,
+    factory_proponent_model, factory_report_package_model, factory_user_model)
+from submit_api.models.package import PackageStatus
 from submit_api.models.user import UserType
 
 fake = Faker()
@@ -95,6 +96,46 @@ def test_get_project_by_id_includes_project_report_on_report_package(client, ses
     assert report_entry["project_report"]["display_name"] == "Annual Report"
     assert report_entry["project_report"]["frequency"] == "Annually"
     assert report_entry["project_report"]["phase"] == "Construction"
+
+
+def test_report_package_exposes_last_submitted_and_new_submission_status(client, session, jwt):
+    """A submitted report package carries last_submitted_on and a New Submission status for staff."""
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+
+    proponent_id = fake.random_int(min=1000, max=9999)
+    factory_proponent_model(id=proponent_id, name="Last Submitted Proponent", is_deleted=False)
+    account = factory_account_model(proponent_id=proponent_id)
+    project = factory_project_model(name="LastSubmittedProject", proponent_id=proponent_id)
+    account_project = factory_account_project_model(account_id=account.id, project_id=project.id)
+
+    project_report = factory_project_report_model(
+        project_id=project.id,
+        display_name="Compliance Self-Report",
+        phase="Construction",
+    )
+    report_package = factory_report_package_model(account_project, project_report)
+
+    # A submitted (unverified) report with an uploaded document.
+    report_package.status = [PackageStatus.SUBMITTED.value]
+    session.add(report_package)
+    item = factory_item_model(package=report_package)
+    factory_document_submission_model(item, created_by=auth_guid)
+
+    session.flush()
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.get(f"{PROJECTS_URL}/{account_project.id}", headers=headers)
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.get_json()
+
+    report_entry = next(
+        (p for p in data["packages"] if p["id"] == report_package.id), None
+    )
+    assert report_entry is not None
+    assert report_entry["last_submitted_on"] is not None
+    assert PackageStatus.NEW_SUBMISSION.value in report_entry["status"]
 
 
 def test_get_project_by_id_no_access(client, session, jwt):

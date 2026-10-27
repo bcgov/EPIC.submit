@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { SubmissionPackage } from "@/models/Package";
+import { PackageStatus, SubmissionPackage } from "@/models/Package";
 import { ReportsTable } from "./ReportsTable";
 
 const mockNavigate = vi.fn();
@@ -8,14 +8,24 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+// Deterministic date formatting (avoid timezone shifts on a date-only string).
+vi.mock("@/utils/dateUtils", () => ({
+  default: { formatDate: (d?: string | number) => (d ? String(d) : "") },
+}));
+
 const makeReportPackage = (
   id: number,
-  overrides: Record<string, unknown> = {},
+  overrides: {
+    status?: PackageStatus[];
+    last_submitted_on?: string | null;
+    report?: Record<string, unknown>;
+  } = {},
 ): SubmissionPackage =>
   ({
     id,
     name: `Package ${id}`,
-    status: [],
+    status: overrides.status ?? [],
+    last_submitted_on: overrides.last_submitted_on ?? null,
     type_id: 1,
     type: { id: 1, name: "Report", versioning_enabled: false, mandatory: false },
     items: [],
@@ -42,7 +52,7 @@ const makeReportPackage = (
       timing:
         "Within 30 days of the anniversary of the certificate issuance date, every year for the life of the project",
       display_name: `Annual Report ${id}`,
-      ...overrides,
+      ...overrides.report,
     },
   }) as unknown as SubmissionPackage;
 
@@ -60,22 +70,50 @@ describe("ReportsTable", () => {
   it("renders the full timing text without truncation", () => {
     const timing =
       "Within 30 days of the anniversary of the certificate issuance date, every year for the life of the project";
-    render(<ReportsTable reportPackages={[makeReportPackage(1, { timing })]} />);
+    render(
+      <ReportsTable reportPackages={[makeReportPackage(1, { report: { timing } })]} />,
+    );
     expect(screen.getByText(timing)).toBeInTheDocument();
   });
 
-  it("renders Last Submitted and Status as placeholders announced as None", () => {
+  it("shows Last Submitted and Status as placeholders announced as None when empty", () => {
     render(<ReportsTable reportPackages={[makeReportPackage(1)]} />);
     const noneCells = screen.getAllByLabelText("None");
     expect(noneCells).toHaveLength(2);
     noneCells.forEach((cell) => expect(cell).toHaveTextContent("-"));
   });
 
-  it("links the submission name to the per-phase report page", () => {
+  it("renders the Last Submitted date when present", () => {
+    render(
+      <ReportsTable
+        reportPackages={[makeReportPackage(1, { last_submitted_on: "2026-09-30" })]}
+      />,
+    );
+    expect(screen.getByText("2026-09-30")).toBeInTheDocument();
+  });
+
+  it("renders a New Submission status when a document is awaiting verification", () => {
+    render(
+      <ReportsTable
+        reportPackages={[makeReportPackage(1, { status: ["NEW_SUBMISSION"] })]}
+      />,
+    );
+    expect(screen.getByText("New Submission")).toBeInTheDocument();
+  });
+
+  it("links the submission name to the Regulated Party report page by default", () => {
     render(<ReportsTable reportPackages={[makeReportPackage(5)]} />);
     fireEvent.click(screen.getByText("Annual Report 5"));
     expect(mockNavigate).toHaveBeenCalledWith({
       to: "/proponent/projects/42/reports/5",
+    });
+  });
+
+  it("links the submission name to the EAO report page for the staff audience", () => {
+    render(<ReportsTable reportPackages={[makeReportPackage(5)]} audience="staff" />);
+    fireEvent.click(screen.getByText("Annual Report 5"));
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: "/staff/projects/42/reports/5",
     });
   });
 });

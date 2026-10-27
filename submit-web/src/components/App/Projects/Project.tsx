@@ -33,8 +33,12 @@ export const Project = ({ accountProject }: ProjectParam) => {
       ),
     [accountProject.packages],
   );
-  const showReportsSection =
-    is_proponent && canViewReportsSection(userManagementRoles);
+  // Regulated Party: gated by account-management role. EAO/staff: shown
+  // whenever the project has report obligations that survived the backend
+  // access filter (mirrors the Management Plans section's presence check).
+  const showReportsSection = is_proponent
+    ? canViewReportsSection(userManagementRoles)
+    : reportPackages.length > 0;
 
   const handleNewSubmission = (workId?: number, isManagementPlan?: boolean) => {
     navigate({
@@ -87,7 +91,10 @@ export const Project = ({ accountProject }: ProjectParam) => {
           />
         )}
         {showReportsSection && (
-          <ReportsRecurringCard reportPackages={reportPackages} />
+          <ReportsRecurringCard
+            reportPackages={reportPackages}
+            audience={is_proponent ? "proponent" : "staff"}
+          />
         )}
     </ContentBox>
   );
