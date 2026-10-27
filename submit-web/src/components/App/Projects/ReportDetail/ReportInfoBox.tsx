@@ -46,6 +46,7 @@ export const ReportInfoBox = ({ report }: ReportInfoBoxProps) => {
     <Box
       sx={{
         width: "100%",
+        boxSizing: "border-box",
         borderRadius: "4px",
         border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
         p: "16px",

@@ -1,3 +1,4 @@
+import { formatReportPageTitle } from "@/components/App/Projects/ReportDetail/reportTitle";
 import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
 import { PageGrid } from "@/components/Shared/PageGrid";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
@@ -46,7 +47,13 @@ export const Route = createFileRoute(
   pendingComponent: PendingComponent,
   pendingMs: 0,
   head: ({ loaderData: submissionPackage }) => ({
-    meta: [{ title: submissionPackage?.name }],
+    meta: [
+      {
+        title:
+          formatReportPageTitle(submissionPackage?.project_report) ||
+          submissionPackage?.name,
+      },
+    ],
   }),
 });
 
