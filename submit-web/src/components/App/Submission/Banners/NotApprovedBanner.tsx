@@ -19,7 +19,9 @@ export const NotApprovedBanner = ({
         {packageTypeName} package, select Package {nextVersion} above, upload
         your documents, and click the &quot;Submit to EAO&quot; button.
       </Typography>
-      <Typography variant="body1" mt="20px">
+      <Typography variant="body1" sx={{
+        mt: "20px"
+      }}>
         If you have any questions, please contact the EAO at{" "}
         <Link href={`mailto:${contactEmail}`}>{contactEmail}</Link>
       </Typography>

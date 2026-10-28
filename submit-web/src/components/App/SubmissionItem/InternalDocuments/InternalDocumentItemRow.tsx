@@ -53,15 +53,14 @@ export default function InternalDocumentItemRow({
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Typography
             variant="body1"
-            color="inherit"
             component="div"
             sx={{
+              color: "inherit",
               overflow: "hidden",
               textOverflow: "ellipsis",
               cursor: "pointer",
-              mx: 0.5,
-            }}
-          >
+              mx: 0.5
+            }}>
             <DocumentLink
               name={name}
               loading={pendingGetObject}
@@ -74,7 +73,9 @@ export default function InternalDocumentItemRow({
         </Box>
       </SubmitTableCell>
       <SubmitTableCell width="10%" align="left">
-        <Typography variant="body1" color="inherit">
+        <Typography variant="body1" sx={{
+          color: "inherit"
+        }}>
           {created_by_user.staff_user.first_name}{" "}
           {created_by_user.staff_user.last_name}
         </Typography>

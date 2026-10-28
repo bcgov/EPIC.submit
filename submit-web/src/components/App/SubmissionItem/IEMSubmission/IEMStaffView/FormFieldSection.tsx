@@ -52,15 +52,15 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Grid
-          item
           container
-          xs={12}
-          justifyContent={"space-between"}
-          alignItems={"space-between"}
-          sx={{ borderBottom: `2px solid ${BCDesignTokens.themeGold80}` }}
-        >
+          size={12}
+          sx={{
+            justifyContent: "space-between",
+            alignItems: "space-between",
+            borderBottom: `2px solid ${BCDesignTokens.themeGold80}`
+          }}>
           <Typography
             variant="h4"
             color={BCDesignTokens.themeBlue100}
@@ -83,10 +83,10 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
           />
         </Grid>
       </Grid>
-      <Grid item xs={12} container>
+      <Grid container size={12}>
         <When condition={!isHidden}>
-          <Grid item xs={12} container>
-            <Grid item xs={12}>
+          <Grid container size={12}>
+            <Grid size={12}>
               <Typography variant="body1">
                 Does the Independent Environmental Monitor Terms of Engagement
                 address all the requirements in condition
@@ -96,7 +96,7 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
                 <YesNoRadioOptions disabled error={false} />
               </RadioGroup>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Typography variant="body1">
                 If the condition(s) associated with the Independent
                 Environmental Monitor Terms of Engagement reference other
@@ -110,10 +110,10 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               </RadioGroup>
             </Grid>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <BarBlueTitle title="Information Verification" />
           </Grid>
-          <Grid item xs={12} sx={{ mt: 1 }}>
+          <Grid sx={{ mt: 1 }} size={12}>
             <Typography variant="body1">
               The information on this form is correct to the best of your
               knowledge.
@@ -122,7 +122,7 @@ export default function FormFieldSection({ formData }: FormFieldSectionProps) {
               <YesNoRadioOptions disabled error={false} />
             </RadioGroup>
           </Grid>
-          <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+          <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
             <Typography variant="body1" sx={{ fontWeight: 700 }}>
               Notes/Comments
             </Typography>

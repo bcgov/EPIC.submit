@@ -18,7 +18,7 @@ import { isAxiosError } from "axios";
 const PendingComponent = () => {
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ContentBoxSkeleton />
       </Grid>
     </PageGrid>

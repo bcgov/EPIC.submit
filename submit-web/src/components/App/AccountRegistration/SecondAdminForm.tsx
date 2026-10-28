@@ -47,7 +47,7 @@ export default function SecondAdminForm() {
       return [];
     }
     return accountProjects.filter((ap) =>
-      invitation.project_ids.includes(ap.project_id)
+      invitation.project_ids?.includes(ap.project_id)
     );
   }, [accountProjects, invitation?.project_ids]);
 
@@ -156,7 +156,9 @@ export default function SecondAdminForm() {
             alignItems: "flex-start",
           }}
         >
-          <Typography variant="body1" fontWeight={700}>
+          <Typography variant="body1" sx={{
+            fontWeight: 700
+          }}>
             Enter the new Regulated Party Account Administrator's email address.
           </Typography>
           <Typography variant="body1" color={BCDesignTokens.themeGray70}>

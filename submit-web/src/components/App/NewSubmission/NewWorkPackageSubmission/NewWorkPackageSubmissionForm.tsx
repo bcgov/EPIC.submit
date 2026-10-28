@@ -236,12 +236,18 @@ export const NewWorkPackageSubmissionForm = ({
   return (
     <>
       <Grid container spacing={2} sx={{ marginTop: "32px" }}>
-        <Grid item xs={12}>
-          <Typography variant="body1" fontWeight={"bold"}>
+        <Grid size={12}>
+          <Typography variant="body1" sx={{
+            fontWeight: "bold"
+          }}>
             What are you submitting?
           </Typography>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6
+          }}>
           <TextField
             select
             fullWidth
@@ -255,14 +261,16 @@ export const NewWorkPackageSubmissionForm = ({
             }}
             value={selectedPackageValue}
             error={!submissionPackageType && Boolean(errorText)}
-            SelectProps={{
-              displayEmpty: true,
-              renderValue: (value) =>
-                value ? (
-                  packages.find((pkg) => pkg.value === value)?.label
-                ) : (
-                  <span style={{ color: "grey" }}>Select a submission...</span>
-                ),
+            slotProps={{
+              select: {
+                displayEmpty: true,
+                renderValue: (value) =>
+                  value ? (
+                    packages.find((pkg) => pkg.value === value)?.label
+                  ) : (
+                    <span style={{ color: "grey" }}>Select a submission...</span>
+                  ),
+              }
             }}
           >
             {/* New Submissions Section */}
@@ -315,7 +323,7 @@ export const NewWorkPackageSubmissionForm = ({
         </Grid>
 
         {errorText && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Typography color="error" variant="body2">
               {errorText}
             </Typography>
@@ -323,7 +331,7 @@ export const NewWorkPackageSubmissionForm = ({
         )}
 
         {showAdditionalInfoForm && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <FormProvider {...methods}>
               <AdditionalInformationForm />
             </FormProvider>
@@ -331,13 +339,15 @@ export const NewWorkPackageSubmissionForm = ({
         )}
       </Grid>
 
-      <Grid container spacing={2} mt="5em">
-        <Grid item>
+      <Grid container spacing={2} sx={{
+        mt: "5em"
+      }}>
+        <Grid>
           <Button variant="text" onClick={handleCancel}>
             Cancel
           </Button>
         </Grid>
-        <Grid item>
+        <Grid>
           <Button onClick={handleContinue}>Continue</Button>
         </Grid>
       </Grid>

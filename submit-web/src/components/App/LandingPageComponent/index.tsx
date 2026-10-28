@@ -11,14 +11,19 @@ export const LandingPageComponent = () => {
   return (
     <Container maxWidth={"lg"} sx={{ mb: BCDesignTokens.layoutMarginXlarge }}>
       <Box
-        p={3}
-        pt={BCDesignTokens.layoutPaddingSmall}
-        mt={BCDesignTokens.layoutMarginXxxlarge}
-      >
-        <Typography variant="h1" fontWeight="bold" gutterBottom>
+        sx={{
+          p: 3,
+          pt: BCDesignTokens.layoutPaddingSmall,
+          mt: BCDesignTokens.layoutMarginXxxlarge
+        }}>
+        <Typography variant="h1" gutterBottom sx={{
+          fontWeight: "bold"
+        }}>
           Welcome to EPIC.submit
         </Typography>
-        <Typography variant="h6" gutterBottom fontWeight={400}>
+        <Typography variant="h6" gutterBottom sx={{
+          fontWeight: 400
+        }}>
           EPIC.submit supports the submission of Management Plans,
           Independent Environmental Monitor Terms of Engagement, and early engagement submissions,
           including the Initial Project Description and Engagement Plan.
@@ -27,17 +32,25 @@ export const LandingPageComponent = () => {
       <BannerRenderer />
       <Grid container spacing={4}>
         {/* Left Section */}
-        <Grid item xs={12} md={7}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 7
+          }}>
           <Paper elevation={0} sx={{ p: 3 }}>
             <BarTitle title={"What is EPIC.submit"} />
 
-            <Typography variant="body1" mt={BCDesignTokens.layoutMarginXlarge}>
+            <Typography variant="body1" sx={{
+              mt: BCDesignTokens.layoutMarginXlarge
+            }}>
               The Environmental Assessment Office (EAO) of British Columbia has
               developed a streamlined system to make document submissions and
               management more efficient for environmental assessment proponents and
               certificate holders.
             </Typography>
-            <Typography variant="body1" mt={1}>
+            <Typography variant="body1" sx={{
+              mt: 1
+            }}>
               EPIC.submit is a custom-built portal designed for proponents and
               certificate holders to manage documentation requirements across
               the environmental assessment process. It provides a centralized
@@ -45,14 +58,21 @@ export const LandingPageComponent = () => {
               and maintain document version control - all in one place.
             </Typography>
 
-            <Typography variant="body1" mt={1}>
+            <Typography variant="body1" sx={{
+              mt: 1
+            }}>
               This system is part of the larger EPIC ecosystem and has been
               developed to eliminate fragmented communication channels and create
               a more transparent and efficient submission process for
               proponents, certificate holders, and EAO staff.
             </Typography>
 
-            <Typography variant="h6" fontWeight="bold" mt={3}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: "bold",
+                mt: 3
+              }}>
               What can I do in EPIC.submit?
             </Typography>
             <ul>
@@ -86,16 +106,27 @@ export const LandingPageComponent = () => {
             </ul>
           </Paper>
 
-          <Box sx={{ px: 3, py: 0 }} mb={BCDesignTokens.layoutMarginLarge}>
-            <Typography variant="h6" fontWeight="bold">
+          <Box
+            sx={{
+              mb: BCDesignTokens.layoutMarginLarge,
+              px: 3,
+              py: 0
+            }}>
+            <Typography variant="h6" sx={{
+              fontWeight: "bold"
+            }}>
               Who can use EPIC.submit?
             </Typography>
-            <Typography variant="body1" mt={1}>
+            <Typography variant="body1" sx={{
+              mt: 1
+            }}>
               EPIC.submit is available to proponents navigating the early engagement
               phase of the environmental assessment process and certificate holders
               managing their post-decision documentation requirements.
             </Typography>
-            <Typography variant="body1" mt={1}>
+            <Typography variant="body1" sx={{
+              mt: 1
+            }}>
               The portal is accessible to proponents, certificate holders, and
               EAO staff, creating a shared platform for document submission,
               review, and communication.
@@ -104,7 +135,11 @@ export const LandingPageComponent = () => {
         </Grid>
 
         {/* Right Section */}
-        <Grid item xs={12} md={5}>
+        <Grid
+          size={{
+            xs: 12,
+            md: 5
+          }}>
           <Box sx={{ p: 3, pb: 0 }}>
             <BarTitle title={"How do I get access?"} />
             <BCeIDLogin />
@@ -112,24 +147,32 @@ export const LandingPageComponent = () => {
           </Box>
 
           <Paper elevation={0} sx={{ p: 3, pt: 0 }}>
-            <Typography variant="h6" fontWeight="bold">
+            <Typography variant="h6" sx={{
+              fontWeight: "bold"
+            }}>
               Getting Started with EPIC.submit
             </Typography>
-            <Typography variant="body1" mt={1}>
+            <Typography variant="body1" sx={{
+              mt: 1
+            }}>
               To begin using EPIC.submit, proponents and certificate holders will
               receive a login link and access instructions from the EAO. The
               intuitive interface guides users through the submission process,
               allowing for efficient document uploading, form completion, and
               submission tracking.
             </Typography>
-            <Typography variant="body1" mt={1}>
+            <Typography variant="body1" sx={{
+              mt: 1
+            }}>
               For assistance with EPIC.submit, please contact the EAO support
               team at{" "}
               <Link href={`mailto:${AppConfig.supportMpEmail}`}>
                 {AppConfig.supportMpEmail}
               </Link>
             </Typography>
-            <Box mt="24px">
+            <Box sx={{
+              mt: "24px"
+            }}>
               <UserGuideButton />
             </Box>
           </Paper>

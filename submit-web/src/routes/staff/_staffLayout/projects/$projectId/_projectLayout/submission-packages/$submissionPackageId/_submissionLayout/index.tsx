@@ -180,7 +180,7 @@ export default function SubmissionPage() {
   return (
     <PageGrid>
       <SubmitLoaderBackdrop isOpen={isFetching} />
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ContentBox
           mainLabel={accountProject?.project?.name}
           topLabel={accountProject?.project?.proponent?.name || ""}
@@ -226,12 +226,17 @@ export default function SubmissionPage() {
                 }}
               >
                 <BarTitle title={managementPlanName} />
-                <Box flexDirection={"row"} sx={{ display: "flex" }}>
+                <Box
+                  sx={{
+                    flexDirection: "row",
+                    display: "flex"
+                  }}>
                   <Typography
                     color={BCDesignTokens.themeGray70}
-                    fontWeight={900}
-                    sx={{ mr: BCDesignTokens.layoutMarginMedium }}
-                  >
+                    sx={{
+                      fontWeight: 900,
+                      mr: BCDesignTokens.layoutMarginMedium
+                    }}>
                     Submission Status:
                   </Typography>
                   <PackageStatusChipStack

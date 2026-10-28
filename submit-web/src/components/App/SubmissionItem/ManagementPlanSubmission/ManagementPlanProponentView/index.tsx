@@ -207,10 +207,10 @@ export const ManagementPlanSubmissionProponentView = () => {
       <FormProvider {...methods}>
         <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <BarBlueTitle title="Management Plan Requirements" />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormFieldSection errors={errors} />
               <GenericDocumentUploadSection sections={documentUploadSections} />
             </Grid>

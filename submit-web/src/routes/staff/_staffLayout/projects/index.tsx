@@ -93,7 +93,7 @@ function ProjectsPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ProjectFilters
           userType={USER_TYPE.STAFF}
           hideStatusFilter={!isMPT}

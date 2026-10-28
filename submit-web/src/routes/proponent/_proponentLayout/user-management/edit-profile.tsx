@@ -65,7 +65,7 @@ function ProfileEditPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ProfileEditForm
           user={account_user}
           guid={user.profile.preferred_username || ""}

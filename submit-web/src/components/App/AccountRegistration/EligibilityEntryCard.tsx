@@ -52,14 +52,29 @@ export const EligibilityEntryCard = ({ entry }: EligibilityEntryCardProps) => {
             boxShadow: "0 0px 6px 1px rgba(0, 0, 0, 0.10)",
           }}
         >
-          <Typography variant="h4" fontWeight={400} px={1.5} pt={1}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 400,
+              px: 1.5,
+              pt: 1
+            }}>
             {entry.current_work}
           </Typography>
-          <Box px={1} pb={1}>
+          <Box
+            sx={{
+              px: 1,
+              pb: 1
+            }}>
             <ProjectStatus status={status} />
           </Box>
           <Divider sx={{ borderColor: BCDesignTokens.themeGray40 }} />
-          <Typography variant="body1" px={1.5} py={1.5}>
+          <Typography
+            variant="body1"
+            sx={{
+              px: 1.5,
+              py: 1.5
+            }}>
             You will be able to submit Managements Plans, Independent
             Environmental Monitor Terms of Engagement, and certain reports
             for this Project.

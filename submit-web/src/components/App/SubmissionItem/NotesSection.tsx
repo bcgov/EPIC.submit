@@ -1,3 +1,5 @@
+import { AccordionHeading } from "@/components/Shared/AccordionHeading";
+import { useId } from "react";
 import {
   Accordion,
   AccordionDetails,
@@ -22,6 +24,7 @@ import { SubmissionItem } from "@/models/SubmissionItem";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 
 export default function NotesSection() {
+  const accordionId = useId();
   const [addNote, setAddNote] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [noteText, setNoteText] = useState("");
@@ -71,6 +74,9 @@ export default function NotesSection() {
 
   return (
     <Accordion
+      slots={{ heading: AccordionHeading }}
+      slotProps={{ heading: { actions: (<Button variant="text" onClick={handleAddNote} sx={{ color: BCDesignTokens.typographyColorLink }}>+ Add a Note</Button>) } }}
+      onChange={() => setExpanded((value) => !value)}
       disableGutters
       elevation={0}
       sx={{
@@ -83,8 +89,8 @@ export default function NotesSection() {
     >
       <AccordionSummary
         expandIcon={null}
-        aria-controls="panel1-content"
-        id="panel1-header"
+        aria-controls={`${accordionId}-content`}
+        id={`${accordionId}-header`}
         sx={{
           py: 0,
           borderRadius: "4px",
@@ -100,14 +106,12 @@ export default function NotesSection() {
           }}
         >
           <Box
-            onClick={() => setExpanded(!expanded)}
             sx={{
+              width: "90%",
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-start",
-            }}
-            width={"90%"}
-          >
+              justifyContent: "flex-start"
+            }}>
             <EventNoteIcon
               htmlColor={BCDesignTokens.themeBlue60}
               fontSize={"large"}
@@ -146,15 +150,7 @@ export default function NotesSection() {
               sx={{ color: "#38598A", p: 0 }}
             />
           </Box>
-          <Box onClick={handleAddNote}>
-            <Typography
-              variant="body1"
-              color={BCDesignTokens.typographyColorLink}
-              sx={{ cursor: "pointer" }}
-            >
-              + Add a Note
-            </Typography>
-          </Box>
+
         </Box>
       </AccordionSummary>
       <AccordionDetails>

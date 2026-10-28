@@ -90,16 +90,15 @@ export default function Row({ internalStaffDocument }: RowProps) {
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <Typography
             variant="body1"
-            color="inherit"
             component="div"
             sx={{
+              color: "inherit",
               overflow: "clip",
               textOverflow: "ellipsis",
               cursor: "pointer",
               mx: 0.5,
-              height: "28px",
-            }}
-          >
+              height: "28px"
+            }}>
             <DocumentLink
               name={name}
               loading={pendingGetObject}
@@ -112,7 +111,9 @@ export default function Row({ internalStaffDocument }: RowProps) {
         </Box>
       </SubmitTableCell>
       <SubmitTableCell align="left" width="40%">
-        <Typography variant="body1" color="inherit">
+        <Typography variant="body1" sx={{
+          color: "inherit"
+        }}>
           {created_by_user.staff_user.first_name}{" "}
           {created_by_user.staff_user.last_name}
         </Typography>

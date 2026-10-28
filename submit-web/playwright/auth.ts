@@ -69,7 +69,7 @@ export async function kcLogout(page: Page): Promise<void> {
       window.sessionStorage.clear();
       window.localStorage.clear();
     });
-  } catch (e) {
+  } catch {
     // Ignore SecurityError if page hasn't navigated yet
   }
 }

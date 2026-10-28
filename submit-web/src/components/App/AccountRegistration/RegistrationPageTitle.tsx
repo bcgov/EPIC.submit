@@ -11,7 +11,9 @@ export const RegistrationPageTitle = ({
   subTitle?: React.ReactNode;
 }) => {
   return (
-    <Box mb={3}>
+    <Box sx={{
+      mb: 3
+    }}>
       <Box
         sx={{
           width: 32,
@@ -21,7 +23,14 @@ export const RegistrationPageTitle = ({
         }}
         data-testid="registration-title-yellow-bar"
       />
-      <Typography variant="h5" mb={1.5} display="flex" alignItems="center" gap={1}>
+      <Typography
+        variant="h5"
+        sx={{
+          mb: 1.5,
+          display: "flex",
+          alignItems: "center",
+          gap: 1
+        }}>
         {mainTitle} {mainTitleExtension}
       </Typography>
       {subTitle && <Typography variant="body1">{subTitle}</Typography>}

@@ -69,7 +69,7 @@ export function useDocumentRow({
         status: SUBMISSION_STATUS.VERIFIED,
       });
       notify.success("Document verified");
-    } catch (e) {
+    } catch {
       notify.error("Failed to verify document");
     }
   };
@@ -81,14 +81,14 @@ export function useDocumentRow({
         status: SUBMISSION_STATUS.SUBMITTED,
       });
       notify.success("Verification undone");
-    } catch (e) {
+    } catch {
       notify.error("Failed to undo verification");
     }
   };
 
   const openDocument = async () => {
     try {
-      if (submitted_document?.is_virus_rejected) return;
+      if (documentSubmission.submitted_document?.is_virus_rejected) return;
       if (pendingGetObject) return;
       setPendingGetObject(true);
       await getObjectFromS3({ name, url });

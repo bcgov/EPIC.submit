@@ -167,7 +167,7 @@ export const EngagementPlanProponentView = () => {
       <FormProvider {...methods}>
         <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <GenericDocumentUploadSection sections={documentUploadSections} />
             </Grid>
             <SubmissionActionButtons

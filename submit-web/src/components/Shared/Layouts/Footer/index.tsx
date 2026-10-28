@@ -8,40 +8,46 @@ import { OidcConfig } from "@/utils/config";
 const Footer = () => {
   const { signinRedirect, isAuthenticated } = useAuth();
   return (
-    <Grid container justifyContent="center" alignItems="center" spacing={0}>
+    <Grid
+      container
+      spacing={0}
+      sx={{
+        justifyContent: "center",
+        alignItems: "center"
+      }}>
       <Grid
-        item
-        xs={12}
+        size={12}
         sx={{
+          padding: { xs: "2em 1em", md: "2em 6em" },
           backgroundColor: FOOTER_COLORS.BACKGROUND,
           borderTop: `6px solid ${FOOTER_COLORS.BORDER}`,
-          borderBottom: `6px solid ${FOOTER_COLORS.BORDER}`,
-        }}
-        padding={{ xs: "2em 1em", md: "2em 6em" }}
-      >
+          borderBottom: `6px solid ${FOOTER_COLORS.BORDER}`
+        }}>
         <Typography variant="body1" color="white">
           {FOOTER_DESCRIPTION}
         </Typography>
       </Grid>
       <Grid
-        item
-        xs={12}
-        padding={{ xs: "2em 1em", md: "2em 6em" }}
         container
-        justifyContent={"flex-start"}
-        alignItems="flex-start"
         rowSpacing={3}
-      >
+        size={12}
+        sx={{
+          padding: { xs: "2em 1em", md: "2em 6em" },
+          justifyContent: "flex-start",
+          alignItems: "flex-start"
+        }}>
         <Grid
-          item
-          xs={12}
-          md={6}
           container
-          justifyContent={"flex-start"}
-          alignItems="flex-start"
           rowSpacing={3}
-        >
-          <Grid item xs={12}>
+          size={{
+            xs: 12,
+            md: 6
+          }}
+          sx={{
+            justifyContent: "flex-start",
+            alignItems: "flex-start"
+          }}>
+          <Grid size={12}>
             <Box>
               <img
                 src={EAOLogo}
@@ -51,15 +57,27 @@ const Footer = () => {
             </Box>
           </Grid>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Divider sx={{ borderColor: theme.palette.text.primary }} />
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           <Typography variant="body1">{COPYRIGHT_TEXT}</Typography>
         </Grid>
-        <Grid item xs={12} sm={6}>
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6
+          }}>
           {!isAuthenticated && (
-            <Box display="flex" justifyContent="flex-end">
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end"
+              }}>
               <Button
                 color="secondary"
                 onClick={() => {

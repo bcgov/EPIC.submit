@@ -42,7 +42,9 @@ const BreadcrumbNav: React.FC = () => {
             // text. Only intermediate crumbs that define a path are links.
             if (isCurrentPage || !path) {
               return (
-                <Typography key={`${title}-${index}`} color="text.primary">
+                <Typography key={`${title}-${index}`} sx={{
+                  color: "text.primary"
+                }}>
                   {title}
                 </Typography>
               );

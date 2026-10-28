@@ -145,22 +145,22 @@ export default function ReviewSection() {
   }, [isSubsequentVersion]);
 
   if (isProvidedPlan(submissionPackage)) {
-    return <Grid item xs={12}><NotesSection /></Grid>;
+    return <Grid size={12}><NotesSection /></Grid>;
   }
 
   return (
-    <Grid item container data-testid="review-section" xs={12}>
+    <Grid container data-testid="review-section" size={12}>
       <Grid
-        item
-        xs={12}
         sx={{
           background: BCDesignTokens.themeBlue10,
           p: BCDesignTokens.layoutPaddingSmall,
         }}
-      >
+        size={12}>
         <FormProvider {...methods}>
           <form>
-            <Typography variant="h6" color={"#858A8C"}>
+            <Typography variant="h6" sx={{
+              color: "#858A8C"
+            }}>
               Consultation Check
             </Typography>
             <Divider

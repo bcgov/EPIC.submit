@@ -43,11 +43,13 @@ export const UnaddressedSectionsModal: React.FC<
       onClose={onCancel}
       maxWidth="sm"
       fullWidth
-      PaperProps={{
-        sx: {
-          borderRadius: "8px",
-          p: 1,
-        },
+      slotProps={{
+        paper: {
+          sx: {
+            borderRadius: "8px",
+            p: 1,
+          },
+        }
       }}
     >
       <DialogTitle>

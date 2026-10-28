@@ -166,8 +166,10 @@ export default function ActionSplitButton({
             )}
             <ListItemText
               primary={action.label}
-              primaryTypographyProps={{
-                fontSize: BCDesignTokens.typographyFontSizeSmallBody,
+              slotProps={{
+                primary: {
+                  sx: { fontSize: BCDesignTokens.typographyFontSizeSmallBody },
+                }
               }}
             />
           </MenuItem>

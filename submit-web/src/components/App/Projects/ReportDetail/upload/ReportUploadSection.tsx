@@ -75,7 +75,9 @@ export const ReportUploadSection = ({
       <Typography
         variant="body1"
         color={BCDesignTokens.typographyColorPrimary}
-        fontWeight={700}
+        sx={{
+          fontWeight: 700
+        }}
       >
         {heading}
       </Typography>
@@ -114,7 +116,9 @@ export const ReportUploadSection = ({
       )}
 
       {files.length > 0 && (
-        <Box mt={2}>
+        <Box sx={{
+          mt: 2
+        }}>
           <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
             <SubmitTableHead>
               <SubmitTableRow>

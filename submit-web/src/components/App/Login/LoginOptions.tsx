@@ -10,11 +10,12 @@ export const LoginOptions = () => {
   return (
     <>
       <Stack
-        p={2}
-        my={BCDesignTokens.layoutMarginXlarge}
         spacing={2}
-        sx={{ border: `1px solid ${BCDesignTokens.themeGray30}` }}
-      >
+        sx={{
+          p: 2,
+          my: BCDesignTokens.layoutMarginXlarge,
+          border: `1px solid ${BCDesignTokens.themeGray30}`
+        }}>
         <Typography variant="h6">Login with your Business BCeID</Typography>
         <Typography variant="body1">
           For more information on registering for a Business BCeID, visit{" "}
@@ -44,15 +45,18 @@ export const LoginOptions = () => {
         </Button>
       </Stack>
       <Stack
-        p={2}
-        mb={BCDesignTokens.layoutMarginLarge}
         spacing={2}
-        sx={{ border: `1px solid ${BCDesignTokens.themeGray30}` }}
-      >
+        sx={{
+          p: 2,
+          mb: BCDesignTokens.layoutMarginLarge,
+          border: `1px solid ${BCDesignTokens.themeGray30}`
+        }}>
         <Typography variant="h6">
           Login with your BC Services Card account
         </Typography>
-        <Typography variant="body1" pb={4}>
+        <Typography variant="body1" sx={{
+          pb: 4
+        }}>
           For more information on how to use or set up a BC Services Card
           account, visit{" "}
           <Link href="https://www.id.gov.bc.ca" target="_blank" rel="noopener">

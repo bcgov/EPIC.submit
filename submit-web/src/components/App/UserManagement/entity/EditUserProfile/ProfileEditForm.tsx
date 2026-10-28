@@ -125,7 +125,6 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
           ...prev,
           ...accountData,
           full_name: `${data.givenName} ${data.surname}`,
-          role: user.role,
           status: user.status,
         }));
       },
@@ -150,20 +149,25 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
             padding: "12px 20px",
           }}
         >
-          <Grid container direction="row" alignItems="center" spacing={1}>
-            <Grid item md={10}>
+          <Grid container direction="row" spacing={1} sx={{
+            alignItems: "center"
+          }}>
+            <Grid
+              size={{
+                md: 10
+              }}>
               <Typography variant="h5">{userData.full_name}</Typography>
             </Grid>
             <Grid
-              item
-              md={2}
               sx={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "flex-end",
                 gap: 1,
               }}
-            >
+              size={{
+                md: 2
+              }}>
               <Typography color={BCDesignTokens.themeGray70}>
                 Status:
               </Typography>
@@ -178,52 +182,57 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
             alignSelf: "stretch",
           }}
         >
-          <Grid item md={6} sm={12} xs={12}>
+          <Grid
+            size={{
+              md: 6,
+              sm: 12,
+              xs: 12
+            }}>
             <FormProvider {...methods}>
               <form onSubmit={handleSubmit(onSubmitHandler)}>
                 <ControlledTextField
                   name="givenName"
                   label="Given Name"
                   fullWidth
-                  InputLabelProps={{
+                  slotProps={{ inputLabel: {
                     sx: { fontWeight: "bold" },
-                  }}
+                  } }}
                   sx={{ marginBottom: "4px" }}
                 />
                 <ControlledTextField
                   name="surname"
                   label="Surname"
                   fullWidth
-                  InputLabelProps={{
+                  slotProps={{ inputLabel: {
                     sx: { fontWeight: "bold" },
-                  }}
+                  } }}
                   sx={{ marginBottom: "4px" }}
                 />
                 <ControlledTextField
                   name="position"
                   label="Position/Role"
                   fullWidth
-                  InputLabelProps={{
+                  slotProps={{ inputLabel: {
                     sx: { fontWeight: "bold" },
-                  }}
+                  } }}
                   sx={{ marginBottom: "4px" }}
                 />
                 <ControlledTextField
                   name="companyName"
                   label="Company Name"
                   fullWidth
-                  InputLabelProps={{
+                  slotProps={{ inputLabel: {
                     sx: { fontWeight: "bold" },
-                  }}
+                  } }}
                   sx={{ marginBottom: "4px" }}
                 />
                 <ControlledTextField
                   name="phone"
                   label="Work Phone Number"
                   fullWidth
-                  InputLabelProps={{
+                  slotProps={{ inputLabel: {
                     sx: { fontWeight: "bold" },
-                  }}
+                  } }}
                   sx={{ marginBottom: "4px" }}
                 />
                 <ControlledTextField
@@ -231,12 +240,12 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                   label="Work Email Address"
                   fullWidth
                   disabled
-                  InputLabelProps={{
+                  slotProps={{ inputLabel: {
                     sx: {
                       fontWeight: "bold",
                       color: "black !important",
                     },
-                  }}
+                  } }}
                   sx={{
                     "& .MuiInputBase-input.Mui-disabled": {
                       WebkitTextFillColor: "#000",

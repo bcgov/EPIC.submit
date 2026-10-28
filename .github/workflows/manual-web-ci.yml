@@ -29,17 +29,17 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [24.x]
 
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: |
-          npm install --legacy-peer-deps
+          npm ci
       - name: Lint
         id: lint
         run: |
@@ -53,13 +53,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
         run: |
-          npm install --legacy-peer-deps
+          npm ci
 
       - name: Test with Cypress
         id: test
@@ -89,13 +89,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 24.x
       - name: Install dependencies
         run: |
-          npm install --legacy-peer-deps
+          npm ci
       - name: build to check strictness
         id: build
         run: |
-          npm run build --quiet || true
+          npm run build

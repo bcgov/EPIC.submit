@@ -25,7 +25,7 @@ import { isAxiosError } from "axios";
 
 const PendingComponent = () => (
   <PageGrid>
-    <Grid item xs={12}>
+    <Grid size={12}>
       <ContentBoxSkeleton />
     </Grid>
   </PageGrid>
@@ -85,7 +85,7 @@ function ReportDetailPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ContentBox
           mainLabel={accountProject.project?.name}
           topLabel={accountProject.project?.proponent?.name || ""}
