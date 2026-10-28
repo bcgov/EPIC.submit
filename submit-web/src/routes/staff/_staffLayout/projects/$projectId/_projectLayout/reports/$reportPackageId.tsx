@@ -28,7 +28,7 @@ const ROUTE_ID =
 
 const PendingComponent = () => (
   <PageGrid>
-    <Grid item xs={12}>
+    <Grid size={12}>
       <ContentBoxSkeleton />
     </Grid>
   </PageGrid>
@@ -86,7 +86,7 @@ function StaffReportDetailPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ContentBox
           mainLabel={accountProject.project?.name}
           topLabel={accountProject.project?.proponent?.name || ""}
