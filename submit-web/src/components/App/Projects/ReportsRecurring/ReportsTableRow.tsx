@@ -46,8 +46,6 @@ export const ReportsTableRow = ({
       audience === "staff"
         ? `/staff/projects/${reportPackage.account_project_id}/reports/${reportPackage.id}`
         : `/proponent/projects/${reportPackage.account_project_id}/reports/${reportPackage.id}`;
-    // The staff reports route is delivered by a follow-up story (SUBMIT-1040);
-    // the destination is wired here ahead of that page existing.
     navigate({ to: path });
   };
 
