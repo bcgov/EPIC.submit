@@ -72,4 +72,24 @@ describe("ReportSubmissionsTable", () => {
     expect(screen.getByText("Submitted")).toBeInTheDocument();
     expect(screen.getByText("Jane Doe")).toBeInTheDocument();
   });
+
+  it("leaves the Status column empty for the staff audience", () => {
+    const pkg = makePackage([
+      makeDocSubmission(1, "report.pdf", "2026-06-01T00:00:00Z"),
+    ]);
+    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
+
+    // Document is listed, but no status badge is rendered (verify story owns it).
+    expect(screen.getByText("report.pdf")).toBeInTheDocument();
+    expect(screen.queryByText("Submitted")).not.toBeInTheDocument();
+  });
+
+  it("still shows the empty-state row for the staff audience when there are no documents", () => {
+    render(
+      <ReportSubmissionsTable reportPackage={makePackage([])} audience="staff" />,
+    );
+    expect(
+      screen.getByText("No documents have been submitted yet."),
+    ).toBeInTheDocument();
+  });
 });

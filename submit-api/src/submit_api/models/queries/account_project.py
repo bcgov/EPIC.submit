@@ -27,7 +27,7 @@ from submit_api.models.user import UserType
 from submit_api.schemas.project import AccountProjectSchema, StaffAccountProjectSchema
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_service import PackageService
-from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES
+from submit_api.utils.constants import MP_VIEW_VISIBLE_PACKAGE_TYPES
 
 BATCH_SIZE = 50        # Projects fetched per DB query in staff visible computation
 MAX_BATCHES = 20       # Safety limit to prevent infinite loops
@@ -323,9 +323,14 @@ class ProjectQueries:
                     package for package in packages
                     if package.get("account_project_work_id") is not None
                 ]
+                # mp_view staff see management-plan packages AND read-only
+                # report obligations in the listing (Reports & Recurring
+                # Submissions section is gated like the Management Plans
+                # section). Visibility only - edit/approve/status semantics are
+                # unchanged (see MP_VIEW_VISIBLE_PACKAGE_TYPES).
                 management_plan_related_packages = [
                     package for package in packages
-                    if package.get("type").get("name") in MP_VIEW_PACKAGE_TYPES
+                    if package.get("type").get("name") in MP_VIEW_VISIBLE_PACKAGE_TYPES
                 ]
                 # GIS_EXTENDED_EDIT users can access all work related packages
                 if has_gis_extended_edit:

@@ -27,8 +27,14 @@ import {
   getDocumentStatusTheme,
 } from "./reportSubmissions";
 
+// Which project card the page is rendered on. On the EAO/staff page the Status
+// column stays empty until the verify/acknowledge story; the Regulated Party
+// page shows the status badge.
+export type ReportSubmissionsAudience = "staff" | "proponent";
+
 type ReportSubmissionsTableProps = {
   reportPackage: SubmissionPackage;
+  audience?: ReportSubmissionsAudience;
 };
 
 const EMPTY_MESSAGE = "No documents have been submitted yet.";
@@ -94,8 +100,11 @@ const DocumentNameCell = ({ submission }: { submission: Submission }) => {
  */
 export const ReportSubmissionsTable = ({
   reportPackage,
+  audience = "proponent",
 }: ReportSubmissionsTableProps) => {
   const submissions = getReportDocumentSubmissions(reportPackage);
+  // Read-only EAO page: Status stays empty until the verify/acknowledge story.
+  const showStatus = audience !== "staff";
 
   return (
     <TableContainer component={Box} sx={{ width: "100%" }}>
@@ -156,10 +165,12 @@ export const ReportSubmissionsTable = ({
                   {dateUtils.formatDate(submission.created_date) || "-"}
                 </SubmitTableCell>
                 <SubmitTableCell width="15%">
-                  <StatusChip
-                    label={getDocumentStatusLabel(submission.status)}
-                    theme={getDocumentStatusTheme(submission.status)}
-                  />
+                  {showStatus && (
+                    <StatusChip
+                      label={getDocumentStatusLabel(submission.status)}
+                      theme={getDocumentStatusTheme(submission.status)}
+                    />
+                  )}
                 </SubmitTableCell>
               </SubmitTableRow>
             ))
