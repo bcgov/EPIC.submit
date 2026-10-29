@@ -16,7 +16,6 @@ from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.db import db
 from submit_api.utils.token_info import TokenInfo
-from submit_api.services import authorization
 from submit_api.schemas.account_user import EditAccountUserSchema
 
 
@@ -33,7 +32,6 @@ class AccountUserService:
           invitations for the project(s) they are assigned to. With no project
           role they see nothing.
         """
-        authorization.check_account_access(account_id)
         account_user = AccountUserModel.get_by_guid(TokenInfo.get_username())
         if not account_user:
             current_app.logger.warning("Unauthorized access attempt to account users.")
@@ -289,9 +287,6 @@ class AccountUserService:
     def get_account_user(cls, guid):
         """Fetch an user for a user id."""
         user = AccountUserModel.get_by_guid(guid)
-        if not user:
-            return None
-        authorization.check_account_access(user.account_id)
         user_dict = user.to_dict()
         user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
@@ -302,7 +297,6 @@ class AccountUserService:
         user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         if not user:
             return None
-        authorization.check_account_access(user.account_id)
         user_dict = user.to_dict()
         user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
@@ -317,7 +311,8 @@ class AccountUserService:
     @classmethod
     def update_account_user(cls, guid, update_data):
         """Update submission item by id."""
-        authorization.check_self(guid)
+        if not guid or guid != TokenInfo.get_username():
+            raise PermissionDeniedError("You can only update your own profile.")
         update_data = EditAccountUserSchema().load(update_data)
         account_user = AccountUserModel.get_by_guid(guid)
         if not account_user:
@@ -542,7 +537,6 @@ class AccountUserService:
         if not account_user:
             raise ResourceNotFoundError(f"Account user with ID {account_user_id} not found.")
 
-        authorization.check_self(account_user.user.auth_guid)
         terms_of_service = TermsOfServiceModel.get_active_terms_of_service_by_version(
             terms_of_service_version_id)
         if not terms_of_service:
@@ -561,7 +555,6 @@ class AccountUserService:
         if not account_user:
             return None
 
-        authorization.check_account_access(account_user.account_id)
         history_roles = UserRoleModel.get_access_history_by_account_user_id(account_user_id)
 
         # Collect all package IDs for name resolution

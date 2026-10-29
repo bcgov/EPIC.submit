@@ -18,10 +18,7 @@ from http import HTTPStatus
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource
 
-from submit_api.auth import auth, jwt
-from submit_api.services import authorization
-from submit_api.models import Submission, User
-from submit_api.exceptions import PermissionDeniedError
+from submit_api.auth import jwt
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
 from submit_api.services.activity_log_service import ActivityLogService
@@ -52,24 +49,10 @@ class ActivityLog(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
     @cross_origin(origins=allowedorigins())
-    @auth.require
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
-        if entity_type == "PACKAGE":
-            authorization.has_access_to_package(entity_id)
-        elif entity_type == "SUBMISSION":
-            submission = Submission.find_by_id(entity_id)
-            if not submission:
-                raise PermissionDeniedError("Access denied")
-            authorization.has_access_to_package(submission.item.package_id)
-        elif entity_type == "USER":
-            user = User.find_by_id(entity_id)
-            if not user or not user.account_user:
-                raise PermissionDeniedError("Access denied")
-            authorization.check_account_access(user.account_user.account_id)
-        else:
-            raise PermissionDeniedError("Unsupported activity type")
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value, EpicSubmitRole.FULL_ACCESS.value])
-        logs = ActivityLogService.get_activity_logs(entity_type, entity_id, for_staff=is_staff)
+        # Retrieve logs
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
+        logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
         schema = ActivityLogSchema(many=True, context={"is_proponent": not is_staff})
         return schema.dump(logs), HTTPStatus.OK

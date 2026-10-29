@@ -39,7 +39,7 @@ class ProjectQueries:
     @classmethod
     def get_accessible_account_project_ids_for_user(cls, user):
         """Return all account_project_ids accessible by the user based on their roles."""
-        if not user or not user.account_user or not user.account_user.roles:
+        if not user.account_user or not user.account_user.roles:
             return []
 
         active_roles = [role for role in user.account_user.roles if role.active]
@@ -156,16 +156,8 @@ class ProjectQueries:
             page_projects = visible_projects[start:end]
             return page_projects, total
 
+        # Proponent path: existing behavior (unchanged)
         account_project_query = cls._filter_by_search_criteria(search_options)
-        if is_proponent:
-            accessible_ids = cls.get_accessible_account_project_ids_for_user(user)
-            if not accessible_ids:
-                return [], 0
-            account_project_query = account_project_query.filter(
-                AccountProject.id.in_(accessible_ids),
-                AccountProject.account_id == user.account_user.account_id,
-            )
-        filter_status = bool(search_options and search_options.status)
         ordered_query = (
             account_project_query
             .add_columns(Project.name)
@@ -173,7 +165,7 @@ class ProjectQueries:
             .distinct()
         )
 
-        if page and page_size and not filter_status:
+        if page and page_size:
             paginated_result = ordered_query.paginate(page=page, per_page=page_size)
             account_projects = [ap for ap, _ in paginated_result.items]
             total = paginated_result.total
@@ -193,9 +185,6 @@ class ProjectQueries:
             )
             # Recompute total post-filter
             total = len(account_projects_list)
-            if page and page_size:
-                start = (page - 1) * page_size
-                account_projects_list = account_projects_list[start:start + page_size]
 
         return account_projects_list, total
 

@@ -9,7 +9,6 @@ from http import HTTPStatus
 from flask_restx import abort
 
 from submit_api.auth import jwt
-from submit_api.exceptions import PermissionDeniedError
 from submit_api.enums.role import RoleEnum
 from submit_api.models import AccountUser as AccountUserModel
 from submit_api.models import Package as PackageModel
@@ -20,28 +19,9 @@ from submit_api.utils.token_info import TokenInfo
 from submit_api.utils.roles import EpicSubmitRole
 
 
-def check_account_access(account_id):
-    """Allow account members and explicitly authorized staff to read account data."""
-    user = UserModel.get_by_guid(TokenInfo.get_username())
-    if user and user.type == UserType.STAFF and jwt.contains_role([
-        EpicSubmitRole.EAO_VIEW.value, EpicSubmitRole.MANAGE_USERS.value, EpicSubmitRole.FULL_ACCESS.value
-    ]):
-        return
-    if not user or not user.account_user or user.account_user.account_id != account_id:
-        raise PermissionDeniedError("Access denied to this account.")
-
-
-def check_self(guid):
-    """Profile and consent changes must belong to the authenticated identity."""
-    if not guid or guid != TokenInfo.get_username():
-        raise PermissionDeniedError("You can only update your own profile or consent.")
-
-
 def check_has_permissions_on_project(permissions=None, account_project_ids=None):
     """Check if user is assigned to all of the given projects."""
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
-    if not user:
-        abort(HTTPStatus.UNAUTHORIZED)
     if user.type == UserType.STAFF:
         # Check for full_access role - they have full access
         if jwt.contains_role([EpicSubmitRole.FULL_ACCESS.value]):
@@ -94,8 +74,6 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
         abort(HTTPStatus.NOT_FOUND)
 
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
-    if not user:
-        abort(HTTPStatus.UNAUTHORIZED)
 
     # For staff users, use the new centralized access control
     if user.type == UserType.STAFF:

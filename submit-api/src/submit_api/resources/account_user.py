@@ -25,7 +25,6 @@ from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.account_user import (
     AccountUserSchema, EditAccountUserSchema, EditRoleSchema, EditTermsOfServiceSchema
 )
-from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.utils.util import allowedorigins, cors_preflight
 
@@ -68,7 +67,6 @@ class AccountUsers(Resource):
         include_invitees = request.args.get("include_invitees", "false").lower() == "true"
         all_users = request.args.get("all_users", "false").lower() == "true"
 
-        authorization.check_account_access(account_id)
         if all_users:
             users = AccountUserService.get_users_by_account(
                 account_id, include_roles=include_roles, include_invitees=include_invitees

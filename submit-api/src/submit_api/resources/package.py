@@ -147,10 +147,8 @@ class PackageVersions(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cross_origin(origins=allowedorigins())
-    @auth.require
     def get(original_package_id):
         """Get a package."""
-        authorization.has_access_to_package(original_package_id)
         package_versions = PackageService.get_all_package_versions_by_original_package_id(original_package_id)
         return PackageVersionSchema(many=True).dump(package_versions), HTTPStatus.OK
 

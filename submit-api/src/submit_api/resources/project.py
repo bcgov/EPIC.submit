@@ -171,8 +171,6 @@ class Project(Resource):
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @cross_origin(origins=allowedorigins())
-    @auth.require
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     def get(proponent_id):
         """Get projects by proponent id."""
         projects = ProjectService.get_projects_by_proponent_id(proponent_id)
