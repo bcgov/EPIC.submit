@@ -68,9 +68,10 @@ function CreateAccount() {
         <Box
           key={paragraph}
           component={index === 0 ? "strong" : "span"}
-          display="block"
-          mb={index < subTitleParagraphs.length - 1 ? 1.5 : 0}
-        >
+          sx={{
+            display: "block",
+            mb: index < subTitleParagraphs.length - 1 ? 1.5 : 0
+          }}>
           {paragraph}
         </Box>
       ))}

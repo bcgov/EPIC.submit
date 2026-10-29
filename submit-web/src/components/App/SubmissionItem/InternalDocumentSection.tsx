@@ -44,7 +44,7 @@ export default function InternalDocumentSection() {
 
   return (
     <Grid container>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <BarBlueTitle title="EAO Internal Documents" fullWidth bold={false} />
         <Typography
           variant="body2"
@@ -57,10 +57,12 @@ export default function InternalDocumentSection() {
           saved with the submission package.
         </Typography>
       </Grid>
-      <Grid item xs={12} mt={BCDesignTokens.layoutMarginXlarge}>
+      <Grid size={12} sx={{
+        mt: BCDesignTokens.layoutMarginXlarge
+      }}>
         <Typography variant="body1">Upload Documents</Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <FileUpload height="13.125rem" onDrop={handleFileDrop} maxFiles={10} />
         <Typography
           variant="body2"
@@ -71,18 +73,26 @@ export default function InternalDocumentSection() {
           Accepted file types: pdf, doc, docx, xlsx. Max. file size: 500 MB.
         </Typography>
       </Grid>
-      <Grid item xs={12} mt="60px">
-        <Typography variant="body1" fontWeight={800}>
+      <Grid size={12} sx={{
+        mt: "60px"
+      }}>
+        <Typography variant="body1" sx={{
+          fontWeight: 800
+        }}>
           Add Link to Document on Sharepoint
         </Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <AddFileLinkSection packageId={Number(submissionPackageId)} />
       </Grid>
-      <Grid item xs={12} mt="32px">
+      <Grid size={12} sx={{
+        mt: "32px"
+      }}>
         <InternalDocumentsTable hideManageDocuments={true} />
       </Grid>
-      <Grid item xs={12} mt="32px">
+      <Grid size={12} sx={{
+        mt: "32px"
+      }}>
         <UnfinishedUploadsCheck>
           <Button
             color="secondary"

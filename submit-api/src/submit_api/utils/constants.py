@@ -30,6 +30,15 @@ MP_VIEW_PACKAGE_TYPES = [
     'IEM',
 ]
 
+# Package types a staff user with the mp_view role may SEE in the project
+# listing (the "Reports & Recurring Submissions" section is gated the same way
+# as the Management Plans section). This is visibility-only: it intentionally
+# does NOT grant edit / approve / create operations, and does not change
+# package/item status-calculation behaviour. Those semantics stay driven by
+# MP_VIEW_PACKAGE_TYPES. Keep this list in sync with MP_VIEW_PACKAGE_TYPES plus
+# any read-only types (e.g. 'Report') staff should see but not operate on.
+MP_VIEW_VISIBLE_PACKAGE_TYPES = MP_VIEW_PACKAGE_TYPES + ['Report']
+
 # Role-to-operation mappings for MP-type packages
 # Note: Roles do NOT stack - each must be granted explicitly
 # Users need multiple roles for multiple operations (e.g., mp_view + mp_edit)

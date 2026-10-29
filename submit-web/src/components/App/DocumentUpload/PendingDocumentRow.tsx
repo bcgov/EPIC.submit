@@ -122,15 +122,14 @@ export default function PendingDocumentRow({
       <DocumentTableCell colSpan={2}>
         <Typography
           variant="body1"
-          color="inherit"
           sx={{
+            color: "inherit",
             overflow: "clip",
             textOverflow: "ellipsis",
             cursor: "pointer",
             mx: 0.5,
-            textDecoration: "none",
-          }}
-        >
+            textDecoration: "none"
+          }}>
           <MuiLink sx={{ textDecoration: "none" }}>
             {documentItem.file.name}
           </MuiLink>

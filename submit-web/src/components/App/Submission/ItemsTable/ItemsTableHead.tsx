@@ -82,17 +82,6 @@ export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
                 }
                 placement="bottom-end"
                 arrow
-                PopperProps={{
-                  disablePortal: false,
-                  modifiers: [
-                    {
-                      name: "preventOverflow",
-                      options: {
-                        boundary: "viewport",
-                      },
-                    },
-                  ],
-                }}
                 slotProps={{
                   tooltip: {
                     sx: {
@@ -106,8 +95,19 @@ export default function ItemsTableHead({ approvalType }: ItemsTableHeadProps) {
                       },
                     },
                   },
-                }}
-              >
+
+                  popper: {
+                    disablePortal: false,
+                    modifiers: [
+                      {
+                        name: "preventOverflow",
+                        options: {
+                          boundary: "viewport",
+                        },
+                      },
+                    ],
+                  }
+                }}>
                 <Box
                   component="span"
                   sx={{

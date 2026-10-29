@@ -230,14 +230,13 @@ export default function NewUserForm() {
       <FormProvider {...methods}>
         <Form onSubmit={handleSubmit(handleCompleteForm)} methods={methods}>
           <Box
-            flexDirection={"column"}
             sx={{
+              flexDirection: "column",
               width: "100%",
               display: "flex",
               justifyContent: "flex-start",
-              alignItems: "flex-start",
-            }}
-          >
+              alignItems: "flex-start"
+            }}>
             <Container
               maxWidth="sm"
               sx={{

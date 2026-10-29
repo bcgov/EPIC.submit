@@ -39,7 +39,9 @@ export const UserGuideButton = () => {
         textUnderlinePosition: "from-font",
       }}
     >
-      <Stack direction="row" spacing={1} alignItems={"center"}>
+      <Stack direction="row" spacing={1} sx={{
+        alignItems: "center"
+      }}>
         <DescriptionIcon
           htmlColor={GUIDE_ICON_COLOR}
           sx={{ width: 42, height: 42 }}

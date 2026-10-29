@@ -201,10 +201,10 @@ export const IemSubmissionProponentView = () => {
       <FormProvider {...methods}>
         <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <BarBlueTitle title="Independent Environmental Monitor Terms of Engagement Requirements" />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormFieldSection errors={errors} />
               <GenericDocumentUploadSection sections={documentUploadSections} />
             </Grid>

@@ -17,16 +17,16 @@ export const Form = ({ onSubmit }: FormProps) => {
   }, [reset]);
 
   return (
-    <Grid container width={"100%"}>
+    <Grid container sx={{
+      width: "100%"
+    }}>
       <Grid
-        item
-        xs={12}
         sx={{
           padding: "24px 0px 12px 0px",
         }}
         container
-      >
-        <Grid item xs={12}>
+        size={12}>
+        <Grid size={12}>
           <TabPanel onSubmit={onSubmit} />
         </Grid>
       </Grid>

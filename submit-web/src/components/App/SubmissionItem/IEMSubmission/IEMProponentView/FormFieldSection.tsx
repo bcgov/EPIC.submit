@@ -37,8 +37,8 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
 
   return (
     <>
-      <Grid item xs={12} container>
-        <Grid item xs={12}>
+      <Grid container size={12}>
+        <Grid size={12}>
           <Typography variant="body1">
             Does the Independent Environmental Monitor Terms of Engagement
             address all the requirements in condition
@@ -49,7 +49,7 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
             <YesNoRadioOptions error={Boolean(errors["conditionSatisfied"])} />
           </ControlledRadioGroup>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography variant="body1">
             If the condition(s) associated with the Independent Environmental
             Monitor Terms of Engagement references other documents, in whole or
@@ -64,10 +64,10 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
           </ControlledRadioGroup>
         </Grid>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <BarBlueTitle title="Information Verification" />
       </Grid>
-      <Grid item xs={12} sx={{ mt: 1 }}>
+      <Grid sx={{ mt: 1 }} size={12}>
         <Typography variant="body1">
           The information on this form is correct to the best of your knowledge.
         </Typography>
@@ -75,7 +75,7 @@ export default function FormFieldSection({ errors }: FormFieldSectionProps) {
           <YesNoRadioOptions error={Boolean(errors["informationAccurate"])} />
         </ControlledRadioGroup>
       </Grid>
-      <Grid item xs={12} sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
+      <Grid sx={{ mb: BCDesignTokens.layoutMarginMedium }} size={12}>
         <Typography variant="body1" sx={{ fontWeight: 700 }}>
           Notes/Comments
         </Typography>

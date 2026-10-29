@@ -54,7 +54,7 @@ export const Route = createFileRoute(
   pendingMs: 0,
   pendingComponent: () => (
     <PageGrid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <ContentBoxSkeleton />
       </Grid>
     </PageGrid>
@@ -108,7 +108,7 @@ function ProponentPage() {
 
   return (
     <PageGrid>
-      <Grid item xs={12} sx={{ alignSelf: "flex-start" }}>
+      <Grid sx={{ alignSelf: "flex-start" }} size={12}>
         <ContentBox
           mainLabel={proponent?.name}
           statusChip={<ProponentStatusChip status={proponent?.status} />}

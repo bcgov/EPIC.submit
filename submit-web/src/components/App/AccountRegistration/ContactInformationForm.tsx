@@ -179,15 +179,17 @@ function ContactInformationForm() {
   return (
     <>
       <Grid
-        item
-        xs={12}
-        md={4}
-        pb={8}
-        justifyContent="center"
-        alignItems="flex-start"
         container
-      >
-        <Grid item xs={12}>
+        size={{
+          xs: 12,
+          md: 4
+        }}
+        sx={{
+          pb: 8,
+          justifyContent: "center",
+          alignItems: "flex-start"
+        }}>
+        <Grid size={12}>
           <Typography
             variant="h5"
             color={BCDesignTokens.themeBlue100}
@@ -199,7 +201,7 @@ function ContactInformationForm() {
             Your Contact Information
           </Typography>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <FormProvider {...methods}>
             <form onSubmit={handleSubmit(onSubmitHandler)}>
               <StyledControlledTextField
@@ -221,7 +223,7 @@ function ContactInformationForm() {
                 name="position"
                 label="Your Position/Role"
                 fullWidth
-                InputLabelProps={{ sx: { fontWeight: 700 } }}
+                slotProps={{ inputLabel: { sx: { fontWeight: 700 } } }}
               />
               <Stack direction="row" spacing={1} sx={{ mb: 0 }}>
                 <StyledControlledTextField
@@ -244,15 +246,20 @@ function ContactInformationForm() {
                 label="Your Work Email Address"
                 fullWidth
               />
-              <Grid container alignItems="center" marginBottom={4}>
-                <Grid item>
+              <Grid
+                container
+                sx={{
+                  alignItems: "center",
+                  marginBottom: 4
+                }}>
+                <Grid>
                   <Tooltip
                     title={
                       termsAccepted
                         ? "You have already agreed to the Terms and Conditions"
                         : ""
                     }
-                    componentsProps={{
+                    slotProps={{
                       tooltip: {
                         sx: {
                           maxWidth: 200,
@@ -281,7 +288,7 @@ function ContactInformationForm() {
                     </span>
                   </Tooltip>
                 </Grid>
-                <Grid item xs>
+                <Grid size="grow">
                   <Typography
                     variant="body2"
                     sx={{
@@ -315,7 +322,9 @@ function ContactInformationForm() {
                   agreement button will unlock once you scroll to the end.
                 </FormHelperText>
               )}
-              <Box my={2}>
+              <Box sx={{
+                my: 2
+              }}>
                 <Button
                   type="submit"
                   color="primary"

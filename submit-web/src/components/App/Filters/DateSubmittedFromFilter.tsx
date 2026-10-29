@@ -1,7 +1,6 @@
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { TextField } from "@mui/material";
 import dayjs, { Dayjs } from "dayjs";
 import { useProjectFilters } from "./projectFilterStore";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
@@ -45,24 +44,20 @@ export default function DateSubmittedFromFilter({
         value={date}
         onChange={handleDateChange}
         maxDate={maxDate}
+        slotProps={{
+          textField: {
+            fullWidth: true,
+            onFocus,
+            error,
+            sx: { "& .MuiPickersInputBase-sectionsContainer": { fontSize: BCDesignTokens.typographyFontSizeSmallBody } },
+
+            slotProps: {
+              input: { "aria-label": "Date Submitted - From" },
+            },
+          },
+          field: { clearable: true },
+        }}
         slots={{
-          textField: (params) => (
-            <TextField
-              fullWidth
-              {...params}
-              onFocus={onFocus}
-              error={error}
-              placeholder="Date Submitted - From"
-              inputProps={{
-                ...params.inputProps,
-                sx: {
-                  "::placeholder": {
-                    fontSize: BCDesignTokens.typographyFontSizeSmallBody, // Controls placeholder font size
-                  },
-                },
-              }}
-            />
-          ),
           openPickerIcon: () => (
             <CalendarMonthIcon
               htmlColor={BCDesignTokens.typographyColorPlaceholder}

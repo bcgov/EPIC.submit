@@ -74,10 +74,11 @@ export default function DocumentTable({
             <StyledHeadTableCell colSpan={5}>
               <Typography
                 variant="h6"
-                color="inherit"
-                fontWeight={900}
-                sx={{ mx: 0.5 }}
-              >
+                sx={{
+                  color: "inherit",
+                  fontWeight: 900,
+                  mx: 0.5
+                }}>
                 {header}
               </Typography>
             </StyledHeadTableCell>

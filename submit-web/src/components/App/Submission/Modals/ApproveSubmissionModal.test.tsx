@@ -49,8 +49,9 @@ describe("ApproveSubmissionModal", () => {
 
   it("test_decision_date_defaults_to_today", () => {
     render(<ApproveSubmissionModal {...defaultProps} />);
-    const input = screen.getByRole("textbox") as HTMLInputElement;
-    expect(input.value).toBe(dayjs().format("YYYY-MM-DD"));
+    expect(screen.getByRole("spinbutton", { name: "Year" })).toHaveTextContent(dayjs().format("YYYY"));
+    expect(screen.getByRole("spinbutton", { name: "Month" })).toHaveTextContent(dayjs().format("MM"));
+    expect(screen.getByRole("spinbutton", { name: "Day" })).toHaveTextContent(dayjs().format("DD"));
   });
 
   it("test_confirm_enabled_with_default_date_and_passes_date", async () => {
@@ -70,8 +71,8 @@ describe("ApproveSubmissionModal", () => {
   it("test_confirm_disabled_and_error_shown_when_date_cleared", async () => {
     render(<ApproveSubmissionModal {...defaultProps} />);
 
-    const input = screen.getByRole("textbox");
-    await userEvent.clear(input);
+    await userEvent.click(screen.getByRole("spinbutton", { name: "Year" }));
+    await userEvent.keyboard("{Control>}a{/Control}{Backspace}");
 
     await waitFor(() =>
       expect(screen.getByText("Decision Date is required")).toBeInTheDocument(),

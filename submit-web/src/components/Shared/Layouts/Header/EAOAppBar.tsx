@@ -28,45 +28,47 @@ export default function EAOAppBar() {
       >
         <Grid
           container
-          marginY={BCDesignTokens.layoutMarginSmall}
-          paddingX={isMobile ? 0 : "0.5rem"}
-          justifyContent="space-between"
-        >
+          sx={{
+            marginY: BCDesignTokens.layoutMarginSmall,
+            paddingX: isMobile ? 0 : "0.5rem",
+            justifyContent: "space-between"
+          }}>
           <Box
-            display="flex"
-            justifyContent="start"
-            alignItems="center"
             onClick={() =>
               navigate({
                 to: needsAccess ? "/logout" : `/`,
               })
             }
             sx={{
-              cursor: "pointer",
-            }}
-          >
+              display: "flex",
+              justifyContent: "start",
+              alignItems: "center",
+              cursor: "pointer"
+            }}>
             <img src={EAO_Logo} height={isMobile ? 40 : 56} />
             {!isMobile && (
               <>
                 <Divider orientation="vertical" flexItem sx={{ m: 1 }} />
                 <Typography
                   variant="h2"
-                  color="inherit"
                   component="div"
-                  paddingLeft={"0.5rem"}
-                  fontWeight={"bold"}
-                >
+                  sx={{
+                    color: "inherit",
+                    paddingLeft: "0.5rem",
+                    fontWeight: "bold"
+                  }}>
                   {AppConfig.appTitle || "EPIC.submit"}
                 </Typography>
               </>
             )}
           </Box>
           <Grid
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            paddingRight={"0.75rem"}
-          >
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              paddingRight: "0.75rem"
+            }}>
             <AppBarActions />
           </Grid>
         </Grid>

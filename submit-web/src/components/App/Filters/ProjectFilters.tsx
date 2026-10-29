@@ -25,16 +25,12 @@ function ProjectFilters({
   const isProponent = userType === USER_TYPE.PROPONENT;
 
   return (
-    <Grid
-      container
-      item
-      sx={{ maxWidth: "1448px", justifyContent: "space-between" }}
-    >
-      <Grid item xs={!hideStatusFilter ? 2.5 : 6}>
+    <Grid container sx={{ maxWidth: "1448px", justifyContent: "space-between" }}>
+      <Grid size={!hideStatusFilter ? 2.5 : 6}>
         <SearchFilter userType={userType} />
       </Grid>
       {!hideStatusFilter && (
-        <Grid item xs={3.5}>
+        <Grid size={3.5}>
           <StatusFilter<PackageStatusFilterValue>
             label="Post-Decision Submission Status"
             roleFilters={
@@ -48,20 +44,21 @@ function ProjectFilters({
           />
         </Grid>
       )}
-      <Grid item xs={2}>
+      <Grid size={2}>
         <DateSubmittedFromFilter />
       </Grid>
-      <Grid item xs={2}>
+      <Grid size={2}>
         <DateSubmittedToFilter />
       </Grid>
-      <Grid container item xs={1}>
+      <Grid container size={1}>
         <Box
-          display={"flex"}
-          flexDirection={"row"}
-          mt={BCDesignTokens.layoutMarginSmall}
           onClick={() => resetFilters()}
-          sx={{ cursor: "pointer" }}
-        >
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            mt: BCDesignTokens.layoutMarginSmall,
+            cursor: "pointer"
+          }}>
           <Typography
             variant="caption"
             sx={{

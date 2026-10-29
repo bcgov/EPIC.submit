@@ -1,121 +1,64 @@
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import type { UseFormReturn } from "react-hook-form";
+import get from "lodash/get";
 
 type FormProps = {
   children: React.ReactNode;
   methods: UseFormReturn<any>;
 } & React.FormHTMLAttributes<HTMLFormElement>;
 
-const SCROLL_CONSTANTS = {
-  DURATION: 800,
-  OFFSET: 150,
-  ANIMATION_FRAME_RATE: 20,
-  FOCUS_DELAY: 50,
-} as const;
-
-// Custom hook for smooth scrolling
-const useSmoothScroll = () => {
-  const calculateEasing = (
-    elapsedTime: number,
-    startPosition: number,
-    distance: number,
-    duration: number,
-  ): number => {
-    const halfDuration = duration / 2;
-    elapsedTime /= halfDuration;
-
-    if (elapsedTime < 1) {
-      return (distance / 2) * elapsedTime * elapsedTime + startPosition;
-    }
-
-    elapsedTime--;
-    return (
-      (-distance / 2) * (elapsedTime * (elapsedTime - 2) - 1) + startPosition
-    );
-  };
-
-  const scrollTo = React.useCallback((targetPosition: number) => {
-    const startPosition = window.pageYOffset;
-    const distance = targetPosition - startPosition;
-    let elapsedTime = 0;
-
-    const animateScroll = () => {
-      elapsedTime += SCROLL_CONSTANTS.ANIMATION_FRAME_RATE;
-
-      const nextPosition = calculateEasing(
-        elapsedTime,
-        startPosition,
-        distance,
-        SCROLL_CONSTANTS.DURATION,
-      );
-
-      window.scrollTo(0, nextPosition);
-
-      const isAnimationComplete = elapsedTime < SCROLL_CONSTANTS.DURATION;
-      if (isAnimationComplete) {
-        window.requestAnimationFrame(animateScroll);
-      }
-    };
-
-    animateScroll();
-  }, []);
-
-  return scrollTo;
-};
-
-// Custom hook for form error handling
-const useFormError = (methods: UseFormReturn<any>) => {
-  const smoothScrollTo = useSmoothScroll();
-  const {
-    formState: { errors, isSubmitted },
-  } = methods;
+const useFormError = (methods: UseFormReturn<any>, formRef: React.RefObject<HTMLFormElement>) => {
+  const { formState: { errors, isSubmitted, submitCount }, setFocus } = methods;
+  const handledAttempt = React.useRef(0);
 
   React.useEffect(() => {
-    const hasErrors = Object.keys(errors).length > 0;
-    if (!isSubmitted || !hasErrors) return;
+    if (!isSubmitted) { handledAttempt.current = 0; return; }
+    if (!submitCount || handledAttempt.current === submitCount) return;
+    handledAttempt.current = submitCount;
+    const form = formRef.current;
+    if (!form) return;
 
-    const errorElement = document.querySelector(".Mui-error") as HTMLElement;
-    if (!errorElement) return;
+    // Use document order inside this form, without depending on MUI classes or picker DOM internals.
+    const anchor = Array.from(form.querySelectorAll<HTMLElement>("[data-form-field], [name]"))
+      .find((element) => {
+        const name = element.getAttribute("data-form-field") ?? element.getAttribute("name");
+        return name && get(errors, name);
+      });
+    const name = anchor?.getAttribute("data-form-field") ?? anchor?.getAttribute("name");
+    if (!anchor || !name) return;
 
-    const errorContainer =
-      errorElement.closest(".MuiGrid-item") || errorElement;
-    const elementPosition = errorContainer.getBoundingClientRect();
-    const scrollTarget =
-      window.pageYOffset + elementPosition.top - SCROLL_CONSTANTS.OFFSET;
-
-    // Scroll to error
-    smoothScrollTo(scrollTarget);
-
-    // Focus the input after scroll completes
-    const focusTimeout = setTimeout(() => {
-      const inputElement = errorElement.querySelector("input") || errorElement;
-      if (inputElement instanceof HTMLElement) {
-        inputElement.focus();
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    anchor.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    const initialFocus = document.activeElement;
+    const timeout = window.setTimeout(() => {
+      if (document.activeElement !== initialFocus && !anchor.contains(document.activeElement)) return;
+      setFocus(name, { shouldSelect: false });
+      // Uploaders and other composite controls may expose a focusable element without a registered input ref.
+      if (!anchor.contains(document.activeElement)) {
+        anchor.querySelector<HTMLElement>('input:not([type="hidden"]):not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex="0"]')?.focus();
       }
-    }, SCROLL_CONSTANTS.DURATION + SCROLL_CONSTANTS.FOCUS_DELAY);
-
-    return () => clearTimeout(focusTimeout);
-  }, [isSubmitted, errors, smoothScrollTo]);
+    }, reduceMotion ? 0 : 850);
+    return () => window.clearTimeout(timeout);
+  }, [errors, formRef, isSubmitted, setFocus, submitCount]);
 };
 
-// Custom hook for preventing Enter key form submission
-const usePreventEnterSubmit = () => {
-  return React.useCallback((event: React.KeyboardEvent) => {
-    const isEnterKey = event.key === "Enter";
-    const isInputElement = (event.target as HTMLElement).tagName === "INPUT";
-
-    if (isEnterKey && isInputElement) {
-      event.preventDefault();
-    }
-  }, []);
-};
-
-export default function Form({ children, methods, ...rest }: FormProps) {
-  useFormError(methods);
-  const handleKeyDown = usePreventEnterSubmit();
+export default function Form({ children, methods, onKeyDown, ...props }: FormProps) {
+  const formRef = React.useRef<HTMLFormElement>(null);
+  useFormError(methods, formRef);
 
   return (
-    <form onKeyDown={handleKeyDown} {...rest}>
+    <form
+      {...props}
+      ref={formRef}
+      onKeyDown={(event) => {
+        onKeyDown?.(event);
+        const target = event.target;
+        if (event.key === "Enter" && !event.defaultPrevented && target instanceof HTMLElement &&
+          (target.tagName === "INPUT" || target.closest('[role="spinbutton"]'))) {
+          event.preventDefault();
+        }
+      }}
+    >
       {children}
     </form>
   );

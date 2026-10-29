@@ -125,7 +125,7 @@ export default function DocumentTableRow({
         name: submitted_document.name,
         url: submitted_document.url,
       });
-    } catch (e) {
+    } catch {
       notify.error("Failed to download submission");
     } finally {
       setPendingGetObject(false);
@@ -155,7 +155,7 @@ export default function DocumentTableRow({
 
       // Update form if field name is provided
       await updateFormField();
-    } catch (e) {
+    } catch {
       notify.error("Failed to remove document");
     } finally {
       setIsRemovingDocument(false);
@@ -179,15 +179,14 @@ export default function DocumentTableRow({
         >
           <Typography
             variant="body1"
-            color="inherit"
             component="div"
             sx={{
+              color: "inherit",
               overflow: "clip",
               textOverflow: "ellipsis",
               cursor: "pointer",
-              textDecoration: "none",
-            }}
-          >
+              textDecoration: "none"
+            }}>
             <DocumentLink
               name={submitted_document?.name ?? ""}
               onClick={

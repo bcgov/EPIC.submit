@@ -113,14 +113,13 @@ export default function PendingRow({ pendingDocument }: RowProps) {
       <SubmitTableCell>
         <Typography
           variant="body1"
-          color="inherit"
           sx={{
+            color: "inherit",
             overflow: "clip",
             textOverflow: "ellipsis",
             cursor: "pointer",
-            mx: 0.5,
-          }}
-        >
+            mx: 0.5
+          }}>
           <MuiLink>{name}</MuiLink>
         </Typography>
       </SubmitTableCell>

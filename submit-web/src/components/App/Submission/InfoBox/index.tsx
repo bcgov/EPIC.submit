@@ -86,22 +86,31 @@ export const InfoBox = ({
           }
         >
           <Then>
-            <Grid item xs={12} md={6} container>
-              <Grid item xs={12}>
+            <Grid
+              container
+              size={{
+                xs: 12,
+                md: 6
+              }}>
+              <Grid size={12}>
                 <Stack direction={"row"} spacing={2}>
                   <Typography color={BCDesignTokens.themeGray70}>
                     Condition:
                   </Typography>
-                  <Typography color={"inherit"}>{condition || "-"}</Typography>
+                  <Typography sx={{
+                    color: "inherit"
+                  }}>{condition || "-"}</Typography>
                 </Stack>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={12}>
                 <Stack direction={"row"} spacing={2}>
                   <Typography color={BCDesignTokens.themeGray70}>
                     Supporting Condition(s):
                   </Typography>
-                  <Typography color={"inherit"}>
+                  <Typography sx={{
+                    color: "inherit"
+                  }}>
                     {supportingConditions || "-"}
                   </Typography>
                 </Stack>
@@ -110,17 +119,18 @@ export const InfoBox = ({
           </Then>
           <Else>
             <Stack
-              gap={2}
               sx={{
+                gap: 2,
                 display: "flex",
-                flexDirection: "row",
-              }}
-            >
+                flexDirection: "row"
+              }}>
               <Stack direction={"row"} spacing={1}>
                 <Typography color={BCDesignTokens.themeGray70}>
                   Submitted on:
                 </Typography>
-                <Typography color={"inherit"}>
+                <Typography sx={{
+                  color: "inherit"
+                }}>
                   {dateUtils.formatDate(submissionPackage.submitted_on) || "-"}
                 </Typography>
               </Stack>
@@ -128,7 +138,9 @@ export const InfoBox = ({
               <Typography color={BCDesignTokens.themeGray70}>
                 Submitted by:
               </Typography>
-              <Typography color={"inherit"}>
+              <Typography sx={{
+                color: "inherit"
+              }}>
                 {submissionPackage.submitted_by || "-"}
               </Typography>
             </Stack>
@@ -138,17 +150,21 @@ export const InfoBox = ({
             <>
               {version && (
                 <Grid
-                  item
-                  md={6}
-                  xs={12}
                   container
-                  alignContent={{ xs: "flex-start" }}
-                  justifyContent={{ xs: "flex-end" }}
-                >
+                  size={{
+                    md: 6,
+                    xs: 12
+                  }}
+                  sx={{
+                    alignContent: { xs: "flex-start" },
+                    justifyContent: { xs: "flex-end" }
+                  }}>
                   <VersionGroup currentPackageVersion={version} />
                 </Grid>
               )}
-              <Grid item xs={12} container mt={"16px"}>
+              <Grid container size={12} sx={{
+                mt: "16px"
+              }}>
                 <SubmissionHistory
                   submissionPackageId={String(
                     version?.original_package_id ?? submissionPackage.id

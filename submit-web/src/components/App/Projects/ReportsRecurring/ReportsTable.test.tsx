@@ -110,6 +110,7 @@ describe("ReportsTable", () => {
   });
 
   it("links the submission name to the EAO report page for the staff audience", () => {
+    mockNavigate.mockClear();
     render(<ReportsTable reportPackages={[makeReportPackage(5)]} audience="staff" />);
     fireEvent.click(screen.getByText("Annual Report 5"));
     expect(mockNavigate).toHaveBeenCalledWith({

@@ -30,7 +30,7 @@ export const StatusCell = ({
   });
 
   return (
-    <Stack direction="column" spacing={0.5} alignItems="flex-start">
+    <Stack direction="column" spacing={0.5} sx={{ alignItems: "flex-start" }}>
       {submittedDocument.submitted_document?.is_virus_rejected && (
         <SecurityRejectedBadge />
       )}

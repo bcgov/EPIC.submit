@@ -64,11 +64,12 @@ export const BannerRenderer = () => {
 
   return (
     <Box
-      px={3}
-      mb={BCDesignTokens.layoutMarginLarge}
-      display="flex"
-      justifyContent="center"
-    >
+      sx={{
+        px: 3,
+        mb: BCDesignTokens.layoutMarginLarge,
+        display: "flex",
+        justifyContent: "center"
+      }}>
       <Box
         role={isAlert ? "alert" : "status"}
         sx={{

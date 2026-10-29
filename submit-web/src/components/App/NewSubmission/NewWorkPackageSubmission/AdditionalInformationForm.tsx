@@ -8,12 +8,18 @@ export const AdditionalInformationForm = () => {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Typography variant="body1" fontWeight={"bold"}>
+      <Grid size={12}>
+        <Typography variant="body1" sx={{
+          fontWeight: "bold"
+        }}>
           Enter the name of your submission
         </Typography>
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid
+        size={{
+          xs: 12,
+          md: 6
+        }}>
         <ControlledTextField
           name="name"
           fullWidth
@@ -26,15 +32,23 @@ export const AdditionalInformationForm = () => {
         />
       </Grid>
 
-      <Grid item xs={12}>
-        <Typography variant="body1" fontWeight={"bold"}>
+      <Grid size={12}>
+        <Typography variant="body1" sx={{
+          fontWeight: "bold"
+        }}>
           Enter the a brief description of your submission{" "}
-          <Typography component="span" variant="body1" color="text.secondary">
+          <Typography component="span" variant="body1" sx={{
+            color: "text.secondary"
+          }}>
             (optional)
           </Typography>
         </Typography>
       </Grid>
-      <Grid item xs={12} md={6}>
+      <Grid
+        size={{
+          xs: 12,
+          md: 6
+        }}>
         <ControlledTextField
           name="description"
           fullWidth

@@ -20,7 +20,9 @@ function Profile() {
   return (
     <Card>
       <CardContent>
-        <Typography variant="h4" color="primary" fontWeight={600} gutterBottom>
+        <Typography variant="h4" color="primary" gutterBottom sx={{
+          fontWeight: 600
+        }}>
           {user?.profile.name}{" "}
           <StatusChip
             label={user?.profile.identity_provider?.toString() || ""}

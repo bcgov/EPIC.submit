@@ -12,7 +12,9 @@ import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { Role } from "@/models/AccountUser";
 
 const roleWith = (roleName: USER_MANAGEMENT_ROLE): Role =>
-  ({ role_name: roleName }) as Role;
+  (({
+    role_name: roleName
+  }) as Role);
 
 describe("PermissionGate utils", () => {
   describe("checkIfMPT", () => {

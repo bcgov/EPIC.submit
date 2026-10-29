@@ -46,8 +46,6 @@ export const ReportsTableRow = ({
       audience === "staff"
         ? `/staff/projects/${reportPackage.account_project_id}/reports/${reportPackage.id}`
         : `/proponent/projects/${reportPackage.account_project_id}/reports/${reportPackage.id}`;
-    // The staff reports route is delivered by a follow-up story (SUBMIT-1040);
-    // the destination is wired here ahead of that page existing.
     navigate({ to: path });
   };
 
@@ -71,10 +69,11 @@ export const ReportsTableRow = ({
           onClick={onNameClick}
         >
           <Typography
-            fontSize="1rem"
-            fontWeight="bold"
             color={BCDesignTokens.themeBlue90}
-          >
+            sx={{
+              fontSize: "1rem",
+              fontWeight: "bold"
+            }}>
             {displayName}
           </Typography>
         </SubmitLink>
@@ -84,15 +83,20 @@ export const ReportsTableRow = ({
       </StyledProjectTableCell>
       <StyledProjectTableCell align="left">
         <Typography
-          fontSize="14px"
-          sx={{ lineHeight: "1.2rem", whiteSpace: "normal", wordBreak: "break-word" }}
-        >
+          sx={{
+            fontSize: "14px",
+            lineHeight: "1.2rem",
+            whiteSpace: "normal",
+            wordBreak: "break-word"
+          }}>
           {report?.timing ?? PLACEHOLDER}
         </Typography>
       </StyledProjectTableCell>
       <StyledProjectTableCell align="left">
         {lastSubmitted ? (
-          <Typography fontSize="14px">{lastSubmitted}</Typography>
+          <Typography sx={{
+            fontSize: "14px"
+          }}>{lastSubmitted}</Typography>
         ) : (
           <NonePlaceholder />
         )}

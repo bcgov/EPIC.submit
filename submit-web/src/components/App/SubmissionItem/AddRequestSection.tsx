@@ -46,7 +46,9 @@ export default function AddRequestSection({
         borderRadius: "4px",
       }}
     >
-      <Typography variant="body1" fontWeight={"bold"}>
+      <Typography variant="body1" sx={{
+        fontWeight: "bold"
+      }}>
         Revision Required for
       </Typography>
       <ControlledCheckboxGroup
@@ -62,7 +64,9 @@ export default function AddRequestSection({
         ))}
       </ControlledCheckboxGroup>
       <Box sx={{ mb: BCDesignTokens.layoutMarginMedium }}>
-        <Typography variant="body1" fontWeight={"bold"}>
+        <Typography variant="body1" sx={{
+          fontWeight: "bold"
+        }}>
           EAO Comment
         </Typography>
         <ControlledTextField
@@ -80,10 +84,16 @@ export default function AddRequestSection({
           disabled={disabled}
         />
       </Box>
-      <WarningBox mb={BCDesignTokens.layoutMarginXsmall}>
-        <Stack direction="row" alignItems="center" spacing={2}>
+      <WarningBox sx={{
+        mb: BCDesignTokens.layoutMarginXsmall
+      }}>
+        <Stack direction="row" spacing={2} sx={{
+          alignItems: "center"
+        }}>
           <PriorityHighIcon fontSize="large" />
-          <Typography variant="body1" color="inherit">
+          <Typography variant="body1" sx={{
+            color: "inherit"
+          }}>
             This request, including the EAO Comment, will be sent to the holder
             after a Manager confirms the decision.
           </Typography>

@@ -90,7 +90,7 @@ export function NewSubmission() {
   if (isProjectPending)
     return (
       <PageGrid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <ContentBoxSkeleton />
         </Grid>
       </PageGrid>

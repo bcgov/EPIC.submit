@@ -1,3 +1,4 @@
+import { AccordionHeading } from "@/components/Shared/AccordionHeading";
 import React from "react";
 import {
   Accordion,
@@ -24,8 +25,26 @@ interface PendingRequestCollapsibleProps {
 export const PendingRequestCollapsible: React.FC<
   PendingRequestCollapsibleProps
 > = ({ request, onRemove, onUpdateNote, expanded, onToggle, hasError = false }) => {
+  const accordionId = React.useId();
   return (
     <Accordion
+      slots={{ heading: AccordionHeading }}
+      slotProps={{ heading: { actions: (<Link
+          component="button"
+          type="button"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          sx={{
+            color: BCDesignTokens.themeBlue90,
+            cursor: "pointer",
+            fontSize: "14px",
+            textDecoration: "none",
+          }}
+        >
+          Remove
+        </Link>) } }}
       expanded={expanded}
       onChange={onToggle}
       sx={{
@@ -39,6 +58,8 @@ export const PendingRequestCollapsible: React.FC<
       }}
     >
       <AccordionSummary
+        id={`${accordionId}-header`}
+        aria-controls={`${accordionId}-content`}
         expandIcon={<ExpandMoreIcon />}
         sx={{
           flexDirection: "row-reverse",
@@ -52,24 +73,10 @@ export const PendingRequestCollapsible: React.FC<
           },
         }}
       >
-        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+        <Typography component="span" variant="h6" sx={{ fontWeight: 600 }}>
           {request.itemTypeName}
         </Typography>
-        <Link
-          component="button"
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          sx={{
-            color: BCDesignTokens.themeBlue90,
-            cursor: "pointer",
-            fontSize: "14px",
-            textDecoration: "none",
-          }}
-        >
-          Remove
-        </Link>
+
       </AccordionSummary>
       <AccordionDetails sx={{ backgroundColor: "white" }}>
         <Box>

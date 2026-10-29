@@ -137,10 +137,10 @@ export const ContactInformationStaffView = () => {
   return (
     <SubmissionFormContainer>
       <Grid container spacing={2}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <BarBlueTitle title="Submission Contact Information" />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography
             variant="body1"
             sx={{
@@ -151,16 +151,14 @@ export const ContactInformationStaffView = () => {
           </Typography>
         </Grid>
         <Grid
-          item
           container
           sx={{
             width: {
               xs: "100%", // width for extra-small screens
               md: "390px", // width for medium screens and up
             },
-          }}
-        >
-          <Grid item xs={12}>
+          }}>
+          <Grid size={12}>
             <TextField
               name="primaryContact.givenName"
               label="Given Name"
@@ -168,7 +166,7 @@ export const ContactInformationStaffView = () => {
               value={primaryContactData.givenName}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               name="primaryContact.surname"
               label="Surname"
@@ -176,7 +174,7 @@ export const ContactInformationStaffView = () => {
               value={primaryContactData.surname}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               name="primaryContact.company"
               label="Company Name"
@@ -184,7 +182,7 @@ export const ContactInformationStaffView = () => {
               value={primaryContactData.company}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               name="primaryContact.position"
               label="Position/Role"
@@ -192,15 +190,15 @@ export const ContactInformationStaffView = () => {
               value={primaryContactData.position}
             />
           </Grid>
-          <Grid item xs={12} container spacing={1}>
-            <Grid item xs={8}>
+          <Grid container spacing={1} size={12}>
+            <Grid size={8}>
               <TextField
                 value={String(primaryContactData.workPhoneNumber)}
                 fullWidth
                 label="Work Phone Number"
               />
             </Grid>
-            <Grid item xs={4}>
+            <Grid size={4}>
               <TextField
                 value={String(primaryContactData.extensionNumber)}
                 fullWidth
@@ -208,7 +206,7 @@ export const ContactInformationStaffView = () => {
               />
             </Grid>
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               name="primaryContact.workEmailAddress"
               label="Work Email Address"
@@ -217,7 +215,7 @@ export const ContactInformationStaffView = () => {
             />
           </Grid>
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Typography
             variant="body1"
             sx={{
@@ -227,7 +225,12 @@ export const ContactInformationStaffView = () => {
             Secondary Contact
           </Typography>
         </Grid>
-        <Grid item md={4} xs={12} container>
+        <Grid
+          container
+          size={{
+            md: 4,
+            xs: 12
+          }}>
           <Grid
             container
             sx={{
@@ -237,7 +240,7 @@ export const ContactInformationStaffView = () => {
               },
             }}
           >
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 name="secondaryContact.givenName"
                 label="Given Name"
@@ -245,7 +248,7 @@ export const ContactInformationStaffView = () => {
                 value={secondaryContactData.givenName}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 name="secondaryContact.surname"
                 label="Surname"
@@ -253,7 +256,7 @@ export const ContactInformationStaffView = () => {
                 value={secondaryContactData.surname}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 name="secondaryContact.company"
                 label="Company Name"
@@ -261,7 +264,7 @@ export const ContactInformationStaffView = () => {
                 value={secondaryContactData.company}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 name="secondaryContact.position"
                 label="Position/Role"
@@ -269,15 +272,15 @@ export const ContactInformationStaffView = () => {
                 value={secondaryContactData.position}
               />
             </Grid>
-            <Grid item xs={12} container spacing={1}>
-              <Grid item xs={8}>
+            <Grid container spacing={1} size={12}>
+              <Grid size={8}>
                 <TextField
                   value={String(secondaryContactData.workPhoneNumber)}
                   fullWidth
                   label="Work Phone Number"
                 />
               </Grid>
-              <Grid item xs={4}>
+              <Grid size={4}>
                 <TextField
                   value={String(secondaryContactData.extensionNumber)}
                   fullWidth
@@ -285,7 +288,7 @@ export const ContactInformationStaffView = () => {
                 />
               </Grid>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 name="secondaryContact.workEmailAddress"
                 label="Work Email Address"
@@ -295,8 +298,12 @@ export const ContactInformationStaffView = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={12} container spacing={2}>
-          <Grid item xs={12} sm="auto">
+        <Grid container spacing={2} size={12}>
+          <Grid
+            size={{
+              xs: 12,
+              sm: "auto"
+            }}>
             <Button color="secondary" onClick={handleCancel}>
               Close
             </Button>

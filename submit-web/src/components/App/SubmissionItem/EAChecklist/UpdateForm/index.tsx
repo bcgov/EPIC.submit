@@ -24,7 +24,11 @@ export const EarlyEngagementChecklistUpdateForm = () => {
   return (
     <SubmissionFormContainer>
       <EAChecklistGuidelines />
-      <Box width={"100%"} sx={{mt: 2}}>
+      <Box
+        sx={{
+          width: "100%",
+          mt: 2
+        }}>
         <DocumentsTable
           folder={S3_FOLDER.UPLOAD_DOCUMENTS.value}
           setIsPendingUpload={setIsPendingUpload}

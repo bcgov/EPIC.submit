@@ -13,7 +13,9 @@ export const PackageStatusChipStack = ({
 
   return (
     <Box sx={{ display: "inline-block", width: "fit-content" }}>
-      <Stack direction="column" spacing={1} alignItems={"flex-end"}>
+      <Stack direction="column" spacing={1} sx={{
+        alignItems: "flex-end"
+      }}>
         {filteredStatus.length > 0 ? (
           filteredStatus.map((value) => (
             <PackageStatusChip key={value} status={value} />

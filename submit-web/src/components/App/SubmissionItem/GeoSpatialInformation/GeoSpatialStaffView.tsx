@@ -58,7 +58,7 @@ export const GeoSpatialStaffView = () => {
   const [previewDocument, setPreviewDocument] = useState<Submission | null>(null);
 
   const { mutateAsync: createUpdateRequest, isPending: isCreatingRequest } =
-    useCreatePackageUpdateRequest();
+    useCreatePackageUpdateRequest({ packageId: Number(submissionPackageId), accountProjectId });
 
   const { data: geoUploads } = useGetGeoUploads({
     itemId: submissionId,
@@ -109,9 +109,10 @@ export const GeoSpatialStaffView = () => {
         updateRequestId: req.id,
         itemTypeId: submissionItem.type_id,
         itemTypeName: submissionItem.type.name,
-        note: req.reason || req.note || "",
+        reason: req.reason || "",
+        note: req.note || undefined,
         createdDate: req.created_date,
-        createdBy: req.created_by_user?.first_name + " " + req.created_by_user?.last_name || "Unknown",
+        createdBy: req.created_by || "Unknown",
         status: req.status,
       }));
   }, [submissionPackage?.update_requests, submissionItem]);
@@ -156,7 +157,7 @@ export const GeoSpatialStaffView = () => {
           packageId: submissionPackage.id,
         }).queryKey,
       });
-    } catch (error) {
+    } catch {
       notify.error("Failed to send update requests");
     }
   }, [pendingRequests, submissionPackage, createUpdateRequest, queryClient]);
@@ -164,23 +165,14 @@ export const GeoSpatialStaffView = () => {
   if (!accountProject) return <Navigate to="/error" />;
   if (!submissionPackage) return <Navigate to="/error" />;
 
-  const geoSubmissions = submissionItem?.submissions?.filter(
-    (submission) =>
-      submission.submitted_document?.folder === S3_FOLDER.GEOSPATIAL.value,
-  ) || [];
-
-  const previewIndex = previewDocument
-    ? geoSubmissions.findIndex((s) => s.id === previewDocument.id) + 1
-    : 0;
-  const totalGeoFiles = geoSubmissions.length;
 
   return (
     <SubmissionFormContainer>
       <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <GeoSpatialGuidelines />
         </Grid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <GenericDocumentUploadSection
             sections={documentUploadSections}
             title="Geospatial File(s) Upload"
@@ -198,8 +190,7 @@ export const GeoSpatialStaffView = () => {
             status={previewUpload?.status}
             errorMessage={previewUpload?.error_message}
             validationErrors={previewUpload?.validation_errors}
-            fileIndex={previewIndex}
-            totalFiles={totalGeoFiles}
+            open={Boolean(previewUpload || previewDocument)}
             onClose={() => {
               setPreviewUpload(null);
               setPreviewDocument(null);
@@ -208,7 +199,7 @@ export const GeoSpatialStaffView = () => {
         </Suspense>
 
         {(pendingRequests.length > 0 || sentRequests.length > 0) && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <SectionUpdateRequestPanel
               pendingRequests={pendingRequests}
               sentRequests={sentRequests}

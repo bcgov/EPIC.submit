@@ -44,10 +44,13 @@ export default function Rows({
           >
             <Typography
               variant="h6"
-              color="inherit"
-              fontWeight={700}
-              sx={{ mx: 0.5, fontSize: "1rem", lineHeight: "1.688rem" }}
-            >
+              sx={{
+                color: "inherit",
+                fontWeight: 700,
+                mx: 0.5,
+                fontSize: "1rem",
+                lineHeight: "1.688rem"
+              }}>
               EAO Internal Documents
             </Typography>
           </MuiLink>

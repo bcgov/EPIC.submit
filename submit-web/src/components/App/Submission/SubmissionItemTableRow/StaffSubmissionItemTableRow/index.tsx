@@ -154,10 +154,13 @@ export default function StaffSubmissionItemTableRow({
           >
             <Typography
               variant="h6"
-              color="inherit"
-              fontWeight={700}
-              sx={{ mx: 0.5, fontSize: "1rem", lineHeight: "1.688rem" }}
-            >
+              sx={{
+                color: "inherit",
+                fontWeight: 700,
+                mx: 0.5,
+                fontSize: "1rem",
+                lineHeight: "1.688rem"
+              }}>
               {name}
             </Typography>
           </MuiLink>
@@ -165,7 +168,12 @@ export default function StaffSubmissionItemTableRow({
         <SubmitPrimaryRowTableCell align="left" width={"10%"} />
         <SubmitPrimaryRowTableCell align="right" width={"10%"} />
         <SubmitPrimaryRowTableCell align="center" width={"20%"}>
-          <Box ml={1} display={"flex"} justifyContent={"flex-start"}>
+          <Box
+            sx={{
+              ml: 1,
+              display: "flex",
+              justifyContent: "flex-start"
+            }}>
             <SubmissionStatusChipStack
               status={item.status}
               isFlaggedForUpdate={hasPendingRequest}
@@ -178,11 +186,12 @@ export default function StaffSubmissionItemTableRow({
           width={hasAccountProjectWork ? "30%" : "10%"}
         >
           <Box
-            display="flex"
-            flexDirection="column"
-            gap={0.5}
-            alignItems={"flex-end"}
-          >
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 0.5,
+              alignItems: "flex-end"
+            }}>
             <When condition={canStaffEditContactInfo}>
               <Typography
                 variant="body2"

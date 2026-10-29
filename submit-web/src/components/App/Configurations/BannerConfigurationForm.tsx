@@ -144,9 +144,10 @@ export const BannerConfigurationForm = () => {
           <Box sx={{ maxWidth: 360 }}>
             <Typography
               variant="body1"
-              fontWeight="bold"
-              sx={{ mb: BCDesignTokens.layoutMarginSmall }}
-            >
+              sx={{
+                fontWeight: "bold",
+                mb: BCDesignTokens.layoutMarginSmall
+              }}>
               Type
             </Typography>
             <ControlledSelect
@@ -160,9 +161,10 @@ export const BannerConfigurationForm = () => {
           <Box>
             <Typography
               variant="body1"
-              fontWeight="bold"
-              sx={{ mb: BCDesignTokens.layoutMarginSmall }}
-            >
+              sx={{
+                fontWeight: "bold",
+                mb: BCDesignTokens.layoutMarginSmall
+              }}>
               Content
             </Typography>
             <Controller

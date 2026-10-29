@@ -34,14 +34,14 @@ const ControlledRadioGroup: FC<IFormInputProps> = ({
   });
 
   return (
-    <FormControl error={Boolean(error)}>
+    <FormControl error={Boolean(error)} data-form-field={name}>
       <Controller
         control={control}
         name={name}
-        defaultValue={defaultValues?.[name] || ""}
+        defaultValue={get(defaultValues, name) ?? ""}
         render={({ field }) => {
           return (
-            <RadioGroup {...otherProps} {...field}>
+            <RadioGroup {...otherProps} {...field} ref={(element) => field.ref(element instanceof HTMLElement ? element.querySelector("input:checked:not(:disabled)") ?? element.querySelector("input:not(:disabled)") : null)}>
               {childrenWithProps}
             </RadioGroup>
           );

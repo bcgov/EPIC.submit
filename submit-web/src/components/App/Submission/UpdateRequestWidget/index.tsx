@@ -1,8 +1,10 @@
+import { AccordionHeading } from "@/components/Shared/AccordionHeading";
 import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
   Box,
+  Button,
   Chip,
   Collapse,
   Divider,
@@ -11,7 +13,7 @@ import {
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import { BCDesignTokens } from "epic.theme";
 import { When } from "react-if";
-import { useMemo, useState, Fragment } from "react";
+import { useId, useMemo, useState, Fragment } from "react";
 import { SubmissionPackage, PACKAGE_STATUS } from "@/models/Package";
 import RequestSection from "./RequestSection";
 import { useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
@@ -30,6 +32,7 @@ export default function UpdateRequestWidget({
   summaryBackgroundColor,
 }: UpdateRequestWidgetProps) {
   const [isCreateRequestOpen, setIsCreateRequestOpen] = useState(false);
+  const accordionId = useId();
   const [expanded, setExpanded] = useState(false);
   
   // Get the correct package-specific roles
@@ -105,6 +108,9 @@ export default function UpdateRequestWidget({
 
   return (
     <Accordion
+      slots={{ heading: AccordionHeading }}
+      slotProps={{ heading: { actions: (!isApprovedOrRejected && (<PermissionsGate scopes={[packageRoles.edit]}><Button variant="text" onClick={handleIsCreateRequestOpen} sx={{ color: BCDesignTokens.typographyColorLink }} data-testid="request-update-button">+ Request an Update</Button></PermissionsGate>)) } }}
+      onChange={() => setExpanded((value) => !value)}
       disableGutters
       elevation={0}
       sx={{
@@ -121,8 +127,8 @@ export default function UpdateRequestWidget({
     >
       <AccordionSummary
         expandIcon={null}
-        aria-controls="panel1-content"
-        id="panel1-header"
+        aria-controls={`${accordionId}-content`}
+        id={`${accordionId}-header`}
         sx={[
           {
             py: 0,
@@ -146,14 +152,12 @@ export default function UpdateRequestWidget({
           }}
         >
           <Box
-            onClick={() => setExpanded(!expanded)}
             sx={{
+              width: "80%",
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-start",
-            }}
-            width={"80%"}
-          >
+              justifyContent: "flex-start"
+            }}>
             <Typography
               variant="h6"
               sx={{
@@ -189,30 +193,7 @@ export default function UpdateRequestWidget({
               sx={{ color: "#38598A", p: 0 }}
             />
           </Box>
-          {!isApprovedOrRejected && (
-            <PermissionsGate scopes={[packageRoles.edit]}>
-              <Box
-                onClick={handleIsCreateRequestOpen}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  color={BCDesignTokens.typographyColorLink}
-                  sx={{
-                    cursor: "pointer",
-                    width: "100%",
-                  }}
-                  data-testid="request-update-button"
-                >
-                  + Request an Update
-                </Typography>
-              </Box>
-            </PermissionsGate>
-          )}
+
         </Box>
       </AccordionSummary>
       <AccordionDetails

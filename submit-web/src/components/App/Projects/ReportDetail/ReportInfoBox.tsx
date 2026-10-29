@@ -20,7 +20,9 @@ const InfoRow = ({
   label: string;
   children: React.ReactNode;
 }) => (
-  <Stack direction="row" alignItems="center" spacing={2}>
+  <Stack direction="row" spacing={2} sx={{
+    alignItems: "center"
+  }}>
     <Typography
       color={LABEL_COLOR}
       sx={{ width: LABEL_WIDTH, flexShrink: 0 }}
@@ -61,26 +63,43 @@ export const ReportInfoBox = ({ report }: ReportInfoBoxProps) => {
         </InfoRow>
 
         <InfoRow label="Type:">
-          <Typography color="inherit">{report.report_type ?? "-"}</Typography>
+          <Typography sx={{
+            color: "inherit"
+          }}>{report.report_type ?? "-"}</Typography>
         </InfoRow>
 
         <InfoRow label="Required in:">
-          <Typography color="inherit" sx={{ fontWeight: 700 }}>
+          <Typography
+            sx={{
+              color: "inherit",
+              fontWeight: 700
+            }}>
             {report.phase ?? "-"}
           </Typography>
           <FrequencyBadge frequency={report.frequency} />
-          <Typography color="inherit" fontSize="14px">
+          <Typography
+            sx={{
+              color: "inherit",
+              fontSize: "14px"
+            }}>
             {report.timing ?? ""}
           </Typography>
         </InfoRow>
 
         {alsoRequiredIn.length > 0 && (
           <InfoRow label="Also required in:">
-            <Typography color="inherit">{alsoRequiredIn.join(", ")}</Typography>
+            <Typography sx={{
+              color: "inherit"
+            }}>{alsoRequiredIn.join(", ")}</Typography>
           </InfoRow>
         )}
 
-        <Typography color="inherit" fontSize="14px" sx={{ pt: 0.5 }}>
+        <Typography
+          sx={{
+            color: "inherit",
+            fontSize: "14px",
+            pt: 0.5
+          }}>
           If this information is incorrect, please contact the EAO at{" "}
           <Link href={`mailto:${AppConfig.supportMpEmail}`}>
             {AppConfig.supportMpEmail}

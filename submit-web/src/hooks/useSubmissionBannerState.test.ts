@@ -27,7 +27,7 @@ const basePackage: SubmissionPackage = {
   account_project_id: 1,
   update_requests: [],
   all_update_requests: [],
-  version: { id: 1, package_id: 1, version: 1, original_package_id: 1, is_approved: false, is_latest: true },
+  version: { id: 1, package_id: 1, version: 1, original_package_id: 1, is_approved: false, is_latest: true, is_enforceable: false, },
 };
 
 describe("useSubmissionBannerState", () => {

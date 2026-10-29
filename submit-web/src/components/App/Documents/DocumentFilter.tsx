@@ -40,7 +40,7 @@ type DocumentFilterProps = {
   setFilters: (filters: DocumentFilters) => void;
   selectedProject: AccountProject | undefined;
   projectSelected: boolean;
-  availableStatuses?: SubmissionItemStatus[];
+  availableStatuses?: string[];
 };
 
 export const DocumentFilter = ({
@@ -132,16 +132,14 @@ export const DocumentFilter = ({
     <Box sx={{ mb: 1 }}>
       <Grid
         container
-        item
         spacing={2}
         sx={{
           maxWidth: "1448px",
           justifyContent: "space-between",
           pointerEvents: !projectSelected ? "none" : "auto",
-        }}
-      >
+        }}>
         {/* Name Search */}
-        <Grid item xs={2.5}>
+        <Grid size={2.5}>
           <SearchFilter
             value={searchTerm}
             onApply={handleSearchApply}
@@ -152,7 +150,7 @@ export const DocumentFilter = ({
         </Grid>
 
         {/* Work/Phase */}
-        <Grid item xs={2}>
+        <Grid size={2}>
           <FormControl fullWidth error={!projectSelected && showValidation}>
             <Select
               displayEmpty
@@ -203,7 +201,7 @@ export const DocumentFilter = ({
         </Grid>
 
         {/* Submission Type */}
-        <Grid item xs={2}>
+        <Grid size={2}>
           <FormControl fullWidth error={!projectSelected && showValidation}>
             <Select
               displayEmpty
@@ -254,7 +252,7 @@ export const DocumentFilter = ({
         </Grid>
 
         {/* Status */}
-        <Grid item xs={1.5}>
+        <Grid size={1.5}>
           <StatusFilter<SubmissionItemStatus>
             value={filters.status}
             onChange={(val) => handleFilterChange("status", val)}
@@ -274,7 +272,7 @@ export const DocumentFilter = ({
         </Grid>
 
         {/* Date Ranges */}
-        <Grid item xs={1.5}>
+        <Grid size={1.5}>
           <DateSubmittedFromFilter
             value={filters.submittedOnStart}
             onChange={(val) => handleFilterChange("submittedOnStart", val)}
@@ -283,7 +281,7 @@ export const DocumentFilter = ({
             onFocus={handleValidationCheck}
           />
         </Grid>
-        <Grid item xs={1.5}>
+        <Grid size={1.5}>
           <DateSubmittedToFilter
             value={filters.submittedOnEnd}
             onChange={(val) => handleFilterChange("submittedOnEnd", val)}
@@ -294,14 +292,15 @@ export const DocumentFilter = ({
         </Grid>
 
         {/* Clear Filters */}
-        <Grid item xs={1} container>
+        <Grid container size={1}>
           <Box
-            display={"flex"}
-            flexDirection={"row"}
-            mt={BCDesignTokens.layoutMarginSmall}
             onClick={clearAllFilters}
-            sx={{ cursor: "pointer" }}
-          >
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              mt: BCDesignTokens.layoutMarginSmall,
+              cursor: "pointer"
+            }}>
             <Typography
               variant="caption"
               sx={{ color: BCDesignTokens.typographyColorLink }}

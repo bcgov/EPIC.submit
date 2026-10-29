@@ -61,8 +61,8 @@ describe("RefuseSubmissionModal", () => {
   it("test_confirm_disabled_and_error_shown_when_date_cleared", async () => {
     render(<RefuseSubmissionModal {...defaultProps} />);
 
-    const dateInput = screen.getAllByRole("textbox")[0];
-    await userEvent.clear(dateInput);
+    await userEvent.click(screen.getByRole("spinbutton", { name: "Year" }));
+    await userEvent.keyboard("{Control>}a{/Control}{Backspace}");
 
     await waitFor(() =>
       expect(screen.getByText("Decision Date is required")).toBeInTheDocument(),

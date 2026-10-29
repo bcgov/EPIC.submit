@@ -55,7 +55,9 @@ export const SubmissionTitle = ({
 
   return (
     <CardInnerBox sx={{ ...(sx || {}) }}>
-      <Typography variant="h4" fontWeight={400}>
+      <Typography variant="h4" sx={{
+        fontWeight: 400
+      }}>
         {title}
       </Typography>
       <ProjectStatus status={status} />

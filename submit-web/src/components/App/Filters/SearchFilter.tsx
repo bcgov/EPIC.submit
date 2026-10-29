@@ -72,30 +72,32 @@ export const SearchFilter = ({
       onKeyDown={handleKeyDown}
       onFocus={onFocus}
       error={error}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment
-            position="start"
-            sx={{ width: "auto", minWidth: "unset", mx: 0 }}
-          >
-            <Search htmlColor={BCDesignTokens.typographyColorPlaceholder} />
-          </InputAdornment>
-        ),
-        endAdornment: searchText && (
-          <InputAdornment position="end">
-            <IconButton onClick={handleClear}>
-              <Clear htmlColor={BCDesignTokens.typographyColorPlaceholder} />
-            </IconButton>
-          </InputAdornment>
-        ),
-      }}
-      inputProps={{
-        sx: {
-          "::placeholder": {
-            fontSize: BCDesignTokens.typographyFontSizeSmallBody, // Controls placeholder font size
-          },
+      slotProps={{
+        input: {
+          startAdornment: (
+            <InputAdornment
+              position="start"
+              sx={{ width: "auto", minWidth: "unset", mx: 0 }}
+            >
+              <Search htmlColor={BCDesignTokens.typographyColorPlaceholder} />
+            </InputAdornment>
+          ),
+          endAdornment: searchText && (
+            <InputAdornment position="end">
+              <IconButton onClick={handleClear}>
+                <Clear htmlColor={BCDesignTokens.typographyColorPlaceholder} />
+              </IconButton>
+            </InputAdornment>
+          ),
         },
-      }}
-    />
+
+        htmlInput: {
+          sx: {
+            "::placeholder": {
+              fontSize: BCDesignTokens.typographyFontSizeSmallBody, // Controls placeholder font size
+            },
+          },
+        }
+      }} />
   );
 };

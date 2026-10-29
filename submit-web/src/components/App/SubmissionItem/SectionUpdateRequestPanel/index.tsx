@@ -29,7 +29,7 @@ export const SectionUpdateRequestPanel: React.FC<
 > = ({
   pendingRequests, // STAFF: Draft requests not yet sent | PROPONENT: Always empty []
   sentRequests, // STAFF: Sent requests awaiting response | PROPONENT: Open requests from EAO
-  previousRequests, // BOTH: Accepted/closed requests for reference
+  previousRequests = [], // BOTH: Accepted/closed requests for reference
   onRemoveFlag, // STAFF: Remove draft request | PROPONENT: No-op
   onSendRequests, // STAFF: Send pending requests | PROPONENT: No-op
   onUpdateNote, // STAFF: Update draft note | PROPONENT: Add response note

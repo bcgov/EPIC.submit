@@ -33,7 +33,7 @@ export interface PreviousRequest {
 export interface SectionUpdateRequestPanelProps {
   pendingRequests: PendingRequest[];
   sentRequests: SentRequest[];
-  previousRequests: PreviousRequest[];
+  previousRequests?: PreviousRequest[];
   onRemoveFlag: (itemTypeId: number) => void;
   onSendRequests: () => void;
   onUpdateNote: (itemTypeIdOrUpdateRequestId: number, note: string) => void; // STAFF: itemTypeId | PROPONENT: updateRequestId

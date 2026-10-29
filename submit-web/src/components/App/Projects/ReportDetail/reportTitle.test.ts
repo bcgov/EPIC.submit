@@ -3,12 +3,12 @@ import { ProjectReport } from "@/models/Package";
 import { formatReportPageTitle } from "./reportTitle";
 
 const report = (overrides: Partial<ProjectReport>): ProjectReport =>
-  ({
+  (({
     id: 1,
     project_id: 1,
     report_id: 1,
-    ...overrides,
-  }) as ProjectReport;
+    ...overrides
+  }) as ProjectReport);
 
 describe("formatReportPageTitle", () => {
   it("formats as '[name]: [phase]'", () => {

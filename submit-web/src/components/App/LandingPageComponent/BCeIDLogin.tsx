@@ -9,11 +9,12 @@ export const BCeIDLogin = () => {
 
   return (
     <Stack
-      p={2}
-      my={BCDesignTokens.layoutMarginXlarge}
       spacing={2}
-      sx={{ border: `1px solid ${BCDesignTokens.themeGray30}` }}
-    >
+      sx={{
+        p: 2,
+        my: BCDesignTokens.layoutMarginXlarge,
+        border: `1px solid ${BCDesignTokens.themeGray30}`
+      }}>
       <Typography variant="h6">Login with your Business BCeID</Typography>
       <Typography variant="body1">
         For more information on registering for a Business BCeID, visit{" "}

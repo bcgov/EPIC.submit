@@ -58,7 +58,11 @@ function ProponentLayout() {
       <div>
         <TermsOfServiceProvider>
           <BreadcrumbNav />
-          <Box flexDirection={"row"} display={"flex"}>
+          <Box
+            sx={{
+              flexDirection: "row",
+              display: "flex"
+            }}>
             {!isMobile && <SideNavBar />}
             <Outlet />
           </Box>

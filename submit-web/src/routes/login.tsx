@@ -36,7 +36,7 @@ function Login() {
   if (!isAuthenticated) {
     return (
       <PageGrid>
-        <Grid item xs={12}>
+        <Grid size={12}>
           <LoginOptions />
         </Grid>
       </PageGrid>

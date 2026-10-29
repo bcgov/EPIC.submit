@@ -5,7 +5,7 @@ import {
   Typography,
   TypographyProps,
 } from "@mui/material";
-import { ReactNode } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 
 type LabelValuePairProps = {
   label?: string;
@@ -21,10 +21,19 @@ export const LabelValuePair = ({
   ...otherProps
 }: LabelValuePairProps & StackProps) => {
   return (
-    <Stack direction="row" alignItems={"center"} {...otherProps}>
+    <Stack
+      direction="row"
+      {...otherProps}
+      sx={[{
+        alignItems: "center"
+      }, ...(Array.isArray(otherProps.sx) ? otherProps.sx : [otherProps.sx])]}>
       <Typography {...labelProps}>{label}:</Typography>
       <Box>
-        <Typography color={"inherit"} {...valueProps}>
+        <Typography
+          {...valueProps}
+          sx={[{
+            color: "inherit"
+          }, ...(Array.isArray(valueProps.sx) ? valueProps.sx : [valueProps.sx])]}>
           {value}
         </Typography>
       </Box>

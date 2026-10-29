@@ -234,7 +234,7 @@ export const ConsultationRecordProponentView = () => {
               methods={methods}
               partiesList={partiesList}
             />
-            <Grid item xs={12}>
+            <Grid size={12}>
               <GenericDocumentUploadSection sections={sections} />
             </Grid>
             <SubmissionActionButtons

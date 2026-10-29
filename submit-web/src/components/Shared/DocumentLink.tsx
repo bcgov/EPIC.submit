@@ -17,18 +17,23 @@ export const DocumentLink = ({
     return (
       <Typography
         variant="body2"
-        color="inherit"
         component="span"
-        sx={{ mx: 0.5, color: BCDesignTokens.iconsColorLink }}
-      >
-        Preparing your file..
-        <LinearProgress sx={{ width: "250px" }} />
+        sx={{
+          mx: 0.5,
+          color: BCDesignTokens.iconsColorLink
+        }}>Preparing your file..
+                <LinearProgress sx={{ width: "250px" }} />
       </Typography>
     );
   }
   if (disabled) {
     return (
-      <Typography component="span" color="text.disabled" sx={{ cursor: "default" }}>
+      <Typography
+        component="span"
+        sx={{
+          color: "text.disabled",
+          cursor: "default"
+        }}>
         {name}
       </Typography>
     );

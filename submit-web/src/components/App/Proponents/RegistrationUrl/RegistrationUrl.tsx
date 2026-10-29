@@ -143,43 +143,49 @@ export const RegistrationUrl = ({
         mt: BCDesignTokens.layoutMarginXlarge,
       }}
     >
-      <Grid item sm={12} md={5}>
+      <Grid
+        size={{
+          sm: 12,
+          md: 5
+        }}>
         <TextField
           value={pendingInvitation ? url : ""}
           sx={{
             margin: 0,
           }}
-          InputProps={{
-            readOnly: true,
-            endAdornment: (
-              <Tooltip title={tooltipText} arrow>
-                <span>
-                  <IconButton
-                    color="primary"
-                    disabled={!pendingInvitation}
-                    onClick={handleCopyClick}
-                    sx={{ p: 0, mr: -1 }}
-                  >
-                    <ContentCopyIcon />
-                  </IconButton>
-                </span>
-              </Tooltip>
-            ),
-          }}
           onFocus={(e) => e.target.blur()}
           helperText={helperText}
-          FormHelperTextProps={{
-            sx: {
-              ml: "14px !important",
-              color: pendingInvitation?.is_expired
-                ? BCDesignTokens.typographyColorDanger + " !important"
-                : "",
-            },
-          }}
           fullWidth
-        />
+          slotProps={{
+            input: {
+              readOnly: true,
+              endAdornment: (
+                <Tooltip title={tooltipText} arrow>
+                  <span>
+                    <IconButton
+                      color="primary"
+                      disabled={!pendingInvitation}
+                      onClick={handleCopyClick}
+                      sx={{ p: 0, mr: -1 }}
+                    >
+                      <ContentCopyIcon />
+                    </IconButton>
+                  </span>
+                </Tooltip>
+              ),
+            },
+
+            formHelperText: {
+              sx: {
+                ml: "14px !important",
+                color: pendingInvitation?.is_expired
+                  ? BCDesignTokens.typographyColorDanger + " !important"
+                  : "",
+              },
+            }
+          }} />
       </Grid>
-      <Grid item xs={2}>
+      <Grid size={2}>
         {pendingInvitation?.is_expired &&
         pendingInvitation.status === InvitationStatus.PENDING ? (
           <LoadingButton

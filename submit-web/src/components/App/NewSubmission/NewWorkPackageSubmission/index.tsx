@@ -11,7 +11,7 @@ export function NewWorkPackageSubmission({ onSubmit }: NewWorkPackageSubmissionP
   const { accountProject } = useNewSubmissionStore();
 
   return (
-    <Grid item xs={12}>
+    <Grid size={12}>
       <NewSubmissionCard
         mainLabel={accountProject?.project.name}
         topLabel={accountProject?.project?.proponent?.name}

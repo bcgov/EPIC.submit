@@ -20,7 +20,7 @@ type StatusFilterProps<T extends string = string> = {
   multiple?: boolean;
   error?: boolean;
   onFocus?: () => void;
-  availableStatuses?: T[];
+  availableStatuses?: readonly string[];
   roleFilters: Record<string, StatusEntry<T>>;
   renderChip?: (value: T, label?: string) => ReactNode;
 };
@@ -116,7 +116,6 @@ function StatusFilter<T extends string = string>({
       <Select
         labelId="status-select-label"
         id="status-select"
-        placeholder={label}
         value={internalValue}
         multiple={multiple}
         displayEmpty
@@ -153,7 +152,9 @@ function StatusFilter<T extends string = string>({
                     (d) => d.value === value,
                   );
                   return (
-                    <Box key={value} mr={1}>
+                    <Box key={value} sx={{
+                      mr: 1
+                    }}>
                       {chipRenderer(value as T, display?.label)}
                     </Box>
                   );

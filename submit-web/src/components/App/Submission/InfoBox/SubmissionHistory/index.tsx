@@ -24,7 +24,9 @@ export const SubmissionHistory = ({
       sx={{ width: "100%" }}
     >
       <AccordionSummary
-        expandIcon={<SubmitLink fontSize={"14px"}>View</SubmitLink>}
+        expandIcon={<SubmitLink sx={{
+          fontSize: "14px"
+        }}>View</SubmitLink>}
         style={{
           height: "40px",
           minHeight: 0,

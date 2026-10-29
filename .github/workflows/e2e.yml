@@ -53,13 +53,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version-file: submit-web/.nvmrc
           cache: 'npm'
           cache-dependency-path: submit-web/package-lock.json
 
       - name: Install dependencies
         working-directory: ./submit-web
-        run: npm install --legacy-peer-deps
+        run: npm ci
 
       - name: Install Playwright browsers
         working-directory: ./submit-web

@@ -63,9 +63,10 @@ export const EnableProjectsButton = ({
                   >
                     <ListItemText
                       primary={"- " + entry.project_name + " - " + entry.current_work}
-                      primaryTypographyProps={{
-                        fontWeight: 'bold',
-                        lineHeight: 1.2,
+                      slotProps={{
+                        primary: {
+                          sx: { fontWeight: 'bold', lineHeight: 1.2 },
+                        }
                       }} 
                 />
                   </ListItem>

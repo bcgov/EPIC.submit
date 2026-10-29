@@ -94,7 +94,9 @@ export default function AppBarActions() {
         <>
           {userName && (
             <>
-              <Box id="menu-appbar" display={"flex"} onClick={handleClick}>
+              <Box id="menu-appbar" onClick={handleClick} sx={{
+                display: "flex"
+              }}>
                 <Typography variant="body2" color="primary">
                   {userName}
                 </Typography>

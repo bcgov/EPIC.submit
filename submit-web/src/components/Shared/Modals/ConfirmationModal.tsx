@@ -12,6 +12,7 @@ import { useModal } from "./modalStore";
 import { modalStyle } from "./constants";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import CloseIcon from "@mui/icons-material/Close";
+import { useId } from "react";
 
 type ConfirmButtonColorType = "primary" | "error";
 
@@ -44,6 +45,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onSecondaryAction,
 }) => {
   const { setClose, isLoading } = useModal();
+  const titleId = useId();
+  const descriptionId = useId();
 
   const handleCancel = () => {
     onCancel?.();
@@ -64,15 +67,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const showCancel = !secondaryActionText;
 
   return (
-    <Box sx={modalStyle}>
+    <Box sx={modalStyle} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={descriptionId}>
       <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-        <DialogTitle>{title}</DialogTitle>
-        <IconButton onClick={handleCancel}>
+        <DialogTitle id={titleId}>{title}</DialogTitle>
+        <IconButton onClick={handleCancel} aria-label="Close confirmation">
           <CloseIcon />
         </IconButton>
       </Box>
       <Divider />
-      <DialogContent>
+      <DialogContent id={descriptionId}>
         {typeof description === "string" ? (
           <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
             {description}

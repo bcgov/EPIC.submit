@@ -1,6 +1,6 @@
 import { Box, List, ListItem, Typography } from "@mui/material";
 import WarningBox from "@/components/Shared/Layouts/WarningBox";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutlined";
 import { BCDesignTokens } from "epic.theme";
 import ConfirmationModal from "@/components/Shared/Modals/ConfirmationModal";
 

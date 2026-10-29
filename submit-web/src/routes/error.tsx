@@ -38,7 +38,9 @@ function ErrorPage() {
           <Typography variant="h4">
             Oops! Something unexpected happened.
           </Typography>
-          <Box mx={4}>
+          <Box sx={{
+            mx: 4
+          }}>
             <Typography variant="body1">
               We encountered an error while processing your request. Please
               return to our home page and try again. If the problem persists,
@@ -51,7 +53,9 @@ function ErrorPage() {
               </MuiLink>
             </Typography>
           </Box>
-          <Stack direction="row" justifyContent="center" spacing={2}>
+          <Stack direction="row" spacing={2} sx={{
+            justifyContent: "center"
+          }}>
             <Link to="/oidc-callback">
               <Button sx={{ width: "fit-content" }}>Return to Home Page</Button>
             </Link>

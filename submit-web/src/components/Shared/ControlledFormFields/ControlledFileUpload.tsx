@@ -31,7 +31,7 @@ export const ControlledFileUpload = ({
       name={name}
       control={control}
       render={() => (
-        <Stack direction={"column"} spacing={1}>
+        <Stack direction={"column"} spacing={1} data-form-field={name}>
           <FileUpload
             {...otherProps}
             onDrop={(acceptedFiles: File[]) => {

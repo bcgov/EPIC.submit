@@ -26,7 +26,7 @@ export function canProponentCreateNewVersion({
 }: {
   isProponent: boolean;
   isLatestVersion: boolean;
-  packageStatus: PackageStatus[] | undefined;
+  packageStatus: (PackageStatus | NonCanonicalPackageStatus)[] | undefined;
 }): boolean {
   if (!isProponent || !isLatestVersion) return false;
   if (!packageStatus) return false;

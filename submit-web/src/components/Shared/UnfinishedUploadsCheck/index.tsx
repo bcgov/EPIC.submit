@@ -23,7 +23,12 @@ export const UnfinishedUploadsCheck = ({
       setOpenModal(
         <UpdateModal
           title={
-            <Box display="flex" alignItems="center" gap={1}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1
+              }}>
               <WarningAmber color="warning" />
               <Typography variant="h6" component="span">
                 Please wait!

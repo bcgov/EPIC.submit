@@ -28,12 +28,16 @@ const InfoBoxItem = ({
   onEdit,
 }: InfoBoxItemProps) => {
   return (
-    <Grid container direction="row" alignItems="flex-start" spacing={1}>
-      <Grid item xs={4}>
+    <Grid container direction="row" spacing={1} sx={{
+      alignItems: "flex-start"
+    }}>
+      <Grid size={4}>
         <Typography color={BCDesignTokens.themeGray70}>{label}:</Typography>
       </Grid>
-      <Grid item xs={8} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <Typography color="inherit">{value}</Typography>
+      <Grid sx={{ display: "flex", alignItems: "center", gap: 1 }} size={8}>
+        <Typography sx={{
+          color: "inherit"
+        }}>{value}</Typography>
         {showEdit && (
           <IconButton
             size="small"
@@ -88,7 +92,7 @@ const UserInfoBox = ({ userData, showEdit }: UserInfoBoxProps) => {
       }}
     >
       <Grid container spacing={2} columns={2}>
-        <Grid item xs={1} sx={{ fontWeight: "bold" }}>
+        <Grid sx={{ fontWeight: "bold" }} size={1}>
           <InfoBoxItem
             label={"Current Access Level"}
             value={roleNames}
@@ -96,13 +100,13 @@ const UserInfoBox = ({ userData, showEdit }: UserInfoBoxProps) => {
             onEdit={handleEditClick}
           />
         </Grid>
-        <Grid item xs={1}>
+        <Grid size={1}>
           <InfoBoxItem label={"Email"} value={userData.work_email_address} />
         </Grid>
-        <Grid item xs={1} sx={{ fontWeight: "bold" }}>
+        <Grid sx={{ fontWeight: "bold" }} size={1}>
           <InfoBoxItem label={"Position/Role"} value={userData.position} />
         </Grid>
-        <Grid item xs={1}>
+        <Grid size={1}>
           <InfoBoxItem label={"Phone"} value={userData.work_contact_number} />
         </Grid>
       </Grid>

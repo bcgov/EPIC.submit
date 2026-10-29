@@ -40,9 +40,15 @@ export const ReviewCompletedNotification = ({
   const BoxContainer = revisionRequired ? WarningBox : SuccessBox;
 
   return (
-    <BoxContainer m="2em 0">
-      <Stack direction="row" alignItems={"center"} spacing={2}>
-        <Typography variant="body1" color="inherit">
+    <BoxContainer sx={{
+      m: "2em 0"
+    }}>
+      <Stack direction="row" spacing={2} sx={{
+        alignItems: "center"
+      }}>
+        <Typography variant="body1" sx={{
+          color: "inherit"
+        }}>
           The Management Plan Review was confirmed as:
         </Typography>
         <SubmissionStatusChip
@@ -53,26 +59,30 @@ export const ReviewCompletedNotification = ({
           }
         />
       </Stack>
-      <Grid container color={"inherit"}>
-        <Grid item xs={12} container>
-          <Grid item container width="400px">
-            <Grid item xs={12}>
+      <Grid container sx={{
+        color: "inherit"
+      }}>
+        <Grid container size={12}>
+          <Grid container sx={{
+            width: "400px"
+          }}>
+            <Grid size={12}>
               <LabelValuePair
                 label="Decision recommended by"
                 value={staffRecommendation?.updated_by ?? ""}
-                labelProps={{ color: "inherit", width: "220px" }}
+                labelProps={{ color: "inherit", sx: { width: "220px" } }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <LabelValuePair
                 label="Confirmed by"
                 value={managerConfirmation?.updated_by ?? ""}
-                labelProps={{ color: "inherit", width: "220px" }}
+                labelProps={{ color: "inherit", sx: { width: "220px" } }}
               />
             </Grid>
           </Grid>
-          <Grid item xs container>
-            <Grid item xs={12}>
+          <Grid container size="grow">
+            <Grid size={12}>
               <LabelValuePair
                 label="Date"
                 value={
@@ -82,10 +92,10 @@ export const ReviewCompletedNotification = ({
                       )
                     : ""
                 }
-                labelProps={{ color: "inherit", width: "50px" }}
+                labelProps={{ color: "inherit", sx: { width: "50px" } }}
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <LabelValuePair
                 label="Date"
                 value={
@@ -95,7 +105,7 @@ export const ReviewCompletedNotification = ({
                       )
                     : ""
                 }
-                labelProps={{ color: "inherit", width: "50px" }}
+                labelProps={{ color: "inherit", sx: { width: "50px" } }}
               />
             </Grid>
           </Grid>

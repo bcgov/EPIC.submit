@@ -23,7 +23,13 @@ export const IPDUpdateForm = () => {
 
   return (
     <SubmissionFormContainer>
-      <Box width={"100%"} display="flex" flexDirection="column" gap={4}>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 4
+        }}>
         <Box>
           <Typography
             variant="h6"

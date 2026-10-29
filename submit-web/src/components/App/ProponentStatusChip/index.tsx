@@ -67,7 +67,7 @@ export function ProponentStatusChip({ status }: ProponentStatusChipProps) {
         customColors={style.customColors}
         sx={{
           fontSize: BCDesignTokens.typographyFontSizeSmallBody,
-          fontWeight: BCDesignTokens.typographyFontWeightMedium,
+          fontWeight: 500,
           color: BCDesignTokens.typographyColorPrimary,
         }}
       />

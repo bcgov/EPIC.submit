@@ -55,7 +55,11 @@ function Staff() {
     >
       <div>
         <BreadcrumbNav />
-        <Box flexDirection={"row"} display={"flex"}>
+        <Box
+          sx={{
+            flexDirection: "row",
+            display: "flex"
+          }}>
           {!isMobile && <EaoSideNavBar />}
           <Outlet />
         </Box>

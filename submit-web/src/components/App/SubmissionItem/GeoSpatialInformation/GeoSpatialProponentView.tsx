@@ -334,10 +334,10 @@ export const GeoSpatialProponentView = () => {
       <FormProvider {...methods}>
         <Form methods={methods}>
           <Grid container spacing={BCDesignTokens.layoutMarginMedium}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <GeoSpatialGuidelines />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <GenericDocumentUploadSection
                 sections={documentUploadSections}
                 title="Geospatial File(s) Upload"

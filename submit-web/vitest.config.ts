@@ -10,6 +10,7 @@ export default defineConfig({
     },
   },
   test: {
+    server: { deps: { inline: ["epic.theme"] } },
     environment: "happy-dom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],

@@ -37,7 +37,9 @@ export const AddRequestNoteSection = ({
   const isProponent = userType === USER_TYPE.PROPONENT;
 
   return (
-    <Box mt="1em">
+    <Box sx={{
+      mt: "1em"
+    }}>
       <Collapse in={isAddingNote && !updateRequest.note}>
         <Typography
           variant="body1"
