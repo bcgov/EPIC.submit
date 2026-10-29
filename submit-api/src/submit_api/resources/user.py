@@ -25,6 +25,7 @@ from submit_api.models.user_status import UserStatusEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.user import UserSchema
 from submit_api.services.user_service import UserService
+from submit_api.services import authorization
 from submit_api.utils.constants import ACCESS_REVOKED_ERROR_CODE
 from submit_api.utils.util import allowedorigins, cors_preflight
 
@@ -90,6 +91,11 @@ class User(Resource):
     @cross_origin(origins=allowedorigins())
     def get(guid):
         """Fetch an account by id."""
+        if guid != auth.preferred_username:
+            target = UserService.get_by_auth_guid(guid)
+            if not target or not target.account_user:
+                raise PermissionDeniedError("Access denied to this user.")
+            authorization.check_account_access(target.account_user.account_id)
         user = UserService.get_by_auth_guid(guid)
         if not user:
             raise ResourceNotFoundError(f"User with GUID '{guid}' not found")

@@ -17,6 +17,7 @@ from functools import wraps
 from flask import g, request
 from flask_jwt_oidc import JwtManager
 
+from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.models import db
 from submit_api.exceptions import PermissionDeniedError
 from submit_api.models import User
@@ -125,8 +126,9 @@ class Auth:  # pylint: disable=too-few-public-methods
                 if user and user.type == UserType.STAFF:
                     # Always include full_access role for staff users
                     roles_with_full_access = list(roles) + [EpicSubmitRole.FULL_ACCESS.value]
-                    # pylint: disable=no-value-for-parameter
-                    if jwt.has_one_of_roles(roles_with_full_access):
+                    if ProponentPermissionsEnum.INVITE_USERS.value in roles:
+                        roles_with_full_access.append(EpicSubmitRole.EAO_CREATE.value)
+                    if jwt.contains_role(roles_with_full_access):
                         return f(*args, **kwargs)
                     raise PermissionDeniedError("Access Denied")
 

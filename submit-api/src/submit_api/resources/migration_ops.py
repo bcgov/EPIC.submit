@@ -84,6 +84,7 @@ class MigrateUserIdsToUsernames(Resource):
 
             fk_constraints = db.session.execute(fk_query).fetchall()
             dropped_constraints = []
+            quote = db.engine.dialect.identifier_preparer.quote
 
             # Drop each foreign key constraint
             current_app.logger.info(f"Dropping {len(fk_constraints)} foreign key constraints...")
@@ -92,7 +93,7 @@ class MigrateUserIdsToUsernames(Resource):
                 constraint_name = constraint[1]
                 column_name = constraint[2]
 
-                drop_sql = f"ALTER TABLE {table_name} DROP CONSTRAINT IF EXISTS {constraint_name}"
+                drop_sql = f"ALTER TABLE {quote(table_name)} DROP CONSTRAINT IF EXISTS {quote(constraint_name)}"
                 db.session.execute(text(drop_sql))
 
                 dropped_constraints.append({
@@ -111,9 +112,9 @@ class MigrateUserIdsToUsernames(Resource):
                 current_app.logger.info("No users found, recreating constraints...")
                 for fk in dropped_constraints:
                     create_sql = f"""
-                        ALTER TABLE {fk['table']}
-                        ADD CONSTRAINT {fk['constraint']}
-                        FOREIGN KEY ({fk['column']})
+                        ALTER TABLE {quote(fk['table'])}
+                        ADD CONSTRAINT {quote(fk['constraint'])}
+                        FOREIGN KEY ({quote(fk['column'])})
                         REFERENCES users(auth_guid)
                     """
                     db.session.execute(text(create_sql))
@@ -177,27 +178,25 @@ class MigrateUserIdsToUsernames(Resource):
 
                         # Build CASE statement for batch update
                         case_statements = []
-                        for keycloak_id, username in user_mapping.items():
-                            # Escape single quotes in username
-                            escaped_username = username.replace("'", "''")
-                            escaped_id = keycloak_id.replace("'", "''")
-                            case_statements.append(
-                                f"WHEN '{escaped_id}' THEN '{escaped_username}'"
-                            )
+                        parameters = {}
+                        for index, (keycloak_id, username) in enumerate(user_mapping.items()):
+                            case_statements.append(f"WHEN :old_{index} THEN :new_{index}")
+                            parameters[f"old_{index}"] = keycloak_id
+                            parameters[f"new_{index}"] = username
 
                         case_sql = " ".join(case_statements)
 
                         # Update query
                         update_sql = f"""
-                            UPDATE {table_name}
-                            SET {column} = CASE {column}
+                            UPDATE {quote(table_name)}
+                            SET {quote(column)} = CASE {quote(column)}
                                 {case_sql}
-                                ELSE {column}
+                                ELSE {quote(column)}
                             END
-                            WHERE {column} IS NOT NULL
+                            WHERE {quote(column)} IS NOT NULL
                         """
 
-                        result = db.session.execute(text(update_sql))
+                        result = db.session.execute(text(update_sql), parameters)
                         rows_affected = result.rowcount
 
                         migration_results["tables_updated"].append({
@@ -224,9 +223,9 @@ class MigrateUserIdsToUsernames(Resource):
                 column_name = fk['column']
 
                 create_sql = f"""
-                    ALTER TABLE {table_name}
-                    ADD CONSTRAINT {constraint_name}
-                    FOREIGN KEY ({column_name})
+                    ALTER TABLE {quote(table_name)}
+                    ADD CONSTRAINT {quote(constraint_name)}
+                    FOREIGN KEY ({quote(column_name)})
                     REFERENCES users(auth_guid)
                 """
                 db.session.execute(text(create_sql))

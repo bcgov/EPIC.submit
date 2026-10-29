@@ -1,4 +1,6 @@
 """Service for proponent management."""
+from submit_api.auth import jwt
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.enums.proponent_status import NonCanonicalProponentStatus, ProponentStatus
 from submit_api.enums.role import RoleEnum
@@ -64,10 +66,31 @@ class ProponentService:
         return proponent_dict
 
     @classmethod
+    def get_invitation_proponent(cls, token):
+        """Return only registration details selected by a valid bearer invitation."""
+        invitation = Invitations.validate_token(token)
+        if not invitation or invitation.is_deleted:
+            raise ResourceNotFoundError("Invitation not found or expired")
+        proponent_id = invitation.account.proponent_id
+        proponent = Proponent.get_by_id(proponent_id)
+        if not proponent:
+            raise ResourceNotFoundError("Proponent not found")
+        selections = {s["project_id"]: s for s in (invitation.eligible_entries or [])}
+        entries = cls._get_eligibility_entries(proponent_id, [invitation.account_id])["eligibility_entries"]
+        selected = []
+        for entry in entries:
+            selection = selections.get(entry["project_id"], {})
+            if (entry["work_id"] in (selection.get("work_ids") or []) or
+                    entry["non_work_item_type"] in (selection.get("non_work_item_types") or [])):
+                selected.append(entry)
+        return {"id": proponent.id, "name": proponent.name, "eligibility_entries": selected}
+
+    @classmethod
     def _get_invitations(cls, account_ids) -> list:
         """Fetch pending and used invitations for the given account IDs."""
         invitations = Invitations.get_all_in_account_ids(account_ids)
-        return [invitation.to_dict() for invitation in invitations]
+        include_token = jwt.contains_role([EpicSubmitRole.EAO_CREATE.value, EpicSubmitRole.FULL_ACCESS.value])
+        return [invitation.to_dict(include_token=include_token) for invitation in invitations]
 
     @classmethod
     def _get_projects(cls, proponent_id, account_ids) -> dict:

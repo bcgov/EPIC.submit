@@ -25,6 +25,8 @@ from submit_api.schemas.account import AccountCreateSchema, AccountSchema
 from submit_api.schemas.package import AccountPackageSchema
 from submit_api.services.account_service import AccountService
 from submit_api.utils.util import allowedorigins, cors_preflight
+from submit_api.utils.roles import EpicSubmitRole
+from submit_api.services import authorization
 
 
 API = Namespace("accounts", description="Endpoints for Account Management")
@@ -52,6 +54,7 @@ class Accounts(Resource):
     @ApiHelper.swagger_decorators(API, endpoint_description="Fetch all accounts")
     @auth.require
     @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_VIEW.value])
     def get():
         """Fetch all accounts."""
         accounts = AccountService.get_all_accounts()
@@ -65,6 +68,7 @@ class Accounts(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
     @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     def post():
         """Create an account."""
         account_data = AccountCreateSchema().load(API.payload)
@@ -89,6 +93,7 @@ class User(Resource):
         account = AccountService.get_account_by_proponent_id(proponent_id)
         if not account:
             raise ResourceNotFoundError(f"Account with proponent {proponent_id} not found")
+        authorization.check_account_access(account.id)
         return AccountSchema().dump(account), HTTPStatus.OK
 
 
@@ -110,5 +115,6 @@ class AccountPackages(Resource):
     @cross_origin(origins=allowedorigins())
     def get(account_id):
         """Get all account packages."""
+        authorization.check_account_access(account_id)
         account_packages = AccountService.get_all_account_packages(account_id)
         return AccountPackageSchema(many=True).dump(account_packages), HTTPStatus.OK

@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Fragment } from "react/jsx-runtime";
 import { useMemo } from "react";
 import { Grid } from "@mui/material";
-import { useGetProponent } from "@/hooks/api/useProponents";
+import { useGetInvitationProponent } from "@/hooks/api/useInvitations";
 import { EligibilityEntryCard } from "@/components/App/AccountRegistration/EligibilityEntryCard";
 import ProjectConfirmationForm from "@/components/App/AccountRegistration/ProjectConfirmationForm";
 import { EligibilityEntry } from "@/store/proponentStore";
@@ -17,15 +17,7 @@ export const Route = createFileRoute(
 
 function ConfirmProjects() {
   const { entityName, invitation } = useCreateAccountFormStore();
-  const { data: proponent } = useGetProponent(
-    invitation?.proponent_id ?? 0,
-    {
-      includeEligibilityEntries: true,
-    },
-    {
-      enabled: !!invitation?.proponent_id,
-    }
-  );
+  const { data: proponent } = useGetInvitationProponent(invitation?.token);
 
   const eligibilityEntries = useMemo(() => {
     if (!proponent || !invitation?.eligible_entries || invitation.eligible_entries.length === 0) {

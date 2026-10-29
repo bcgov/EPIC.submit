@@ -5,6 +5,7 @@ This module is for the initiation of the flask app.
 
 import os
 from http import HTTPStatus
+from werkzeug.exceptions import HTTPException
 
 import secure
 from flask import Flask, current_app, g, request
@@ -89,7 +90,9 @@ def create_app(run_mode=os.getenv('FLASK_ENV', 'development')):
 
     @app.errorhandler(Exception)
     def handle_error(err):
-        if run_mode != "production":
+        if isinstance(err, HTTPException):
+            return err
+        if app.debug or app.testing:
             # To get stacktrace in local development for internal server errors
             raise err
         current_app.logger.error(str(err))

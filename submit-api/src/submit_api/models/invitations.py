@@ -50,7 +50,7 @@ class Invitations(BaseModel):
         """SQL expression for is_expired check."""
         return cls.expiry_date < func.timezone('UTC', func.now())  # pylint: disable=not-callable
 
-    def to_dict(self):
+    def to_dict(self, include_token=False):
         """Convert object to dictionary."""
         return {
             "id": self.id,
@@ -59,7 +59,7 @@ class Invitations(BaseModel):
             "eligible_entries": self.eligible_entries,
             "package_ids": self.package_ids,
             "original_package_ids": self.original_package_ids,
-            "token": self.token,
+            **({"token": self.token} if include_token else {}),
             "email": self.email,
             "status": self.status,
             "expiry_date": self.expiry_date,
