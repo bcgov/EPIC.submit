@@ -2,7 +2,7 @@ import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { AccountProject } from "@/models/Project";
 import {
   MANAGEMENT_PLAN_RELATED_TYPES,
-  SubmissionPackageType,
+  REPORT_RELATED_TYPES,
 } from "@/models/Package";
 import { USER_TYPE } from "@/models/User";
 import { useAccount } from "@/store/accountStore";
@@ -31,8 +31,8 @@ export const Project = ({ accountProject }: ProjectParam) => {
 
   const reportPackages = useMemo(
     () =>
-      accountProject.packages.filter(
-        (pkg) => pkg.type.name === SubmissionPackageType.REPORT,
+      accountProject.packages.filter((pkg) =>
+        REPORT_RELATED_TYPES.includes(pkg.type.name),
       ),
     [accountProject.packages],
   );

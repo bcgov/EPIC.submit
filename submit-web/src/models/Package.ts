@@ -9,7 +9,15 @@ export enum SubmissionPackageType {
   IPD = "IPD",
   ADDITIONAL_INFORMATION = "Additional Information",
   REPORT = "Report",
+  REPORT_TYPE_B = "Report_TypeB",
 }
+
+// Report-style package types. Report_TypeB clones Report but adds an
+// Acknowledge step (approval_type B); both are grouped as reports in the UI.
+export const REPORT_RELATED_TYPES: SubmissionPackageType[] = [
+  SubmissionPackageType.REPORT,
+  SubmissionPackageType.REPORT_TYPE_B,
+];
 
 export type ProjectReport = {
   id: number;

@@ -10,6 +10,7 @@ from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.package_type import (
     MANAGEMENT_PLAN_RELATED_TYPES,
+    REPORT_RELATED_TYPES,
     PackageApprovalType,
     PackageTypeEnum,
 )
@@ -550,7 +551,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
         # report/phase, so each submit (first or subsequent) is validated the same
         # way: it must include a primary report/notification document. The
         # update-request-gated resubmit rules do not apply.
-        if package.type.name == PackageTypeEnum.REPORT.value:
+        if package.type.name in REPORT_RELATED_TYPES:
             cls._validate_report_submission(package)
             current_app.logger.info(f"Report package {package_id} is ready to submit")
             return package
@@ -844,7 +845,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
             # Report obligations reuse one package across submissions, so every
             # report submit follows the first-submission path (append documents,
             # set SUBMITTED) rather than the update-request-gated resubmit path.
-            is_report = package.type.name == PackageTypeEnum.REPORT.value
+            is_report = package.type.name in REPORT_RELATED_TYPES
             if package.submitted_on and not is_report:
                 submitted_package: PackageModel = cls._resubmit_package(package, session)
             else:
