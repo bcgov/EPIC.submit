@@ -25,7 +25,6 @@ from submit_api.schemas.account import AccountCreateSchema, AccountSchema
 from submit_api.schemas.package import AccountPackageSchema
 from submit_api.services.account_service import AccountService
 from submit_api.utils.util import allowedorigins, cors_preflight
-from submit_api.utils.roles import EpicSubmitRole
 
 
 API = Namespace("accounts", description="Endpoints for Account Management")
@@ -66,7 +65,6 @@ class Accounts(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
     @cross_origin(origins=allowedorigins())
-    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     def post():
         """Create an account."""
         account_data = AccountCreateSchema().load(API.payload)

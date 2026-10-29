@@ -72,7 +72,7 @@ class Invitations(BaseModel):
     def validate_token(cls, token):
         """Validate token and check if it is still active."""
         invitation = cls.query.filter_by(token=token, status=InvitationStatus.PENDING.value).first()
-        if invitation and invitation.expiry_date > datetime.now():
+        if invitation and not invitation.is_expired:
             return invitation
         return None
 
