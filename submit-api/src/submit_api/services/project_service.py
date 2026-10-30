@@ -2,6 +2,7 @@
 
 from submit_api.exceptions import PermissionDeniedError, BadRequestError
 from submit_api.models import User as UserModel
+from submit_api.models.account import Account as AccountModel
 from submit_api.models.account_project import AccountProject as AccountProjectModel
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.project import Project as ProjectModel
@@ -63,10 +64,15 @@ class ProjectService:
     def bulk_add_projects(cls, account_id: int, project_ids: list):
         """Add projects in bulk."""
         projects = ProjectModel.get_all_projects_in_ids(project_ids)
+        account = AccountModel.find_by_id(account_id)
+        if not account or len(projects) != len(set(project_ids)) or any(
+            project.proponent_id != account.proponent_id for project in projects
+        ):
+            raise BadRequestError("Projects must belong to the account's proponent.")
         projects_to_add = [
             {"account_id": account_id, "project_id": project.id} for project in projects
         ]
-        # Note: bulk add bypasses access control, assumed to be staff-only operation
+        # The resource requires staff provisioning permission before calling this method.
         AccountProjectModel.add_projects_bulk(projects_to_add)
         return projects
 

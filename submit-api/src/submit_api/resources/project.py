@@ -147,6 +147,7 @@ class ProjectsByAccount(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @auth.require
     @cross_origin(origins=allowedorigins())
+    @auth.has_one_of_staff_roles([EpicSubmitRole.EAO_CREATE.value])
     def post(account_id):
         """Add projects in bulk."""
         projects_data = AddProjectSchema().load(API.payload)

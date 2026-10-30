@@ -145,7 +145,7 @@ export const RegistrationUrl = ({
     >
       <Grid item sm={12} md={5}>
         <TextField
-          value={pendingInvitation ? url : ""}
+          value={pendingInvitation?.token ? url : ""}
           sx={{
             margin: 0,
           }}
@@ -156,7 +156,7 @@ export const RegistrationUrl = ({
                 <span>
                   <IconButton
                     color="primary"
-                    disabled={!pendingInvitation}
+                    disabled={!pendingInvitation?.token}
                     onClick={handleCopyClick}
                     sx={{ p: 0, mr: -1 }}
                   >

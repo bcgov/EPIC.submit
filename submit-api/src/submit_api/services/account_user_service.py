@@ -16,6 +16,7 @@ from submit_api.models import User as UserModel
 from submit_api.models import UserRole as UserRoleModel
 from submit_api.models.db import db
 from submit_api.utils.token_info import TokenInfo
+from submit_api.schemas.account_user import EditAccountUserSchema
 
 
 class AccountUserService:
@@ -310,6 +311,9 @@ class AccountUserService:
     @classmethod
     def update_account_user(cls, guid, update_data):
         """Update submission item by id."""
+        if not guid or guid != TokenInfo.get_username():
+            raise PermissionDeniedError("You can only update your own profile.")
+        update_data = EditAccountUserSchema().load(update_data)
         account_user = AccountUserModel.get_by_guid(guid)
         if not account_user:
             current_app.logger.warning(f"Account user with id {guid} not found.")
@@ -341,6 +345,24 @@ class AccountUserService:
 
         if not account_project_ids:
             raise ResourceNotFoundError("account_project_ids is required.")
+
+        target = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        projects = AccountProjectModel.get_all_in_ids(account_project_ids)
+        if len(projects) != len(set(account_project_ids)) or any(
+            project.account_id != target.account_id for project in projects
+        ):
+            raise PermissionDeniedError("Projects must belong to the user's account.")
+        actor = UserModel.get_by_guid(user_guid).account_user
+        if not cls._is_account_primary_admin(actor):
+            managed_ids = {r.account_project_id for r in actor.roles
+                           if r.role.role_name == RoleEnum.PROJECT_ADMIN.value}
+            if not set(account_project_ids).issubset(managed_ids):
+                raise PermissionDeniedError("You can only assign projects you administer.")
+        # Validate all package assignments before replacing any existing roles.
+        for package_id in set((package_ids or []) + (original_package_ids or [])):
+            package = PackageModel.find_by_id(package_id)
+            if not package or package.account_project_id not in account_project_ids:
+                raise PermissionDeniedError("Packages must belong to the assigned projects.")
 
         # Replace-all: delete existing roles and create new ones
         UserRoleModel.delete_all_by_account_user_id(account_user_id)
@@ -385,6 +407,11 @@ class AccountUserService:
         - PROJECT_ADMIN cannot assign ACCOUNT_PRIMARY_ADMIN role
         """
         user = UserModel.get_by_guid(user_guid)
+        target_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
+        if not user or not user.account_user or not target_user:
+            raise PermissionDeniedError("Only authorized account/project admins can edit users.")
+        if target_user.account_id != user.account_user.account_id:
+            raise PermissionDeniedError("You can only administer users in your account.")
 
         # Prevent users from updating their own role
         if user.account_user and user.account_user.id == account_user_id:
@@ -408,10 +435,16 @@ class AccountUserService:
 
         # Project Admins have restricted scope
         if is_project_admin and not is_account_admin:
+            managed_ids = {r.account_project_id for r in user.account_user.roles
+                           if r.role.role_name == RoleEnum.PROJECT_ADMIN.value}
+            # Both operations affect all roles, including historical access on reactivation.
+            target_roles = target_user.all_roles
+            if not target_roles or any(r.account_project_id not in managed_ids for r in target_roles):
+                raise PermissionDeniedError("You cannot change access outside the projects you administer.")
             # Cannot edit Regulated Party Account Administrator users
             target_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
-            if target_user and target_user.roles:
-                for target_role in target_user.roles:
+            if target_user and target_user.all_roles:
+                for target_role in target_user.all_roles:
                     if target_role.role.role_name == RoleEnum.ACCOUNT_PRIMARY_ADMIN.value:
                         raise PermissionDeniedError(
                             "Project Admins cannot edit Regulated Party Account Administrator users."

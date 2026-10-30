@@ -145,6 +145,7 @@ class InvitationDetailResource(Resource):
         code=HTTPStatus.CREATED, model=invitation_response_schema, description="User created and role assigned"
     )
     @API.response(code=HTTPStatus.BAD_REQUEST, description="Invalid Token or Data")
+    @auth.require
     def post(self, token):
         """Accept an invitation and create a user."""
         payload = AccountCreateSchema().load(request.json)
@@ -234,3 +235,16 @@ class InvitationRenewResource(Resource):
             if result:
                 return {}, HTTPStatus.NO_CONTENT
         return {"error": "Invitation not found or already used"}, HTTPStatus.NOT_FOUND
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<string:token>/proponent", methods=["GET", "OPTIONS"])
+class InvitationProponentResource(Resource):
+    """Minimal onboarding information for the holder of a valid invitation."""
+
+    @staticmethod
+    @cross_origin(origins=allowedorigins())
+    def get(token):
+        """Fetch only company name and invited work selections."""
+        from submit_api.services.proponent_service import ProponentService
+        return ProponentService.get_invitation_proponent(token), HTTPStatus.OK

@@ -22,7 +22,9 @@ from flask_restx import Namespace, Resource
 from submit_api.auth import auth
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.resources.apihelper import Api as ApiHelper
-from submit_api.schemas.account_user import AccountUserSchema, EditRoleSchema, EditTermsOfServiceSchema
+from submit_api.schemas.account_user import (
+    AccountUserSchema, EditAccountUserSchema, EditRoleSchema, EditTermsOfServiceSchema
+)
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.utils.util import allowedorigins, cors_preflight
 
@@ -107,7 +109,7 @@ class AccountUser(Resource):
     @cross_origin(origins=allowedorigins())
     def patch(guid):
         """Edit a account user."""
-        edit_account_user_data = AccountUserSchema().load(API.payload)
+        edit_account_user_data = EditAccountUserSchema().load(API.payload)
         edited_account_user = AccountUserService.update_account_user(guid, edit_account_user_data)
         return AccountUserSchema().dump(edited_account_user), HTTPStatus.OK
 
