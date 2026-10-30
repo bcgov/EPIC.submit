@@ -1,15 +1,18 @@
 """Unit tests for the ProponentService administrator contact building."""
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from submit_api.enums.role import RoleEnum
 from submit_api.services.proponent_service import ProponentService
 
 
-def _user_role(role_name, active=True):
+def _user_role(role_name, active=True, role_id=1, account_project_id=None):
     """Build a mock UserRole with the given role name and active flag."""
     user_role = Mock()
     user_role.active = active
+    user_role.account_project_id = account_project_id
+    user_role.role_id = role_id
     user_role.role = Mock()
+    user_role.role.id = role_id
     user_role.role.role_name = role_name
     return user_role
 
@@ -92,3 +95,96 @@ class TestBuildAdministrators:
         administrators = ProponentService._build_administrators([user])
 
         assert administrators == []
+
+
+class TestAssignAdminRoles:
+    """Tests for ProponentService._assign_admin_roles."""
+
+    def test_admin_role_assigned_to_new_project(self):
+        """A primary admin gets a user_role created for the newly added project."""
+        user = _account_user(
+            [_user_role(RoleEnum.ACCOUNT_PRIMARY_ADMIN.value, role_id=5, account_project_id=1)]
+        )
+        account_project = Mock()
+        account_project.id = 99
+        session = Mock()
+
+        with patch(
+            "submit_api.services.proponent_service.AccountUserService.assign_role"
+        ) as assign_role:
+            ProponentService._assign_admin_roles([user], account_project, session)
+
+        assign_role.assert_called_once_with(
+            {
+                "account_user_id": user.id,
+                "role_id": 5,
+                "account_project_id": 99,
+            },
+            session,
+        )
+
+    def test_project_admin_role_assigned_to_new_project(self):
+        """A project admin also gets a user_role created for the new project."""
+        user = _account_user(
+            [_user_role(RoleEnum.PROJECT_ADMIN.value, role_id=6, account_project_id=1)]
+        )
+        account_project = Mock()
+        account_project.id = 42
+        session = Mock()
+
+        with patch(
+            "submit_api.services.proponent_service.AccountUserService.assign_role"
+        ) as assign_role:
+            ProponentService._assign_admin_roles([user], account_project, session)
+
+        assign_role.assert_called_once()
+        assert assign_role.call_args.args[0]["account_project_id"] == 42
+
+    def test_non_admin_role_not_assigned(self):
+        """A user without an admin role is skipped (no user_role created)."""
+        user = _account_user(
+            [_user_role(RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value, role_id=7)]
+        )
+        account_project = Mock()
+        account_project.id = 42
+        session = Mock()
+
+        with patch(
+            "submit_api.services.proponent_service.AccountUserService.assign_role"
+        ) as assign_role:
+            ProponentService._assign_admin_roles([user], account_project, session)
+
+        assign_role.assert_not_called()
+
+    def test_inactive_admin_role_not_assigned(self):
+        """An inactive admin role does not trigger a new user_role."""
+        user = _account_user(
+            [_user_role(RoleEnum.ACCOUNT_PRIMARY_ADMIN.value, active=False, role_id=5)]
+        )
+        account_project = Mock()
+        account_project.id = 42
+        session = Mock()
+
+        with patch(
+            "submit_api.services.proponent_service.AccountUserService.assign_role"
+        ) as assign_role:
+            ProponentService._assign_admin_roles([user], account_project, session)
+
+        assign_role.assert_not_called()
+
+    def test_existing_active_role_not_duplicated(self):
+        """No new user_role is created when one already exists for the project."""
+        user = _account_user([
+            _user_role(RoleEnum.ACCOUNT_PRIMARY_ADMIN.value, role_id=5, account_project_id=1),
+            _user_role(RoleEnum.ACCOUNT_PRIMARY_ADMIN.value, role_id=5, account_project_id=42),
+        ])
+        account_project = Mock()
+        account_project.id = 42
+        session = Mock()
+
+        with patch(
+            "submit_api.services.proponent_service.AccountUserService.assign_role"
+        ) as assign_role:
+            ProponentService._assign_admin_roles([user], account_project, session)
+
+        assign_role.assert_not_called()

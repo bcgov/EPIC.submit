@@ -180,7 +180,8 @@ class InvitationService:
                                                                      token,
                                                                      session)
 
-            InvitationService._update_proponent_status_by_account(account.id, ProponentStatus.INVITE_GENERATED)
+            InvitationService._update_proponent_status_by_account(
+                account.id, ProponentStatus.INVITE_GENERATED, session=session)
 
             return {
                 'success': True,
@@ -253,8 +254,9 @@ class InvitationService:
 
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
-            # Update proponent status
-            InvitationService._update_proponent_status_by_account(invitation.account_id, ProponentStatus.ONBOARDED)
+            # Update proponent status atomically with the onboarding transaction
+            InvitationService._update_proponent_status_by_account(
+                invitation.account_id, ProponentStatus.ONBOARDED, session=session)
 
             result = {
                 "message": "User access granted successfully",
@@ -551,12 +553,21 @@ class InvitationService:
         })
 
     @staticmethod
-    def _update_proponent_status_by_account(account_id, status):
-        """Update proponent status using account_id."""
+    def _update_proponent_status_by_account(account_id, status, session=None):
+        """Update proponent status using account_id.
+
+        When a session is provided the status change is flushed within that
+        session so it participates in the caller's transaction (atomic with the
+        surrounding onboarding work). Without a session it commits on its own.
+        """
         account = InvitationService._get_account_by_id(account_id)
+        if not account:
+            raise ResourceNotFoundError(f"Account {account_id} not found")
         proponent = InvitationService._get_proponent_by_id(account.proponent_id)
+        if not proponent:
+            raise ResourceNotFoundError(f"Proponent for account {account_id} not found")
         proponent.status = status
-        proponent.save()
+        proponent.persist(session)
 
     @staticmethod
     def _generate_signup_url(token):
