@@ -61,7 +61,9 @@ function Staff() {
             display: "flex"
           }}>
           {!isMobile && <EaoSideNavBar />}
-          <Outlet />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Outlet />
+          </Box>
         </Box>
       </div>
     </CatchBoundary>
