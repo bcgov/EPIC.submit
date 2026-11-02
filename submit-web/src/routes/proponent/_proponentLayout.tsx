@@ -64,7 +64,9 @@ function ProponentLayout() {
               display: "flex"
             }}>
             {!isMobile && <SideNavBar />}
-            <Outlet />
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Outlet />
+            </Box>
           </Box>
         </TermsOfServiceProvider>
       </div>
