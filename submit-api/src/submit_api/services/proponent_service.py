@@ -1,6 +1,8 @@
 """Service for proponent management."""
 from flask import current_app
 
+from submit_api.auth import jwt
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
 from submit_api.enums.proponent_status import NonCanonicalProponentStatus, ProponentStatus
 from submit_api.enums.role import RoleEnum
@@ -67,10 +69,31 @@ class ProponentService:
         return proponent_dict
 
     @classmethod
+    def get_invitation_proponent(cls, token):
+        """Return only registration details selected by a valid bearer invitation."""
+        invitation = Invitations.validate_token(token)
+        if not invitation or invitation.is_deleted:
+            raise ResourceNotFoundError("Invitation not found or expired")
+        proponent_id = invitation.account.proponent_id
+        proponent = Proponent.get_by_id(proponent_id)
+        if not proponent:
+            raise ResourceNotFoundError("Proponent not found")
+        selections = {s["project_id"]: s for s in (invitation.eligible_entries or [])}
+        entries = cls._get_eligibility_entries(proponent_id, [invitation.account_id])["eligibility_entries"]
+        selected = []
+        for entry in entries:
+            selection = selections.get(entry["project_id"], {})
+            if (entry["work_id"] in (selection.get("work_ids") or []) or
+                    entry["non_work_item_type"] in (selection.get("non_work_item_types") or [])):
+                selected.append(entry)
+        return {"id": proponent.id, "name": proponent.name, "eligibility_entries": selected}
+
+    @classmethod
     def _get_invitations(cls, account_ids) -> list:
         """Fetch pending and used invitations for the given account IDs."""
         invitations = Invitations.get_all_in_account_ids(account_ids)
-        return [invitation.to_dict() for invitation in invitations]
+        include_token = jwt.contains_role([EpicSubmitRole.EAO_CREATE.value, EpicSubmitRole.FULL_ACCESS.value])
+        return [invitation.to_dict(include_token=include_token) for invitation in invitations]
 
     @classmethod
     def _get_projects(cls, proponent_id, account_ids) -> dict:
@@ -244,22 +267,50 @@ class ProponentService:
 
         return project_ids, work_selections, non_work_selections
 
+    ADMIN_ROLE_NAMES = [
+        RoleEnum.ACCOUNT_PRIMARY_ADMIN.value,
+        RoleEnum.PROJECT_ADMIN.value,
+    ]
+
     @classmethod
     def _assign_admin_roles(cls, account_users, account_project, session):
-        """Assign admin roles to account users for an account project."""
+        """Assign admin roles to account users for an account project.
+
+        For every account user that currently holds an admin role (account
+        primary admin or project admin), create a matching active user_role for
+        the newly added account project so the project becomes visible to them.
+        """
         for account_user in account_users:
-            user_role = getattr(account_user, "role", None)
-            if not user_role or not user_role.active:
-                continue
-            if user_role.role.role_name in [
-                RoleEnum.ACCOUNT_PRIMARY_ADMIN.value,
-                RoleEnum.PROJECT_ADMIN.value
-            ]:
+            assigned_role_ids = set()
+            for user_role in account_user.roles:
+                if not user_role.active:
+                    continue
+                if user_role.role.role_name not in cls.ADMIN_ROLE_NAMES:
+                    continue
+                role_id = user_role.role.id
+                # Avoid duplicate work when a user holds the role more than once
+                if role_id in assigned_role_ids:
+                    continue
+                # Skip if an active role for this project already exists (idempotency)
+                if cls._has_active_role_for_project(account_user, account_project.id, role_id):
+                    assigned_role_ids.add(role_id)
+                    continue
                 AccountUserService.assign_role({
                     "account_user_id": account_user.id,
-                    "role_id": user_role.role.id,
+                    "role_id": role_id,
                     "account_project_id": account_project.id,
                 }, session)
+                assigned_role_ids.add(role_id)
+
+    @staticmethod
+    def _has_active_role_for_project(account_user, account_project_id, role_id):
+        """Return True if the user already has an active role for the project."""
+        return any(
+            existing.active
+            and existing.account_project_id == account_project_id
+            and existing.role_id == role_id
+            for existing in account_user.roles
+        )
 
     @classmethod
     def _create_work_associations(cls, account_project, work_selections, legacy_project_ids):
@@ -303,7 +354,11 @@ class ProponentService:
             InvitationService.get_or_create_account_projects(
                 account.id, list(project_ids), session
             )
-            account_projects = AccountProject.get_all_in_project_ids(list(project_ids))
+            account_projects = [
+                account_project
+                for account_project in AccountProject.get_all_in_project_ids(list(project_ids))
+                if account_project.account_id == account.id
+            ]
 
             onboarded_project_ids = set()
             for account_project in account_projects:

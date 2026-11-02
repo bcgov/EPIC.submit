@@ -9,6 +9,18 @@ from submit_api.schemas.account import AccountSchema
 from submit_api.schemas.role import UserRoleSchema
 
 
+class EditAccountUserSchema(Schema):
+    """Writable profile fields; identifiers and consent use separate operations."""
+
+    first_name = fields.Str()
+    last_name = fields.Str()
+    position = fields.Str()
+    work_email_address = fields.Email()
+    work_contact_number = fields.Str()
+    company_name = fields.Str()
+    extension_number = fields.Str(allow_none=True)
+
+
 class AccountUserSchema(Schema):
     """Schema for representing an account user with roles."""
 

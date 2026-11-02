@@ -18,10 +18,11 @@ vi.mock("@/components/App/AccountRegistration/formStore", () => ({
   useCreateAccountFormStore: () => mockUseCreateAccountFormStore(),
 }));
 
-// Mock the proponent hook so no network/eligibility data is needed.
-const mockUseGetProponent = vi.fn();
-vi.mock("@/hooks/api/useProponents", () => ({
-  useGetProponent: (...args: unknown[]) => mockUseGetProponent(...args),
+// Mock the invitation proponent hook so no network/eligibility data is needed.
+const mockUseGetInvitationProponent = vi.fn();
+vi.mock("@/hooks/api/useInvitations", () => ({
+  useGetInvitationProponent: (...args: unknown[]) =>
+    mockUseGetInvitationProponent(...args),
 }));
 
 // Stub child components so the test focuses on the heading + body copy.
@@ -56,9 +57,9 @@ describe("ConfirmProjects copy", () => {
     vi.clearAllMocks();
     mockUseCreateAccountFormStore.mockReturnValue({
       entityName: ENTITY_NAME,
-      invitation: { proponent_id: 1, eligible_entries: [] },
+      invitation: { proponent_id: 1, token: "test-token", eligible_entries: [] },
     });
-    mockUseGetProponent.mockReturnValue({ data: undefined });
+    mockUseGetInvitationProponent.mockReturnValue({ data: undefined });
   });
 
   it("renders the Project Account(s) heading", () => {

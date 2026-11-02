@@ -22,6 +22,14 @@ describe("getReportStatus", () => {
     expect(getReportStatus(["ACKNOWLEDGED"])).toBe("ACKNOWLEDGED");
   });
 
+  it("prefers Pending Acknowledgement over Verified for a verified Compliance Self-Report", () => {
+    // A verified Report_TypeB package carries both VERIFIED and
+    // PENDING_ACKNOWLEDGEMENT; the card shows Pending Acknowledgement alone.
+    expect(getReportStatus(["VERIFIED", "PENDING_ACKNOWLEDGEMENT"])).toBe(
+      "PENDING_ACKNOWLEDGEMENT",
+    );
+  });
+
   it("returns null for statuses that are not part of the report status set", () => {
     expect(getReportStatus(["IN_PROGRESS"])).toBeNull();
   });

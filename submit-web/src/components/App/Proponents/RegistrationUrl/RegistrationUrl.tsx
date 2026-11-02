@@ -149,7 +149,7 @@ export const RegistrationUrl = ({
           md: 5
         }}>
         <TextField
-          value={pendingInvitation ? url : ""}
+          value={pendingInvitation?.token ? url : ""}
           sx={{
             margin: 0,
           }}

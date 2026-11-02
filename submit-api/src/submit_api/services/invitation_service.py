@@ -5,10 +5,13 @@ from urllib.parse import urljoin
 
 from flask import current_app
 
+from submit_api.auth import jwt
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.enums.non_work_item import NonWorkItemType
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
-from submit_api.exceptions import BadRequestError, ResourceExistsError, ResourceNotFoundError
+from submit_api.exceptions import (
+    BadRequestError, PermissionDeniedError, ResourceExistsError, ResourceNotFoundError)
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import User
 from submit_api.models.account import Account as AccountModel
@@ -77,6 +80,12 @@ class InvitationService:
             account_project_ids = [ap.id for ap in account_projects]
         else:
             account_project_ids = [ap.id for ap in account_projects]
+
+        user = User.get_by_guid(TokenInfo.get_username())
+        if user and user.type == UserType.STAFF:
+            if not jwt.contains_role([EpicSubmitRole.EAO_CREATE.value, EpicSubmitRole.FULL_ACCESS.value]):
+                raise PermissionDeniedError("Invitation administration requires staff create access")
+            return
 
         # assume one project for now, can be extended for multiple projects
         authorization.check_has_permissions_on_project(
@@ -180,7 +189,8 @@ class InvitationService:
                                                                      token,
                                                                      session)
 
-            InvitationService._update_proponent_status_by_account(account.id, ProponentStatus.INVITE_GENERATED)
+            InvitationService._update_proponent_status_by_account(
+                account.id, ProponentStatus.INVITE_GENERATED, session=session)
 
             return {
                 'success': True,
@@ -197,6 +207,10 @@ class InvitationService:
     @staticmethod
     def accept_invitation(token, payload):  # pylint: disable=too-many-locals
         """Accept an invitation and assign access to an account."""
+        username = TokenInfo.get_username()
+        if not username:
+            raise PermissionDeniedError("Sign in before accepting an invitation.")
+        payload = {**payload, "auth_guid": username}
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
             return {"error": "Invalid invitation token"}
@@ -253,8 +267,9 @@ class InvitationService:
 
             InvitationsModel.mark_used(token, account_user.user_id, session)
 
-            # Update proponent status
-            InvitationService._update_proponent_status_by_account(invitation.account_id, ProponentStatus.ONBOARDED)
+            # Update proponent status atomically with the onboarding transaction
+            InvitationService._update_proponent_status_by_account(
+                invitation.account_id, ProponentStatus.ONBOARDED, session=session)
 
             result = {
                 "message": "User access granted successfully",
@@ -316,10 +331,10 @@ class InvitationService:
         if not user:
             raise ResourceNotFoundError("User not found")
 
-        if user.type == UserType.STAFF.value:
+        if user.type == UserType.STAFF:
             return True
 
-        if user.type == UserType.PROPONENT.value:
+        if user.type == UserType.PROPONENT:
             try:
                 if not user.account_user or not user.account_user.account:
                     raise ResourceNotFoundError("User account not found")
@@ -551,12 +566,21 @@ class InvitationService:
         })
 
     @staticmethod
-    def _update_proponent_status_by_account(account_id, status):
-        """Update proponent status using account_id."""
+    def _update_proponent_status_by_account(account_id, status, session=None):
+        """Update proponent status using account_id.
+
+        When a session is provided the status change is flushed within that
+        session so it participates in the caller's transaction (atomic with the
+        surrounding onboarding work). Without a session it commits on its own.
+        """
         account = InvitationService._get_account_by_id(account_id)
+        if not account:
+            raise ResourceNotFoundError(f"Account {account_id} not found")
         proponent = InvitationService._get_proponent_by_id(account.proponent_id)
+        if not proponent:
+            raise ResourceNotFoundError(f"Proponent for account {account_id} not found")
         proponent.status = status
-        proponent.save()
+        proponent.persist(session)
 
     @staticmethod
     def _generate_signup_url(token):
