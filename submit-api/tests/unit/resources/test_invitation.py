@@ -169,8 +169,13 @@ def test_accept_invitation(client, session, jwt):
     track_phase = factory_track_phase(session)
     track_work = factory_track_work(session, account_project.project_id, track_phase.id)
 
+    # The accepting user authenticates with a fresh guid (no existing user).
+    accept_guid = fake.uuid4()
+    claims = TestJwtClaims.proponent_role.copy()
+    claims["preferred_username"] = accept_guid
+    headers = factory_auth_header(jwt=jwt, claims=claims)
+
     payload = {
-        "auth_guid": fake.uuid4(),
         "email": fake.email(),
         "first_name": fake.first_name(),
         "last_name": fake.last_name(),
@@ -181,7 +186,7 @@ def test_accept_invitation(client, session, jwt):
         "terms_of_service_version_id": 1
     }
 
-    response = client.post(f"/api/invitations/{invitation.token}", json=payload)
+    response = client.post(f"/api/invitations/{invitation.token}", json=payload, headers=headers)
 
     assert response.status_code == HTTPStatus.CREATED
     data = response.get_json()
@@ -202,16 +207,19 @@ def test_accept_invitation(client, session, jwt):
         assert apw.work_id == track_work.id
 
 
-def test_accept_invitation_invalid_token(client, session):
+def test_accept_invitation_invalid_token(client, session, jwt):
     """Test accepting invitation with invalid token."""
+    claims = TestJwtClaims.proponent_role.copy()
+    claims["preferred_username"] = fake.uuid4()
+    headers = factory_auth_header(jwt=jwt, claims=claims)
+
     payload = {
-        "user_guid": fake.uuid4(),
         "email": fake.email(),
         "first_name": fake.first_name(),
         "last_name": fake.last_name(),
     }
 
-    response = client.post("/api/invitations/invalid-token", json=payload)
+    response = client.post("/api/invitations/invalid-token", json=payload, headers=headers)
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
 
@@ -230,9 +238,12 @@ def test_accept_invitation_duplicate_user(client, session, jwt):
     existing_auth_guid = fake.uuid4()
     factory_user_model(auth_guid=existing_auth_guid)
 
-    # Attempt to accept invitation with the same auth_guid
+    # Authenticate as the already-existing user (guid comes from the token).
+    claims = TestJwtClaims.proponent_role.copy()
+    claims["preferred_username"] = existing_auth_guid
+    headers = factory_auth_header(jwt=jwt, claims=claims)
+
     payload = {
-        "auth_guid": existing_auth_guid,
         "email": fake.email(),
         "first_name": fake.first_name(),
         "last_name": fake.last_name(),
@@ -243,7 +254,7 @@ def test_accept_invitation_duplicate_user(client, session, jwt):
         "terms_of_service_version_id": 1
     }
 
-    response = client.post(f"/api/invitations/{invitation.token}", json=payload)
+    response = client.post(f"/api/invitations/{invitation.token}", json=payload, headers=headers)
 
     assert response.status_code == HTTPStatus.CONFLICT
 

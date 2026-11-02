@@ -89,5 +89,8 @@ def test_to_dict(session):
     inv = factory_invitation_model(account_id=account.id)
     d = inv.to_dict()
     assert d['account_id'] == account.id
-    assert 'token' in d
+    # The token is sensitive and excluded by default.
+    assert 'token' not in d
     assert 'status' in d
+    # The token is only included when explicitly requested.
+    assert inv.to_dict(include_token=True)['token'] == inv.token

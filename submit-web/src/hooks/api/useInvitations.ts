@@ -223,3 +223,14 @@ const renewInvitation = (invitationId: number) => {
     method: "patch",
   });
 };
+
+
+export const useGetInvitationProponent = (token?: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEY.INVITATION, token, "proponent"],
+    queryFn: () => publicRequest<{ id: number; name: string; eligibility_entries: unknown[] }>({
+      url: `/invitations/${token}/proponent`,
+    }),
+    enabled: !!token,
+  });
+};

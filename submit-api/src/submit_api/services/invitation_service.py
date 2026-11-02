@@ -5,10 +5,13 @@ from urllib.parse import urljoin
 
 from flask import current_app
 
+from submit_api.auth import jwt
+from submit_api.utils.roles import EpicSubmitRole
 from submit_api.enums.non_work_item import NonWorkItemType
 from submit_api.enums.proponent_status import ProponentStatus
 from submit_api.enums.role import ProponentPermissionsEnum
-from submit_api.exceptions import BadRequestError, ResourceExistsError, ResourceNotFoundError
+from submit_api.exceptions import (
+    BadRequestError, PermissionDeniedError, ResourceExistsError, ResourceNotFoundError)
 from submit_api.models import AccountProject as AccountProjectModel
 from submit_api.models import User
 from submit_api.models.account import Account as AccountModel
@@ -77,6 +80,12 @@ class InvitationService:
             account_project_ids = [ap.id for ap in account_projects]
         else:
             account_project_ids = [ap.id for ap in account_projects]
+
+        user = User.get_by_guid(TokenInfo.get_username())
+        if user and user.type == UserType.STAFF:
+            if not jwt.contains_role([EpicSubmitRole.EAO_CREATE.value, EpicSubmitRole.FULL_ACCESS.value]):
+                raise PermissionDeniedError("Invitation administration requires staff create access")
+            return
 
         # assume one project for now, can be extended for multiple projects
         authorization.check_has_permissions_on_project(
@@ -198,6 +207,10 @@ class InvitationService:
     @staticmethod
     def accept_invitation(token, payload):  # pylint: disable=too-many-locals
         """Accept an invitation and assign access to an account."""
+        username = TokenInfo.get_username()
+        if not username:
+            raise PermissionDeniedError("Sign in before accepting an invitation.")
+        payload = {**payload, "auth_guid": username}
         invitation = InvitationsModel.validate_token(token)
         if not invitation:
             return {"error": "Invalid invitation token"}
@@ -318,10 +331,10 @@ class InvitationService:
         if not user:
             raise ResourceNotFoundError("User not found")
 
-        if user.type == UserType.STAFF.value:
+        if user.type == UserType.STAFF:
             return True
 
-        if user.type == UserType.PROPONENT.value:
+        if user.type == UserType.PROPONENT:
             try:
                 if not user.account_user or not user.account_user.account:
                     raise ResourceNotFoundError("User account not found")

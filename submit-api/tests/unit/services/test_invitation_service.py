@@ -38,15 +38,17 @@ class TestAcceptInvitationDuplicateUser:
         invitation.original_package_ids = []
         return invitation
 
+    @patch("submit_api.services.invitation_service.TokenInfo")
     @patch("submit_api.services.invitation_service.TermsOfServiceModel")
     @patch("submit_api.services.invitation_service.InvitationsModel")
     @patch("submit_api.services.invitation_service.User")
     @patch("submit_api.services.invitation_service.session_scope")
     def test_accept_invitation_raises_conflict_when_user_exists(
         self, mock_session_scope, mock_user_class, mock_invitations_model, mock_terms_model,
-        valid_payload, mock_invitation
+        mock_token_info, valid_payload, mock_invitation
     ):
         """Test that accept_invitation raises ResourceExistsError for duplicate auth_guid."""
+        mock_token_info.get_username.return_value = "existing-guid-123"
         mock_invitations_model.validate_token.return_value = mock_invitation
         mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
 
@@ -60,14 +62,16 @@ class TestAcceptInvitationDuplicateUser:
         with pytest.raises(ResourceExistsError):
             InvitationService.accept_invitation("valid-token", valid_payload)
 
+    @patch("submit_api.services.invitation_service.TokenInfo")
     @patch("submit_api.services.invitation_service.TermsOfServiceModel")
     @patch("submit_api.services.invitation_service.InvitationsModel")
     @patch("submit_api.services.invitation_service.User")
     def test_accept_invitation_proceeds_when_user_does_not_exist(
         self, mock_user_class, mock_invitations_model, mock_terms_model,
-        valid_payload, mock_invitation
+        mock_token_info, valid_payload, mock_invitation
     ):
         """Test that accept_invitation does not raise when auth_guid is new."""
+        mock_token_info.get_username.return_value = "new-guid-456"
         mock_invitations_model.validate_token.return_value = mock_invitation
         mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
 
@@ -155,14 +159,16 @@ class TestAcceptInvitationSubmissionAdminScoping:
         invitation.original_package_ids = None
         return invitation
 
+    @patch("submit_api.services.invitation_service.TokenInfo")
     @patch("submit_api.services.invitation_service.TermsOfServiceModel")
     @patch("submit_api.services.invitation_service.InvitationsModel")
     @patch("submit_api.services.invitation_service.User")
     def test_creates_one_role_per_selected_project(
         self, mock_user_class, mock_invitations_model, mock_terms_model,
-        valid_payload, submission_admin_invitation
+        mock_token_info, valid_payload, submission_admin_invitation
     ):
         """A role is assigned for every selected project and none for others."""
+        mock_token_info.get_username.return_value = "new-collab-guid"
         mock_invitations_model.validate_token.return_value = submission_admin_invitation
         mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
         mock_user_class.get_by_guid.return_value = None
@@ -251,14 +257,16 @@ class TestAcceptInvitationTriggersReportSync:
         inv.original_package_ids = None
         return inv
 
+    @patch("submit_api.services.invitation_service.TokenInfo")
     @patch("submit_api.services.invitation_service.TermsOfServiceModel")
     @patch("submit_api.services.invitation_service.InvitationsModel")
     @patch("submit_api.services.invitation_service.User")
     def test_reconcile_called_for_each_onboarded_project(
         self, mock_user_class, mock_invitations_model, mock_terms_model,
-        valid_payload, invitation
+        mock_token_info, valid_payload, invitation
     ):
         """Report-package reconcile runs once per project id from the invitation."""
+        mock_token_info.get_username.return_value = "report-sync-guid"
         mock_invitations_model.validate_token.return_value = invitation
         mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
         mock_user_class.get_by_guid.return_value = None
@@ -302,14 +310,16 @@ class TestAcceptInvitationTriggersReportSync:
                 )
                 assert synced == [101, 102]
 
+    @patch("submit_api.services.invitation_service.TokenInfo")
     @patch("submit_api.services.invitation_service.TermsOfServiceModel")
     @patch("submit_api.services.invitation_service.InvitationsModel")
     @patch("submit_api.services.invitation_service.User")
     def test_reconcile_failure_does_not_break_onboarding(
         self, mock_user_class, mock_invitations_model, mock_terms_model,
-        app, valid_payload, invitation
+        mock_token_info, app, valid_payload, invitation
     ):
         """A reconcile error is swallowed so invitation acceptance still succeeds."""
+        mock_token_info.get_username.return_value = "report-sync-guid"
         mock_invitations_model.validate_token.return_value = invitation
         mock_terms_model.get_active_terms_of_service_by_version.return_value = MagicMock()
         mock_user_class.get_by_guid.return_value = None

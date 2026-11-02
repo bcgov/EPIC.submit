@@ -27,11 +27,13 @@ def test_get_all_proponents_with_approved_conditions(client, session):
     assert any(p["id"] == 1234 and p["name"] == "TestProponent" for p in data)
 
 
-def test_get_proponent_by_id(client, session):
+def test_get_proponent_by_id(client, session, jwt):
     """Test for proponents."""
+    factory_user_model(auth_guid=TestJwtClaims.staff_admin_role['preferred_username'])
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
     factory_proponent_model(id=5678, name="SingleProponent", is_deleted=False)
 
-    response = client.get("/api/proponents/5678")
+    response = client.get("/api/proponents/5678", headers=headers)
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
@@ -41,12 +43,14 @@ def test_get_proponent_by_id(client, session):
     assert "invitations" not in data
 
 
-def test_get_proponent_with_projects(client, session):
+def test_get_proponent_with_projects(client, session, jwt):
     """Test for proponents."""
+    factory_user_model(auth_guid=TestJwtClaims.staff_admin_role['preferred_username'])
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
     factory_proponent_model(id=9999, name="ProjProponent", is_deleted=False)
     project = factory_project_with_proponent(proponent_id=9999)
 
-    response = client.get("/api/proponents/9999?include-projects=true")
+    response = client.get("/api/proponents/9999?include-projects=true", headers=headers)
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
@@ -57,13 +61,15 @@ def test_get_proponent_with_projects(client, session):
     assert any(p["id"] == project.id for p in data["projects"])
 
 
-def test_get_proponent_with_invitations(client, session):
+def test_get_proponent_with_invitations(client, session, jwt):
     """Test for proponents."""
+    factory_user_model(auth_guid=TestJwtClaims.staff_admin_role['preferred_username'])
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
     factory_proponent_model(id=3333, name="InviteProponent", is_deleted=False)
     account = factory_account_model(proponent_id=3333)
     factory_invitation_model(account_id=account.id, status="PENDING")
 
-    response = client.get("/api/proponents/3333?include-invitations=true")
+    response = client.get("/api/proponents/3333?include-invitations=true", headers=headers)
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
@@ -73,13 +79,16 @@ def test_get_proponent_with_invitations(client, session):
     assert len(data["invitations"]) >= 1
 
 
-def test_get_proponent_full_data(client, session):
+def test_get_proponent_full_data(client, session, jwt):
     """Test for proponents."""
+    factory_user_model(auth_guid=TestJwtClaims.staff_admin_role['preferred_username'])
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
     factory_proponent_model(id=4444, name="FullProponent", is_deleted=False)
     account = factory_account_model(proponent_id=4444)
     factory_invitation_model(account_id=account.id, status="USED")
 
-    response = client.get("/api/proponents/4444?include-invitations=true&include-projects=true")
+    response = client.get(
+        "/api/proponents/4444?include-invitations=true&include-projects=true", headers=headers)
     assert response.status_code == HTTPStatus.OK
 
     data = response.get_json()
