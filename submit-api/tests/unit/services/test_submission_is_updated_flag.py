@@ -135,3 +135,64 @@ class TestUpdateSubmissionStatusClearsIsUpdated:
 
         assert result.is_updated is True
         assert result.status == "SUBMITTED"
+
+
+class TestValidateSubmissionStatusTransition:
+    """Tests for the approval-type-driven status transition rules.
+
+    Type B adds the VERIFIED -> ACKNOWLEDGED step (Compliance Self-Report
+    acknowledge). Types A and C must not allow acknowledging a verified
+    document, protecting Additional Information (A) and IPD (C).
+    """
+
+    def test_type_b_allows_verified_to_acknowledged(self):
+        """Type B permits acknowledging a verified document."""
+        from submit_api.enums.package_type import PackageApprovalType
+        from submit_api.models.submission import SubmissionStatus
+
+        # Should not raise.
+        SubmissionService._validate_submission_status_transition(
+            PackageApprovalType.B,
+            SubmissionStatus.VERIFIED,
+            SubmissionStatus.ACKNOWLEDGED,
+        )
+
+    def test_type_b_still_allows_verified_to_submitted(self):
+        """Type B still permits undoing verification (back to submitted)."""
+        from submit_api.enums.package_type import PackageApprovalType
+        from submit_api.models.submission import SubmissionStatus
+
+        # Should not raise.
+        SubmissionService._validate_submission_status_transition(
+            PackageApprovalType.B,
+            SubmissionStatus.VERIFIED,
+            SubmissionStatus.SUBMITTED,
+        )
+
+    def test_type_a_rejects_verified_to_acknowledged(self):
+        """Type A (Additional Information / Report) rejects acknowledgement."""
+        import pytest
+
+        from submit_api.enums.package_type import PackageApprovalType
+        from submit_api.models.submission import SubmissionStatus
+
+        with pytest.raises(ValueError):
+            SubmissionService._validate_submission_status_transition(
+                PackageApprovalType.A,
+                SubmissionStatus.VERIFIED,
+                SubmissionStatus.ACKNOWLEDGED,
+            )
+
+    def test_type_c_rejects_verified_to_acknowledged(self):
+        """Type C (IPD) rejects acknowledgement of a verified document."""
+        import pytest
+
+        from submit_api.enums.package_type import PackageApprovalType
+        from submit_api.models.submission import SubmissionStatus
+
+        with pytest.raises(ValueError):
+            SubmissionService._validate_submission_status_transition(
+                PackageApprovalType.C,
+                SubmissionStatus.VERIFIED,
+                SubmissionStatus.ACKNOWLEDGED,
+            )

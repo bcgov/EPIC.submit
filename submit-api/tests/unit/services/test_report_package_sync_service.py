@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 from faker import Faker
 
-from submit_api.enums.package_type import PackageTypeEnum
+from submit_api.enums.package_type import PackageTypeEnum, resolve_report_package_type
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models.package import Package, PackageStatus
 from submit_api.models.package_type import PackageType
@@ -52,6 +52,29 @@ def _reports_payload(
     }]
 
 
+def _compliance_reports_payload(submission_id=201):
+    """Return a Condition API payload for a Compliance Self-Report obligation.
+
+    Mirrors the Condition API response shape where report_type drives which
+    package type is created (Report_TypeB for Compliance Self-Report).
+    """
+    return [{
+        "id": 2,
+        "condition_number": 9,
+        "report_type": "Compliance Self-Report",
+        "submissions": [{
+            "id": submission_id,
+            "condition_subsection": None,
+            "frequency": "One Time",
+            "management_plan": None,
+            "phase": "Construction",
+            "report_submission_type": None,
+            "report_title": "",
+            "timing": "",
+        }],
+    }]
+
+
 def _setup_project(session):
     """Create a project with an account project and return (project, account_project)."""
     project = factory_project_with_proponent(epic_guid=fake.uuid4())
@@ -64,6 +87,17 @@ def _setup_project(session):
 # --------------------------------------------------------------------------- #
 # display name + flatten
 # --------------------------------------------------------------------------- #
+def test_resolve_report_package_type_maps_compliance_self_report():
+    """Compliance Self-Report resolves to the Report_TypeB package type."""
+    assert resolve_report_package_type("Compliance Self-Report") == PackageTypeEnum.REPORT_TYPE_B
+
+
+def test_resolve_report_package_type_defaults_to_report():
+    """Other report types (and None) resolve to the regular Report package type."""
+    assert resolve_report_package_type("Monitoring/Technical Report") == PackageTypeEnum.REPORT
+    assert resolve_report_package_type(None) == PackageTypeEnum.REPORT
+
+
 def test_display_name_prefers_title():
     """Report title wins for the display name."""
     assert _compute_display_name("Title", "Monitoring Report", None) == "Title"
@@ -119,6 +153,29 @@ def test_reconcile_adds_obligation_and_creates_package(session):
     assert PackageStatus.NEW in package.status
     report_type = PackageType.find_by_name(PackageTypeEnum.REPORT.value)
     assert package.type_id == report_type.id
+
+
+def test_reconcile_compliance_self_report_creates_report_type_b_package(session):
+    """A Compliance Self-Report obligation is linked to a Report_TypeB package."""
+    project, _ = _setup_project(session)
+
+    with patch(
+        "submit_api.services.report_package_sync_service.ConditionApiClient."
+        "get_approved_reports_by_project",
+        return_value=_compliance_reports_payload(),
+    ):
+        summary = ReportPackageSyncService.reconcile_project(project.id)
+
+    assert summary["added"] == 1
+    assert summary["created_packages"] == 1
+
+    obligation = ProjectReport.get_by_project_id(project.id)[0]
+    package = Package.get_by_project_report_id(obligation.id)
+    assert package is not None
+
+    report_type_b = PackageType.find_by_name(PackageTypeEnum.REPORT_TYPE_B.value)
+    assert report_type_b is not None
+    assert package.type_id == report_type_b.id
 
 
 def test_reconcile_is_idempotent(session):

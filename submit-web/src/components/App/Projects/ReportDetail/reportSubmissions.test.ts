@@ -5,10 +5,13 @@ import {
   getDocumentStatusLabel,
   getDocumentStatusTheme,
   isComplianceSelfReport,
+  isDocumentAcknowledgeable,
   isDocumentVerifiable,
   isEaoUploaded,
   isMainReportDocument,
 } from "./reportSubmissions";
+
+const CSR = { report_type: "Compliance Self-Report" } as ProjectReport;
 
 const makeSubmission = (overrides: Partial<Submission> = {}): Submission =>
   ({
@@ -113,6 +116,62 @@ describe("isDocumentVerifiable", () => {
   it("is false for EAO-uploaded documents", () => {
     expect(
       isDocumentVerifiable(makeSubmission({ is_eao_uploaded: true })),
+    ).toBe(false);
+  });
+});
+
+describe("isDocumentAcknowledgeable", () => {
+  it("is true for a verified Compliance Self-Report main report", () => {
+    expect(
+      isDocumentAcknowledgeable(makeSubmission({ status: "VERIFIED" }), CSR),
+    ).toBe(true);
+  });
+
+  it("is false when the main report is not yet verified", () => {
+    expect(
+      isDocumentAcknowledgeable(makeSubmission({ status: "SUBMITTED" }), CSR),
+    ).toBe(false);
+  });
+
+  it("is false for a supporting document even when verified", () => {
+    expect(
+      isDocumentAcknowledgeable(
+        makeSubmission({
+          status: "VERIFIED",
+          submitted_document: {
+            id: 2,
+            name: "appendix.xlsx",
+            url: "s3/appendix.xlsx",
+            folder: "report_supporting_documents",
+            is_virus_rejected: false,
+          },
+        }),
+        CSR,
+      ),
+    ).toBe(false);
+  });
+
+  it("is false for a non-Compliance-Self-Report obligation", () => {
+    expect(
+      isDocumentAcknowledgeable(
+        makeSubmission({ status: "VERIFIED" }),
+        { report_type: "Annual Report" } as ProjectReport,
+      ),
+    ).toBe(false);
+  });
+
+  it("is false for an EAO-uploaded verified main report", () => {
+    expect(
+      isDocumentAcknowledgeable(
+        makeSubmission({ status: "VERIFIED", is_eao_uploaded: true }),
+        CSR,
+      ),
+    ).toBe(false);
+  });
+
+  it("is false when there is no report", () => {
+    expect(
+      isDocumentAcknowledgeable(makeSubmission({ status: "VERIFIED" }), null),
     ).toBe(false);
   });
 });
