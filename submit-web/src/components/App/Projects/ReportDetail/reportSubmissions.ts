@@ -95,3 +95,20 @@ export const isEaoUploaded = (submission: Submission): boolean =>
 export const isDocumentVerifiable = (submission: Submission): boolean =>
   !isEaoUploaded(submission) &&
   submission.status === SUBMISSION_STATUS.SUBMITTED;
+
+/**
+ * Whether an Acknowledge action should be offered for a document on the EAO
+ * report page: the second staff step after Verify, for Compliance Self-Reports
+ * only. It must be the Regulated-Party-sent main report of a Compliance
+ * Self-Report obligation and currently VERIFIED. Supporting documents,
+ * EAO-uploaded documents, other report types, and non-verified documents never
+ * show it.
+ */
+export const isDocumentAcknowledgeable = (
+  submission: Submission,
+  report?: ProjectReport | null,
+): boolean =>
+  isComplianceSelfReport(report) &&
+  isMainReportDocument(submission) &&
+  !isEaoUploaded(submission) &&
+  submission.status === SUBMISSION_STATUS.VERIFIED;

@@ -44,7 +44,9 @@ ALLOWED_TRANSITIONS: dict[PackageApprovalType, dict[SubmissionStatus, set[Submis
     },
     PackageApprovalType.B: {
         SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED},
-        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED},
+        # Type B adds a second staff step: a verified document can be
+        # acknowledged (Compliance Self-Report main report) or reverted.
+        SubmissionStatus.VERIFIED: {SubmissionStatus.SUBMITTED, SubmissionStatus.ACKNOWLEDGED},
     },
     PackageApprovalType.C: {
         SubmissionStatus.SUBMITTED: {SubmissionStatus.VERIFIED},

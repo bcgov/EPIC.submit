@@ -13,6 +13,7 @@ from submit_api.enums.package_type import (
     REPORT_RELATED_TYPES,
     PackageApprovalType,
     PackageTypeEnum,
+    resolve_report_package_type,
 )
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
@@ -334,24 +335,30 @@ class PackageService:  # pylint: disable=too-many-public-methods
         return PackageModel.find_by_id(package.id)
 
     @classmethod
-    def create_report_package(cls, session, account_project_id, project_report_id, name):
-        """Create an empty Report package for a report obligation within the given session.
+    def create_report_package(cls, session, account_project_id, obligation):
+        """Create an empty report package for a report obligation within the given session.
 
-        Used by the report-obligation sync. The package is linked to the obligation via
-        ``project_report_id`` and seeded with the Report package type's items. The Report
-        package type has versioning disabled, so no package version is created.
+        Used by the report-obligation sync. ``obligation`` is the ProjectReport the
+        package is linked to; the package name is derived from the obligation's display
+        name/type and the package type from its report type. Compliance Self-Report
+        obligations use the Report_TypeB package type; all other report types use the
+        regular Report package type. Report package types have versioning disabled, so
+        no package version is created.
         """
-        package_type = PackageTypeModel.find_by_name(PackageTypeEnum.REPORT.value)
+        report_type = obligation.report_type
+        name = obligation.display_name or report_type or "Report"
+        package_type_enum = resolve_report_package_type(report_type)
+        package_type = PackageTypeModel.find_by_name(package_type_enum.value)
         if not package_type:
             raise BadRequestError(
-                f"Package type '{PackageTypeEnum.REPORT.value}' is not configured."
+                f"Package type '{package_type_enum.value}' is not configured."
             )
 
         package = PackageModel(
             account_project_id=account_project_id,
             name=name,
             type_id=package_type.id,
-            project_report_id=project_report_id,
+            project_report_id=obligation.id,
             status=[PackageStatus.NEW.value],
         )
         session.add(package)

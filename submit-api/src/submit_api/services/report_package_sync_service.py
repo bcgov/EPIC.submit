@@ -194,8 +194,7 @@ class ReportPackageSyncService:
             PackageService.create_report_package(
                 session,
                 account_project_id=account_project_id,
-                project_report_id=obligation.id,
-                name=record["display_name"] or record["report_type"] or "Report",
+                obligation=obligation,
             )
             summary["created_packages"] += 1
         return incoming_keys

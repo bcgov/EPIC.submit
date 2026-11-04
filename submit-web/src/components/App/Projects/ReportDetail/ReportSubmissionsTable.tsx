@@ -33,10 +33,13 @@ import {
   getDocumentStatusLabel,
   getDocumentStatusTheme,
   isComplianceSelfReport,
+  isDocumentAcknowledgeable,
   isDocumentVerifiable,
   isMainReportDocument,
 } from "./reportSubmissions";
 import { VerifyDocumentModal } from "./VerifyDocumentModal";
+import { AcknowledgeDocumentModal } from "./AcknowledgeDocumentModal";
+import { useReportDocumentAcknowledge } from "@/hooks/useReportDocumentAcknowledge";
 
 // Which project card the page is rendered on. The EAO/staff page adds an
 // Actions column with a per-document Verify action; the Regulated Party page is
@@ -120,7 +123,7 @@ const StaffActionsCell = ({
   reportPackage,
   report,
 }: StaffActionsCellProps) => {
-  const verifyButtonRef = useRef<HTMLButtonElement>(null);
+  const actionButtonRef = useRef<HTMLButtonElement>(null);
   const { setOpen } = useModal();
   const packageRoles = usePackageRoles(
     reportPackage,
@@ -128,12 +131,20 @@ const StaffActionsCell = ({
     submission.submitted_document?.folder,
   );
   const { verify } = useReportDocumentVerify({ packageId: reportPackage.id });
+  const { acknowledge } = useReportDocumentAcknowledge({
+    packageId: reportPackage.id,
+  });
 
-  if (!isDocumentVerifiable(submission)) {
+  const fileName = submission.submitted_document?.name ?? "";
+  const canVerify = isDocumentVerifiable(submission);
+  const canAcknowledge = isDocumentAcknowledgeable(submission, report);
+
+  // Verify (SUBMITTED) and Acknowledge (VERIFIED main report) are mutually
+  // exclusive per row; neither shows for any other state.
+  if (!canVerify && !canAcknowledge) {
     return null;
   }
 
-  const fileName = submission.submitted_document?.name ?? "";
   const showComplianceHint =
     isComplianceSelfReport(report) && isMainReportDocument(submission);
 
@@ -145,21 +156,33 @@ const StaffActionsCell = ({
         onVerify={() => verify(submission.id)}
       />,
       // Return focus to the Verify button when the modal closes with no change.
-      () => verifyButtonRef.current?.focus(),
+      () => actionButtonRef.current?.focus(),
+    );
+  };
+
+  const openAcknowledgeModal = () => {
+    setOpen(
+      <AcknowledgeDocumentModal
+        fileName={fileName}
+        phase={report?.phase ?? ""}
+        onAcknowledge={() => acknowledge(submission.id)}
+      />,
+      // Return focus to the Acknowledge button when the modal closes with no change.
+      () => actionButtonRef.current?.focus(),
     );
   };
 
   return (
     <PermissionsGate scopes={[packageRoles.edit]}>
       <Button
-        ref={verifyButtonRef}
+        ref={actionButtonRef}
         variant="outlined"
         color="primary"
         size="small"
         startIcon={<CheckIcon fontSize="small" />}
-        onClick={openVerifyModal}
+        onClick={canAcknowledge ? openAcknowledgeModal : openVerifyModal}
       >
-        Verify
+        {canAcknowledge ? "Acknowledge" : "Verify"}
       </Button>
     </PermissionsGate>
   );

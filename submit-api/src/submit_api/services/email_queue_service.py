@@ -7,7 +7,7 @@ from flask import current_app
 from sqlalchemy import or_
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
+from submit_api.enums.package_type import COMPLIANCE_SELF_REPORT, PackageApprovalType, PackageTypeEnum
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import BadRequestError
 from submit_api.models import AccountProject
@@ -235,6 +235,75 @@ class SubmitEmailQueueService:
             cls._get_sender_email(package, fallback_config='SENDER_EMAIL'),
             cls._as_recipients(submitter.work_email_address if submitter else None),
             f'Submission acknowledged - {package.name}',
+            body_args,
+        )
+
+    @classmethod
+    def queue_report_acknowledgement_email(cls, submission, session=None, package: PackageModel = None):
+        """Queue the acknowledgement email (email 9) for a single acknowledged report document.
+
+        Used by the per-document report acknowledge flow (Compliance Self-Report main
+        report). Unlike the package-level acknowledgement, this email names the single
+        acknowledged document and uses the Compliance Self-Report subject/name derived
+        from the obligation's phase.
+        """
+        package = package or cls._get_package(submission.item.package_id, session)
+        if not package:
+            raise BadRequestError("Package not found for report acknowledgement email.")
+
+        payload = cls._build_report_acknowledged_payload(package, submission)
+        return cls._create_email_queue(
+            entity_id=package.id,
+            entity_type=EntityType.PACKAGE.value,
+            template_name=SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
+            payload=payload,
+            session=session,
+        )
+
+    @classmethod
+    def _report_submission_name(cls, package: PackageModel) -> str:
+        """Return the submission name for a report acknowledgement email.
+
+        Compliance Self-Reports read "Compliance Self-Report: {phase}"; other report
+        obligations fall back to the report's display name/type or the package name.
+        """
+        report = package.project_report
+        phase = report.phase if report else None
+        report_type = report.report_type if report else None
+        if report_type and phase:
+            return f'{report_type}: {phase}'
+        if report:
+            return report.display_name or report.report_type or package.name
+        return package.name
+
+    @classmethod
+    def _build_report_acknowledged_payload(cls, package: PackageModel, submission) -> dict:
+        submitter = cls._get_submitter(package)
+        account_project = cls._get_account_project(package.account_project_id)
+        project = cls._get_project(account_project)
+        submission_name = cls._report_submission_name(package)
+        document_name = (
+            submission.submitted_document.name
+            if submission.submitted_document else ''
+        )
+        # Compliance Self-Reports get the extra "posted on EPIC" line in the email.
+        posted_on_epic = (
+            package.project_report is not None
+            and package.project_report.report_type == COMPLIANCE_SELF_REPORT
+        )
+        body_args = {
+            'submitter_name': submitter.full_name if submitter else '',
+            'certificate_holder_name': project.proponent.name if project.proponent else '',
+            'package_name': submission_name,
+            'submission_name': submission_name,
+            'submission_date': cls._format_submission_date(package.submitted_on),
+            'documents': [document_name] if document_name else [],
+            'posted_on_epic': posted_on_epic,
+        }
+        return cls._payload(
+            cls._get_sender_email(package, fallback_config='SENDER_EMAIL'),
+            cls._as_recipients(submitter.work_email_address if submitter else None),
+            f'Submission acknowledged - {submission_name}',
             body_args,
         )
 
