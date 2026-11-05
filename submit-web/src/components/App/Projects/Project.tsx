@@ -93,11 +93,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
             />
           );
         })}
-        {((is_proponent && accountProject.project.has_approved_condition) ||
-          (!is_proponent &&
-            accountProject.packages.some((pkg) =>
-              MANAGEMENT_PLAN_RELATED_TYPES.includes(pkg.type.name),
-            ))) && (
+        {accountProject.project.has_approved_condition && (
           <ProjectSubmissionsCard
             title="Management Plans & Related Documents"
             status={PROJECT_STATUS.POST_DECISION}

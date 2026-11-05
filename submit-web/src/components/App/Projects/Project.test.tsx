@@ -194,3 +194,45 @@ describe("Project reports section gating", () => {
     expect(screen.queryByTestId("reports-card")).not.toBeInTheDocument();
   });
 });
+
+describe("Project management plan section gating", () => {
+  const makeProjectWithoutManagementPlans = (
+    hasApprovedCondition: boolean,
+  ): AccountProject => ({
+    id: 1,
+    project_id: 1,
+    account_id: 1,
+    project: {
+      id: 1,
+      name: "Cariboo Gold Project",
+      proponent_id: 1,
+      epic_guid: "guid",
+      has_approved_condition: hasApprovedCondition,
+    },
+    packages: [makePackage(10, SubmissionPackageType.REPORT)],
+  });
+
+  it("shows the management plan container for a proponent project with an approved condition and no management plans", () => {
+    setAccount([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]);
+    render(<Project accountProject={makeProjectWithoutManagementPlans(true)} />);
+    expect(screen.getByTestId("mp-card")).toBeInTheDocument();
+  });
+
+  it("shows the management plan container for a staff project with an approved condition and no management plans", () => {
+    setStaffAccount();
+    render(<Project accountProject={makeProjectWithoutManagementPlans(true)} />);
+    expect(screen.getByTestId("mp-card")).toBeInTheDocument();
+  });
+
+  it("hides the management plan container for a staff project without an approved condition", () => {
+    setStaffAccount();
+    render(<Project accountProject={makeProjectWithoutManagementPlans(false)} />);
+    expect(screen.queryByTestId("mp-card")).not.toBeInTheDocument();
+  });
+
+  it("hides the management plan container for a proponent project without an approved condition", () => {
+    setAccount([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]);
+    render(<Project accountProject={makeProjectWithoutManagementPlans(false)} />);
+    expect(screen.queryByTestId("mp-card")).not.toBeInTheDocument();
+  });
+});
