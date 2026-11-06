@@ -1,6 +1,10 @@
 """Submission tests."""
 from http import HTTPStatus
 
+from submit_api.models.submission import (
+    MAIN_DOCUMENT_SORT_ORDER,
+    SUPPORTING_DOCUMENT_SORT_ORDER,
+)
 from tests.utilities.factory_scenarios import TestPackageScenarios
 from tests.utilities.factory_utils import setup_authenticated_proponent
 
@@ -132,6 +136,19 @@ def test_submit_management_plan_document(client, session, jwt):
     assert data["submitted_document"]["folder"] == doc_payload["data"]["folder"]
     assert data["submitted_document"]["name"]  # Just verify it's set
     assert data["version"] == "1.1"
+    assert data["sort_order"] == MAIN_DOCUMENT_SORT_ORDER
+
+    supporting_payload = TestPackageScenarios.get_fake_document_payload(
+        sort_order=SUPPORTING_DOCUMENT_SORT_ORDER
+    )
+    supporting_payload.pop("sort_order")
+    supporting_response = client.post(
+        f"/api/submissions/items/{item_id}",
+        json=supporting_payload,
+        headers=headers,
+    )
+    assert supporting_response.status_code == HTTPStatus.CREATED
+    assert supporting_response.json["sort_order"] == SUPPORTING_DOCUMENT_SORT_ORDER
 
 
 def test_submit_package_state(client, session, jwt):
@@ -163,7 +180,9 @@ def test_submit_package_state(client, session, jwt):
     assert contact_response.status_code == HTTPStatus.CREATED
 
     # Step 3.5: Upload Consultation Record Document (required before marking as COMPLETED)
-    consultation_doc_payload = TestPackageScenarios.get_fake_document_payload()
+    consultation_doc_payload = TestPackageScenarios.get_fake_document_payload(
+        sort_order=SUPPORTING_DOCUMENT_SORT_ORDER
+    )
     consultation_doc_response = client.post(
         f"/api/submissions/items/{consultation_item['id']}",
         json=consultation_doc_payload,
@@ -177,6 +196,24 @@ def test_submit_package_state(client, session, jwt):
     consultation_payload["version"] = "1.1"
     consultation_payload["data"] = consultation_payload.pop("submission_json")
 
+    supporting_only_response = client.post(
+        f"/api/submissions/items/{consultation_item['id']}",
+        json=consultation_payload,
+        headers=headers,
+    )
+    assert supporting_only_response.status_code == HTTPStatus.BAD_REQUEST
+    assert (
+        "section/document name:  Consultation Record(s)"
+        in supporting_only_response.json["message"]
+    )
+
+    consultation_main_doc_response = client.post(
+        f"/api/submissions/items/{consultation_item['id']}",
+        json=TestPackageScenarios.get_fake_document_payload(),
+        headers=headers,
+    )
+    assert consultation_main_doc_response.status_code == HTTPStatus.CREATED
+
     consultation_response = client.post(
         f"/api/submissions/items/{consultation_item['id']}",
         json=consultation_payload,
@@ -185,7 +222,9 @@ def test_submit_package_state(client, session, jwt):
     assert consultation_response.status_code == HTTPStatus.CREATED
 
     # Step 4.5: Upload Management Plan Document (required before marking as COMPLETED)
-    management_doc_payload = TestPackageScenarios.get_fake_document_payload()
+    management_doc_payload = TestPackageScenarios.get_fake_document_payload(
+        sort_order=SUPPORTING_DOCUMENT_SORT_ORDER
+    )
     management_doc_response = client.post(
         f"/api/submissions/items/{management_item['id']}",
         json=management_doc_payload,
@@ -198,6 +237,24 @@ def test_submit_package_state(client, session, jwt):
     management_payload["status"] = "COMPLETED"
     management_payload["version"] = "1.1"
     management_payload["data"] = management_payload.pop("submission_json")
+
+    supporting_only_response = client.post(
+        f"/api/submissions/items/{management_item['id']}",
+        json=management_payload,
+        headers=headers,
+    )
+    assert supporting_only_response.status_code == HTTPStatus.BAD_REQUEST
+    assert (
+        "section/document name:  Management Plan"
+        in supporting_only_response.json["message"]
+    )
+
+    management_main_doc_response = client.post(
+        f"/api/submissions/items/{management_item['id']}",
+        json=TestPackageScenarios.get_fake_document_payload(),
+        headers=headers,
+    )
+    assert management_main_doc_response.status_code == HTTPStatus.CREATED
 
     management_response = client.post(
         f"/api/submissions/items/{management_item['id']}",

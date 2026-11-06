@@ -1,9 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { Submission } from "@/models/Submission";
-import { ProjectReport } from "@/models/Package";
+import {
+  Submission,
+  SUBMISSION_SORT_ORDER,
+} from "@/models/Submission";
+import { ProjectReport, SubmissionPackage } from "@/models/Package";
 import {
   getDocumentStatusLabel,
   getDocumentStatusTheme,
+  getReportDocumentSubmissions,
   isComplianceSelfReport,
   isDocumentAcknowledgeable,
   isDocumentVerifiable,
@@ -35,6 +39,9 @@ const makeSubmission = (overrides: Partial<Submission> = {}): Submission =>
     sort_order: 0,
     ...overrides,
   }) as Submission;
+
+const makeReportPackage = (submissions: Submission[]) =>
+  ({ items: [{ submissions }] }) as unknown as SubmissionPackage;
 
 describe("document status mapping", () => {
   it("labels SUBMITTED/VERIFIED/ACKNOWLEDGED correctly", () => {
@@ -78,6 +85,52 @@ describe("document status mapping", () => {
     });
     expect(getDocumentStatusLabel(eaoDoc)).toBe("Uploaded by EAO");
     expect(getDocumentStatusTheme(eaoDoc)).toBe("neutral");
+  });
+});
+
+describe("getReportDocumentSubmissions", () => {
+  it("puts main documents first, then sorts each priority newest first", () => {
+    const main = makeSubmission({
+      id: 1,
+      sort_order: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+      created_date: "2026-01-01T00:00:00Z",
+    });
+    const oldSupporting = makeSubmission({
+      id: 2,
+      sort_order: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
+      created_date: "2026-01-01T00:00:00Z",
+    });
+    const newSupporting = makeSubmission({
+      id: 3,
+      sort_order: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
+      created_date: "2026-02-01T00:00:00Z",
+    });
+
+    const result = getReportDocumentSubmissions(
+      makeReportPackage([oldSupporting, main, newSupporting]),
+    );
+
+    expect(result.map(({ id }) => id)).toEqual([1, 3, 2]);
+  });
+
+  it("treats an absent priority as supporting and tolerates invalid dates", () => {
+    const main = makeSubmission({ sort_order: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT });
+    const legacyDocument = makeSubmission({
+      id: 2,
+      sort_order: undefined as unknown as number,
+      created_date: "not-a-date",
+    });
+    const supportingDocument = makeSubmission({
+      id: 3,
+      sort_order: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
+      created_date: "also-not-a-date",
+    });
+
+    const result = getReportDocumentSubmissions(
+      makeReportPackage([legacyDocument, main, supportingDocument]),
+    );
+
+    expect(result.map(({ id }) => id)).toEqual([1, 2, 3]);
   });
 });
 
