@@ -7,7 +7,7 @@ with mock_aws():
     s3 = boto3.client('s3', region_name='us-east-1')
     s3.create_bucket(Bucket='submit')
     s3.put_bucket_cors(Bucket='submit', CORSConfiguration={'CORSRules': [{
-        'AllowedOrigins': ['http://web:5173'],
+        'AllowedOrigins': ['http://localhost:5173'],
         'AllowedMethods': ['GET', 'PUT', 'DELETE', 'HEAD'],
         'AllowedHeaders': ['*'], 'ExposeHeaders': ['ETag'],
     }]})
