@@ -173,3 +173,7 @@ deployment/charts/submit-web/values.test.yaml
 .windsurf/
 .kiro/
 .hidden/
+# Disposable isolated E2E dependencies and artifacts
+.e2e-deps/
+.e2e-runtime/
+e2e-artifacts/

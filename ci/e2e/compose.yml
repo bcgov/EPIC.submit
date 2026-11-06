@@ -1,0 +1,174 @@
+name: submit-e2e
+x-db-env: &db-env
+  DATABASE_USERNAME: e2e
+  DATABASE_PASSWORD: e2e-only
+  DATABASE_HOST: db
+  DATABASE_PORT: 5432
+  DATABASE_NAME: submit_e2e
+x-auth-env: &auth-env
+  JWT_OIDC_WELL_KNOWN_CONFIG: http://keycloak:8080/auth/realms/eao-epic/.well-known/openid-configuration
+  JWT_OIDC_ISSUER: http://keycloak:8080/auth/realms/eao-epic
+  JWT_OIDC_JWKS_URI: http://keycloak:8080/auth/realms/eao-epic/protocol/openid-connect/certs
+  JWT_OIDC_AUDIENCE: epic-submit
+  JWT_OIDC_ALGORITHMS: RS256
+x-health: &health
+  interval: 5s
+  timeout: 5s
+  retries: 60
+services:
+  db:
+    image: postgres:15.12-bookworm
+    environment:
+      POSTGRES_USER: e2e
+      POSTGRES_PASSWORD: e2e-only
+      POSTGRES_DB: submit_e2e
+    volumes:
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      <<: *health
+      test: [CMD-SHELL, 'pg_isready -U e2e -d submit_e2e']
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.1.4
+    command: [start-dev, --import-realm, --http-relative-path=/auth]
+    environment:
+      KC_HEALTH_ENABLED: 'true'
+    volumes:
+      - ./realm.json:/opt/keycloak/data/import/realm.json:ro
+    healthcheck:
+      <<: *health
+      test: [CMD-SHELL, "bash -c 'exec 3<>/dev/tcp/localhost/9000; printf \"GET /auth/health/ready HTTP/1.0\\r\\n\\r\\n\" >&3; head -1 <&3 | grep 200'"]
+  storage:
+    build:
+      context: ../..
+      dockerfile: ci/e2e/storage.Dockerfile
+    environment:
+      S3_IGNORE_SUBDOMAIN_BUCKETNAME: 'true'
+    volumes:
+      - ../../.e2e-runtime/certs:/certs:ro
+    healthcheck:
+      <<: *health
+      test: [CMD, python, -c, "import ssl, urllib.request; urllib.request.urlopen('https://localhost:9000/', context=ssl._create_unverified_context())"]
+  fakes:
+    image: python:3.12-slim-bookworm
+    command: [python, -u, /fakes.py]
+    volumes:
+      - ./fakes.py:/fakes.py:ro
+    healthcheck:
+      <<: *health
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8090/health')"]
+  document:
+    build:
+      context: ../..
+      dockerfile: ci/e2e/document.Dockerfile
+    environment:
+      <<: [*db-env, *auth-env]
+      DATABASE_NAME: document
+      FLASK_ENV: production
+      CORS_ORIGIN: http://web:5173
+      S3_ACCESS_KEY_ID: e2e-storage
+      S3_SECRET_ACCESS_KEY: e2e-storage-password
+      S3_HOST: storage:9000
+      S3_BUCKET: submit
+      S3_REGION: us-east-1
+      S3_SERVICE: s3
+      AWS_CA_BUNDLE: /certs/public.crt
+    volumes:
+      - ../../.e2e-runtime/certs:/certs:ro
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      storage:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8080/ops/healthz')"]
+  api:
+    build: ../../submit-api
+    environment:
+      <<: [*db-env, *auth-env]
+      FLASK_ENV: production
+      FLASK_APP: wsgi.py
+      CORS_ORIGIN: http://web:5173
+      KEYCLOAK_BASE_URL: http://keycloak:8080
+      KEYCLOAK_REALM_NAME: eao-epic
+      SERVICE_ACCOUNT_ID: submit-service
+      SERVICE_ACCOUNT_SECRET: e2e-service-secret
+      DOCUMENT_SERVICE_URL: http://document:8080
+      AUTH_BASE_URL: http://fakes:8090
+      CONDITION_API_BASE_URL: http://fakes:8090
+      BASE_APP_URL: http://web:5173
+      SIGNUP_URL_PATH: /proponent/account-registration
+      SENDER_EMAIL: submit@example.test
+      STAFF_SUPPORT_MAIL_ID: staff@example.test
+    volumes:
+      - ./seed.py:/e2e/seed.py:ro
+    entrypoint: [sh, -ec]
+    command: ['flask db upgrade && python /e2e/seed.py && exec gunicorn --bind 0.0.0.0:8080 --timeout 60 --workers 2 wsgi:application']
+    depends_on:
+      db:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      document:
+        condition: service_healthy
+      fakes:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://localhost:8080/ops/healthz')"]
+  mailer:
+    build:
+      context: ../..
+      dockerfile: ci/e2e/mail.Dockerfile
+    environment:
+      SUBMIT_DATABASE_USERNAME: e2e
+      SUBMIT_DATABASE_PASSWORD: e2e-only
+      SUBMIT_DATABASE_HOST: db
+      SUBMIT_DATABASE_PORT: 5432
+      SUBMIT_DATABASE_NAME: submit_e2e
+      CHES_TOKEN_ENDPOINT: http://fakes:8090/token
+      CHES_BASE_URL: http://fakes:8090
+      CHES_CLIENT_ID: e2e
+      CHES_CLIENT_SECRET: e2e-only
+      WEB_URL: http://web:5173
+      ENVIRONMENT: e2e
+    depends_on:
+      api:
+        condition: service_healthy
+  web:
+    build:
+      context: ../../submit-web
+      dockerfile: Dockerfile.dev
+    environment:
+      VITE_API_URL: http://api:8080/api
+      VITE_OBJECT_STORAGE_URL: http://document:8080/api
+      VITE_CONDITIONS_LIBRARY_URL: http://fakes:8090/api
+      VITE_OIDC_AUTHORITY: http://keycloak:8080/auth/realms/eao-epic
+      VITE_CLIENT_ID: epic-submit
+      VITE_APP_URL: http://web:5173
+      VITE_ENV: e2e
+      VITE_APP_TITLE: EPIC.submit
+      __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: web
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      <<: *health
+      test: [CMD, curl, -f, http://localhost:5173]
+  tests:
+    build:
+      context: ../..
+      dockerfile: ci/e2e/runner.Dockerfile
+    profiles: [test]
+    volumes:
+      - ../../e2e-artifacts:/artifacts
+    depends_on:
+      web:
+        condition: service_healthy
+      mailer:
+        condition: service_started
+networks:
+  default:
+    internal: true

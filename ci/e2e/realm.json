@@ -1,0 +1,156 @@
+{
+  "realm": "eao-epic",
+  "enabled": true,
+  "sslRequired": "none",
+  "roles": {
+    "client": {
+      "epic-submit": [
+        {
+          "name": "eao_view"
+        },
+        {
+          "name": "eao_create"
+        },
+        {
+          "name": "eao_edit"
+        },
+        {
+          "name": "mp_view"
+        },
+        {
+          "name": "mp_edit"
+        },
+        {
+          "name": "mp_create"
+        },
+        {
+          "name": "manage-users"
+        }
+      ]
+    }
+  },
+  "clients": [
+    {
+      "clientId": "epic-submit",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": [
+        "http://web:5173/*"
+      ],
+      "webOrigins": [
+        "http://web:5173"
+      ],
+      "protocolMappers": [
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "epic-submit",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "identity-provider",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "identity_provider",
+            "claim.name": "identity_provider",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "submit-service",
+      "secret": "e2e-service-secret",
+      "publicClient": false,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "staff",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "staff@example.test",
+      "firstName": "E2E",
+      "lastName": "Staff",
+      "attributes": {
+        "identity_provider": [
+          "idir"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2e-only-password-123!",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "epic-submit": [
+          "eao_view",
+          "eao_create",
+          "eao_edit",
+          "mp_view",
+          "mp_edit",
+          "mp_create",
+          "manage-users"
+        ]
+      }
+    },
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "admin@example.test",
+      "firstName": "E2E",
+      "lastName": "Admin",
+      "attributes": {
+        "identity_provider": [
+          "bceid"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2e-only-password-123!",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "epic-submit": []
+      }
+    },
+    {
+      "username": "proponent",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "proponent@example.test",
+      "firstName": "E2E",
+      "lastName": "Proponent",
+      "attributes": {
+        "identity_provider": [
+          "bceid"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "E2e-only-password-123!",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "epic-submit": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+.git
+.e2e-deps/**/.git
+**/node_modules
+**/venv
+**/.venv
+**/__pycache__
+.e2e-runtime
+e2e-artifacts
