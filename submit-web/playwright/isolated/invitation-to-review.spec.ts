@@ -72,8 +72,10 @@ test('invitation, registration, submission and staff review with real queued ema
 
   try {
     await test.step('Staff generates the initial account invitation', async () => {
-      await staff.goto('/staff/proponents/9001');
+      await staff.goto('/');
+      await staff.getByRole('button', { name: 'Admin Login', exact: true }).click();
       await login(staff, 'staff');
+      await staff.goto('/staff/proponents/9001');
       await expect(staff.getByText('E2E Coastal Energy', { exact: true }).first()).toBeVisible();
       await staff.getByRole('row').filter({ hasText: project }).getByRole('checkbox').check();
       await staff.getByRole('button', { name: 'Generate Link', exact: true }).click();
