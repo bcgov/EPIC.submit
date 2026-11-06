@@ -1,6 +1,7 @@
 import { SubmissionPackage, SubmissionPackageMeta } from "@/models/Package";
 import {
   SUBMISSION_ITEM_STATUS,
+  SUBMISSION_SORT_ORDER,
   SUBMISSION_TYPE,
   Submission,
   SubmissionItemStatus,
@@ -29,20 +30,21 @@ export const getMissingMainDocumentMessage = (
   const hasMainDocument = (item.submissions ?? []).some(
     (submission) =>
       submission.type === SUBMISSION_TYPE.DOCUMENT &&
-      submission.is_main_document,
+      submission.sort_order === SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
   );
   if (hasMainDocument) return undefined;
 
   return `You must have at least one file uploaded in this section (section/document name:  ${getSectionDocumentLabel(item.type.name)}) to be able to submit your package`;
 };
 
-export const orderMainDocumentsFirst = (submissions: Submission[]) =>
+// Lower sort_order values come first; upload time keeps files within a group predictable.
+export const orderDocumentsBySortOrder = (submissions: Submission[]) =>
   submissions
     .map((submission, index) => ({ submission, index }))
     .sort(
       ({ submission: a, index: aIndex }, { submission: b, index: bIndex }) =>
-        Number(Boolean(b.is_main_document)) -
-          Number(Boolean(a.is_main_document)) ||
+        (a.sort_order ?? SUBMISSION_SORT_ORDER.MAIN_DOCUMENT) -
+          (b.sort_order ?? SUBMISSION_SORT_ORDER.MAIN_DOCUMENT) ||
         Date.parse(a.created_date) - Date.parse(b.created_date) ||
         aIndex - bIndex,
     )

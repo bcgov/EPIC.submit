@@ -30,7 +30,7 @@ from submit_api.models.package_metadata import PackageMetadata as PackageMetadat
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.queries.package import PackageSubmissionQueries
-from submit_api.models.submission import SubmissionType, SubmissionStatus
+from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionType, SubmissionStatus
 from submit_api.models.item_type import SubmissionItemType, SubmissionMethod
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
@@ -572,7 +572,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
     def _validate_report_submission(cls, package):
         """Validate a report obligation submission has a main document."""
         has_main_document = any(
-            submission.is_main_document
+            submission.sort_order == MAIN_DOCUMENT_SORT_ORDER
             for submission in cls._get_document_submissions_from_package(package)
         )
         if not has_main_document:
@@ -628,8 +628,9 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 continue
 
             has_main_document = any(
+                # Only the first-priority document satisfies the required main-file check.
                 submission.type == SubmissionType.DOCUMENT
-                and submission.is_main_document
+                and submission.sort_order == MAIN_DOCUMENT_SORT_ORDER
                 and not submission.deleted
                 for submission in item.submissions
             )

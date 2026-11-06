@@ -27,7 +27,7 @@ import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
 import {
   getMissingMainDocumentMessage,
-  orderMainDocumentsFirst,
+  orderDocumentsBySortOrder,
 } from "@/components/App/Submission/utils";
 
 export default function ProponentSubmissionItemTableRow({
@@ -154,7 +154,7 @@ export default function ProponentSubmissionItemTableRow({
           </When>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
-      {orderMainDocumentsFirst(
+      {orderDocumentsBySortOrder(
         submissions.filter(
           (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
         ),

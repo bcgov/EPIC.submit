@@ -62,7 +62,7 @@ export const ManagementPlanSubmissionProponentView = () => {
       name: "managementPlans",
       label: "Management Plan/IEM Terms of Engagement",
       folder: S3_FOLDER.MANAGEMENT_PLANS.value,
-      isMainDocument: true,
+      sortOrder: 0,
       maxFiles: 1,
       maxFilesErrorMessage:
         "You can only submit one Management Plan/IEM Terms of Engagement per submission. Please add supporting documents in the section below.",
@@ -71,7 +71,7 @@ export const ManagementPlanSubmissionProponentView = () => {
       name: "supportingDocuments",
       label: "Supporting Documents",
       folder: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
-      isMainDocument: false,
+      sortOrder: 1,
       description: "e.g. table of proposed changes, table of concordance",
     },
   ];

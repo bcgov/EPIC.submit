@@ -69,7 +69,7 @@ export const ConsultationRecordProponentView = () => {
       name: "consultationRecords",
       label: "Consultation Record(s)",
       folder: S3_FOLDER.CONSULTATION_RECORDS.value,
-      isMainDocument: true,
+      sortOrder: 0,
       description: "Including Comment Tracker",
     },
   ];

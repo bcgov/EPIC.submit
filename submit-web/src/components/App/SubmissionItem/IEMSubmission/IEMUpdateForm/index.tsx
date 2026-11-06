@@ -44,7 +44,7 @@ export const IEMUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.IEMS.value}
             setIsPendingUpload={setIsPendingUpload}
-            isMainDocument
+            sortOrder={0}
           />
         </Box>
         <Box>
@@ -61,7 +61,7 @@ export const IEMUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.SUPPORTING_DOCUMENTS.value}
             setIsPendingUpload={setIsPendingUpload}
-            isMainDocument={false}
+            sortOrder={1}
           />
         </Box>
       </Box>

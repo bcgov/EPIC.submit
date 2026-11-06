@@ -302,7 +302,7 @@ export const GeoSpatialProponentView = () => {
         name: "geospatial",
         label: "Geospatial Files",
         folder: S3_FOLDER.GEOSPATIAL.value,
-        isMainDocument: true,
+        sortOrder: 0,
         acceptedFileTypes: ["shp", "zip"],
         acceptedFileTypesCriteria: "Must contain shape files",
         onUploadComplete,

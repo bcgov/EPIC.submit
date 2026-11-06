@@ -6,7 +6,7 @@ Manages the submission schema
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.models.submission import SubmissionStatus
+from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionStatus
 from submit_api.models.submitted_document import VirusScanResult
 
 
@@ -63,7 +63,7 @@ class SubmissionSchema(Schema):
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
     status = fields.Enum(data_key="status", enum=SubmissionStatus)
-    is_main_document = fields.Bool(data_key="is_main_document")
+    sort_order = fields.Int(data_key="sort_order")
     minor_version = fields.Int(data_key="minor_version")
     major_version = fields.Int(data_key="major_version")
 
@@ -88,7 +88,8 @@ class CreateSubmissionRequestSchema(Schema):
     data = fields.Dict(data_key="data")
     item_id = fields.Int(data_key="item_id")
     created_by = fields.Str(data_key="created_by", required=False)
-    is_main_document = fields.Bool(data_key="is_main_document", load_default=False)
+    # Clients may assign more groups later; a missing value keeps the main file first.
+    sort_order = fields.Int(data_key="sort_order", load_default=MAIN_DOCUMENT_SORT_ORDER)
 
 
 class UpdateSubmissionStatusSchema(Schema):

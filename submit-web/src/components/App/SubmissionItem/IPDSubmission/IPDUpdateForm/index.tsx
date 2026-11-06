@@ -44,7 +44,7 @@ export const IPDUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.IPDS.value}
             setIsPendingUpload={setIsPendingUpload}
-            isMainDocument
+            sortOrder={0}
           />
         </Box>
         <Box>
@@ -61,7 +61,7 @@ export const IPDUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value}
             setIsPendingUpload={setIsPendingUpload}
-            isMainDocument={false}
+            sortOrder={1}
           />
         </Box>
       </Box>

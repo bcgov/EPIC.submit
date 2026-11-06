@@ -270,6 +270,11 @@ export const SUBMISSION_STATUS = Object.freeze<
   ACKNOWLEDGED: "ACKNOWLEDGED",
 });
 
+export const SUBMISSION_SORT_ORDER = Object.freeze({
+  MAIN_DOCUMENT: 0,
+  SUPPORTING_DOCUMENT: 1,
+});
+
 export type Submission = {
   id: number;
   item_id: number;
@@ -284,7 +289,7 @@ export type Submission = {
   submitted_by: string;
   status: SubmissionStatus;
   is_updated: boolean;
-  is_main_document?: boolean;
+  sort_order?: number;
   // True when the document was uploaded by EAO staff rather than sent by the
   // Regulated Party. Populated by SUBMIT-1041; absent/undefined means the
   // document is treated as Regulated-Party-sent.

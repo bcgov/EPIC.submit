@@ -197,7 +197,7 @@ export const GeoSpatialUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.GEOSPATIAL.value}
             setIsPendingUpload={setIsPendingUpload}
-            isMainDocument
+            sortOrder={0}
             isGeoSpatial={true}
             onDocumentClick={handleDocumentClick}
             onUploadComplete={onUploadComplete}

@@ -59,14 +59,14 @@ export const IemSubmissionProponentView = () => {
       name: "iems",
       label: "Independent Environmental Monitor Terms of Engagement",
       folder: S3_FOLDER.IEMS.value,
-      isMainDocument: true,
+      sortOrder: 0,
       maxFiles: 1,
     },
     {
       name: "supportingDocuments",
       label: "Supporting Documents",
       folder: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
-      isMainDocument: false,
+      sortOrder: 1,
       description: "e.g. table of proposed changes, table of concordance",
     },
   ];

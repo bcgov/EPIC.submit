@@ -28,7 +28,7 @@ export const ConsultationRecordUpdateForm = () => {
         <DocumentsTable
           folder={S3_FOLDER.CONSULTATION_RECORDS.value}
           setIsPendingUpload={setIsPendingUpload}
-          isMainDocument
+          sortOrder={0}
         />
       </Box>
       <UnfinishedUploadsCheck customCondition={isPendingUpload}>

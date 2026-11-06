@@ -31,7 +31,7 @@ type DocumentsTableProps = Readonly<{
   isGeoSpatial?: boolean;
   onDocumentClick?: (documentItem: Submission) => void;
   onUploadComplete?: (submission: Submission) => void;
-  isMainDocument?: boolean;
+  sortOrder?: number;
 }>;
 export default function DocumentsTable({
   folder,
@@ -39,7 +39,7 @@ export default function DocumentsTable({
   isGeoSpatial = false,
   onDocumentClick,
   onUploadComplete,
-  isMainDocument = false,
+  sortOrder = 0,
 }: DocumentsTableProps) {
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -126,7 +126,7 @@ export default function DocumentsTable({
                 setIsPendingUpload={setIsPendingUpload}
                 isGeoSpatial={isGeoSpatial}
                 onUploadComplete={onUploadComplete}
-                isMainDocument={isMainDocument}
+                sortOrder={sortOrder}
               />
             </SubmitPrimaryRowTableCell>
           </SubmitTablePrimaryRow>

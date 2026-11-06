@@ -9,7 +9,11 @@ from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
 from submit_api.models.package_version import PackageVersion as PackageVersionModel
-from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
+from submit_api.models.submission import (
+    MAIN_DOCUMENT_SORT_ORDER,
+    Submission as SubmissionModel,
+    SubmissionStatus,
+)
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
 from submit_api.utils.token_info import TokenInfo
@@ -189,7 +193,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                     "root_submission_id": submission.root_submission_id,
                     "status": SubmissionStatus.PENDING,
                     "created_by": TokenInfo.get_username(),
-                    "is_main_document": submission.is_main_document,
+                    "sort_order": submission.sort_order,
                 }
             )
             current_app.logger.info("New submission created with id: %s to replace submission_id: %s.",
@@ -292,7 +296,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 "root_submission_id": target_submission.root_submission_id,
                 "status": submission.status,
                 "created_by": submission.created_by,
-                "is_main_document": target_submission.is_main_document,
+                "sort_order": target_submission.sort_order,
             }
         )
         current_app.logger.info("Created new version submission with id: %s.", new_submission.id)
@@ -373,7 +377,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 "submitted_document_id": new_submitted_document.id,
                 "status": submission.status,
                 "created_by": submission.created_by,
-                "is_main_document": submission.is_main_document,
+                "sort_order": submission.sort_order,
             }
         )
         current_app.logger.info("Created new submission with id: %s for the move operation.", new_submission.id)
@@ -595,7 +599,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             created_by=submission_data.get("created_by", TokenInfo.get_username()),
             root_submission_id=submission_data.get("root_submission_id"),
             status=submission_data.get("status", SubmissionStatus.PENDING),
-            is_main_document=submission_data.get("is_main_document", False)
+            sort_order=submission_data.get("sort_order", MAIN_DOCUMENT_SORT_ORDER)
         )
         session.add(submission)
         session.flush()

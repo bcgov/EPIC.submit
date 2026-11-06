@@ -34,7 +34,7 @@ import { isProvidedPlan } from "@/utils/managementPlan";
 import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
 import {
   getMissingMainDocumentMessage,
-  orderMainDocumentsFirst,
+  orderDocumentsBySortOrder,
 } from "@/components/App/Submission/utils";
 
 export default function StaffSubmissionItemTableRow({
@@ -306,7 +306,7 @@ export default function StaffSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       <When condition={submitted_on}>
-        {orderMainDocumentsFirst(
+        {orderDocumentsBySortOrder(
           submissions?.filter(
             (submission) =>
               submission.type === SUBMISSION_TYPE.DOCUMENT &&
