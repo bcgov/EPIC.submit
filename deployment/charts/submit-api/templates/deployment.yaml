@@ -197,6 +197,11 @@ spec:
                 configMapKeyRef:
                   name: {{ .Release.Name }}
                   key: STAFF_SUPPORT_MAIL_ID
+            - name: GIS_SUPPORT_MAIL_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}
+                  key: GIS_SUPPORT_MAIL_ID
             - name: SIGNUP_URL_PATH
               valueFrom:
                 configMapKeyRef:
