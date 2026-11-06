@@ -8,7 +8,8 @@ export const REPORTS_COLUMNS = [
   { key: "frequency", label: "Frequency", width: "136px" },
   { key: "timing", label: "Timing", width: "34%" },
   { key: "lastSubmitted", label: "Last Submitted", width: "136px" },
-  { key: "status", label: "Status", width: "168px" },
+  // 160px so "Uploaded by EAO" and "Acknowledged" fit without truncation.
+  { key: "status", label: "Status", width: "160px" },
 ] as const;
 
 // Minimum table width so columns keep their proportions and the table scrolls

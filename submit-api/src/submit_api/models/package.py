@@ -73,6 +73,10 @@ class PackageStatus(enum.Enum):
     READY_FOR_APPROVAL = "READY_FOR_APPROVAL"
     NOT_APPROVED = 'NOT_APPROVED'
     WITHDRAWN = 'WITHDRAWN'
+    # The newest main report/notification document was uploaded by EAO staff on
+    # behalf of the Regulated Party. Report-card status only; never an item or
+    # submission status. The EAO-uploaded signal is provided by SUBMIT-1041.
+    UPLOADED_BY_EAO = 'UPLOADED_BY_EAO'
 
     @classmethod
     def check_value(cls, value):

@@ -35,6 +35,11 @@ export const getReportDocumentSubmissions = (
   );
 };
 
+// Label and grey theme for a document EAO staff uploaded on behalf of the
+// Regulated Party. Takes precedence over the verify/acknowledge status.
+export const UPLOADED_BY_EAO_LABEL = "Uploaded by EAO";
+const UPLOADED_BY_EAO_THEME: StatusChipTheme = "neutral";
+
 // Document status set shown on the report/notification page. A document starts
 // as "Submitted" and, once an EAO staff member verifies it, shows "Verified".
 // "Acknowledged" is the terminal state for Compliance Self-Reports.
@@ -56,11 +61,33 @@ const STATUS_THEMES: Record<string, StatusChipTheme> = {
   REJECTED: "danger",
 };
 
-export const getDocumentStatusLabel = (status?: string): string =>
-  (status && STATUS_LABELS[status]) || "Submitted";
+/**
+ * Label for a document row badge. An EAO-uploaded document always reads
+ * "Uploaded by EAO" regardless of its verify/acknowledge status; otherwise the
+ * status maps to Submitted/Verified/Acknowledged (defaulting to "Submitted").
+ */
+export const getDocumentStatusLabel = (submission?: Submission): string => {
+  if (submission && isEaoUploaded(submission)) {
+    return UPLOADED_BY_EAO_LABEL;
+  }
+  const status = submission?.status;
+  return (status && STATUS_LABELS[status]) || "Submitted";
+};
 
-export const getDocumentStatusTheme = (status?: string): StatusChipTheme =>
-  (status && STATUS_THEMES[status]) || "info";
+/**
+ * Theme for a document row badge. An EAO-uploaded document is grey (neutral);
+ * otherwise the status maps to its theme (defaulting to the "info"/blue
+ * "Submitted" theme).
+ */
+export const getDocumentStatusTheme = (
+  submission?: Submission,
+): StatusChipTheme => {
+  if (submission && isEaoUploaded(submission)) {
+    return UPLOADED_BY_EAO_THEME;
+  }
+  const status = submission?.status;
+  return (status && STATUS_THEMES[status]) || "info";
+};
 
 /**
  * Whether the obligation is a Compliance Self-Report, identified by its

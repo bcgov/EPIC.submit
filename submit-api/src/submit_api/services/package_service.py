@@ -59,7 +59,7 @@ CANONICAL_STATUS_ORDER = (
     'NEW', 'CREATED', 'IN_PROGRESS', 'SUBMITTED', 'NEW_SUBMISSION', 'RESUBMITTED',
     # Terminal outcomes
     'APPROVED', 'ACCEPTED', 'SATISFIED', 'REVIEWED', 'PROVIDED', 'NO_REVISION_REQUIRED',
-    'VERIFIED', 'ACKNOWLEDGED', 'NOT_APPROVED', 'REVIEW_REJECTED', 'WITHDRAWN',
+    'VERIFIED', 'ACKNOWLEDGED', 'UPLOADED_BY_EAO', 'NOT_APPROVED', 'REVIEW_REJECTED', 'WITHDRAWN',
     # Review stream statuses
     'UNDER_CONSULTATION_CHECK', 'PASSED_CONSULTATION_CHECK',
     'UNDER_REVIEW', 'AWAITING_MANAGER_APPROVAL',
@@ -254,6 +254,95 @@ class PackageService:  # pylint: disable=too-many-public-methods
         )
 
     @staticmethod
+    def _get_newest_main_report_submission(package):
+        """Return the newest main (reports-folder) document submission, or None.
+
+        Supporting documents never drive the Regulated Party card status, so only
+        documents in the primary REPORTS_FOLDER are considered. The newest one by
+        submission date wins.
+        """
+        main_documents = [
+            submission
+            for item in package.items
+            for submission in item.submissions
+            if submission.type == SubmissionType.DOCUMENT
+            and submission.active and not submission.deleted
+            and submission.submitted_document
+            and submission.submitted_document.folder == REPORTS_FOLDER
+        ]
+        if not main_documents:
+            return None
+        return max(main_documents, key=lambda s: s.created_date)
+
+    @staticmethod
+    def _map_report_document_status_for_proponent(submission, is_compliance_self_report):
+        """Map a main report document's status to its Regulated Party card badge.
+
+        - EAO-uploaded (SUBMIT-1041) wins and shows UPLOADED_BY_EAO.
+        - Compliance Self-Reports never show Verified/Pending Acknowledgement:
+          they stay SUBMITTED until the main report is ACKNOWLEDGED.
+        - Every other report/notification type shows VERIFIED once verified.
+        - Pending Acknowledgement is never surfaced to the Regulated Party.
+        """
+        if getattr(submission, "is_eao_uploaded", False):
+            return PackageStatus.UPLOADED_BY_EAO.value
+
+        status = submission.status.value \
+            if isinstance(submission.status, SubmissionStatus) else submission.status
+
+        if status == SubmissionStatus.ACKNOWLEDGED.value:
+            return PackageStatus.ACKNOWLEDGED.value
+        if status == SubmissionStatus.VERIFIED.value and not is_compliance_self_report:
+            return PackageStatus.VERIFIED.value
+        # SUBMITTED/PENDING, or a CSR that is only VERIFIED (not yet acknowledged).
+        return PackageStatus.SUBMITTED.value
+
+    @staticmethod
+    def _calculate_report_card_statuses(package):
+        """Derive the Regulated Party report card status from the newest main document.
+
+        Returns an empty list when no main report document has been submitted, so
+        the card renders the "None" placeholder.
+        """
+        newest_main = PackageService._get_newest_main_report_submission(package)
+        if newest_main is None:
+            return []
+
+        is_csr = package.type.name == PackageTypeEnum.REPORT_TYPE_B.value
+        return [
+            PackageService._map_report_document_status_for_proponent(newest_main, is_csr)
+        ]
+
+    @staticmethod
+    def _calculate_report_staff_card_statuses(package):
+        """Derive the EAO report card status from the Regulated Party's documents.
+
+        Returns:
+            [] when no document has been submitted (card shows "-"),
+            [NEW_SUBMISSION] while any Regulated Party document is still unverified,
+            None when every Regulated Party document is processed, so the caller keeps
+            the package-level verified/acknowledged mapping.
+        """
+        submitted = [
+            submission
+            for item in package.items
+            for submission in item.submissions
+            if submission.type == SubmissionType.DOCUMENT
+            and submission.active and not submission.deleted
+            and not getattr(submission, "is_eao_uploaded", False)
+        ]
+        statuses = [
+            s.status.value if isinstance(s.status, SubmissionStatus) else s.status
+            for s in submitted
+        ]
+        statuses = [status for status in statuses if status != SubmissionStatus.PENDING.value]
+        if not statuses:
+            return []
+        if SubmissionStatus.SUBMITTED.value in statuses:
+            return [PackageStatus.NEW_SUBMISSION.value]
+        return None
+
+    @staticmethod
     def calculate_package_statuses(package, user_type):
         """Calculate complete package status list including noncanonical statuses.
 
@@ -269,6 +358,21 @@ class PackageService:  # pylint: disable=too-many-public-methods
         """
         if user_type not in [UserType.PROPONENT, UserType.STAFF]:
             return [status.value if hasattr(status, 'value') else status for status in package.status]
+
+        # Regulated Party report/notification cards show the badge of the newest
+        # main document only (SUBMIT-1027), which differs from the whole-package
+        # aggregation used elsewhere. The EAO/staff card keeps the aggregate.
+        is_report_package = bool(package.type and package.type.name in REPORT_RELATED_TYPES)
+        if user_type == UserType.PROPONENT and is_report_package:
+            return PackageService._calculate_report_card_statuses(package)
+
+        # The EAO report card shows New Submission while any Regulated Party document
+        # is unverified. That follows the documents, not the package aggregate, which
+        # becomes INTERNAL_VERIFICATION (shown as "-") once only some are verified.
+        if user_type == UserType.STAFF and is_report_package:
+            staff_statuses = PackageService._calculate_report_staff_card_statuses(package)
+            if staff_statuses is not None:
+                return staff_statuses
 
         version = package.version.version if package.version else 1
         package_status_mapping = PackageService._get_status_mapping(version)
@@ -873,7 +977,13 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
         cls._update_items_status(
             package.items, ItemStatus.SUBMITTED.value, session)
-        cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
+        if package.type.name in REPORT_RELATED_TYPES:
+            # A report package is reused for every submission of the obligation, so
+            # documents staff already verified/acknowledged must keep their status.
+            # Only the newly added (PENDING) documents move to SUBMITTED.
+            cls._update_submission_status_on_resubmit(package, session)
+        else:
+            cls._update_submission_status(package, SubmissionStatus.SUBMITTED.value, session)
         cls._update_package_submission_details(package, session)
         cls._close_carried_review_requests(package, session)
         cls._create_email_queue_record(package, session)

@@ -101,6 +101,30 @@ describe("ReportsTable", () => {
     expect(screen.getByText("New Submission")).toBeInTheDocument();
   });
 
+  it("renders the Regulated Party card statuses derived from the newest main document", () => {
+    render(
+      <ReportsTable
+        reportPackages={[
+          makeReportPackage(1, { status: ["SUBMITTED"] }),
+          makeReportPackage(2, { status: ["VERIFIED"] }),
+          makeReportPackage(3, { status: ["ACKNOWLEDGED"] }),
+        ]}
+      />,
+    );
+    expect(screen.getByText("Submitted")).toBeInTheDocument();
+    expect(screen.getByText("Verified")).toBeInTheDocument();
+    expect(screen.getByText("Acknowledged")).toBeInTheDocument();
+  });
+
+  it("renders an 'Uploaded by EAO' badge when the newest main document was EAO-uploaded", () => {
+    render(
+      <ReportsTable
+        reportPackages={[makeReportPackage(1, { status: ["UPLOADED_BY_EAO"] })]}
+      />,
+    );
+    expect(screen.getByText("Uploaded by EAO")).toBeInTheDocument();
+  });
+
   it("links the submission name to the Regulated Party report page by default", () => {
     render(<ReportsTable reportPackages={[makeReportPackage(5)]} />);
     fireEvent.click(screen.getByText("Annual Report 5"));

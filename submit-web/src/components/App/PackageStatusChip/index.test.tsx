@@ -52,6 +52,10 @@ describe("PackageStatusChip color system", () => {
     expect(themeFor(status)).toBe("orange");
   });
 
+  it("maps Uploaded by EAO to the neutral (grey) theme", () => {
+    expect(themeFor("UPLOADED_BY_EAO")).toBe("neutral");
+  });
+
   it("renders the resolved label for a status", () => {
     render(<PackageStatusChip status="RESUBMITTED" />);
     expect(screen.getByText("Resubmitted")).toBeInTheDocument();

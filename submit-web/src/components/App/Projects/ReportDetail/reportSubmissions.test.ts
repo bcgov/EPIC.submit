@@ -37,21 +37,46 @@ const makeSubmission = (overrides: Partial<Submission> = {}): Submission =>
 
 describe("document status mapping", () => {
   it("labels SUBMITTED/VERIFIED/ACKNOWLEDGED correctly", () => {
-    expect(getDocumentStatusLabel("SUBMITTED")).toBe("Submitted");
-    expect(getDocumentStatusLabel("VERIFIED")).toBe("Verified");
-    expect(getDocumentStatusLabel("ACKNOWLEDGED")).toBe("Acknowledged");
+    expect(getDocumentStatusLabel(makeSubmission({ status: "SUBMITTED" }))).toBe(
+      "Submitted",
+    );
+    expect(getDocumentStatusLabel(makeSubmission({ status: "VERIFIED" }))).toBe(
+      "Verified",
+    );
+    expect(
+      getDocumentStatusLabel(makeSubmission({ status: "ACKNOWLEDGED" })),
+    ).toBe("Acknowledged");
   });
 
   it("falls back to Submitted for unknown or missing status", () => {
     expect(getDocumentStatusLabel(undefined)).toBe("Submitted");
-    expect(getDocumentStatusLabel("MYSTERY")).toBe("Submitted");
+    expect(
+      getDocumentStatusLabel(
+        makeSubmission({ status: "MYSTERY" as Submission["status"] }),
+      ),
+    ).toBe("Submitted");
   });
 
   it("themes VERIFIED/ACKNOWLEDGED as success and SUBMITTED as info", () => {
-    expect(getDocumentStatusTheme("VERIFIED")).toBe("success");
-    expect(getDocumentStatusTheme("ACKNOWLEDGED")).toBe("success");
-    expect(getDocumentStatusTheme("SUBMITTED")).toBe("info");
+    expect(getDocumentStatusTheme(makeSubmission({ status: "VERIFIED" }))).toBe(
+      "success",
+    );
+    expect(
+      getDocumentStatusTheme(makeSubmission({ status: "ACKNOWLEDGED" })),
+    ).toBe("success");
+    expect(getDocumentStatusTheme(makeSubmission({ status: "SUBMITTED" }))).toBe(
+      "info",
+    );
     expect(getDocumentStatusTheme(undefined)).toBe("info");
+  });
+
+  it("shows a grey 'Uploaded by EAO' badge for EAO-uploaded docs regardless of status", () => {
+    const eaoDoc = makeSubmission({
+      status: "VERIFIED",
+      is_eao_uploaded: true,
+    });
+    expect(getDocumentStatusLabel(eaoDoc)).toBe("Uploaded by EAO");
+    expect(getDocumentStatusTheme(eaoDoc)).toBe("neutral");
   });
 });
 

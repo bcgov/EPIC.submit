@@ -22,6 +22,18 @@ describe("getReportStatus", () => {
     expect(getReportStatus(["ACKNOWLEDGED"])).toBe("ACKNOWLEDGED");
   });
 
+  it("returns the proponent card statuses derived from the newest main document", () => {
+    // The Regulated Party card receives a single derived status from the API.
+    expect(getReportStatus(["SUBMITTED"])).toBe("SUBMITTED");
+    expect(getReportStatus(["UPLOADED_BY_EAO"])).toBe("UPLOADED_BY_EAO");
+  });
+
+  it("prefers Uploaded by EAO over every other status", () => {
+    expect(
+      getReportStatus(["ACKNOWLEDGED", "VERIFIED", "UPLOADED_BY_EAO"]),
+    ).toBe("UPLOADED_BY_EAO");
+  });
+
   it("prefers Pending Acknowledgement over Verified for a verified Compliance Self-Report", () => {
     // A verified Report_TypeB package carries both VERIFIED and
     // PENDING_ACKNOWLEDGEMENT; the card shows Pending Acknowledgement alone.

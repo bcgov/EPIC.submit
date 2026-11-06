@@ -177,6 +177,31 @@ describe("ReportSubmissionsTable", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows an 'Uploaded by EAO' badge for an EAO-uploaded document (proponent)", () => {
+    const pkg = makePackage([
+      makeDocSubmission(1, "received_by_email.pdf", "2026-06-01T00:00:00Z", {
+        status: "SUBMITTED",
+        is_eao_uploaded: true,
+      }),
+    ]);
+    render(<ReportSubmissionsTable reportPackage={pkg} audience="proponent" />);
+
+    expect(screen.getByText("Uploaded by EAO")).toBeInTheDocument();
+    expect(screen.queryByText("Submitted")).not.toBeInTheDocument();
+  });
+
+  it("shows an 'Uploaded by EAO' badge for an EAO-uploaded document (staff)", () => {
+    const pkg = makePackage([
+      makeDocSubmission(1, "received_by_email.pdf", "2026-06-01T00:00:00Z", {
+        status: "SUBMITTED",
+        is_eao_uploaded: true,
+      }),
+    ]);
+    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
+
+    expect(screen.getByText("Uploaded by EAO")).toBeInTheDocument();
+  });
+
   it("opens the Verify modal when the Verify button is clicked", async () => {
     const user = userEvent.setup();
     const pkg = makePackage([
