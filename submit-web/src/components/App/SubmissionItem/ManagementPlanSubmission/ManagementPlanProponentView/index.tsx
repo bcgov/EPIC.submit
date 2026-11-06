@@ -7,6 +7,7 @@ import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import {
+  SUBMISSION_SORT_ORDER,
   SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
   SubmissionItemStatus,
@@ -62,7 +63,7 @@ export const ManagementPlanSubmissionProponentView = () => {
       name: "managementPlans",
       label: "Management Plan/IEM Terms of Engagement",
       folder: S3_FOLDER.MANAGEMENT_PLANS.value,
-      sortOrder: 0,
+      sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
       maxFiles: 1,
       maxFilesErrorMessage:
         "You can only submit one Management Plan/IEM Terms of Engagement per submission. Please add supporting documents in the section below.",
@@ -71,7 +72,7 @@ export const ManagementPlanSubmissionProponentView = () => {
       name: "supportingDocuments",
       label: "Supporting Documents",
       folder: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
-      sortOrder: 1,
+      sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
       description: "e.g. table of proposed changes, table of concordance",
     },
   ];

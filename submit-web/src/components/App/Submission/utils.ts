@@ -42,11 +42,19 @@ export const orderDocumentsBySortOrder = (submissions: Submission[]) =>
   submissions
     .map((submission, index) => ({ submission, index }))
     .sort(
-      ({ submission: a, index: aIndex }, { submission: b, index: bIndex }) =>
-        (a.sort_order ?? SUBMISSION_SORT_ORDER.MAIN_DOCUMENT) -
-          (b.sort_order ?? SUBMISSION_SORT_ORDER.MAIN_DOCUMENT) ||
-        Date.parse(a.created_date) - Date.parse(b.created_date) ||
-        aIndex - bIndex,
+      ({ submission: a, index: aIndex }, { submission: b, index: bIndex }) => {
+        const sortOrderDifference =
+          (a.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT) -
+          (b.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT);
+        if (sortOrderDifference) return sortOrderDifference;
+
+        const aCreatedDate = Date.parse(a.created_date);
+        const bCreatedDate = Date.parse(b.created_date);
+        const dateDifference =
+          (Number.isNaN(aCreatedDate) ? 0 : aCreatedDate) -
+          (Number.isNaN(bCreatedDate) ? 0 : bCreatedDate);
+        return dateDifference || aIndex - bIndex;
+      },
     )
     .map(({ submission }) => submission);
 

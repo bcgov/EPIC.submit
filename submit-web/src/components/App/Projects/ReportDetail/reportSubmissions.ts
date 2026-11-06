@@ -26,10 +26,19 @@ export const getReportDocumentSubmissions = (
     item.submissions.filter((s) => s.type === SUBMISSION_TYPE.DOCUMENT),
   );
   return [...documents].sort(
-    (a, b) =>
-      (a.sort_order ?? SUBMISSION_SORT_ORDER.MAIN_DOCUMENT) -
-        (b.sort_order ?? SUBMISSION_SORT_ORDER.MAIN_DOCUMENT) ||
-      new Date(b.created_date).getTime() - new Date(a.created_date).getTime(),
+    (a, b) => {
+      const sortOrderDifference =
+        (a.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT) -
+        (b.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT);
+      if (sortOrderDifference) return sortOrderDifference;
+
+      const aCreatedDate = Date.parse(a.created_date);
+      const bCreatedDate = Date.parse(b.created_date);
+      const dateDifference =
+        (Number.isNaN(bCreatedDate) ? 0 : bCreatedDate) -
+        (Number.isNaN(aCreatedDate) ? 0 : aCreatedDate);
+      return dateDifference;
+    },
   );
 };
 

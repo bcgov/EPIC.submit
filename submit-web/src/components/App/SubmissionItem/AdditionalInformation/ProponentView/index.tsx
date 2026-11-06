@@ -20,6 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import {
+  SUBMISSION_SORT_ORDER,
   SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
   SubmissionItemStatus,
@@ -141,7 +142,7 @@ export const AdditionalInformationProponentView = () => {
         name: "uploadDocuments",
         label: "your documents",
         folder: S3_FOLDER.UPLOAD_DOCUMENTS.value,
-        sortOrder: 0,
+        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

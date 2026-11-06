@@ -7,7 +7,11 @@ import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { BCDesignTokens } from "epic.theme";
 import { useGetGeoUploads, useApproveGeoUpload, GeoUpload } from "@/hooks/api/useGeo";
-import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import {
+  SUBMISSION_SORT_ORDER,
+  Submission,
+  SUBMISSION_TYPE,
+} from "@/models/Submission";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEY } from "@/hooks/api/constants";
@@ -197,7 +201,7 @@ export const GeoSpatialUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.GEOSPATIAL.value}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={0}
+            sortOrder={SUBMISSION_SORT_ORDER.MAIN_DOCUMENT}
             isGeoSpatial={true}
             onDocumentClick={handleDocumentClick}
             onUploadComplete={onUploadComplete}

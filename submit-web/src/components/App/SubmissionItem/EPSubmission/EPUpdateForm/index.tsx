@@ -6,6 +6,7 @@ import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { BCDesignTokens } from "epic.theme";
+import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 
 export const EngagementPlanUpdateForm = () => {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export const EngagementPlanUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.ENGAGEMENT_PLANS.value}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={0}
+            sortOrder={SUBMISSION_SORT_ORDER.MAIN_DOCUMENT}
           />
         </Box>
         <Box>
@@ -61,7 +62,7 @@ export const EngagementPlanUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS.value}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={1}
+            sortOrder={SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT}
           />
         </Box>
       </Box>

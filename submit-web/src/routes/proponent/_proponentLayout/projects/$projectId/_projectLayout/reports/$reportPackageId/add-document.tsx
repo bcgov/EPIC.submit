@@ -33,7 +33,7 @@ import { saveObject, S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import { createSubmission } from "@/hooks/api/useSubmissions";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 import { PACKAGE_STATUS } from "@/models/Package";
-import { SUBMISSION_TYPE } from "@/models/Submission";
+import { SUBMISSION_SORT_ORDER, SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { HTTP_STATUS } from "@/utils/constants";
 import { formatReportPageTitle } from "@/components/App/Projects/ReportDetail/reportTitle";
@@ -198,11 +198,15 @@ function ReportAddDocumentPage() {
       setIsSubmitting(true);
       // Upload every staged file first; only flip the package to SUBMITTED
       // once all uploads succeed so a mid-way failure leaves nothing partial.
-      await uploadSection(primaryFiles, S3_FOLDER.REPORTS.value, 0);
+      await uploadSection(
+        primaryFiles,
+        S3_FOLDER.REPORTS.value,
+        SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+      );
       await uploadSection(
         supportingFiles,
         S3_FOLDER.REPORT_SUPPORTING_DOCUMENTS.value,
-        1,
+        SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
       );
       await updatePackageState({
         packageId,

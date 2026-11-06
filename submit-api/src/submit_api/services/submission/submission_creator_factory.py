@@ -152,6 +152,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         submission_data = {
             "item_id": item_id,
             "submitted_document_id": submitted_document.id,
+            "sort_order": request_data.get(
+                "sort_order", SUPPORTING_DOCUMENT_SORT_ORDER
+            ),
         }
         if root_submission_id:
             submission_data["root_submission_id"] = root_submission_id

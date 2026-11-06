@@ -17,7 +17,10 @@ import { getSubmissionPackageQueryOptions, useCreatePackageUpdateRequest } from 
 import { SubmissionPackage } from "@/models/Package";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
-import { Submission } from "@/models/Submission";
+import {
+  SUBMISSION_SORT_ORDER,
+  Submission,
+} from "@/models/Submission";
 import { GeoSpatialGuidelines } from "./GeoSpatialGuidelines";
 
 const MapPreviewModal = lazy(() =>
@@ -72,7 +75,7 @@ export const GeoSpatialStaffView = () => {
         name: "geospatial",
         label: "Geospatial Files",
         folder: S3_FOLDER.GEOSPATIAL.value,
-        sortOrder: 0,
+        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
         acceptedFileTypes: ["shp", "zip"],
         acceptedFileTypesCriteria: "Must contain shape files",
         onDocumentClick: (documentItem) => {

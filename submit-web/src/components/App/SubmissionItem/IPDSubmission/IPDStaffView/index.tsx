@@ -16,6 +16,7 @@ import { PendingRequest, SentRequest } from "@/components/App/SubmissionItem/Sec
 import { getSubmissionPackageQueryOptions, useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 
 export const IPDStaffView = () => {
   const {
@@ -55,13 +56,13 @@ export const IPDStaffView = () => {
         name: "ipd",
         label: "Initial Project Description",
         folder: S3_FOLDER.IPDS.value,
-        sortOrder: 0,
+        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
       },
       {
         name: "supportingIpd",
         label: "Supporting Documents",
         folder: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value,
-        sortOrder: 1,
+        sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },
