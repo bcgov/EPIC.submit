@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 const project = 'E2E Coastal Project';
 const plan = 'E2E Environmental Management Plan';
 const password = 'E2e-only-password-123!';
-const baseURL = 'http://web:5173';
+const baseURL = 'http://localhost:5173';
 const files = path.resolve('playwright/test-data');
 type Email = { to: string[]; subject: string; body: string };
 
@@ -28,7 +28,7 @@ async function login(page: Page, username: string) {
   await page.getByRole('textbox', { name: /Username|Email/ }).fill(username);
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: /Sign In/ }).click();
-  await expect(page).toHaveURL(/web:5173/);
+  await expect(page).toHaveURL(/localhost:5173/);
 }
 
 async function register(page: Page, url: string, username: string) {
@@ -75,12 +75,6 @@ test('invitation, registration, submission and staff review with real queued ema
     await test.step('Staff generates the initial account invitation', async () => {
       await staff.goto('/');
       expect(await staff.evaluate(() => ({ secure: window.isSecureContext, crypto: Boolean(window.crypto.subtle) }))).toEqual({ secure: true, crypto: true });
-      await staff.evaluate(async () => {
-        const moduleUrl = '/node_modules/.vite/deps/oidc-client-ts.js';
-        const { Log } = await import(moduleUrl);
-        Log.setLogger(console);
-        Log.setLevel(Log.DEBUG);
-      });
       await staff.getByRole('button', { name: 'Admin Login', exact: true }).click();
       await login(staff, 'staff');
       await expect(staff).toHaveURL(/\/staff(?:\/|$)/);

@@ -12,14 +12,11 @@ export default defineConfig({
   reporter: [['line'], ['html', { outputFolder: '/artifacts/report', open: 'never' }]],
   use: {
     ...devices['Desktop Chrome'],
-    baseURL: 'http://web:5173',
+    baseURL: 'http://localhost:5173',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     // Only the job-local S3 endpoint has a throwaway self-signed certificate.
     ignoreHTTPSErrors: true,
-    launchOptions: {
-      args: ['--unsafely-treat-insecure-origin-as-secure=http://web:5173'],
-    },
   },
 });

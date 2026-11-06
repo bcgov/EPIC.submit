@@ -23,7 +23,7 @@ class Handler(BaseHTTPRequestHandler):
         payload = json.dumps(body).encode()
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', 'http://web:5173')
+        self.send_header('Access-Control-Allow-Origin', 'http://localhost:5173')
         self.send_header('Access-Control-Allow-Headers', 'Authorization,Content-Type')
         self.send_header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
         self.end_headers()

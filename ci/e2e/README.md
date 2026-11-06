@@ -52,7 +52,8 @@ with the version in `submit-web/package-lock.json`.
 All credentials in this directory are disposable test credentials. The S3 emulator uses a
 fresh two-day self-signed certificate. Browser certificate errors are ignored only
 inside this isolated test context; the Document API trusts that specific certificate.
-The browser permits the private HTTP web origin as a secure context for OIDC PKCE.
+The test container shares the web container's network namespace, so the browser
+uses `http://localhost:5173`, a secure context for OIDC PKCE without browser overrides.
 
 ## Failures and maintenance
 
