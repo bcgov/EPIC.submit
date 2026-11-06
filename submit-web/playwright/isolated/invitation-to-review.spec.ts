@@ -1,5 +1,6 @@
 import { test, expect, type Page, type APIRequestContext } from '@playwright/test';
 import path from 'node:path';
+import { readFile } from 'node:fs/promises';
 
 const project = 'E2E Coastal Project';
 const plan = 'E2E Environmental Management Plan';
@@ -73,8 +74,16 @@ test('invitation, registration, submission and staff review with real queued ema
   try {
     await test.step('Staff generates the initial account invitation', async () => {
       await staff.goto('/');
+      expect(await staff.evaluate(() => ({ secure: window.isSecureContext, crypto: Boolean(window.crypto.subtle) }))).toEqual({ secure: true, crypto: true });
+      await staff.evaluate(async () => {
+        const moduleUrl = '/node_modules/.vite/deps/oidc-client-ts.js';
+        const { Log } = await import(moduleUrl);
+        Log.setLogger(console);
+        Log.setLevel(Log.DEBUG);
+      });
       await staff.getByRole('button', { name: 'Admin Login', exact: true }).click();
       await login(staff, 'staff');
+      await expect(staff).toHaveURL(/\/staff(?:\/|$)/);
       await staff.goto('/staff/proponents/9001');
       await expect(staff.getByText('E2E Coastal Energy', { exact: true }).first()).toBeVisible();
       await staff.getByRole('row').filter({ hasText: project }).getByRole('checkbox').check();
@@ -179,6 +188,13 @@ test('invitation, registration, submission and staff review with real queued ema
         await expect(review.getByRole('button', { name: 'Send Recommendations to Manager', exact: true })).toBeDisabled();
         await staff.goto(staffPath);
       }
+      const downloaded = staff.waitForEvent('download');
+      await staff.getByText('test-management-plan.pdf', { exact: true }).click();
+      const download = await downloaded;
+      expect(download.suggestedFilename()).toBe('test-management-plan.pdf');
+      const downloadedPath = await download.path();
+      expect(downloadedPath).toBeTruthy();
+      expect(await readFile(downloadedPath!)).toEqual(await readFile(path.join(files, 'test-management-plan.pdf')));
       const recommendation = await email(request, 'manager@example.test', /^Submission awaiting Manager approval/, 2);
       expect(recommendation.body).toContain(plan);
       await proponent.reload();
