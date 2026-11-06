@@ -58,6 +58,7 @@ sender:
   email: EAO.ManagementPlanSupport@gov.bc.ca
 
 staffSupportMailId: EAO.ManagementPlanSupport@gov.bc.ca
+gisSupportMailId: gisservices.eao@gov.bc.ca
 
 signupUrlPath: /proponent/account-registration
 

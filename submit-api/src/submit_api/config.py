@@ -118,6 +118,7 @@ class _Config():  # pylint: disable=too-few-public-methods
     LEGISLATIVE_TIMEZONE = os.getenv('LEGISLATIVE_TIMEZONE', 'US/Pacific')
     SENDER_EMAIL = os.getenv('SENDER_EMAIL')
     STAFF_SUPPORT_MAIL_ID = os.getenv('STAFF_SUPPORT_MAIL_ID', '')
+    GIS_SUPPORT_MAIL_ID = os.getenv('GIS_SUPPORT_MAIL_ID', '')
 
     INVITATION_EXPIRY_DAYS = int(os.getenv('INVITATION_EXPIRY_DAYS', '7'))  # Default to 7 days
 

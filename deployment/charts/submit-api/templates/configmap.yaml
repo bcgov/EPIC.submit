@@ -20,6 +20,7 @@ data:
   AUTH_BASE_URL: {{ .Values.auth.epicAuth.baseUrl }}
   SENDER_EMAIL: {{ .Values.sender.email }}
   STAFF_SUPPORT_MAIL_ID: {{ .Values.staffSupportMailId }}
+  GIS_SUPPORT_MAIL_ID: {{ .Values.gisSupportMailId }}
   SIGNUP_URL_PATH: {{ .Values.signupUrlPath }}
   DOCUMENT_SERVICE_URL: {{ .Values.documentService.url }}
   CONDITION_API_BASE_URL: {{ .Values.conditionApi.baseUrl }}

@@ -35,6 +35,7 @@ import {
   isComplianceSelfReport,
   isDocumentAcknowledgeable,
   isDocumentVerifiable,
+  isEaoUploaded,
   isMainReportDocument,
 } from "./reportSubmissions";
 import { VerifyDocumentModal } from "./VerifyDocumentModal";
@@ -268,14 +269,18 @@ export const ReportSubmissionsTable = ({
                 <SubmitTableCell width="15%">
                   {isStaff ? (
                     <SubmissionStatusChip
-                      status={submission.status}
-                      label={getDocumentStatusLabel(submission.status)}
+                      status={
+                        isEaoUploaded(submission)
+                          ? "UPLOADED_BY_EAO"
+                          : submission.status
+                      }
+                      label={getDocumentStatusLabel(submission)}
                       showIcon
                     />
                   ) : (
                     <StatusChip
-                      label={getDocumentStatusLabel(submission.status)}
-                      theme={getDocumentStatusTheme(submission.status)}
+                      label={getDocumentStatusLabel(submission)}
+                      theme={getDocumentStatusTheme(submission)}
                     />
                   )}
                 </SubmitTableCell>

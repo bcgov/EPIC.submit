@@ -14,6 +14,7 @@ from tests.utilities.factory_utils import (
     factory_document_submission_model, factory_item_model, factory_project_model, factory_project_report_model,
     factory_proponent_model, factory_report_package_model, factory_user_model)
 from submit_api.models.package import PackageStatus
+from submit_api.models.submission import SubmissionStatus
 from submit_api.models.user import UserType
 
 fake = Faker()
@@ -120,7 +121,8 @@ def test_report_package_exposes_last_submitted_and_new_submission_status(client,
     report_package.status = [PackageStatus.SUBMITTED.value]
     session.add(report_package)
     item = factory_item_model(package=report_package)
-    factory_document_submission_model(item, created_by=auth_guid)
+    factory_document_submission_model(
+        item, created_by=auth_guid, status=SubmissionStatus.SUBMITTED)
 
     session.flush()
 
