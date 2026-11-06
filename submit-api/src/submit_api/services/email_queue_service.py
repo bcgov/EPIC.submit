@@ -27,6 +27,8 @@ from submit_api.utils.constants import (
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE,
+    GIS_ITEM_TYPE_NAME,
+    GIS_SUBMISSION_NOTIFY_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
     NEW_USER_INVITATION_ACCOUNT_ADMIN_EMAIL_TEMPLATE,
     NEW_USER_INVITATION_COLLABORATOR_EMAIL_TEMPLATE,
@@ -66,6 +68,22 @@ class SubmitEmailQueueService:
                 package=package,
             ),
         )
+        gis_file_names = cls._get_gis_document_names(package)
+        gis_recipient = current_app.config.get('GIS_SUPPORT_MAIL_ID')
+        if gis_file_names and gis_recipient:
+            emails.append(
+                cls.queue_package_email(
+                    package.id,
+                    GIS_SUBMISSION_NOTIFY_EMAIL_TEMPLATE,
+                    session=session,
+                    package=package,
+                )
+            )
+        elif gis_file_names:
+            current_app.logger.error(
+                "GIS submission email was not queued for package %s because GIS_SUPPORT_MAIL_ID is not configured",
+                package.id,
+            )
         return emails
 
     @staticmethod
@@ -89,6 +107,8 @@ class SubmitEmailQueueService:
             MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE,
         ):
             payload = cls._build_package_submission_payload(package, template_name)
+        elif template_name == GIS_SUBMISSION_NOTIFY_EMAIL_TEMPLATE:
+            payload = cls._build_gis_submission_payload(package)
         elif template_name == MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE:
             payload = cls._build_update_request_payload(package)
         elif template_name == MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE:
@@ -149,6 +169,25 @@ class SubmitEmailQueueService:
             subject = f"Confirmation of receipt for {package.name}"
 
         return cls._payload(sender_email, recipients, subject, body_args)
+
+    @classmethod
+    def _build_gis_submission_payload(cls, package: PackageModel) -> dict:
+        account_project = cls._get_account_project(package.account_project_id)
+        project = cls._get_project(account_project)
+        recipient = current_app.config.get('GIS_SUPPORT_MAIL_ID')
+        body_args = {
+            'certificate_holder_name': project.proponent.name if project.proponent else '',
+            'package_name': package.name,
+            'project_name': project.name,
+            'submission_date': cls._format_submission_date(package.submitted_on),
+            'gis_file_names': cls._get_gis_document_names(package),
+        }
+        return cls._payload(
+            cls._get_sender_email(package, fallback_config='SENDER_EMAIL'),
+            cls._as_recipients(recipient),
+            f"GIS SUBMISSION - {project.name} - {package.name}",
+            body_args,
+        )
 
     @classmethod
     def _build_update_request_payload(cls, package: PackageModel) -> dict:
@@ -377,6 +416,20 @@ class SubmitEmailQueueService:
         return [
             submission.submitted_document.name
             for item in package.items
+            for submission in item.submissions
+            if submission.type == SubmissionType.DOCUMENT and submission.submitted_document
+        ]
+
+    @staticmethod
+    def _get_gis_document_names(package: PackageModel) -> list[str]:
+        """Return geospatial file names in the order displayed in the package section."""
+        gis_items = sorted(
+            (item for item in package.items if item.type and item.type.name == GIS_ITEM_TYPE_NAME),
+            key=lambda item: item.sort_order if item.sort_order is not None else 0,
+        )
+        return [
+            submission.submitted_document.name
+            for item in gis_items
             for submission in item.submissions
             if submission.type == SubmissionType.DOCUMENT and submission.submitted_document
         ]
