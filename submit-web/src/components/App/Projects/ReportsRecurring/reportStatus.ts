@@ -5,20 +5,25 @@ import { PackageStatus } from "@/models/Package";
 export type ReportsAudience = "staff" | "proponent";
 
 // Report statuses shown in the Status column, in priority order. The first one
-// present on the package wins. "New Submission" ships with this story; the
-// later terminal statuses are included so sibling stories (verified /
-// acknowledged / pending acknowledgement) light up without further changes.
+// present on the package wins.
+//
+// For the Regulated Party (proponent) card the API already derives a single
+// status from the newest main document (SUBMIT-1027): UPLOADED_BY_EAO,
+// ACKNOWLEDGED, VERIFIED, or SUBMITTED. For the EAO/staff card the package
+// carries its aggregate statuses (NEW_SUBMISSION, PENDING_ACKNOWLEDGEMENT,
+// etc.), which keep working off the same priority list.
 const REPORT_STATUS_PRIORITY: PackageStatus[] = [
+  "UPLOADED_BY_EAO",
   "NEW_SUBMISSION",
   "PENDING_ACKNOWLEDGEMENT",
   "ACKNOWLEDGED",
   "VERIFIED",
+  "SUBMITTED",
 ];
 
 /**
  * Returns the single status to show for a report obligation, or null when
- * nothing has been submitted (rendered as a "None" placeholder). A document the
- * Regulated Party sent that has not been verified surfaces as "New Submission".
+ * nothing has been submitted (rendered as a "None" placeholder).
  */
 export const getReportStatus = (
   statuses?: PackageStatus[],

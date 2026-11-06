@@ -140,7 +140,8 @@ export type PackageStatus =
   | "READY_FOR_APPROVAL"
   | "ACKNOWLEDGED"
   | "NOT_APPROVED"
-  | "WITHDRAWN";
+  | "WITHDRAWN"
+  | "UPLOADED_BY_EAO";
 
 export const PACKAGE_STATUS: Record<
   PackageStatus,
@@ -278,6 +279,10 @@ export const PACKAGE_STATUS: Record<
   WITHDRAWN: {
     value: "WITHDRAWN",
     label: "Withdrawn",
+  },
+  UPLOADED_BY_EAO: {
+    value: "UPLOADED_BY_EAO",
+    label: "Uploaded by EAO",
   },
 };
 

@@ -1,8 +1,11 @@
 """Unit tests for report obligation submission validation."""
+from unittest.mock import Mock, patch
+
 import pytest
 from faker import Faker
 
 from submit_api.exceptions import BadRequestError
+from submit_api.models.submission import SubmissionStatus
 from submit_api.services.package_service import PackageService
 from tests.utilities.factory_scenarios import TestJwtClaims
 from tests.utilities.factory_utils import (
@@ -67,3 +70,57 @@ def test_report_submission_passes_with_primary_document(session):
 
     # Should not raise.
     PackageService._validate_report_submission(package)
+
+
+class TestReportSubmitPreservesStatuses:
+    """Submitting more documents must not reset already-processed documents."""
+
+    @staticmethod
+    def _make_package(type_name, statuses):
+        """Build a mock package whose single item holds submissions with the given statuses."""
+        package = Mock()
+        package.id = 1
+        package.account_project_work_id = None
+        package.status = []
+        package.type.name = type_name
+        item = Mock()
+        item.type.name = "Upload Files/Documents"
+        item.submissions = [Mock(status=status) for status in statuses]
+        package.items = [item]
+        return package, item.submissions
+
+    @staticmethod
+    def _submit(package):
+        """Run _submit_package with side-effect collaborators patched out."""
+        with patch.object(PackageService, "_update_items_status"), \
+                patch.object(PackageService, "_update_package_submission_details"), \
+                patch.object(PackageService, "_close_carried_review_requests"), \
+                patch.object(PackageService, "_create_email_queue_record"), \
+                patch.object(PackageService, "_log_activity_submission"), \
+                patch.object(PackageService, "_update_package_status"), \
+                patch("submit_api.services.package_service.current_app"):
+            PackageService._submit_package(package, Mock())
+
+    @pytest.mark.parametrize("type_name", ["Report", "Report_TypeB"])
+    def test_report_submit_keeps_verified_and_acknowledged(self, type_name):
+        """Verified/acknowledged report documents keep their status; PENDING becomes SUBMITTED."""
+        package, submissions = self._make_package(
+            type_name,
+            [SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED, SubmissionStatus.PENDING],
+        )
+
+        self._submit(package)
+
+        assert submissions[0].status == SubmissionStatus.VERIFIED
+        assert submissions[1].status == SubmissionStatus.ACKNOWLEDGED
+        assert submissions[2].status == SubmissionStatus.SUBMITTED
+
+    def test_non_report_submit_still_sets_all_to_submitted(self):
+        """Non-report packages keep the existing behaviour of submitting every document."""
+        package, submissions = self._make_package(
+            "Management Plan", [SubmissionStatus.PENDING, SubmissionStatus.PENDING],
+        )
+
+        self._submit(package)
+
+        assert all(s.status == SubmissionStatus.SUBMITTED.value for s in submissions)

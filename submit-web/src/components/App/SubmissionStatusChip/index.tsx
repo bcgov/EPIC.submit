@@ -137,6 +137,11 @@ const statusMap: Record<string, StyleProps> = {
   UPDATED: { label: "Updated", theme: "purple" },
   NOT_APPLICABLE: { label: "Not Applicable", theme: "neutral" },
   NOT_APPROVED: { label: "Not Approved", theme: "danger" },
+
+  // A document EAO staff uploaded on behalf of the Regulated Party. Rendered as
+  // a grey badge on both the report document row and the Reports card; it never
+  // carries a verify/acknowledge state.
+  UPLOADED_BY_EAO: { label: "Uploaded by EAO", theme: "neutral" },
 };
 
 type SubmissionStatusChipProps = Readonly<{
