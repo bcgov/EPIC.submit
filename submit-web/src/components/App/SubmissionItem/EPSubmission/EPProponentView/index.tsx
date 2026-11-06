@@ -148,11 +148,13 @@ export const EngagementPlanProponentView = () => {
         name: "engagementPlan",
         label: "Engagement Plan",
         folder: S3_FOLDER.ENGAGEMENT_PLANS.value,
+        isMainDocument: true,
       },
       {
         name: "supportingEngagementPlan",
         label: "Supporting Documents for the Engagement Plan",
         folder: S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS.value,
+        isMainDocument: false,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

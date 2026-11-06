@@ -5,68 +5,35 @@ import {
   Submission,
   SubmissionItemStatus,
 } from "@/models/Submission";
-import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 
-const PRIMARY_DOCUMENT_SECTIONS: Record<
-  string,
-  { folder: string; label: string }
-> = {
-  [SUBMISSION_ITEM_TYPE.IPD]: { folder: S3_FOLDER.IPDS.value, label: "IPD" },
-  [SUBMISSION_ITEM_TYPE.ENGAGEMENT_PLAN]: {
-    folder: S3_FOLDER.ENGAGEMENT_PLANS.value,
-    label: "Engagement Plan",
-  },
-  [SUBMISSION_ITEM_TYPE.GEOSPATIAL_INFORMATION]: {
-    folder: S3_FOLDER.GEOSPATIAL.value,
-    label: "GIS",
-  },
-  [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: {
-    folder: S3_FOLDER.MANAGEMENT_PLANS.value,
-    label: "Management Plan",
-  },
-};
-
-const SUPPORTING_DOCUMENT_FOLDERS = new Set([
-  S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value,
-  S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS.value,
-  S3_FOLDER.SUPPORTING_DOCUMENTS.value,
-  S3_FOLDER.REPORT_SUPPORTING_DOCUMENTS.value,
-]);
-const MAIN_DOCUMENT_FOLDERS = new Set(
-  [
-    ...Object.values(PRIMARY_DOCUMENT_SECTIONS).map((section) => section.folder),
-    S3_FOLDER.IEMS.value,
-    S3_FOLDER.REPORTS.value,
-  ],
-);
-
-const getDocumentOrder = (folder?: string) => {
-  if (folder && MAIN_DOCUMENT_FOLDERS.has(folder)) return 0;
-  if (folder && SUPPORTING_DOCUMENT_FOLDERS.has(folder)) return 1;
-  return 2;
-};
+const getSectionDocumentLabel = (name: string) =>
+  ({
+    "Initial Project Description": "IPD",
+    "Geospatial Information": "GIS",
+  })[name] ?? name;
 
 export const getMissingMainDocumentMessage = (
   item: {
-    type: { name: string };
+    type: { name: string; submission_method?: string };
     is_required?: boolean;
     submissions?: Submission[];
   },
 ) => {
-  if (item.is_required === false) return undefined;
-
-  const section = PRIMARY_DOCUMENT_SECTIONS[item.type.name];
-  if (!section) return undefined;
+  if (
+    item.is_required === false ||
+    item.type.submission_method !== "DOCUMENT_UPLOAD"
+  ) {
+    return undefined;
+  }
 
   const hasMainDocument = (item.submissions ?? []).some(
     (submission) =>
       submission.type === SUBMISSION_TYPE.DOCUMENT &&
-      submission.submitted_document?.folder === section.folder,
+      submission.is_main_document,
   );
   if (hasMainDocument) return undefined;
 
-  return `You must have at least one file uploaded in this section (section/document name:  ${section.label}) to be able to submit your package`;
+  return `You must have at least one file uploaded in this section (section/document name:  ${getSectionDocumentLabel(item.type.name)}) to be able to submit your package`;
 };
 
 export const orderMainDocumentsFirst = (submissions: Submission[]) =>
@@ -74,8 +41,9 @@ export const orderMainDocumentsFirst = (submissions: Submission[]) =>
     .map((submission, index) => ({ submission, index }))
     .sort(
       ({ submission: a, index: aIndex }, { submission: b, index: bIndex }) =>
-        getDocumentOrder(a.submitted_document?.folder) -
-          getDocumentOrder(b.submitted_document?.folder) ||
+        Number(Boolean(b.is_main_document)) -
+          Number(Boolean(a.is_main_document)) ||
+        Date.parse(a.created_date) - Date.parse(b.created_date) ||
         aIndex - bIndex,
     )
     .map(({ submission }) => submission);

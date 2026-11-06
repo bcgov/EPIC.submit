@@ -44,6 +44,7 @@ export const IPDUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.IPDS.value}
             setIsPendingUpload={setIsPendingUpload}
+            isMainDocument
           />
         </Box>
         <Box>
@@ -60,6 +61,7 @@ export const IPDUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value}
             setIsPendingUpload={setIsPendingUpload}
+            isMainDocument={false}
           />
         </Box>
       </Box>

@@ -44,7 +44,6 @@ from submit_api.utils.constants import (
     GIS_ITEM_TYPE_NAME,
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
-    REPORTS_FOLDER,
     SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
 )
@@ -68,14 +67,6 @@ CANONICAL_STATUS_ORDER = (
     # Overlays (always last)
     'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
 )
-
-PRIMARY_DOCUMENT_SECTIONS = {
-    'Initial Project Description': ('ipds', 'IPD'),
-    'Engagement Plan': ('engagement_plans', 'Engagement Plan'),
-    GIS_ITEM_TYPE_NAME: ('geospatial', 'GIS'),
-    'Management Plan': ('management_plans', 'Management Plan'),
-}
-
 
 class PackageService:  # pylint: disable=too-many-public-methods
     """Package management service."""
@@ -579,19 +570,14 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
     @classmethod
     def _validate_report_submission(cls, package):
-        """Validate a report obligation submission has a primary report document.
-
-        A report submission must include at least one document in the primary
-        ("reports") folder. Supporting documents alone are not sufficient.
-        """
-        has_primary_document = any(
-            submission.submitted_document
-            and submission.submitted_document.folder == REPORTS_FOLDER
+        """Validate a report obligation submission has a main document."""
+        has_main_document = any(
+            submission.is_main_document
             for submission in cls._get_document_submissions_from_package(package)
         )
-        if not has_primary_document:
+        if not has_main_document:
             current_app.logger.info(
-                f"Report package {package.id} has no primary report document"
+                f"Report package {package.id} has no main document"
             )
             raise BadRequestError("Please upload a document.")
 
@@ -605,7 +591,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
         status, which can be in many valid states (ACKNOWLEDGED, VERIFIED, etc.)
         during resubmission.
         """
-        cls._validate_required_primary_documents(package)
+        cls._validate_required_main_documents(package)
 
         document_submissions = cls._get_document_submissions_from_package(package)
         if not document_submissions:
@@ -635,21 +621,23 @@ class PackageService:  # pylint: disable=too-many-public-methods
             )
 
     @classmethod
-    def _validate_required_primary_documents(cls, package):
-        """Require the primary upload for required document sections."""
+    def _validate_required_main_documents(cls, package):
+        """Require a main document for each required document-upload item."""
         for item in cls._get_required_items(package):
-            section = PRIMARY_DOCUMENT_SECTIONS.get(item.type.name)
-            if not section:
+            if item.type.submission_method != SubmissionMethod.DOCUMENT_UPLOAD:
                 continue
 
-            folder, section_name = section
-            has_primary_document = any(
+            has_main_document = any(
                 submission.type == SubmissionType.DOCUMENT
-                and submission.submitted_document
-                and submission.submitted_document.folder == folder
+                and submission.is_main_document
+                and not submission.deleted
                 for submission in item.submissions
             )
-            if not has_primary_document:
+            if not has_main_document:
+                section_name = {
+                    'Initial Project Description': 'IPD',
+                    GIS_ITEM_TYPE_NAME: 'GIS',
+                }.get(item.type.name, item.type.name)
                 raise BadRequestError(
                     "You must have at least one file uploaded in this section "
                     f"(section/document name:  {section_name}) to be able to "
@@ -704,7 +692,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 raise BadRequestError(
                     "Cannot resubmit an acknowledged package without an open update request"
                 )
-            cls._validate_required_primary_documents(package)
+            cls._validate_required_main_documents(package)
             cls._validate_no_empty_submissions(package)
         else:
             # Rule 3: MP/IEM packages — always require update request
@@ -712,7 +700,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 raise BadRequestError(
                     "Cannot resubmit a package without an open update request"
                 )
-            cls._validate_required_primary_documents(package)
+            cls._validate_required_main_documents(package)
             cls._validate_no_empty_submissions(package)
 
         current_app.logger.info(f"Package {package.id} is ready to resubmit")

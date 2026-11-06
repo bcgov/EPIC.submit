@@ -38,7 +38,7 @@ class Item(BaseModel):
         'Submission',
         lazy='joined',
         primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))',
-        order_by='Submission.created_date.asc()',
+        order_by='(Submission.is_main_document.desc(), Submission.created_date.asc(), Submission.id.asc())',
         cascade='all, delete',
         passive_deletes=True,
         back_populates='item'

@@ -28,6 +28,7 @@ export const AdditionalInformationUpdateForm = () => {
         <DocumentsTable
           folder={S3_FOLDER.UPLOAD_DOCUMENTS.value}
           setIsPendingUpload={setIsPendingUpload}
+          isMainDocument
         />
       </Box>
       <UnfinishedUploadsCheck customCondition={isPendingUpload}>

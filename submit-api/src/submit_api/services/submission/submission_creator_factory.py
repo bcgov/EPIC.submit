@@ -188,7 +188,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                     "original_submission_id": submission.id,
                     "root_submission_id": submission.root_submission_id,
                     "status": SubmissionStatus.PENDING,
-                    "created_by": TokenInfo.get_username()
+                    "created_by": TokenInfo.get_username(),
+                    "is_main_document": submission.is_main_document,
                 }
             )
             current_app.logger.info("New submission created with id: %s to replace submission_id: %s.",
@@ -290,7 +291,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 "original_submission_id": target_submission.id,
                 "root_submission_id": target_submission.root_submission_id,
                 "status": submission.status,
-                "created_by": submission.created_by
+                "created_by": submission.created_by,
+                "is_main_document": target_submission.is_main_document,
             }
         )
         current_app.logger.info("Created new version submission with id: %s.", new_submission.id)
@@ -370,7 +372,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 "item_id": destination_item_id,
                 "submitted_document_id": new_submitted_document.id,
                 "status": submission.status,
-                "created_by": submission.created_by
+                "created_by": submission.created_by,
+                "is_main_document": submission.is_main_document,
             }
         )
         current_app.logger.info("Created new submission with id: %s for the move operation.", new_submission.id)
@@ -591,7 +594,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             minor_version=minor_version,
             created_by=submission_data.get("created_by", TokenInfo.get_username()),
             root_submission_id=submission_data.get("root_submission_id"),
-            status=submission_data.get("status", SubmissionStatus.PENDING)
+            status=submission_data.get("status", SubmissionStatus.PENDING),
+            is_main_document=submission_data.get("is_main_document", False)
         )
         session.add(submission)
         session.flush()

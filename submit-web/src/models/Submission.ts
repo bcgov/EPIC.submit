@@ -284,6 +284,7 @@ export type Submission = {
   submitted_by: string;
   status: SubmissionStatus;
   is_updated: boolean;
+  is_main_document?: boolean;
   // True when the document was uploaded by EAO staff rather than sent by the
   // Regulated Party. Populated by SUBMIT-1041; absent/undefined means the
   // document is treated as Regulated-Party-sent.

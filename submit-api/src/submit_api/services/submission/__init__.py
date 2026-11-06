@@ -83,6 +83,9 @@ class SubmissionService:
 
             submission_data = request_data.get("data")
             submission = submission_creator.create(item_id, submission_data, session)
+            if submission.type == SubmissionType.DOCUMENT:
+                submission.is_main_document = request_data.get("is_main_document", False)
+                session.add(submission)
 
             status = request_data.get("status")
             cls.update_submission_item_status(item_id, status, session)

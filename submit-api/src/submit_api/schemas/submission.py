@@ -63,6 +63,7 @@ class SubmissionSchema(Schema):
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
     status = fields.Enum(data_key="status", enum=SubmissionStatus)
+    is_main_document = fields.Bool(data_key="is_main_document")
     minor_version = fields.Int(data_key="minor_version")
     major_version = fields.Int(data_key="major_version")
 
@@ -87,6 +88,7 @@ class CreateSubmissionRequestSchema(Schema):
     data = fields.Dict(data_key="data")
     item_id = fields.Int(data_key="item_id")
     created_by = fields.Str(data_key="created_by", required=False)
+    is_main_document = fields.Bool(data_key="is_main_document", load_default=False)
 
 
 class UpdateSubmissionStatusSchema(Schema):

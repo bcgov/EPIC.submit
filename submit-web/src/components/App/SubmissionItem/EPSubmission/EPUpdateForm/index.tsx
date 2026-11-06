@@ -44,6 +44,7 @@ export const EngagementPlanUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.ENGAGEMENT_PLANS.value}
             setIsPendingUpload={setIsPendingUpload}
+            isMainDocument
           />
         </Box>
         <Box>
@@ -60,6 +61,7 @@ export const EngagementPlanUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS.value}
             setIsPendingUpload={setIsPendingUpload}
+            isMainDocument={false}
           />
         </Box>
       </Box>

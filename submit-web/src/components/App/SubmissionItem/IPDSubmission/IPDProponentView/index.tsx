@@ -144,11 +144,13 @@ export const IPDSubmissionProponentView = () => {
         name: "ipd",
         label: "Initial Project Description",
         folder: S3_FOLDER.IPDS.value,
+        isMainDocument: true,
       },
       {
         name: "supportingIpd",
         label: "Supporting Documents",
         folder: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value,
+        isMainDocument: false,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

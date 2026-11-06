@@ -141,6 +141,7 @@ export const AdditionalInformationProponentView = () => {
         name: "uploadDocuments",
         label: "your documents",
         folder: S3_FOLDER.UPLOAD_DOCUMENTS.value,
+        isMainDocument: true,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

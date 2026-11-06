@@ -25,6 +25,7 @@ type DocumentTableProps = Readonly<{
   formFieldName?: string;
   onDocumentClick?: (documentItem: Submission) => void;
   onUploadComplete?: (submission: Submission) => void;
+  isMainDocument?: boolean;
 }>;
 
 export default function DocumentTable({
@@ -36,6 +37,7 @@ export default function DocumentTable({
   isGeoSpatial,
   onDocumentClick,
   onUploadComplete,
+  isMainDocument = false,
 }: DocumentTableProps) {
   if (documents.length === 0 && pendingDocuments.length === 0) {
     return null;
@@ -99,6 +101,7 @@ export default function DocumentTable({
               folder={s3Folder}
               isGeoSpatial={isGeoSpatial}
               onUploadComplete={onUploadComplete}
+              isMainDocument={isMainDocument}
             />
           ))}
         </TableBody>

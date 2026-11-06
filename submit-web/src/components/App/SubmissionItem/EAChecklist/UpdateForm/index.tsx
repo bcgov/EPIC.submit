@@ -32,6 +32,7 @@ export const EarlyEngagementChecklistUpdateForm = () => {
         <DocumentsTable
           folder={S3_FOLDER.UPLOAD_DOCUMENTS.value}
           setIsPendingUpload={setIsPendingUpload}
+          isMainDocument
         />
       </Box>
       <UnfinishedUploadsCheck customCondition={isPendingUpload}>

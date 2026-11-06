@@ -154,7 +154,11 @@ function ReportAddDocumentPage() {
     ]);
   };
 
-  const uploadSection = async (staged: StagedFile[], folderKey: string) => {
+  const uploadSection = async (
+    staged: StagedFile[],
+    folderKey: string,
+    isMainDocument: boolean,
+  ) => {
     const folderPath = getSubmissionFolderName({
       projectName,
       sectionName: folderKey,
@@ -167,6 +171,7 @@ function ReportAddDocumentPage() {
       await createSubmission(Number(reportItemId), {
         type: SUBMISSION_TYPE.DOCUMENT,
         data: { name: file.name, url, folder: folderKey },
+        is_main_document: isMainDocument,
       });
     }
   };
@@ -193,10 +198,11 @@ function ReportAddDocumentPage() {
       setIsSubmitting(true);
       // Upload every staged file first; only flip the package to SUBMITTED
       // once all uploads succeed so a mid-way failure leaves nothing partial.
-      await uploadSection(primaryFiles, S3_FOLDER.REPORTS.value);
+      await uploadSection(primaryFiles, S3_FOLDER.REPORTS.value, true);
       await uploadSection(
         supportingFiles,
         S3_FOLDER.REPORT_SUPPORTING_DOCUMENTS.value,
+        false,
       );
       await updatePackageState({
         packageId,

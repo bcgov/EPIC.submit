@@ -29,6 +29,7 @@ export interface UploadSectionConfig {
   name: string;
   label: string;
   folder: string;
+  isMainDocument?: boolean;
   maxFiles?: number;
   maxFilesErrorMessage?: string;
   description?: string;
@@ -256,6 +257,7 @@ export const GenericDocumentUploadSection: React.FC<
                 formFieldName={section.name}
                 onDocumentClick={section.onDocumentClick}
                 onUploadComplete={section.onUploadComplete}
+                isMainDocument={section.isMainDocument ?? true}
               />
             </Box>
           </Grid>

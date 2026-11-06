@@ -72,6 +72,7 @@ export const GeoSpatialStaffView = () => {
         name: "geospatial",
         label: "Geospatial Files",
         folder: S3_FOLDER.GEOSPATIAL.value,
+        isMainDocument: true,
         acceptedFileTypes: ["shp", "zip"],
         acceptedFileTypesCriteria: "Must contain shape files",
         onDocumentClick: (documentItem) => {
