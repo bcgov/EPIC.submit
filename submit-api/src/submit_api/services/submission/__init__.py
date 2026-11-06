@@ -14,7 +14,7 @@ from submit_api.models.package_item_type import PackageItemType
 from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
 from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import (
-    MAIN_DOCUMENT_SORT_ORDER,
+    SUPPORTING_DOCUMENT_SORT_ORDER,
     Submission as SubmissionModel,
     SubmissionType,
     SubmissionStatus,
@@ -89,9 +89,9 @@ class SubmissionService:
             submission_data = request_data.get("data")
             submission = submission_creator.create(item_id, submission_data, session)
             if submission.type == SubmissionType.DOCUMENT:
-                # The client sets priority per upload section; old callers default to main-first.
+                # Only explicit main priority should satisfy the main-file requirement.
                 submission.sort_order = request_data.get(
-                    "sort_order", MAIN_DOCUMENT_SORT_ORDER
+                    "sort_order", SUPPORTING_DOCUMENT_SORT_ORDER
                 )
                 session.add(submission)
 

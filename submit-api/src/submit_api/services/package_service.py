@@ -554,7 +554,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
         # Report obligations reuse one package for every submission of a recurring
         # report/phase, so each submit (first or subsequent) is validated the same
-        # way: it must include a primary report/notification document. The
+        # way: it must include a main report/notification document. The
         # update-request-gated resubmit rules do not apply.
         if package.type.name in REPORT_RELATED_TYPES:
             cls._validate_report_submission(package)

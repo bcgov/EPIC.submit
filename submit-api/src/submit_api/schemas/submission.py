@@ -6,7 +6,10 @@ Manages the submission schema
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionStatus
+from submit_api.models.submission import (
+    SUPPORTING_DOCUMENT_SORT_ORDER,
+    SubmissionStatus,
+)
 from submit_api.models.submitted_document import VirusScanResult
 
 
@@ -88,8 +91,8 @@ class CreateSubmissionRequestSchema(Schema):
     data = fields.Dict(data_key="data")
     item_id = fields.Int(data_key="item_id")
     created_by = fields.Str(data_key="created_by", required=False)
-    # Clients may assign more groups later; a missing value keeps the main file first.
-    sort_order = fields.Int(data_key="sort_order", load_default=MAIN_DOCUMENT_SORT_ORDER)
+    # Missing priority is treated as supporting so only an explicit 0 satisfies main-file validation.
+    sort_order = fields.Int(data_key="sort_order", load_default=SUPPORTING_DOCUMENT_SORT_ORDER)
 
 
 class UpdateSubmissionStatusSchema(Schema):

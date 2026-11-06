@@ -25,7 +25,7 @@ type DocumentTableProps = Readonly<{
   formFieldName?: string;
   onDocumentClick?: (documentItem: Submission) => void;
   onUploadComplete?: (submission: Submission) => void;
-  sortOrder?: number;
+  sortOrder: number;
 }>;
 
 export default function DocumentTable({
@@ -37,7 +37,7 @@ export default function DocumentTable({
   isGeoSpatial,
   onDocumentClick,
   onUploadComplete,
-  sortOrder = 0,
+  sortOrder,
 }: DocumentTableProps) {
   if (documents.length === 0 && pendingDocuments.length === 0) {
     return null;

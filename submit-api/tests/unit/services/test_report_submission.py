@@ -41,7 +41,10 @@ def test_report_submission_requires_primary_document(session):
     """Submitting a report with only a supporting document is rejected."""
     package, item, auth_guid = _setup_report_package(session)
     factory_document_submission_model(
-        item, created_by=auth_guid, folder="report_supporting_documents"
+        item,
+        created_by=auth_guid,
+        folder="report_supporting_documents",
+        sort_order=1,
     )
     session.flush()
 

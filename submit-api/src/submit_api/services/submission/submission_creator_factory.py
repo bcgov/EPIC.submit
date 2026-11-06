@@ -10,9 +10,9 @@ from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
 from submit_api.models.package_version import PackageVersion as PackageVersionModel
 from submit_api.models.submission import (
-    MAIN_DOCUMENT_SORT_ORDER,
     Submission as SubmissionModel,
     SubmissionStatus,
+    SUPPORTING_DOCUMENT_SORT_ORDER,
 )
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
@@ -599,7 +599,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             created_by=submission_data.get("created_by", TokenInfo.get_username()),
             root_submission_id=submission_data.get("root_submission_id"),
             status=submission_data.get("status", SubmissionStatus.PENDING),
-            sort_order=submission_data.get("sort_order", MAIN_DOCUMENT_SORT_ORDER)
+            sort_order=submission_data.get("sort_order", SUPPORTING_DOCUMENT_SORT_ORDER)
         )
         session.add(submission)
         session.flush()

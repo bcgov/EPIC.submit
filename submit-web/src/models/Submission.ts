@@ -289,7 +289,7 @@ export type Submission = {
   submitted_by: string;
   status: SubmissionStatus;
   is_updated: boolean;
-  sort_order?: number;
+  sort_order: number;
   // True when the document was uploaded by EAO staff rather than sent by the
   // Regulated Party. Populated by SUBMIT-1041; absent/undefined means the
   // document is treated as Regulated-Party-sent.

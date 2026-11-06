@@ -37,6 +37,7 @@ class SubmissionStatus(enum.Enum):
 # Smaller values appear first; use 0 for the main file and larger values for
 # supporting files or other document groups.
 MAIN_DOCUMENT_SORT_ORDER = 0
+SUPPORTING_DOCUMENT_SORT_ORDER = 1
 
 
 # Declarative transition map:
@@ -89,8 +90,8 @@ class Submission(BaseModel):
     sort_order = Column(
         db.Integer,
         nullable=False,
-        default=MAIN_DOCUMENT_SORT_ORDER,
-        server_default='0'
+        default=SUPPORTING_DOCUMENT_SORT_ORDER,
+        server_default='1'
     )
     root_submission_id = Column(db.Integer, ForeignKey('submissions.id'),
                                 nullable=True)  # the base or root id of submisison

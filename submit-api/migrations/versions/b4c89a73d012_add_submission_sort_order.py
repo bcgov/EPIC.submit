@@ -14,27 +14,38 @@ depends_on = None
 
 
 def upgrade():
-    """Store document order and place existing supporting files after main files."""
+    """Store document order and identify known main files already on record."""
     op.add_column(
         'submissions',
-        sa.Column('sort_order', sa.Integer(), nullable=False, server_default='0'),
+        sa.Column('sort_order', sa.Integer(), nullable=True),
     )
-    # Older uploads relied on separate folder names; preserve that display order.
+    # Older uploads used folders for this distinction; unknown folders stay supporting.
     op.execute("""
-        UPDATE submissions
-        SET sort_order = 1
-        WHERE submitted_document_id IN (
-            SELECT id
-            FROM submitted_documents
-            WHERE folder IN (
-                'supporting_documents',
-                'supporting',
-                'ipd_supporting_documents',
-                'engagement_plan_supporting_documents',
-                'report_supporting_documents'
-            )
-        )
+        UPDATE submissions AS submission
+        SET sort_order = CASE
+            WHEN document.folder IN (
+                'ipds',
+                'engagement_plans',
+                'geospatial',
+                'management_plans',
+                'iems',
+                'reports',
+                'consultation_records',
+                'upload_documents'
+            ) THEN 0
+            ELSE 1
+        END
+        FROM submitted_documents AS document
+        WHERE submission.submitted_document_id = document.id
     """)
+    op.execute("UPDATE submissions SET sort_order = 0 WHERE submitted_document_id IS NULL")
+    op.alter_column(
+        'submissions',
+        'sort_order',
+        existing_type=sa.Integer(),
+        nullable=False,
+        server_default='1',
+    )
 
 
 def downgrade():

@@ -21,7 +21,7 @@ type DocumentTableRowProps = Readonly<{
   folder?: string;
   isGeoSpatial?: boolean;
   onUploadComplete?: (submission: Submission) => void;
-  sortOrder?: number;
+  sortOrder: number;
 }>;
 export default function PendingDocumentRow({
   documentItem,
@@ -29,7 +29,7 @@ export default function PendingDocumentRow({
   folder: s3Folder,
   isGeoSpatial,
   onUploadComplete,
-  sortOrder = 0,
+  sortOrder,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",

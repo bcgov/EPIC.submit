@@ -57,6 +57,7 @@ const makeDocSubmission = (
   submitted_by: "Jane Doe",
   status: "SUBMITTED",
   is_updated: false,
+  sort_order: 0,
   ...overrides,
 });
 
@@ -238,6 +239,7 @@ describe("ReportSubmissionsTable", () => {
       [
         makeDocSubmission(1, "appendix.xlsx", "2026-06-01T00:00:00Z", {
           status: "VERIFIED",
+          sort_order: 1,
           submitted_document: {
             id: 1,
             name: "appendix.xlsx",

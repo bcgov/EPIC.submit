@@ -5,7 +5,6 @@ import { BCDesignTokens, EAOColors } from "epic.theme";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import {
-  SUBMISSION_SORT_ORDER,
   SUBMISSION_TYPE,
   Submission,
 } from "@/models/Submission";
@@ -34,7 +33,7 @@ export interface UploadSectionConfig {
   label: string;
   folder: string;
   // Lower values show first. Use 0 for the main file and larger values for other groups.
-  sortOrder?: number;
+  sortOrder: number;
   maxFiles?: number;
   maxFilesErrorMessage?: string;
   description?: string;
@@ -263,7 +262,7 @@ export const GenericDocumentUploadSection: React.FC<
                 onDocumentClick={section.onDocumentClick}
                 onUploadComplete={section.onUploadComplete}
                 sortOrder={
-                  section.sortOrder ?? SUBMISSION_SORT_ORDER.MAIN_DOCUMENT
+                  section.sortOrder
                 }
               />
             </Box>

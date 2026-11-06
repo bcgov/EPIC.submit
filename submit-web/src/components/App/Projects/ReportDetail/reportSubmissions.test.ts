@@ -32,6 +32,7 @@ const makeSubmission = (overrides: Partial<Submission> = {}): Submission =>
     submitted_by: "Jane Doe",
     status: "SUBMITTED",
     is_updated: false,
+    sort_order: 0,
     ...overrides,
   }) as Submission;
 
@@ -70,7 +71,7 @@ describe("isComplianceSelfReport", () => {
 });
 
 describe("isMainReportDocument", () => {
-  it("is true for documents in the reports folder", () => {
+  it("is true for the main document priority", () => {
     expect(isMainReportDocument(makeSubmission())).toBe(true);
   });
 
@@ -78,6 +79,7 @@ describe("isMainReportDocument", () => {
     expect(
       isMainReportDocument(
         makeSubmission({
+          sort_order: 1,
           submitted_document: {
             id: 2,
             name: "appendix.xlsx",
@@ -138,6 +140,7 @@ describe("isDocumentAcknowledgeable", () => {
       isDocumentAcknowledgeable(
         makeSubmission({
           status: "VERIFIED",
+          sort_order: 1,
           submitted_document: {
             id: 2,
             name: "appendix.xlsx",
