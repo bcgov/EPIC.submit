@@ -32,6 +32,10 @@ import { useHasRole } from "@/hooks/common";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { isProvidedPlan } from "@/utils/managementPlan";
 import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
+import {
+  getMissingMainDocumentMessage,
+  orderMainDocumentsFirst,
+} from "@/components/App/Submission/utils";
 
 export default function StaffSubmissionItemTableRow({
   item,
@@ -302,11 +306,13 @@ export default function StaffSubmissionItemTableRow({
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
       <When condition={submitted_on}>
-        {submissions
-          ?.filter((submission) =>
-            submission.type === SUBMISSION_TYPE.DOCUMENT &&
-            submission.status !== SUBMISSION_STATUS.PENDING
-          )
+        {orderMainDocumentsFirst(
+          submissions?.filter(
+            (submission) =>
+              submission.type === SUBMISSION_TYPE.DOCUMENT &&
+              submission.status !== SUBMISSION_STATUS.PENDING,
+          ) ?? [],
+        )
           .map((submission) => (
             <DocumentRow
               submissionItem={item}
@@ -334,7 +340,8 @@ export default function StaffSubmissionItemTableRow({
                 color: BCDesignTokens.typographyColorDanger,
               }}
             >
-              Please complete the {name} section.
+              {getMissingMainDocumentMessage(item) ??
+                `Please complete the ${name} section.`}
             </Typography>
           </TableCell>
         </TableRow>

@@ -69,6 +69,13 @@ CANONICAL_STATUS_ORDER = (
     'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
 )
 
+PRIMARY_DOCUMENT_SECTIONS = {
+    'Initial Project Description': ('ipds', 'IPD'),
+    'Engagement Plan': ('engagement_plans', 'Engagement Plan'),
+    GIS_ITEM_TYPE_NAME: ('geospatial', 'GIS'),
+    'Management Plan': ('management_plans', 'Management Plan'),
+}
+
 
 class PackageService:  # pylint: disable=too-many-public-methods
     """Package management service."""
@@ -598,6 +605,8 @@ class PackageService:  # pylint: disable=too-many-public-methods
         status, which can be in many valid states (ACKNOWLEDGED, VERIFIED, etc.)
         during resubmission.
         """
+        cls._validate_required_primary_documents(package)
+
         document_submissions = cls._get_document_submissions_from_package(package)
         if not document_submissions:
             current_app.logger.info(f"Package {package.id} has no documents")
@@ -624,6 +633,28 @@ class PackageService:  # pylint: disable=too-many-public-methods
             raise BadRequestError(
                 "All required items must have at least one document before submitting the package"
             )
+
+    @classmethod
+    def _validate_required_primary_documents(cls, package):
+        """Require the primary upload for required document sections."""
+        for item in cls._get_required_items(package):
+            section = PRIMARY_DOCUMENT_SECTIONS.get(item.type.name)
+            if not section:
+                continue
+
+            folder, section_name = section
+            has_primary_document = any(
+                submission.type == SubmissionType.DOCUMENT
+                and submission.submitted_document
+                and submission.submitted_document.folder == folder
+                for submission in item.submissions
+            )
+            if not has_primary_document:
+                raise BadRequestError(
+                    "You must have at least one file uploaded in this section "
+                    f"(section/document name:  {section_name}) to be able to "
+                    "submit your package"
+                )
 
     @classmethod
     def _validate_package_for_resubmit(cls, package) -> PackageModel:
@@ -673,6 +704,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 raise BadRequestError(
                     "Cannot resubmit an acknowledged package without an open update request"
                 )
+            cls._validate_required_primary_documents(package)
             cls._validate_no_empty_submissions(package)
         else:
             # Rule 3: MP/IEM packages — always require update request
@@ -680,6 +712,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 raise BadRequestError(
                     "Cannot resubmit a package without an open update request"
                 )
+            cls._validate_required_primary_documents(package)
             cls._validate_no_empty_submissions(package)
 
         current_app.logger.info(f"Package {package.id} is ready to resubmit")

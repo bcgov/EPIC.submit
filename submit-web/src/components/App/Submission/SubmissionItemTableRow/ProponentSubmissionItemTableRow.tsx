@@ -25,6 +25,10 @@ import { getSubmissionItemLabel } from "@/utils";
 import { SUBMISSION_TYPE } from "@/models/Submission";
 import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 import { useContactInfoAlwaysEditable } from "@/hooks/useContactInfoAlwaysEditable";
+import {
+  getMissingMainDocumentMessage,
+  orderMainDocumentsFirst,
+} from "@/components/App/Submission/utils";
 
 export default function ProponentSubmissionItemTableRow({
   item,
@@ -150,8 +154,11 @@ export default function ProponentSubmissionItemTableRow({
           </When>
         </SubmitPrimaryRowTableCell>
       </SubmitTablePrimaryRow>
-      {submissions
-        .filter((submission) => submission.type === SUBMISSION_TYPE.DOCUMENT)
+      {orderMainDocumentsFirst(
+        submissions.filter(
+          (submission) => submission.type === SUBMISSION_TYPE.DOCUMENT,
+        ),
+      )
         .map((submission) => (
           <DocumentRow
             key={`doc-row-${submission.id}`}
@@ -176,7 +183,8 @@ export default function ProponentSubmissionItemTableRow({
               variant="body2"
               sx={{ color: BCDesignTokens.typographyColorDanger }}
             >
-              Please complete the {name} section.
+              {getMissingMainDocumentMessage(item) ??
+                `Please complete the ${name} section.`}
             </Typography>
           </TableCell>
         </TableRow>
