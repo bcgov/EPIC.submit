@@ -16,6 +16,7 @@ import { PendingRequest, SentRequest } from "@/components/App/SubmissionItem/Sec
 import { getSubmissionPackageQueryOptions, useCreatePackageUpdateRequest } from "@/hooks/api/usePackages";
 import { SubmissionPackage } from "@/models/Package";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
+import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 
 export const EngagementPlanStaffView = () => {
   const {
@@ -55,11 +56,13 @@ export const EngagementPlanStaffView = () => {
         name: "engagementPlan",
         label: "Engagement Plan",
         folder: S3_FOLDER.ENGAGEMENT_PLANS.value,
+        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
       },
       {
         name: "supportingEngagementPlan",
         label: "Supporting Documents for the Engagement Plan",
         folder: S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS.value,
+        sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

@@ -6,6 +6,7 @@ import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { EAChecklistGuidelines } from "../EAChecklistGuidelines";
+import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 
 export const EarlyEngagementChecklistUpdateForm = () => {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ export const EarlyEngagementChecklistUpdateForm = () => {
         <DocumentsTable
           folder={S3_FOLDER.UPLOAD_DOCUMENTS.value}
           setIsPendingUpload={setIsPendingUpload}
+          sortOrder={SUBMISSION_SORT_ORDER.MAIN_DOCUMENT}
         />
       </Box>
       <UnfinishedUploadsCheck customCondition={isPendingUpload}>

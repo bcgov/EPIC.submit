@@ -2,14 +2,10 @@ import { ProjectReport, SubmissionPackage } from "@/models/Package";
 import {
   Submission,
   SUBMISSION_STATUS,
+  SUBMISSION_SORT_ORDER,
   SUBMISSION_TYPE,
 } from "@/models/Submission";
 import { StatusChipTheme } from "@/components/Shared/StatusChip";
-
-// The primary ("reports") folder holds the required report/notification
-// document; supporting attachments live in a separate folder. Mirrors the
-// backend REPORTS_FOLDER constant.
-export const REPORTS_FOLDER = "reports";
 
 // The report_type string that identifies a Compliance Self-Report obligation.
 // Drives the extra acknowledge hint in the Verify modal and the EAO-only
@@ -18,7 +14,7 @@ export const COMPLIANCE_SELF_REPORT_TYPE = "Compliance Self-Report";
 
 /**
  * Returns every document submission across all items of a report package,
- * sorted by submission date, newest first.
+ * sorted by document priority first, then newest upload first within each priority.
  */
 export const getReportDocumentSubmissions = (
   reportPackage?: SubmissionPackage,
@@ -30,8 +26,19 @@ export const getReportDocumentSubmissions = (
     item.submissions.filter((s) => s.type === SUBMISSION_TYPE.DOCUMENT),
   );
   return [...documents].sort(
-    (a, b) =>
-      new Date(b.created_date).getTime() - new Date(a.created_date).getTime(),
+    (a, b) => {
+      const sortOrderDifference =
+        (a.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT) -
+        (b.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT);
+      if (sortOrderDifference) return sortOrderDifference;
+
+      const aCreatedDate = Date.parse(a.created_date);
+      const bCreatedDate = Date.parse(b.created_date);
+      const dateDifference =
+        (Number.isNaN(bCreatedDate) ? 0 : bCreatedDate) -
+        (Number.isNaN(aCreatedDate) ? 0 : aCreatedDate);
+      return dateDifference;
+    },
   );
 };
 
@@ -98,10 +105,10 @@ export const isComplianceSelfReport = (report?: ProjectReport | null): boolean =
 
 /**
  * Whether a document is the obligation's primary ("main") report, as opposed to
- * a supporting attachment. The main report lives in the REPORTS_FOLDER.
+ * a supporting attachment. The upload priority is stored on the submission.
  */
 export const isMainReportDocument = (submission: Submission): boolean =>
-  submission.submitted_document?.folder === REPORTS_FOLDER;
+  submission.sort_order === SUBMISSION_SORT_ORDER.MAIN_DOCUMENT;
 
 /**
  * Whether a document was uploaded by EAO staff rather than sent by the

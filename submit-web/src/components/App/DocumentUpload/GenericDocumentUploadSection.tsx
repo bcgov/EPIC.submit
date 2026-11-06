@@ -4,7 +4,10 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import { BCDesignTokens, EAOColors } from "epic.theme";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { SUBMISSION_TYPE, Submission } from "@/models/Submission";
+import {
+  SUBMISSION_TYPE,
+  Submission,
+} from "@/models/Submission";
 import { ControlledFileUpload } from "@/components/Shared/ControlledFormFields/ControlledFileUpload";
 import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
@@ -29,6 +32,8 @@ export interface UploadSectionConfig {
   name: string;
   label: string;
   folder: string;
+  // Lower values show first. Use 0 for the main file and larger values for other groups.
+  sortOrder: number;
   maxFiles?: number;
   maxFilesErrorMessage?: string;
   description?: string;
@@ -256,6 +261,9 @@ export const GenericDocumentUploadSection: React.FC<
                 formFieldName={section.name}
                 onDocumentClick={section.onDocumentClick}
                 onUploadComplete={section.onUploadComplete}
+                sortOrder={
+                  section.sortOrder
+                }
               />
             </Box>
           </Grid>

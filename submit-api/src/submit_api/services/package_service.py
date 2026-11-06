@@ -30,7 +30,7 @@ from submit_api.models.package_metadata import PackageMetadata as PackageMetadat
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.queries.package import PackageSubmissionQueries
-from submit_api.models.submission import SubmissionType, SubmissionStatus
+from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionType, SubmissionStatus
 from submit_api.models.item_type import SubmissionItemType, SubmissionMethod
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
@@ -44,7 +44,6 @@ from submit_api.utils.constants import (
     GIS_ITEM_TYPE_NAME,
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
-    REPORTS_FOLDER,
     SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
 )
@@ -68,7 +67,6 @@ CANONICAL_STATUS_ORDER = (
     # Overlays (always last)
     'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
 )
-
 
 class PackageService:  # pylint: disable=too-many-public-methods
     """Package management service."""
@@ -660,7 +658,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
         # Report obligations reuse one package for every submission of a recurring
         # report/phase, so each submit (first or subsequent) is validated the same
-        # way: it must include a primary report/notification document. The
+        # way: it must include a main report/notification document. The
         # update-request-gated resubmit rules do not apply.
         if package.type.name in REPORT_RELATED_TYPES:
             cls._validate_report_submission(package)
@@ -676,19 +674,14 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
     @classmethod
     def _validate_report_submission(cls, package):
-        """Validate a report obligation submission has a primary report document.
-
-        A report submission must include at least one document in the primary
-        ("reports") folder. Supporting documents alone are not sufficient.
-        """
-        has_primary_document = any(
-            submission.submitted_document
-            and submission.submitted_document.folder == REPORTS_FOLDER
+        """Validate a report obligation submission has a main document."""
+        has_main_document = any(
+            submission.sort_order == MAIN_DOCUMENT_SORT_ORDER
             for submission in cls._get_document_submissions_from_package(package)
         )
-        if not has_primary_document:
+        if not has_main_document:
             current_app.logger.info(
-                f"Report package {package.id} has no primary report document"
+                f"Report package {package.id} has no main document"
             )
             raise BadRequestError("Please upload a document.")
 
@@ -702,6 +695,8 @@ class PackageService:  # pylint: disable=too-many-public-methods
         status, which can be in many valid states (ACKNOWLEDGED, VERIFIED, etc.)
         during resubmission.
         """
+        cls._validate_required_main_documents(package)
+
         document_submissions = cls._get_document_submissions_from_package(package)
         if not document_submissions:
             current_app.logger.info(f"Package {package.id} has no documents")
@@ -728,6 +723,31 @@ class PackageService:  # pylint: disable=too-many-public-methods
             raise BadRequestError(
                 "All required items must have at least one document before submitting the package"
             )
+
+    @classmethod
+    def _validate_required_main_documents(cls, package):
+        """Require a main document for each required document-upload item."""
+        for item in cls._get_required_items(package):
+            if item.type.submission_method != SubmissionMethod.DOCUMENT_UPLOAD:
+                continue
+
+            has_main_document = any(
+                # Only the first-priority document satisfies the required main-file check.
+                submission.type == SubmissionType.DOCUMENT
+                and submission.sort_order == MAIN_DOCUMENT_SORT_ORDER
+                and not submission.deleted
+                for submission in item.submissions
+            )
+            if not has_main_document:
+                section_name = {
+                    'Initial Project Description': 'IPD',
+                    GIS_ITEM_TYPE_NAME: 'GIS',
+                }.get(item.type.name, item.type.name)
+                raise BadRequestError(
+                    "You must have at least one file uploaded in this section "
+                    f"(section/document name:  {section_name}) to be able to "
+                    "submit your package"
+                )
 
     @classmethod
     def _validate_package_for_resubmit(cls, package) -> PackageModel:
@@ -777,6 +797,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 raise BadRequestError(
                     "Cannot resubmit an acknowledged package without an open update request"
                 )
+            cls._validate_required_main_documents(package)
             cls._validate_no_empty_submissions(package)
         else:
             # Rule 3: MP/IEM packages — always require update request
@@ -784,6 +805,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 raise BadRequestError(
                     "Cannot resubmit a package without an open update request"
                 )
+            cls._validate_required_main_documents(package)
             cls._validate_no_empty_submissions(package)
 
         current_app.logger.info(f"Package {package.id} is ready to resubmit")

@@ -17,6 +17,7 @@ type AddDocumentActionButtonProps = {
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
   isGeoSpatial?: boolean;
   onUploadComplete?: (submission: Submission) => void;
+  sortOrder: number;
 };
 export const AddDocumentActionButton = ({
   handleAddDocument,
@@ -25,6 +26,7 @@ export const AddDocumentActionButton = ({
   setIsPendingUpload,
   isGeoSpatial = false,
   onUploadComplete,
+  sortOrder,
 }: AddDocumentActionButtonProps) => {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -67,6 +69,7 @@ export const AddDocumentActionButton = ({
       const addedSubmission = await createSubmission(Number(submissionItemId), {
         type: SUBMISSION_TYPE.DOCUMENT,
         data: documentData,
+        sort_order: sortOrder,
       });
 
       queryClient.invalidateQueries({

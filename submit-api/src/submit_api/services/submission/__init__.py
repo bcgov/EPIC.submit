@@ -13,8 +13,14 @@ from submit_api.models.item_type import SubmissionMethod
 from submit_api.models.package_item_type import PackageItemType
 from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
 from submit_api.models.queries.package import PackageSubmissionQueries
-from submit_api.models.submission import Submission as SubmissionModel, SubmissionType, \
-    SubmissionStatus, ALLOWED_TRANSITIONS
+from submit_api.models.submission import (
+    MAIN_DOCUMENT_SORT_ORDER,
+    SUPPORTING_DOCUMENT_SORT_ORDER,
+    Submission as SubmissionModel,
+    SubmissionType,
+    SubmissionStatus,
+    ALLOWED_TRANSITIONS,
+)
 from submit_api.services import authorization
 from submit_api.services.document_service_client import DocumentServiceClient
 from submit_api.services.email_queue_service import SubmitEmailQueueService
@@ -22,7 +28,7 @@ from submit_api.services.geo import GeoService
 from submit_api.services.item_service import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
-from submit_api.utils.constants import REPORTS_FOLDER
+from submit_api.utils.constants import GIS_ITEM_TYPE_NAME, REPORTS_FOLDER
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -82,6 +88,14 @@ class SubmissionService:
             submission_creator = cls.make_submission_creator(submission_type)
 
             submission_data = request_data.get("data")
+            if submission_type == SubmissionType.DOCUMENT.value:
+                # Carry the priority into creation so every document starts with its final order.
+                submission_data = {
+                    **(submission_data or {}),
+                    "sort_order": request_data.get(
+                        "sort_order", SUPPORTING_DOCUMENT_SORT_ORDER
+                    ),
+                }
             submission = submission_creator.create(item_id, submission_data, session)
 
             status = request_data.get("status")
@@ -333,7 +347,7 @@ class SubmissionService:
 
         # Validate required document submissions before marking as COMPLETED
         if status == ItemStatus.COMPLETED.value:
-            cls._validate_required_document_submission(item_id)
+            cls._validate_required_document_submission(item_id, session)
             cls._validate_geospatial_uploads_approved(item_id)
 
         ItemService.update_submission_item_status(item_id, status, session)
@@ -353,8 +367,8 @@ class SubmissionService:
             )
 
     @classmethod
-    def _validate_required_document_submission(cls, item_id):
-        """Validate that required document items have at least one document submission."""
+    def _validate_required_document_submission(cls, item_id, session):
+        """Require a main document before completing a required document item."""
         # Get the item with its relationships
         item = ItemModel.find_by_id(item_id)
         if not item:
@@ -378,16 +392,26 @@ class SubmissionService:
         if item.type.submission_method != SubmissionMethod.DOCUMENT_UPLOAD:
             return
 
-        # Check if there's at least one active submission with a document
-        has_document_submission = any(
-            submission.type == SubmissionType.DOCUMENT and
-            submission.submitted_document_id is not None
-            for submission in item.submissions
-        )
+        # Query the session so a main file created earlier in this same request counts.
+        has_main_document_submission = session.query(SubmissionModel).filter_by(
+            item_id=item_id,
+            type=SubmissionType.DOCUMENT,
+            active=True,
+            deleted=False,
+            sort_order=MAIN_DOCUMENT_SORT_ORDER,
+        ).filter(
+            SubmissionModel.submitted_document_id.isnot(None)
+        ).first() is not None
 
-        if not has_document_submission:
+        if not has_main_document_submission:
+            section_name = {
+                "Initial Project Description": "IPD",
+                GIS_ITEM_TYPE_NAME: "GIS",
+            }.get(item.type.name, item.type.name)
             raise BadRequestError(
-                f"Cannot mark item as COMPLETED. Required documents are missing for '{item.type.name}'."
+                "You must have at least one file uploaded in this section "
+                f"(section/document name:  {section_name}) to be able to "
+                "submit your package"
             )
 
     @classmethod

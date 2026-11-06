@@ -9,7 +9,11 @@ from submit_api.models import Package as PackageModel
 from submit_api.models import SubmittedDocument as SubmittedDocumentModel
 from submit_api.models.db import session_scope
 from submit_api.models.package_version import PackageVersion as PackageVersionModel
-from submit_api.models.submission import Submission as SubmissionModel, SubmissionStatus
+from submit_api.models.submission import (
+    Submission as SubmissionModel,
+    SubmissionStatus,
+    SUPPORTING_DOCUMENT_SORT_ORDER,
+)
 from submit_api.models.submission import SubmissionType
 from submit_api.models.submitted_form import SubmittedForm as SubmittedFormModel
 from submit_api.utils.token_info import TokenInfo
@@ -148,6 +152,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         submission_data = {
             "item_id": item_id,
             "submitted_document_id": submitted_document.id,
+            "sort_order": request_data.get(
+                "sort_order", SUPPORTING_DOCUMENT_SORT_ORDER
+            ),
         }
         if root_submission_id:
             submission_data["root_submission_id"] = root_submission_id
@@ -188,7 +195,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                     "original_submission_id": submission.id,
                     "root_submission_id": submission.root_submission_id,
                     "status": SubmissionStatus.PENDING,
-                    "created_by": TokenInfo.get_username()
+                    "created_by": TokenInfo.get_username(),
+                    "sort_order": submission.sort_order,
                 }
             )
             current_app.logger.info("New submission created with id: %s to replace submission_id: %s.",
@@ -290,7 +298,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 "original_submission_id": target_submission.id,
                 "root_submission_id": target_submission.root_submission_id,
                 "status": submission.status,
-                "created_by": submission.created_by
+                "created_by": submission.created_by,
+                "sort_order": target_submission.sort_order,
             }
         )
         current_app.logger.info("Created new version submission with id: %s.", new_submission.id)
@@ -370,7 +379,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 "item_id": destination_item_id,
                 "submitted_document_id": new_submitted_document.id,
                 "status": submission.status,
-                "created_by": submission.created_by
+                "created_by": submission.created_by,
+                "sort_order": submission.sort_order,
             }
         )
         current_app.logger.info("Created new submission with id: %s for the move operation.", new_submission.id)
@@ -591,7 +601,8 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             minor_version=minor_version,
             created_by=submission_data.get("created_by", TokenInfo.get_username()),
             root_submission_id=submission_data.get("root_submission_id"),
-            status=submission_data.get("status", SubmissionStatus.PENDING)
+            status=submission_data.get("status", SubmissionStatus.PENDING),
+            sort_order=submission_data.get("sort_order", SUPPORTING_DOCUMENT_SORT_ORDER)
         )
         session.add(submission)
         session.flush()
