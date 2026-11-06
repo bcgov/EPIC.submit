@@ -91,6 +91,7 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     READY_FOR_APPROVAL: { label: "Ready for Approval", theme: "purple" },
 
     CREATED: { label: "Created", theme: "neutral" },
+    UPLOADED_BY_EAO: { label: "Uploaded by EAO", theme: "neutral" },
   };
 
 type PackageStatusChipProps = Readonly<{
