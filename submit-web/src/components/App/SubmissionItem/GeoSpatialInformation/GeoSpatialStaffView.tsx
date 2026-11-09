@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
@@ -8,7 +9,7 @@ import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
@@ -17,7 +18,9 @@ import { getSubmissionPackageQueryOptions, useCreatePackageUpdateRequest } from 
 import { SubmissionPackage } from "@/models/Package";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
-import { Submission } from "@/models/Submission";
+import {
+  Submission,
+} from "@/models/Submission";
 import { GeoSpatialGuidelines } from "./GeoSpatialGuidelines";
 
 const MapPreviewModal = lazy(() =>
@@ -71,7 +74,7 @@ export const GeoSpatialStaffView = () => {
       {
         name: "geospatial",
         label: "Geospatial Files",
-        folder: S3_FOLDER.GEOSPATIAL.value,
+        destination: S3_FOLDER.GEOSPATIAL,
         acceptedFileTypes: ["shp", "zip"],
         acceptedFileTypesCriteria: "Must contain shape files",
         onDocumentClick: (documentItem) => {

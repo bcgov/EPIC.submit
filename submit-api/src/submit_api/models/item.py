@@ -38,7 +38,8 @@ class Item(BaseModel):
         'Submission',
         lazy='joined',
         primaryjoin='and_(Submission.item_id == Item.id, Submission.active.is_(True), Submission.deleted.is_(False))',
-        order_by='Submission.created_date.asc()',
+        # Keep main files first, then show files in upload order within each group.
+        order_by='(Submission.sort_order.asc(), Submission.created_date.asc(), Submission.id.asc())',
         cascade='all, delete',
         passive_deletes=True,
         back_populates='item'

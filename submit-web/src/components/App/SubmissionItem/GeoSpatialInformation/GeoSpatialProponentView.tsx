@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
@@ -19,7 +20,9 @@ import {
 } from "react";
 import Form from "@/components/Shared/Forms/common";
 import { FormProvider, useForm } from "react-hook-form";
-import { Submission } from "@/models/Submission";
+import {
+  Submission,
+} from "@/models/Submission";
 import {
   GeoSpatialSubmissionForm,
   geospatialSubmissionSchema,
@@ -34,7 +37,7 @@ import {
   SUBMISSION_TYPE,
   SubmissionItemStatus,
 } from "@/models/Submission";
-import { deleteDocument, S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import {
   useSaveSubmission,
   useDeleteSubmission,
@@ -301,7 +304,7 @@ export const GeoSpatialProponentView = () => {
       {
         name: "geospatial",
         label: "Geospatial Files",
-        folder: S3_FOLDER.GEOSPATIAL.value,
+        destination: S3_FOLDER.GEOSPATIAL,
         acceptedFileTypes: ["shp", "zip"],
         acceptedFileTypesCriteria: "Must contain shape files",
         onUploadComplete,

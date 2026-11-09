@@ -34,6 +34,12 @@ class SubmissionStatus(enum.Enum):
     REVISION_REQUIRED = 'REVISION_REQUIRED'
 
 
+# Smaller values appear first; use 0 for the main file and larger values for
+# supporting files or other document groups.
+MAIN_DOCUMENT_SORT_ORDER = 0
+SUPPORTING_DOCUMENT_SORT_ORDER = 1
+
+
 # Declarative transition map:
 # For each PackageApprovalType, defines which statuses are valid
 # and what the only allowed "next" status is from each state.
@@ -80,6 +86,13 @@ class Submission(BaseModel):
         default=SubmissionStatus.PENDING
     )
     is_updated = Column(db.Boolean, nullable=False, default=False, comment="Whether the submission has been updated")
+    # Smaller values show first; reserve 0 for the main document.
+    sort_order = Column(
+        db.Integer,
+        nullable=False,
+        default=SUPPORTING_DOCUMENT_SORT_ORDER,
+        server_default='1'
+    )
     root_submission_id = Column(db.Integer, ForeignKey('submissions.id'),
                                 nullable=True)  # the base or root id of submisison
 

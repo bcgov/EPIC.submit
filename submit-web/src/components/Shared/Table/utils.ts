@@ -1,4 +1,5 @@
-import { downloadObject, S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { S3_FOLDER } from "@/models/documentUploadConfig";
+import { downloadObject } from "@/hooks/api/useObjectStorage";
 import { camelCase } from "lodash";
 
 export type Order = "asc" | "desc";

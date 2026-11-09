@@ -1,3 +1,4 @@
+import { NEW_PACKAGE_TYPE_S3_FOLDER_MAP } from "@/models/documentUploadConfig";
 import {
   Box,
   Button,
@@ -19,7 +20,7 @@ import {
 } from "@tanstack/react-query";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { useMemo } from "react";
-import { NEW_PACKAGE_TYPE_S3_FOLDER_MAP } from "@/hooks/api/useObjectStorage";
+
 import { FoldersList } from "./FoldersList";
 import { getSubmittedDocumentsByPackageIdForStaffQueryOptions } from "@/hooks/api/useSubmittedDocuments";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";

@@ -5,9 +5,11 @@ import {
   downloadObject,
   deleteDocument,
   copyObject,
+} from "./useObjectStorage";
+import {
   S3_FOLDER,
   NEW_PACKAGE_TYPE_S3_FOLDER_MAP,
-} from "./useObjectStorage";
+} from "@/models/documentUploadConfig";
 import { SubmissionPackageType } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 

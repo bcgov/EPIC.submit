@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { usePackageRoles } from "./usePackageRoles";
 import { PackageType, SubmissionPackage } from "@/models/Package";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 
 const pkg = (typeName?: string, work?: object | null) =>
   ({

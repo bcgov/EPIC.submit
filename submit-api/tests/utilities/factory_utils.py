@@ -236,7 +236,9 @@ def factory_item_model(package=None, item_type_id=1, status="NEW", submitted_by=
     return item
 
 
-def factory_document_submission_model(item, created_by, folder="reports", name=None, status=None):
+def factory_document_submission_model(
+    item, created_by, folder="reports", name=None, sort_order=0, status=None
+):
     """Create a DOCUMENT submission with a submitted document in the given folder."""
     from submit_api.models.submission import Submission, SubmissionType
     from submit_api.models.submitted_document import SubmittedDocument
@@ -256,6 +258,7 @@ def factory_document_submission_model(item, created_by, folder="reports", name=N
         created_by=created_by,
         active=True,
         deleted=False,
+        sort_order=sort_order,
         **({"status": status} if status is not None else {}),
     )
     db.session.add(submission)

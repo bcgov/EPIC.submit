@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
@@ -24,7 +25,7 @@ import {
   SUBMISSION_TYPE,
   SubmissionItemStatus,
 } from "@/models/Submission";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -147,12 +148,12 @@ export const EngagementPlanProponentView = () => {
       {
         name: "engagementPlan",
         label: "Engagement Plan",
-        folder: S3_FOLDER.ENGAGEMENT_PLANS.value,
+        destination: S3_FOLDER.ENGAGEMENT_PLANS,
       },
       {
         name: "supportingEngagementPlan",
         label: "Supporting Documents for the Engagement Plan",
-        folder: S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS.value,
+        destination: S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

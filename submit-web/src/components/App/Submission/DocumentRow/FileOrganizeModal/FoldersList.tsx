@@ -1,3 +1,4 @@
+import { DocumentFolder, NEW_PACKAGE_TYPE_S3_FOLDER_MAP } from "@/models/documentUploadConfig";
 import {
   Box,
   Chip,
@@ -13,10 +14,7 @@ import { useMemo, useState, useCallback } from "react";
 import { Submission } from "@/models/Submission";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useMoveSubmission } from "@/hooks/api/useSubmissions";
-import {
-  copyObject,
-  NEW_PACKAGE_TYPE_S3_FOLDER_MAP,
-} from "@/hooks/api/useObjectStorage";
+import { copyObject } from "@/hooks/api/useObjectStorage";
 import { SubmissionPackage } from "@/models/Package";
 import { AccountProject } from "@/models/Project";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
@@ -27,7 +25,7 @@ import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 
 type FoldersListProps = {
-  folders: { value: string; label: string }[];
+  folders: DocumentFolder[];
   submissions?: Submission[];
   submissionToMove: Submission;
   submissionPackage: SubmissionPackage;
@@ -63,10 +61,7 @@ export const FoldersList = ({
   submissionPackage,
   accountProject,
 }: FoldersListProps) => {
-  const [selectedFolder, setSelectedFolder] = useState<{
-    label: string;
-    value: string;
-  } | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<DocumentFolder | null>(null);
   const [locked, setLocked] = useState(false);
   const [moveTarget, setMoveTarget] = useState<string | number | null>(null);
   const { setClose } = useModal();
@@ -123,10 +118,12 @@ export const FoldersList = ({
     async ({
       itemId,
       folderValue,
+      sortOrder,
       targetSubmissionId,
     }: {
       itemId: number;
       folderValue: string;
+      sortOrder: number;
       targetSubmissionId?: number;
     }) => {
       if (!submissionToMove.submitted_document) return;
@@ -159,6 +156,7 @@ export const FoldersList = ({
           newPath: copyObjectResponse.new_relative_url ?? "",
           ...(targetSubmissionId ? { targetSubmissionId } : {}),
           destinationFolder: folderValue,
+          destinationSortOrder: sortOrder,
         });
         await refetch();
 
@@ -195,18 +193,20 @@ export const FoldersList = ({
     await handleMove({
       itemId,
       folderValue: selectedFolder.value,
+      sortOrder: selectedFolder.sortOrder,
       targetSubmissionId,
     });
   };
 
-  const handleMoveToFolder = async (folderValue: string) => {
+  const handleMoveToFolder = async (folder: DocumentFolder) => {
+    const folderValue = folder.value;
     if (locked) return;
     const itemId = getItemFromFolder(folderValue);
     if (!itemId) {
       notify.error(`No item found for folder ${folderValue}`);
       return;
     }
-    await handleMove({ itemId, folderValue });
+    await handleMove({ itemId, folderValue, sortOrder: folder.sortOrder });
   };
 
   if (selectedFolder) {
@@ -289,7 +289,7 @@ export const FoldersList = ({
               loading={moveTarget === folder.value}
               label="Move"
               disabled={locked}
-              onClick={() => handleMoveToFolder(folder.value)}
+              onClick={() => handleMoveToFolder(folder)}
             />
             <IconButton
               size="small"

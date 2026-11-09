@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { useState, useMemo, useCallback } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
@@ -8,7 +9,7 @@ import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
@@ -54,12 +55,12 @@ export const EngagementPlanStaffView = () => {
       {
         name: "engagementPlan",
         label: "Engagement Plan",
-        folder: S3_FOLDER.ENGAGEMENT_PLANS.value,
+        destination: S3_FOLDER.ENGAGEMENT_PLANS,
       },
       {
         name: "supportingEngagementPlan",
         label: "Supporting Documents for the Engagement Plan",
-        folder: S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS.value,
+        destination: S3_FOLDER.ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

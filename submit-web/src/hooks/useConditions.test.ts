@@ -22,10 +22,10 @@ function createWrapper() {
 }
 
 const conditions = [
-  { id: 1, condition_attributes: { requires_management_plan: "true" } },
-  { id: 2, condition_attributes: { requires_iem_terms_of_engagement: "true" } },
-  { id: 3, condition_attributes: { requires_management_plan: "false" } },
-  { id: 4 },
+  { condition_number: 1, condition_attributes: { requires_management_plan: "true" } },
+  { condition_number: 2, condition_attributes: { requires_iem_terms_of_engagement: "true" } },
+  { condition_number: 3, condition_attributes: { requires_management_plan: "false" } },
+  { condition_number: 4 },
 ];
 
 describe("getConditionsQueryOptions", () => {
@@ -62,7 +62,7 @@ describe("useGetConditions", () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data?.map((c) => c.id)).toEqual([1, 2]);
+    expect(result.current.data?.map((c) => c.condition_number)).toEqual([1, 2]);
   });
 
   it("requests attributes as false by default", async () => {

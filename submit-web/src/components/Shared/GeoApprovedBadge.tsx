@@ -1,6 +1,7 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import CheckCircleOutlinedIcon from "@mui/icons-material/CheckCircleOutlined";
 import { Tooltip } from "@mui/material";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useGetGeoUploads, GeoUpload } from "@/hooks/api/useGeo";
 
 type GeoApprovedBadgeProps = Readonly<{

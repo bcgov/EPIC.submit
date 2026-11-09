@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
@@ -21,7 +22,7 @@ import {
   SUBMISSION_TYPE,
   SubmissionItemStatus,
 } from "@/models/Submission";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
@@ -143,12 +144,12 @@ export const IPDSubmissionProponentView = () => {
       {
         name: "ipd",
         label: "Initial Project Description",
-        folder: S3_FOLDER.IPDS.value,
+        destination: S3_FOLDER.IPDS,
       },
       {
         name: "supportingIpd",
         label: "Supporting Documents",
-        folder: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value,
+        destination: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },
