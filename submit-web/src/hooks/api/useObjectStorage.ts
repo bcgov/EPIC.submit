@@ -1,3 +1,4 @@
+import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 import { SubmissionPackageType } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
@@ -46,23 +47,46 @@ export const S3_FOLDER = {
   },
 };
 
-export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP: Partial<Record<SubmissionPackageType, Record<string, { value: string; label: string }[]>>> = {
+export type DocumentFolder = {
+  value: string;
+  label: string;
+  sortOrder: number;
+};
+
+export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP: Partial<
+  Record<SubmissionPackageType, Record<string, DocumentFolder[]>>
+> = {
   [SubmissionPackageType.MANAGEMENT_PLAN]: {
     [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
-      S3_FOLDER.CONSULTATION_RECORDS,
+      {
+        ...S3_FOLDER.CONSULTATION_RECORDS,
+        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+      },
     ],
     [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: [
-      S3_FOLDER.MANAGEMENT_PLANS,
-      S3_FOLDER.SUPPORTING_DOCUMENTS,
+      {
+        ...S3_FOLDER.MANAGEMENT_PLANS,
+        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+      },
+      {
+        ...S3_FOLDER.SUPPORTING_DOCUMENTS,
+        sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
+      },
     ],
   },
   [SubmissionPackageType.IEM]: {
     [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
-      S3_FOLDER.CONSULTATION_RECORDS,
+      {
+        ...S3_FOLDER.CONSULTATION_RECORDS,
+        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+      },
     ],
     [SUBMISSION_ITEM_TYPE.IEM]: [
-      S3_FOLDER.IEMS,
-      S3_FOLDER.SUPPORTING_DOCUMENTS,
+      { ...S3_FOLDER.IEMS, sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT },
+      {
+        ...S3_FOLDER.SUPPORTING_DOCUMENTS,
+        sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
+      },
     ],
   },
 };

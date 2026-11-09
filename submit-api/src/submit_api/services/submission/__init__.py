@@ -28,7 +28,8 @@ from submit_api.services.geo import GeoService
 from submit_api.services.item_service import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
-from submit_api.utils.constants import GIS_ITEM_TYPE_NAME, REPORTS_FOLDER
+from submit_api.utils.constants import REPORTS_FOLDER
+from submit_api.utils.submission_validation import missing_main_document_message
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -404,15 +405,7 @@ class SubmissionService:
         ).first() is not None
 
         if not has_main_document_submission:
-            section_name = {
-                "Initial Project Description": "IPD",
-                GIS_ITEM_TYPE_NAME: "GIS",
-            }.get(item.type.name, item.type.name)
-            raise BadRequestError(
-                "You must have at least one file uploaded in this section "
-                f"(section/document name:  {section_name}) to be able to "
-                "submit your package"
-            )
+            raise BadRequestError(missing_main_document_message(item.type.name))
 
     @classmethod
     def delete_submission(cls, submission_id):

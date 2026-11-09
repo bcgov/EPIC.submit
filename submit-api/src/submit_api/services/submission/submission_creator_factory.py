@@ -101,7 +101,7 @@ class FormSubmissionCreator(SubmissionCreatorFactory):
             submission_json=request_data
         )
         session.add(submitted_form)
-        session.commit()
+        # Commit only after item validation so a rejected save leaves no form behind.
         session.flush()
         current_app.logger.debug("Successfully created SubmittedFormModel with id: %s.", submitted_form.id)
         return submitted_form
@@ -123,7 +123,6 @@ class FormSubmissionCreator(SubmissionCreatorFactory):
             created_by=TokenInfo.get_username()
         )
         session.add(submission)
-        session.commit()
         session.flush()
         current_app.logger.debug("Successfully created SubmissionModel for form with id: %s.", submission.id)
         return submission
@@ -360,11 +359,18 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         current_app.logger.info("Moving document submission %s to folder %s.",
                                 submission.id, request_data.get('destination_folder'))
 
+        # A folder move adopts the destination section's role, not the source file's.
+        destination_sort_order = request_data.get('destination_sort_order')
+        if type(destination_sort_order) is not int or destination_sort_order < 0:
+            raise BadRequestError("A non-negative destination_sort_order is required for a folder move.")
+
         destination_item_id = request_data.get('destination_item_id')
         destination_url = request_data.get('destination_url')
 
         submitted_document = SubmittedDocumentModel.find_by_id(submission.submitted_document_id)
-        if destination_url == submitted_document.url and submission.minor_version == 1:
+        if (destination_url == submitted_document.url and submission.minor_version == 1
+                and destination_item_id == submission.item_id
+                and destination_sort_order == submission.sort_order):
             current_app.logger.info("Destination URL is the same. No move needed for submission_id: %s.", submission.id)
             return submission
 
@@ -380,7 +386,7 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
                 "submitted_document_id": new_submitted_document.id,
                 "status": submission.status,
                 "created_by": submission.created_by,
-                "sort_order": submission.sort_order,
+                "sort_order": destination_sort_order,
             }
         )
         current_app.logger.info("Created new submission with id: %s for the move operation.", new_submission.id)

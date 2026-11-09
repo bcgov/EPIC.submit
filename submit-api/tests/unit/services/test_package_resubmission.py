@@ -22,6 +22,13 @@ from submit_api.services.package_service import PackageService
 
 
 @pytest.fixture(autouse=True)
+def mock_package_item_configuration():
+    """Mock the DB lookup; tests for required sections supply their own items."""
+    with patch.object(package_service_module.PackageItemTypeModel, "get_by_package_type_id", return_value=[]):
+        yield
+
+
+@pytest.fixture(autouse=True)
 def mock_current_app():
     """Patch current_app to avoid application context errors."""
     mock_app = MagicMock()

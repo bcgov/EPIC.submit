@@ -264,6 +264,7 @@ type MoveSubmissionProps = {
   targetSubmissionId?: number;
   destinationItemId: number;
   destinationFolder?: string;
+  destinationSortOrder: number;
 };
 export const moveSubmission = ({
   submissionId,
@@ -271,6 +272,7 @@ export const moveSubmission = ({
   targetSubmissionId,
   destinationItemId,
   destinationFolder,
+  destinationSortOrder,
 }: MoveSubmissionProps) => {
   return submitRequest<Submission>({
     url: `/submissions/${submissionId}/document/move`,
@@ -281,6 +283,7 @@ export const moveSubmission = ({
         target_submission_id: targetSubmissionId,
         destination_item_id: destinationItemId,
         destination_folder: destinationFolder,
+        destination_sort_order: destinationSortOrder,
       },
       type: SUBMISSION_TYPE.DOCUMENT,
     },

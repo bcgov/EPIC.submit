@@ -47,6 +47,7 @@ from submit_api.utils.constants import (
     SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
     SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE,
 )
+from submit_api.utils.submission_validation import missing_main_document_message
 from submit_api.utils.token_info import TokenInfo
 from submit_api.services.package_version_service import PackageVersionService
 
@@ -687,11 +688,11 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
     @classmethod
     def _validate_completeness(cls, package):
-        """Validate that required items have at least one document submission.
+        """Validate required main files and ensure the package contains documents.
 
         Shared validation used for first submission and work-package
-        pre-acknowledgement resubmission. Checks that each required item
-        has at least one document submission rather than relying on item
+        pre-acknowledgement resubmission. Checks that each required document item
+        has a main file rather than relying on item
         status, which can be in many valid states (ACKNOWLEDGED, VERIFIED, etc.)
         during resubmission.
         """
@@ -702,26 +703,6 @@ class PackageService:  # pylint: disable=too-many-public-methods
             current_app.logger.info(f"Package {package.id} has no documents")
             raise BadRequestError(
                 "You must have at least one file uploaded to be able to submit your package."
-            )
-
-        required_items = cls._get_required_items(package)
-        items_missing_documents = [
-            item for item in required_items
-            if item.type.submission_method == SubmissionMethod.DOCUMENT_UPLOAD
-            and not any(
-                sub.type == SubmissionType.DOCUMENT
-                and not sub.deleted
-                for sub in item.submissions
-            )
-        ]
-
-        if items_missing_documents:
-            current_app.logger.info(
-                f"Package {package.id} has required items without documents: "
-                f"{[item.type.name for item in items_missing_documents]}"
-            )
-            raise BadRequestError(
-                "All required items must have at least one document before submitting the package"
             )
 
     @classmethod
@@ -739,15 +720,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 for submission in item.submissions
             )
             if not has_main_document:
-                section_name = {
-                    'Initial Project Description': 'IPD',
-                    GIS_ITEM_TYPE_NAME: 'GIS',
-                }.get(item.type.name, item.type.name)
-                raise BadRequestError(
-                    "You must have at least one file uploaded in this section "
-                    f"(section/document name:  {section_name}) to be able to "
-                    "submit your package"
-                )
+                raise BadRequestError(missing_main_document_message(item.type.name))
 
     @classmethod
     def _validate_package_for_resubmit(cls, package) -> PackageModel:

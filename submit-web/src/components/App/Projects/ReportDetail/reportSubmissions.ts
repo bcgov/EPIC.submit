@@ -1,3 +1,4 @@
+import { orderDocumentsBySortOrder } from "@/utils/submissionDocuments";
 import { ProjectReport, SubmissionPackage } from "@/models/Package";
 import {
   Submission,
@@ -25,21 +26,7 @@ export const getReportDocumentSubmissions = (
   const documents = reportPackage.items.flatMap((item) =>
     item.submissions.filter((s) => s.type === SUBMISSION_TYPE.DOCUMENT),
   );
-  return [...documents].sort(
-    (a, b) => {
-      const sortOrderDifference =
-        (a.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT) -
-        (b.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT);
-      if (sortOrderDifference) return sortOrderDifference;
-
-      const aCreatedDate = Date.parse(a.created_date);
-      const bCreatedDate = Date.parse(b.created_date);
-      const dateDifference =
-        (Number.isNaN(bCreatedDate) ? 0 : bCreatedDate) -
-        (Number.isNaN(aCreatedDate) ? 0 : aCreatedDate);
-      return dateDifference;
-    },
-  );
+  return orderDocumentsBySortOrder(documents, "desc");
 };
 
 // Label and grey theme for a document EAO staff uploaded on behalf of the

@@ -7,11 +7,15 @@ import {
   SubmissionItemStatus,
 } from "@/models/Submission";
 
+export { orderDocumentsBySortOrder } from "@/utils/submissionDocuments";
+
+const sectionDocumentLabels: Record<string, string> = {
+  "Initial Project Description": "IPD",
+  "Geospatial Information": "GIS",
+};
+
 const getSectionDocumentLabel = (name: string) =>
-  ({
-    "Initial Project Description": "IPD",
-    "Geospatial Information": "GIS",
-  })[name] ?? name;
+  sectionDocumentLabels[name] ?? name;
 
 export const getMissingMainDocumentMessage = (
   item: {
@@ -36,27 +40,6 @@ export const getMissingMainDocumentMessage = (
 
   return `You must have at least one file uploaded in this section (section/document name:  ${getSectionDocumentLabel(item.type.name)}) to be able to submit your package`;
 };
-
-// Lower sort_order values come first; upload time keeps files within a group predictable.
-export const orderDocumentsBySortOrder = (submissions: Submission[]) =>
-  submissions
-    .map((submission, index) => ({ submission, index }))
-    .sort(
-      ({ submission: a, index: aIndex }, { submission: b, index: bIndex }) => {
-        const sortOrderDifference =
-          (a.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT) -
-          (b.sort_order ?? SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT);
-        if (sortOrderDifference) return sortOrderDifference;
-
-        const aCreatedDate = Date.parse(a.created_date);
-        const bCreatedDate = Date.parse(b.created_date);
-        const dateDifference =
-          (Number.isNaN(aCreatedDate) ? 0 : aCreatedDate) -
-          (Number.isNaN(bCreatedDate) ? 0 : bCreatedDate);
-        return dateDifference || aIndex - bIndex;
-      },
-    )
-    .map(({ submission }) => submission);
 
 export const isSubmissionItemReadyToSubmit = ({
   submissionItem,
