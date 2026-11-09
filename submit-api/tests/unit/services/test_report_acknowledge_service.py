@@ -91,10 +91,7 @@ def test_acknowledge_rejects_supporting_document(session):
 
     _package, item, auth_guid = _setup_compliance_report_package(session)
     submission = factory_document_submission_model(
-        item,
-        created_by=auth_guid,
-        folder="report_supporting_documents",
-        sort_order=1,
+        item, created_by=auth_guid, folder="report_supporting_documents"
     )
     submission.status = SubmissionStatus.VERIFIED
     session.add(submission)

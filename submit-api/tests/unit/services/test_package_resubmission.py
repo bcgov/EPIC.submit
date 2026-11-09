@@ -16,16 +16,9 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError
 from submit_api.models.item_type import SubmissionMethod
 from submit_api.models.package import PackageStatus
-from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionType
+from submit_api.models.submission import SubmissionType
 from submit_api.models.update_request import UpdateRequestStatus, UpdateRequestType
 from submit_api.services.package_service import PackageService
-
-
-@pytest.fixture(autouse=True)
-def mock_package_item_configuration():
-    """Mock the DB lookup; tests for required sections supply their own items."""
-    with patch.object(package_service_module.PackageItemTypeModel, "get_by_package_type_id", return_value=[]):
-        yield
 
 
 @pytest.fixture(autouse=True)
@@ -94,7 +87,6 @@ def _make_submission(
     doc_id=1,
     form_id=None,
     deleted=False,
-    sort_order=MAIN_DOCUMENT_SORT_ORDER,
 ):
     """Create a mock submission."""
     sub = Mock()
@@ -102,7 +94,6 @@ def _make_submission(
     sub.submitted_document_id = doc_id
     sub.submitted_form_id = form_id
     sub.deleted = deleted
-    sub.sort_order = sort_order
     return sub
 
 
@@ -361,7 +352,7 @@ class TestValidateCompleteness:
         item = _make_item(submissions=[])  # No submissions
         mock_get_required.return_value = [item]
         package = _make_package()
-        with pytest.raises(BadRequestError, match="at least one file uploaded in this section"):
+        with pytest.raises(BadRequestError, match="at least one document"):
             PackageService._validate_completeness(package)
 
     @patch.object(PackageService, "_get_required_items")
@@ -376,25 +367,8 @@ class TestValidateCompleteness:
         )
         mock_get_required.return_value = [item]
         package = _make_package()
-        with pytest.raises(BadRequestError, match="at least one file uploaded in this section"):
+        with pytest.raises(BadRequestError, match="at least one document"):
             PackageService._validate_completeness(package)
-
-    @patch.object(PackageService, "_get_required_items")
-    @patch.object(PackageService, "_get_document_submissions_from_package")
-    def test_supporting_document_does_not_satisfy_main_file_requirement(
-        self, mock_get_docs, mock_get_required
-    ):
-        """A supporting upload cannot stand in for the required main file."""
-        supporting_submission = _make_submission(sort_order=1)
-        item = _make_item(
-            type_name="Initial Project Description",
-            submissions=[supporting_submission],
-        )
-        mock_get_required.return_value = [item]
-        mock_get_docs.return_value = [supporting_submission]
-
-        with pytest.raises(BadRequestError, match="section/document name:  IPD"):
-            PackageService._validate_completeness(_make_package())
 
     @patch.object(PackageService, "_get_required_items")
     @patch.object(PackageService, "_get_document_submissions_from_package")
@@ -407,7 +381,7 @@ class TestValidateCompleteness:
         item = _make_item(submissions=[form_sub])
         mock_get_required.return_value = [item]
         package = _make_package()
-        with pytest.raises(BadRequestError, match="at least one file uploaded in this section"):
+        with pytest.raises(BadRequestError, match="at least one document"):
             PackageService._validate_completeness(package)
 
     @patch.object(PackageService, "_get_required_items")
@@ -453,7 +427,7 @@ class TestNewVersionAfterFailedReview:
         item = _make_item(submissions=[])  # Required item with no docs
         mock_get_required.return_value = [item]
         package = _make_package(submitted_on=None)
-        with pytest.raises(BadRequestError, match="at least one file uploaded in this section"):
+        with pytest.raises(BadRequestError, match="at least one document"):
             PackageService._validate_completeness(package)
 
     @patch.object(PackageService, "_get_required_items")

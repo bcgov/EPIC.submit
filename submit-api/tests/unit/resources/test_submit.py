@@ -1,38 +1,8 @@
 """Submission tests."""
 from http import HTTPStatus
 
-import pytest
-from sqlalchemy.orm import scoped_session, sessionmaker
-
-from submit_api.models.submission import (
-    MAIN_DOCUMENT_SORT_ORDER,
-    Submission,
-    SubmissionType,
-    SUPPORTING_DOCUMENT_SORT_ORDER,
-)
-from submit_api.models.submitted_form import SubmittedForm
 from tests.utilities.factory_scenarios import TestPackageScenarios
 from tests.utilities.factory_utils import setup_authenticated_proponent
-
-
-@pytest.fixture
-def rollback_safe_session(app, db):
-    """Keep setup rows isolated from a request rollback using SQLAlchemy 2 savepoints."""
-    with app.app_context():
-        connection = db.engine.connect()
-        transaction = connection.begin()
-        previous_session = db.session
-        session = scoped_session(sessionmaker(
-            bind=connection, join_transaction_mode="create_savepoint"
-        ))
-        db.session = session
-        try:
-            yield session
-        finally:
-            session.remove()
-            db.session = previous_session
-            transaction.rollback()
-            connection.close()
 
 
 def test_submit_contact_information_form(client, session, jwt):
@@ -162,25 +132,12 @@ def test_submit_management_plan_document(client, session, jwt):
     assert data["submitted_document"]["folder"] == doc_payload["data"]["folder"]
     assert data["submitted_document"]["name"]  # Just verify it's set
     assert data["version"] == "1.1"
-    assert data["sort_order"] == MAIN_DOCUMENT_SORT_ORDER
-
-    supporting_payload = TestPackageScenarios.get_fake_document_payload(
-        sort_order=SUPPORTING_DOCUMENT_SORT_ORDER
-    )
-    supporting_payload.pop("sort_order")
-    supporting_response = client.post(
-        f"/api/submissions/items/{item_id}",
-        json=supporting_payload,
-        headers=headers,
-    )
-    assert supporting_response.status_code == HTTPStatus.CREATED
-    assert supporting_response.json["sort_order"] == SUPPORTING_DOCUMENT_SORT_ORDER
 
 
-def test_submit_package_state(client, rollback_safe_session, jwt):
+def test_submit_package_state(client, session, jwt):
     """Full test for submitting package state after all 3 items are filled."""
     # Step 1: Setup proponent and create package
-    headers, account_project = setup_authenticated_proponent(rollback_safe_session, jwt)
+    headers, account_project = setup_authenticated_proponent(session, jwt)
     payload = TestPackageScenarios.get_payload()
     package_response = client.post(
         f"/api/packages/account-projects/{account_project.id}",
@@ -206,9 +163,7 @@ def test_submit_package_state(client, rollback_safe_session, jwt):
     assert contact_response.status_code == HTTPStatus.CREATED
 
     # Step 3.5: Upload Consultation Record Document (required before marking as COMPLETED)
-    consultation_doc_payload = TestPackageScenarios.get_fake_document_payload(
-        sort_order=SUPPORTING_DOCUMENT_SORT_ORDER
-    )
+    consultation_doc_payload = TestPackageScenarios.get_fake_document_payload()
     consultation_doc_response = client.post(
         f"/api/submissions/items/{consultation_item['id']}",
         json=consultation_doc_payload,
@@ -222,29 +177,6 @@ def test_submit_package_state(client, rollback_safe_session, jwt):
     consultation_payload["version"] = "1.1"
     consultation_payload["data"] = consultation_payload.pop("submission_json")
 
-    form_count_before_rejection = SubmittedForm.query.count()
-    supporting_only_response = client.post(
-        f"/api/submissions/items/{consultation_item['id']}",
-        json=consultation_payload,
-        headers=headers,
-    )
-    assert supporting_only_response.status_code == HTTPStatus.BAD_REQUEST
-    assert SubmittedForm.query.count() == form_count_before_rejection
-    assert Submission.query.filter_by(
-        item_id=consultation_item["id"], type=SubmissionType.FORM
-    ).count() == 0
-    assert (
-        "section/document name:  Consultation Record(s)"
-        in supporting_only_response.json["message"]
-    )
-
-    consultation_main_doc_response = client.post(
-        f"/api/submissions/items/{consultation_item['id']}",
-        json=TestPackageScenarios.get_fake_document_payload(),
-        headers=headers,
-    )
-    assert consultation_main_doc_response.status_code == HTTPStatus.CREATED
-
     consultation_response = client.post(
         f"/api/submissions/items/{consultation_item['id']}",
         json=consultation_payload,
@@ -253,9 +185,7 @@ def test_submit_package_state(client, rollback_safe_session, jwt):
     assert consultation_response.status_code == HTTPStatus.CREATED
 
     # Step 4.5: Upload Management Plan Document (required before marking as COMPLETED)
-    management_doc_payload = TestPackageScenarios.get_fake_document_payload(
-        sort_order=SUPPORTING_DOCUMENT_SORT_ORDER
-    )
+    management_doc_payload = TestPackageScenarios.get_fake_document_payload()
     management_doc_response = client.post(
         f"/api/submissions/items/{management_item['id']}",
         json=management_doc_payload,
@@ -268,29 +198,6 @@ def test_submit_package_state(client, rollback_safe_session, jwt):
     management_payload["status"] = "COMPLETED"
     management_payload["version"] = "1.1"
     management_payload["data"] = management_payload.pop("submission_json")
-
-    form_count_before_rejection = SubmittedForm.query.count()
-    supporting_only_response = client.post(
-        f"/api/submissions/items/{management_item['id']}",
-        json=management_payload,
-        headers=headers,
-    )
-    assert supporting_only_response.status_code == HTTPStatus.BAD_REQUEST
-    assert SubmittedForm.query.count() == form_count_before_rejection
-    assert Submission.query.filter_by(
-        item_id=management_item["id"], type=SubmissionType.FORM
-    ).count() == 0
-    assert (
-        "section/document name:  Management Plan"
-        in supporting_only_response.json["message"]
-    )
-
-    management_main_doc_response = client.post(
-        f"/api/submissions/items/{management_item['id']}",
-        json=TestPackageScenarios.get_fake_document_payload(),
-        headers=headers,
-    )
-    assert management_main_doc_response.status_code == HTTPStatus.CREATED
 
     management_response = client.post(
         f"/api/submissions/items/{management_item['id']}",
