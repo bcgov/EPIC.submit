@@ -33,7 +33,6 @@ from .geo import API as GEO_UPLOAD_API
 from .internal_document import API as INTERNAL_DOCUMENT_API
 from .invitation import API as INVITATION_API
 from .item import API as ITEM_API
-from .migration_ops import API as MIGRATION_API
 from .ops import API as OPS_API
 from .package import API as PACKAGE_API
 from .package_type import API as PACKAGE_TYPE_API
@@ -63,7 +62,6 @@ API_OPS = Api(
 )
 
 API_OPS.add_namespace(OPS_API, path="/")
-API_OPS.add_namespace(MIGRATION_API, path="/")
 
 API = Api(
     API_BLUEPRINT,
