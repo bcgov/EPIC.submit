@@ -1,3 +1,5 @@
+import { UploadDestination } from "@/models/documentUploadConfig";
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import {
   Table as MuiTable,
   Skeleton,
@@ -21,24 +23,25 @@ import { AddDocumentActionButton } from "./AddDocumentActionButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { AccountProject } from "@/models/Project";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { camelCase } from "lodash";
 import { getSubmissionItemLabel } from "@/utils";
 
 type DocumentsTableProps = Readonly<{
-  folder: string;
+  destination: UploadDestination;
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
   isGeoSpatial?: boolean;
   onDocumentClick?: (documentItem: Submission) => void;
   onUploadComplete?: (submission: Submission) => void;
 }>;
 export default function DocumentsTable({
-  folder,
+  destination,
   setIsPendingUpload,
   isGeoSpatial = false,
   onDocumentClick,
   onUploadComplete,
 }: DocumentsTableProps) {
+  const folder = destination.value;
   const { submissionId: submissionItemId, projectId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
   });
@@ -118,7 +121,7 @@ export default function DocumentsTable({
             <SubmitPrimaryRowTableCell colSpan={2} />
             <SubmitPrimaryRowTableCell align="right">
               <AddDocumentActionButton
-                folder={folder}
+                destination={destination}
                 folderPath={`${S3_FOLDER.SUBMISSIONS.value}/${projectName}/${folder}/`}
                 handleAddDocument={handleAddSubmission}
                 setIsPendingUpload={setIsPendingUpload}

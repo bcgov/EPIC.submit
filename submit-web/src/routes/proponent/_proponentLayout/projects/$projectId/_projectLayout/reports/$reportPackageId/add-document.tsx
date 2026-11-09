@@ -1,3 +1,5 @@
+import { UploadDestination } from "@/models/documentUploadConfig";
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { useMemo, useRef, useState } from "react";
 import { Box, Grid } from "@mui/material";
 import {
@@ -29,11 +31,10 @@ import {
 } from "@/hooks/api/usePackages";
 import { getAccountProjectQueryOptions } from "@/hooks/api/useProjects";
 import { getOrCreateCurrentUser } from "@/hooks/api/useAccounts";
-import { saveObject, S3_FOLDER } from "@/hooks/api/useObjectStorage";
-import { createSubmission } from "@/hooks/api/useSubmissions";
+import { saveObject } from "@/hooks/api/useObjectStorage";
+import { createDocumentSubmission } from "@/hooks/api/useSubmissions";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 import { PACKAGE_STATUS } from "@/models/Package";
-import { SUBMISSION_TYPE } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { HTTP_STATUS } from "@/utils/constants";
 import { formatReportPageTitle } from "@/components/App/Projects/ReportDetail/reportTitle";
@@ -154,20 +155,20 @@ function ReportAddDocumentPage() {
     ]);
   };
 
-  const uploadSection = async (staged: StagedFile[], folderKey: string) => {
+  const uploadSection = async (
+    staged: StagedFile[],
+    destination: UploadDestination,
+  ) => {
     const folderPath = getSubmissionFolderName({
       projectName,
-      sectionName: folderKey,
+      sectionName: destination.value,
     });
     for (const { file } of staged) {
       const url = await saveObject({
         file,
         fileDetails: { filename: file.name, folder: folderPath },
       });
-      await createSubmission(Number(reportItemId), {
-        type: SUBMISSION_TYPE.DOCUMENT,
-        data: { name: file.name, url, folder: folderKey },
-      });
+      await createDocumentSubmission(Number(reportItemId), destination, { name: file.name, url });
     }
   };
 
@@ -193,10 +194,13 @@ function ReportAddDocumentPage() {
       setIsSubmitting(true);
       // Upload every staged file first; only flip the package to SUBMITTED
       // once all uploads succeed so a mid-way failure leaves nothing partial.
-      await uploadSection(primaryFiles, S3_FOLDER.REPORTS.value);
+      await uploadSection(
+        primaryFiles,
+        S3_FOLDER.REPORTS,
+      );
       await uploadSection(
         supportingFiles,
-        S3_FOLDER.REPORT_SUPPORTING_DOCUMENTS.value,
+        S3_FOLDER.REPORT_SUPPORTING_DOCUMENTS,
       );
       await updatePackageState({
         packageId,

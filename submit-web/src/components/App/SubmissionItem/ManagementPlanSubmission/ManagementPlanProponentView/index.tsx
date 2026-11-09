@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
@@ -25,7 +26,7 @@ import FormFieldSection from "./FormFieldSection";
 import SubmissionActionButtons from "@/components/App/SubmissionItem/SubmissionActionButtons";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
@@ -61,7 +62,7 @@ export const ManagementPlanSubmissionProponentView = () => {
     {
       name: "managementPlans",
       label: "Management Plan/IEM Terms of Engagement",
-      folder: S3_FOLDER.MANAGEMENT_PLANS.value,
+      destination: S3_FOLDER.MANAGEMENT_PLANS,
       maxFiles: 1,
       maxFilesErrorMessage:
         "You can only submit one Management Plan/IEM Terms of Engagement per submission. Please add supporting documents in the section below.",
@@ -69,7 +70,7 @@ export const ManagementPlanSubmissionProponentView = () => {
     {
       name: "supportingDocuments",
       label: "Supporting Documents",
-      folder: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
+      destination: S3_FOLDER.SUPPORTING_DOCUMENTS,
       description: "e.g. table of proposed changes, table of concordance",
     },
   ];

@@ -40,6 +40,7 @@ class ItemSubmissionSchema(Schema):
     major_version = fields.Int(data_key="major_version")
     status = fields.Enum(data_key="status", enum=SubmissionStatus)
     is_updated = fields.Bool(data_key="is_updated")
+    sort_order = fields.Int(data_key="sort_order")
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):

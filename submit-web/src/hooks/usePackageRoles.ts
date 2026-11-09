@@ -1,7 +1,8 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { useMemo } from "react";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
 import { SubmissionPackage, PackageType } from "@/models/Package";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 
 /**
  * Hook to determine the correct package-specific roles based on package type.
