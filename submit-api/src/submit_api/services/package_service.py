@@ -42,6 +42,7 @@ from submit_api.services.geo import GeoService
 from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.utils.constants import (
     GIS_ITEM_TYPE_NAME,
+    REPORTS_FOLDER,
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_UPDATE_REQUEST_CREATED_EMAIL_TEMPLATE,
     SUBMISSION_ACKNOWLEDGED_CONFIRMATION_EMAIL_TEMPLATE,
@@ -68,6 +69,7 @@ CANONICAL_STATUS_ORDER = (
     # Overlays (always last)
     'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
 )
+
 
 class PackageService:  # pylint: disable=too-many-public-methods
     """Package management service."""

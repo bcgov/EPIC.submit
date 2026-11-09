@@ -361,7 +361,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
 
         # A folder move adopts the destination section's role, not the source file's.
         destination_sort_order = request_data.get('destination_sort_order')
-        if type(destination_sort_order) is not int or destination_sort_order < 0:
+        if (not isinstance(destination_sort_order, int)
+                or isinstance(destination_sort_order, bool)
+                or destination_sort_order < 0):
             raise BadRequestError("A non-negative destination_sort_order is required for a folder move.")
 
         destination_item_id = request_data.get('destination_item_id')
