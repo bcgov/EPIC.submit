@@ -5,7 +5,6 @@ import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
 import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
-import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 
 export const ConsultationRecordUpdateForm = () => {
   const navigate = useNavigate();
@@ -29,7 +28,7 @@ export const ConsultationRecordUpdateForm = () => {
         <DocumentsTable
           folder={S3_FOLDER.CONSULTATION_RECORDS.value}
           setIsPendingUpload={setIsPendingUpload}
-          sortOrder={SUBMISSION_SORT_ORDER.MAIN_DOCUMENT}
+          sortOrder={S3_FOLDER.CONSULTATION_RECORDS.sortOrder}
         />
       </Box>
       <UnfinishedUploadsCheck customCondition={isPendingUpload}>

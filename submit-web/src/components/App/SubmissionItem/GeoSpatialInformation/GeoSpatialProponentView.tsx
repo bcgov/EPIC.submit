@@ -20,7 +20,6 @@ import {
 import Form from "@/components/Shared/Forms/common";
 import { FormProvider, useForm } from "react-hook-form";
 import {
-  SUBMISSION_SORT_ORDER,
   Submission,
 } from "@/models/Submission";
 import {
@@ -305,7 +304,7 @@ export const GeoSpatialProponentView = () => {
         name: "geospatial",
         label: "Geospatial Files",
         folder: S3_FOLDER.GEOSPATIAL.value,
-        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+        sortOrder: S3_FOLDER.GEOSPATIAL.sortOrder,
         acceptedFileTypes: ["shp", "zip"],
         acceptedFileTypesCriteria: "Must contain shape files",
         onUploadComplete,

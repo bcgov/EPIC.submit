@@ -6,7 +6,6 @@ import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { BCDesignTokens } from "epic.theme";
-import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 
 export const IPDUpdateForm = () => {
   const navigate = useNavigate();
@@ -45,7 +44,7 @@ export const IPDUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.IPDS.value}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={SUBMISSION_SORT_ORDER.MAIN_DOCUMENT}
+            sortOrder={S3_FOLDER.IPDS.sortOrder}
           />
         </Box>
         <Box>
@@ -62,7 +61,7 @@ export const IPDUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT}
+            sortOrder={S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.sortOrder}
           />
         </Box>
       </Box>

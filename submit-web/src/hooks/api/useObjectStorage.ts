@@ -1,51 +1,9 @@
-import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 import { SubmissionPackageType } from "@/models/Package";
 import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
 
-export const S3_FOLDER = {
-  INTERNAL_STAFF_DOCUMENTS: {
-    value: "internal_staff_documents",
-    label: "Internal Staff Documents",
-  },
-  MANAGEMENT_PLANS: { value: "management_plans", label: "Management Plans" },
-  SUPPORTING_DOCUMENTS: {
-    value: "supporting_documents",
-    label: "Supporting Documents",
-  },
-  CONSULTATION_RECORDS: {
-    value: "consultation_records",
-    label: "Consultation Record(s)",
-  },
-  SUBMISSIONS: { value: "submissions", label: "Submissions" },
-  IEMS: { value: "iems", label: "IEM" },
-  IPDS: { value: "ipds", label: "Initial Project Description" },
-  IPD_SUPPORTING_DOCUMENTS: {
-    value: "ipd_supporting_documents",
-    label: "IPD Supporting Documents",
-  },
-  ENGAGEMENT_PLANS: { value: "engagement_plans", label: "Engagement Plans" },
-  ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS: {
-    value: "engagement_plan_supporting_documents",
-    label: "Engagement Plan Supporting Documents",
-  },
-  GEOSPATIAL: {
-    value: "geospatial",
-    label: "Geospatial Information",
-  },
-  UPLOAD_DOCUMENTS: {
-    value: "upload_documents",
-    label: "Upload Documents",
-  },
-  REPORTS: {
-    value: "reports",
-    label: "Reports",
-  },
-  REPORT_SUPPORTING_DOCUMENTS: {
-    value: "report_supporting_documents",
-    label: "Report Supporting Documents",
-  },
-};
+export { DOCUMENT_UPLOAD_CONFIG as S3_FOLDER } from "@/models/documentUploadConfig";
+import { DOCUMENT_UPLOAD_CONFIG as S3_FOLDER } from "@/models/documentUploadConfig";
 
 export type DocumentFolder = {
   value: string;
@@ -58,35 +16,20 @@ export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP: Partial<
 > = {
   [SubmissionPackageType.MANAGEMENT_PLAN]: {
     [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
-      {
-        ...S3_FOLDER.CONSULTATION_RECORDS,
-        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
-      },
+      S3_FOLDER.CONSULTATION_RECORDS,
     ],
     [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: [
-      {
-        ...S3_FOLDER.MANAGEMENT_PLANS,
-        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
-      },
-      {
-        ...S3_FOLDER.SUPPORTING_DOCUMENTS,
-        sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
-      },
+      S3_FOLDER.MANAGEMENT_PLANS,
+      S3_FOLDER.SUPPORTING_DOCUMENTS,
     ],
   },
   [SubmissionPackageType.IEM]: {
     [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
-      {
-        ...S3_FOLDER.CONSULTATION_RECORDS,
-        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
-      },
+      S3_FOLDER.CONSULTATION_RECORDS,
     ],
     [SUBMISSION_ITEM_TYPE.IEM]: [
-      { ...S3_FOLDER.IEMS, sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT },
-      {
-        ...S3_FOLDER.SUPPORTING_DOCUMENTS,
-        sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
-      },
+      S3_FOLDER.IEMS,
+      S3_FOLDER.SUPPORTING_DOCUMENTS,
     ],
   },
 };

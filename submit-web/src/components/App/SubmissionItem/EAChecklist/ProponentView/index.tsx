@@ -13,7 +13,6 @@ import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
 import {
-  SUBMISSION_SORT_ORDER,
   SubmissionItemStatus, SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE
 } from "@/models/Submission";
@@ -142,7 +141,7 @@ export const EarlyEngagementChecklistProponentView = () => {
         name: "uploadDocuments",
         label: "your documents",
         folder: S3_FOLDER.UPLOAD_DOCUMENTS.value,
-        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+        sortOrder: S3_FOLDER.UPLOAD_DOCUMENTS.sortOrder,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

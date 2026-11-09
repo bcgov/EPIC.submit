@@ -8,7 +8,6 @@ import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsChe
 import { BCDesignTokens } from "epic.theme";
 import { useGetGeoUploads, useApproveGeoUpload, GeoUpload } from "@/hooks/api/useGeo";
 import {
-  SUBMISSION_SORT_ORDER,
   Submission,
   SUBMISSION_TYPE,
 } from "@/models/Submission";
@@ -201,7 +200,7 @@ export const GeoSpatialUpdateForm = () => {
           <DocumentsTable
             folder={S3_FOLDER.GEOSPATIAL.value}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={SUBMISSION_SORT_ORDER.MAIN_DOCUMENT}
+            sortOrder={S3_FOLDER.GEOSPATIAL.sortOrder}
             isGeoSpatial={true}
             onDocumentClick={handleDocumentClick}
             onUploadComplete={onUploadComplete}

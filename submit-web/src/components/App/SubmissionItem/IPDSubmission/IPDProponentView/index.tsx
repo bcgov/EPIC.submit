@@ -17,7 +17,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { SubmissionItem } from "@/models/SubmissionItem";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import {
-  SUBMISSION_SORT_ORDER,
   SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
   SubmissionItemStatus,
@@ -145,13 +144,13 @@ export const IPDSubmissionProponentView = () => {
         name: "ipd",
         label: "Initial Project Description",
         folder: S3_FOLDER.IPDS.value,
-        sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+        sortOrder: S3_FOLDER.IPDS.sortOrder,
       },
       {
         name: "supportingIpd",
         label: "Supporting Documents",
         folder: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value,
-        sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
+        sortOrder: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.sortOrder,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

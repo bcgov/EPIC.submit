@@ -8,7 +8,6 @@ import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import {
-  SUBMISSION_SORT_ORDER,
   SUBMISSION_ITEM_STATUS,
   SUBMISSION_TYPE,
   SubmissionItemStatus,
@@ -70,7 +69,7 @@ export const ConsultationRecordProponentView = () => {
       name: "consultationRecords",
       label: "Consultation Record(s)",
       folder: S3_FOLDER.CONSULTATION_RECORDS.value,
-      sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
+      sortOrder: S3_FOLDER.CONSULTATION_RECORDS.sortOrder,
       description: "Including Comment Tracker",
     },
   ];
