@@ -52,12 +52,6 @@ class AuthService:
         return response.json()
 
     @staticmethod
-    def get_users():
-        """Get all users from epic.auth."""
-        response = _request_auth_service("users", include_app_id=False)
-        return response.json()
-
-    @staticmethod
     def get_user_groups(username: str):
         """Get groups for a user by username."""
         response = _request_auth_service(f"users/{username}/groups")
