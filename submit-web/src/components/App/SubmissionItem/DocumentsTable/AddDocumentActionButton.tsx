@@ -1,10 +1,11 @@
+import { UploadDestination } from "@/models/documentUploadConfig";
 import { useState } from "react";
 import { FileUploadButton } from "@/components/Shared/FileUploadButton";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { saveObject } from "@/hooks/api/useObjectStorage";
-import { createSubmission } from "@/hooks/api/useSubmissions";
-import { Submission, SUBMISSION_TYPE } from "@/models/Submission";
+import { createDocumentSubmission } from "@/hooks/api/useSubmissions";
+import { Submission } from "@/models/Submission";
 import { GEO_MAX_FILE_SIZE_BYTES, GEO_MAX_FILE_SIZE_MB } from "@/utils/constants";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
@@ -12,21 +13,19 @@ import { isAxiosError } from "axios";
 
 type AddDocumentActionButtonProps = {
   handleAddDocument: (submission: Submission) => void;
-  folder: string;
+  destination: UploadDestination;
   folderPath: string;
   setIsPendingUpload: React.Dispatch<React.SetStateAction<boolean>>;
   isGeoSpatial?: boolean;
   onUploadComplete?: (submission: Submission) => void;
-  sortOrder: number;
 };
 export const AddDocumentActionButton = ({
   handleAddDocument,
-  folder,
+  destination,
   folderPath,
   setIsPendingUpload,
   isGeoSpatial = false,
   onUploadComplete,
-  sortOrder,
 }: AddDocumentActionButtonProps) => {
   const { submissionPackageId, submissionId: submissionItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -64,13 +63,8 @@ export const AddDocumentActionButton = ({
       const documentData = {
         name: fileToUpload.name,
         url: uploadedFile,
-        folder: folder,
       };
-      const addedSubmission = await createSubmission(Number(submissionItemId), {
-        type: SUBMISSION_TYPE.DOCUMENT,
-        data: documentData,
-        sort_order: sortOrder,
-      });
+      const addedSubmission = await createDocumentSubmission(Number(submissionItemId), destination, documentData);
 
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY.SUBMISSION_ITEM, Number(submissionItemId)],

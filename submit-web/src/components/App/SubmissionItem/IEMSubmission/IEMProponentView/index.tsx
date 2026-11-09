@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
@@ -21,7 +22,7 @@ import { QUERY_KEY } from "@/hooks/api/constants";
 import FormFieldSection from "./FormFieldSection";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
@@ -58,15 +59,13 @@ export const IemSubmissionProponentView = () => {
     {
       name: "iems",
       label: "Independent Environmental Monitor Terms of Engagement",
-      folder: S3_FOLDER.IEMS.value,
-      sortOrder: S3_FOLDER.IEMS.sortOrder,
+      destination: S3_FOLDER.IEMS,
       maxFiles: 1,
     },
     {
       name: "supportingDocuments",
       label: "Supporting Documents",
-      folder: S3_FOLDER.SUPPORTING_DOCUMENTS.value,
-      sortOrder: S3_FOLDER.SUPPORTING_DOCUMENTS.sortOrder,
+      destination: S3_FOLDER.SUPPORTING_DOCUMENTS,
       description: "e.g. table of proposed changes, table of concordance",
     },
   ];
@@ -210,7 +209,7 @@ export const IemSubmissionProponentView = () => {
               <FormFieldSection errors={errors} />
               <GenericDocumentUploadSection sections={documentUploadSections} />
             </Grid>
-            <SubmissionActionButtons               
+            <SubmissionActionButtons
               onSubmit={handleSubmit(handleCompleteForm)}
               saveAndClose={saveAndClose}
             />

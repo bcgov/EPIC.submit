@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { useState, useMemo, useCallback } from "react";
 import { Navigate, useParams } from "@tanstack/react-router";
 import { useGetAccountProjectForStaff } from "@/hooks/api/useProjects";
@@ -8,7 +9,7 @@ import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
 } from "@/components/App/DocumentUpload/GenericDocumentUploadSection";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { getSubmissionItemForStaffQueryOptions } from "@/hooks/api/useItems";
 import { SectionUpdateRequestPanel } from "@/components/App/SubmissionItem/SectionUpdateRequestPanel";
@@ -54,14 +55,12 @@ export const IPDStaffView = () => {
       {
         name: "ipd",
         label: "Initial Project Description",
-        folder: S3_FOLDER.IPDS.value,
-        sortOrder: S3_FOLDER.IPDS.sortOrder,
+        destination: S3_FOLDER.IPDS,
       },
       {
         name: "supportingIpd",
         label: "Supporting Documents",
-        folder: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.value,
-        sortOrder: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS.sortOrder,
+        destination: S3_FOLDER.IPD_SUPPORTING_DOCUMENTS,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Grid } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { FormProvider, useForm } from "react-hook-form";
@@ -29,7 +30,7 @@ import {
 import { SubmissionPackage } from "@/models/Package";
 import { isAxiosError } from "axios";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import {
   GenericDocumentUploadSection,
   UploadSectionConfig,
@@ -68,8 +69,7 @@ export const ConsultationRecordProponentView = () => {
     {
       name: "consultationRecords",
       label: "Consultation Record(s)",
-      folder: S3_FOLDER.CONSULTATION_RECORDS.value,
-      sortOrder: S3_FOLDER.CONSULTATION_RECORDS.sortOrder,
+      destination: S3_FOLDER.CONSULTATION_RECORDS,
       description: "Including Comment Tracker",
     },
   ];

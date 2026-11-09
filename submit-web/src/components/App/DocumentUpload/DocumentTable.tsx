@@ -1,3 +1,4 @@
+import { UploadDestination } from "@/models/documentUploadConfig";
 import {
   Box,
   Table,
@@ -25,7 +26,7 @@ type DocumentTableProps = Readonly<{
   formFieldName?: string;
   onDocumentClick?: (documentItem: Submission) => void;
   onUploadComplete?: (submission: Submission) => void;
-  sortOrder: number;
+  destination: UploadDestination;
 }>;
 
 export default function DocumentTable({
@@ -37,7 +38,7 @@ export default function DocumentTable({
   isGeoSpatial,
   onDocumentClick,
   onUploadComplete,
-  sortOrder,
+  destination,
 }: DocumentTableProps) {
   if (documents.length === 0 && pendingDocuments.length === 0) {
     return null;
@@ -101,7 +102,7 @@ export default function DocumentTable({
               folder={s3Folder}
               isGeoSpatial={isGeoSpatial}
               onUploadComplete={onUploadComplete}
-              sortOrder={sortOrder}
+              destination={destination}
             />
           ))}
         </TableBody>

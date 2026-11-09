@@ -1,10 +1,11 @@
+import { UploadDestination } from "@/models/documentUploadConfig";
 import { CircularProgress, Link as MuiLink, Typography } from "@mui/material";
 import { PackageTableRow, DocumentTableCell } from "./DocumentTableRow";
 import {
-  createSubmission,
+  createDocumentSubmission,
   useTriggerGeoProcess,
 } from "@/hooks/api/useSubmissions";
-import { SUBMISSION_TYPE, Submission } from "@/models/Submission";
+import { Submission } from "@/models/Submission";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { useEffect, useMemo, useState } from "react";
@@ -21,7 +22,7 @@ type DocumentTableRowProps = Readonly<{
   folder?: string;
   isGeoSpatial?: boolean;
   onUploadComplete?: (submission: Submission) => void;
-  sortOrder: number;
+  destination: UploadDestination;
 }>;
 export default function PendingDocumentRow({
   documentItem,
@@ -29,7 +30,7 @@ export default function PendingDocumentRow({
   folder: s3Folder,
   isGeoSpatial,
   onUploadComplete,
-  sortOrder,
+  destination,
 }: DocumentTableRowProps) {
   const { submissionId: subItemId } = useParams({
     from: "/proponent/_proponentLayout/projects/$projectId/_projectLayout/submission-packages/$submissionPackageId/_submissionLayout/submissions/$submissionId",
@@ -76,13 +77,8 @@ export default function PendingDocumentRow({
       const documentData = {
         name: documentItem.file.name,
         url: uploadedFile,
-        folder: documentItem.folder,
       };
-      const documentSubmission = await createSubmission(Number(subItemId), {
-        type: SUBMISSION_TYPE.DOCUMENT,
-        data: documentData,
-        sort_order: sortOrder,
-      });
+      const documentSubmission = await createDocumentSubmission(Number(subItemId), destination, documentData);
 
       if (isGeoSpatial) {
         const ext = documentItem.file.name.split(".").pop()?.toLowerCase();

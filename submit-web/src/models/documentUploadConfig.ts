@@ -1,13 +1,16 @@
+import { SubmissionPackageType } from "./Package";
+import { SUBMISSION_ITEM_TYPE } from "./SubmissionItem";
 import { SUBMISSION_SORT_ORDER } from "@/models/Submission";
 
 // Define each upload destination and its role here. Screens must reuse this
 // priority so creating, updating, and moving a file agree on what is main.
+export type UploadDestination = Readonly<{
+  value: string;
+  label: string;
+  sortOrder: number;
+}>;
+
 export const DOCUMENT_UPLOAD_CONFIG = {
-  INTERNAL_STAFF_DOCUMENTS: {
-    value: "internal_staff_documents",
-    label: "Internal Staff Documents",
-    sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
-  },
   MANAGEMENT_PLANS: {
     value: "management_plans",
     label: "Management Plans",
@@ -22,11 +25,6 @@ export const DOCUMENT_UPLOAD_CONFIG = {
     value: "consultation_records",
     label: "Consultation Record(s)",
     sortOrder: SUBMISSION_SORT_ORDER.MAIN_DOCUMENT,
-  },
-  SUBMISSIONS: {
-    value: "submissions",
-    label: "Submissions",
-    sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
   },
   IEMS: {
     value: "iems",
@@ -72,5 +70,40 @@ export const DOCUMENT_UPLOAD_CONFIG = {
     value: "report_supporting_documents",
     label: "Report Supporting Documents",
     sortOrder: SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
+  },
+} as const satisfies Record<string, UploadDestination>;
+
+// Storage-only folders do not have a submission role or priority.
+export const S3_FOLDER = {
+  ...DOCUMENT_UPLOAD_CONFIG,
+  SUBMISSIONS: { value: "submissions", label: "Submissions" },
+  INTERNAL_STAFF_DOCUMENTS: {
+    value: "internal_staff_documents",
+    label: "Internal Staff Documents",
+  },
+} as const;
+
+export type DocumentFolder = UploadDestination;
+
+export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP: Partial<
+  Record<SubmissionPackageType, Record<string, DocumentFolder[]>>
+> = {
+  [SubmissionPackageType.MANAGEMENT_PLAN]: {
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
+      DOCUMENT_UPLOAD_CONFIG.CONSULTATION_RECORDS,
+    ],
+    [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: [
+      DOCUMENT_UPLOAD_CONFIG.MANAGEMENT_PLANS,
+      DOCUMENT_UPLOAD_CONFIG.SUPPORTING_DOCUMENTS,
+    ],
+  },
+  [SubmissionPackageType.IEM]: {
+    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
+      DOCUMENT_UPLOAD_CONFIG.CONSULTATION_RECORDS,
+    ],
+    [SUBMISSION_ITEM_TYPE.IEM]: [
+      DOCUMENT_UPLOAD_CONFIG.IEMS,
+      DOCUMENT_UPLOAD_CONFIG.SUPPORTING_DOCUMENTS,
+    ],
   },
 };

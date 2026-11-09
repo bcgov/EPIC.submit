@@ -1,7 +1,8 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Box, Button, Typography } from "@mui/material";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
@@ -42,9 +43,9 @@ export const ManagementPlanUpdateForm = () => {
             Management Plan/IEM Terms of Engagement
           </Typography>
           <DocumentsTable
-            folder={S3_FOLDER.MANAGEMENT_PLANS.value}
+            destination={S3_FOLDER.MANAGEMENT_PLANS}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={S3_FOLDER.MANAGEMENT_PLANS.sortOrder}
+
           />
         </Box>
         <Box>
@@ -59,9 +60,9 @@ export const ManagementPlanUpdateForm = () => {
             Supporting Documents
           </Typography>
           <DocumentsTable
-            folder={S3_FOLDER.SUPPORTING_DOCUMENTS.value}
+            destination={S3_FOLDER.SUPPORTING_DOCUMENTS}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={S3_FOLDER.SUPPORTING_DOCUMENTS.sortOrder}
+
           />
         </Box>
       </Box>

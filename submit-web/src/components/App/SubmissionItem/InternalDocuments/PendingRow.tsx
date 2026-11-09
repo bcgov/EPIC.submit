@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import {
   CircularProgress,
   Link as MuiLink,
@@ -7,7 +8,7 @@ import {
 import { SubmitTableCell } from "@/components/Shared/Table/common";
 import { useEffect, useMemo, useState } from "react";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
-import { S3_FOLDER, saveObject } from "@/hooks/api/useObjectStorage";
+import { saveObject } from "@/hooks/api/useObjectStorage";
 import { useCreateInternalStaffDocument } from "@/hooks/api/useInternalStaffDocuments";
 import { useParams } from "@tanstack/react-router";
 import { INTERNAL_STAFF_DOCUMENT_TYPE } from "@/models/SubmissionItem";

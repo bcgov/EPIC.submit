@@ -1,38 +1,4 @@
-import { SubmissionPackageType } from "@/models/Package";
-import { SUBMISSION_ITEM_TYPE } from "@/models/SubmissionItem";
 import { documentRequest, requestAxios } from "@/utils/axiosUtils";
-
-export { DOCUMENT_UPLOAD_CONFIG as S3_FOLDER } from "@/models/documentUploadConfig";
-import { DOCUMENT_UPLOAD_CONFIG as S3_FOLDER } from "@/models/documentUploadConfig";
-
-export type DocumentFolder = {
-  value: string;
-  label: string;
-  sortOrder: number;
-};
-
-export const NEW_PACKAGE_TYPE_S3_FOLDER_MAP: Partial<
-  Record<SubmissionPackageType, Record<string, DocumentFolder[]>>
-> = {
-  [SubmissionPackageType.MANAGEMENT_PLAN]: {
-    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
-      S3_FOLDER.CONSULTATION_RECORDS,
-    ],
-    [SUBMISSION_ITEM_TYPE.MANAGEMENT_PLAN]: [
-      S3_FOLDER.MANAGEMENT_PLANS,
-      S3_FOLDER.SUPPORTING_DOCUMENTS,
-    ],
-  },
-  [SubmissionPackageType.IEM]: {
-    [SUBMISSION_ITEM_TYPE.CONSULTATION_RECORD]: [
-      S3_FOLDER.CONSULTATION_RECORDS,
-    ],
-    [SUBMISSION_ITEM_TYPE.IEM]: [
-      S3_FOLDER.IEMS,
-      S3_FOLDER.SUPPORTING_DOCUMENTS,
-    ],
-  },
-};
 
 type AuthHeaderRequestData = {
   filename: string;

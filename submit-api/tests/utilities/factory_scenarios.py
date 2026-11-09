@@ -21,6 +21,7 @@ from enum import Enum
 from faker import Faker
 
 from src.submit_api.config import get_named_config
+from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER
 from submit_api.utils.roles import EpicSubmitRole
 
 
@@ -157,10 +158,11 @@ class TestPackageScenarios:
         }
 
     @staticmethod
-    def get_fake_document_payload():
-        """Get doc payload."""
+    def get_fake_document_payload(sort_order=MAIN_DOCUMENT_SORT_ORDER):
+        """Get a main-document payload unless a different priority is requested."""
         return {
             "type": "DOCUMENT",
+            "sort_order": sort_order,
             "data": {
                 "name": fake.file_name(extension="pdf"),
                 "url": fake.file_path(depth=3, extension="pdf").replace("\\", "/"),

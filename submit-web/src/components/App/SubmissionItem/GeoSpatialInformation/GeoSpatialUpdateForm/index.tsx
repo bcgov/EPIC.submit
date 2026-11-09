@@ -1,8 +1,9 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { Box, Button, Typography, Grid } from "@mui/material";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { deleteDocument, S3_FOLDER } from "@/hooks/api/useObjectStorage";
+import { deleteDocument } from "@/hooks/api/useObjectStorage";
 import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
 import { BCDesignTokens } from "epic.theme";
@@ -198,9 +199,9 @@ export const GeoSpatialUpdateForm = () => {
             Geospatial File(s)
           </Typography>
           <DocumentsTable
-            folder={S3_FOLDER.GEOSPATIAL.value}
+            destination={S3_FOLDER.GEOSPATIAL}
             setIsPendingUpload={setIsPendingUpload}
-            sortOrder={S3_FOLDER.GEOSPATIAL.sortOrder}
+
             isGeoSpatial={true}
             onDocumentClick={handleDocumentClick}
             onUploadComplete={onUploadComplete}

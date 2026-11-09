@@ -1,3 +1,4 @@
+import { UploadDestination } from "@/models/documentUploadConfig";
 import { submitRequest } from "@/utils/axiosUtils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Options } from "./types";
@@ -71,6 +72,18 @@ export const createSubmission = (itemId: number, data: FormType) => {
     data,
   });
 };
+
+// Keep the folder and main/supporting priority tied to the same destination.
+export const createDocumentSubmission = (
+  itemId: number,
+  destination: UploadDestination,
+  document: { name: string; url: string },
+) =>
+  createSubmission(itemId, {
+    type: SUBMISSION_TYPE.DOCUMENT,
+    sort_order: destination.sortOrder,
+    data: { ...document, folder: destination.value },
+  });
 
 export const useCreateSubmission = (itemId: number, options?: Options) => {
   return useMutation({

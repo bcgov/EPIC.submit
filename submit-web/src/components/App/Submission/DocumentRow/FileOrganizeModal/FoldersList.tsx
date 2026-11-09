@@ -1,3 +1,4 @@
+import { DocumentFolder, NEW_PACKAGE_TYPE_S3_FOLDER_MAP } from "@/models/documentUploadConfig";
 import {
   Box,
   Chip,
@@ -13,11 +14,7 @@ import { useMemo, useState, useCallback } from "react";
 import { Submission } from "@/models/Submission";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
 import { useMoveSubmission } from "@/hooks/api/useSubmissions";
-import {
-  copyObject,
-  DocumentFolder,
-  NEW_PACKAGE_TYPE_S3_FOLDER_MAP,
-} from "@/hooks/api/useObjectStorage";
+import { copyObject } from "@/hooks/api/useObjectStorage";
 import { SubmissionPackage } from "@/models/Package";
 import { AccountProject } from "@/models/Project";
 import { getSubmissionFolderName } from "@/components/Shared/Table/utils";

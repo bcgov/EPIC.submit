@@ -1,3 +1,4 @@
+import { UploadDestination } from "@/models/documentUploadConfig";
 import { useCallback, useEffect, useMemo } from "react";
 import { Box, Grid, Typography, Link } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -31,9 +32,7 @@ import { Accept } from "react-dropzone";
 export interface UploadSectionConfig {
   name: string;
   label: string;
-  folder: string;
-  // Lower values show first. Use 0 for the main file and larger values for other groups.
-  sortOrder: number;
+  destination: UploadDestination;
   maxFiles?: number;
   maxFilesErrorMessage?: string;
   description?: string;
@@ -148,10 +147,10 @@ export const GenericDocumentUploadSection: React.FC<
       {sections.map((section) => {
         const sectionDocuments = files?.filter(
           (submission) =>
-            submission.submitted_document?.folder === section.folder,
+            submission.submitted_document?.folder === section.destination.value,
         );
         const pendingSectionDocuments = pendingFiles.filter(
-          (document) => document.folder === section.folder,
+          (document) => document.folder === section.destination.value,
         );
 
         const isGeoSpatialSection = section.name === "geospatial";
@@ -229,7 +228,7 @@ export const GenericDocumentUploadSection: React.FC<
               name={section.name}
               height={"13.125rem"}
               onDrop={(acceptedFiles) =>
-                handleOnDrop(acceptedFiles, section.folder)
+                handleOnDrop(acceptedFiles, section.destination.value)
               }
               maxFiles={section.maxFiles}
               maxFilesErrorMessage={section.maxFilesErrorMessage}
@@ -255,15 +254,13 @@ export const GenericDocumentUploadSection: React.FC<
                 pendingDocuments={pendingSectionDocuments}
                 folder={getSubmissionFolderName({
                   projectName: projectName,
-                  sectionName: section.folder,
+                  sectionName: section.destination.value,
                 })}
                 isGeoSpatial={section.name === "geospatial"}
                 formFieldName={section.name}
                 onDocumentClick={section.onDocumentClick}
                 onUploadComplete={section.onUploadComplete}
-                sortOrder={
-                  section.sortOrder
-                }
+                destination={section.destination}
               />
             </Box>
           </Grid>

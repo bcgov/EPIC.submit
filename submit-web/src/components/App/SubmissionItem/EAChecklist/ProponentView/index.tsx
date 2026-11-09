@@ -1,3 +1,4 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import {
   GenericDocumentUploadSection,
   UploadSectionConfig
@@ -8,7 +9,7 @@ import Form from "@/components/Shared/Forms/common";
 import { SubmitLoaderBackdrop } from "@/components/Shared/Overlays/SubmitLoaderBackdrop";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { QUERY_KEY } from "@/hooks/api/constants";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import { useGetSubmissionPackage } from "@/hooks/api/usePackages";
 import { useGetAccountProject } from "@/hooks/api/useProjects";
 import { useSaveSubmission } from "@/hooks/api/useSubmissions";
@@ -140,8 +141,7 @@ export const EarlyEngagementChecklistProponentView = () => {
       {
         name: "uploadDocuments",
         label: "your documents",
-        folder: S3_FOLDER.UPLOAD_DOCUMENTS.value,
-        sortOrder: S3_FOLDER.UPLOAD_DOCUMENTS.sortOrder,
+        destination: S3_FOLDER.UPLOAD_DOCUMENTS,
         description:
           "Must be unlocked PDF document (i.e., not password protected).",
       },

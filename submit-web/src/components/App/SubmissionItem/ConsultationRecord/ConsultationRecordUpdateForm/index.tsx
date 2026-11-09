@@ -1,7 +1,8 @@
+import { S3_FOLDER } from "@/models/documentUploadConfig";
 import { Box, Button } from "@mui/material";
 import { SubmissionFormContainer } from "@/components/App/SubmissionItem/SubmissionFormContainer";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { S3_FOLDER } from "@/hooks/api/useObjectStorage";
+
 import DocumentsTable from "@/components/App/SubmissionItem/DocumentsTable";
 import { useState } from "react";
 import { UnfinishedUploadsCheck } from "@/components/Shared/UnfinishedUploadsCheck";
@@ -26,9 +27,9 @@ export const ConsultationRecordUpdateForm = () => {
         width: "100%"
       }}>
         <DocumentsTable
-          folder={S3_FOLDER.CONSULTATION_RECORDS.value}
+          destination={S3_FOLDER.CONSULTATION_RECORDS}
           setIsPendingUpload={setIsPendingUpload}
-          sortOrder={S3_FOLDER.CONSULTATION_RECORDS.sortOrder}
+
         />
       </Box>
       <UnfinishedUploadsCheck customCondition={isPendingUpload}>
