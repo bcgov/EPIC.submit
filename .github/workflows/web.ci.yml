@@ -5,10 +5,7 @@ on:
     branches:
       - develop
       - "release**"
-      # Run the stacked regression-test PR before its implementation is merged.
-      - "feature/SUBMIT-892-main-document-validation"
     paths:
-      - ".github/workflows/web.ci.yml"
       - "submit-web/**"
   push:
     branches:
