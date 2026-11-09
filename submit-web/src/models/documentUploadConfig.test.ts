@@ -4,7 +4,7 @@ import { SUBMISSION_SORT_ORDER } from "./Submission";
 import {
   NEW_PACKAGE_TYPE_S3_FOLDER_MAP,
   S3_FOLDER,
-} from "@/hooks/api/useObjectStorage";
+} from "@/models/documentUploadConfig";
 import { SubmissionPackageType } from "./Package";
 import { SUBMISSION_ITEM_TYPE } from "./SubmissionItem";
 
@@ -29,8 +29,6 @@ describe("document upload destinations", () => {
     "IPD_SUPPORTING_DOCUMENTS",
     "ENGAGEMENT_PLAN_SUPPORTING_DOCUMENTS",
     "REPORT_SUPPORTING_DOCUMENTS",
-    "INTERNAL_STAFF_DOCUMENTS",
-    "SUBMISSIONS",
   ] as const)("does not let %s satisfy main-file validation", (key) => {
     expect(DOCUMENT_UPLOAD_CONFIG[key].sortOrder).toBe(
       SUBMISSION_SORT_ORDER.SUPPORTING_DOCUMENT,
@@ -44,8 +42,10 @@ describe("document upload destinations", () => {
     expect(new Set(folders).size).toBe(folders.length);
   });
 
-  it("shares the same definitions with existing storage consumers", () => {
-    expect(S3_FOLDER).toBe(DOCUMENT_UPLOAD_CONFIG);
+  it("keeps storage-only folders outside submission validation", () => {
+    expect(S3_FOLDER.SUBMISSIONS).not.toHaveProperty("sortOrder");
+    expect(S3_FOLDER.INTERNAL_STAFF_DOCUMENTS).not.toHaveProperty("sortOrder");
+    expect(S3_FOLDER.IPDS).toBe(DOCUMENT_UPLOAD_CONFIG.IPDS);
   });
 
   it.each([

@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { FoldersList } from "./FoldersList";
 import { Submission } from "@/models/Submission";
 import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
-import { NEW_PACKAGE_TYPE_S3_FOLDER_MAP } from "@/hooks/api/useObjectStorage";
+import { NEW_PACKAGE_TYPE_S3_FOLDER_MAP } from "@/models/documentUploadConfig";
 
 const { request, copyObject, close } = vi.hoisted(() => ({
   request: vi.fn().mockResolvedValue({}),
