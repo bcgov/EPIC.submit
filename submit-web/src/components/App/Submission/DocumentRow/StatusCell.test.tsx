@@ -39,6 +39,7 @@ const makeSubmission = (overrides: Partial<Submission> = {}): Submission => ({
   submitted_by: "user-1",
   status: SUBMISSION_STATUS.SUBMITTED,
   is_updated: true,
+  sort_order: 0,
   ...overrides,
 });
 
