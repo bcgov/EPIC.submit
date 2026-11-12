@@ -1,7 +1,7 @@
 """Service for package management."""
 # pylint: disable=too-many-lines
 from collections import defaultdict
-from datetime import datetime, UTC
+from datetime import date, datetime, UTC
 
 from flask import current_app
 from sqlalchemy import func
@@ -30,7 +30,9 @@ from submit_api.models.package_metadata import PackageMetadata as PackageMetadat
 from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.queries.package import PackageSubmissionQueries
-from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionType, SubmissionStatus
+from submit_api.models.submission import (
+    MAIN_DOCUMENT_SORT_ORDER, SubmissionType, SubmissionStatus, effective_submission_date
+)
 from submit_api.models.item_type import SubmissionItemType, SubmissionMethod
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType, UpdateRequestStatus
@@ -273,7 +275,12 @@ class PackageService:  # pylint: disable=too-many-public-methods
         ]
         if not main_documents:
             return None
-        return max(main_documents, key=lambda s: s.created_date)
+        # EAO-uploaded documents count from the date the EAO received them, so a
+        # document received earlier never overtakes a newer one.
+        return max(
+            main_documents,
+            key=lambda s: (effective_submission_date(s) or date.min, s.created_date),
+        )
 
     @staticmethod
     def _map_report_document_status_for_proponent(submission, is_compliance_self_report):
@@ -324,20 +331,23 @@ class PackageService:  # pylint: disable=too-many-public-methods
             None when every Regulated Party document is processed, so the caller keeps
             the package-level verified/acknowledged mapping.
         """
-        submitted = [
+        documents = [
             submission
             for item in package.items
             for submission in item.submissions
             if submission.type == SubmissionType.DOCUMENT
             and submission.active and not submission.deleted
-            and not getattr(submission, "is_eao_uploaded", False)
         ]
+        submitted = [s for s in documents if not getattr(s, "is_eao_uploaded", False)]
         statuses = [
             s.status.value if isinstance(s.status, SubmissionStatus) else s.status
             for s in submitted
         ]
         statuses = [status for status in statuses if status != SubmissionStatus.PENDING.value]
         if not statuses:
+            # Only EAO-uploaded documents: the card reads "Uploaded by EAO".
+            if len(submitted) < len(documents):
+                return [PackageStatus.UPLOADED_BY_EAO.value]
             return []
         if SubmissionStatus.SUBMITTED.value in statuses:
             return [PackageStatus.NEW_SUBMISSION.value]

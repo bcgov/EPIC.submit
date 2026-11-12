@@ -6,7 +6,7 @@ read-only from the package's document submissions: gather them, sort by
 submission date descending, and take the first one's date formatted as
 YYYY-MM-DD, or None when there are no documents.
 """
-from datetime import datetime
+from datetime import date, datetime
 from unittest.mock import Mock
 
 from submit_api.models.submission import SubmissionType
@@ -82,3 +82,27 @@ class TestPackageLastSubmittedOn:
         result = PackageSchema().get_last_submitted_on(package)
 
         assert result is None
+
+    def test_eao_upload_counts_from_date_received(self):
+        """An EAO-uploaded document counts from its date received, not its upload date."""
+        eao_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 11, 1))
+        eao_document.received_date = date(2026, 10, 9)
+        holder_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30))
+        holder_document.received_date = None
+        package = _package([_item([eao_document, holder_document])])
+
+        result = PackageSchema().get_last_submitted_on(package)
+
+        assert result == "2026-10-09"
+
+    def test_eao_upload_received_earlier_does_not_move_last_submitted_forward(self):
+        """A document received before the latest holder submission leaves Last Submitted unchanged."""
+        eao_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 11, 1))
+        eao_document.received_date = date(2026, 1, 2)
+        holder_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30))
+        holder_document.received_date = None
+        package = _package([_item([eao_document, holder_document])])
+
+        result = PackageSchema().get_last_submitted_on(package)
+
+        assert result == "2026-09-30"

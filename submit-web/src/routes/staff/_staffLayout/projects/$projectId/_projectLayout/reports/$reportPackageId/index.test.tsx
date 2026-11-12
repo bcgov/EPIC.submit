@@ -6,6 +6,9 @@ const routeHolder = vi.hoisted(() => ({
   component: undefined as (() => JSX.Element) | undefined,
 }));
 
+// Roles of the signed-in staff user; each test sets what it needs.
+const accountHolder = vi.hoisted(() => ({ roles: [] as string[] }));
+
 const mockNavigate = vi.fn();
 
 vi.mock("@tanstack/react-router", () => ({
@@ -17,6 +20,10 @@ vi.mock("@tanstack/react-router", () => ({
   useParams: () => ({ projectId: "7", reportPackageId: "42" }),
   Navigate: () => <div data-testid="navigate-error" />,
   notFound: () => new Error("not found"),
+}));
+
+vi.mock("@/store/accountStore", () => ({
+  useAccount: () => ({ roles: accountHolder.roles }),
 }));
 
 // Drive both suspense queries: first call returns the account project, second
@@ -35,6 +42,10 @@ vi.mock("@/hooks/api/useProjects", () => ({
 }));
 
 // Stub the heavy child components so the test focuses on page composition.
+// (SubmissionTitle pulls in the whole @mui/icons-material barrel.)
+vi.mock("@/components/App/Submission/SubmissionTitle", () => ({
+  SubmissionTitle: () => <div data-testid="submission-title" />,
+}));
 vi.mock("@/components/App/Projects/ReportDetail/ReportInfoBox", () => ({
   ReportInfoBox: () => <div data-testid="report-info-box" />,
 }));
@@ -77,7 +88,7 @@ const setQueries = (accountProject: unknown, reportPackage: unknown) => {
 };
 
 // Import after mocks are registered so createFileRoute captures the component.
-import "./$reportPackageId";
+import "./index";
 
 const StaffReportDetailPage = () => {
   if (!routeHolder.component) {
@@ -90,6 +101,7 @@ const StaffReportDetailPage = () => {
 describe("Staff report detail page", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    accountHolder.roles = ["eao_view"];
     setQueries(ACCOUNT_PROJECT, REPORT_PACKAGE);
   });
 
@@ -107,11 +119,6 @@ describe("Staff report detail page", () => {
     expect(submissionsTableSpy).toHaveBeenCalledWith("staff");
   });
 
-  it("does not render an Add Document button (read-only page)", () => {
-    render(<StaffReportDetailPage />);
-    expect(screen.queryByText("Add Document")).not.toBeInTheDocument();
-  });
-
   it("navigates back to staff Projects on Save & Close", () => {
     render(<StaffReportDetailPage />);
     fireEvent.click(screen.getByText("Save & Close"));
@@ -122,5 +129,44 @@ describe("Staff report detail page", () => {
     setQueries(ACCOUNT_PROJECT, { id: 42, name: "x", project_report: null });
     render(<StaffReportDetailPage />);
     expect(screen.getByTestId("navigate-error")).toBeInTheDocument();
+  });
+
+  describe("+ Add Document button", () => {
+    it.each([
+      ["MPT Staff", ["eao_view", "mp_edit"]],
+      ["MPT Manager", ["eao_view", "mp_extended_edit"]],
+      ["full access", ["eao_view", "full_access"]],
+    ])("shows for %s", (_label, roles) => {
+      accountHolder.roles = roles;
+      render(<StaffReportDetailPage />);
+      expect(
+        screen.getByRole("button", { name: /add document/i }),
+      ).toBeInTheDocument();
+    });
+
+    it.each([
+      ["view-only EAO staff", ["eao_view"]],
+      ["EAO editors without an MPT role", ["eao_view", "eao_edit"]],
+      ["MPT viewers", ["eao_view", "mp_view"]],
+      ["no roles", []],
+    ])("is hidden for %s", (_label, roles) => {
+      accountHolder.roles = roles;
+      render(<StaffReportDetailPage />);
+      expect(
+        screen.queryByRole("button", { name: /add document/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("opens the staff add-document page for this report", () => {
+      accountHolder.roles = ["eao_view", "mp_edit"];
+      render(<StaffReportDetailPage />);
+
+      fireEvent.click(screen.getByRole("button", { name: /add document/i }));
+
+      expect(mockNavigate).toHaveBeenCalledWith({
+        to: "/staff/projects/$projectId/reports/$reportPackageId/add-document",
+        params: { projectId: "7", reportPackageId: "42" },
+      });
+    });
   });
 });

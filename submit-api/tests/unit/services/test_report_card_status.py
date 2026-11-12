@@ -13,7 +13,7 @@ aggregate:
 - Pending Acknowledgement is never shown to the Regulated Party.
 - Supporting documents never drive the card status.
 """
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from unittest.mock import Mock
 
 from submit_api.enums.package_type import PackageTypeEnum
@@ -31,7 +31,8 @@ _BASE_DATE = datetime(2026, 1, 1)
 
 
 def _make_document_submission(status, created_offset_days=0,
-                              folder=REPORTS_FOLDER, is_eao_uploaded=False):
+                              folder=REPORTS_FOLDER, is_eao_uploaded=False,
+                              received_date=None):
     """Build a mock DOCUMENT submission for the report card derivation."""
     submission = Mock()
     submission.type = SubmissionType.DOCUMENT
@@ -40,6 +41,7 @@ def _make_document_submission(status, created_offset_days=0,
     submission.status = status
     submission.created_date = _BASE_DATE + timedelta(days=created_offset_days)
     submission.is_eao_uploaded = is_eao_uploaded
+    submission.received_date = received_date
     document = Mock()
     document.folder = folder
     submission.submitted_document = document
@@ -232,4 +234,70 @@ class TestReportCardStatusForStaff:
 
         result = PackageService.calculate_package_statuses(package, UserType.STAFF)
 
-        assert result == []
+        assert PackageStatus.NEW_SUBMISSION.value not in result
+
+    def test_only_eao_uploaded_documents_show_uploaded_by_eao(self):
+        """When every document was uploaded by EAO the card reads Uploaded by EAO."""
+        package = _make_report_package([
+            _make_document_submission(SubmissionStatus.SUBMITTED.value, is_eao_uploaded=True),
+            _make_document_submission(SubmissionStatus.SUBMITTED.value, is_eao_uploaded=True,
+                                      created_offset_days=1),
+        ])
+        package.status = [PackageStatus.SUBMITTED.value]
+
+        result = PackageService.calculate_package_statuses(package, UserType.STAFF)
+
+        assert result == [PackageStatus.UPLOADED_BY_EAO.value]
+
+    def test_eao_document_beside_unverified_holder_document_is_new_submission(self):
+        """A holder document still awaiting verification wins over EAO-uploaded ones."""
+        package = _make_report_package([
+            _make_document_submission(SubmissionStatus.SUBMITTED.value, is_eao_uploaded=True),
+            _make_document_submission(SubmissionStatus.SUBMITTED.value, created_offset_days=1),
+        ])
+        package.status = [PackageStatus.SUBMITTED.value]
+
+        result = PackageService.calculate_package_statuses(package, UserType.STAFF)
+
+        assert result == [PackageStatus.NEW_SUBMISSION.value]
+
+    def test_pending_documents_only_still_shows_none(self):
+        """Unsubmitted holder documents with no EAO uploads keep the card at '-'."""
+        package = _make_report_package([
+            _make_document_submission(SubmissionStatus.PENDING.value),
+        ])
+        package.status = [PackageStatus.NEW.value]
+
+        assert PackageService.calculate_package_statuses(package, UserType.STAFF) == []
+
+
+class TestReportCardUsesReceivedDate:
+    """The newest main document counts from the date received for EAO uploads."""
+
+    def test_eao_document_received_earlier_does_not_overtake_newer_holder_document(self):
+        """An EAO upload made today but received last year loses to a newer holder document."""
+        package = _make_report_package([
+            _make_document_submission(
+                SubmissionStatus.SUBMITTED.value, created_offset_days=30,
+                is_eao_uploaded=True, received_date=date(2026, 1, 5),
+            ),
+            _make_document_submission(SubmissionStatus.VERIFIED.value, created_offset_days=10),
+        ])
+
+        result = PackageService.calculate_package_statuses(package, UserType.PROPONENT)
+
+        assert result == [PackageStatus.VERIFIED.value]
+
+    def test_eao_document_received_later_wins(self):
+        """An EAO upload received after the holder's document drives the card."""
+        package = _make_report_package([
+            _make_document_submission(SubmissionStatus.VERIFIED.value, created_offset_days=1),
+            _make_document_submission(
+                SubmissionStatus.SUBMITTED.value, created_offset_days=0,
+                is_eao_uploaded=True, received_date=date(2026, 6, 1),
+            ),
+        ])
+
+        result = PackageService.calculate_package_statuses(package, UserType.PROPONENT)
+
+        assert result == [PackageStatus.UPLOADED_BY_EAO.value]

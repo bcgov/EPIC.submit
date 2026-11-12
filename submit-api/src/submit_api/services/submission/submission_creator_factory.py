@@ -157,6 +157,13 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
         }
         if root_submission_id:
             submission_data["root_submission_id"] = root_submission_id
+        if request_data.get("is_eao_uploaded"):
+            # Only set by SubmissionService after the EAO-upload checks have passed.
+            submission_data.update({
+                "status": SubmissionStatus.SUBMITTED,
+                "is_eao_uploaded": True,
+                "received_date": request_data.get("received_date"),
+            })
         submission: SubmissionModel = self._create_submission(session, submission_data)
 
         return submission
@@ -610,7 +617,9 @@ class DocumentSubmissionCreator(SubmissionCreatorFactory):
             created_by=submission_data.get("created_by", TokenInfo.get_username()),
             root_submission_id=submission_data.get("root_submission_id"),
             status=submission_data.get("status", SubmissionStatus.PENDING),
-            sort_order=submission_data.get("sort_order", SUPPORTING_DOCUMENT_SORT_ORDER)
+            sort_order=submission_data.get("sort_order", SUPPORTING_DOCUMENT_SORT_ORDER),
+            is_eao_uploaded=submission_data.get("is_eao_uploaded", False),
+            received_date=submission_data.get("received_date"),
         )
         session.add(submission)
         session.flush()

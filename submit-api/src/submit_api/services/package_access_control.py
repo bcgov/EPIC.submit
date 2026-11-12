@@ -31,6 +31,13 @@ from submit_api.utils.constants import MP_VIEW_PACKAGE_TYPES, MP_ROLE_OPERATIONS
 from submit_api.utils.roles import EpicSubmitRole
 from submit_api.utils.token_info import TokenInfo
 
+# Roles allowed to add report/notification documents received outside EPIC.submit.
+EAO_REPORT_UPLOAD_ROLES = (
+    EpicSubmitRole.MP_EDIT,
+    EpicSubmitRole.MP_EXTENDED_EDIT,
+    EpicSubmitRole.FULL_ACCESS,
+)
+
 
 class PackageAccessControl:
     """Centralized package access control service."""
@@ -280,6 +287,14 @@ class PackageAccessControl:
             return False
 
         return False
+
+    @staticmethod
+    def has_report_eao_upload_role() -> bool:
+        """Return True if the user may add documents on behalf of the Regulated Party.
+
+        Limited to MPT Staff (mp_edit) and MPT Manager (mp_extended_edit); full_access bypasses.
+        """
+        return jwt.contains_role([role.value for role in EAO_REPORT_UPLOAD_ROLES])
 
     @staticmethod
     def _has_proponent_create_permission(package: PackageModel) -> bool:

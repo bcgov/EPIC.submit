@@ -1,8 +1,12 @@
 """Service for submission management."""
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from flask import current_app
 
 from submit_api.enums.item_status import ItemStatus
-from submit_api.exceptions import BadRequestError, UnprocessableEntityError
+from submit_api.exceptions import BadRequestError, PermissionDeniedError, UnprocessableEntityError
+from submit_api.models.user import UserType
 from submit_api.models import Item as ItemModel, Package as PackageModel, User as UserModel
 from submit_api.models.item_type import SubmissionItemType
 from submit_api.models.package import PackageStatus
@@ -11,7 +15,7 @@ from submit_api.models.db import db, session_scope
 from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
 from submit_api.models.package_item_type import PackageItemType
-from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum
+from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum, REPORT_RELATED_TYPES
 from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import (
     MAIN_DOCUMENT_SORT_ORDER,
@@ -78,11 +82,68 @@ class SubmissionService:
             return True
         return bool(package.version and package.version.version >= 2)
 
+    @staticmethod
+    def _local_today():
+        """Return today's date in the legislative (Pacific) timezone."""
+        timezone = ZoneInfo(current_app.config.get('LEGISLATIVE_TIMEZONE', 'US/Pacific'))
+        return datetime.now(timezone).date()
+
+    @classmethod
+    def _require_eao_report_upload_access(cls):
+        """Allow only MPT Staff / MPT Manager (or full_access) staff users; otherwise 403."""
+        # pylint: disable=import-outside-toplevel
+        from submit_api.services.package_access_control import PackageAccessControl
+
+        user = UserModel.get_by_guid(TokenInfo.get_username())
+        if not user or user.type != UserType.STAFF \
+                or not PackageAccessControl.has_report_eao_upload_role():
+            raise PermissionDeniedError("You do not have permission to add documents on behalf of the holder.")
+
+    @classmethod
+    def _validate_eao_upload(cls, item_id, request_data):
+        """Validate an EAO upload of a report/notification document.
+
+        Raises PermissionDeniedError (403) without an MPT role, and UnprocessableEntityError
+        (422) for a non-report package, a non-document submission, or a missing/future date.
+        """
+        cls._require_eao_report_upload_access()
+        item = ItemModel.find_by_id(item_id)
+        package_type = item.package.type.name if item and item.package and item.package.type else None
+        if package_type not in REPORT_RELATED_TYPES:
+            raise UnprocessableEntityError("Documents can only be added on behalf of the holder to reports.")
+        if request_data.get("type") != SubmissionType.DOCUMENT.value:
+            raise UnprocessableEntityError("Only documents can be added on behalf of the holder.")
+        received_date = request_data.get("received_date")
+        if not received_date:
+            raise UnprocessableEntityError("Please enter the date the EAO received the document.")
+        if received_date > cls._local_today():
+            raise UnprocessableEntityError("The date received cannot be in the future.")
+
+    @classmethod
+    def _build_document_submission_data(cls, request_data, is_eao_upload):
+        """Build the document creation data, never trusting client-supplied EAO flags."""
+        submission_data = {
+            key: value for key, value in (request_data.get("data") or {}).items()
+            if key not in ("is_eao_uploaded", "received_date", "status")
+        }
+        # Carry the priority into creation so every document starts with its final order.
+        submission_data["sort_order"] = request_data.get("sort_order", SUPPORTING_DOCUMENT_SORT_ORDER)
+        if is_eao_upload:
+            submission_data["is_eao_uploaded"] = True
+            submission_data["received_date"] = request_data.get("received_date")
+        return submission_data
+
     @classmethod
     def create_submission(cls, item_id, request_data):
         """Create a new submission."""
         cls._check_assigned_on_package(item_id)
-        cls._validate_package_not_acknowledged(item_id)
+        is_eao_upload = bool(request_data.get("is_eao_upload"))
+        if is_eao_upload:
+            cls._validate_eao_upload(item_id, request_data)
+        else:
+            if request_data.get("received_date"):
+                raise UnprocessableEntityError("A received date is only allowed for documents added by the EAO.")
+            cls._validate_package_not_acknowledged(item_id)
         is_geospatial = False
         with session_scope() as session:
             submission_type = request_data.get("type")
@@ -90,22 +151,17 @@ class SubmissionService:
 
             submission_data = request_data.get("data")
             if submission_type == SubmissionType.DOCUMENT.value:
-                # Carry the priority into creation so every document starts with its final order.
-                submission_data = {
-                    **(submission_data or {}),
-                    "sort_order": request_data.get(
-                        "sort_order", SUPPORTING_DOCUMENT_SORT_ORDER
-                    ),
-                }
+                submission_data = cls._build_document_submission_data(request_data, is_eao_upload)
             submission = submission_creator.create(item_id, submission_data, session)
 
-            status = request_data.get("status")
-            cls.update_submission_item_status(item_id, status, session)
+            if not is_eao_upload:
+                cls.update_submission_item_status(item_id, request_data.get("status"), session)
 
             # Flag the submission as updated when the change happens within an
             # update-request / resubmission window (see _should_flag_is_updated).
+            # EAO uploads are final, so they are never flagged as updated.
             item = ItemModel.find_by_id(item_id)
-            if cls._should_flag_is_updated(item):
+            if not is_eao_upload and cls._should_flag_is_updated(item):
                 submission.is_updated = True
                 session.add(submission)
 
@@ -414,7 +470,11 @@ class SubmissionService:
         if not submission:
             raise ValueError("Submission not found.")
         cls._check_assigned_on_package(submission.item_id)
-        cls._validate_package_not_acknowledged(submission.item_id)
+        if submission.is_eao_uploaded:
+            # Used to undo a partly saved EAO upload; only the roles that can add can remove.
+            cls._require_eao_report_upload_access()
+        else:
+            cls._validate_package_not_acknowledged(submission.item_id)
         cls._validate_package_is_open(submission.id)
 
         url_to_delete = None
@@ -516,7 +576,6 @@ class SubmissionService:
         """
         # pylint: disable=import-outside-toplevel
         from submit_api.enums.package_operation import PackageOperation
-        from submit_api.models.user import UserType
         from submit_api.services.package_access_control import PackageAccessControl
 
         if not SubmissionService._is_always_editable_item(item):
