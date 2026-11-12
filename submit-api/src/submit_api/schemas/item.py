@@ -8,7 +8,8 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.models.submission import SubmissionType, SubmissionStatus
 from submit_api.models.user import UserType
 from submit_api.schemas.item_type import ItemTypeSchema
-from submit_api.schemas.submission import SubmittedDocumentSchema, SubmittedFormSchema
+from submit_api.schemas.submission import (
+    SubmittedDocumentSchema, SubmittedFormSchema, resolve_submitted_by, viewer_is_staff)
 from submit_api.schemas.submission_item_note import SubmissionItemNote
 from submit_api.schemas.submission_review import SubmissionReviewSchema
 from submit_api.services.user_service import UserService
@@ -41,16 +42,23 @@ class ItemSubmissionSchema(Schema):
     status = fields.Enum(data_key="status", enum=SubmissionStatus)
     is_updated = fields.Bool(data_key="is_updated")
     sort_order = fields.Int(data_key="sort_order")
+    is_eao_uploaded = fields.Bool(data_key="is_eao_uploaded")
+    received_date = fields.Date(data_key="received_date")
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
         """Get submitted by."""
-        obj.submitted_by = (
-            obj.submitted_by_user.account_user.full_name
-            if obj.submitted_by_user and obj.submitted_by_user.account_user
-            else None
-        )
+        obj.submitted_by = resolve_submitted_by(obj)
         return obj
+
+    @post_dump(pass_original=True)
+    def hide_staff_identity(self, data, original, **kwargs):
+        """Keep the staff member's login away from the Regulated Party on EAO-uploaded documents."""
+        if getattr(original, "is_eao_uploaded", False) is True and not viewer_is_staff():
+            data["created_by"] = None
+            if data.get("submitted_document"):
+                data["submitted_document"]["created_by"] = None
+        return data
 
 
 class ItemSchema(Schema):

@@ -1,7 +1,7 @@
 import { UploadDestination } from "@/models/documentUploadConfig";
 import { S3_FOLDER } from "@/models/documentUploadConfig";
-import { useMemo, useRef, useState } from "react";
-import { Box, Grid } from "@mui/material";
+import { useMemo } from "react";
+import { Grid } from "@mui/material";
 import {
   createFileRoute,
   Navigate,
@@ -14,16 +14,9 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { BCDesignTokens } from "epic.theme";
 import { isAxiosError } from "axios";
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
-import BarTitle from "@/components/Shared/Text/BarTitle";
-import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
-import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
-import { BarBlueTitle } from "@/components/Shared/Text/BarTitle";
-import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import {
   getSubmissionPackageQueryOptions,
@@ -37,21 +30,16 @@ import { getSubmissionFolderName } from "@/components/Shared/Table/utils";
 import { PACKAGE_STATUS } from "@/models/Package";
 import { QUERY_KEY } from "@/hooks/api/constants";
 import { HTTP_STATUS } from "@/utils/constants";
-import { formatReportPageTitle } from "@/components/App/Projects/ReportDetail/reportTitle";
 import { camelCase } from "lodash";
 import {
-  getPrimaryUploadLabel,
-  PRIMARY_ACCEPTED_FILE_TYPES,
-  SUPPORTING_ACCEPTED_FILE_TYPES,
-  PRIMARY_UPLOAD_CRITERIA,
-  SUPPORTING_UPLOAD_DESCRIPTION,
   SUBMIT_SUCCESS_MESSAGE,
   SUBMIT_FAILURE_MESSAGE,
 } from "@/components/App/Projects/ReportDetail/reportUpload";
+import { StagedFile } from "@/components/App/Projects/ReportDetail/upload/ReportUploadSection";
 import {
-  ReportUploadSection,
-  StagedFile,
-} from "@/components/App/Projects/ReportDetail/upload/ReportUploadSection";
+  ReportDocumentUploadForm,
+  ReportUploadSubmission,
+} from "@/components/App/Projects/ReportDetail/upload/ReportDocumentUploadForm";
 
 const ROUTE_ID =
   "/proponent/_proponentLayout/projects/$projectId/_projectLayout/reports/$reportPackageId/add-document";
@@ -89,9 +77,6 @@ export const Route = createFileRoute(ROUTE_ID)({
   }),
 });
 
-let stagedIdCounter = 0;
-const nextStagedId = () => `staged-${(stagedIdCounter += 1)}`;
-
 function ReportAddDocumentPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -117,12 +102,6 @@ function ReportAddDocumentPage() {
 
   const { mutateAsync: updatePackageState } = useUpdateStateSubmissionPackage();
 
-  const [primaryFiles, setPrimaryFiles] = useState<StagedFile[]>([]);
-  const [supportingFiles, setSupportingFiles] = useState<StagedFile[]>([]);
-  const [primaryError, setPrimaryError] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const primaryDropZoneRef = useRef<HTMLDivElement>(null);
-
   const report = reportPackage?.project_report;
 
   const reportItemId = useMemo(() => reportPackage?.items?.[0]?.id, [
@@ -137,23 +116,6 @@ function ReportAddDocumentPage() {
   if (!accountProject || !reportPackage || !report) {
     return <Navigate to="/error" />;
   }
-
-  const pageTitle = formatReportPageTitle(report);
-  const primaryLabel = getPrimaryUploadLabel(report.report_type);
-
-  const addPrimaryFiles = (files: File[]) => {
-    setPrimaryError(false);
-    setPrimaryFiles((prev) => [
-      ...prev,
-      ...files.map((file) => ({ id: nextStagedId(), file })),
-    ]);
-  };
-  const addSupportingFiles = (files: File[]) => {
-    setSupportingFiles((prev) => [
-      ...prev,
-      ...files.map((file) => ({ id: nextStagedId(), file })),
-    ]);
-  };
 
   const uploadSection = async (
     staged: StagedFile[],
@@ -179,19 +141,16 @@ function ReportAddDocumentPage() {
     });
   };
 
-  const handleSubmit = async () => {
-    if (primaryFiles.length === 0) {
-      setPrimaryError(true);
-      primaryDropZoneRef.current?.focus();
-      return;
-    }
+  const handleSubmit = async ({
+    primaryFiles,
+    supportingFiles,
+  }: ReportUploadSubmission) => {
     if (!reportItemId) {
       notify.error(SUBMIT_FAILURE_MESSAGE);
       return;
     }
 
     try {
-      setIsSubmitting(true);
       // Upload every staged file first; only flip the package to SUBMITTED
       // once all uploads succeed so a mid-way failure leaves nothing partial.
       await uploadSection(
@@ -219,94 +178,17 @@ function ReportAddDocumentPage() {
         ? (error.response?.data?.message ?? SUBMIT_FAILURE_MESSAGE)
         : SUBMIT_FAILURE_MESSAGE;
       notify.error(message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <PageGrid>
-      <Grid size={12}>
-        <ContentBox
-          mainLabel={accountProject.project?.name}
-          topLabel={accountProject.project?.proponent?.name || ""}
-          bottomLabel={
-            accountProject.project?.ea_certificate
-              ? `EAC # ${accountProject.project.ea_certificate}`
-              : ""
-          }
-        >
-          <Box
-            sx={{
-              padding: BCDesignTokens.layoutPaddingMedium,
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: "4px",
-              border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              gap: BCDesignTokens.layoutPaddingSmall,
-            }}
-          >
-            <SubmissionTitle
-              sx={{ pb: BCDesignTokens.layoutPaddingSmall }}
-              customTitle="Reports & Recurring Submissions"
-              customStatus={PROJECT_STATUS.POST_DECISION}
-            />
-            <Box
-              sx={{
-                pt: BCDesignTokens.layoutPaddingSmall,
-                pb: BCDesignTokens.layoutPaddingMedium,
-                px: BCDesignTokens.layoutPaddingMedium,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                gap: BCDesignTokens.layoutPaddingMedium,
-                borderRadius: "4px",
-                border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              }}
-            >
-              <BarTitle title={pageTitle} />
-              <Box sx={{ width: "100%" }}>
-                <BarBlueTitle title="Document(s) Upload" bold={false} />
-              </Box>
-
-              <ReportUploadSection
-                heading={primaryLabel}
-                description={PRIMARY_UPLOAD_CRITERIA}
-                acceptedFileTypes={PRIMARY_ACCEPTED_FILE_TYPES}
-                uploadedByName={uploadedByName}
-                files={primaryFiles}
-                onAddFiles={addPrimaryFiles}
-                onRemoveFile={(id) =>
-                  setPrimaryFiles((prev) => prev.filter((f) => f.id !== id))
-                }
-                error={primaryError}
-                dropZoneRef={primaryDropZoneRef}
-              />
-
-              <ReportUploadSection
-                heading="Upload Supporting Documents"
-                description={SUPPORTING_UPLOAD_DESCRIPTION}
-                acceptedFileTypes={SUPPORTING_ACCEPTED_FILE_TYPES}
-                uploadedByName={uploadedByName}
-                files={supportingFiles}
-                onAddFiles={addSupportingFiles}
-                onRemoveFile={(id) =>
-                  setSupportingFiles((prev) => prev.filter((f) => f.id !== id))
-                }
-              />
-
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Button color="secondary" onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSubmit} loading={isSubmitting}>
-                  Submit to EAO
-                </Button>
-              </Box>
-            </Box>
-          </Box>
-        </ContentBox>
-      </Grid>
-    </PageGrid>
+    <ReportDocumentUploadForm
+      accountProject={accountProject}
+      report={report}
+      uploadedByName={uploadedByName}
+      submitLabel="Submit to EAO"
+      onSubmit={handleSubmit}
+      onCancel={handleCancel}
+    />
   );
 }

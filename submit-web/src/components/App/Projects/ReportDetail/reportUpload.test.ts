@@ -1,5 +1,26 @@
 import { describe, it, expect } from "vitest";
-import { getPrimaryUploadLabel } from "./reportUpload";
+import {
+  ADD_SUCCESS_MESSAGE,
+  DATE_RECEIVED_FUTURE_ERROR,
+  DATE_RECEIVED_HELP_TEXT,
+  DATE_RECEIVED_REQUIRED_ERROR,
+  getPrimaryUploadLabel,
+} from "./reportUpload";
+
+describe("EAO add-document copy", () => {
+  it("uses the wording from the story", () => {
+    expect(ADD_SUCCESS_MESSAGE).toBe("Documents added successfully");
+    expect(DATE_RECEIVED_HELP_TEXT).toBe(
+      "The date the EAO received the document. It shows as Date Submitted.",
+    );
+    expect(DATE_RECEIVED_REQUIRED_ERROR).toBe(
+      "Please enter the date the EAO received the document.",
+    );
+    expect(DATE_RECEIVED_FUTURE_ERROR).toBe(
+      "The date received cannot be in the future.",
+    );
+  });
+});
 
 describe("getPrimaryUploadLabel", () => {
   it("returns 'Upload Notification' for Compliance Notification", () => {

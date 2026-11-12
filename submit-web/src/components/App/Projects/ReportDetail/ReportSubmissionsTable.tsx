@@ -27,7 +27,7 @@ import { ProjectReport, SubmissionPackage } from "@/models/Package";
 import { Submission } from "@/models/Submission";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { useReportDocumentVerify } from "@/hooks/useReportDocumentVerify";
-import dateUtils from "@/utils/dateUtils";
+import { getSubmissionDate } from "@/utils/submissionDocuments";
 import {
   getReportDocumentSubmissions,
   getDocumentStatusLabel,
@@ -264,7 +264,7 @@ export const ReportSubmissionsTable = ({
                   {submission.submitted_by || "-"}
                 </SubmitTableCell>
                 <SubmitTableCell width="10%">
-                  {dateUtils.formatDate(submission.created_date) || "-"}
+                  {getSubmissionDate(submission) || "-"}
                 </SubmitTableCell>
                 <SubmitTableCell width="15%">
                   {isStaff ? (

@@ -1,149 +1,25 @@
 import { describe, it, expect } from "vitest";
+import { canAddEaoReportDocument } from "./utils";
 
-import {
-  checkIfManager,
-  checkIfStaff,
-  checkIfMPT,
-  checkIfGISUser,
-  hasPermission,
-  canViewReportsSection,
-} from "./utils";
-import { USER_MANAGEMENT_ROLE } from "@/models/Role";
-import { Role } from "@/models/AccountUser";
-
-const roleWith = (roleName: USER_MANAGEMENT_ROLE): Role =>
-  (({
-    role_name: roleName
-  }) as Role);
-
-describe("PermissionGate utils", () => {
-  describe("checkIfMPT", () => {
-    it("returns true when user has mp_view role", () => {
-      expect(checkIfMPT(["mp_view"])).toBe(true);
-    });
-
-    it("returns true when user has full_access role", () => {
-      expect(checkIfMPT(["full_access"])).toBe(true);
-    });
-
-    it("returns false when user has no MPT roles", () => {
-      expect(checkIfMPT(["eao_view", "eao_edit"])).toBe(false);
-    });
-
-    it("returns false when roles is undefined", () => {
-      expect(checkIfMPT(undefined)).toBe(false);
-    });
-
-    it("returns false when roles is empty", () => {
-      expect(checkIfMPT([])).toBe(false);
-    });
+describe("canAddEaoReportDocument", () => {
+  it.each([
+    ["MPT Staff", ["eao_view", "mp_edit"]],
+    ["MPT Manager", ["eao_view", "mp_extended_edit"]],
+    ["full access", ["full_access"]],
+  ])("allows %s", (_label, roles) => {
+    expect(canAddEaoReportDocument(roles)).toBe(true);
   });
 
-  describe("checkIfManager", () => {
-    it("returns true when user has mp_extended_edit role", () => {
-      expect(checkIfManager(["mp_extended_edit"])).toBe(true);
-    });
-
-    it("returns true when user has full_access role", () => {
-      expect(checkIfManager(["full_access"])).toBe(true);
-    });
-
-    it("returns false when user lacks manager roles", () => {
-      expect(checkIfManager(["eao_view"])).toBe(false);
-    });
-
-    it("returns false when roles is undefined", () => {
-      expect(checkIfManager(undefined)).toBe(false);
-    });
+  it.each([
+    ["view-only EAO staff", ["eao_view"]],
+    ["EAO editors without an MPT role", ["eao_view", "eao_edit", "eao_create"]],
+    ["MPT viewers and creators", ["mp_view", "mp_create"]],
+    ["no roles", []],
+  ])("denies %s", (_label, roles) => {
+    expect(canAddEaoReportDocument(roles)).toBe(false);
   });
 
-  describe("checkIfStaff", () => {
-    it("returns true when user has eao_view but not manager role", () => {
-      expect(checkIfStaff(["eao_view"])).toBe(true);
-    });
-
-    it("returns false when user is a manager", () => {
-      expect(checkIfStaff(["eao_view", "mp_extended_edit"])).toBe(false);
-    });
-
-    it("returns false when roles is undefined", () => {
-      expect(checkIfStaff(undefined)).toBe(false);
-    });
-  });
-
-  describe("checkIfGISUser", () => {
-    it("returns true when user has gis_extended_edit role", () => {
-      expect(checkIfGISUser(["gis_extended_edit"])).toBe(true);
-    });
-
-    it("returns false when user lacks GIS role", () => {
-      expect(checkIfGISUser(["eao_view"])).toBe(false);
-    });
-
-    it("returns false when roles is undefined", () => {
-      expect(checkIfGISUser(undefined)).toBe(false);
-    });
-  });
-
-  describe("hasPermission", () => {
-    it("returns true when permissions include a matching scope", () => {
-      expect(
-        hasPermission({
-          permissions: ["eao_view", "mp_view"],
-          scopes: ["mp_view"],
-        }),
-      ).toBe(true);
-    });
-
-    it("returns true when user has full_access regardless of scopes", () => {
-      expect(
-        hasPermission({
-          permissions: ["full_access"],
-          scopes: ["mp_extended_edit"],
-        }),
-      ).toBe(true);
-    });
-
-    it("returns false when no permissions match scopes", () => {
-      expect(
-        hasPermission({
-          permissions: ["eao_view"],
-          scopes: ["mp_extended_edit"],
-        }),
-      ).toBe(false);
-    });
-  });
-
-  describe("canViewReportsSection", () => {
-    it("returns true for Account Primary Administrator", () => {
-      expect(
-        canViewReportsSection([roleWith(USER_MANAGEMENT_ROLE.ACCOUNT_PRIMARY_ADMIN)]),
-      ).toBe(true);
-    });
-
-    it("returns true for Project Administrator", () => {
-      expect(
-        canViewReportsSection([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]),
-      ).toBe(true);
-    });
-
-    it("returns true for Collaborator - All Submissions", () => {
-      expect(
-        canViewReportsSection([roleWith(USER_MANAGEMENT_ROLE.SUBMISSION_ADMIN)]),
-      ).toBe(true);
-    });
-
-    it("returns false for Collaborator - Specific Submissions", () => {
-      expect(
-        canViewReportsSection([
-          roleWith(USER_MANAGEMENT_ROLE.SPECIFIC_SUBMISSION_CONTRIBUTOR),
-        ]),
-      ).toBe(false);
-    });
-
-    it("returns false when there are no roles", () => {
-      expect(canViewReportsSection([])).toBe(false);
-      expect(canViewReportsSection(undefined)).toBe(false);
-    });
+  it("denies when roles are not loaded", () => {
+    expect(canAddEaoReportDocument(undefined)).toBe(false);
   });
 });

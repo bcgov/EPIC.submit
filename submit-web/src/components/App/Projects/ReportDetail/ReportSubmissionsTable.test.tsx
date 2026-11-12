@@ -203,6 +203,70 @@ describe("ReportSubmissionsTable", () => {
     expect(screen.getByText("Uploaded by EAO")).toBeInTheDocument();
   });
 
+  it("shows the date received as Date Submitted for an EAO-uploaded document", () => {
+    const pkg = makePackage([
+      makeDocSubmission(1, "received_by_email.pdf", "2026-11-05T01:00:00Z", {
+        is_eao_uploaded: true,
+        received_date: "2026-10-09",
+        submitted_by: "Jordan Lee",
+      }),
+    ]);
+    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
+
+    expect(screen.getByText("2026-10-09")).toBeInTheDocument();
+    expect(screen.getByText("Jordan Lee")).toBeInTheDocument();
+    expect(screen.getByText("Uploaded by EAO")).toBeInTheDocument();
+  });
+
+  it("shows EAO as Submitted By on the Regulated Party page", () => {
+    const pkg = makePackage([
+      makeDocSubmission(1, "received_by_email.pdf", "2026-11-05T01:00:00Z", {
+        is_eao_uploaded: true,
+        received_date: "2026-10-09",
+        submitted_by: "EAO",
+      }),
+    ]);
+    render(<ReportSubmissionsTable reportPackage={pkg} audience="proponent" />);
+
+    expect(screen.getByText("EAO")).toBeInTheDocument();
+    expect(screen.getByText("2026-10-09")).toBeInTheDocument();
+    expect(screen.getByText("Uploaded by EAO")).toBeInTheDocument();
+  });
+
+  it("sorts a document received earlier below newer ones", () => {
+    const pkg = makePackage([
+      makeDocSubmission(1, "received_earlier.pdf", "2026-11-05T01:00:00Z", {
+        is_eao_uploaded: true,
+        received_date: "2026-01-05",
+      }),
+      makeDocSubmission(2, "newer.pdf", "2026-06-01T12:00:00Z"),
+    ]);
+    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
+
+    const links = screen.getAllByText(/\.pdf$/);
+    expect(links.map((l) => l.textContent)).toEqual([
+      "newer.pdf",
+      "received_earlier.pdf",
+    ]);
+  });
+
+  it("shows no action button for an EAO-uploaded acknowledgeable-looking main report", () => {
+    const pkg = makePackage(
+      [
+        makeDocSubmission(1, "CSR.pdf", "2026-06-01T00:00:00Z", {
+          is_eao_uploaded: true,
+          status: "VERIFIED",
+        }),
+      ],
+      "Compliance Self-Report",
+    );
+    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
+
+    expect(
+      screen.queryByRole("button", { name: /acknowledge|verify/i }),
+    ).not.toBeInTheDocument();
+  });
+
   it("opens the Verify modal when the Verify button is clicked", async () => {
     const user = userEvent.setup();
     const pkg = makePackage([

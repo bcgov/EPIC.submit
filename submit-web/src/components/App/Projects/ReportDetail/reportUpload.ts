@@ -37,3 +37,15 @@ export const PRIMARY_REQUIRED_ERROR = "Please upload a document.";
 export const SUBMIT_SUCCESS_MESSAGE = "Documents submitted successfully";
 export const SUBMIT_FAILURE_MESSAGE =
   "Something went wrong submitting your documents. Please try again.";
+
+// EAO staff adding documents received outside EPIC.submit.
+export const ADD_SUCCESS_MESSAGE = "Documents added successfully";
+export const ADD_FAILURE_MESSAGE =
+  "Something went wrong adding the documents. Please try again.";
+export const DATE_RECEIVED_LABEL = "Date Received";
+export const DATE_RECEIVED_HELP_TEXT =
+  "The date the EAO received the document. It shows as Date Submitted.";
+export const DATE_RECEIVED_REQUIRED_ERROR =
+  "Please enter the date the EAO received the document.";
+export const DATE_RECEIVED_FUTURE_ERROR =
+  "The date received cannot be in the future.";

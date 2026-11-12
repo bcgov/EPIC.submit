@@ -6,7 +6,7 @@ Manages the package
 from marshmallow import EXCLUDE, Schema, fields, post_dump, validate
 
 from submit_api.models.package import PackageStatus
-from submit_api.models.submission import SubmissionType
+from submit_api.models.submission import SubmissionType, effective_submission_date
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
@@ -207,15 +207,15 @@ class PackageSchema(Schema):
         Read from the ORM object so an emptied ``items`` output does not matter.
         """
         document_dates = [
-            submission.created_date
+            effective_submission_date(submission)
             for item in (obj.items or [])
             for submission in (item.submissions or [])
             if submission.type == SubmissionType.DOCUMENT and submission.created_date
         ]
+        document_dates = [d for d in document_dates if d]
         if not document_dates:
             return None
-        latest = sorted(document_dates, reverse=True)[0]
-        return latest.strftime("%Y-%m-%d")
+        return max(document_dates).strftime("%Y-%m-%d")
 
     def get_meta(self, obj):
         """Get meta."""

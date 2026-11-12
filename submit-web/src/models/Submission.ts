@@ -291,9 +291,12 @@ export type Submission = {
   is_updated: boolean;
   sort_order: number;
   // True when the document was uploaded by EAO staff rather than sent by the
-  // Regulated Party. Populated by SUBMIT-1041; absent/undefined means the
-  // document is treated as Regulated-Party-sent.
+  // Regulated Party. Absent/undefined means the document is treated as
+  // Regulated-Party-sent.
   is_eao_uploaded?: boolean;
+  // YYYY-MM-DD date the EAO received an EAO-uploaded document. It shows as the
+  // Date Submitted; null/absent for documents the Regulated Party submitted.
+  received_date?: string | null;
 };
 
 export type SubmittedDocument = {

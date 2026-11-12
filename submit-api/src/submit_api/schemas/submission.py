@@ -3,6 +3,7 @@
 Manages the submission schema
 """
 
+from flask import g, has_app_context
 from marshmallow import EXCLUDE, Schema, fields, pre_dump
 
 from submit_api.enums.item_status import ItemStatus
@@ -11,6 +12,38 @@ from submit_api.models.submission import (
     SubmissionStatus,
 )
 from submit_api.models.submitted_document import VirusScanResult
+from submit_api.models.user import UserType
+from submit_api.services.user_service import UserService
+from submit_api.utils.token_info import TokenInfo
+
+EAO_SUBMITTER_LABEL = "EAO"
+_VIEWER_IS_STAFF_KEY = "_submission_viewer_is_staff"
+
+
+def viewer_is_staff() -> bool:
+    """Return whether the current requester is an EAO staff user (cached per request)."""
+    if has_app_context() and hasattr(g, _VIEWER_IS_STAFF_KEY):
+        return getattr(g, _VIEWER_IS_STAFF_KEY)
+    auth_guid = TokenInfo.get_username()
+    user = UserService.get_by_auth_guid(auth_guid) if auth_guid else None
+    is_staff = bool(user and user.type == UserType.STAFF)
+    if has_app_context():
+        setattr(g, _VIEWER_IS_STAFF_KEY, is_staff)
+    return is_staff
+
+
+def resolve_submitted_by(submission) -> str | None:
+    """Return the display name of whoever submitted a document.
+
+    EAO-uploaded documents show the staff member's name to staff and the literal
+    "EAO" to everyone else, so staff names never reach the Regulated Party.
+    """
+    user = submission.submitted_by_user
+    if getattr(submission, "is_eao_uploaded", False):
+        if not viewer_is_staff():
+            return EAO_SUBMITTER_LABEL
+        return user.staff_user.full_name if user and user.staff_user else None
+    return user.account_user.full_name if user and user.account_user else None
 
 
 class SubmittedFormSchema(Schema):
@@ -69,12 +102,13 @@ class SubmissionSchema(Schema):
     sort_order = fields.Int(data_key="sort_order")
     minor_version = fields.Int(data_key="minor_version")
     major_version = fields.Int(data_key="major_version")
+    is_eao_uploaded = fields.Bool(data_key="is_eao_uploaded")
+    received_date = fields.Date(data_key="received_date")
 
     @pre_dump
     def get_submitted_by(self, obj, **kwargs):
         """Get submitted by."""
-        obj.submitted_by = obj.submitted_by_user.account_user.full_name\
-            if obj.submitted_by_user and obj.submitted_by_user.account_user else None
+        obj.submitted_by = resolve_submitted_by(obj)
         return obj
 
 
@@ -93,6 +127,9 @@ class CreateSubmissionRequestSchema(Schema):
     created_by = fields.Str(data_key="created_by", required=False)
     # Missing priority is treated as supporting so only an explicit 0 satisfies main-file validation.
     sort_order = fields.Int(data_key="sort_order", load_default=SUPPORTING_DOCUMENT_SORT_ORDER)
+    # EAO staff uploading on behalf of the Regulated Party (report/notification documents only).
+    is_eao_upload = fields.Bool(data_key="is_eao_upload", load_default=False)
+    received_date = fields.Date(data_key="received_date", load_default=None, allow_none=True)
 
 
 class UpdateSubmissionStatusSchema(Schema):

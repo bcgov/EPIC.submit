@@ -1,26 +1,18 @@
 import { PageGrid } from "@/components/Shared/PageGrid";
-import { ContentBox } from "@/components/Shared/Layouts/ContentBox";
 import { ContentBoxSkeleton } from "@/components/Shared/Layouts/ContentBox/ContentBoxSkeleton";
-import BarTitle from "@/components/Shared/Text/BarTitle";
-import { LoadingButton as Button } from "@/components/Shared/LoadingButton";
-import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
-import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
-import { ReportInfoBox } from "@/components/App/Projects/ReportDetail/ReportInfoBox";
-import { ReportSubmissionsTable } from "@/components/App/Projects/ReportDetail/ReportSubmissionsTable";
 import { getStaffSubmissionPackageQueryOptions } from "@/hooks/api/usePackages";
 import { getAccountProjectForStaffQueryOptions } from "@/hooks/api/useProjects";
 import { formatReportPageTitle } from "@/components/App/Projects/ReportDetail/reportTitle";
 import { HTTP_STATUS } from "@/utils/constants";
-import { Box, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Navigate,
   notFound,
-  useNavigate,
+  Outlet,
   useParams,
 } from "@tanstack/react-router";
-import { BCDesignTokens } from "epic.theme";
 import { isAxiosError } from "axios";
 
 const ROUTE_ID =
@@ -35,7 +27,7 @@ const PendingComponent = () => (
 );
 
 export const Route = createFileRoute(ROUTE_ID)({
-  component: StaffReportDetailPage,
+  component: StaffReportLayout,
   loader: ({ context: { queryClient }, params: { reportPackageId } }) =>
     queryClient.ensureQueryData(
       getStaffSubmissionPackageQueryOptions({
@@ -63,8 +55,7 @@ export const Route = createFileRoute(ROUTE_ID)({
   }),
 });
 
-function StaffReportDetailPage() {
-  const navigate = useNavigate();
+function StaffReportLayout() {
   const { projectId: accountProjectIdParam, reportPackageId } = useParams({
     from: ROUTE_ID,
   });
@@ -74,76 +65,14 @@ function StaffReportDetailPage() {
     getAccountProjectForStaffQueryOptions(accountProjectId),
   );
   const { data: reportPackage } = useSuspenseQuery(
-    getStaffSubmissionPackageQueryOptions({ packageId: Number(reportPackageId) }),
+    getStaffSubmissionPackageQueryOptions({
+      packageId: Number(reportPackageId),
+    }),
   );
 
   if (!accountProject || !reportPackage || !reportPackage.project_report) {
     return <Navigate to="/error" />;
   }
 
-  const report = reportPackage.project_report;
-  const pageTitle = formatReportPageTitle(report);
-
-  return (
-    <PageGrid>
-      <Grid size={12}>
-        <ContentBox
-          mainLabel={accountProject.project?.name}
-          topLabel={accountProject.project?.proponent?.name || ""}
-          bottomLabel={
-            accountProject.project?.ea_certificate
-              ? `EAC # ${accountProject.project.ea_certificate}`
-              : ""
-          }
-        >
-          <Box
-            sx={{
-              padding: BCDesignTokens.layoutPaddingMedium,
-              display: "flex",
-              flexDirection: "column",
-              borderRadius: "4px",
-              border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              gap: BCDesignTokens.layoutPaddingSmall,
-            }}
-          >
-            <SubmissionTitle
-              sx={{ pb: BCDesignTokens.layoutPaddingSmall }}
-              customTitle="Reports & Recurring Submissions"
-              customStatus={PROJECT_STATUS.POST_DECISION}
-            />
-            <Box
-              sx={{
-                pt: BCDesignTokens.layoutPaddingSmall,
-                pb: BCDesignTokens.layoutPaddingMedium,
-                px: BCDesignTokens.layoutPaddingMedium,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                gap: BCDesignTokens.layoutPaddingMedium,
-                borderRadius: "4px",
-                border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
-              }}
-            >
-              <BarTitle title={pageTitle} />
-              <Box sx={{ width: "100%" }}>
-                <ReportInfoBox report={report} />
-              </Box>
-              <Box sx={{ width: "100%" }}>
-                <ReportSubmissionsTable
-                  reportPackage={reportPackage}
-                  audience="staff"
-                />
-              </Box>
-              <Button
-                color="secondary"
-                onClick={() => navigate({ to: "/staff/projects" })}
-              >
-                Save &amp; Close
-              </Button>
-            </Box>
-          </Box>
-        </ContentBox>
-      </Grid>
-    </PageGrid>
-  );
+  return <Outlet />;
 }

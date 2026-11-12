@@ -5,6 +5,7 @@ Manages the submission
 from __future__ import annotations
 
 import enum
+from datetime import date, datetime
 
 from sqlalchemy import Column, Enum, ForeignKey, Index
 
@@ -61,6 +62,19 @@ ALLOWED_TRANSITIONS: dict[PackageApprovalType, dict[SubmissionStatus, set[Submis
 }
 
 
+def effective_submission_date(submission) -> date | None:
+    """Return the date a submission counts as submitted.
+
+    EAO-uploaded documents use the date the EAO received them; every other document
+    uses the date it was uploaded.
+    """
+    received = getattr(submission, 'received_date', None)
+    if isinstance(received, date) and not isinstance(received, datetime):
+        return received
+    created = getattr(submission, 'created_date', None)
+    return created.date() if isinstance(created, datetime) else None
+
+
 class Submission(BaseModel):
     """Definition of the submission entity."""
 
@@ -95,6 +109,14 @@ class Submission(BaseModel):
     )
     root_submission_id = Column(db.Integer, ForeignKey('submissions.id'),
                                 nullable=True)  # the base or root id of submisison
+    is_eao_uploaded = Column(
+        db.Boolean, nullable=False, default=False, server_default=db.false(),
+        comment="Whether EAO staff uploaded the document on behalf of the Regulated Party"
+    )
+    received_date = Column(
+        db.Date, nullable=True,
+        comment="Date the EAO received an EAO-uploaded document; shown as Date Submitted"
+    )
 
     Index('idx_submissions_type_item_id', type, item_id)
 
@@ -102,6 +124,11 @@ class Submission(BaseModel):
     def version(self):
         """Return version."""
         return f'{self.major_version}.{self.minor_version}'
+
+    @property
+    def effective_date(self):
+        """Return the date the document counts as submitted (received date, else upload date)."""
+        return effective_submission_date(self)
 
     @classmethod
     def find_latest_by_type_and_item_id(cls, item_id: int, submission_type: SubmissionType):

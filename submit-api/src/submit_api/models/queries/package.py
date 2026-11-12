@@ -332,6 +332,9 @@ class PackageSubmissionQueries:
             s for item in package.items
             for s in item.submissions
             if s.active and not s.deleted and s.type == SubmissionType.DOCUMENT
+            # Documents EAO staff uploaded on behalf of the holder never take part in the
+            # verification workflow, so they must not hold the package in a partly verified state.
+            and not getattr(s, 'is_eao_uploaded', False)
         ]
         # If no submissions, return NEW status
         if not submissions:

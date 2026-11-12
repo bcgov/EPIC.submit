@@ -25,6 +25,24 @@ export const canViewReportsSection = (
   );
 };
 
+// Roles that may add report/notification documents received outside
+// EPIC.submit: MPT Staff (mp_edit) and MPT Manager (mp_extended_edit).
+// full_access is always added by hasPermission.
+export const EAO_REPORT_UPLOAD_SCOPES: string[] = [
+  EPIC_SUBMIT_ROLE.mp_edit,
+  EPIC_SUBMIT_ROLE.mp_extended_edit,
+];
+
+export const canAddEaoReportDocument = (roles?: string[]) => {
+  if (!roles) {
+    return false;
+  }
+  return hasPermission({
+    permissions: roles,
+    scopes: EAO_REPORT_UPLOAD_SCOPES,
+  });
+};
+
 export const checkIfManager = (roles?: string[]) => {
   if (!roles) {
     return false;

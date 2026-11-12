@@ -85,6 +85,22 @@ export const createDocumentSubmission = (
     data: { ...document, folder: destination.value },
   });
 
+// A document EAO staff add on behalf of the holder. The server stores it as
+// uploaded by EAO and shows `receivedDate` (YYYY-MM-DD) as its Date Submitted.
+export const createEaoDocumentSubmission = (
+  itemId: number,
+  destination: UploadDestination,
+  document: { name: string; url: string },
+  receivedDate: string,
+) =>
+  createSubmission(itemId, {
+    type: SUBMISSION_TYPE.DOCUMENT,
+    sort_order: destination.sortOrder,
+    is_eao_upload: true,
+    received_date: receivedDate,
+    data: { ...document, folder: destination.value },
+  });
+
 export const useCreateSubmission = (itemId: number, options?: Options) => {
   return useMutation({
     mutationFn: ({ data }: { data: FormType }) =>
