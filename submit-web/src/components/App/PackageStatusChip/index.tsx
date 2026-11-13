@@ -1,10 +1,22 @@
-import { StatusChip, StatusChipTheme } from "@/components/Shared/StatusChip";
+import {
+  StatusChip,
+  StatusChipProps,
+  StatusChipTheme,
+} from "@/components/Shared/StatusChip";
 import { NonCanonicalPackageStatus, PackageStatus } from "@/models/Package";
 
 // Map statuses to labels and themes
 type StyleProps = {
   label: string;
   theme: StatusChipTheme;
+  // Overrides the theme colors for statuses with their own specified palette.
+  customColors?: StatusChipProps["customColors"];
+};
+
+// Ready for Acknowledgement uses its own purple palette.
+const READY_FOR_ACKNOWLEDGEMENT_COLORS = {
+  border: "#6a54a3",
+  background: "#DAD4E8",
 };
 
 const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
@@ -84,9 +96,10 @@ const statusMap: Record<PackageStatus | NonCanonicalPackageStatus, StyleProps> =
     },
 
     UPDATED: { label: "Updated", theme: "purple" },
-    PENDING_ACKNOWLEDGEMENT: {
-      label: "Pending Acknowledgement",
+    READY_FOR_ACKNOWLEDGEMENT: {
+      label: "Ready for Acknowledgement",
       theme: "purple",
+      customColors: READY_FOR_ACKNOWLEDGEMENT_COLORS,
     },
     READY_FOR_APPROVAL: { label: "Ready for Approval", theme: "purple" },
 
@@ -110,6 +123,10 @@ export default function PackageStatusChip({
   }
 
   return (
-    <StatusChip label={label ? label : config.label} theme={config.theme} />
+    <StatusChip
+      label={label ? label : config.label}
+      theme={config.theme}
+      customColors={config.customColors}
+    />
   );
 }

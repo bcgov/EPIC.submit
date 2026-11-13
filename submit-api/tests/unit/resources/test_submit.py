@@ -1,5 +1,6 @@
 """Submission tests."""
 from http import HTTPStatus
+from unittest.mock import patch
 
 import pytest
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -349,7 +350,8 @@ def test_submit_package_state(client, rollback_safe_session, jwt):
                     assert "url" in submission["submitted_document"]
 
 
-def test_acknowledge_rejected_for_review_based_package(client, session, jwt):
+@patch("submit_api.services.package_service.authorization.require_team_lead_access")
+def test_acknowledge_rejected_for_review_based_package(_mock_team_lead, client, session, jwt):
     """ACKNOWLEDGED must be rejected for package types without an approval workflow.
 
     Management Plan packages follow the review-based ladder (no approval_type), so

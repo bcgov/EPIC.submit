@@ -1,17 +1,11 @@
 import { orderDocumentsBySortOrder } from "@/utils/submissionDocuments";
-import { ProjectReport, SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage } from "@/models/Package";
 import {
   Submission,
   SUBMISSION_STATUS,
-  SUBMISSION_SORT_ORDER,
   SUBMISSION_TYPE,
 } from "@/models/Submission";
 import { StatusChipTheme } from "@/components/Shared/StatusChip";
-
-// The report_type string that identifies a Compliance Self-Report obligation.
-// Drives the extra acknowledge hint in the Verify modal and the EAO-only
-// "Pending Acknowledgement" card status.
-export const COMPLIANCE_SELF_REPORT_TYPE = "Compliance Self-Report";
 
 /**
  * Returns every document submission across all items of a report package,
@@ -36,7 +30,6 @@ const UPLOADED_BY_EAO_THEME: StatusChipTheme = "neutral";
 
 // Document status set shown on the report/notification page. A document starts
 // as "Submitted" and, once an EAO staff member verifies it, shows "Verified".
-// "Acknowledged" is the terminal state for Compliance Self-Reports.
 const STATUS_LABELS: Record<string, string> = {
   SUBMITTED: "Submitted",
   PENDING: "Submitted",
@@ -84,20 +77,6 @@ export const getDocumentStatusTheme = (
 };
 
 /**
- * Whether the obligation is a Compliance Self-Report, identified by its
- * report_type. Used to surface the acknowledge hint in the Verify modal.
- */
-export const isComplianceSelfReport = (report?: ProjectReport | null): boolean =>
-  report?.report_type === COMPLIANCE_SELF_REPORT_TYPE;
-
-/**
- * Whether a document is the obligation's primary ("main") report, as opposed to
- * a supporting attachment. The upload priority is stored on the submission.
- */
-export const isMainReportDocument = (submission: Submission): boolean =>
-  submission.sort_order === SUBMISSION_SORT_ORDER.MAIN_DOCUMENT;
-
-/**
  * Whether a document was uploaded by EAO staff rather than sent by the
  * Regulated Party. EAO-uploaded documents do not get a Verify action.
  *
@@ -116,20 +95,3 @@ export const isEaoUploaded = (submission: Submission): boolean =>
 export const isDocumentVerifiable = (submission: Submission): boolean =>
   !isEaoUploaded(submission) &&
   submission.status === SUBMISSION_STATUS.SUBMITTED;
-
-/**
- * Whether an Acknowledge action should be offered for a document on the EAO
- * report page: the second staff step after Verify, for Compliance Self-Reports
- * only. It must be the Regulated-Party-sent main report of a Compliance
- * Self-Report obligation and currently VERIFIED. Supporting documents,
- * EAO-uploaded documents, other report types, and non-verified documents never
- * show it.
- */
-export const isDocumentAcknowledgeable = (
-  submission: Submission,
-  report?: ProjectReport | null,
-): boolean =>
-  isComplianceSelfReport(report) &&
-  isMainReportDocument(submission) &&
-  !isEaoUploaded(submission) &&
-  submission.status === SUBMISSION_STATUS.VERIFIED;

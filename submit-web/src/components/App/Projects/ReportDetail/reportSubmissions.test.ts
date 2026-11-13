@@ -3,19 +3,14 @@ import {
   Submission,
   SUBMISSION_SORT_ORDER,
 } from "@/models/Submission";
-import { ProjectReport, SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage } from "@/models/Package";
 import {
   getDocumentStatusLabel,
   getDocumentStatusTheme,
   getReportDocumentSubmissions,
-  isComplianceSelfReport,
-  isDocumentAcknowledgeable,
   isDocumentVerifiable,
   isEaoUploaded,
-  isMainReportDocument,
 } from "./reportSubmissions";
-
-const CSR = { report_type: "Compliance Self-Report" } as ProjectReport;
 
 const makeSubmission = (overrides: Partial<Submission> = {}): Submission =>
   ({
@@ -134,43 +129,6 @@ describe("getReportDocumentSubmissions", () => {
   });
 });
 
-describe("isComplianceSelfReport", () => {
-  it("is true only for the Compliance Self-Report report type", () => {
-    expect(
-      isComplianceSelfReport({
-        report_type: "Compliance Self-Report",
-      } as ProjectReport),
-    ).toBe(true);
-    expect(
-      isComplianceSelfReport({ report_type: "Annual Report" } as ProjectReport),
-    ).toBe(false);
-    expect(isComplianceSelfReport(null)).toBe(false);
-  });
-});
-
-describe("isMainReportDocument", () => {
-  it("is true for the main document priority", () => {
-    expect(isMainReportDocument(makeSubmission())).toBe(true);
-  });
-
-  it("is false for supporting documents", () => {
-    expect(
-      isMainReportDocument(
-        makeSubmission({
-          sort_order: 1,
-          submitted_document: {
-            id: 2,
-            name: "appendix.xlsx",
-            url: "s3/appendix.xlsx",
-            folder: "report_supporting_documents",
-            is_virus_rejected: false,
-          },
-        }),
-      ),
-    ).toBe(false);
-  });
-});
-
 describe("isEaoUploaded", () => {
   it("is true only when the signal is explicitly set", () => {
     expect(isEaoUploaded(makeSubmission({ is_eao_uploaded: true }))).toBe(true);
@@ -196,63 +154,6 @@ describe("isDocumentVerifiable", () => {
   it("is false for EAO-uploaded documents", () => {
     expect(
       isDocumentVerifiable(makeSubmission({ is_eao_uploaded: true })),
-    ).toBe(false);
-  });
-});
-
-describe("isDocumentAcknowledgeable", () => {
-  it("is true for a verified Compliance Self-Report main report", () => {
-    expect(
-      isDocumentAcknowledgeable(makeSubmission({ status: "VERIFIED" }), CSR),
-    ).toBe(true);
-  });
-
-  it("is false when the main report is not yet verified", () => {
-    expect(
-      isDocumentAcknowledgeable(makeSubmission({ status: "SUBMITTED" }), CSR),
-    ).toBe(false);
-  });
-
-  it("is false for a supporting document even when verified", () => {
-    expect(
-      isDocumentAcknowledgeable(
-        makeSubmission({
-          status: "VERIFIED",
-          sort_order: 1,
-          submitted_document: {
-            id: 2,
-            name: "appendix.xlsx",
-            url: "s3/appendix.xlsx",
-            folder: "report_supporting_documents",
-            is_virus_rejected: false,
-          },
-        }),
-        CSR,
-      ),
-    ).toBe(false);
-  });
-
-  it("is false for a non-Compliance-Self-Report obligation", () => {
-    expect(
-      isDocumentAcknowledgeable(
-        makeSubmission({ status: "VERIFIED" }),
-        { report_type: "Annual Report" } as ProjectReport,
-      ),
-    ).toBe(false);
-  });
-
-  it("is false for an EAO-uploaded verified main report", () => {
-    expect(
-      isDocumentAcknowledgeable(
-        makeSubmission({ status: "VERIFIED", is_eao_uploaded: true }),
-        CSR,
-      ),
-    ).toBe(false);
-  });
-
-  it("is false when there is no report", () => {
-    expect(
-      isDocumentAcknowledgeable(makeSubmission({ status: "VERIFIED" }), null),
     ).toBe(false);
   });
 });

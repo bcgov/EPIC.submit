@@ -300,15 +300,21 @@ class PackageSubmissionQueries:
         statuses: set[SubmissionStatus],
         approval_type: PackageApprovalType | None = None
     ):
-        """Add VERIFIED when all docs are VERIFIED, or are some combination of VERIFIED and ACKNOWLEDGED."""
+        """Add the all-documents-verified status.
+
+        When all docs are VERIFIED, or are some combination of VERIFIED and ACKNOWLEDGED:
+        - Types B and C: READY_FOR_ACKNOWLEDGEMENT on its own (no VERIFIED chip), since
+          the package can now be acknowledged.
+        - Type A (and packages without an approval type): VERIFIED, its terminal status.
+        """
         if (
             statuses == {SubmissionStatus.VERIFIED.value} or
             statuses == {SubmissionStatus.VERIFIED.value, SubmissionStatus.ACKNOWLEDGED.value}
         ):
-            aggregated_statuses.append(PackageStatus.VERIFIED.value)
-            # For Type A packages, we don't need to move to pending acknowledgement
-            if approval_type != PackageApprovalType.A:
-                aggregated_statuses.append(PackageStatus.PENDING_ACKNOWLEDGEMENT.value)
+            if approval_type in (PackageApprovalType.B, PackageApprovalType.C):
+                aggregated_statuses.append(PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value)
+            else:
+                aggregated_statuses.append(PackageStatus.VERIFIED.value)
 
     @classmethod
     def aggregate_submission_statuses(cls, package) -> list[str]:

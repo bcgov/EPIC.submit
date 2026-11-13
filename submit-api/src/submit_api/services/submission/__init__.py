@@ -15,7 +15,7 @@ from submit_api.models.db import db, session_scope
 from submit_api.models.geo_data_upload import GeoDataUpload
 from submit_api.models.item_type import SubmissionMethod
 from submit_api.models.package_item_type import PackageItemType
-from submit_api.enums.package_type import PackageApprovalType, PackageTypeEnum, REPORT_RELATED_TYPES
+from submit_api.enums.package_type import PackageApprovalType, REPORT_RELATED_TYPES
 from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import (
     MAIN_DOCUMENT_SORT_ORDER,
@@ -27,12 +27,10 @@ from submit_api.models.submission import (
 )
 from submit_api.services import authorization
 from submit_api.services.document_service_client import DocumentServiceClient
-from submit_api.services.email_queue_service import SubmitEmailQueueService
 from submit_api.services.geo import GeoService
 from submit_api.services.item_service import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
-from submit_api.utils.constants import REPORTS_FOLDER
 from submit_api.utils.submission_validation import missing_main_document_message
 from submit_api.utils.token_info import TokenInfo
 
@@ -68,11 +66,11 @@ class SubmissionService:
         New Document badges) when the change happens after a submission already
         exists for the package lineage. That covers two windows:
 
-        1. The current package has already been submitted (``submitted_on`` set) —
+        1. The current package has already been submitted (``submitted_on`` set) -
            e.g. IPD documents added/replaced before acknowledgement.
         2. The package is a revision version (version >= 2) created for an update
            request / resubmission, which is not yet submitted (``submitted_on`` is
-           None) but always has a prior submitted version in its lineage — e.g.
+           None) but always has a prior submitted version in its lineage - e.g.
            MP / work-package resubmissions.
         """
         if not item or not item.package:
@@ -306,74 +304,6 @@ class SubmissionService:
                     PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
                 current_app.logger.info(f"Submission {submission_id} status updated to {status}.")
             return submission
-
-    @classmethod
-    def acknowledge_report_document(cls, submission_id):
-        """Acknowledge a verified Compliance Self-Report main report document.
-
-        The second EAO staff step for Report_TypeB packages, after Verify. Validates
-        that the submission is the main report (lives in the reports folder) of a
-        Report_TypeB package and is currently VERIFIED, flips only that submission to
-        ACKNOWLEDGED, refreshes the package status, and queues the acknowledgement
-        email (email 9) to the submitter. Any validation failure raises before the
-        status changes, so no email is sent.
-        """
-        with session_scope() as session:
-            submission = cls.get_submission_by_id(submission_id)
-            package = cls.get_package_by_submission_id(submission_id)
-            cls._validate_report_document_acknowledgeable(submission, package)
-
-            # Reuse the shared transition guard; Report_TypeB is approval type B.
-            cls._validate_submission_status_transition(
-                PackageApprovalType.B,
-                submission.status,
-                SubmissionStatus.ACKNOWLEDGED,
-            )
-
-            submission.status = SubmissionStatus.ACKNOWLEDGED
-            submission.is_updated = False
-            session.add(submission)
-            session.flush()
-
-            # Refresh the package's derived status (VERIFIED/PENDING_ACKNOWLEDGEMENT
-            # -> ACKNOWLEDGED) from its submissions.
-            PackageSubmissionQueries.update_package_status_from_submissions(package.id, session, package)
-
-            SubmitEmailQueueService.queue_report_acknowledgement_email(
-                submission, session=session, package=package
-            )
-            current_app.logger.info(
-                f"Report document {submission_id} acknowledged for package {package.id}."
-            )
-            return submission
-
-    @classmethod
-    def _validate_report_document_acknowledgeable(cls, submission, package):
-        """Validate that a submission is an acknowledgeable Report_TypeB main report.
-
-        Raises UnprocessableEntityError unless the submission belongs to a
-        Report_TypeB package, is the main report (reports folder), and is VERIFIED.
-        """
-        if not package or package.type.name != PackageTypeEnum.REPORT_TYPE_B.value:
-            raise UnprocessableEntityError(
-                "Acknowledgement only applies to Report_TypeB packages."
-            )
-
-        document = submission.submitted_document
-        if submission.type != SubmissionType.DOCUMENT or not document or document.folder != REPORTS_FOLDER:
-            raise UnprocessableEntityError(
-                "Only the main report document can be acknowledged."
-            )
-
-        current_status = (
-            submission.status.value
-            if isinstance(submission.status, SubmissionStatus)
-            else submission.status
-        )
-        if current_status != SubmissionStatus.VERIFIED.value:
-            raise UnprocessableEntityError(
-                "Only a verified main report can be acknowledged."
-            )
 
     @classmethod
     def _validate_submission_status_transition(cls, approval_type, current_status, next_status):

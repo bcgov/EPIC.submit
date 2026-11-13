@@ -87,12 +87,12 @@ describe("useDocumentRow", () => {
       expect(mockUseUpdate).toHaveBeenCalledWith({ packageId: 77 });
     });
 
-    it("reports ready for acknowledgement when status includes PENDING_ACKNOWLEDGEMENT", () => {
+    it("reports ready for acknowledgement when status includes READY_FOR_ACKNOWLEDGEMENT", () => {
       const { result } = renderHook(() =>
         useDocumentRow({
           documentSubmission: buildSubmission(),
           submissionPackage: buildPackage({
-            status: ["PENDING_ACKNOWLEDGEMENT"],
+            status: ["READY_FOR_ACKNOWLEDGEMENT"],
           }),
         }),
       );

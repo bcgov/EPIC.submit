@@ -5,12 +5,11 @@ notification document (the file in the ``reports`` folder), not a whole-package
 aggregate:
 
 - Submitted until EAO staff verify the newest main document.
-- Verified once verified, for every report/notification type except Compliance
-  Self-Reports (Report_TypeB), which stay Submitted until acknowledged.
+- Verified once verified.
 - Acknowledged once the newest main document is acknowledged.
 - Uploaded by EAO when the newest main document was uploaded by EAO staff
   (signal from SUBMIT-1041).
-- Pending Acknowledgement is never shown to the Regulated Party.
+- Ready for Acknowledgement is never shown to the Regulated Party.
 - Supporting documents never drive the card status.
 """
 from datetime import date, datetime, timedelta
@@ -98,8 +97,8 @@ class TestReportCardStatusForProponent:
 
         assert result == [PackageStatus.SUBMITTED.value]
 
-    def test_verified_non_csr_shows_verified(self):
-        """A verified non-Compliance report shows Verified to the Regulated Party."""
+    def test_verified_main_document_shows_verified(self):
+        """A verified report shows Verified to the Regulated Party."""
         package = _make_report_package([
             _make_document_submission(SubmissionStatus.VERIFIED.value),
         ])
@@ -108,24 +107,11 @@ class TestReportCardStatusForProponent:
 
         assert result == [PackageStatus.VERIFIED.value]
 
-    def test_verified_csr_stays_submitted(self):
-        """A verified Compliance Self-Report stays Submitted until acknowledged."""
-        package = _make_report_package(
-            [_make_document_submission(SubmissionStatus.VERIFIED.value)],
-            package_type=PackageTypeEnum.REPORT_TYPE_B,
-        )
-
-        result = PackageService.calculate_package_statuses(package, UserType.PROPONENT)
-
-        assert result == [PackageStatus.SUBMITTED.value]
-        assert PackageStatus.PENDING_ACKNOWLEDGEMENT.value not in result
-
-    def test_acknowledged_csr_shows_acknowledged(self):
-        """An acknowledged Compliance Self-Report main report shows Acknowledged."""
-        package = _make_report_package(
-            [_make_document_submission(SubmissionStatus.ACKNOWLEDGED.value)],
-            package_type=PackageTypeEnum.REPORT_TYPE_B,
-        )
+    def test_acknowledged_main_document_shows_acknowledged(self):
+        """An acknowledged main report shows Acknowledged."""
+        package = _make_report_package([
+            _make_document_submission(SubmissionStatus.ACKNOWLEDGED.value),
+        ])
 
         result = PackageService.calculate_package_statuses(package, UserType.PROPONENT)
 

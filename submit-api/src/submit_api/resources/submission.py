@@ -1,4 +1,4 @@
-# Copyright © 2024 Province of British Columbia
+# Copyright Â© 2024 Province of British Columbia
 #
 # Licensed under the Apache License, Version 2.0 (the 'License');
 # you may not use this file except in compliance with the License.
@@ -252,30 +252,3 @@ class SubmissionUpdateStatus(Resource):
         status = edit_submission_data.get("status")
         edited_submission = SubmissionService.update_submission_status(submission_id, status)
         return SubmissionSchema().dump(edited_submission), HTTPStatus.OK
-
-
-@cors_preflight("OPTIONS, POST")
-@API.route("/<int:submission_id>/acknowledge", methods=["POST", "OPTIONS"])
-class SubmissionAcknowledge(Resource):
-    """Resource to acknowledge a verified Compliance Self-Report main report."""
-
-    @staticmethod
-    @ApiHelper.swagger_decorators(API, endpoint_description="Acknowledge a report document")
-    @API.response(code=HTTPStatus.OK, model=submission_model, description="Submission")
-    @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @API.response(HTTPStatus.FORBIDDEN, "Insufficient permissions")
-    @API.response(HTTPStatus.NOT_FOUND, "Submission not found")
-    @cross_origin(origins=allowedorigins())
-    @auth.require
-    def post(submission_id):
-        """Acknowledge a verified Compliance Self-Report main report document."""
-        submission = SubmissionModel.find_by_id(submission_id)
-        if not submission:
-            abort(HTTPStatus.NOT_FOUND, "Submission not found")
-
-        # Acknowledgement is a staff edit action on the package, gated the same
-        # way as the Verify action.
-        PackageAccessControl.check_package_access(submission.item.package_id, PackageOperation.EDIT)
-
-        acknowledged_submission = SubmissionService.acknowledge_report_document(submission_id)
-        return SubmissionSchema().dump(acknowledged_submission), HTTPStatus.OK

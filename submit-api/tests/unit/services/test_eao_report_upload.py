@@ -82,10 +82,6 @@ class TestValidateEaoUpload:
         """A report document with a past date is accepted."""
         self._validate(_item(), _request())
 
-    def test_compliance_self_report_package_passes(self):
-        """Report_TypeB is a report package too."""
-        self._validate(_item(PackageTypeEnum.REPORT_TYPE_B.value), _request())
-
     def test_today_passes(self):
         """Today is not in the future."""
         self._validate(_item(), _request(date.today()))

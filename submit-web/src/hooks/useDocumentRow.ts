@@ -32,7 +32,7 @@ export function useDocumentRow({
   const url = documentSubmission.submitted_document?.url || "";
 
   const isPackageReadyForAcknowledgement = !!submissionPackage?.status.includes(
-    PACKAGE_STATUS.PENDING_ACKNOWLEDGEMENT.value,
+    PACKAGE_STATUS.READY_FOR_ACKNOWLEDGEMENT.value,
   );
 
   const isPackageAcknowledged = !!submissionPackage?.status.includes(

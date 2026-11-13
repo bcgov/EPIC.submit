@@ -18,24 +18,14 @@ def test_find_by_name_not_found(session):
     assert result is None
 
 
-def test_report_type_b_is_seeded_with_approval_type_b(session):
-    """Report_TypeB is seeded as a report type with the Acknowledge (B) flow."""
-    report_type_b = PackageType.find_by_name(PackageTypeEnum.REPORT_TYPE_B.value)
-    assert report_type_b is not None
-    assert report_type_b.approval_type == PackageApprovalType.B
-    # Report-style types are not versioned.
-    assert report_type_b.versioning_enabled is False
-    assert report_type_b.mandatory is False
+def test_report_type_b_is_not_seeded(session):
+    """The retired Report_TypeB package type no longer exists."""
+    assert PackageType.find_by_name('Report_TypeB') is None
 
 
-def test_report_type_b_clones_report_item_types(session):
-    """Report_TypeB exposes the same item types as the regular Report type."""
+def test_report_type_uses_verify_only_flow(session):
+    """The regular Report type keeps the Verify-only (A) flow and is not versioned."""
     report_type = PackageType.find_by_name(PackageTypeEnum.REPORT.value)
-    report_type_b = PackageType.find_by_name(PackageTypeEnum.REPORT_TYPE_B.value)
-    assert report_type is not None and report_type_b is not None
-
-    report_item_names = sorted(it.name for it in report_type.item_types)
-    report_b_item_names = sorted(it.name for it in report_type_b.item_types)
-    assert report_b_item_names == report_item_names
-    # And the regular Report type keeps the Verify-only (A) flow.
+    assert report_type is not None
     assert report_type.approval_type == PackageApprovalType.A
+    assert report_type.versioning_enabled is False

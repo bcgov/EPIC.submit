@@ -13,7 +13,6 @@ from submit_api.enums.package_type import (
     REPORT_RELATED_TYPES,
     PackageApprovalType,
     PackageTypeEnum,
-    resolve_report_package_type,
 )
 from submit_api.enums.role import ProponentPermissionsEnum
 from submit_api.exceptions import BadRequestError, ResourceNotFoundError
@@ -67,7 +66,7 @@ CANONICAL_STATUS_ORDER = (
     'UNDER_CONSULTATION_CHECK', 'PASSED_CONSULTATION_CHECK',
     'UNDER_REVIEW', 'AWAITING_MANAGER_APPROVAL',
     # Acknowledgement stream
-    'INTERNAL_VERIFICATION', 'PENDING_ACKNOWLEDGEMENT', 'READY_FOR_APPROVAL',
+    'INTERNAL_VERIFICATION', 'READY_FOR_ACKNOWLEDGEMENT', 'READY_FOR_APPROVAL',
     # Overlays (always last)
     'UPDATE_REQUESTED', 'REVISION_REQUIRED', 'REVISION_REQUESTED', 'UPDATED',
 )
@@ -106,9 +105,9 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 UserType.PROPONENT: PackageStatus.SUBMITTED.value,
                 UserType.STAFF: PackageStatus.VERIFIED.value
             },
-            PackageStatus.PENDING_ACKNOWLEDGEMENT.value: {
+            PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value: {
                 UserType.PROPONENT: PackageStatus.SUBMITTED.value,
-                UserType.STAFF: PackageStatus.PENDING_ACKNOWLEDGEMENT.value
+                UserType.STAFF: PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value
             },
             PackageStatus.ACKNOWLEDGED.value: {
                 UserType.PROPONENT: PackageStatus.ACKNOWLEDGED.value,
@@ -283,14 +282,12 @@ class PackageService:  # pylint: disable=too-many-public-methods
         )
 
     @staticmethod
-    def _map_report_document_status_for_proponent(submission, is_compliance_self_report):
+    def _map_report_document_status_for_proponent(submission):
         """Map a main report document's status to its Regulated Party card badge.
 
         - EAO-uploaded (SUBMIT-1041) wins and shows UPLOADED_BY_EAO.
-        - Compliance Self-Reports never show Verified/Pending Acknowledgement:
-          they stay SUBMITTED until the main report is ACKNOWLEDGED.
-        - Every other report/notification type shows VERIFIED once verified.
-        - Pending Acknowledgement is never surfaced to the Regulated Party.
+        - A verified document shows VERIFIED, an acknowledged one ACKNOWLEDGED.
+        - Ready for Acknowledgement is never surfaced to the Regulated Party.
         """
         if getattr(submission, "is_eao_uploaded", False):
             return PackageStatus.UPLOADED_BY_EAO.value
@@ -300,9 +297,9 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
         if status == SubmissionStatus.ACKNOWLEDGED.value:
             return PackageStatus.ACKNOWLEDGED.value
-        if status == SubmissionStatus.VERIFIED.value and not is_compliance_self_report:
+        if status == SubmissionStatus.VERIFIED.value:
             return PackageStatus.VERIFIED.value
-        # SUBMITTED/PENDING, or a CSR that is only VERIFIED (not yet acknowledged).
+        # SUBMITTED/PENDING.
         return PackageStatus.SUBMITTED.value
 
     @staticmethod
@@ -316,10 +313,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
         if newest_main is None:
             return []
 
-        is_csr = package.type.name == PackageTypeEnum.REPORT_TYPE_B.value
-        return [
-            PackageService._map_report_document_status_for_proponent(newest_main, is_csr)
-        ]
+        return [PackageService._map_report_document_status_for_proponent(newest_main)]
 
     @staticmethod
     def _calculate_report_staff_card_statuses(package):
@@ -455,18 +449,15 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
         Used by the report-obligation sync. ``obligation`` is the ProjectReport the
         package is linked to; the package name is derived from the obligation's display
-        name/type and the package type from its report type. Compliance Self-Report
-        obligations use the Report_TypeB package type; all other report types use the
-        regular Report package type. Report package types have versioning disabled, so
-        no package version is created.
+        name/type. Every report obligation uses the Report package type, which has
+        versioning disabled, so no package version is created.
         """
         report_type = obligation.report_type
         name = obligation.display_name or report_type or "Report"
-        package_type_enum = resolve_report_package_type(report_type)
-        package_type = PackageTypeModel.find_by_name(package_type_enum.value)
+        package_type = PackageTypeModel.find_by_name(PackageTypeEnum.REPORT.value)
         if not package_type:
             raise BadRequestError(
-                f"Package type '{package_type_enum.value}' is not configured."
+                f"Package type '{PackageTypeEnum.REPORT.value}' is not configured."
             )
 
         package = PackageModel(
@@ -769,7 +760,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
         ]
 
         if is_work_package:
-            # Rule 1: work package pre-acknowledgement — free resubmit with completeness
+            # Rule 1: work package pre-acknowledgement - free resubmit with completeness
             if not is_acknowledged:
                 cls._validate_completeness(package)
                 current_app.logger.info(
@@ -777,7 +768,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 )
                 return package
 
-            # Rule 2: work package post-acknowledgement — requires update request
+            # Rule 2: work package post-acknowledgement - requires update request
             if not open_update_requests:
                 raise BadRequestError(
                     "Cannot resubmit an acknowledged package without an open update request"
@@ -785,7 +776,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
             cls._validate_required_main_documents(package)
             cls._validate_no_empty_submissions(package)
         else:
-            # Rule 3: MP/IEM packages — always require update request
+            # Rule 3: MP/IEM packages - always require update request
             if not open_update_requests:
                 raise BadRequestError(
                     "Cannot resubmit a package without an open update request"
@@ -1116,7 +1107,12 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
     @classmethod
     def acknowledge_package(cls, package_id):
-        """Acknowledge the package."""
+        """Acknowledge the package.
+
+        Only users with w_extended_edit or full_access can acknowledge packages.
+        """
+        authorization.require_team_lead_access()
+
         with session_scope() as session:
             package = cls.get_package_by_id(package_id)
             if not package:
@@ -1394,13 +1390,13 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
         # Check if package is in a withdrawable status
         # Proponents see SUBMITTED for: SUBMITTED, INTERNAL_VERIFICATION, VERIFIED,
-        # PENDING_ACKNOWLEDGEMENT
+        # READY_FOR_ACKNOWLEDGEMENT
         # Proponents see ACKNOWLEDGED for: ACKNOWLEDGED, READY_FOR_APPROVAL
         withdrawable_statuses = [
             PackageStatus.SUBMITTED,
             PackageStatus.INTERNAL_VERIFICATION,
             PackageStatus.VERIFIED,
-            PackageStatus.PENDING_ACKNOWLEDGEMENT,
+            PackageStatus.READY_FOR_ACKNOWLEDGEMENT,
             PackageStatus.ACKNOWLEDGED,
             PackageStatus.READY_FOR_APPROVAL
         ]

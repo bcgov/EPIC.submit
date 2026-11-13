@@ -39,9 +39,9 @@ describe("StatusChip palette tokens", () => {
 
   it("renders the chip label", () => {
     const { getByText } = render(
-      <StatusChip label="Pending Acknowledgement" theme="purple" />,
+      <StatusChip label="Ready for Acknowledgement" theme="purple" />,
     );
-    expect(getByText("Pending Acknowledgement")).toBeInTheDocument();
+    expect(getByText("Ready for Acknowledgement")).toBeInTheDocument();
   });
 
   it("renders nothing when neither theme nor custom colors are provided", () => {
