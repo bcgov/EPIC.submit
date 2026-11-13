@@ -1,6 +1,5 @@
 import { Box, Chip, Collapse, Typography } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import { useState } from "react";
 import { SubmissionPackage } from "@/models/Package";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
 import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
@@ -10,8 +9,13 @@ import { ReportsTable } from "./ReportsTable";
 import { ReportsAudience } from "./reportStatus";
 import { PhaseGroupHeader } from "./PhaseGroupHeader";
 import { CardInnerBox } from "@/components/App/Projects/ProjectSubmissionsCard";
+import {
+  useIsPhaseExpanded,
+  useReportPhaseExpansionStore,
+} from "./reportPhaseExpansionStore";
 
 type ReportsRecurringCardProps = {
+  projectId: number;
   reportPackages: SubmissionPackage[];
   audience?: ReportsAudience;
 };
@@ -45,22 +49,25 @@ const AllPhasesHeader = ({ count }: { count: number }) => (
 );
 
 const CollapsiblePhaseGroup = ({
+  projectId,
   phase,
   reportPackages,
   audience,
 }: {
+  projectId: number;
   phase: string;
   reportPackages: SubmissionPackage[];
   audience: ReportsAudience;
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const expanded = useIsPhaseExpanded(projectId, phase);
+  const togglePhase = useReportPhaseExpansionStore((state) => state.togglePhase);
   return (
     <>
       <PhaseGroupHeader
         phase={phase}
         count={reportPackages.length}
         expanded={expanded}
-        onToggle={() => setExpanded((prev) => !prev)}
+        onToggle={() => togglePhase(projectId, phase)}
       />
       <Collapse in={expanded}>
         <CardInnerBox sx={{ height: "100%", p: 0 }}>
@@ -74,9 +81,11 @@ const CollapsiblePhaseGroup = ({
 /**
  * Read-only "Reports & Recurring Submissions" section. Lists synced report
  * obligations grouped by phase: "All Phases" is always expanded and not
- * collapsible; other phases are collapsed by default behind accessible toggles.
+ * collapsible; other phases are collapsed by default behind accessible toggles,
+ * and each project remembers which of them the user expanded.
  */
 export const ReportsRecurringCard = ({
+  projectId,
   reportPackages,
   audience = "proponent",
 }: ReportsRecurringCardProps) => {
@@ -128,6 +137,7 @@ export const ReportsRecurringCard = ({
             ) : (
               <CollapsiblePhaseGroup
                 key={group.phase}
+                projectId={projectId}
                 phase={group.phase}
                 reportPackages={group.packages}
                 audience={audience}
