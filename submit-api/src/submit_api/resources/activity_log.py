@@ -18,14 +18,14 @@ from http import HTTPStatus
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource, abort
 
-from submit_api.auth import auth
+from submit_api.auth import auth, jwt
 from submit_api.enums.activity_type import ActivityTypeEnum
-from submit_api.models.user import UserType
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
 from submit_api.services import authorization
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.util import allowedorigins, cors_preflight
+from submit_api.utils.roles import EpicSubmitRole
 
 
 API = Namespace("activity-logs", description="Endpoints for Activity Log Management")
@@ -33,13 +33,6 @@ API = Namespace("activity-logs", description="Endpoints for Activity Log Managem
 activity_log_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ActivityLogSchema(many=True), "ActivityLogs"
 )
-
-# Access check per entity type. Each check receives the entity id and aborts (403/404) when the
-# caller may not see that entity. An entity type without an entry is rejected, so logs for a new
-# entity type are never readable until its access rule is registered here.
-ENTITY_ACCESS_CHECKS = {
-    ActivityTypeEnum.PACKAGE.value: authorization.has_access_to_package,
-}
 
 
 @cors_preflight("GET, OPTIONS")
@@ -56,20 +49,17 @@ class ActivityLog(Resource):
         code=HTTPStatus.OK, model=activity_log_model, description="Activity Logs"
     )
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
-    @API.response(HTTPStatus.FORBIDDEN, "Forbidden")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
     @cross_origin(origins=allowedorigins())
     @auth.require
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
-        entity_type = entity_type.upper()
-        access_check = ENTITY_ACCESS_CHECKS.get(entity_type)
-        if access_check is None:
-            abort(HTTPStatus.BAD_REQUEST, f"Unsupported entity type: {entity_type}")
-        # Aborts with 404/403 when the caller may not see this entity.
-        access_check(entity_id)
+        if entity_type != ActivityTypeEnum.PACKAGE.value:
+            abort(HTTPStatus.BAD_REQUEST, "Unsupported entity type")
+        authorization.has_access_to_package(entity_id)
 
-        is_staff = auth.get_current_user().type == UserType.STAFF
+        # Preserve the existing shared history and audience-specific wording.
+        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
         logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
         schema = ActivityLogSchema(many=True, context={"is_proponent": not is_staff})
         return schema.dump(logs), HTTPStatus.OK
