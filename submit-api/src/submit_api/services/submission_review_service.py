@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from flask import current_app
 
+from submit_api.enums.activity_type import VisibilityTypeEnum
 from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import UnprocessableEntityError, ResourceNotFoundError
 from submit_api.models import Item as ItemModel
@@ -315,6 +316,7 @@ class SubmissionReviewService:
         package = PackageModel.find_by_id(item.package_id)
         if package.version:
             ActivityLogService.log_activity(
+                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=action,
                 entity_version=package.version.version,

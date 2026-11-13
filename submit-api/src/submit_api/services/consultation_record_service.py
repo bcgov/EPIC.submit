@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 
 from flask import current_app
 
-from submit_api.enums.activity_type import ActivityActionType
+from submit_api.enums.activity_type import ActivityActionType, VisibilityTypeEnum
 from submit_api.enums.item_status import ItemStatus
 from submit_api.models import UpdateRequest, Package
 from submit_api.models import PackageMetadata, SubmissionReviewEntry
@@ -51,6 +51,7 @@ class ConsultationRecordService:
         package = Package.find_by_id(item.package_id)
         if package.version:
             ActivityLogService.log_activity(
+                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=ActivityActionType.PASSED_CONSULTATION_CHECK.value,
                 entity_version=package.version.version,
@@ -80,6 +81,7 @@ class ConsultationRecordService:
         package = Package.find_by_id(item.package_id)
         if package.version:
             ActivityLogService.log_activity(
+                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=ActivityActionType.FAILED_CONSULTATION_CHECK.value,
                 entity_version=package.version.version,

@@ -18,14 +18,14 @@ from http import HTTPStatus
 from flask_cors import cross_origin
 from flask_restx import Namespace, Resource, abort
 
-from submit_api.auth import auth, jwt
+from submit_api.auth import auth
 from submit_api.enums.activity_type import ActivityTypeEnum
+from submit_api.models.user import UserType
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
 from submit_api.services import authorization
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.util import allowedorigins, cors_preflight
-from submit_api.utils.roles import EpicSubmitRole
 
 
 API = Namespace("activity-logs", description="Endpoints for Activity Log Management")
@@ -69,7 +69,7 @@ class ActivityLog(Resource):
         # Aborts with 404/403 when the caller may not see this entity.
         access_check(entity_id)
 
-        is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
-        logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
+        is_staff = auth.get_current_user().type == UserType.STAFF
+        logs = ActivityLogService.get_activity_logs(entity_type, entity_id, for_staff=is_staff)
         schema = ActivityLogSchema(many=True, context={"is_proponent": not is_staff})
         return schema.dump(logs), HTTPStatus.OK

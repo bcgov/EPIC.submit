@@ -75,6 +75,9 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
 
     user: UserModel = UserModel.get_by_guid(TokenInfo.get_username())
 
+    if not user:
+        abort(HTTPStatus.UNAUTHORIZED)
+
     # For staff users, use the new centralized access control
     if user.type == UserType.STAFF:
         # Delegate to centralized access control for READ operation
@@ -82,7 +85,7 @@ def has_access_to_package(package_id):  # pylint: disable=too-many-branches
         return
 
     # For proponent users, keep existing logic
-    if not user or not user.account_user or not user.account_user.roles:
+    if not user.account_user or not user.account_user.roles:
         abort(HTTPStatus.UNAUTHORIZED)
 
     account_user: AccountUserModel = user.account_user

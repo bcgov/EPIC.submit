@@ -6,7 +6,7 @@ from datetime import datetime, UTC
 from flask import current_app
 from sqlalchemy import func
 
-from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
+from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType, VisibilityTypeEnum
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.package_type import (
     MANAGEMENT_PLAN_RELATED_TYPES,
@@ -410,6 +410,7 @@ class PackageService:
             cls._update_package_status(original_package.id, session, original_package)
 
             ActivityLogService.log_activity(
+                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=(
                     original_package.version.original_package_id
                     if original_package.version else original_package.id
@@ -906,6 +907,7 @@ class PackageService:
     def _log_activity_submission(package, action, session):
         """Log activity for package submission."""
         ActivityLogService.log_activity(
+            visibility=VisibilityTypeEnum.PUBLIC.value,
             entity_id=package.version.original_package_id if package.version else package.id,
             action=action,
             actor_type=ActorTypeEnum.ENTITY.value,
@@ -1240,6 +1242,7 @@ class PackageService:
         if not action:
             raise BadRequestError("Unsupported package type for review")
         ActivityLogService.log_activity(
+            visibility=VisibilityTypeEnum.PUBLIC.value,
             entity_id=package.version.original_package_id if package.version else package.id,
             action=action,
             entity_version=package.version.version if package.version else 1,
@@ -1271,6 +1274,7 @@ class PackageService:
     def _log_activity_start_consultation_check(package, session):
         """Log activity for starting consultation check."""
         ActivityLogService.log_activity(
+            visibility=VisibilityTypeEnum.PUBLIC.value,
             entity_id=package.version.original_package_id if package.version else package.id,
             action=ActivityActionType.START_CONSULTATION_CHECK.value,
             entity_version=package.version.version if package.version else 1,
@@ -1348,6 +1352,7 @@ class PackageService:
     def _log_activity_update_request(package):
         """Log activity for update request creation."""
         ActivityLogService.log_activity(
+            visibility=VisibilityTypeEnum.PUBLIC.value,
             entity_id=package.version.original_package_id if package.version else package.id,
             action=ActivityActionType.UPDATE_REQUESTED.value,
             entity_version=package.version.version if package.version else 1,
