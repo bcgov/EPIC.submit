@@ -16,11 +16,13 @@
 from http import HTTPStatus
 
 from flask_cors import cross_origin
-from flask_restx import Namespace, Resource
+from flask_restx import Namespace, Resource, abort
 
-from submit_api.auth import jwt
+from submit_api.auth import auth, jwt
+from submit_api.enums.activity_type import ActivityTypeEnum
 from submit_api.resources.apihelper import Api as ApiHelper
 from submit_api.schemas.activity_log import ActivityLogSchema
+from submit_api.services import authorization
 from submit_api.services.activity_log_service import ActivityLogService
 from submit_api.utils.util import allowedorigins, cors_preflight
 from submit_api.utils.roles import EpicSubmitRole
@@ -49,9 +51,14 @@ class ActivityLog(Resource):
     @API.response(HTTPStatus.BAD_REQUEST, "Bad Request")
     @API.response(HTTPStatus.NOT_FOUND, "Not Found")
     @cross_origin(origins=allowedorigins())
+    @auth.require
     def get(entity_type, entity_id):
         """Retrieve activity logs for a specific entity type and ID."""
-        # Retrieve logs
+        if entity_type != ActivityTypeEnum.PACKAGE.value:
+            abort(HTTPStatus.BAD_REQUEST, "Unsupported entity type")
+        authorization.has_access_to_package(entity_id)
+
+        # Preserve the existing shared history and audience-specific wording.
         is_staff = jwt.contains_role([EpicSubmitRole.EAO_VIEW.value])
         logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
         schema = ActivityLogSchema(many=True, context={"is_proponent": not is_staff})
