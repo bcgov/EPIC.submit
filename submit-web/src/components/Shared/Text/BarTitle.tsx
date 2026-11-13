@@ -27,12 +27,12 @@ export function BarBlueTitle({
   return (
     <Typography
       variant={variant}
-      color={BCDesignTokens.themeBlue100}
       sx={{
+        color: BCDesignTokens.themeBlue100,
         mt: BCDesignTokens.layoutMarginSmall,
         width: fullWidth ? "100%" : "auto",
         borderBottom: `2px solid ${BCDesignTokens.themeGold80}`,
-        fontWeight: bold ? "bold" : "normal",
+        fontWeight: variant === "h4" ? 400 : bold ? "bold" : "normal",
       }}
     >
       <>

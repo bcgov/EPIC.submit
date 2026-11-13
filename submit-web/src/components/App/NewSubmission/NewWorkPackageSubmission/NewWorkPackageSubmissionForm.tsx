@@ -235,7 +235,7 @@ export const NewWorkPackageSubmissionForm = ({
 
   return (
     <>
-      <Grid container spacing={2} sx={{ marginTop: "32px" }}>
+      <Grid container spacing={2} sx={{ marginTop: "32px", width: "100%" }}>
         <Grid size={12}>
           <Typography variant="body1" sx={{
             fontWeight: "bold"

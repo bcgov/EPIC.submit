@@ -440,7 +440,9 @@ export const ContactInformationEntityView = ({
             </Grid>
             <Grid
               container
+              rowSpacing={0}
               sx={{
+                "& .MuiFormControl-root": { mb: 0 },
                 width: {
                   xs: "100%", // width for extra-small screens
                   md: "390px", // width for medium screens and up
@@ -534,7 +536,9 @@ export const ContactInformationEntityView = ({
               }}>
               <Grid
                 container
+                rowSpacing={0}
                 sx={{
+                  "& .MuiFormControl-root": { mb: 0 },
                   width: {
                     xs: "100%", // width for extra-small screens
                     md: "390px", // width for medium screens and up
