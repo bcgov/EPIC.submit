@@ -20,7 +20,7 @@ from tests.utilities.factory_utils import (
 ACTIVITY_LOGS_URL = "/api/activity-logs"
 
 
-def _add_log(session, package_id, action="Submitted to EAO", visibility="PUBLIC"):
+def _add_log(session, package_id, action="Submitted to EAO"):
     """Persist an activity log entry for a package."""
     session.add(
         ActivityLog(
@@ -29,7 +29,7 @@ def _add_log(session, package_id, action="Submitted to EAO", visibility="PUBLIC"
             action=action,
             actor_id="user-1",
             actor_type="ENTITY",
-            visibility=visibility,
+            visibility="STAFF",
         )
     )
     session.flush()
@@ -43,18 +43,16 @@ def test_get_activity_logs_requires_authentication(client, session):
 
 
 def test_get_activity_logs_success_for_project_member(client, session, jwt):
-    """A proponent with access to the package's project can read its logs."""
+    """Authorized proponents retain shared history and proponent-facing wording."""
     headers, account_project = setup_authenticated_proponent(session, jwt)
     package = factory_package_model(account_project=account_project)
     _add_log(session, package.id)
     _add_log(session, package.id, action="MP Review Failed")
-    _add_log(session, package.id, action="Internal staff event", visibility="STAFF")
 
     response = client.get(f"{ACTIVITY_LOGS_URL}/PACKAGE/{package.id}", headers=headers)
 
     assert response.status_code == HTTPStatus.OK
     assert [log["action"] for log in response.json] == ["Submitted to EAO", "Revision Required"]
-    assert all(log["visibility"] == "PUBLIC" for log in response.json)
 
 
 def test_get_activity_logs_forbidden_for_other_project(client, session, jwt):
@@ -86,7 +84,7 @@ def test_get_activity_logs_uses_registered_access_check(client, session, jwt):
     session.add(
         ActivityLog(
             entity_type="USER", entity_id=7, action="Updated Submission", actor_id="user-1",
-            actor_type="ENTITY", visibility="PUBLIC")
+            actor_type="ENTITY", visibility="STAFF")
     )
     session.flush()
     allow = Mock()
@@ -121,7 +119,7 @@ def test_get_activity_logs_unsupported_entity_type(client, session, jwt):
 
 @pytest.mark.parametrize("staff_role", [EpicSubmitRole.MP_VIEW.value, EpicSubmitRole.FULL_ACCESS.value])
 def test_get_activity_logs_staff_without_eao_view(client, session, jwt, staff_role):
-    """Authorized staff see private entries and staff wording without eao_view."""
+    """Authorized staff retain staff wording without eao_view."""
     user = factory_user_model(user_type=UserType.STAFF, session=session)
     claims = deepcopy(TestJwtClaims.staff_admin_role.value)
     claims["preferred_username"] = user.auth_guid
@@ -130,7 +128,7 @@ def test_get_activity_logs_staff_without_eao_view(client, session, jwt, staff_ro
     headers = factory_auth_header(jwt, claims)
     package = factory_package_model()
     _add_log(session, package.id)
-    _add_log(session, package.id, action="MP Review Failed", visibility="STAFF")
+    _add_log(session, package.id, action="MP Review Failed")
 
     response = client.get(f"{ACTIVITY_LOGS_URL}/PACKAGE/{package.id}", headers=headers)
 
@@ -168,7 +166,7 @@ def test_get_activity_logs_unprovisioned_user(client, session, jwt):
 
 
 def test_get_activity_logs_revoked_proponent(client, session, jwt):
-    """Revoked proponents cannot retrieve even public logs for their project."""
+    """Revoked proponents cannot retrieve history for their project."""
     headers, account_project = setup_authenticated_proponent(session, jwt)
     package = factory_package_model(account_project=account_project)
     user = User.query.filter_by(type=UserType.PROPONENT).one()

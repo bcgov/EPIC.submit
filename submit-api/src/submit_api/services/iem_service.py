@@ -2,7 +2,7 @@
 
 from flask import current_app
 
-from submit_api.enums.activity_type import ActivityActionType, VisibilityTypeEnum
+from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.management_plan import ManagementPlanSubmissionPurpose
 from submit_api.exceptions import ResourceNotFoundError
 from submit_api.models import Package as PackageModel
@@ -40,7 +40,6 @@ class IEMTermsOfEngagementService:
         package = PackageModel.find_by_id(item.package_id)
         if package.version:
             ActivityLogService.log_activity(
-                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=ActivityActionType.IEM_REVIEW_FAILED.value,
                 entity_version=package.version.version,
@@ -79,7 +78,6 @@ class IEMTermsOfEngagementService:
                 f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
         if package.version:
             ActivityLogService.log_activity(
-                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=action_type,
                 entity_version=package.version.version,

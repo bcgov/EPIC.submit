@@ -70,6 +70,6 @@ class ActivityLog(Resource):
         access_check(entity_id)
 
         is_staff = auth.get_current_user().type == UserType.STAFF
-        logs = ActivityLogService.get_activity_logs(entity_type, entity_id, for_staff=is_staff)
+        logs = ActivityLogService.get_activity_logs(entity_type, entity_id)
         schema = ActivityLogSchema(many=True, context={"is_proponent": not is_staff})
         return schema.dump(logs), HTTPStatus.OK

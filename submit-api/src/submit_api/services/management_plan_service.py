@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 
 from flask import current_app
 
-from submit_api.enums.activity_type import ActivityActionType, VisibilityTypeEnum
+from submit_api.enums.activity_type import ActivityActionType
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.management_plan import ManagementPlanSubmissionPurpose
 from submit_api.exceptions import ResourceNotFoundError
@@ -62,7 +62,6 @@ class ManagementPlanService:
         package = PackageModel.find_by_id(item.package_id)
         if package.version:
             ActivityLogService.log_activity(
-                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=ActivityActionType.MP_REVIEW_FAILED.value,
                 entity_version=package.version.version,
@@ -206,7 +205,6 @@ class ManagementPlanService:
         package = PackageModel.find_by_id(item.package_id)
         if package.version:
             ActivityLogService.log_activity(
-                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=ActivityActionType.MP_REVISION_REQUIRED.value,
                 entity_version=package.version.version,
@@ -290,7 +288,6 @@ class ManagementPlanService:
                 f"Unsupported purpose {submitted_to_eao_for} for package {package.id}.")
         if package.version:
             ActivityLogService.log_activity(
-                visibility=VisibilityTypeEnum.PUBLIC.value,
                 entity_id=package.version.original_package_id,
                 action=action_type,
                 entity_version=package.version.version,
