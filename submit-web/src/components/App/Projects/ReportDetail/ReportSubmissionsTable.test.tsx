@@ -3,6 +3,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { SubmissionPackage } from "@/models/Package";
 import { ReportSubmissionsTable } from "./ReportSubmissionsTable";
+import { BCDesignTokens } from "epic.theme";
+import { renderWithTheme, resolvedColor } from "@/test/themeUtils";
 
 vi.mock("@/components/Shared/Table/utils", () => ({
   getObjectFromS3: vi.fn(),
@@ -381,5 +383,21 @@ describe("ReportSubmissionsTable", () => {
     expect(
       screen.queryByRole("button", { name: /^verify$/i }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("ReportSubmissionsTable link color", () => {
+  it("renders the document name in link blue under the app theme", () => {
+    renderWithTheme(
+      <ReportSubmissionsTable
+        reportPackage={makePackage([
+          makeDocSubmission(1, "Report.pdf", "2026-01-01T00:00:00Z"),
+        ])}
+      />,
+    );
+    // Without the fix, theme body1 forces near-black (typographyColorSecondary).
+    expect(resolvedColor(screen.getByText("Report.pdf"))).toBe(
+      BCDesignTokens.typographyColorLink,
+    );
   });
 });
