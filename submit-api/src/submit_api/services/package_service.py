@@ -543,11 +543,15 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
             PackageVersionService.deactivate_update_requests(original_package.id, session, original_package)
 
-            PackageVersionService.create_email_queue(
-                new_package.id,
-                MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
-                session=session
-            )
+            # Only invite the holder to resubmit when EAO staff create the new version;
+            # a holder creating their own new version must not trigger the email.
+            creator = User.get_by_guid(TokenInfo.get_username())
+            if creator and creator.type == UserType.STAFF:
+                PackageVersionService.create_email_queue(
+                    new_package.id,
+                    MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
+                    session=session
+                )
             # Set up the submitter information from the original package
             if original_package.submitted_by:
                 # Get the user by auth_guid
@@ -575,14 +579,6 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
             current_app.logger.info(f"New package version created for {new_package.name}")
             return new_package
-
-    @classmethod
-    def _create_resubmission_email_queue(cls, package_id):
-        """Create an email queue record for resubmission request."""
-        SubmitEmailQueueService.queue_package_email(
-            package_id,
-            MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
-        )
 
     @staticmethod
     def _create_package_metadata(session, package_id, metadata):
