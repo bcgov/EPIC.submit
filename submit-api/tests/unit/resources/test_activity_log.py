@@ -213,3 +213,70 @@ def test_invalid_token_is_rejected(client, session):
     """A malformed bearer token never authorizes history access."""
     response = client.get(f"{ACTIVITY_LOGS_URL}/PACKAGE/1", headers={"Authorization": "Bearer invalid"})
     assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+@pytest.mark.parametrize("persona", [
+    RoleEnum.ACCOUNT_PRIMARY_ADMIN.value,
+    RoleEnum.PROJECT_ADMIN.value,
+    RoleEnum.SUBMISSION_ADMIN.value,
+    RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value,
+    EpicSubmitRole.MP_VIEW.value,
+    EpicSubmitRole.FULL_ACCESS.value,
+    EpicSubmitRole.W_VIEW.value,
+])
+def test_opening_each_package_version_allows_ui_history(client, session, jwt, persona):
+    """Follow the actual UI flow from each package version to its shared history."""
+    from submit_api.models import AccountProject, AccountProjectWork, StaffUser, StaffUserWork
+    from submit_api.services.package_version_service import PackageVersionService
+    from tests.utilities.factory_utils import factory_track_work
+
+    staff_roles = {EpicSubmitRole.MP_VIEW.value, EpicSubmitRole.FULL_ACCESS.value, EpicSubmitRole.W_VIEW.value}
+    if persona not in staff_roles:
+        headers, account_project = setup_authenticated_proponent(session, jwt, role=persona)
+        original = factory_package_model(account_project=account_project)
+        if persona == RoleEnum.SPECIFIC_SUBMISSION_CONTRIBUTOR.value:
+            user = User.query.filter_by(type=UserType.PROPONENT).one()
+            user.account_user.roles[0].original_package_ids = [original.id]
+    else:
+        original = factory_package_model()
+        user = factory_user_model(user_type=UserType.STAFF, session=session)
+        claims = deepcopy(TestJwtClaims.staff_admin_role.value)
+        claims["preferred_username"] = user.auth_guid
+        claims["realm_access"]["roles"] = [persona]
+        claims["resource_access"] = {}
+        headers = factory_auth_header(jwt, claims)
+        if persona == EpicSubmitRole.W_VIEW.value:
+            account_project = AccountProject.find_by_id(original.account_project_id)
+            work = factory_track_work(session, project_id=account_project.project_id)
+            link = AccountProjectWork(account_project_id=account_project.id, work_id=work.id)
+            staff = StaffUser(
+                user_id=user.id, first_name="Test", last_name="Staff", work_email_address="staff@example.com"
+            )
+            session.add_all([link, staff])
+            session.flush()
+            original.account_project_work_id = link.id
+            session.add(StaffUserWork(staff_user_id=staff.id, work_id=work.id, is_active=True))
+    session.flush()
+
+    # Use the production version-creation service, including its copied access relationships.
+    second = PackageVersionService.create_new_package_version(original.id, session)
+    third = PackageVersionService.create_new_package_version(second.id, session)
+    session.flush()
+    for version in (1, 2, 3):
+        session.add(ActivityLog(
+            entity_type="PACKAGE", entity_id=original.id, entity_version=version,
+            action="Submitted to EAO", actor_id="test-actor", actor_type="ENTITY", visibility="STAFF",
+        ))
+    session.flush()
+
+    # Reload persisted enum values, as separate HTTP requests do in production.
+    session.expire_all()
+    for package in (original, second, third):
+        details = client.get(f"/api/packages/{package.id}", headers=headers)
+        assert details.status_code == HTTPStatus.OK
+        # InfoBox passes this response field to SubmissionHistory, not the displayed version ID.
+        history_id = details.json["version"]["original_package_id"]
+        assert history_id == original.id
+        history = client.get(f"{ACTIVITY_LOGS_URL}/PACKAGE/{history_id}", headers=headers)
+        assert history.status_code == HTTPStatus.OK
+        assert [log["entity_version"] for log in history.json] == [1, 2, 3]
