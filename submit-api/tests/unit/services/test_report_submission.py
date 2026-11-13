@@ -104,11 +104,10 @@ class TestReportSubmitPreservesStatuses:
                 patch("submit_api.services.package_service.current_app"):
             PackageService._submit_package(package, Mock())
 
-    @pytest.mark.parametrize("type_name", ["Report", "Report_TypeB"])
-    def test_report_submit_keeps_verified_and_acknowledged(self, type_name):
+    def test_report_submit_keeps_verified_and_acknowledged(self):
         """Verified/acknowledged report documents keep their status; PENDING becomes SUBMITTED."""
         package, submissions = self._make_package(
-            type_name,
+            "Report",
             [SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED, SubmissionStatus.PENDING],
         )
 

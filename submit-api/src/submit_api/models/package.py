@@ -65,8 +65,11 @@ class PackageStatus(enum.Enum):
     REQUESTED_BY_EAO = 'REQUESTED_BY_EAO'
     INTERNAL_VERIFICATION = "INTERNAL_VERIFICATION"
     VERIFIED = "VERIFIED"
+    # Deprecated: no longer derived (replaced by READY_FOR_ACKNOWLEDGEMENT). Kept only because
+    # PostgreSQL cannot drop a value from the packagestatus enum.
     PENDING_ACKNOWLEDGEMENT = "PENDING_ACKNOWLEDGEMENT"
-    READY_FOR_ACKNOWLEDGEMENT = "READY_FOR_ACKNOWLEDGEMENT"  # Scheduled for removal: SUBMIT-951
+    # All documents of a type B/C package are verified; the package can be acknowledged.
+    READY_FOR_ACKNOWLEDGEMENT = "READY_FOR_ACKNOWLEDGEMENT"
     ACKNOWLEDGED = 'ACKNOWLEDGED'
     UPDATE_REQUESTED = "UPDATE_REQUESTED"
     UPDATED = "UPDATED"

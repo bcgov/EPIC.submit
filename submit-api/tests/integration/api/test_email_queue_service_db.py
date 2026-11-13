@@ -17,7 +17,7 @@ from submit_api.utils.constants import (
     SUBMISSION_AWAITING_MANAGER_APPROVAL_EMAIL_TEMPLATE, SUBMISSION_WITHDRAWN_CONFIRMATION_EMAIL_TEMPLATE)
 from tests.utilities.factory_utils import (
     factory_document_submission_model, factory_invitation_model, factory_item_model, factory_package_model,
-    factory_project_report_model, factory_report_package_model, setup_authenticated_proponent)
+    setup_authenticated_proponent)
 
 
 fake = Faker()
@@ -186,50 +186,6 @@ def test_resubmission_recipients_include_admins(session, submitted):
                          account_project_id=package.account_project_id))
     session.flush()
     assert account_user.work_email_address in Service._get_resubmission_recipient_emails(package)
-
-
-def test_report_acknowledgement_email(session, submitted):
-    """Report acknowledgement emails name the report and the acknowledged document."""
-    package, account_user = submitted
-    from submit_api.models import AccountProject
-
-    ap = AccountProject.query.get(package.account_project_id)
-    report = factory_project_report_model(
-        ap.project_id, report_type="Compliance Self-Report", phase="Construction", display_name="CSR")
-    report_package = factory_report_package_model(ap, report)
-    report_package.submitted_by = package.submitted_by
-    report_package.submitted_on = package.submitted_on
-    item = factory_item_model(package=report_package)
-    submission = factory_document_submission_model(item, created_by=package.submitted_by, name="csr.pdf")
-
-    email = Service.queue_report_acknowledgement_email(submission, session=session)
-
-    assert email.payload["subject"] == "Submission acknowledged - Compliance Self-Report: Construction"
-    assert email.payload["body_args"]["documents"] == ["csr.pdf"]
-    assert email.payload["body_args"]["posted_on_epic"] is True
-
-
-def test_report_submission_name_fallbacks(session, submitted):
-    """Submission names fall back through display name, type and package name."""
-    package, _ = submitted
-    from types import SimpleNamespace
-
-    def named(report):
-        return Service._report_submission_name(SimpleNamespace(project_report=report, name="Pkg"))
-
-    assert named(None) == "Pkg"
-    assert named(SimpleNamespace(phase=None, report_type="Annual", display_name="Disp")) == "Disp"
-    assert named(SimpleNamespace(phase=None, report_type="Annual", display_name=None)) == "Annual"
-    assert named(SimpleNamespace(phase="P", report_type="Annual", display_name=None)) == "Annual: P"
-
-
-def test_report_acknowledgement_requires_package(session):
-    """A submission whose package cannot be found is rejected."""
-    from types import SimpleNamespace
-
-    submission = SimpleNamespace(item=SimpleNamespace(package_id=99999999))
-    with pytest.raises(BadRequestError):
-        Service.queue_report_acknowledgement_email(submission, session=session)
 
 
 def test_helper_validation_and_formatting(session, app):

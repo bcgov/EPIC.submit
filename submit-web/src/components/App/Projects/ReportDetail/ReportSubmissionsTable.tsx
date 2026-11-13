@@ -23,7 +23,7 @@ import { StatusChip } from "@/components/Shared/StatusChip";
 import { SubmissionStatusChip } from "@/components/App/SubmissionStatusChip";
 import PermissionsGate from "@/components/Shared/PermissionGate";
 import { useModal } from "@/components/Shared/Modals/modalStore";
-import { ProjectReport, SubmissionPackage } from "@/models/Package";
+import { SubmissionPackage } from "@/models/Package";
 import { Submission } from "@/models/Submission";
 import { usePackageRoles } from "@/hooks/usePackageRoles";
 import { useReportDocumentVerify } from "@/hooks/useReportDocumentVerify";
@@ -32,15 +32,10 @@ import {
   getReportDocumentSubmissions,
   getDocumentStatusLabel,
   getDocumentStatusTheme,
-  isComplianceSelfReport,
-  isDocumentAcknowledgeable,
   isDocumentVerifiable,
   isEaoUploaded,
-  isMainReportDocument,
 } from "./reportSubmissions";
 import { VerifyDocumentModal } from "./VerifyDocumentModal";
-import { AcknowledgeDocumentModal } from "./AcknowledgeDocumentModal";
-import { useReportDocumentAcknowledge } from "@/hooks/useReportDocumentAcknowledge";
 
 // Which project card the page is rendered on. The EAO/staff page adds an
 // Actions column with a per-document Verify action; the Regulated Party page is
@@ -110,7 +105,6 @@ const DocumentNameCell = ({ submission }: { submission: Submission }) => {
 type StaffActionsCellProps = {
   submission: Submission;
   reportPackage: SubmissionPackage;
-  report?: ProjectReport | null;
 };
 
 /**
@@ -122,7 +116,6 @@ type StaffActionsCellProps = {
 const StaffActionsCell = ({
   submission,
   reportPackage,
-  report,
 }: StaffActionsCellProps) => {
   const actionButtonRef = useRef<HTMLButtonElement>(null);
   const { setOpen } = useModal();
@@ -132,43 +125,19 @@ const StaffActionsCell = ({
     submission.submitted_document?.folder,
   );
   const { verify } = useReportDocumentVerify({ packageId: reportPackage.id });
-  const { acknowledge } = useReportDocumentAcknowledge({
-    packageId: reportPackage.id,
-  });
 
   const fileName = submission.submitted_document?.name ?? "";
-  const canVerify = isDocumentVerifiable(submission);
-  const canAcknowledge = isDocumentAcknowledgeable(submission, report);
-
-  // Verify (SUBMITTED) and Acknowledge (VERIFIED main report) are mutually
-  // exclusive per row; neither shows for any other state.
-  if (!canVerify && !canAcknowledge) {
+  if (!isDocumentVerifiable(submission)) {
     return null;
   }
-
-  const showComplianceHint =
-    isComplianceSelfReport(report) && isMainReportDocument(submission);
 
   const openVerifyModal = () => {
     setOpen(
       <VerifyDocumentModal
         fileName={fileName}
-        showComplianceHint={showComplianceHint}
         onVerify={() => verify(submission.id)}
       />,
       // Return focus to the Verify button when the modal closes with no change.
-      () => actionButtonRef.current?.focus(),
-    );
-  };
-
-  const openAcknowledgeModal = () => {
-    setOpen(
-      <AcknowledgeDocumentModal
-        fileName={fileName}
-        phase={report?.phase ?? ""}
-        onAcknowledge={() => acknowledge(submission.id)}
-      />,
-      // Return focus to the Acknowledge button when the modal closes with no change.
       () => actionButtonRef.current?.focus(),
     );
   };
@@ -181,9 +150,9 @@ const StaffActionsCell = ({
         color="primary"
         size="small"
         startIcon={<CheckIcon fontSize="small" />}
-        onClick={canAcknowledge ? openAcknowledgeModal : openVerifyModal}
+        onClick={openVerifyModal}
       >
-        {canAcknowledge ? "Acknowledge" : "Verify"}
+        Verify
       </Button>
     </PermissionsGate>
   );
@@ -202,7 +171,6 @@ export const ReportSubmissionsTable = ({
 }: ReportSubmissionsTableProps) => {
   const submissions = getReportDocumentSubmissions(reportPackage);
   const isStaff = audience === "staff";
-  const report = reportPackage.project_report;
   const columnCount = isStaff ? 5 : 4;
 
   return (
@@ -289,7 +257,6 @@ export const ReportSubmissionsTable = ({
                     <StaffActionsCell
                       submission={submission}
                       reportPackage={reportPackage}
-                      report={report}
                     />
                   </SubmitTableCell>
                 )}

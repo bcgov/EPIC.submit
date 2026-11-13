@@ -19,19 +19,10 @@ vi.mock("@/components/Shared/Modals/modalStore", () => ({
   useModal: () => ({ setOpen: setOpenSpy, setClose: vi.fn() }),
 }));
 
-// The verify/acknowledge hooks are exercised in their own tests; here we only
-// assert wiring.
+// The verify hook is exercised in its own test; here we only assert wiring.
 const verifySpy = vi.fn().mockResolvedValue(undefined);
 vi.mock("@/hooks/useReportDocumentVerify", () => ({
   useReportDocumentVerify: () => ({ verify: verifySpy, isVerifying: false }),
-}));
-
-const acknowledgeSpy = vi.fn().mockResolvedValue(undefined);
-vi.mock("@/hooks/useReportDocumentAcknowledge", () => ({
-  useReportDocumentAcknowledge: () => ({
-    acknowledge: acknowledgeSpy,
-    isAcknowledging: false,
-  }),
 }));
 
 const makeDocSubmission = (
@@ -85,7 +76,6 @@ describe("ReportSubmissionsTable", () => {
   beforeEach(() => {
     setOpenSpy.mockClear();
     verifySpy.mockClear();
-    acknowledgeSpy.mockClear();
   });
 
   it("shows the empty-state row when there are no submissions", () => {
@@ -287,27 +277,7 @@ describe("ReportSubmissionsTable", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows Acknowledge for a verified Compliance Self-Report main report", () => {
-    const pkg = makePackage(
-      [
-        makeDocSubmission(1, "CSR_2026.pdf", "2026-06-01T00:00:00Z", {
-          status: "VERIFIED",
-        }),
-      ],
-      "Compliance Self-Report",
-    );
-    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
-
-    expect(
-      screen.getByRole("button", { name: /acknowledge/i }),
-    ).toBeInTheDocument();
-    // Verify and Acknowledge are mutually exclusive per row.
-    expect(
-      screen.queryByRole("button", { name: /^verify$/i }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("does not show Acknowledge for a verified non-Compliance report", () => {
+  it("does not show Acknowledge for a verified report, including a Compliance Self-Report", () => {
     const pkg = makePackage(
       [
         makeDocSubmission(1, "report.pdf", "2026-06-01T00:00:00Z", {
@@ -321,46 +291,6 @@ describe("ReportSubmissionsTable", () => {
     expect(
       screen.queryByRole("button", { name: /acknowledge/i }),
     ).not.toBeInTheDocument();
-  });
-
-  it("does not show Acknowledge for a verified supporting document", () => {
-    const pkg = makePackage(
-      [
-        makeDocSubmission(1, "appendix.xlsx", "2026-06-01T00:00:00Z", {
-          status: "VERIFIED",
-          sort_order: 1,
-          submitted_document: {
-            id: 1,
-            name: "appendix.xlsx",
-            url: "s3/appendix.xlsx",
-            folder: "report_supporting_documents",
-            is_virus_rejected: false,
-          },
-        }),
-      ],
-      "Compliance Self-Report",
-    );
-    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
-
-    expect(
-      screen.queryByRole("button", { name: /acknowledge/i }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("opens the Acknowledge modal when the Acknowledge button is clicked", async () => {
-    const user = userEvent.setup();
-    const pkg = makePackage(
-      [
-        makeDocSubmission(1, "CSR_2026.pdf", "2026-06-01T00:00:00Z", {
-          status: "VERIFIED",
-        }),
-      ],
-      "Compliance Self-Report",
-    );
-    render(<ReportSubmissionsTable reportPackage={pkg} audience="staff" />);
-
-    await user.click(screen.getByRole("button", { name: /acknowledge/i }));
-    expect(setOpenSpy).toHaveBeenCalledTimes(1);
   });
 
   it("shows the Acknowledged status with no action button for an acknowledged document", () => {

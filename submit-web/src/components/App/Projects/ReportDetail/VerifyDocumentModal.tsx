@@ -16,17 +16,8 @@ import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { useModal } from "@/components/Shared/Modals/modalStore";
 import { modalStyle } from "@/components/Shared/Modals/constants";
 
-// Extra guidance shown for the main report of a Compliance Self-Report: Verify
-// here only records that PDOT received the report and sent it to C&E; the
-// Acknowledge step (which emails the Regulated Party) comes later.
-export const COMPLIANCE_SELF_REPORT_HINT =
-  "Once C&E has accepted this report, come back to acknowledge it. Acknowledging emails the Regulated Party.";
-
 type VerifyDocumentModalProps = {
   fileName: string;
-  // Whether to show the Compliance Self-Report acknowledge hint (main report
-  // of a Compliance Self-Report only).
-  showComplianceHint?: boolean;
   // Verifies the document. Resolves on success (the modal closes); rejects on
   // failure (the modal stays open and shows an inline error).
   onVerify: () => Promise<unknown>;
@@ -39,7 +30,6 @@ type VerifyDocumentModalProps = {
  */
 export const VerifyDocumentModal = ({
   fileName,
-  showComplianceHint = false,
   onVerify,
 }: VerifyDocumentModalProps) => {
   const { setClose } = useModal();
@@ -88,9 +78,6 @@ export const VerifyDocumentModal = ({
           <Typography variant="body1" sx={{ fontWeight: 700 }}>
             {fileName}
           </Typography>
-          {showComplianceHint && (
-            <Typography variant="body1">{COMPLIANCE_SELF_REPORT_HINT}</Typography>
-          )}
           {error && <Alert severity="error">{error}</Alert>}
         </Box>
       </DialogContent>

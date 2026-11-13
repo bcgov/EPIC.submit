@@ -34,15 +34,9 @@ describe("getReportStatus", () => {
     ).toBe("UPLOADED_BY_EAO");
   });
 
-  it("prefers Pending Acknowledgement over Verified for a verified Compliance Self-Report", () => {
-    // A verified Report_TypeB package carries both VERIFIED and
-    // PENDING_ACKNOWLEDGEMENT; the card shows Pending Acknowledgement alone.
-    expect(getReportStatus(["VERIFIED", "PENDING_ACKNOWLEDGEMENT"])).toBe(
-      "PENDING_ACKNOWLEDGEMENT",
-    );
-  });
-
   it("returns null for statuses that are not part of the report status set", () => {
     expect(getReportStatus(["IN_PROGRESS"])).toBeNull();
+    // Ready for Acknowledgement is not a report card status.
+    expect(getReportStatus(["READY_FOR_ACKNOWLEDGEMENT"])).toBeNull();
   });
 });

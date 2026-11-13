@@ -20,7 +20,6 @@ import { useNavigate } from "@tanstack/react-router";
 import { useAccount } from "@/store/accountStore";
 import { hasPermission } from "@/components/Shared/PermissionGate/utils";
 import { EPIC_SUBMIT_ROLE } from "@/models/Role";
-import { useHasRole } from "@/hooks/common";
 
 interface UseStaffSubmissionPageOptions {
   submissionPackageId: number;
@@ -124,25 +123,26 @@ export function useStaffSubmissionPage({
     [submissionPackage],
   );
 
-  const isPackageVerified = useMemo(
-    () => submissionPackage?.status.includes(PACKAGE_STATUS.VERIFIED.value),
+  // Types B and C become READY_FOR_ACKNOWLEDGEMENT once every document is verified;
+  // type A (Additional Information) keeps VERIFIED as its terminal status.
+  const isPackageReadyToAcknowledge = useMemo(
+    () =>
+      submissionPackage?.status.includes(
+        PACKAGE_STATUS.READY_FOR_ACKNOWLEDGEMENT.value,
+      ) || submissionPackage?.status.includes(PACKAGE_STATUS.VERIFIED.value),
     [submissionPackage],
   );
 
-  // Only users with w_extended_edit permission can approve/acknowledge packages
-  // GIS-only users (without full_access) should not be able to approve/acknowledge packages
-  const hasExtendedEdit = hasPermission({
+  // Only users with w_extended_edit or full_access can approve/acknowledge
+  // packages (hasPermission always includes full_access). This mirrors
+  // authorization.require_team_lead_access in the API.
+  const hasAcknowledgeOrApproveRole = hasPermission({
     permissions: account.roles || [],
     scopes: [EPIC_SUBMIT_ROLE.w_extended_edit],
   });
-  const hasGISRole = useHasRole(EPIC_SUBMIT_ROLE.gis_extended_edit);
-  const hasFullAccess = useHasRole(EPIC_SUBMIT_ROLE.full_access);
 
-  // Exclude GIS-only users (those with GIS role but not full_access)
-  const hasAcknowledgeOrApproveRole =
-    hasExtendedEdit && !(hasGISRole && !hasFullAccess);
-
-  const canAcknowledge = isPackageVerified && hasAcknowledgeOrApproveRole;
+  const canAcknowledge =
+    isPackageReadyToAcknowledge && hasAcknowledgeOrApproveRole;
 
   const isPackagePastApproval = useMemo(
     () =>

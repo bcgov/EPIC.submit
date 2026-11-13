@@ -377,37 +377,6 @@ export const updateSubmissionStatus = (
   });
 };
 
-export const acknowledgeReportDocument = (submissionId: number) => {
-  return submitRequest<Submission>({
-    url: `/submissions/${submissionId}/acknowledge`,
-    method: "POST",
-  });
-};
-
-type UseAcknowledgeReportDocumentParams = {
-  packageId?: number;
-} & Options;
-export const useAcknowledgeReportDocument = ({
-  packageId,
-  ...options
-}: UseAcknowledgeReportDocumentParams) => {
-  const { onSuccess: _onSuccess, ...restOptions } = options || {};
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ submissionId }: { submissionId: number }) =>
-      acknowledgeReportDocument(submissionId),
-    onSuccess: (data) => {
-      if (_onSuccess) {
-        _onSuccess(data);
-      }
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, packageId],
-      });
-    },
-    ...restOptions,
-  });
-};
-
 type useUpdateSubmissionStatusParams = {
   packageId?: number;
 } & Options;

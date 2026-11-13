@@ -6,8 +6,21 @@ import PackageStatusChip from "./index";
 // Expose the theme passed to the shared StatusChip so we can assert the
 // one-meaning color system without depending on rendered CSS.
 vi.mock("@/components/Shared/StatusChip", () => ({
-  StatusChip: ({ label, theme }: { label: string; theme?: string }) => (
-    <span data-testid="status-chip" data-theme={theme}>
+  StatusChip: ({
+    label,
+    theme,
+    customColors,
+  }: {
+    label: string;
+    theme?: string;
+    customColors?: { border?: string; background?: string };
+  }) => (
+    <span
+      data-testid="status-chip"
+      data-theme={theme}
+      data-border={customColors?.border}
+      data-background={customColors?.background}
+    >
       {label}
     </span>
   ),
@@ -26,10 +39,18 @@ describe("PackageStatusChip color system", () => {
     "RESUBMITTED",
     "UPDATED",
     "AWAITING_MANAGER_APPROVAL",
-    "PENDING_ACKNOWLEDGEMENT",
+    "READY_FOR_ACKNOWLEDGEMENT",
     "READY_FOR_APPROVAL",
   ] as const)("maps %s to the purple theme", (status) => {
     expect(themeFor(status)).toBe("purple");
+  });
+
+  it("renders Ready for Acknowledgement with its own purple palette", () => {
+    render(<PackageStatusChip status="READY_FOR_ACKNOWLEDGEMENT" />);
+    const chip = screen.getByTestId("status-chip");
+    expect(chip).toHaveTextContent("Ready for Acknowledgement");
+    expect(chip).toHaveAttribute("data-border", "#6a54a3");
+    expect(chip).toHaveAttribute("data-background", "#DAD4E8");
   });
 
   it("maps the entity New badge to the teal (decision) theme", () => {

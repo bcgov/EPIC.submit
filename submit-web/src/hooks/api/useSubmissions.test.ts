@@ -3,7 +3,6 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createElement } from "react";
 import {
-  acknowledgeReportDocument,
   createSubmission,
   createDocumentSubmission,
   deleteSubmission,
@@ -15,7 +14,6 @@ import {
   softDeleteSubmission,
   triggerGeoProcess,
   updateSubmissionStatus,
-  useAcknowledgeReportDocument,
   useCreateSubmission,
   useDeleteSubmission,
   useGetFailedSubmissionsByItemId,
@@ -179,20 +177,6 @@ describe("request helpers", () => {
       method: "PATCH",
       data: { status: "Accepted" },
     });
-  });
-
-  it("acknowledgeReportDocument posts the acknowledgement", async () => {
-    await acknowledgeReportDocument(12);
-    expect(mockSubmitRequest).toHaveBeenCalledWith({
-      url: "/submissions/12/acknowledge",
-      method: "POST",
-    });
-  });
-});
-
-describe("useSaveSubmission", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
   });
 
   it("edits the existing form submission and invalidates queries", async () => {
@@ -731,59 +715,6 @@ describe("useTriggerGeoProcess", () => {
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
-  });
-});
-
-describe("useAcknowledgeReportDocument", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("acknowledges and invalidates the package", async () => {
-    mockSubmitRequest.mockResolvedValue({ id: 1 });
-    const { queryClient, wrapper } = createWrapper();
-    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
-    const onSuccess = vi.fn();
-
-    const { result } = renderHook(
-      () => useAcknowledgeReportDocument({ packageId: 6, onSuccess }),
-      { wrapper },
-    );
-
-    await act(async () => {
-      result.current.mutate({ submissionId: 2 });
-    });
-
-    await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
-    });
-    expect(mockSubmitRequest).toHaveBeenCalledWith({
-      url: "/submissions/2/acknowledge",
-      method: "POST",
-    });
-    expect(onSuccess).toHaveBeenCalled();
-    expect(invalidateSpy).toHaveBeenCalledWith({
-      queryKey: [QUERY_KEY.SUBMISSION_PACKAGE, 6],
-    });
-  });
-
-  it("invalidates without an onSuccess callback", async () => {
-    mockSubmitRequest.mockResolvedValue({ id: 1 });
-    const { queryClient, wrapper } = createWrapper();
-    const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
-
-    const { result } = renderHook(() => useAcknowledgeReportDocument({}), {
-      wrapper,
-    });
-
-    await act(async () => {
-      result.current.mutate({ submissionId: 2 });
-    });
-
-    await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
-    });
-    expect(invalidateSpy).toHaveBeenCalledTimes(1);
   });
 });
 

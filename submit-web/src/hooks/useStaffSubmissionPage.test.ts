@@ -200,6 +200,37 @@ describe("useStaffSubmissionPage", () => {
       expect(result.current.canAcknowledge).toBe(true);
     });
 
+    it.each(["B", "C"])(
+      "allows acknowledging a Ready for Acknowledgement type %s package",
+      (approvalType) => {
+        setPackage({ status: ["READY_FOR_ACKNOWLEDGEMENT"], approvalType });
+        const { result } = setup();
+        expect(result.current.canAcknowledge).toBe(true);
+      },
+    );
+
+    it("still allows acknowledging when an overlay shows next to Ready for Acknowledgement", () => {
+      setPackage({
+        status: ["READY_FOR_ACKNOWLEDGEMENT", "UPDATE_REQUESTED"],
+        approvalType: "C",
+      });
+      const { result } = setup();
+      expect(result.current.canAcknowledge).toBe(true);
+    });
+
+    it("blocks acknowledging a type C package that is only in Internal Verification", () => {
+      setPackage({ status: ["INTERNAL_VERIFICATION"], approvalType: "C" });
+      const { result } = setup();
+      expect(result.current.canAcknowledge).toBe(false);
+    });
+
+    it("blocks Ready for Acknowledgement packages without w_extended_edit", () => {
+      useAccount.setState({ roles: ["eao_view"] });
+      setPackage({ status: ["READY_FOR_ACKNOWLEDGEMENT"], approvalType: "C" });
+      const { result } = setup();
+      expect(result.current.canAcknowledge).toBe(false);
+    });
+
     it("blocks acknowledging when the package is not verified", () => {
       setPackage({ status: ["SUBMITTED"] });
       const { result } = setup();
@@ -213,11 +244,32 @@ describe("useStaffSubmissionPage", () => {
       expect(result.current.canAcknowledge).toBe(false);
     });
 
-    it("blocks GIS-only users", () => {
-      useAccount.setState({ roles: ["w_extended_edit", "gis_extended_edit"] });
+    it("blocks users with only the GIS role", () => {
+      useAccount.setState({ roles: ["gis_extended_edit"] });
       setPackage({ status: ["VERIFIED"] });
       const { result } = setup();
       expect(result.current.canAcknowledge).toBe(false);
+    });
+
+    it("allows users with w_extended_edit and the GIS role", () => {
+      useAccount.setState({ roles: ["w_extended_edit", "gis_extended_edit"] });
+      setPackage({ status: ["VERIFIED"] });
+      const { result } = setup();
+      expect(result.current.canAcknowledge).toBe(true);
+    });
+
+    it("shows approve buttons for w_extended_edit with the GIS role", () => {
+      useAccount.setState({ roles: ["w_extended_edit", "gis_extended_edit"] });
+      setPackage({ status: ["ACKNOWLEDGED"], approvalType: "C" });
+      const { result } = setup();
+      expect(result.current.showApproveButtons).toBe(true);
+    });
+
+    it("hides approve buttons for users with only the GIS role", () => {
+      useAccount.setState({ roles: ["gis_extended_edit"] });
+      setPackage({ status: ["ACKNOWLEDGED"], approvalType: "C" });
+      const { result } = setup();
+      expect(result.current.showApproveButtons).toBe(false);
     });
 
     it("allows users with full_access even with the GIS role", () => {

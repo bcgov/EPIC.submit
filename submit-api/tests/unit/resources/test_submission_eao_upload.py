@@ -138,15 +138,6 @@ class TestEaoUploadCreate:
 
         assert response.status_code == HTTPStatus.CREATED
 
-    def test_works_on_compliance_self_report_package(self, client, session, jwt):
-        """Report_TypeB packages accept EAO uploads too."""
-        _as_staff(MPT_STAFF)
-        item = _report_item(PackageTypeEnum.REPORT_TYPE_B)
-
-        response = _post(client, jwt, item, _payload())
-
-        assert response.status_code == HTTPStatus.CREATED
-
     def test_upload_does_not_submit_the_package(self, client, session, jwt):
         """Adding a document never records a package submission or flags the row as updated."""
         _as_staff(MPT_STAFF)

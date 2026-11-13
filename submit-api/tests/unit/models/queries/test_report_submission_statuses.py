@@ -2,10 +2,12 @@
 
 Covers how verified report documents roll up to the package status:
 - Report (approval_type A): all docs VERIFIED -> VERIFIED only.
-- Report_TypeB (approval_type B): all docs VERIFIED -> VERIFIED and
-  PENDING_ACKNOWLEDGEMENT (the EAO-only Pending Acknowledgement card state).
+- Approval types B and C: all docs VERIFIED -> READY_FOR_ACKNOWLEDGEMENT on its own
+  (no VERIFIED and no PENDING_ACKNOWLEDGEMENT).
 """
 from unittest.mock import Mock
+
+import pytest
 
 from submit_api.enums.package_type import PackageApprovalType
 from submit_api.models.package import PackageStatus
@@ -49,19 +51,39 @@ def test_report_type_a_all_verified_rolls_up_to_verified_only():
     statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
 
     assert PackageStatus.VERIFIED.value in statuses
-    assert PackageStatus.PENDING_ACKNOWLEDGEMENT.value not in statuses
+    assert PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value not in statuses
 
 
-def test_report_type_b_all_verified_rolls_up_to_pending_acknowledgement():
-    """A Type B Report (Report_TypeB) all VERIFIED adds PENDING_ACKNOWLEDGEMENT."""
+@pytest.mark.parametrize("approval_type", [PackageApprovalType.B, PackageApprovalType.C])
+def test_types_b_and_c_all_verified_roll_up_to_ready_for_acknowledgement(approval_type):
+    """All documents VERIFIED yields READY_FOR_ACKNOWLEDGEMENT alone for types B and C."""
+    package = _make_report_package(approval_type, [SubmissionStatus.VERIFIED, SubmissionStatus.VERIFIED])
+
+    statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
+
+    assert statuses == [PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value]
+
+
+def test_type_c_verified_and_acknowledged_documents_are_ready_for_acknowledgement():
+    """A mix of VERIFIED and ACKNOWLEDGED documents still reads as ready for acknowledgement."""
     package = _make_report_package(
-        PackageApprovalType.B, [SubmissionStatus.VERIFIED]
+        PackageApprovalType.C, [SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED]
     )
 
     statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
 
-    assert PackageStatus.VERIFIED.value in statuses
-    assert PackageStatus.PENDING_ACKNOWLEDGEMENT.value in statuses
+    assert statuses == [PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value]
+
+
+def test_type_c_partly_verified_is_internal_verification():
+    """Undoing one verification returns the package to INTERNAL_VERIFICATION."""
+    package = _make_report_package(
+        PackageApprovalType.C, [SubmissionStatus.VERIFIED, SubmissionStatus.SUBMITTED]
+    )
+
+    statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
+
+    assert statuses == [PackageStatus.INTERNAL_VERIFICATION.value]
 
 
 def test_eao_uploaded_document_does_not_hold_back_verified():

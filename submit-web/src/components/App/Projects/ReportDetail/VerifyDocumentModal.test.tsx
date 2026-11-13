@@ -1,10 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import {
-  VerifyDocumentModal,
-  COMPLIANCE_SELF_REPORT_HINT,
-} from "./VerifyDocumentModal";
+import { VerifyDocumentModal } from "./VerifyDocumentModal";
 
 const setCloseSpy = vi.fn();
 vi.mock("@/components/Shared/Modals/modalStore", () => ({
@@ -30,27 +27,6 @@ describe("VerifyDocumentModal", () => {
       screen.getByRole("button", { name: "Confirm Verification" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
-  });
-
-  it("shows the Compliance Self-Report hint only when asked", () => {
-    const { rerender } = render(
-      <VerifyDocumentModal
-        fileName="report.pdf"
-        onVerify={vi.fn().mockResolvedValue(undefined)}
-      />,
-    );
-    expect(
-      screen.queryByText(COMPLIANCE_SELF_REPORT_HINT),
-    ).not.toBeInTheDocument();
-
-    rerender(
-      <VerifyDocumentModal
-        fileName="report.pdf"
-        showComplianceHint
-        onVerify={vi.fn().mockResolvedValue(undefined)}
-      />,
-    );
-    expect(screen.getByText(COMPLIANCE_SELF_REPORT_HINT)).toBeInTheDocument();
   });
 
   it("does not verify and closes when Cancel is clicked", async () => {

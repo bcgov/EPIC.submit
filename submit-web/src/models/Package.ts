@@ -9,14 +9,11 @@ export enum SubmissionPackageType {
   IPD = "IPD",
   ADDITIONAL_INFORMATION = "Additional Information",
   REPORT = "Report",
-  REPORT_TYPE_B = "Report_TypeB",
 }
 
-// Report-style package types. Report_TypeB clones Report but adds an
-// Acknowledge step (approval_type B); both are grouped as reports in the UI.
+// Report-style package types, grouped as reports in the UI.
 export const REPORT_RELATED_TYPES: SubmissionPackageType[] = [
   SubmissionPackageType.REPORT,
-  SubmissionPackageType.REPORT_TYPE_B,
 ];
 
 export type ProjectReport = {
@@ -136,7 +133,7 @@ export type PackageStatus =
   | "REQUESTED_BY_EAO"
   | "INTERNAL_VERIFICATION"
   | "VERIFIED"
-  | "PENDING_ACKNOWLEDGEMENT"
+  | "READY_FOR_ACKNOWLEDGEMENT"
   | "READY_FOR_APPROVAL"
   | "ACKNOWLEDGED"
   | "NOT_APPROVED"
@@ -260,9 +257,9 @@ export const PACKAGE_STATUS: Record<
     value: "REQUESTED_BY_EAO",
     label: "Requested by EAO",
   },
-  PENDING_ACKNOWLEDGEMENT: {
-    value: "PENDING_ACKNOWLEDGEMENT",
-    label: "Pending Acknowledgement",
+  READY_FOR_ACKNOWLEDGEMENT: {
+    value: "READY_FOR_ACKNOWLEDGEMENT",
+    label: "Ready for Acknowledgement",
   },
   ACKNOWLEDGED: {
     value: "ACKNOWLEDGED",
