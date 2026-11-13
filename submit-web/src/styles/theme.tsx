@@ -8,6 +8,14 @@ const baseTheme = createAppTheme({});
 // Picker fields use their own accessible components; preserve the shared theme while styling those slots.
 export const theme = createTheme({
   ...baseTheme,
+  typography: {
+    ...baseTheme.typography,
+    h4: {
+      ...baseTheme.typography.h4,
+      fontWeight: 400,
+      color: BCDesignTokens.themeBlue100,
+    },
+  },
   components: {
     ...baseTheme.components,
     MuiPickersTextField: {
