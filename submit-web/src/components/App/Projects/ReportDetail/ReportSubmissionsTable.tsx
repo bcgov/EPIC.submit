@@ -87,6 +87,7 @@ const DocumentNameCell = ({ submission }: { submission: Submission }) => {
               component="span"
               aria-label={name}
               sx={{
+                color: "inherit",
                 textDecoration: "underline",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
