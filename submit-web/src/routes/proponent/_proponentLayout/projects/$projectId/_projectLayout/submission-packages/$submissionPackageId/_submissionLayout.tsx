@@ -70,12 +70,13 @@ export const Route = createFileRoute(
       to: "/proponent/projects",
     });
   },
-  head: ({ loaderData: submissionPackage }) => ({
+  head: ({ loaderData: submissionPackage, params }) => ({
     meta: [
       {
         title:
           formatReportPageTitle(submissionPackage?.project_report) ||
           submissionPackage?.name,
+        path: `/proponent/projects/${params.projectId}/submission-packages/${params.submissionPackageId}`,
       },
     ],
   }),
