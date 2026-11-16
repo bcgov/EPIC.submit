@@ -23,12 +23,15 @@ vi.mock("./ProjectSubmissionsCard", () => ({
 
 // Capture the packages passed to the reports card.
 const reportsCardSpy = vi.fn();
+const reportsCardProjectIdSpy = vi.fn();
 vi.mock("./ReportsRecurring/ReportsRecurringCard", () => ({
   ReportsRecurringCard: (props: {
+    projectId: number;
     reportPackages: SubmissionPackage[];
     audience?: string;
   }) => {
     reportsCardSpy(props.reportPackages, props.audience);
+    reportsCardProjectIdSpy(props.projectId);
     return <div data-testid="reports-card" />;
   },
 }));
@@ -148,6 +151,14 @@ describe("Project reports section gating", () => {
     render(<Project accountProject={makeAccountProject()} />);
     const passed = reportsCardSpy.mock.calls[0][0] as SubmissionPackage[];
     expect(passed.map((p) => p.id)).toEqual([10, 12]);
+  });
+
+  it("passes the project id (not the account project id) to the reports section", () => {
+    setAccount([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]);
+    const accountProject = makeAccountProject();
+    accountProject.project.id = 4242;
+    render(<Project accountProject={accountProject} />);
+    expect(reportsCardProjectIdSpy).toHaveBeenCalledWith(4242);
   });
 
   it("hides the reports section for Collaborator - Specific Submissions", () => {

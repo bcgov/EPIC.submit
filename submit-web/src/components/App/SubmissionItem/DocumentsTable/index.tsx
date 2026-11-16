@@ -98,7 +98,7 @@ export default function DocumentsTable({
 
   return (
     <SubmitTableContainer>
-      <MuiTable>
+      <MuiTable sx={{ "& > tbody > tr > td:first-of-type": { pl: "1rem !important" } }}>
         <SubmitTableHead>
           <TableRow>
             <SubmitTableHeadCell>

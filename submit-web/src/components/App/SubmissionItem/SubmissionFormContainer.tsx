@@ -60,7 +60,6 @@ export const SubmissionFormContainer = ({
           />
           <Box
             sx={{
-              pl: BCDesignTokens.layoutPaddingMedium,
               pt: BCDesignTokens.layoutPaddingSmall,
               display: "flex",
               flexDirection: "column",
@@ -76,6 +75,7 @@ export const SubmissionFormContainer = ({
               spacing={BCDesignTokens.layoutMarginMedium}
               sx={{
                 padding: "16px",
+                alignSelf: "stretch",
                 flexDirection: "column"
               }}>
               {children}

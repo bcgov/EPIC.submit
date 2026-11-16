@@ -45,7 +45,11 @@ export default function DocumentTable({
   }
   return (
     <TableContainer component={Box} sx={{ height: "100%", overflow: "visible" }}>
-      <Table sx={{ tableLayout: "fixed" }}>
+      <Table sx={{
+        tableLayout: "fixed",
+        // Row content adds a 4px margin to the 12px cell inset.
+        "& > tbody > tr > td:first-of-type": { pl: "12px !important" },
+      }}>
         <TableHead
           sx={{
             ".MuiTableCell-root": {
@@ -76,10 +80,11 @@ export default function DocumentTable({
           <DocumentHeadTableRow>
             <StyledHeadTableCell colSpan={5}>
               <Typography
-                variant="h6"
+                variant="body1"
                 sx={{
                   color: "inherit",
-                  fontWeight: 900,
+                  fontSize: "1rem",
+                  fontWeight: 700,
                   mx: 0.5
                 }}>
                 {header}

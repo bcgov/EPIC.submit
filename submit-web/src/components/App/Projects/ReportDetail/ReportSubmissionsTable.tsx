@@ -82,6 +82,7 @@ const DocumentNameCell = ({ submission }: { submission: Submission }) => {
               component="span"
               aria-label={name}
               sx={{
+                color: "inherit",
                 textDecoration: "underline",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -225,7 +226,7 @@ export const ReportSubmissionsTable = ({
           ) : (
             submissions.map((submission) => (
               <SubmitTableRow key={submission.id}>
-                <SubmitTableCell width={isStaff ? "45%" : "55%"}>
+                <SubmitTableCell width={isStaff ? "45%" : "55%"} sx={{ pl: "1rem !important" }}>
                   <DocumentNameCell submission={submission} />
                 </SubmitTableCell>
                 <SubmitTableCell width={isStaff ? "15%" : "20%"}>

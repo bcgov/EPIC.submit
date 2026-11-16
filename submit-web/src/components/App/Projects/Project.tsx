@@ -106,6 +106,7 @@ export const Project = ({ accountProject }: ProjectParam) => {
         )}
         {showReportsSection && (
           <ReportsRecurringCard
+            projectId={accountProject.project.id}
             reportPackages={reportPackages}
             audience={is_proponent ? "proponent" : "staff"}
           />

@@ -23,7 +23,7 @@ const Footer = () => {
           borderTop: `6px solid ${FOOTER_COLORS.BORDER}`,
           borderBottom: `6px solid ${FOOTER_COLORS.BORDER}`
         }}>
-        <Typography variant="body1" color="white">
+        <Typography variant="body1" sx={{ color: "white" }}>
           {FOOTER_DESCRIPTION}
         </Typography>
       </Grid>

@@ -48,10 +48,10 @@ export default function ProponentTableRow({ subPackage }: ProjectRowProps) {
             onClick={onSubmissionClick}
           >
             <Typography
-              color={BCDesignTokens.themeBlue90}
               sx={{
                 fontSize: "1rem",
-                fontWeight: "bold"
+                fontWeight: "bold",
+                color: "inherit",
               }}>
               {managementPlanName}
             </Typography>

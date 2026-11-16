@@ -150,12 +150,11 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
           }}
         >
           <Grid container direction="row" spacing={1} sx={{
+            width: "100%",
             alignItems: "center"
           }}>
             <Grid
-              size={{
-                md: 10
-              }}>
+              size="grow">
               <Typography variant="h5">{userData.full_name}</Typography>
             </Grid>
             <Grid
@@ -165,9 +164,7 @@ function ProfileEditForm({ user, guid }: ProfileEditFormProps) {
                 justifyContent: "flex-end",
                 gap: 1,
               }}
-              size={{
-                md: 2
-              }}>
+              size="auto">
               <Typography color={BCDesignTokens.themeGray70}>
                 Status:
               </Typography>

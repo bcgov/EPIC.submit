@@ -49,7 +49,7 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
   };
 
   const headerRightContent = (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, width: "25%", justifyContent: "space-between" }}>
+    <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
       {getStatusBadge()}
       <Typography
         variant="body2"
@@ -57,6 +57,7 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
           fontSize: "12px",
           color: BCDesignTokens.themeGray80,
           lineHeight: "18px",
+          whiteSpace: "nowrap",
         }}
       >
         Sent {new Date(request.createdDate).toISOString().split('T')[0]}

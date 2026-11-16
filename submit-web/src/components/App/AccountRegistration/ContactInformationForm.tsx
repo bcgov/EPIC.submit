@@ -180,11 +180,8 @@ function ContactInformationForm() {
     <>
       <Grid
         container
-        size={{
-          xs: 12,
-          md: 4
-        }}
         sx={{
+          width: { xs: "100%", md: "33.333333%" },
           pb: 8,
           justifyContent: "center",
           alignItems: "flex-start"

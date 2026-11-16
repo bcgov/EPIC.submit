@@ -87,9 +87,10 @@ function UserDetails({ user }: UserDetailsProps) {
           }}
         >
           <Grid container direction="row" spacing={1} sx={{
+            width: "100%",
             alignItems: "center"
           }}>
-            <Grid size={10}>
+            <Grid size="grow">
               <Typography variant="h5" sx={{ fontWeight: 400 }}>
                 {userData.full_name}
               </Typography>
@@ -101,7 +102,7 @@ function UserDetails({ user }: UserDetailsProps) {
                 justifyContent: "flex-end",
                 gap: 1,
               }}
-              size={2}>
+              size="auto">
               <Typography color={BCDesignTokens.themeGray70}>
                 Status:
               </Typography>

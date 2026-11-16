@@ -69,10 +69,10 @@ export const ReportsTableRow = ({
           onClick={onNameClick}
         >
           <Typography
-            color={BCDesignTokens.themeBlue90}
             sx={{
               fontSize: "1rem",
-              fontWeight: "bold"
+              fontWeight: "bold",
+              color: "inherit",
             }}>
             {displayName}
           </Typography>

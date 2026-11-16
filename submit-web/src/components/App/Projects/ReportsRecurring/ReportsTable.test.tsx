@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { PackageStatus, SubmissionPackage } from "@/models/Package";
 import { ReportsTable } from "./ReportsTable";
+import { BCDesignTokens } from "epic.theme";
+import { renderWithTheme, resolvedColor } from "@/test/themeUtils";
 
 const mockNavigate = vi.fn();
 vi.mock("@tanstack/react-router", () => ({
@@ -140,5 +142,15 @@ describe("ReportsTable", () => {
     expect(mockNavigate).toHaveBeenCalledWith({
       to: "/staff/projects/42/reports/5",
     });
+  });
+});
+
+describe("ReportsTable link color", () => {
+  it("renders the report name in link blue under the app theme", () => {
+    renderWithTheme(<ReportsTable reportPackages={[makeReportPackage(1)]} />);
+    // Without the fix, theme body1 forces near-black (typographyColorSecondary).
+    expect(resolvedColor(screen.getByText("Annual Report 1"))).toBe(
+      BCDesignTokens.themeBlue90,
+    );
   });
 });
