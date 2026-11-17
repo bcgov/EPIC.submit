@@ -72,6 +72,36 @@ describe("useSubmitAvailability", () => {
       expect(result.current.isSubmitDisabled).toBe(true);
     });
 
+    it("returns isSubmitDisabled=true when acknowledged with a new pending document and no open requests", () => {
+      const pkg: SubmissionPackage = {
+        ...baseWorkPackage,
+        status: ["ACKNOWLEDGED"],
+        update_requests: [],
+        items: [
+          {
+            submissions: [{ is_updated: true, status: "PENDING" }],
+          } as any,
+        ],
+      };
+      const { result } = renderHook(() => useSubmitAvailability(pkg));
+      expect(result.current.hasUpdatedItems).toBe(true);
+      expect(result.current.isSubmitDisabled).toBe(true);
+    });
+
+    it("returns isSubmitDisabled=true when withdrawn with a new pending document", () => {
+      const pkg: SubmissionPackage = {
+        ...baseWorkPackage,
+        status: ["WITHDRAWN"],
+        items: [
+          {
+            submissions: [{ is_updated: true, status: "PENDING" }],
+          } as any,
+        ],
+      };
+      const { result } = renderHook(() => useSubmitAvailability(pkg));
+      expect(result.current.isSubmitDisabled).toBe(true);
+    });
+
     it("returns isSubmitDisabled=false when acknowledged with open requests", () => {
       const pkg: SubmissionPackage = {
         ...baseWorkPackage,

@@ -41,6 +41,7 @@ export type AccountUserWithRole = {
   company_name?: string;
   account?: Account;
   status: UserPackageStatus;
+  status_label?: string | null;
   roles: Role[];
   invitation_id: number;
   user_id: number | null;

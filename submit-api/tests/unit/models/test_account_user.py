@@ -234,3 +234,25 @@ def test_get_filtered_by_account_id_no_duplicates_for_multiple_active_roles(sess
     )
     matching = [au.id for au in result if au.id == account_user.id]
     assert len(matching) == 1
+
+
+def test_to_dict_includes_status_and_label(session):
+    """to_dict exposes the user_status name and description from the joined user."""
+    user = factory_user_model(user_type=UserType.PROPONENT)
+    account = factory_account_model()
+    au = AccountUser.create_account_user(
+        {
+            'account_id': account.id,
+            'first_name': 'Jane',
+            'last_name': 'Doe',
+            'position': 'Dev',
+            'work_email_address': fake.email(),
+            'work_contact_number': '555-1234',
+            'user_id': user.id,
+        },
+        session,
+    )
+    session.flush()
+    result = au.to_dict()
+    assert result['status'] == user.user_status.status_name
+    assert result['status_label'] == user.user_status.description

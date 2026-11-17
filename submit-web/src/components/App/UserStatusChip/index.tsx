@@ -36,8 +36,9 @@ const statusStyles: Record<UserPackageStatus, StyleProps> = {
 
 type UserStatusChipProps = Readonly<{
   status: UserPackageStatus;
+  label?: string | null;
 }>;
-export default function UserStatusChip({ status }: UserStatusChipProps) {
+export default function UserStatusChip({ status, label }: UserStatusChipProps) {
   const style = statusStyles[status];
 
   if (!style) {
@@ -47,7 +48,7 @@ export default function UserStatusChip({ status }: UserStatusChipProps) {
   return (
     <StatusChip
       theme={style.theme}
-      label={style.label}
+      label={label || style.label}
     />
   );
 }

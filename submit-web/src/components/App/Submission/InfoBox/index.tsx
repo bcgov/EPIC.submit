@@ -44,6 +44,8 @@ export const InfoBox = ({
             p: "16px",
             backgroundColor: BCDesignTokens.surfaceColorBackgroundWhite,
             mb: "16px",
+            width: "100%",
+            boxSizing: "border-box",
           }}
         >
           <Typography
@@ -77,6 +79,8 @@ export const InfoBox = ({
           borderRadius: "4px",
           border: `1px solid ${BCDesignTokens.surfaceColorBorderDefault}`,
           p: "16px",
+          width: "100%",
+          boxSizing: "border-box",
           justifyContent: "space-between",
         }}
       >

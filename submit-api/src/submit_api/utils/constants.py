@@ -76,7 +76,7 @@ REPORT_SUPPORTING_DOCUMENTS_FOLDER = "report_supporting_documents"
 # Canonical display order for report obligation phases. Mirrors the frontend
 # PHASE_ORDER. Unknown phases are ordered after these, by name.
 REPORT_PHASE_ORDER = [
-    "All Phases",
+    "Phase-Agnostic (submittable at any point)",
     "Post-Issuance",
     "Pre-Construction",
     "Construction",

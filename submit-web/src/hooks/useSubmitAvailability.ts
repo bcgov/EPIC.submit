@@ -58,6 +58,11 @@ export function useSubmitAvailability(
   const isWorkPackage = Boolean(submissionPackage?.account_project_work);
 
   const isSubmitDisabled = useMemo(() => {
+    // Once acknowledged (or withdrawn), only an open update request allows a
+    // resubmission, even when new documents were added. Mirrors the backend.
+    if (isPackageWithdrawn) return true;
+    if (isPackageAcknowledged && openRequests.length === 0) return true;
+
     if (hasUpdatedItems) return false;
 
     // Rule 1: Work packages before acknowledgement can always resubmit
@@ -76,6 +81,7 @@ export function useSubmitAvailability(
     pendingRequests.length,
     openRequests.length,
     isPackageAcknowledged,
+    isPackageWithdrawn,
     hasUpdatedItems,
     isWorkPackage,
   ]);

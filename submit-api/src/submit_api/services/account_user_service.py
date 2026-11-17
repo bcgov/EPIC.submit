@@ -123,7 +123,6 @@ class AccountUserService:
     def _process_user_data(cls, user, package_name_map):
         """Process a single user and return user data dict with roles."""
         user_data = user.to_dict()
-        user_data["status"] = cls._fetch_user_status_name(user_data.get("user_id"))
 
         # Map roles - use active roles first, fall back to all_roles for revoked users
         roles_data = []
@@ -149,11 +148,6 @@ class AccountUserService:
     def _fetch_users(account_id, account_project_ids=None):
         """Fetch active users from the `account_users` table."""
         return AccountUserModel.get_filtered_by_account_id(account_id, account_project_ids)
-
-    @staticmethod
-    def _fetch_user_status_name(user_id):
-        """Fetch only the user's status name."""
-        return UserModel.get_status_name_by_id(user_id)
 
     @staticmethod
     def _fetch_roles(users):
@@ -288,7 +282,6 @@ class AccountUserService:
         """Fetch an user for a user id."""
         user = AccountUserModel.get_by_guid(guid)
         user_dict = user.to_dict()
-        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
 
     @classmethod
@@ -298,7 +291,6 @@ class AccountUserService:
         if not user:
             return None
         user_dict = user.to_dict()
-        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
 
     @staticmethod
@@ -393,7 +385,6 @@ class AccountUserService:
 
         account_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         user_dict = account_user.to_dict()
-        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
         return user_dict
 
     @staticmethod
@@ -500,7 +491,6 @@ class AccountUserService:
         """Refresh user from DB and enrich with role/package data."""
         updated_user = AccountUserModel.get_users_by_account_user_id(account_user_id)
         user_dict = updated_user.to_dict()
-        user_dict["status"] = cls._fetch_user_status_name(user_dict.get("user_id"))
 
         roles = user_dict.get("roles", [])
 

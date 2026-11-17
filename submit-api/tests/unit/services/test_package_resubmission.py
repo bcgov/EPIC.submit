@@ -16,7 +16,7 @@ from submit_api.enums.item_status import ItemStatus
 from submit_api.exceptions import BadRequestError
 from submit_api.models.item_type import SubmissionMethod
 from submit_api.models.package import PackageStatus
-from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionType
+from submit_api.models.submission import MAIN_DOCUMENT_SORT_ORDER, SubmissionStatus, SubmissionType
 from submit_api.models.update_request import UpdateRequestStatus, UpdateRequestType
 from submit_api.services.package_service import PackageService
 
@@ -52,6 +52,7 @@ def _make_package(
     package.update_requests = update_requests or []
     package.items = items or []
     package.type_id = 1
+    package.completed_on = None
     return package
 
 
@@ -95,9 +96,11 @@ def _make_submission(
     form_id=None,
     deleted=False,
     sort_order=MAIN_DOCUMENT_SORT_ORDER,
+    status=SubmissionStatus.SUBMITTED,
 ):
     """Create a mock submission."""
     sub = Mock()
+    sub.status = status
     sub.type = submission_type
     sub.submitted_document_id = doc_id
     sub.submitted_form_id = form_id
@@ -127,6 +130,26 @@ class TestTerminalStateBlocking:
         with pytest.raises(BadRequestError, match="not been approved"):
             PackageService._validate_package_for_resubmit(package)
 
+    def test_withdrawn_package_blocks_resubmit(self):
+        """Withdrawn package cannot be resubmitted."""
+        package = _make_package(status=[PackageStatus.WITHDRAWN.value])
+        with pytest.raises(BadRequestError, match="withdrawn"):
+            PackageService._validate_package_for_resubmit(package)
+
+    def test_completed_package_blocks_resubmit(self):
+        """Completed package cannot be resubmitted."""
+        package = _make_package()
+        package.completed_on = "2024-02-01"
+        with pytest.raises(BadRequestError, match="completed"):
+            PackageService._validate_package_for_resubmit(package)
+
+    def test_acknowledged_work_package_error_names_state(self):
+        """Acknowledged work package without update request reports the acknowledged state."""
+        package = _make_package(
+            status=[PackageStatus.ACKNOWLEDGED.value], account_project_work_id=1)
+        with pytest.raises(BadRequestError, match="already been acknowledged"):
+            PackageService._validate_package_for_resubmit(package)
+
     def test_not_submitted_package_blocks_resubmit(self):
         """Package without submitted_on cannot be resubmitted."""
         package = _make_package(submitted_on=None)
@@ -137,8 +160,9 @@ class TestTerminalStateBlocking:
 class TestWorkPackagePreAcknowledgement:
     """Rule 1: Work packages before acknowledgement allow free resubmit with completeness."""
 
+    @patch.object(PackageService, "_validate_has_new_documents")
     @patch.object(PackageService, "_validate_completeness")
-    def test_work_package_pre_ack_allows_resubmit(self, mock_validate):
+    def test_work_package_pre_ack_allows_resubmit(self, mock_validate, mock_new_docs):
         """Work package not acknowledged can resubmit without update request."""
         package = _make_package(
             account_project_work_id=10,
@@ -147,9 +171,35 @@ class TestWorkPackagePreAcknowledgement:
         result = PackageService._validate_package_for_resubmit(package)
         assert result == package
         mock_validate.assert_called_once_with(package)
+        mock_new_docs.assert_called_once_with(package)
 
     @patch.object(PackageService, "_validate_completeness")
-    def test_work_package_pre_ack_no_update_request_still_allowed(self, mock_validate):
+    def test_work_package_pre_ack_without_new_files_blocks(self, _mock_validate):
+        """Work package pre-ack with no new files is rejected."""
+        package = _make_package(
+            account_project_work_id=10,
+            status=[PackageStatus.SUBMITTED.value],
+            items=[_make_item(submissions=[_make_submission(status=SubmissionStatus.SUBMITTED)])],
+        )
+        with pytest.raises(BadRequestError, match="at least one new file"):
+            PackageService._validate_package_for_resubmit(package)
+
+    @patch.object(PackageService, "_validate_completeness")
+    def test_work_package_pre_ack_with_new_file_allows(self, _mock_validate):
+        """Work package pre-ack with a PENDING (new) document can resubmit."""
+        package = _make_package(
+            account_project_work_id=10,
+            status=[PackageStatus.SUBMITTED.value],
+            items=[_make_item(submissions=[
+                _make_submission(status=SubmissionStatus.SUBMITTED),
+                _make_submission(doc_id=2, status=SubmissionStatus.PENDING),
+            ])],
+        )
+        assert PackageService._validate_package_for_resubmit(package) == package
+
+    @patch.object(PackageService, "_validate_has_new_documents")
+    @patch.object(PackageService, "_validate_completeness")
+    def test_work_package_pre_ack_no_update_request_still_allowed(self, mock_validate, _mock_new_docs):
         """Work package pre-ack doesn't need update requests."""
         package = _make_package(
             account_project_work_id=10,
@@ -159,11 +209,12 @@ class TestWorkPackagePreAcknowledgement:
         result = PackageService._validate_package_for_resubmit(package)
         assert result == package
 
+    @patch.object(PackageService, "_validate_has_new_documents")
     @patch.object(
         PackageService, "_validate_completeness",
         side_effect=BadRequestError("incomplete"),
     )
-    def test_work_package_pre_ack_incomplete_blocks(self, _mock_validate):
+    def test_work_package_pre_ack_incomplete_blocks(self, _mock_validate, _mock_new_docs):
         """Work package pre-ack blocks if completeness validation fails."""
         package = _make_package(
             account_project_work_id=10,

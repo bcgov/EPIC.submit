@@ -157,7 +157,7 @@ export default function UserTableRow({ user }: { user: AccountUserWithRole }) {
         </When>
       </PlainTableCell>
       <PlainTableCell align="left" width={"10%"}>
-        <UserStatusChip status={user.status} />
+        <UserStatusChip status={user.status} label={user.status_label} />
       </PlainTableCell>
       <PlainTableCell align="left" width={"25%"}>
         {!isRevoked && (
