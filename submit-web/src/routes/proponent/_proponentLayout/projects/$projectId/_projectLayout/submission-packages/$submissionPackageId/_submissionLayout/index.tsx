@@ -44,6 +44,7 @@ import { useSubmitAvailability } from "@/hooks/useSubmitAvailability";
 import { PACKAGE_STATUS, NON_CANONICAL_PACKAGE_STATUS, SubmissionPackageType, MANAGEMENT_PLAN_RELATED_TYPES } from "@/models/Package";
 import { ACCOUNT_USER_PERMISSIONS } from "@/models/Role";
 import { SUBMISSION_TYPE } from "@/models/Submission";
+import { hasNewDocuments } from "@/utils/hasNewDocuments";
 import {
   UPDATE_REQUEST_STATUS,
   UPDATE_REQUEST_TYPE,
@@ -247,6 +248,19 @@ export default function SubmissionPage() {
         );
         return;
       }
+    }
+
+    // Resubmission before acknowledgement: at least one new file is required
+    if (
+      submissionPackage.submitted_on &&
+      !isPackageAcknowledged &&
+      !hasNewDocuments(submissionPackage)
+    ) {
+      notify.warning(
+        "You must have at least one new file added to your package to resubmit your submission package.",
+        15000,
+      );
+      return;
     }
 
     if (

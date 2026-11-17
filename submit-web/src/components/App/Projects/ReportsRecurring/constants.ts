@@ -1,4 +1,4 @@
-export const ALL_PHASES = "All Phases";
+export const ALL_PHASES = "Phase-Agnostic (submittable at any point)";
 
 // Canonical display order for phase groups. "All Phases" is always first and is
 // rendered specially (always expanded, not collapsible).

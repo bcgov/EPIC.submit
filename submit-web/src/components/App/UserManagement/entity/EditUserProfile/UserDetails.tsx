@@ -106,7 +106,7 @@ function UserDetails({ user }: UserDetailsProps) {
               <Typography color={BCDesignTokens.themeGray70}>
                 Status:
               </Typography>
-              <UserStatusChip status={userData.status} />
+              <UserStatusChip status={userData.status} label={userData.status_label} />
             </Grid>
             {(showEdit || isRevoked) && (
               <Grid

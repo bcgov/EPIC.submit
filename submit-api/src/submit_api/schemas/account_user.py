@@ -39,6 +39,7 @@ class AccountUserSchema(Schema):
     role = fields.Nested(UserRoleSchema)
     roles = fields.List(fields.Nested(UserRoleSchema))
     status = fields.Str(required=False)
+    status_label = fields.Str(required=False, allow_none=True)
     account = fields.Nested(AccountSchema, data_key="account", dump_only=True)
     terms_of_service_version_id = fields.Int(data_key="terms_of_service_version_id")
     has_agreed_to_terms = fields.Bool(data_key="has_agreed_to_terms")

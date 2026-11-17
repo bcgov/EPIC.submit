@@ -66,6 +66,7 @@ class AccountUser(BaseModel):
 
     def to_dict(self):
         """Convert AccountUser ORM object to dictionary."""
+        user_status = self.user.user_status if self.user else None
         return {
             "id": self.id,
             "account_id": self.account_id,
@@ -83,6 +84,9 @@ class AccountUser(BaseModel):
             # schema to call .isoformat() on a str and raise AttributeError.
             "last_login_at": self.last_login_at,
             "roles": [role.to_dict() for role in self.roles],
+            # `user` and `user.user_status` are eager-joined, so no extra query is issued here.
+            "status": user_status.status_name if user_status else None,
+            "status_label": user_status.description if user_status else None,
         }
 
     def touch_last_login(self, session=None):

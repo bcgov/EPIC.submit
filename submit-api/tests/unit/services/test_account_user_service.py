@@ -80,23 +80,17 @@ def mock_account_user_model(mock_account_user):
 
 
 @pytest.fixture()
-def mock_fetch_status_revoked():
-    """Patch _fetch_user_status_name to return ACCESS_REVOKED."""
-    with patch(
-        "submit_api.services.account_user_service.AccountUserService._fetch_user_status_name",
-        return_value="ACCESS_REVOKED",
-    ) as mock_status:
-        yield mock_status
+def mock_fetch_status_revoked(mock_account_user):
+    """Make the account user's dict report an ACCESS_REVOKED status."""
+    mock_account_user.to_dict.return_value.update(status="ACCESS_REVOKED", status_label="Access Revoked")
+    return mock_account_user
 
 
 @pytest.fixture()
-def mock_fetch_status_active():
-    """Patch _fetch_user_status_name to return ACTIVE."""
-    with patch(
-        "submit_api.services.account_user_service.AccountUserService._fetch_user_status_name",
-        return_value="ACTIVE",
-    ) as mock_status:
-        yield mock_status
+def mock_fetch_status_active(mock_account_user):
+    """Make the account user's dict report an ACTIVE status."""
+    mock_account_user.to_dict.return_value.update(status="ACTIVE", status_label="Active User")
+    return mock_account_user
 
 
 @pytest.fixture()

@@ -721,6 +721,22 @@ class PackageService:  # pylint: disable=too-many-public-methods
             if not has_main_document:
                 raise BadRequestError(missing_main_document_message(item.type.name))
 
+    @staticmethod
+    def _validate_has_new_documents(package):
+        """Require at least one new (not yet submitted) document when resubmitting."""
+        has_new_document = any(
+            submission.type == SubmissionType.DOCUMENT
+            and submission.status == SubmissionStatus.PENDING
+            and submission.submitted_document_id
+            and not submission.deleted
+            for item in package.items
+            for submission in item.submissions
+        )
+        if not has_new_document:
+            raise BadRequestError(
+                "You must have at least one new file added to your package to resubmit your submission package."
+            )
+
     @classmethod
     def _validate_package_for_resubmit(cls, package) -> PackageModel:
         """Validate resubmission eligibility using the five-rule model (D17).
@@ -744,6 +760,10 @@ class PackageService:  # pylint: disable=too-many-public-methods
             raise BadRequestError("Cannot resubmit a package that has been rejected")
         if PackageStatus.NOT_APPROVED.value in package.status:
             raise BadRequestError("Cannot resubmit a package that has not been approved")
+        if PackageStatus.WITHDRAWN.value in package.status:
+            raise BadRequestError("Cannot resubmit a package that has been withdrawn")
+        if package.completed_on:
+            raise BadRequestError("Cannot resubmit a package that has been completed")
 
         is_work_package = bool(package.account_project_work_id)
         is_acknowledged = PackageStatus.ACKNOWLEDGED.value in package.status
@@ -759,6 +779,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
             # Rule 1: work package pre-acknowledgement - free resubmit with completeness
             if not is_acknowledged:
                 cls._validate_completeness(package)
+                cls._validate_has_new_documents(package)
                 current_app.logger.info(
                     f"Work package {package.id} passes pre-ack resubmission"
                 )
@@ -767,7 +788,8 @@ class PackageService:  # pylint: disable=too-many-public-methods
             # Rule 2: work package post-acknowledgement - requires update request
             if not open_update_requests:
                 raise BadRequestError(
-                    "Cannot resubmit an acknowledged package without an open update request"
+                    "This package has already been acknowledged by the EAO. Cannot resubmit an "
+                    "acknowledged package without an open update request"
                 )
             cls._validate_required_main_documents(package)
             cls._validate_no_empty_submissions(package)
