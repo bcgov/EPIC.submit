@@ -16,7 +16,19 @@ export default function ProjectTable({
 }: ProjectTableProps) {
   return (
     <TableContainer component={Box} sx={{ height: "100%" }}>
-      <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
+      <Table
+        sx={{
+          borderCollapse: "separate",
+          borderSpacing: "0 8px",
+          ...(isManagementPlan && {
+            "& > thead > tr > th:first-child": {
+              boxSizing: "border-box",
+              minWidth: "96px",
+              whiteSpace: "nowrap",
+            },
+          }),
+        }}
+      >
         {!headless ? (
           <ProjectTableHead isManagementPlan={isManagementPlan} />
         ) : (

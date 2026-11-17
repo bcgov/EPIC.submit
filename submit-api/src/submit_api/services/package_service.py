@@ -1381,7 +1381,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
             session.add(package)
 
             # Log withdrawal activity
-            cls._log_activity_submission(package, ActivityActionType.SUBMITTED_TO_EAO.value, session)
+            cls._log_activity_submission(package, ActivityActionType.WITHDRAWN.value, session)
 
             # Create new package version (Package 2)
             new_package = PackageVersionService.create_new_package_version(package_id, session)

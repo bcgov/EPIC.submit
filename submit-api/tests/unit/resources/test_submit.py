@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 from sqlalchemy.orm import scoped_session, sessionmaker
 
+from submit_api.models.package_version import PackageVersion
 from submit_api.models.submission import (
     MAIN_DOCUMENT_SORT_ORDER,
     Submission,
@@ -178,8 +179,8 @@ def test_submit_management_plan_document(client, session, jwt):
     assert supporting_response.json["sort_order"] == SUPPORTING_DOCUMENT_SORT_ORDER
 
 
-def test_submit_package_state(client, rollback_safe_session, jwt):
-    """Full test for submitting package state after all 3 items are filled."""
+def test_submit_and_withdraw_package(client, rollback_safe_session, jwt):
+    """Verify submission and withdrawal record distinct actions on the same version."""
     # Step 1: Setup proponent and create package
     headers, account_project = setup_authenticated_proponent(rollback_safe_session, jwt)
     payload = TestPackageScenarios.get_payload()
@@ -348,6 +349,19 @@ def test_submit_package_state(client, rollback_safe_session, jwt):
                 elif submission["type"] == "DOCUMENT":
                     assert submission["submitted_document"]
                     assert "url" in submission["submitted_document"]
+
+    withdraw_response = client.post(f"/api/packages/{package_id}/withdraw", headers=headers)
+    assert withdraw_response.status_code == HTTPStatus.OK
+    assert withdraw_response.json["status"] == ["WITHDRAWN"]
+
+    history_response = client.get(f"/api/activity-logs/PACKAGE/{package_id}", headers=headers)
+    assert history_response.status_code == HTTPStatus.OK
+    assert [(entry["action"], entry["entity_version"]) for entry in history_response.json] == [
+        ("Submitted to EAO", 1),
+        ("Package Withdrawn", 1),
+    ]
+    versions = PackageVersion.get_all_by_original_package_id(package_id)
+    assert {version.version for version in versions} == {1, 2}
 
 
 @patch("submit_api.services.package_service.authorization.require_team_lead_access")

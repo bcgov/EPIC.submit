@@ -33,6 +33,7 @@ class ActivityActionType(enum.Enum):
     """Enum for activity type statuses."""
 
     SUBMITTED_TO_EAO = "Submitted to EAO"
+    WITHDRAWN = "Package Withdrawn"
     UPDATED_SUBMISSION = "Updated Submission"
     START_CONSULTATION_CHECK = "Start Consultation Check"
     UPDATE_REQUESTED = "Update Requested"

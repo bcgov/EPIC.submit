@@ -3,7 +3,7 @@
 // sized to their content; Timing takes a share of the remainder and
 // Submission Name ("auto") absorbs the rest.
 export const REPORTS_COLUMNS = [
-  { key: "condition", label: "Cond #", width: "80px" },
+  { key: "condition", label: "Cond #", width: "112px" },
   { key: "name", label: "Submission Name", width: "auto" },
   { key: "frequency", label: "Frequency", width: "136px" },
   { key: "timing", label: "Timing", width: "34%" },

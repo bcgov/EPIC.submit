@@ -46,12 +46,13 @@ export const Route = createFileRoute(
   },
   pendingComponent: PendingComponent,
   pendingMs: 0,
-  head: ({ loaderData: submissionPackage }) => ({
+  head: ({ loaderData: submissionPackage, params }) => ({
     meta: [
       {
         title:
           formatReportPageTitle(submissionPackage?.project_report) ||
           submissionPackage?.name,
+        path: `/staff/projects/${params.projectId}/submission-packages/${params.submissionPackageId}`,
       },
     ],
   }),
