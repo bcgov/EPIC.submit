@@ -72,5 +72,3 @@ geo:
   maxConcurrentJobs: "4"
   maxShapefiles: "40"
   processingTimeoutSeconds: "60"
-
-timezone: America/Vancouver

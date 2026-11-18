@@ -1,6 +1,6 @@
 """Build and queue Submit email jobs."""
 from urllib.parse import urljoin
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime
 
 from flask import current_app
 from sqlalchemy import or_
@@ -23,6 +23,7 @@ from submit_api.models.submission_review_entry import SubmissionReviewEntryType
 from submit_api.models.user_role import UserRole as UserRoleModel
 from submit_api.services.auth_service import AuthService
 from submit_api.utils.constants import (
+    BC_TIMEZONE,
     MANAGEMENT_PLAN_RESUBMISSION_REQUEST_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_CONFIRMATION_EMAIL_TEMPLATE,
     MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE,
@@ -162,7 +163,8 @@ class SubmitEmailQueueService:
 
         if template_name == MANAGEMENT_PLAN_SUBMISSION_NOTIFY_STAFF_EMAIL_TEMPLATE:
             recipients = cls._as_recipients(current_app.config.get('STAFF_SUPPORT_MAIL_ID'))
-            subject = f"SUBMISSION - {project.name} - {package.name} - {package.submitted_on.strftime('%Y-%m-%d')}"
+            submission_date = cls._format_submission_date(package.submitted_on, '%Y-%m-%d')
+            subject = f"SUBMISSION - {project.name} - {package.name} - {submission_date}"
         else:
             recipients = cls._as_recipients(submitter.work_email_address if submitter else None)
             subject = f"Confirmation of receipt for {package.name}"
@@ -368,14 +370,12 @@ class SubmitEmailQueueService:
         return urljoin(f"{SubmitEmailQueueService._get_base_url()}/", f"{signup_path.lstrip('/')}?token={token}")
 
     @staticmethod
-    def _format_submission_date(submitted_on: datetime) -> str:
+    def _format_submission_date(submitted_on: datetime, date_format: str = '%Y-%m-%d %I:%M %p %Z') -> str:
         if not submitted_on:
             return ''
         if submitted_on.tzinfo is None:
             submitted_on = submitted_on.replace(tzinfo=UTC)
-        # BC observes Pacific Time (UTC-07:00) year-round.
-        bc_timezone = timezone(timedelta(hours=-7), name='PCT')
-        return submitted_on.astimezone(bc_timezone).strftime('%Y-%m-%d %I:%M %p %Z')
+        return submitted_on.astimezone(BC_TIMEZONE).strftime(date_format)
 
     @staticmethod
     def _get_sender_email(package: PackageModel, fallback_config: str = 'SENDER_EMAIL') -> str:

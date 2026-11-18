@@ -1,6 +1,5 @@
 """Service for submission management."""
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from flask import current_app
 
@@ -32,6 +31,7 @@ from submit_api.services.item_service import ItemService
 from submit_api.services.submission.submission_creator_factory import (
     DocumentSubmissionCreator, FormSubmissionCreator, SubmissionCreatorFactory)
 from submit_api.utils.submission_validation import missing_main_document_message
+from submit_api.utils.constants import BC_TIMEZONE
 from submit_api.utils.token_info import TokenInfo
 
 
@@ -82,9 +82,8 @@ class SubmissionService:
 
     @staticmethod
     def _local_today():
-        """Return today's date in the legislative (Pacific) timezone."""
-        timezone = ZoneInfo(current_app.config.get('LEGISLATIVE_TIMEZONE', 'US/Pacific'))
-        return datetime.now(timezone).date()
+        """Return today's date in BC Pacific Time."""
+        return datetime.now(BC_TIMEZONE).date()
 
     @classmethod
     def _require_eao_report_upload_access(cls):

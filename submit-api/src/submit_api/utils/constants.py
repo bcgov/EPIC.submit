@@ -12,6 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """This module contains constants used in the application."""
+from datetime import timedelta, timezone
+
+
+# BC observes Pacific Time (UTC-07:00) year-round.
+BC_TIMEZONE = timezone(timedelta(hours=-7), name='PCT')
 
 # Machine-readable error code returned to the client when a user's access has
 # been revoked. The frontend keys off this value to eject the user and redirect
