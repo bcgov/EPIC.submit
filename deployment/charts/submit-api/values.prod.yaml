@@ -73,4 +73,4 @@ geo:
   maxShapefiles: "40"
   processingTimeoutSeconds: "60"
 
-timezone: US/Pacific
+timezone: America/Vancouver

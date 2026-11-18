@@ -1,6 +1,7 @@
 """Build and queue Submit email jobs."""
 from urllib.parse import urljoin
 from datetime import UTC, datetime
+from importlib.resources import files
 from zoneinfo import ZoneInfo
 
 from flask import current_app
@@ -374,8 +375,19 @@ class SubmitEmailQueueService:
             return ''
         if submitted_on.tzinfo is None:
             submitted_on = submitted_on.replace(tzinfo=UTC)
-        timezone = ZoneInfo(current_app.config.get('LEGISLATIVE_TIMEZONE', 'US/Pacific'))
-        return submitted_on.astimezone(timezone).strftime('%Y-%m-%d %I:%M %p %Z')
+        timezone_name = current_app.config.get('LEGISLATIVE_TIMEZONE') or 'America/Vancouver'
+        # Existing Helm releases set US/Pacific. These BC emails must follow
+        # Vancouver's rules, using the pinned data rather than older system data.
+        is_bc_timezone = timezone_name in ('US/Pacific', 'America/Vancouver')
+        if is_bc_timezone:
+            with files('tzdata.zoneinfo.America').joinpath('Vancouver').open('rb') as timezone_data:
+                timezone = ZoneInfo.from_file(timezone_data, key='America/Vancouver')
+        else:
+            timezone = ZoneInfo(timezone_name)
+        local_date = submitted_on.astimezone(timezone)
+        # IANA's abbreviation may be MST; BC's public-facing label is PCT.
+        timezone_label = 'PCT' if is_bc_timezone else local_date.tzname()
+        return f"{local_date.strftime('%Y-%m-%d %I:%M %p')} {timezone_label}"
 
     @staticmethod
     def _get_sender_email(package: PackageModel, fallback_config: str = 'SENDER_EMAIL') -> str:
