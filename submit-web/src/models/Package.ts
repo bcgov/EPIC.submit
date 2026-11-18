@@ -50,6 +50,9 @@ export type PackageType = {
   mandatory: boolean;
   approval_type?: SubmissionPackageApprovalType;
   success_message?: string;
+  start_phase_id?: number | null;
+  end_phase_id?: number | null;
+  phase_label?: string | null;
 };
 
 // These statuses are just for UI purposes, the actual canonical business statuses are PackageStatus

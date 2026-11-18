@@ -21,4 +21,7 @@ class PackageTypeSchema(Schema):
     versioning_enabled = fields.Bool(data_key="versioning_enabled")
     success_message = fields.Str(data_key="success_message", required=False)
     mandatory = fields.Bool(data_key="mandatory")
+    start_phase_id = fields.Int(data_key="start_phase_id", allow_none=True)
+    end_phase_id = fields.Int(data_key="end_phase_id", allow_none=True)
+    phase_label = fields.Str(data_key="phase_label", allow_none=True)
     approval_type = fields.Enum(data_key="approval_type", enum=PackageApprovalType, required=False)

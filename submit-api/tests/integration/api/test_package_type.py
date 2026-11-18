@@ -2,6 +2,7 @@
 from http import HTTPStatus
 
 from faker import Faker
+from marshmallow import ValidationError
 import pytest
 
 from submit_api.models.package_type import PackageType
@@ -30,7 +31,7 @@ def _payload(phase, **overrides):
 def test_get_package_types_by_phase(session, client, auth_header):
     """Package types attached to a phase are listed."""
     phase = factory_track_phase(session)
-    session.add(PackageType(name="Phase PT", title="Phase PT", phase_id=phase.id))
+    session.add(PackageType(name="Phase PT", title="Phase PT", start_phase_id=phase.id, end_phase_id=phase.id))
     session.flush()
 
     response = client.get(f"{BASE_URL}/phase/{phase.id}", headers=auth_header)
@@ -49,13 +50,39 @@ def test_get_package_types_by_project(session, client, auth_header):
     phase = factory_track_phase(session)
     project = factory_project_model(name="PT Project", proponent_id=fake.random_int(100000, 999999))
     factory_track_work(session, project.id, phase_id=phase.id)
-    session.add(PackageType(name="Project PT", title="Project PT", phase_id=phase.id))
+    session.add(PackageType(name="Project PT", title="Project PT", start_phase_id=phase.id, end_phase_id=phase.id))
     session.flush()
 
     response = client.get(f"{BASE_URL}/project/{project.id}", headers=auth_header)
 
     assert response.status_code == HTTPStatus.OK
     assert "Project PT" in [p["name"] for p in response.get_json()]
+
+
+def test_get_package_types_by_project_ignores_phase_without_enable_submit(session, client, auth_header):
+    """Package types are not offered for a work whose phase has enable_submit off."""
+    phase = factory_track_phase(session, enable_submit=False)
+    project = factory_project_model(name="Disabled Phase", proponent_id=fake.random_int(100000, 999999))
+    factory_track_work(session, project.id, phase_id=phase.id)
+    session.add(PackageType(name="Disabled PT", title="Disabled PT", start_phase_id=phase.id, end_phase_id=phase.id))
+    session.flush()
+
+    response = client.get(f"{BASE_URL}/project/{project.id}", headers=auth_header)
+
+    assert response.status_code == HTTPStatus.OK
+    assert "Disabled PT" not in [p["name"] for p in response.get_json()]
+
+
+def test_get_package_types_by_phase_empty_when_enable_submit_off(session, client, auth_header):
+    """The phase endpoint returns nothing for a phase with enable_submit off."""
+    phase = factory_track_phase(session, enable_submit=False)
+    session.add(PackageType(name="Off PT", title="Off PT", start_phase_id=phase.id, end_phase_id=phase.id))
+    session.flush()
+
+    response = client.get(f"{BASE_URL}/phase/{phase.id}", headers=auth_header)
+
+    assert response.status_code == HTTPStatus.OK
+    assert response.get_json() == []
 
 
 def test_get_package_types_by_project_includes_management_plan_when_approved(session, client, auth_header):
@@ -86,10 +113,58 @@ def test_create_package_type_with_phase(session, client, auth_header):
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
     assert data["created"] is True
-    assert data["phase_id"] == phase.id
+    assert data["start_phase_id"] == phase.id
+    assert data["end_phase_id"] == phase.id
     assert data["approval_type"] == "A"
     assert data["item_type_ids"] == [1]
     assert data["phase_name"] == "Display Phase"
+
+
+def test_create_package_type_with_phase_range_and_label(session, client, auth_header):
+    """A package type can span a start and end phase and carry a display label."""
+    start = factory_track_phase(session, name="Pre-EA", work_type_id=7)
+    end = factory_track_phase(session, name="Early Engagement", work_type_id=7)
+    payload = _payload(start, end_phase_name=end.name, phase_label="Pre-EA/Early Engagement")
+
+    response = client.post(BASE_URL, json=payload, headers=auth_header)
+
+    assert response.status_code == HTTPStatus.OK
+    data = response.get_json()
+    assert data["start_phase_id"] == start.id
+    assert data["end_phase_id"] == end.id
+    assert data["phase_label"] == "Pre-EA/Early Engagement"
+    assert data["end_phase_name"] == "Early Engagement"
+
+    for phase in (start, end):
+        listed = client.get(f"{BASE_URL}/phase/{phase.id}", headers=auth_header).get_json()
+        assert data["name"] in [p["name"] for p in listed]
+
+
+def test_create_package_type_defaults_end_phase_to_start(session, client, auth_header):
+    """Omitting end_phase_name makes the package type a single-phase type."""
+    phase = factory_track_phase(session)
+
+    data = client.post(BASE_URL, json=_payload(phase), headers=auth_header).get_json()
+
+    assert data["start_phase_id"] == data["end_phase_id"] == phase.id
+    assert data["phase_label"] is None
+
+
+def test_create_package_type_unknown_end_phase_fails(session, client, auth_header):
+    """An unknown end phase is reported as an error."""
+    phase = factory_track_phase(session)
+    with pytest.raises(ValueError):
+        client.post(BASE_URL, json=_payload(phase, end_phase_name="Does Not Exist"), headers=auth_header)
+
+
+def test_create_package_type_label_without_phase_is_rejected(session, client, auth_header):
+    """A phase label without phase fields fails schema validation."""
+    payload = {
+        "package_type_name": "X", "package_type_title": "X", "phase_label": "Label",
+        "item_types": [{"id": 1}],
+    }
+    with pytest.raises(ValidationError):
+        client.post(BASE_URL, json=payload, headers=auth_header)
 
 
 def test_create_package_type_without_phase_and_new_item_type(session, client, auth_header):
@@ -105,7 +180,8 @@ def test_create_package_type_without_phase_and_new_item_type(session, client, au
 
     assert response.status_code == HTTPStatus.OK
     data = response.get_json()
-    assert data["phase_id"] is None
+    assert data["start_phase_id"] is None
+    assert data["end_phase_id"] is None
     assert data["phase_name"] is None
     assert [i["name"] for i in data["created_item_types"]] == [item_name]
 

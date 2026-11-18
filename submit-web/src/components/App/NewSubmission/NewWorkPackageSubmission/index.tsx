@@ -2,13 +2,15 @@ import { Grid } from "@mui/material";
 import { NewSubmissionCard } from "../NewSubmissionCard";
 import { NewWorkPackageSubmissionForm } from "./NewWorkPackageSubmissionForm";
 import { useNewSubmissionStore } from "@/store/newSubmissionStore";
+import { getSubmissionPhaseStatus } from "@/components/Shared/ProjectStatus/constants";
 
 type NewWorkPackageSubmissionProps = {
   onSubmit: (data: any) => void;
 };
 
 export function NewWorkPackageSubmission({ onSubmit }: NewWorkPackageSubmissionProps) {
-  const { accountProject } = useNewSubmissionStore();
+  const { accountProject, currentPhase, currentPhaseLabel } =
+    useNewSubmissionStore();
 
   return (
     <Grid size={12}>
@@ -18,6 +20,14 @@ export function NewWorkPackageSubmission({ onSubmit }: NewWorkPackageSubmissionP
         bottomLabel={
           accountProject?.project.ea_certificate &&
           `EAC # ${accountProject?.project.ea_certificate}`
+        }
+        status={
+          currentPhaseLabel
+            ? getSubmissionPhaseStatus(
+                currentPhaseLabel,
+                currentPhase?.name ?? "",
+              )
+            : undefined
         }
         barTitle="Select Submission"
       >

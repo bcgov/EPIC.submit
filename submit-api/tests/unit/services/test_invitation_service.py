@@ -472,6 +472,57 @@ class TestCreateDefaultPackageIfNeeded:
         mock_package_service.create_first_package.assert_not_called()
 
 
+class TestEnsureMandatoryPackagesForWork:
+    """The public per-work method that the onboarding flow and the phase-change sync both use."""
+
+    @patch("submit_api.services.invitation_service.PackageService")
+    @patch("submit_api.services.invitation_service.PackageModel")
+    @patch("submit_api.services.invitation_service.PackageTypeModel")
+    def test_creates_package_in_either_phase_of_the_range(
+        self, mock_package_type_model, mock_package_model, mock_package_service
+    ):
+        """A type matched via start or end phase (find_by_phase_id) is created in both phases."""
+        ipd_type = MagicMock(id=3, mandatory=True, title="IPD")
+        ipd_type.name = "IPD"
+        mock_package_type_model.find_by_phase_id.return_value = [ipd_type]
+        mock_package_model.exists_for_work_and_type.return_value = False
+        account_project = MagicMock(id=7)
+
+        for phase_id in (1, 2):
+            apw = TestCreateDefaultPackageIfNeeded._make_account_project_work(20, phase_id, True)
+            InvitationService.ensure_mandatory_packages_for_work(account_project, apw)
+
+        assert [c.args[0] for c in mock_package_type_model.find_by_phase_id.call_args_list] == [1, 2]
+        assert mock_package_service.create_first_package.call_count == 2
+
+    @patch("submit_api.services.invitation_service.PackageService")
+    @patch("submit_api.services.invitation_service.PackageModel")
+    @patch("submit_api.services.invitation_service.PackageTypeModel")
+    def test_is_idempotent_when_package_exists(
+        self, mock_package_type_model, mock_package_model, mock_package_service
+    ):
+        """Calling again for a work that already has the package creates nothing."""
+        mock_package_type_model.find_by_phase_id.return_value = [MagicMock(id=3, mandatory=True)]
+        mock_package_model.exists_for_work_and_type.return_value = True
+        apw = TestCreateDefaultPackageIfNeeded._make_account_project_work(20, 1, True)
+
+        InvitationService.ensure_mandatory_packages_for_work(MagicMock(id=7), apw)
+
+        mock_package_service.create_first_package.assert_not_called()
+
+    @patch("submit_api.services.invitation_service.PackageService")
+    @patch("submit_api.services.invitation_service.PackageTypeModel")
+    def test_does_nothing_when_work_has_no_phase(self, mock_package_type_model, mock_package_service):
+        """A work without a current phase creates no packages."""
+        apw = MagicMock()
+        apw.work.current_phase = None
+
+        InvitationService.ensure_mandatory_packages_for_work(MagicMock(id=7), apw)
+
+        mock_package_type_model.find_by_phase_id.assert_not_called()
+        mock_package_service.create_first_package.assert_not_called()
+
+
 class TestUpdateProponentStatusByAccount:
     """Tests for _update_proponent_status_by_account transactional behaviour."""
 

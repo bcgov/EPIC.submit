@@ -1,7 +1,10 @@
 import { SubmissionPackage, SubmissionPackageType } from "@/models/Package";
 import { Box, styled, SxProps, Typography } from "@mui/material";
 import { ProjectStatus } from "@/components/Shared/ProjectStatus";
-import { PROJECT_STATUS } from "@/components/Shared/ProjectStatus/constants";
+import {
+  PROJECT_STATUS,
+  getSubmissionPhaseStatus,
+} from "@/components/Shared/ProjectStatus/constants";
 import { useMemo } from "react";
 
 type SubmissionTitleProps = {
@@ -44,9 +47,14 @@ export const SubmissionTitle = ({
       return customStatus;
     }
 
-    // If package is associated with a work, show the current phase name
-    if (submissionPackage?.account_project_work?.work?.current_phase?.name) {
-      return submissionPackage.account_project_work.work.current_phase.name;
+    // If package is associated with a work, show the submission phase label,
+    // falling back to the current phase name
+    const work = submissionPackage?.account_project_work?.work;
+    if (work?.current_phase?.name) {
+      return getSubmissionPhaseStatus(
+        submissionPackage?.type?.phase_label ?? work.phase_label,
+        work.current_phase.name,
+      );
     }
 
     // Fallback to POST_DECISION for packages without work association

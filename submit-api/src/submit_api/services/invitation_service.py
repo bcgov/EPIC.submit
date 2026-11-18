@@ -536,23 +536,33 @@ class InvitationService:
         a new phase requires no code change here.
         """
         for account_project_work in account_project_works:
-            work = account_project_work.work
-            current_phase = work.current_phase if work else None
-            if not current_phase or not current_phase.enable_submit:
+            InvitationService.ensure_mandatory_packages_for_work(account_project, account_project_work)
+
+    @staticmethod
+    def ensure_mandatory_packages_for_work(account_project, account_project_work):
+        """Create any missing mandatory packages for a work's current phase.
+
+        A package type applies when the work's current phase is the package type's start or end
+        phase. The method is idempotent, so it can be called again (for example after a phase
+        change) without creating duplicates.
+        """
+        work = account_project_work.work
+        current_phase = work.current_phase if work else None
+        if not current_phase or not current_phase.enable_submit:
+            return
+
+        mandatory_package_types = [
+            package_type
+            for package_type in PackageTypeModel.find_by_phase_id(current_phase.id)
+            if package_type.mandatory
+        ]
+
+        for package_type in mandatory_package_types:
+            if PackageModel.exists_for_work_and_type(account_project_work.id, package_type.id):
                 continue
-
-            mandatory_package_types = [
-                package_type
-                for package_type in PackageTypeModel.find_by_phase_id(current_phase.id)
-                if package_type.mandatory
-            ]
-
-            for package_type in mandatory_package_types:
-                if PackageModel.exists_for_work_and_type(account_project_work.id, package_type.id):
-                    continue
-                InvitationService._create_mandatory_package(
-                    account_project, account_project_work, package_type
-                )
+            InvitationService._create_mandatory_package(
+                account_project, account_project_work, package_type
+            )
 
     @staticmethod
     def _create_mandatory_package(account_project, account_project_work, package_type):

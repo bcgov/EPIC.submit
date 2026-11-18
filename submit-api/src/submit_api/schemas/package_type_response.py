@@ -48,15 +48,30 @@ class PackageTypeResponseSchema(Schema):
         required=False,
         metadata={"description": "Display title for the package type"}
     )
-    phase_id = fields.Int(
+    start_phase_id = fields.Int(
         required=False,
         allow_none=True,
-        metadata={"description": "Associated phase ID from track_phases table (null for package types without phase)"}
+        metadata={"description": "Start phase ID from track_phases (null for package types without phase)"}
+    )
+    end_phase_id = fields.Int(
+        required=False,
+        allow_none=True,
+        metadata={"description": "End phase ID from track_phases (null for package types without phase)"}
+    )
+    phase_label = fields.Str(
+        required=False,
+        allow_none=True,
+        metadata={"description": "Text shown to the proponent for the phase range"}
     )
     phase_name = fields.Str(
         required=False,
         allow_none=True,
-        metadata={"description": "Display name of the phase (null for package types without phase)"}
+        metadata={"description": "Display name of the start phase (null for package types without phase)"}
+    )
+    end_phase_name = fields.Str(
+        required=False,
+        allow_none=True,
+        metadata={"description": "Display name of the end phase (null for package types without phase)"}
     )
     ea_act_name = fields.Str(
         required=False,

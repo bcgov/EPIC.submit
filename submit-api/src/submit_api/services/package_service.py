@@ -501,14 +501,15 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 f"Using account_project_work_id from request: {request_data.get('account_project_work_id')}"
             )
         # Otherwise, try to find it automatically if package type has a phase
-        elif package_type.phase_id:
-            # Find the account_project_work that matches this phase
+        elif package_type.has_phase:
+            # Find the account_project_work whose current phase is the package type's start or end phase
             account_project_works = AccountProjectWorkModel.find_by_account_project_id(account_project_id)
             for apw in account_project_works:
-                if apw.work and apw.work.current_phase_id == package_type.phase_id:
+                phase = apw.work.current_phase if apw.work else None
+                if phase and phase.enable_submit and package_type.matches_phase(phase.id):
                     package_data["account_project_work_id"] = apw.id
                     current_app.logger.info(
-                        f"Auto-associating package with work {apw.work_id} (phase: {package_type.phase_id})"
+                        f"Auto-associating package with work {apw.work_id} (phase: {apw.work.current_phase_id})"
                     )
                     break
 

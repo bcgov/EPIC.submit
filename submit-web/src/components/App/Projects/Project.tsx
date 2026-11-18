@@ -12,6 +12,7 @@ import { ReportsRecurringCard } from "./ReportsRecurring/ReportsRecurringCard";
 import { canViewReportsSection } from "@/components/Shared/PermissionGate/utils";
 import {
   PROJECT_STATUS,
+  getSubmissionPhaseStatus,
   isPostDecisionStatus,
 } from "@/components/Shared/ProjectStatus/constants";
 import { useMemo } from "react";
@@ -82,10 +83,11 @@ export const Project = ({ accountProject }: ProjectParam) => {
             <ProjectSubmissionsCard
               key={accountProjectWork.id}
               title={accountProjectWork.work.title || ""}
-              status={
+              status={getSubmissionPhaseStatus(
+                accountProjectWork.work.phase_label,
                 accountProjectWork.work.current_phase?.name ||
-                PROJECT_STATUS.POST_DECISION
-              }
+                  PROJECT_STATUS.POST_DECISION,
+              )}
               isWorkRelated={true}
               workId={accountProjectWork.id}
               packages={workPackages}

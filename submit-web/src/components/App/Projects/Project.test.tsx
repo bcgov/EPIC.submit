@@ -17,8 +17,12 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 // Keep the MP card out of the way; it has its own tests.
+const submissionsCardSpy = vi.fn();
 vi.mock("./ProjectSubmissionsCard", () => ({
-  ProjectSubmissionsCard: () => <div data-testid="mp-card" />,
+  ProjectSubmissionsCard: (props: { title: string; status: string }) => {
+    submissionsCardSpy(props);
+    return <div data-testid="mp-card" />;
+  },
 }));
 
 // Capture the packages passed to the reports card.
@@ -232,5 +236,36 @@ describe("Project management plan section gating", () => {
     setAccount([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]);
     render(<Project accountProject={makeProjectWithoutManagementPlans(false)} />);
     expect(screen.queryByTestId("mp-card")).not.toBeInTheDocument();
+  });
+});
+
+describe("Project work card status text", () => {
+  const makeWorkProject = (phaseLabel?: string | null): AccountProject => {
+    const project = makeEarlyEngagementAccountProject();
+    project.account_project_works![0].work.phase_label = phaseLabel;
+    return project;
+  };
+
+  beforeEach(() => {
+    submissionsCardSpy.mockClear();
+    setAccount([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]);
+  });
+
+  const workCardStatus = () =>
+    submissionsCardSpy.mock.calls
+      .map(([props]) => props)
+      .find((props) => props.title !== "Management Plans & Related Documents")
+      ?.status;
+
+  it("shows the submission phase label when the work has one", () => {
+    render(<Project accountProject={makeWorkProject("Pre-EA/Early Engagement")} />);
+    expect(workCardStatus()).toBe(
+      "Submitting documents for Pre-EA/Early Engagement",
+    );
+  });
+
+  it("falls back to the phase name when the work has no label", () => {
+    render(<Project accountProject={makeWorkProject(null)} />);
+    expect(workCardStatus()).toBe("Early Engagement");
   });
 });

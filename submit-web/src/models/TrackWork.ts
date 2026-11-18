@@ -8,6 +8,7 @@ export type TrackWork = {
   title?: string;
   contact_email?: string;
   current_phase?: TrackPhase;
+  phase_label?: string | null;
 };
 
 export enum WORK_TYPE_NAMES {

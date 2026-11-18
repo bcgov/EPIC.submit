@@ -141,21 +141,9 @@ class PackageTypeService:
         Raises:
             ValueError: If phase fields provided but phase not found, or item types are invalid
         """
-        # Find the phase if phase fields are provided
-        phase = None
-        phase_id = None
-        if data.get('ea_act_name') and data.get('work_type_name') and data.get('phase_name'):
-            phase = TrackPhase.find_by_identifiers(
-                data['ea_act_name'],
-                data['work_type_name'],
-                data['phase_name']
-            )
-            if not phase:
-                raise ValueError(
-                    f"Phase not found for EA Act: '{data['ea_act_name']}', "
-                    f"Work Type: '{data['work_type_name']}', Phase: '{data['phase_name']}'"
-                )
-            phase_id = phase.id
+        start_phase, end_phase = PackageTypeService._resolve_phases(data)
+        start_phase_id = start_phase.id if start_phase else None
+        end_phase_id = end_phase.id if end_phase else None
 
         # Process item types - create new ones or validate existing ones
         processed_item_types, created_item_types = PackageTypeService._process_item_types(
@@ -163,9 +151,10 @@ class PackageTypeService:
         )
 
         # Check if package type already exists for this phase (or no phase)
-        existing_package_type = PackageType.find_by_name_and_phase(
+        existing_package_type = PackageType.find_by_name_and_phases(
             data['package_type_name'],
-            phase_id
+            start_phase_id,
+            end_phase_id
         )
 
         if existing_package_type:
@@ -175,6 +164,7 @@ class PackageTypeService:
             package_type.mandatory = data.get('mandatory', False)
             package_type.versioning_enabled = data.get('versioning_enabled', True)
             package_type.success_message = data.get('success_message')
+            package_type.phase_label = data.get('phase_label')
             approval_type = data.get('approval_type')
             if approval_type:
                 package_type.approval_type = PackageApprovalType[approval_type]
@@ -190,7 +180,9 @@ class PackageTypeService:
             package_type = PackageType(
                 name=data['package_type_name'],
                 title=data['package_type_title'],
-                phase_id=phase_id,
+                start_phase_id=start_phase_id,
+                end_phase_id=end_phase_id,
+                phase_label=data.get('phase_label'),
                 mandatory=data.get('mandatory', False),
                 approval_type=PackageApprovalType[approval_type] if approval_type else None,
                 versioning_enabled=data.get('versioning_enabled', True),
@@ -211,7 +203,9 @@ class PackageTypeService:
             'id': package_type.id,
             'name': package_type.name,
             'title': package_type.title,
-            'phase_id': package_type.phase_id,
+            'start_phase_id': package_type.start_phase_id,
+            'end_phase_id': package_type.end_phase_id,
+            'phase_label': package_type.phase_label,
             'item_type_ids': [item['id'] for item in processed_item_types],
             'created_item_types': created_item_types,
             'created': existing_package_type is None,
@@ -221,17 +215,44 @@ class PackageTypeService:
             'success_message': package_type.success_message
         }
 
-        # Add phase information if phase exists
-        if phase:
-            response['phase_name'] = phase.display_name or phase.name
-            response['ea_act_name'] = phase.ea_act_name
-            response['work_type_name'] = phase.work_type_name
-        else:
-            response['phase_name'] = None
-            response['ea_act_name'] = None
-            response['work_type_name'] = None
+        # Add phase information if phases exist
+        response['phase_name'] = (start_phase.display_name or start_phase.name) if start_phase else None
+        response['end_phase_name'] = (end_phase.display_name or end_phase.name) if end_phase else None
+        response['ea_act_name'] = start_phase.ea_act_name if start_phase else None
+        response['work_type_name'] = start_phase.work_type_name if start_phase else None
 
         return response
+
+    @staticmethod
+    def _resolve_phases(data: Dict[str, Any]):
+        """Resolve the start and end phases from the request data.
+
+        The end phase uses the same EA Act and work type as the start phase and defaults to the
+        start phase when ``end_phase_name`` is not provided. Returns ``(None, None)`` when no
+        phase fields are provided (phase-less package type).
+
+        Raises:
+            ValueError: If the start or end phase cannot be found.
+        """
+        if not (data.get('ea_act_name') and data.get('work_type_name') and data.get('phase_name')):
+            return None, None
+
+        start_phase = PackageTypeService._find_phase(data, data['phase_name'])
+        end_phase_name = data.get('end_phase_name')
+        if not end_phase_name or end_phase_name == data['phase_name']:
+            return start_phase, start_phase
+        return start_phase, PackageTypeService._find_phase(data, end_phase_name)
+
+    @staticmethod
+    def _find_phase(data: Dict[str, Any], phase_name: str) -> TrackPhase:
+        """Find a phase by the request's EA Act and work type and the given phase name."""
+        phase = TrackPhase.find_by_identifiers(data['ea_act_name'], data['work_type_name'], phase_name)
+        if not phase:
+            raise ValueError(
+                f"Phase not found for EA Act: '{data['ea_act_name']}', "
+                f"Work Type: '{data['work_type_name']}', Phase: '{phase_name}'"
+            )
+        return phase
 
     @staticmethod
     def get_by_project_id(project_id: int) -> List[PackageType]:

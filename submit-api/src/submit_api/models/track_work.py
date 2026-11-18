@@ -8,6 +8,7 @@ from sqlalchemy import Column, ForeignKey
 
 from .base_model import BaseModel
 from .db import db
+from .package_type import PackageType
 
 
 class TrackWork(BaseModel):
@@ -49,6 +50,20 @@ class TrackWork(BaseModel):
         db.Index('idx_track_works_work_state', 'work_state'),
     )
 
+    @property
+    def phase_label(self) -> str | None:
+        """Return the submission label configured for the work's current phase, if any.
+
+        This is the phase_label of the first package type (by id) whose start or end phase is the
+        work's current phase and which has a label.
+        """
+        if not self.current_phase_id:
+            return None
+        return next(
+            (pt.phase_label for pt in PackageType.find_by_phase_id(self.current_phase_id) if pt.phase_label),
+            None
+        )
+
     def to_dict(self):
         """Convert object to dictionary."""
         return {
@@ -56,6 +71,7 @@ class TrackWork(BaseModel):
             "project_id": self.project_id,
             "current_phase_id": self.current_phase_id,
             "current_phase": self.current_phase.to_dict() if self.current_phase else None,
+            "phase_label": self.phase_label,
             "work_state": self.work_state,
             "title": self.title,
             "contact_email": self.contact_email,

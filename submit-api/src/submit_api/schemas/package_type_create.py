@@ -97,6 +97,24 @@ class PackageTypeCreateSchema(Schema):
             )
         }
     )
+    end_phase_name = fields.Str(
+        required=False,
+        allow_none=True,
+        data_key="end_phase_name",
+        metadata={
+            "description": (
+                "Name of the last phase in which the package type can be submitted. Uses the same EA Act and "
+                "work type as the start phase. Defaults to the start phase when omitted."
+            )
+        }
+    )
+    phase_label = fields.Str(
+        required=False,
+        allow_none=True,
+        data_key="phase_label",
+        validate=validate.Length(max=255),
+        metadata={"description": "Text shown to the proponent for the phase range, e.g. Pre-EA/Early Engagement"}
+    )
     package_type_name = fields.Str(
         required=True,
         data_key="package_type_name",
@@ -156,4 +174,9 @@ class PackageTypeCreateSchema(Schema):
             raise ValidationError(
                 'Either provide all phase fields (ea_act_name, work_type_name, phase_name) '
                 'or none for package types without phase association'
+            )
+
+        if not provided_fields and (data.get('end_phase_name') or data.get('phase_label')):
+            raise ValidationError(
+                'end_phase_name and phase_label require ea_act_name, work_type_name and phase_name'
             )

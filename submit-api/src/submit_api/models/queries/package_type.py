@@ -17,6 +17,7 @@ from submit_api.enums.package_type import PackageTypeEnum
 from submit_api.models import db
 from submit_api.models.package_type import PackageType
 from submit_api.models.project import Project
+from submit_api.models.track_phase import TrackPhase
 from submit_api.models.track_work import TrackWork
 
 
@@ -30,23 +31,30 @@ class PackageTypeQueries:
         # Get phase IDs from active works on this project
         phase_ids = (
             db.session.query(TrackWork.current_phase_id)
+            .join(TrackPhase, TrackPhase.id == TrackWork.current_phase_id)
             .filter(
                 TrackWork.project_id == project_id,
-                TrackWork.current_phase_id.isnot(None)
+                TrackWork.current_phase_id.isnot(None),
+                TrackPhase.enable_submit.is_(True)
             )
             .distinct()
             .subquery()
         )
 
-        query = db.session.query(PackageType).filter(PackageType.phase_id.in_(phase_ids))
+        phase_match = or_(PackageType.start_phase_id.in_(phase_ids), PackageType.end_phase_id.in_(phase_ids))
+        query = db.session.query(PackageType).filter(phase_match)
 
         # Include phase-less Management Plan types for approved condition projects
         project = Project.query.get(project_id)
         if project and project.has_approved_condition:
             query = db.session.query(PackageType).filter(
                 or_(
-                    PackageType.phase_id.in_(phase_ids),
-                    and_(PackageType.phase_id.is_(None), PackageType.name == PackageTypeEnum.MANAGEMENT_PLAN.value)
+                    phase_match,
+                    and_(
+                        PackageType.start_phase_id.is_(None),
+                        PackageType.end_phase_id.is_(None),
+                        PackageType.name == PackageTypeEnum.MANAGEMENT_PLAN.value
+                    )
                 )
             )
 
