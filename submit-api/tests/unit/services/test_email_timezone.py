@@ -1,5 +1,5 @@
-"""BC email dates use Vancouver's time conversion and the PCT label."""
-from datetime import UTC, datetime, timedelta, timezone
+"""BC email dates use UTC-07:00 year-round and the PCT label."""
+from datetime import datetime, timedelta, timezone
 
 from flask import Flask
 import pytest
@@ -23,17 +23,13 @@ def app_context():
 
 @pytest.mark.parametrize('configured_timezone', [None, '', 'US/Pacific', 'America/Vancouver'])
 @pytest.mark.parametrize(('utc_date', 'expected'), [
-    ('2026-01-15T14:38:00+00:00', '2026-01-15 06:38 AM PCT'),
-    ('2026-03-08T09:59:00+00:00', '2026-03-08 01:59 AM PCT'),
-    ('2026-03-08T10:00:00+00:00', '2026-03-08 03:00 AM PCT'),
-    ('2026-03-09T06:59:00+00:00', '2026-03-08 11:59 PM PCT'),
-    ('2026-03-09T07:00:00+00:00', '2026-03-09 12:00 AM PCT'),
     ('2026-11-01T09:00:00+00:00', '2026-11-01 02:00 AM PCT'),
     ('2026-11-18T14:38:32+00:00', '2026-11-18 07:38 AM PCT'),
     ('2027-01-15T14:38:00+00:00', '2027-01-15 07:38 AM PCT'),
+    ('2027-07-15T14:38:00+00:00', '2027-07-15 07:38 AM PCT'),
 ])
 def test_bc_email_dates(app_context, configured_timezone, utc_date, expected):
-    """Defaults and existing Helm values use BC rules and always display PCT."""
+    """Emails show BC time regardless of missing or existing Helm timezone values."""
     if configured_timezone is not None:
         app_context.config['LEGISLATIVE_TIMEZONE'] = configured_timezone
 
@@ -52,14 +48,6 @@ def test_aware_email_date_preserves_instant(app_context):
     assert SubmitEmailQueueService._format_submission_date(
         datetime(2026, 11, 18, 19, 38, tzinfo=timezone(timedelta(hours=5)))
     ) == '2026-11-18 07:38 AM PCT'
-
-
-def test_explicit_non_bc_timezone(app_context):
-    """An intentional timezone override retains its own abbreviation."""
-    app_context.config['LEGISLATIVE_TIMEZONE'] = 'UTC'
-    assert SubmitEmailQueueService._format_submission_date(
-        datetime(2026, 11, 18, 14, 38, tzinfo=UTC)
-    ) == '2026-11-18 02:38 PM UTC'
 
 
 def test_missing_email_date(app_context):
