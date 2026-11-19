@@ -10,11 +10,6 @@ vi.mock("@tanstack/react-router", () => ({
   useNavigate: () => mockNavigate,
 }));
 
-// Deterministic date formatting (avoid timezone shifts on a date-only string).
-vi.mock("@/utils/dateUtils", () => ({
-  default: { formatDate: (d?: string | number) => (d ? String(d) : "") },
-}));
-
 const makeReportPackage = (
   id: number,
   overrides: {

@@ -9,7 +9,6 @@ import {
   StyledProjectTableCell,
   StyledProjectTableRow,
 } from "@/components/App/Projects/ProjectTable/StyledComponents";
-import dateUtils from "@/utils/dateUtils";
 import { FrequencyBadge } from "./FrequencyBadge";
 import { ReportsAudience, getReportStatus } from "./reportStatus";
 
@@ -36,9 +35,7 @@ export const ReportsTableRow = ({
   const report = reportPackage.project_report;
   const displayName = report?.display_name ?? reportPackage.name;
 
-  const lastSubmitted = reportPackage.last_submitted_on
-    ? dateUtils.formatDate(reportPackage.last_submitted_on)
-    : null;
+  const lastSubmitted = reportPackage.last_submitted_on;
   const status = getReportStatus(reportPackage.status);
 
   const onNameClick = () => {

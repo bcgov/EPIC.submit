@@ -9,6 +9,8 @@ YYYY-MM-DD, or None when there are no documents.
 from datetime import date, datetime
 from unittest.mock import Mock
 
+import pytest
+
 from submit_api.models.submission import SubmissionType
 from submit_api.schemas.package import PackageSchema
 
@@ -43,7 +45,7 @@ class TestPackageLastSubmittedOn:
         package = _package([
             _item([
                 _submission(SubmissionType.DOCUMENT, datetime(2026, 3, 30)),
-                _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30)),
+                _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30, 19)),
             ]),
             _item([
                 _submission(SubmissionType.DOCUMENT, datetime(2026, 8, 20)),
@@ -67,7 +69,7 @@ class TestPackageLastSubmittedOn:
         package = _package([
             _item([
                 _submission(SubmissionType.FORM, datetime(2026, 12, 1)),
-                _submission(SubmissionType.DOCUMENT, datetime(2026, 1, 15)),
+                _submission(SubmissionType.DOCUMENT, datetime(2026, 1, 15, 19)),
             ]),
         ])
 
@@ -87,7 +89,7 @@ class TestPackageLastSubmittedOn:
         """An EAO-uploaded document counts from its date received, not its upload date."""
         eao_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 11, 1))
         eao_document.received_date = date(2026, 10, 9)
-        holder_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30))
+        holder_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30, 19))
         holder_document.received_date = None
         package = _package([_item([eao_document, holder_document])])
 
@@ -99,10 +101,22 @@ class TestPackageLastSubmittedOn:
         """A document received before the latest holder submission leaves Last Submitted unchanged."""
         eao_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 11, 1))
         eao_document.received_date = date(2026, 1, 2)
-        holder_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30))
+        holder_document = _submission(SubmissionType.DOCUMENT, datetime(2026, 9, 30, 19))
         holder_document.received_date = None
         package = _package([_item([eao_document, holder_document])])
 
         result = PackageSchema().get_last_submitted_on(package)
 
         assert result == "2026-09-30"
+
+    @pytest.mark.parametrize(('instant', 'expected'), [
+        ('2026-11-20T03:00:00', '2026-11-19'),
+        ('2026-11-20T06:59:59.999999+00:00', '2026-11-19'),
+        ('2026-11-20T07:00:00+00:00', '2026-11-20'),
+        ('2026-11-20T00:00:00-07:00', '2026-11-20'),
+    ])
+    def test_upload_uses_bc_calendar_date(self, instant, expected):
+        """Use the BC day containing the upload instant."""
+        document = _submission(SubmissionType.DOCUMENT, datetime.fromisoformat(instant))
+        document.received_date = None
+        assert PackageSchema().get_last_submitted_on(_package([_item([document])])) == expected
