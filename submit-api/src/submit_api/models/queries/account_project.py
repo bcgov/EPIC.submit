@@ -21,6 +21,7 @@ from submit_api.utils.roles import EpicSubmitRole
 from submit_api.models import AccountProject, Project, db, User
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import Package
+from submit_api.models.queries.submitted_date import filter_by_submitted_date
 from submit_api.models.item import Item
 from submit_api.models.staff_user_work import StaffUserWork
 from submit_api.models.user import UserType
@@ -261,12 +262,7 @@ class ProjectQueries:
         if search_options.search_text:
             query = cls._filter_by_search_text(
                 query, search_options.search_text)
-        if search_options.submitted_on_start or search_options.submitted_on_end:
-            query = cls._filter_by_submission_dates(
-                query, search_options.submitted_on_start, search_options.submitted_on_end
-            )
-
-        return query
+        return filter_by_submitted_date(query, search_options.submitted_on_start, search_options.submitted_on_end)
 
     @classmethod
     def _get_accessible_work_ids_for_staff_user(cls, user: User):
@@ -429,12 +425,3 @@ class ProjectQueries:
                 Project.name.ilike(f"%{search_text}%"),
             )
         )
-
-    @classmethod
-    def _filter_by_submission_dates(cls, query, submitted_on_start, submitted_on_end):
-        """Filter by submission date range."""
-        if submitted_on_start:
-            query = query.filter(Package.submitted_on >= submitted_on_start)
-        if submitted_on_end:
-            query = query.filter(Package.submitted_on <= submitted_on_end)
-        return query
