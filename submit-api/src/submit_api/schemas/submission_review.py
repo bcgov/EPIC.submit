@@ -7,6 +7,7 @@ from marshmallow import EXCLUDE, Schema, fields
 
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.submission_review_entry import SubmissionReviewEntryType
+from submit_api.schemas.fields import UTCDateTime
 
 
 class SubmissionReviewEntrySchema(Schema):
@@ -22,8 +23,8 @@ class SubmissionReviewEntrySchema(Schema):
     type = fields.Enum(data_key="type", enum=SubmissionReviewEntryType)
     created_by = fields.Str(data_key="created_by")
     updated_by = fields.Method("get_updated_by")
-    created_date = fields.DateTime(data_key="created_date")
-    updated_date = fields.DateTime(data_key="updated_date")
+    created_date = UTCDateTime(data_key="created_date")
+    updated_date = UTCDateTime(data_key="updated_date")
     entry = fields.Dict(data_key="entry")
 
     def get_updated_by(self, obj):

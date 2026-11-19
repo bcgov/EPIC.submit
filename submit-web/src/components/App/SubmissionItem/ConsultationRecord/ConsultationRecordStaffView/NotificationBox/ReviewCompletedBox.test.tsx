@@ -30,7 +30,7 @@ const buildReview = (
       review_id: 1,
       type: SUBMISSION_REVIEW_ENTRY_TYPE.STAFF_RECOMMENDATION,
       updated_by: "Vanderbeek-Thompson, Alexandra",
-      // Local-time (no Z) so the formatted date is timezone-independent.
+      // Legacy responses without an offset still represent UTC.
       updated_date: "2025-01-01T12:00:00",
       entry: {},
     },
@@ -47,6 +47,15 @@ const buildReview = (
 });
 
 describe("ReviewCompletedNotification (Consultation Check)", () => {
+  it("shows BC dates for review timestamps on either side of midnight", () => {
+    const review = buildReview();
+    review.entries[0].updated_date = "2026-11-19T06:59:00+00:00";
+    review.entries[1].updated_date = "2026-11-19T07:00:00+00:00";
+    render(<ReviewCompletedNotification submissionReview={review} />);
+    expect(screen.getByText("18-Nov-2026")).toBeInTheDocument();
+    expect(screen.getByText("19-Nov-2026")).toBeInTheDocument();
+  });
+
   it("renders both reviewer names and dates", () => {
     render(<ReviewCompletedNotification submissionReview={buildReview()} />);
 

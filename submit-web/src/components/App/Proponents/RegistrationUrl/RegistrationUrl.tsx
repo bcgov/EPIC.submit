@@ -10,6 +10,7 @@ import { InvitationStatus } from "@/models/Invitation";
 import { USER_MANAGEMENT_ROLE } from "@/models/Role";
 import { useProponentStore } from "@/store/proponentStore";
 import { AppConfig } from "@/utils/config";
+import dateUtils from "@/utils/dateUtils";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Grid, IconButton, TextField, Tooltip } from "@mui/material";
 import { useParams } from "@tanstack/react-router";
@@ -46,7 +47,7 @@ export const RegistrationUrl = ({
       ? "This link has expired, you can renew the link by clicking the 'Renew Link' button"
       : pendingInvitation.expiry_date
         ? "This link will expire on " +
-          new Date(pendingInvitation.expiry_date).toISOString().split("T")[0]
+          dateUtils.formatDate(pendingInvitation.expiry_date)
         : ""
     : "";
 

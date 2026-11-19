@@ -3,6 +3,7 @@
 from marshmallow import Schema, fields, post_dump
 from submit_api.enums.activity_type import ActivityActionType
 from submit_api.models.user import UserType
+from submit_api.schemas.fields import UTCDateTime
 
 
 def get_activity_action(action: str, user_type: str) -> str:
@@ -78,7 +79,7 @@ class ActivityLogSchema(Schema):
         required=True,
         metadata={"description": "Action performed (e.g., 'SUBMITTED', 'APPROVED')."},
     )
-    activity_at = fields.DateTime(
+    activity_at = UTCDateTime(
         format="%Y-%m-%dT%H:%M:%S+00:00",
         metadata={"description": "Timestamp of the activity."},
     )

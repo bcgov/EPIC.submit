@@ -1,3 +1,4 @@
+import dateUtils from "@/utils/dateUtils";
 import React from "react";
 import { Box, Typography } from "@mui/material";
 import { StatusChip } from "@/components/Shared/StatusChip";
@@ -60,7 +61,7 @@ export const PreviousRequestCollapsible: React.FC<PreviousRequestCollapsibleProp
           whiteSpace: "nowrap",
         }}
       >
-        Sent {new Date(request.createdDate).toISOString().split('T')[0]}
+        Sent {dateUtils.formatDate(request.createdDate)}
       </Typography>
     </Box>
   );

@@ -9,6 +9,7 @@ from submit_api.models.package import PackageStatus
 from submit_api.models.submission import SubmissionType, effective_submission_date
 from submit_api.models.submission_review import SubmissionReviewStatus
 from submit_api.models.update_request import UpdateRequestType
+from submit_api.schemas.fields import UTCDateTime
 from submit_api.schemas.item import ItemSchema, StaffItemSchema
 from submit_api.schemas.package_type import PackageTypeSchema
 from submit_api.schemas.project_report import ProjectReportSchema
@@ -136,12 +137,12 @@ class PackageUpdateRequestSchema(Schema):
         fields.Int(), data_key="submission_item_types")
     active = fields.Bool(data_key="active")
     reason = fields.Str(data_key="reason")
-    created_date = fields.DateTime(data_key="created_date")
+    created_date = UTCDateTime(data_key="created_date")
     created_by = fields.Method('get_created_by')
     type = fields.Enum(data_key="type", enum=UpdateRequestType)
     note = fields.Str(data_key="note")
     note_updated_by = fields.Method('get_note_updated_by')
-    note_updated_at = fields.DateTime(data_key="note_updated_at")
+    note_updated_at = UTCDateTime(data_key="note_updated_at")
     status = fields.Str(data_key="status")
 
     def get_created_by(self, obj):
@@ -171,9 +172,9 @@ class PackageSchema(Schema):
     type = fields.Nested(PackageTypeSchema, data_key="type")
     type_id = fields.Int(data_key="type_id")
     status = fields.List(fields.Enum(enum=PackageStatus), data_key="status", metadata={"enum": PackageStatus})
-    submitted_on = fields.DateTime(data_key="submitted_on")
+    submitted_on = UTCDateTime(data_key="submitted_on")
     submitted_by = fields.Method('get_submitted_by')
-    completed_on = fields.DateTime(data_key="completed_on")
+    completed_on = UTCDateTime(data_key="completed_on")
     enforceable = fields.Bool(data_key="enforceable", allow_none=False)
     meta = fields.Method('get_meta')
     items = fields.Nested(ItemSchema, data_key="items", many=True)

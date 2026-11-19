@@ -3,6 +3,7 @@ from datetime import datetime, UTC
 
 from flask import current_app
 
+from submit_api.utils.datetime import normalize_utc
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
@@ -569,8 +570,8 @@ class AccountUserService:
                 "role_name": role.role.role_name,
                 "role_label": role.role.role_name,
                 "active": role.active,
-                "access_start": role.access_start.isoformat() if role.access_start else None,
-                "access_end": role.access_end.isoformat() if role.access_end else None,
+                "access_start": normalize_utc(role.access_start).isoformat() if role.access_start else None,
+                "access_end": normalize_utc(role.access_end).isoformat() if role.access_end else None,
                 "original_package_ids": role.original_package_ids,
                 "package_names": [
                     package_name_map[pid]

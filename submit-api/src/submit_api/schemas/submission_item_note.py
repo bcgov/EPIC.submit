@@ -4,6 +4,7 @@ Manages the package
 """
 
 from marshmallow import EXCLUDE, Schema, fields
+from submit_api.schemas.fields import UTCDateTime
 
 
 class SubmissionItemNote(Schema):
@@ -17,7 +18,7 @@ class SubmissionItemNote(Schema):
     id = fields.Int(data_key="id")
     note = fields.Str(data_key="note")
     item_id = fields.Int(data_key="item_id")
-    created_date = fields.DateTime(data_key="created_date")
+    created_date = UTCDateTime(data_key="created_date")
     created_by = fields.Method('get_submitted_by')
 
     def get_submitted_by(self, obj):

@@ -9,7 +9,7 @@ import {
 } from "@/models/SubmissionReview";
 import { Grid, Stack, Typography, Box, styled } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
-import dayjs from "dayjs";
+import dateUtils from "@/utils/dateUtils";
 
 const NeutralBox = styled(Box)({
   border: `1px solid ${BCDesignTokens.surfaceColorBorderMedium}`,
@@ -110,7 +110,7 @@ export const ReviewCompletedNotification = ({
                 label="Date"
                 value={
                   staffRecommendation?.updated_date
-                    ? dayjs(staffRecommendation.updated_date).format(
+                    ? dateUtils.formatDate(staffRecommendation.updated_date,
                         "DD-MMM-YYYY",
                       )
                     : ""
@@ -127,7 +127,7 @@ export const ReviewCompletedNotification = ({
                 label="Date"
                 value={
                   managerConfirmation?.updated_date
-                    ? dayjs(managerConfirmation.updated_date).format(
+                    ? dateUtils.formatDate(managerConfirmation.updated_date,
                         "DD-MMM-YYYY",
                       )
                     : ""

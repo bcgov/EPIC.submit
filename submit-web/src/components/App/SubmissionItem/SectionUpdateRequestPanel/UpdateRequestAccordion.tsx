@@ -1,3 +1,4 @@
+import dateUtils from "@/utils/dateUtils";
 import React, { ReactNode } from "react";
 import { AccordionHeading } from "@/components/Shared/AccordionHeading";
 import {
@@ -158,7 +159,7 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                   lineHeight: "18px",
                 }}
               >
-                {new Date(createdDate).toISOString().split('T')[0]}
+                {dateUtils.formatDate(createdDate)}
               </Typography>
             </Box>
             <Typography
@@ -211,8 +212,8 @@ export const UpdateRequestAccordion: React.FC<UpdateRequestAccordionProps> = ({
                   }}
                 >
                   {noteUpdatedAt
-                    ? new Date(noteUpdatedAt).toISOString().split('T')[0]
-                    : new Date(createdDate).toISOString().split('T')[0]}
+                    ? dateUtils.formatDate(noteUpdatedAt)
+                    : dateUtils.formatDate(createdDate)}
                 </Typography>
               </Box>
               {/* PROPONENT: Note content with edit icon */}

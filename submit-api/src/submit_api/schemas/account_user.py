@@ -7,6 +7,7 @@ from marshmallow import Schema, fields
 
 from submit_api.schemas.account import AccountSchema
 from submit_api.schemas.role import UserRoleSchema
+from submit_api.schemas.fields import UTCDateTime
 
 
 class EditAccountUserSchema(Schema):
@@ -34,7 +35,7 @@ class AccountUserSchema(Schema):
     work_email_address = fields.Email()
     work_contact_number = fields.Str()
     company_name = fields.Str()
-    last_login_at = fields.DateTime(dump_only=True, data_key="last_login_at")
+    last_login_at = UTCDateTime(dump_only=True, data_key="last_login_at")
     user_id = fields.Int()
     role = fields.Nested(UserRoleSchema)
     roles = fields.List(fields.Nested(UserRoleSchema))

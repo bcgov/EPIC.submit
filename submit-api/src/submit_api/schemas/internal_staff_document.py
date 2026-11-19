@@ -7,6 +7,7 @@ from marshmallow import EXCLUDE, Schema, fields
 
 from submit_api.models.internal_staff_document import InternalStaffDocumentType
 from submit_api.schemas.user import UserSchema
+from submit_api.schemas.fields import UTCDateTime
 
 
 class InternalStaffDocumentSchema(Schema):
@@ -22,7 +23,7 @@ class InternalStaffDocumentSchema(Schema):
     url = fields.Str(data_key="url")
     type = fields.Enum(data_key="type", enum=InternalStaffDocumentType)
     package_id = fields.Int(data_key="package_id")
-    created_date = fields.DateTime(data_key="created_date")
+    created_date = UTCDateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
     created_by_user = fields.Nested(UserSchema, data_key="created_by_user")
 

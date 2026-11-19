@@ -120,7 +120,7 @@ describe("AccessHistoryTable", () => {
       expect(screen.getByText("Regulated Party Account Administrator")).toBeInTheDocument();
     });
 
-    it("formats dates correctly and shows -- for null dates", () => {
+    it("shows the BC date for UTC timestamps and -- for null dates", () => {
       mockUseGetAccessHistory.mockReturnValue({
         data: [collaboratorEntry],
         isPending: false,
@@ -128,7 +128,7 @@ describe("AccessHistoryTable", () => {
 
       render(<AccessHistoryTable accountUserId={1} />);
 
-      expect(screen.getByText("2024-01-15")).toBeInTheDocument();
+      expect(screen.getByText("2024-01-14")).toBeInTheDocument();
       expect(screen.getByText("--")).toBeInTheDocument();
     });
   });

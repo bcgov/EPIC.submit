@@ -5,6 +5,7 @@ Manages the invitation.
 
 from submit_api.schemas.role import RoleSchema
 from marshmallow import Schema, fields
+from submit_api.schemas.fields import UTCDateTime
 
 
 class ProjectSelectionSchema(Schema):
@@ -81,8 +82,8 @@ class InvitationSchema(Schema):
     token = fields.Str()
     email = fields.Email(allow_none=True)
     status = fields.Str()
-    expiry_date = fields.DateTime()
-    created_date = fields.DateTime()
+    expiry_date = UTCDateTime()
+    created_date = UTCDateTime()
     role = fields.Nested(RoleSchema, data_key="role", dump_only=True)
     is_first_time = fields.Bool(dump_default=False)
     proponent_id = fields.Method("get_proponent_id")

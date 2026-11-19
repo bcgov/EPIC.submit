@@ -15,6 +15,7 @@ from submit_api.models.submitted_document import VirusScanResult
 from submit_api.models.user import UserType
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
+from submit_api.schemas.fields import UTCDateTime
 
 EAO_SUBMITTER_LABEL = "EAO"
 _VIEWER_IS_STAFF_KEY = "_submission_viewer_is_staff"
@@ -72,7 +73,7 @@ class SubmittedDocumentSchema(Schema):
     url = fields.Str(data_key="url")
     folder = fields.Str(data_key="folder")
     is_virus_rejected = fields.Method("get_is_virus_rejected")
-    created_date = fields.DateTime(data_key="created_date")
+    created_date = UTCDateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
 
     def get_is_virus_rejected(self, obj):
@@ -95,7 +96,7 @@ class SubmissionSchema(Schema):
     submitted_form_id = fields.Int(data_key="submitted_form_id")
     submitted_form = fields.Nested(SubmittedFormSchema, data_key="submitted_form")
     submitted_document = fields.Nested(SubmittedDocumentSchema, data_key="submitted_document")
-    created_date = fields.DateTime(data_key="created_date")
+    created_date = UTCDateTime(data_key="created_date")
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
     status = fields.Enum(data_key="status", enum=SubmissionStatus)
@@ -156,7 +157,7 @@ class SubmittedDocumentByProjectSchema(Schema):
     url = fields.Str(data_key="url")
     project_name = fields.Str(data_key="project_name")
     status = fields.Enum(data_key="status", enum=ItemStatus)
-    submitted_on = fields.DateTime(data_key="submitted_on")
+    submitted_on = UTCDateTime(data_key="submitted_on")
     version = fields.Str(data_key="version")
 
 
@@ -174,7 +175,7 @@ class PaginatedProjectDocumentItemSchema(Schema):
     work = fields.Method("get_work")
     phase = fields.Method("get_phase")
     version = fields.Method("get_version")
-    submitted_on = fields.DateTime(data_key="submitted_on")
+    submitted_on = UTCDateTime(data_key="submitted_on")
     status = fields.Enum(data_key="status", enum=ItemStatus)
     url = fields.Str(data_key="url")
     root_submission_id = fields.Int(data_key="root_submission_id")

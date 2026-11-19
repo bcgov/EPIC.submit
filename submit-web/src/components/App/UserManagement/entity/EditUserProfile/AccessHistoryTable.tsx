@@ -14,6 +14,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { AccessHistoryEntry, useGetAccessHistory } from "@/hooks/api/useAccountUsers";
 import { roleDetails, USER_MANAGEMENT_ROLE } from "@/models/Role";
+import dateUtils from "@/utils/dateUtils";
 
 interface AccessHistoryTableProps {
   accountUserId: number | null;
@@ -21,7 +22,7 @@ interface AccessHistoryTableProps {
 
 function formatDate(isoDate: string | null): string {
   if (!isoDate) return "--";
-  return isoDate.split("T")[0];
+  return dateUtils.formatDate(isoDate);
 }
 
 function getRoleLabel(roleName: string): string {

@@ -23,6 +23,8 @@ from flask_restx import fields
 from flask_restx.apidoc import apidoc
 from marshmallow import fields as ma_fields
 
+from submit_api.schemas.fields import UTCDateTime
+
 
 class Api(BaseApi):
     """Monkey patch Swagger API to return HTTPS URLs."""
@@ -65,6 +67,7 @@ class Api(BaseApi):
             ma_fields.Float: fields.Float,
             ma_fields.Boolean: fields.Boolean,
             ma_fields.DateTime: fields.DateTime,
+            UTCDateTime: fields.DateTime,
             # Add more field types as needed
         }
         model_fields = {}

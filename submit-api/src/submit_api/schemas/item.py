@@ -14,6 +14,7 @@ from submit_api.schemas.submission_item_note import SubmissionItemNote
 from submit_api.schemas.submission_review import SubmissionReviewSchema
 from submit_api.services.user_service import UserService
 from submit_api.utils.token_info import TokenInfo
+from submit_api.schemas.fields import UTCDateTime
 
 
 class ItemSubmissionSchema(Schema):
@@ -33,7 +34,7 @@ class ItemSubmissionSchema(Schema):
         SubmittedFormSchema, data_key="submitted_form")
     submitted_document = fields.Nested(
         SubmittedDocumentSchema, data_key="submitted_document")
-    created_date = fields.DateTime(data_key="created_date")
+    created_date = UTCDateTime(data_key="created_date")
     created_by = fields.Str(data_key="created_by")
     submitted_by = fields.Str(data_key="submitted_by")
     version = fields.Str(data_key="version")
@@ -75,7 +76,7 @@ class ItemSchema(Schema):
     type = fields.Nested(ItemTypeSchema, data_key="type")
     status = fields.Enum(data_key="status", enum=ItemStatus)
     version = fields.Int(data_key="version")
-    submitted_on = fields.DateTime(data_key="submitted_on")
+    submitted_on = UTCDateTime(data_key="submitted_on")
     submitted_by = fields.Str(data_key="submitted_by")
     submissions = fields.Method('filter_submissions_by_status')
     sort_order = fields.Int(data_key="sort_order")
@@ -190,7 +191,7 @@ class StaffItemSchema(ItemSchema):
 
     review = fields.Nested(SubmissionReviewSchema, data_key="review")
     notes = fields.Nested(SubmissionItemNote, data_key="notes", many=True)
-    review_start_date = fields.DateTime(data_key="review_start_date")
+    review_start_date = UTCDateTime(data_key="review_start_date")
     submissions = fields.Method('get_submitted_submissions')
 
     def get_submitted_submissions(self, obj):

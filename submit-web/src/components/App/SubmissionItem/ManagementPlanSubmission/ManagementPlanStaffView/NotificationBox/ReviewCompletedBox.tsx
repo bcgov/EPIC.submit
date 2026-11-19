@@ -9,7 +9,7 @@ import {
   SubmissionReview,
 } from "@/models/SubmissionReview";
 import { Grid, Stack, Typography } from "@mui/material";
-import dayjs from "dayjs";
+import dateUtils from "@/utils/dateUtils";
 
 type NotificationBoxProps = {
   submissionReview: SubmissionReview;
@@ -87,7 +87,7 @@ export const ReviewCompletedNotification = ({
                 label="Date"
                 value={
                   staffRecommendation?.updated_date
-                    ? dayjs(staffRecommendation.updated_date).format(
+                    ? dateUtils.formatDate(staffRecommendation.updated_date,
                         "DD-MMM-YYYY",
                       )
                     : ""
@@ -100,7 +100,7 @@ export const ReviewCompletedNotification = ({
                 label="Date"
                 value={
                   managerConfirmation?.updated_date
-                    ? dayjs(managerConfirmation.updated_date).format(
+                    ? dateUtils.formatDate(managerConfirmation.updated_date,
                         "DD-MMM-YYYY",
                       )
                     : ""
