@@ -69,7 +69,9 @@ export const SubmissionFormContainer = ({
               gap: BCDesignTokens.layoutPaddingLarge,
             }}
           >
-            <BarTitle title={managementPlanName || ""} />
+            <Box sx={{ px: "16px" }}>
+              <BarTitle title={managementPlanName || ""} />
+            </Box>
             <Grid
               container
               spacing={BCDesignTokens.layoutMarginMedium}

@@ -93,7 +93,7 @@ export const ProponentUpdateRequestPanel: React.FC<ProponentUpdateRequestPanelPr
           <Typography
             variant="h6"
             sx={{
-              color: BCDesignTokens.themeBlue90,
+              color: BCDesignTokens.typographyColorPrimary,
               fontWeight: BCDesignTokens.typographyBoldBody,
             }}
           >
