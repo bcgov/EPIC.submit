@@ -5,7 +5,7 @@ Manages the submission
 from __future__ import annotations
 
 import enum
-from datetime import date, datetime
+from datetime import UTC, date, datetime, tzinfo
 
 from sqlalchemy import Column, Enum, ForeignKey, Index
 
@@ -62,17 +62,23 @@ ALLOWED_TRANSITIONS: dict[PackageApprovalType, dict[SubmissionStatus, set[Submis
 }
 
 
-def effective_submission_date(submission) -> date | None:
+def effective_submission_date(submission, *, upload_timezone: tzinfo | None = None) -> date | None:
     """Return the date a submission counts as submitted.
 
     EAO-uploaded documents use the date the EAO received them; every other document
-    uses the date it was uploaded.
+    uses the date it was uploaded, in upload_timezone when supplied.
     """
     received = getattr(submission, 'received_date', None)
     if isinstance(received, date) and not isinstance(received, datetime):
         return received
     created = getattr(submission, 'created_date', None)
-    return created.date() if isinstance(created, datetime) else None
+    if not isinstance(created, datetime):
+        return None
+    if upload_timezone is not None:
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=UTC)
+        created = created.astimezone(upload_timezone)
+    return created.date()
 
 
 class Submission(BaseModel):

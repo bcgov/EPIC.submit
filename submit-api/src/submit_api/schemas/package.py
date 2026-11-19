@@ -14,6 +14,7 @@ from submit_api.schemas.package_type import PackageTypeSchema
 from submit_api.schemas.project_report import ProjectReportSchema
 from submit_api.schemas.account_project_work import AccountProjectWorkSchema
 from submit_api.services.user_service import UserService
+from submit_api.utils.constants import BC_TIMEZONE
 from submit_api.utils.token_info import TokenInfo
 from submit_api.schemas.internal_staff_document import InternalStaffDocumentSchema
 
@@ -207,7 +208,7 @@ class PackageSchema(Schema):
         Read from the ORM object so an emptied ``items`` output does not matter.
         """
         document_dates = [
-            effective_submission_date(submission)
+            effective_submission_date(submission, upload_timezone=BC_TIMEZONE)
             for item in (obj.items or [])
             for submission in (item.submissions or [])
             if submission.type == SubmissionType.DOCUMENT and submission.created_date
