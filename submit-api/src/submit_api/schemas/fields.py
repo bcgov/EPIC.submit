@@ -1,7 +1,7 @@
 """Shared fields for API timestamp responses."""
 from marshmallow import fields
 
-from submit_api.utils.datetime import normalize_utc
+from submit_api.utils.timestamps import normalize_utc
 
 
 class UTCDateTime(fields.DateTime):

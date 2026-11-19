@@ -12,17 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Datetime object helper."""
-from datetime import UTC, datetime
+from datetime import datetime
 
 import pytz
 from flask import current_app
-
-
-def normalize_utc(value: datetime) -> datetime:
-    """Interpret naive database timestamps as UTC and normalize aware timestamps."""
-    if value.tzinfo is None:
-        return value.replace(tzinfo=UTC)
-    return value.astimezone(UTC)
 
 
 def local_datetime():

@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 
 from flask import current_app
 
-from submit_api.utils.datetime import normalize_utc
+from submit_api.utils.timestamps import normalize_utc
 from submit_api.enums.role import RoleEnum
 from submit_api.exceptions import PermissionDeniedError, ResourceNotFoundError
 from submit_api.models import AccountUser as AccountUserModel
