@@ -1,6 +1,8 @@
 """Date Submitted predicates shared by the project and document listings."""
 from datetime import UTC, date, datetime, time, timedelta
 
+from sqlalchemy import literal
+
 from submit_api.models.package import Package
 from submit_api.utils.constants import BC_TIMEZONE
 
@@ -26,7 +28,9 @@ def filter_by_submitted_date(query, start, end):
     if end:
         day = _calendar_date(end)
         if day:
-            query = query.filter(Package.submitted_on < _utc_midnight(day + timedelta(days=1)))
+            # PostgreSQL can represent the next midnight even for a 9999-12-31 upper bound.
+            next_midnight = literal(_utc_midnight(day)) + timedelta(days=1)
+            query = query.filter(Package.submitted_on < next_midnight)
         else:
             query = query.filter(Package.submitted_on <= end)
     return query
