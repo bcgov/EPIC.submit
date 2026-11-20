@@ -1,11 +1,9 @@
 """Unit tests for SubmissionService._should_flag_is_updated.
 
-Covers which update windows cause a submission to be flagged as updated
-(and therefore eligible for the New Version / New Document badges):
-
-1. The current package is already submitted (submitted_on set) — IPD before ack.
-2. The package is a revision version (version >= 2) created for an update
-   request / resubmission, not yet submitted.
+Covers when a change flags a submission as updated (and therefore eligible
+for the New Version / New Document badges): only once the package it belongs
+to has already been submitted (submitted_on set). A package that has not been
+submitted yet is new, whatever its version number, so nothing in it is flagged.
 """
 from unittest.mock import Mock
 
@@ -34,10 +32,19 @@ class TestShouldFlagIsUpdated:
         item = _make_item(submitted_on="2026-01-01T00:00:00Z", version_number=1)
         assert SubmissionService._should_flag_is_updated(item) is True
 
-    def test_flags_on_revision_version_not_yet_submitted(self):
-        """A change on an unsubmitted revision package (version >= 2) is flagged."""
-        item = _make_item(submitted_on=None, version_number=2)
+    def test_flags_on_later_version_already_submitted(self):
+        """A change on an already-submitted later version (version >= 2) is flagged."""
+        item = _make_item(submitted_on="2026-01-01T00:00:00Z", version_number=2)
         assert SubmissionService._should_flag_is_updated(item) is True
+
+    def test_does_not_flag_later_version_before_submission(self):
+        """A new package version (withdrawal, rejection, new version) starts empty.
+
+        Its documents are first uploads, not updates, so they are not flagged
+        until that package has itself been submitted.
+        """
+        item = _make_item(submitted_on=None, version_number=2)
+        assert SubmissionService._should_flag_is_updated(item) is False
 
     def test_does_not_flag_first_version_before_submission(self):
         """A change on a first-version package not yet submitted is not flagged."""
