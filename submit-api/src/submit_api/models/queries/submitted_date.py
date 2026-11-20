@@ -7,30 +7,30 @@ from submit_api.models.package import Package
 from submit_api.utils.constants import BC_TIMEZONE
 
 
-def _calendar_date(value):
-    """Recognize calendar dates while preserving existing timestamp filter inputs."""
+def _bc_midnight_in_utc(value: str) -> datetime | None:
+    """Convert a date-only filter to UTC. Explicit timestamps keep their existing bounds."""
     try:
-        return date.fromisoformat(value)
+        day = date.fromisoformat(value)
     except ValueError:
         return None
-
-
-def _utc_midnight(day):
-    """Express BC midnight as a naive UTC value for Package.submitted_on."""
-    return datetime.combine(day, time.min, BC_TIMEZONE).astimezone(UTC).replace(tzinfo=None)
+    midnight = datetime.combine(day, time.min, BC_TIMEZONE)
+    return midnight.astimezone(UTC).replace(tzinfo=None)
 
 
 def filter_by_submitted_date(query, start, end):
     """Include both selected BC dates, up to midnight after the end date."""
+    submitted_on = Package.submitted_on
     if start:
-        day = _calendar_date(start)
-        query = query.filter(Package.submitted_on >= (_utc_midnight(day) if day else start))
-    if end:
-        day = _calendar_date(end)
-        if day:
-            # PostgreSQL can represent the next midnight even for a 9999-12-31 upper bound.
-            next_midnight = literal(_utc_midnight(day)) + timedelta(days=1)
-            query = query.filter(Package.submitted_on < next_midnight)
-        else:
-            query = query.filter(Package.submitted_on <= end)
-    return query
+        lower_bound = _bc_midnight_in_utc(start) or start
+        query = query.filter(submitted_on >= lower_bound)
+
+    if not end:
+        return query
+
+    end_midnight = _bc_midnight_in_utc(end)
+    if end_midnight is None:
+        return query.filter(submitted_on <= end)
+
+    # Let PostgreSQL add the day so an end date of 9999-12-31 also works.
+    next_midnight = literal(end_midnight) + timedelta(days=1)
+    return query.filter(submitted_on < next_midnight)
