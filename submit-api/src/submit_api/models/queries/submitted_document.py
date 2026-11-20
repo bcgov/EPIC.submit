@@ -19,6 +19,7 @@ from submit_api.models.account_project_search_options import DocumentSearchOptio
 from submit_api.models.db import db
 from submit_api.models.item import Item
 from submit_api.models.package import Package
+from submit_api.models.queries.submitted_date import filter_by_submitted_date
 from submit_api.models.project import Project
 from submit_api.models.submission import Submission, SubmissionType, SubmissionStatus
 from submit_api.models.submitted_document import SubmittedDocument
@@ -217,12 +218,7 @@ class DocumentQueries:
                 )
             query = query.filter(or_(*conditions))
 
-        if search_options.submitted_on_start:
-            query = query.filter(Package.submitted_on >= search_options.submitted_on_start)
-
-        if search_options.submitted_on_end:
-            query = query.filter(Package.submitted_on <= search_options.submitted_on_end)
-
+        query = filter_by_submitted_date(query, search_options.submitted_on_start, search_options.submitted_on_end)
         query = query.order_by(Package.submitted_on.desc())
 
         # Pagination
