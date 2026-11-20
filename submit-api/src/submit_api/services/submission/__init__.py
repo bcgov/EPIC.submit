@@ -63,22 +63,18 @@ class SubmissionService:
         """Return True when a change to this item should flag its submission as updated.
 
         A submission is "updated" (and therefore eligible for the New Version /
-        New Document badges) when the change happens after a submission already
-        exists for the package lineage. That covers two windows:
+        New Document badges) only when the change happens after the package it
+        belongs to has already been submitted (``submitted_on`` set) - e.g.
+        documents added/replaced in response to an update request.
 
-        1. The current package has already been submitted (``submitted_on`` set) -
-           e.g. IPD documents added/replaced before acknowledgement.
-        2. The package is a revision version (version >= 2) created for an update
-           request / resubmission, which is not yet submitted (``submitted_on`` is
-           None) but always has a prior submitted version in its lineage - e.g.
-           MP / work-package resubmissions.
+        The package version number is deliberately not considered. A later
+        version (withdrawal, rejection, staff- or holder-created new version)
+        is a new, empty package: everything uploaded to it before its own first
+        submission is a first upload, not an update.
         """
         if not item or not item.package:
             return False
-        package = item.package
-        if package.submitted_on:
-            return True
-        return bool(package.version and package.version.version >= 2)
+        return bool(item.package.submitted_on)
 
     @staticmethod
     def _local_today():
@@ -155,7 +151,7 @@ class SubmissionService:
                 cls.update_submission_item_status(item_id, request_data.get("status"), session)
 
             # Flag the submission as updated when the change happens within an
-            # update-request / resubmission window (see _should_flag_is_updated).
+            # already-submitted package (see _should_flag_is_updated).
             # EAO uploads are final, so they are never flagged as updated.
             item = ItemModel.find_by_id(item_id)
             if not is_eao_upload and cls._should_flag_is_updated(item):
@@ -195,7 +191,7 @@ class SubmissionService:
         new_submission = submission_creator.replace(submission_id, submission_data)
 
         # Flag the submission as updated when the change happens within an
-        # update-request / resubmission window (see _should_flag_is_updated).
+        # already-submitted package (see _should_flag_is_updated).
         with session_scope() as session:
             item = ItemModel.find_by_id(new_submission.item_id)
             if cls._should_flag_is_updated(item):
@@ -412,7 +408,7 @@ class SubmissionService:
                 url_to_delete = submission.submitted_document.url
 
         # Flag the submission as updated before deleting when the change happens
-        # within an update-request / resubmission window (see _should_flag_is_updated).
+        # within an already-submitted package (see _should_flag_is_updated).
         item = ItemModel.find_by_id(submission.item_id)
         if cls._should_flag_is_updated(item):
             submission.is_updated = True
@@ -462,7 +458,7 @@ class SubmissionService:
         cls._validate_package_is_open(submission.id)
 
         # Flag the submission as updated before soft deleting when the change happens
-        # within an update-request / resubmission window (see _should_flag_is_updated).
+        # within an already-submitted package (see _should_flag_is_updated).
         with session_scope() as session:
             item = ItemModel.find_by_id(submission.item_id)
             if cls._should_flag_is_updated(item):
