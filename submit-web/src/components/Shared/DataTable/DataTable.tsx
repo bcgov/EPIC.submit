@@ -23,7 +23,6 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 const DEFAULT_ROWS_PER_PAGE = 10;
 const DEFAULT_PAGE = 0;
-const ROW_HEIGHT = 38;
 
 export type Column<T> = {
   id: string;
@@ -191,7 +190,6 @@ export function DataTable<T>({
     [selected, onSelectionChange, isSuccessful],
   );
 
-  const emptyRows = Math.max(0, rowsPerPage - paginatedData.length);
   const numSelected = selected.filter((id) => !isSuccessful(id)).length;
   const selectableRowCount = sortedData.filter(
     (row) => !isSuccessful(getRowId(row)),
@@ -340,15 +338,6 @@ export function DataTable<T>({
                   </TableRow>
                 );
               })}
-
-            {paginated && !isLoading && !isError && emptyRows > 0 && (
-              <TableRow style={{ height: ROW_HEIGHT * emptyRows }}>
-                <TableCell
-                  colSpan={columns.length + (selectable ? 1 : 0)}
-                  sx={{ border: "none" }}
-                />
-              </TableRow>
-            )}
           </TableBody>
         </Table>
       </TableContainer>
