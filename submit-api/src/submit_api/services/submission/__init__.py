@@ -494,6 +494,8 @@ class SubmissionService:
         if not item:
             raise ValueError("Item not found.")
         authorization.has_access_to_package(item.package_id)
+        if item.package:
+            item.package.ensure_not_archived()
         cls._authorize_staff_contact_info_edit(item)
 
     @staticmethod
@@ -534,6 +536,7 @@ class SubmissionService:
         """Validate if the package is open."""
         if not submission_package:
             submission_package = cls.get_package_by_submission_id(submission_id)
+        submission_package.ensure_not_archived()
         if submission_package.completed_on:
             raise ValueError("Package is already completed.")
         return submission_package

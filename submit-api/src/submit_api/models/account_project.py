@@ -22,12 +22,20 @@ class AccountProject(BaseModel):
     account_id = Column(db.Integer, ForeignKey('accounts.id', ondelete='CASCADE'), nullable=False)
     project_id = Column(db.Integer, ForeignKey('projects.id'), nullable=False)
     project = db.relationship('Project', foreign_keys=[project_id], lazy='joined')
-    packages = db.relationship(
+    # Every package of the account project, archived or not. Owns the cascade.
+    all_packages = db.relationship(
         'Package',
         primaryjoin='Package.account_project_id==AccountProject.id',
         lazy='select',
         cascade='all, delete',
         passive_deletes=True)
+    # Packages shown on the project page: archived packages are excluded here, which is the single
+    # read-side choke point for the archive feature.
+    packages = db.relationship(
+        'Package',
+        primaryjoin='and_(Package.account_project_id==AccountProject.id, Package.archived_on.is_(None))',
+        lazy='select',
+        viewonly=True)
     account_project_works = db.relationship(
         'AccountProjectWork',
         primaryjoin='AccountProjectWork.account_project_id==AccountProject.id',

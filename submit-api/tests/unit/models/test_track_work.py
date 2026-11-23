@@ -2,6 +2,7 @@
 from unittest.mock import patch
 
 from submit_api.models.package_type import PackageType
+from submit_api.models.track_phase import TrackPhase
 from submit_api.models.track_work import TrackWork
 
 
@@ -56,3 +57,43 @@ def test_phase_label_none_when_no_package_type_has_label():
 
     with patch.object(PackageType, "find_by_phase_id", return_value=[PackageType(name="A")]):
         assert work.phase_label is None
+
+
+def _range_type(start_id, end_id, end_name="Early Engagement", end_display_name=None):
+    """Build an in-memory package type with a start phase id and an end phase."""
+    return PackageType(
+        name="R", start_phase_id=start_id, end_phase_id=end_id,
+        end_phase=TrackPhase(id=end_id, name=end_name, display_name=end_display_name))
+
+
+def test_awaiting_phase_name_is_end_phase_when_work_is_only_in_start_phase():
+    """In the start phase, the work is told it has not reached the end phase yet."""
+    work = TrackWork(id=6, project_id=10, current_phase_id=5)
+
+    with patch.object(PackageType, "find_by_phase_id", return_value=[_range_type(5, 6)]):
+        assert work.awaiting_phase_name == "Early Engagement"
+        assert work.to_dict()["awaiting_phase_name"] == "Early Engagement"
+
+
+def test_awaiting_phase_name_prefers_the_display_name():
+    """The end phase's display name overrides its name."""
+    work = TrackWork(id=7, project_id=10, current_phase_id=5)
+
+    with patch.object(PackageType, "find_by_phase_id", return_value=[_range_type(5, 6, end_display_name="EE")]):
+        assert work.awaiting_phase_name == "EE"
+
+
+def test_awaiting_phase_name_none_when_work_is_in_the_end_phase():
+    """In the end phase there is nothing left to wait for."""
+    work = TrackWork(id=8, project_id=10, current_phase_id=6)
+
+    with patch.object(PackageType, "find_by_phase_id", return_value=[_range_type(5, 6)]):
+        assert work.awaiting_phase_name is None
+
+
+def test_awaiting_phase_name_none_for_single_phase_type_and_no_phase():
+    """A type whose start and end phase are the same, or a work with no phase, has no awaiting phase."""
+    single = _range_type(5, 5)
+    with patch.object(PackageType, "find_by_phase_id", return_value=[single]):
+        assert TrackWork(id=9, project_id=10, current_phase_id=5).awaiting_phase_name is None
+    assert TrackWork(id=10, project_id=10, current_phase_id=None).awaiting_phase_name is None

@@ -20,6 +20,7 @@ import { BCDesignTokens } from "epic.theme";
 import { useState } from "react";
 import { When } from "react-if";
 import { SubmissionTitle } from "@/components/App/Submission/SubmissionTitle";
+import { WorkPhaseBanners } from "./WorkPhaseBanners";
 
 export const CardInnerBox = styled(Box)({
   display: "flex",
@@ -36,6 +37,10 @@ type ProjectSubmissionsCardProps = {
   packages: SubmissionPackage[];
   isWorkRelated?: boolean;
   workId?: number;
+  /** Phase the work has not reached yet; shows the "not in <phase> yet" banner. */
+  awaitingPhaseName?: string | null;
+  /** True once previous-phase packages were archived; shows the Documents tab banner. */
+  hasArchivedPackages?: boolean;
   onNewSubmission: (workId?: number, isManagementPlan?: boolean) => void;
 };
 
@@ -45,6 +50,8 @@ export const ProjectSubmissionsCard = ({
   packages,
   isWorkRelated = false,
   workId,
+  awaitingPhaseName,
+  hasArchivedPackages = false,
   onNewSubmission,
 }: ProjectSubmissionsCardProps) => {
   const { userType } = useAccount();
@@ -88,6 +95,13 @@ export const ProjectSubmissionsCard = ({
           </CardInnerBox>
         </When>
       </Box>
+      <When condition={isWorkRelated}>
+        <WorkPhaseBanners
+          awaitingPhaseName={awaitingPhaseName}
+          hasArchivedPackages={hasArchivedPackages}
+          isStaff={userType === USER_TYPE.STAFF}
+        />
+      </When>
       <Box sx={{
         height: "100%"
       }}>

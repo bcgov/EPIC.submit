@@ -18,3 +18,4 @@ class AccountProjectWorkSchema(Schema):
     id = fields.Int(data_key="id")
     work_id = fields.Int(data_key="work_id")
     work = fields.Nested(TrackWorkSchema, data_key="work")
+    has_archived_packages = fields.Bool(data_key="has_archived_packages", dump_only=True)

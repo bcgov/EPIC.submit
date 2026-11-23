@@ -96,3 +96,28 @@ def test_get_or_create_reactivates_inactive(session):
     result = AccountProjectWork.get_or_create(ap.id, work.id, session)
     assert result.id == apw.id
     assert result.is_active is True
+
+
+def test_has_archived_packages_follows_archived_packages_of_the_work(session):
+    """The flag is false until a package linked to this account project work is archived."""
+    from datetime import datetime, timezone
+
+    from tests.utilities.factory_utils import factory_package_model
+
+    account = factory_account_model()
+    project = factory_project_model()
+    ap = factory_account_project_model(account.id, project.id)
+    work = factory_track_work(session, project_id=project.id)
+    apw = AccountProjectWork.get_or_create(ap.id, work.id, session)
+    package = factory_package_model(account_project=ap)
+    package.account_project_work_id = apw.id
+    session.add(package)
+    session.commit()
+
+    assert apw.has_archived_packages is False
+
+    package.archived_on = datetime.now(timezone.utc)
+    session.add(package)
+    session.commit()
+
+    assert apw.has_archived_packages is True

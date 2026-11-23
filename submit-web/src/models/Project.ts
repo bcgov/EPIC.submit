@@ -22,6 +22,7 @@ export type AccountProjectWork = {
   id: number;
   work_id: number;
   work: TrackWork;
+  has_archived_packages?: boolean;
 };
 
 export type AccountProject = {

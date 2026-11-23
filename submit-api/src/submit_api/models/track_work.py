@@ -64,6 +64,24 @@ class TrackWork(BaseModel):
             None
         )
 
+    @property
+    def awaiting_phase_name(self) -> str | None:
+        """Return the name of the phase the work has yet to reach, when it is only in the start phase.
+
+        For a package type whose start phase is the work's current phase and whose end phase is a later,
+        different phase, the proponent is told the project is not in that end phase yet. Returns None when
+        no package type for the current phase is in that situation.
+        """
+        if not self.current_phase_id:
+            return None
+        for package_type in PackageType.find_by_phase_id(self.current_phase_id):
+            end_phase = package_type.end_phase
+            starts_in_current_phase = package_type.start_phase_id == self.current_phase_id
+            ends_later = end_phase is not None and end_phase.id != self.current_phase_id
+            if starts_in_current_phase and ends_later:
+                return end_phase.display_name or end_phase.name
+        return None
+
     def to_dict(self):
         """Convert object to dictionary."""
         return {
@@ -72,6 +90,7 @@ class TrackWork(BaseModel):
             "current_phase_id": self.current_phase_id,
             "current_phase": self.current_phase.to_dict() if self.current_phase else None,
             "phase_label": self.phase_label,
+            "awaiting_phase_name": self.awaiting_phase_name,
             "work_state": self.work_state,
             "title": self.title,
             "contact_email": self.contact_email,

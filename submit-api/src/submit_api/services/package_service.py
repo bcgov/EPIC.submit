@@ -419,8 +419,13 @@ class PackageService:  # pylint: disable=too-many-public-methods
     def create_first_package(cls, account_project_id, request_data):
         """Create a new package."""
         with session_scope() as session:
-            package_type = PackageTypeModel.find_by_name(
-                request_data.get("type"))
+            # A package type name is only unique together with its phase range, so internal callers that
+            # already know the exact type (mandatory package creation) pass its id.
+            if request_data.get("type_id"):
+                package_type = PackageTypeModel.find_by_id(request_data.get("type_id"))
+            else:
+                package_type = PackageTypeModel.find_by_name(
+                    request_data.get("type"))
 
             if not package_type:
                 raise BadRequestError(f"Invalid package type: {package_type}")
@@ -528,6 +533,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
             original_package = PackageModel.find_by_id(package_id)
             if not original_package:
                 raise ResourceNotFoundError(f"Package {package_id} not found")
+            original_package.ensure_not_archived()
 
             new_package = cls.create_new_package_from_original(package_id, session)
 
@@ -656,6 +662,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
     def _get_and_validate_complete_package(cls, package_id) -> PackageModel:
         """Retrieve and validate that all required items in the package are completed."""
         package = PackageModel.find_by_id(package_id)
+        package.ensure_not_archived()
 
         # Report obligations reuse one package for every submission of a recurring
         # report/phase, so each submit (first or subsequent) is validated the same
@@ -1617,6 +1624,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
         package = cls.get_package_by_id(package_id)
         if not package:
             raise ResourceNotFoundError("Package not found")
+        package.ensure_not_archived()
         if not package.submitted_on:
             raise BadRequestError(
                 "Cannot create an update request for a package that has not been submitted")
@@ -1640,6 +1648,7 @@ class PackageService:  # pylint: disable=too-many-public-methods
         package = cls.get_package_by_id(package_id)
         if not package:
             raise ResourceNotFoundError("Package not found")
+        package.ensure_not_archived()
         if package.is_provided_plan:
             raise BadRequestError("Provided plans do not require a review")
         if package.completed_on:

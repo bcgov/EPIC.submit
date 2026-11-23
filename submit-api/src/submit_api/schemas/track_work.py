@@ -23,3 +23,4 @@ class TrackWorkSchema(Schema):
     contact_email = fields.Str(data_key="contact_email", allow_none=True)
     current_phase = fields.Nested(TrackPhaseSchema, data_key="current_phase", allow_none=True)
     phase_label = fields.Str(data_key="phase_label", allow_none=True, dump_only=True)
+    awaiting_phase_name = fields.Str(data_key="awaiting_phase_name", allow_none=True, dump_only=True)

@@ -46,3 +46,47 @@ def test_non_canonical_check_value():
     """Returns the matching NonCanonicalPackageStatus member for a valid value."""
     result = NonCanonicalPackageStatus.check_value('UPDATED')
     assert result == NonCanonicalPackageStatus.UPDATED
+
+
+def test_is_archived_follows_archived_on(session):
+    """A package is archived exactly when archived_on is set."""
+    from datetime import datetime, timezone
+    package = factory_package_model()
+    assert package.is_archived is False
+
+    package.archived_on = datetime.now(timezone.utc)
+    assert package.is_archived is True
+
+
+def test_ensure_not_archived_passes_for_active_package(session):
+    """The guard does nothing for a package that is not archived."""
+    package = factory_package_model()
+    package.ensure_not_archived()
+
+
+def test_ensure_not_archived_raises_conflict_for_archived_package(session):
+    """The guard raises a 409 conflict for an archived package."""
+    from datetime import datetime, timezone
+    from submit_api.exceptions import ResourceExistsError
+    import pytest
+
+    package = factory_package_model()
+    package.archived_on = datetime.now(timezone.utc)
+
+    with pytest.raises(ResourceExistsError) as error:
+        package.ensure_not_archived()
+    assert error.value.code == 409
+
+
+def test_is_finished_python_side(session):
+    """is_finished is true for an end status and false while the package is awaiting approval."""
+    approved = Package(status=[PackageStatus.APPROVED.value])
+    in_review = Package(status=[PackageStatus.UNDER_REVIEW.value])
+    acknowledged_for_approval = Package(
+        status=[PackageStatus.ACKNOWLEDGED, PackageStatus.READY_FOR_APPROVAL])
+    empty = Package(status=None)
+
+    assert approved.is_finished is True
+    assert in_review.is_finished is False
+    assert acknowledged_for_approval.is_finished is False
+    assert empty.is_finished is False

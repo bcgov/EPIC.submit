@@ -44,6 +44,7 @@ from .submission import API as SUBMISSION_API
 from .submission_item_note import API as SUBMISSION_ITEM_NOTE_API
 from .submitted_document import API as SUBMITTED_DOCUMENT_API
 from .user import API as USER_API
+from .work import API as WORK_API
 
 
 __all__ = ('API_BLUEPRINT', 'OPS_BLUEPRINT', 'STAFF_API_BLUEPRINT', 'GEO_API_BLUEPRINT')
@@ -89,6 +90,7 @@ API.add_namespace(SUBMISSION_ITEM_NOTE_API)
 API.add_namespace(STAFF_USER_API)
 API.add_namespace(STAFF_USER_WORK_API)
 API.add_namespace(BANNER_CONFIGURATION_API)
+API.add_namespace(WORK_API)
 
 STAFF_API = Api(
     STAFF_API_BLUEPRINT,

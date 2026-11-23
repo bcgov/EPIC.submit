@@ -29,6 +29,16 @@ class PackageApprovalType(enum.Enum):
     C = 'C'
 
 
+# Package statuses that mean a package is done. A package with one of these (and not still awaiting
+# approval) can be archived once its work has moved past the package type's phase range.
+FINISHED_PACKAGE_STATUS_NAMES = frozenset({
+    'APPROVED', 'ACCEPTED', 'SATISFIED', 'REVIEWED', 'NOT_APPROVED',
+    'ACKNOWLEDGED', 'PROVIDED', 'WITHDRAWN', 'COMPLETED',
+})
+
+# A Type C package is ACKNOWLEDGED while still awaiting approval, so it is not finished yet.
+AWAITING_APPROVAL_STATUS_NAME = 'READY_FOR_APPROVAL'
+
 MANAGEMENT_PLAN_RELATED_TYPES = frozenset(
     {PackageTypeEnum.MANAGEMENT_PLAN.value, PackageTypeEnum.IEM.value}
 )

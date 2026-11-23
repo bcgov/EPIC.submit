@@ -85,3 +85,24 @@ def test_latest_packages_property(session):
     package = factory_package_model()
     ap = AccountProject.find_by_id(package.account_project_id)
     assert isinstance(ap.latest_packages, list)
+
+
+def test_packages_excludes_archived_but_all_packages_keeps_them(session):
+    """Archived packages leave AccountProject.packages but stay in all_packages."""
+    from datetime import datetime, timezone
+
+    account = factory_account_model()
+    project = factory_project_model()
+    account_project = factory_account_project_model(account.id, project.id)
+    active_package = factory_package_model(account_project=account_project)
+    archived_package = factory_package_model(account_project=account_project)
+    archived_package.archived_on = datetime.now(timezone.utc)
+    session.add(archived_package)
+    session.commit()
+    session.expire_all()
+
+    reloaded = AccountProject.find_by_id(account_project.id)
+
+    assert {p.id for p in reloaded.packages} == {active_package.id}
+    assert {p.id for p in reloaded.all_packages} == {active_package.id, archived_package.id}
+    assert {p.id for p in reloaded.latest_packages} == {active_package.id}

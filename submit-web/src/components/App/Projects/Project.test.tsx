@@ -269,3 +269,37 @@ describe("Project work card status text", () => {
     expect(workCardStatus()).toBe("Early Engagement");
   });
 });
+
+describe("Project work card phase banner props", () => {
+  const workCardProps = () =>
+    submissionsCardSpy.mock.calls
+      .map(([props]) => props)
+      .find((props) => props.title !== "Management Plans & Related Documents");
+
+  beforeEach(() => {
+    submissionsCardSpy.mockClear();
+    setAccount([roleWith(USER_MANAGEMENT_ROLE.PROJECT_ADMIN)]);
+  });
+
+  it("passes the awaiting phase and the archive flag from the work to its card", () => {
+    const project = makeEarlyEngagementAccountProject();
+    project.account_project_works![0].work.awaiting_phase_name =
+      "Readiness Decision";
+    project.account_project_works![0].has_archived_packages = true;
+
+    render(<Project accountProject={project} />);
+
+    expect(workCardProps()).toMatchObject({
+      awaitingPhaseName: "Readiness Decision",
+      hasArchivedPackages: true,
+    });
+  });
+
+  it("passes no banner data for a work that has none", () => {
+    render(<Project accountProject={makeEarlyEngagementAccountProject()} />);
+
+    const props = workCardProps();
+    expect(props.awaitingPhaseName).toBeUndefined();
+    expect(props.hasArchivedPackages).toBeUndefined();
+  });
+});

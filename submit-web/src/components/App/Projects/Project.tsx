@@ -90,6 +90,8 @@ export const Project = ({ accountProject }: ProjectParam) => {
               )}
               isWorkRelated={true}
               workId={accountProjectWork.id}
+              awaitingPhaseName={accountProjectWork.work.awaiting_phase_name}
+              hasArchivedPackages={accountProjectWork.has_archived_packages}
               packages={workPackages}
               onNewSubmission={handleNewSubmission}
             />

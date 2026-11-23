@@ -9,6 +9,8 @@ export type TrackWork = {
   contact_email?: string;
   current_phase?: TrackPhase;
   phase_label?: string | null;
+  /** Name of the end phase the work has not reached yet, when it is only in the start phase. */
+  awaiting_phase_name?: string | null;
 };
 
 export enum WORK_TYPE_NAMES {

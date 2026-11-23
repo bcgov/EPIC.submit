@@ -544,12 +544,12 @@ class InvitationService:
 
         A package type applies when the work's current phase is the package type's start or end
         phase. The method is idempotent, so it can be called again (for example after a phase
-        change) without creating duplicates.
+        change) without creating duplicates. Returns the number of packages created.
         """
         work = account_project_work.work
         current_phase = work.current_phase if work else None
         if not current_phase or not current_phase.enable_submit:
-            return
+            return 0
 
         mandatory_package_types = [
             package_type
@@ -557,18 +557,22 @@ class InvitationService:
             if package_type.mandatory
         ]
 
+        created = 0
         for package_type in mandatory_package_types:
             if PackageModel.exists_for_work_and_type(account_project_work.id, package_type.id):
                 continue
             InvitationService._create_mandatory_package(
                 account_project, account_project_work, package_type
             )
+            created += 1
+        return created
 
     @staticmethod
     def _create_mandatory_package(account_project, account_project_work, package_type):
         """Create a single mandatory package for a work's phase."""
         PackageService.create_first_package(account_project.id, {
             "type": package_type.name,
+            "type_id": package_type.id,
             "name": package_type.title or package_type.name,
             "status": [PackageStatus.NEW.value],
             "account_project_work_id": account_project_work.id,

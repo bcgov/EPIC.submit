@@ -269,3 +269,68 @@ def test_get_projects_by_user_unauthorized(client, session):
     response = client.get(f"{PROJECTS_URL}/users/1")
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+def test_get_project_by_id_omits_archived_packages(client, session, jwt):
+    """An archived package no longer appears in the project payload but stays in the database."""
+    from datetime import datetime, timezone
+
+    from submit_api.models.package import Package
+    from tests.utilities.factory_utils import factory_package_model
+
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+    proponent_id = fake.random_int(min=1000, max=9999)
+    factory_proponent_model(id=proponent_id, name="Archive Proponent", is_deleted=False)
+    account = factory_account_model(proponent_id=proponent_id)
+    project = factory_project_model(name="ArchiveProject", proponent_id=proponent_id)
+    account_project = factory_account_project_model(account_id=account.id, project_id=project.id)
+    visible = factory_package_model(account_project=account_project, name="Visible package")
+    archived = factory_package_model(account_project=account_project, name="Archived package")
+    archived.archived_on = datetime.now(timezone.utc)
+    session.add(archived)
+    session.commit()
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.get(f"{PROJECTS_URL}/{account_project.id}", headers=headers)
+
+    assert response.status_code == HTTPStatus.OK
+    package_ids = [package["id"] for package in response.get_json()["packages"]]
+    assert visible.id in package_ids
+    assert archived.id not in package_ids
+    assert Package.find_by_id(archived.id) is not None
+
+
+def test_get_project_by_id_includes_banner_fields_on_works(client, session, jwt):
+    """Each account project work carries the archive flag and the work carries its awaiting phase."""
+    from datetime import datetime, timezone
+
+    from submit_api.models import AccountProjectWork, PackageType
+    from tests.utilities.factory_utils import factory_package_model, factory_track_phase, factory_track_work
+
+    auth_guid = TestJwtClaims.staff_admin_role['preferred_username']
+    factory_user_model(auth_guid=auth_guid)
+    proponent_id = fake.random_int(min=1000, max=9999)
+    factory_proponent_model(id=proponent_id, name="Banner Proponent", is_deleted=False)
+    account = factory_account_model(proponent_id=proponent_id)
+    project = factory_project_model(name="BannerProject", proponent_id=proponent_id)
+    account_project = factory_account_project_model(account_id=account.id, project_id=project.id)
+    start_phase, end_phase = factory_track_phase(session), factory_track_phase(session, name="Readiness Decision")
+    package_type = PackageType(
+        name="Banner type", title="Banner", start_phase_id=start_phase.id, end_phase_id=end_phase.id)
+    session.add(package_type)
+    work = factory_track_work(session, project.id, phase_id=start_phase.id)
+    apw = AccountProjectWork.get_or_create(account_project.id, work.id, session)
+    package = factory_package_model(account_project=account_project, package_type_id=package_type.id)
+    package.account_project_work_id = apw.id
+    package.archived_on = datetime.now(timezone.utc)
+    session.add(package)
+    session.commit()
+
+    headers = factory_auth_header(jwt=jwt, claims=TestJwtClaims.staff_admin_role)
+    response = client.get(f"{PROJECTS_URL}/{account_project.id}", headers=headers)
+
+    assert response.status_code == HTTPStatus.OK
+    work_payload = response.get_json()["account_project_works"][0]
+    assert work_payload["has_archived_packages"] is True
+    assert work_payload["work"]["awaiting_phase_name"] == "Readiness Decision"

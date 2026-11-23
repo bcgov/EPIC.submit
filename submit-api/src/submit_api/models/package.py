@@ -9,7 +9,9 @@ import enum
 from sqlalchemy import Column, Enum, ForeignKey
 from sqlalchemy.orm import joinedload
 
-from submit_api.enums.package_type import PackageTypeEnum
+from submit_api.enums.package_type import (
+    AWAITING_APPROVAL_STATUS_NAME, FINISHED_PACKAGE_STATUS_NAMES, PackageTypeEnum)
+from submit_api.exceptions import ResourceExistsError
 from .package_version import PackageVersion
 from .base_model import BaseModel
 from .db import db
@@ -118,6 +120,9 @@ class Package(BaseModel):
     submitted_by_user = db.relationship(
         'User', foreign_keys=[submitted_by], lazy='joined')
     completed_on = Column(db.DateTime, nullable=True)
+    archived_on = Column(
+        db.DateTime, nullable=True,
+        comment="When the package was archived because its work moved past the package type's phase range")
     decision_date = Column(db.DateTime, nullable=True)
     meta = db.relationship(
         'PackageMetadata', backref='package', lazy='joined', uselist=False, cascade='all, delete', passive_deletes=True)
@@ -138,6 +143,7 @@ class Package(BaseModel):
                  postgresql_where=db.text('account_project_work_id IS NOT NULL')),
         db.Index('idx_packages_project_report_id', 'project_report_id',
                  postgresql_where=db.text('project_report_id IS NOT NULL')),
+        db.Index('idx_packages_archived_on', 'archived_on'),
     )
 
     _update_requests = db.relationship(
@@ -150,6 +156,22 @@ class Package(BaseModel):
                                                lazy='joined',
                                                cascade='all, delete',
                                                passive_deletes=True)
+
+    @property
+    def is_archived(self) -> bool:
+        """Return True once the package has been archived."""
+        return self.archived_on is not None
+
+    def ensure_not_archived(self):
+        """Raise a 409 when the package is archived, since archived packages accept no changes."""
+        if self.is_archived:
+            raise ResourceExistsError("This package is archived and can no longer be changed.")
+
+    @property
+    def is_finished(self) -> bool:
+        """Return True when the status holds an end status and the package is not awaiting approval."""
+        names = {s.value if isinstance(s, enum.Enum) else s for s in (self.status or [])}
+        return bool(names & FINISHED_PACKAGE_STATUS_NAMES) and AWAITING_APPROVAL_STATUS_NAME not in names
 
     @property
     def is_provided_plan(self):

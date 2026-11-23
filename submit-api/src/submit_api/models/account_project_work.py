@@ -56,6 +56,17 @@ class AccountProjectWork(BaseModel):
         passive_deletes=True,
         back_populates='account_project_work')
 
+    @property
+    def has_archived_packages(self) -> bool:
+        """Return True once any package of this account project work has been archived."""
+        # pylint: disable=import-outside-toplevel
+        from .package import Package
+        return db.session.query(
+            db.session.query(Package.id).filter(
+                Package.account_project_work_id == self.id, Package.archived_on.isnot(None)
+            ).exists()
+        ).scalar()
+
     @classmethod
     def find_by_account_project_id(cls, account_project_id: int):
         """Return account project works by account project id."""
