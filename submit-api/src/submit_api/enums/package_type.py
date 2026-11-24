@@ -45,3 +45,8 @@ MANAGEMENT_PLAN_RELATED_TYPES = frozenset(
 
 # Report-style package types: they share the report submission flow.
 REPORT_RELATED_TYPES = frozenset({PackageTypeEnum.REPORT.value})
+
+# EA packages with document verification and section-scoped update acceptance.
+EA_DOCUMENT_REVIEW_TYPES = frozenset({
+    'IPD', 'DPD',
+})

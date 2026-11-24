@@ -417,31 +417,7 @@ export default function SubmissionPage() {
     isRevisionRequired,
   });
 
-  const isWithdrawDisabled = useMemo(() => {
-    // Disable if versioning is not enabled
-    if (!submissionPackage?.type?.versioning_enabled) return true;
-
-    if (!submissionPackage?.submitted_on) return true;
-
-    // Disable if already withdrawn
-    if (isPackageWithdrawn) return true;
-
-    // Disable if in terminal states
-    if (
-      submissionPackage.status.includes(PACKAGE_STATUS.APPROVED.value) ||
-      submissionPackage.status.includes(PACKAGE_STATUS.NOT_APPROVED.value) ||
-      submissionPackage.status.includes(PACKAGE_STATUS.ACCEPTED.value)
-    ) {
-      return true;
-    }
-
-    // Enable if in submitted or acknowledged status
-    const isInWithdrawableStatus =
-      submissionPackage.status.includes(PACKAGE_STATUS.SUBMITTED.value) ||
-      submissionPackage.status.includes(PACKAGE_STATUS.ACKNOWLEDGED.value);
-
-    return !isInWithdrawableStatus;
-  }, [submissionPackage, isPackageWithdrawn]);
+  const isWithdrawDisabled = !submissionPackage?.can_withdraw;
 
   if (!accountProject || !submissionPackage) {
     return <Navigate to="/error" />;

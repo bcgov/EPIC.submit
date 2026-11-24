@@ -204,6 +204,7 @@ export const GeoSpatialStaffView = () => {
         {(pendingRequests.length > 0 || sentRequests.length > 0) && (
           <Grid size={12}>
             <SectionUpdateRequestPanel
+              submissionPackage={submissionPackage}
               pendingRequests={pendingRequests}
               sentRequests={sentRequests}
               onRemoveFlag={handleRemoveFlag}

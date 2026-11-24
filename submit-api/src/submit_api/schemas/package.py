@@ -172,6 +172,7 @@ class PackageSchema(Schema):
     type = fields.Nested(PackageTypeSchema, data_key="type")
     type_id = fields.Int(data_key="type_id")
     status = fields.List(fields.Enum(enum=PackageStatus), data_key="status", metadata={"enum": PackageStatus})
+    can_withdraw = fields.Method("get_can_withdraw", dump_only=True)
     submitted_on = fields.DateTime(data_key="submitted_on")
     submitted_by = fields.Method('get_submitted_by')
     completed_on = fields.DateTime(data_key="completed_on")
@@ -194,6 +195,11 @@ class PackageSchema(Schema):
                                              data_key="internal_staff_documents",
                                              many=True)
     last_submitted_on = fields.Method('get_last_submitted_on', data_key="last_submitted_on")
+
+    def get_can_withdraw(self, obj):
+        """Use the same eligibility rules as the withdrawal endpoint."""
+        from submit_api.services.package_service import PackageService
+        return PackageService.can_withdraw_package(obj)
 
     def get_submitted_by(self, obj):
         """Get submitted by."""

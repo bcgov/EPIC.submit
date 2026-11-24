@@ -1,3 +1,5 @@
+import { SubmissionPackage } from "@/models/Package";
+
 export interface PendingRequest {
   itemTypeId: number;
   itemTypeName: string;
@@ -31,6 +33,7 @@ export interface PreviousRequest {
 }
 
 export interface SectionUpdateRequestPanelProps {
+  submissionPackage?: SubmissionPackage;
   pendingRequests: PendingRequest[];
   sentRequests: SentRequest[];
   previousRequests?: PreviousRequest[];

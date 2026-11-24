@@ -275,6 +275,7 @@ export default function SubmissionPage() {
                 }}
               >
                 <SectionUpdateRequestPanel
+                  submissionPackage={submissionPackage}
                   pendingRequests={pendingRequests}
                   sentRequests={sentUpdateRequests}
                   previousRequests={previousUpdateRequests}

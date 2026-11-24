@@ -13,6 +13,10 @@
  *   - Can add notes to open requests (onUpdateNote)
  *   - Cannot send requests (onSendRequests is no-op)
  */
+import { EA_DOCUMENT_REVIEW_TYPES } from "@/models/Package";
+import { SUBMISSION_TYPE } from "@/models/Submission";
+import { getDocumentChangeStatus } from "@/utils/documentChanges";
+import { UnverifiedChangesModal } from "./UnverifiedChangesModal";
 import { LoadingButton } from "@/components/Shared/LoadingButton";
 import { GIS_ITEM_TYPE_NAME } from "@/utils/constants";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -27,6 +31,7 @@ import { SectionUpdateRequestPanelProps } from "./types";
 export const SectionUpdateRequestPanel: React.FC<
   SectionUpdateRequestPanelProps
 > = ({
+  submissionPackage,
   pendingRequests, // STAFF: Draft requests not yet sent | PROPONENT: Always empty []
   sentRequests, // STAFF: Sent requests awaiting response | PROPONENT: Open requests from EAO
   previousRequests = [], // BOTH: Accepted/closed requests for reference
@@ -38,6 +43,19 @@ export const SectionUpdateRequestPanel: React.FC<
   isLoading = false,
   packageId,
 }) => {
+  const [showUnverifiedChanges, setShowUnverifiedChanges] = useState(false);
+  const changedDocuments =
+    submissionPackage && EA_DOCUMENT_REVIEW_TYPES.includes(submissionPackage.type.name)
+      ? submissionPackage.items.flatMap((item) =>
+          item.submissions.flatMap((submission) => {
+            const status = getDocumentChangeStatus(submission);
+            return submission.type === SUBMISSION_TYPE.DOCUMENT && status
+              ? [{ section: item.type.name, submission, status }]
+              : [];
+          }),
+        )
+      : [];
+
   const [expandedPending, setExpandedPending] = useState<Set<number>>(
     new Set(pendingRequests.map((r) => r.itemTypeId)),
   );
@@ -119,7 +137,11 @@ export const SectionUpdateRequestPanel: React.FC<
 
     // Clear any existing errors and proceed
     setValidationErrors(new Set());
-    onSendRequests();
+    if (changedDocuments.length > 0) {
+      setShowUnverifiedChanges(true);
+    } else {
+      onSendRequests();
+    }
   };
 
   const handleUpdateNote = (itemTypeId: number, note: string) => {
@@ -152,6 +174,16 @@ export const SectionUpdateRequestPanel: React.FC<
         borderRadius: "4px",
       }}
     >
+      <UnverifiedChangesModal
+        open={showUnverifiedChanges}
+        documents={changedDocuments}
+        onCancel={() => setShowUnverifiedChanges(false)}
+        onConfirm={() => {
+          setShowUnverifiedChanges(false);
+          onSendRequests();
+        }}
+        isLoading={isLoading}
+      />
       <Box
         sx={{
           display: "flex",
