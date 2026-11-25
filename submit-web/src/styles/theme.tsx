@@ -18,6 +18,18 @@ export const theme = createTheme({
   },
   components: {
     ...baseTheme.components,
+    MuiAlert: {
+      styleOverrides: {
+        root: {
+          variants: [
+            {
+              props: { severity: "warning" },
+              style: { color: BCDesignTokens.typographyColorPrimary },
+            },
+          ],
+        },
+      },
+    },
     MuiPickersTextField: {
       styleOverrides: {
         root: {

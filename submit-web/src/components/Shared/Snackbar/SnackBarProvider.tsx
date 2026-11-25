@@ -17,7 +17,7 @@ const severityStyles = {
   warning: {
     backgroundColor: BCDesignTokens.supportSurfaceColorWarning,
     border: `1px solid ${BCDesignTokens.supportBorderColorWarning}`,
-    color: BCDesignTokens.supportBorderColorWarning,
+    color: BCDesignTokens.typographyColorPrimary,
   },
   info: {
     backgroundColor: BCDesignTokens.supportSurfaceColorInfo,
@@ -45,7 +45,10 @@ const SnackBarProvider: React.FC = () => {
           borderRadius: "4px",
           ...severityStyles[severity],
           "& .MuiAlert-icon": {
-            color: "inherit",
+            color:
+              severity === "warning"
+                ? BCDesignTokens.supportBorderColorWarning
+                : "inherit",
           },
           "& .MuiIconButton-root": {
             color: "inherit",

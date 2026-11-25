@@ -16,6 +16,7 @@ export default function WarningBox({
       sx={{
         border: `2px solid ${BCDesignTokens.supportBorderColorWarning}`,
         backgroundColor: BCDesignTokens.supportSurfaceColorWarning,
+        color: BCDesignTokens.typographyColorPrimary,
         borderRadius: BCDesignTokens.layoutBorderRadiusMedium,
         p: BCDesignTokens.layoutPaddingMedium,
         ...sx,
