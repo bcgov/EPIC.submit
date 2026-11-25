@@ -4,7 +4,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 import { BCDesignTokens } from "epic.theme";
 import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
@@ -28,17 +27,7 @@ export default function Table({ hideManageDocuments = false }: TableProps) {
         >
           <TableRow>
             <SubmitTableHeadCell sx={{ width: "60%" }}>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: BCDesignTokens.themeGray70,
-                  "&:hover": {
-                    color: "#EDEBE9",
-                  },
-                }}
-              >
-                Form/Document
-              </Typography>
+              Form/Document
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="left" sx={{ width: "30%" }}>
               Uploaded by

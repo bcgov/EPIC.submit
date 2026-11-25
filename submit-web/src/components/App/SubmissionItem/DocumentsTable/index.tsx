@@ -102,7 +102,7 @@ export default function DocumentsTable({
         <SubmitTableHead>
           <TableRow>
             <SubmitTableHeadCell>
-              <Typography>Form/Document</Typography>
+              Form/Document
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="left">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>

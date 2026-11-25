@@ -13,8 +13,12 @@ export const SubmitTableHeadCell = styled(TableCell)(() => ({
   color: BCDesignTokens.themeGray70,
   fontSize: BCDesignTokens.typographyFontSizeSmallBody,
   fontWeight: BCDesignTokens.typographyFontWeightsRegular,
-  "&:hover": {
-    color: BCDesignTokens.surfaceColorMenusHover,
+  lineHeight: "1rem",
+  // No hover state on headers, sortable ones included.
+  "& .MuiTableSortLabel-root, & .MuiTableSortLabel-root:hover, & .MuiTableSortLabel-root.Mui-active":
+    { color: "inherit" },
+  "& .MuiTableSortLabel-root:not(.Mui-active):hover .MuiTableSortLabel-icon": {
+    opacity: 0,
   },
   border: "none",
   padding: BCDesignTokens.layoutPaddingXsmall,

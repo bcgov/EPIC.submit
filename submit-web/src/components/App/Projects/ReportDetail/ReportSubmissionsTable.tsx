@@ -16,6 +16,7 @@ import {
   SubmitTableHeadCell,
   SubmitTableRow,
 } from "@/components/Shared/Table/common";
+import { separatedRowsTableSx } from "@/components/Shared/Table/separatedRowsTableSx";
 import { getObjectFromS3 } from "@/components/Shared/Table/utils";
 import { notify } from "@/components/Shared/Snackbar/snackbarStore";
 import { DocumentLink } from "@/components/Shared/DocumentLink";
@@ -176,7 +177,7 @@ export const ReportSubmissionsTable = ({
 
   return (
     <TableContainer component={Box} sx={{ width: "100%" }}>
-      <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
+      <Table sx={separatedRowsTableSx}>
         <SubmitTableHead>
           <TableRow>
             <SubmitTableHeadCell>Document Name</SubmitTableHeadCell>

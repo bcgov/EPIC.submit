@@ -11,7 +11,7 @@ export default function StaffTableHead({ isManagementPlan }: StaffTableHeadProps
       <TableHead
         sx={{
           border: 0,
-          ".MuiTableCell-root": { lineHeight: 1.2, px: "1rem" },
+          ".MuiTableCell-root": { px: "1rem" },
         }}
       >
         <TableRow>
@@ -23,7 +23,7 @@ export default function StaffTableHead({ isManagementPlan }: StaffTableHeadProps
           </SubmitTableHeadCell>
           <SubmitTableHeadCell
             align="left"
-            sx={{ width: "15%", lineHeight: 1.2, wordWrap: "break-word" }}
+            sx={{ width: "15%", wordWrap: "break-word" }}
           >
             Days since submission
           </SubmitTableHeadCell>
@@ -39,7 +39,7 @@ export default function StaffTableHead({ isManagementPlan }: StaffTableHeadProps
     <TableHead
       sx={{
         border: 0,
-        ".MuiTableCell-root": { lineHeight: 1.2, px: "1rem" },
+        ".MuiTableCell-root": { px: "1rem" },
       }}
     >
       <TableRow>
@@ -57,7 +57,7 @@ export default function StaffTableHead({ isManagementPlan }: StaffTableHeadProps
         </SubmitTableHeadCell>
         <SubmitTableHeadCell
           align="left"
-          sx={{ width: "9%", lineHeight: 1.2, wordWrap: "break-word" }}
+          sx={{ width: "9%", wordWrap: "break-word" }}
         >
           Days since submission
         </SubmitTableHeadCell>

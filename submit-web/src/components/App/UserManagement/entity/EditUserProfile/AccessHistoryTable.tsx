@@ -14,6 +14,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { AccessHistoryEntry, useGetAccessHistory } from "@/hooks/api/useAccountUsers";
 import { roleDetails, USER_MANAGEMENT_ROLE } from "@/models/Role";
+import { BCDesignTokens } from "epic.theme";
 
 interface AccessHistoryTableProps {
   accountUserId: number | null;
@@ -43,13 +44,13 @@ function hasExpandableContent(entry: AccessHistoryEntry): boolean {
   return false;
 }
 
+// Same look as SubmitTableHeadCell; kept as sx so padding matches the MUI
+// small-table body cells below.
 const tableHeaderSx = {
-  color: "#858A8C",
-  fontFamily: "BC Sans",
-  fontSize: "14px",
-  fontStyle: "normal",
-  fontWeight: 400,
-  lineHeight: "21px",
+  color: BCDesignTokens.themeGray70,
+  fontSize: BCDesignTokens.typographyFontSizeSmallBody,
+  fontWeight: BCDesignTokens.typographyFontWeightsRegular,
+  lineHeight: "1rem",
   border: "none",
 };
 

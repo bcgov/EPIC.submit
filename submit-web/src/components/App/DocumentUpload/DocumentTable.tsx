@@ -59,17 +59,7 @@ export default function DocumentTable({
         >
           <TableRow>
             <SubmitTableHeadCell colSpan={2}>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: BCDesignTokens.themeGray70,
-                  "&:hover": {
-                    color: "#EDEBE9",
-                  },
-                }}
-              >
-                Form/Document
-              </Typography>
+              Form/Document
             </SubmitTableHeadCell>
             <SubmitTableHeadCell align="left">Uploaded by</SubmitTableHeadCell>
             <SubmitTableHeadCell align="right">Version</SubmitTableHeadCell>

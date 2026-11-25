@@ -10,6 +10,7 @@ import {
   SubmitTableHeadCell,
   SubmitTableRow,
 } from "@/components/Shared/Table/common";
+import { separatedRowsTableSx } from "@/components/Shared/Table/separatedRowsTableSx";
 import {
   DEFAULT_MAX_FILE_SIZE_MB,
   EXTENSION_TO_MIME_TYPE_MAP,
@@ -119,7 +120,7 @@ export const ReportUploadSection = ({
         <Box sx={{
           mt: 2
         }}>
-          <Table sx={{ borderCollapse: "separate", borderSpacing: "0 8px" }}>
+          <Table sx={separatedRowsTableSx}>
             <SubmitTableHead>
               <SubmitTableRow>
                 <SubmitTableHeadCell>Document</SubmitTableHeadCell>

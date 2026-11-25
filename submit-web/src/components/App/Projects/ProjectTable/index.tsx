@@ -3,6 +3,7 @@ import { SubmissionPackage } from "@/models/Package";
 import ProjectTableHead from "./TableHead";
 import ProjectTableRow from "./ProjectTableRow";
 import LayoutTableHead from "./LayoutTableHead";
+import { separatedRowsTableSx } from "@/components/Shared/Table/separatedRowsTableSx";
 
 type ProjectTableProps = Readonly<{
   submissionPackages: Array<SubmissionPackage>;
@@ -18,8 +19,7 @@ export default function ProjectTable({
     <TableContainer component={Box} sx={{ height: "100%" }}>
       <Table
         sx={{
-          borderCollapse: "separate",
-          borderSpacing: "0 8px",
+          ...separatedRowsTableSx,
           ...(isManagementPlan && {
             "& > thead > tr > th:first-child": {
               boxSizing: "border-box",

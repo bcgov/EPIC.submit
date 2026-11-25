@@ -5,10 +5,10 @@ import { ReportsTableHead } from "./ReportsTableHead";
 import { ReportsTableRow } from "./ReportsTableRow";
 import { REPORTS_TABLE_MIN_WIDTH_PX } from "./reportsColumns";
 import { ReportsAudience } from "./reportStatus";
+import { separatedRowsTableSx } from "@/components/Shared/Table/separatedRowsTableSx";
 
 type ReportsTableProps = {
   reportPackages: SubmissionPackage[];
-  headless?: boolean;
   audience?: ReportsAudience;
 };
 
@@ -20,21 +20,19 @@ type ReportsTableProps = {
  */
 export const ReportsTable = ({
   reportPackages,
-  headless,
   audience = "proponent",
 }: ReportsTableProps) => {
   return (
     <TableContainer component={Box} sx={{ height: "100%", overflowX: "auto" }}>
       <Table
         sx={{
-          borderCollapse: "separate",
-          borderSpacing: "0 8px",
+          ...separatedRowsTableSx,
           tableLayout: "fixed",
           minWidth: `${REPORTS_TABLE_MIN_WIDTH_PX}px`,
         }}
       >
         <ReportsColGroup />
-        {!headless && <ReportsTableHead />}
+        <ReportsTableHead />
         <TableBody>
           {reportPackages.map((reportPackage) => (
             <ReportsTableRow

@@ -123,18 +123,7 @@ export const HistoryTable = ({ packageId }: HistoryTableProps) => {
         >
           <TableRow>
             <SubmitTableHeadCell>
-              <Typography
-                variant="body2"
-                sx={{
-                  border: "none",
-                  color: BCDesignTokens.themeGray70,
-                  "&:hover": {
-                    color: "#EDEBE9",
-                  },
-                }}
-              >
-                Event
-              </Typography>
+              Event
             </SubmitTableHeadCell>
             <SubmitTableHeadCell>Date</SubmitTableHeadCell>
             <SubmitTableHeadCell>Decision Date</SubmitTableHeadCell>

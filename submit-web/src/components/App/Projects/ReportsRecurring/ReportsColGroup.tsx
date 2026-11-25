@@ -2,8 +2,7 @@
 
 /**
  * Shared <colgroup> for the reports table. Rendering the same column widths in
- * every group (both the headed "All Phases" table and the headless collapsed
- * groups) guarantees the header row and every body row resolve to identical
+ * every group guarantees the header row and every body row resolve to identical
  * column widths, so cells line up across groups and the header sits above the
  * correct column.
  */

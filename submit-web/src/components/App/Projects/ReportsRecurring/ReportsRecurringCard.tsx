@@ -71,7 +71,7 @@ const CollapsiblePhaseGroup = ({
       />
       <Collapse in={expanded}>
         <CardInnerBox sx={{ height: "100%", p: 0 }}>
-          <ReportsTable headless reportPackages={reportPackages} audience={audience} />
+          <ReportsTable reportPackages={reportPackages} audience={audience} />
         </CardInnerBox>
       </Collapse>
     </>

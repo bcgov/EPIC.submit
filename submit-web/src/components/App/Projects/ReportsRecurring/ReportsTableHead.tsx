@@ -1,5 +1,5 @@
-﻿import { TableCell, TableHead, TableRow, Typography } from "@mui/material";
-import { BCDesignTokens } from "epic.theme";
+import { TableHead, TableRow } from "@mui/material";
+import { SubmitTableHeadCell } from "@/components/Shared/Table/common";
 import { REPORTS_COLUMNS } from "./reportsColumns";
 
 /**
@@ -11,19 +11,13 @@ export const ReportsTableHead = () => {
     <TableHead>
       <TableRow>
         {REPORTS_COLUMNS.map((column) => (
-          <TableCell
+          <SubmitTableHeadCell
             key={column.key}
-            sx={{ border: "none", py: 0.5 }}
+            sx={{ whiteSpace: "nowrap" }}
             align={column.key === "status" ? "right" : "left"}
           >
-            <Typography
-              variant="body2"
-              color={BCDesignTokens.typographyColorPlaceholder}
-              sx={{ whiteSpace: "nowrap" }}
-            >
-              {column.label}
-            </Typography>
-          </TableCell>
+            {column.label}
+          </SubmitTableHeadCell>
         ))}
       </TableRow>
     </TableHead>

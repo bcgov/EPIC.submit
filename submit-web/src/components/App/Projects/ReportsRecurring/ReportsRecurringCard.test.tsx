@@ -83,6 +83,38 @@ describe("ReportsRecurringCard", () => {
     expect(await screen.findByText("Report 2")).toBeInTheDocument();
   });
 
+  it("renders the column headers in every phase group", () => {
+    render(
+      <ReportsRecurringCard
+        projectId={201}
+        reportPackages={[
+          makeReportPackage(1, ALL_PHASES, 7),
+          makeReportPackage(2, "Construction", 3),
+        ]}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Construction, 1 report/notification" }),
+    );
+
+    expect(screen.getAllByRole("columnheader", { name: "Cond #" })).toHaveLength(2);
+    expect(screen.getAllByRole("columnheader", { name: "Status" })).toHaveLength(2);
+  });
+
+  it("renders the column headers when there is no All Phases group", () => {
+    render(
+      <ReportsRecurringCard
+        projectId={202}
+        reportPackages={[makeReportPackage(1, "Construction", 3)]}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Construction, 1 report/notification" }),
+    );
+
+    expect(screen.getByRole("columnheader", { name: "Cond #" })).toBeInTheDocument();
+  });
+
   it("does not render a group for a phase with no obligations", () => {
     render(
       <ReportsRecurringCard
