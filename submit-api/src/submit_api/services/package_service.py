@@ -217,17 +217,14 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def _add_noncanonical_statuses(new_status, has_open_update_request, has_updated_submission,
-                                   has_revision_required, user_type, update_requested_takes_priority=False):
+                                   has_revision_required, user_type):
         """Add noncanonical statuses to the status list.
 
         Suppression rules (D16):
-        - EA requests awaiting a proponent response take priority over UPDATED.
-        - Other workflows retain UPDATED suppression of UPDATE_REQUESTED and REVISION.
+        - When UPDATED is present, UPDATE_REQUESTED and REVISION are hidden.
         - Per-audience: entity sees REVISION_REQUIRED, EAO sees REVISION_REQUESTED.
         """
-        if update_requested_takes_priority and has_open_update_request and has_updated_submission:
-            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
-        elif has_updated_submission:
+        if has_updated_submission:
             # Updated suppresses both Update Requested and Revision overlays
             new_status.append(NonCanonicalPackageStatus.UPDATED.value)
         else:
@@ -400,11 +397,13 @@ class PackageService:  # pylint: disable=too-many-public-methods
         if has_open_review_request:
             has_revision_required = True
 
-        PackageService._add_noncanonical_statuses(
-            new_status, has_open_update_request, has_updated_submission,
-            has_revision_required, user_type,
-            update_requested_takes_priority=package.type.name in EA_DOCUMENT_REVIEW_TYPES,
-        )
+        if package.type.name in EA_DOCUMENT_REVIEW_TYPES and has_open_update_request and has_updated_submission:
+            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+        else:
+            PackageService._add_noncanonical_statuses(
+                new_status, has_open_update_request, has_updated_submission,
+                has_revision_required, user_type,
+            )
 
         return PackageService._sort_statuses(PackageService._deduplicate_statuses(new_status))
 
