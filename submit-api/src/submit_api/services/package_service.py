@@ -9,6 +9,7 @@ from sqlalchemy import func
 from submit_api.enums.activity_type import ActorTypeEnum, ActivityActionType
 from submit_api.enums.item_status import ItemStatus
 from submit_api.enums.package_type import (
+    EA_DOCUMENT_REVIEW_TYPES,
     MANAGEMENT_PLAN_RELATED_TYPES,
     REPORT_RELATED_TYPES,
     PackageApprovalType,
@@ -396,10 +397,13 @@ class PackageService:  # pylint: disable=too-many-public-methods
         if has_open_review_request:
             has_revision_required = True
 
-        PackageService._add_noncanonical_statuses(
-            new_status, has_open_update_request, has_updated_submission,
-            has_revision_required, user_type
-        )
+        if package.type.name in EA_DOCUMENT_REVIEW_TYPES and has_open_update_request and has_updated_submission:
+            new_status.append(NonCanonicalPackageStatus.UPDATE_REQUESTED.value)
+        else:
+            PackageService._add_noncanonical_statuses(
+                new_status, has_open_update_request, has_updated_submission,
+                has_revision_required, user_type,
+            )
 
         return PackageService._sort_statuses(PackageService._deduplicate_statuses(new_status))
 
@@ -1031,9 +1035,14 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
         cls._deactivate_replaced_submissions(package, session)
         cls._create_email_queue_record(package, session)
+        # Check before pending uploads become submitted. Older flagged documents
+        # do not constitute a response to a newly sent EA request.
+        if package.type.name not in EA_DOCUMENT_REVIEW_TYPES or any(
+            doc.status == SubmissionStatus.PENDING for doc in cls._get_document_submissions_from_package(package)
+        ):
+            cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
         cls._update_submission_status_on_resubmit(package, session)
         cls._deactivate_revision_required_requests(package, session)
-        cls._update_update_requests(session, package, status=UpdateRequestStatus.PENDING_REVIEW.value)
         cls._deactivate_fail_reviews(package, session)
         cls._log_activity_submission(package, ActivityActionType.UPDATED_SUBMISSION.value, session)
 
@@ -1156,6 +1165,11 @@ class PackageService:  # pylint: disable=too-many-public-methods
             for item in package.items:
                 item.status = ItemStatus.ACKNOWLEDGED
                 session.add(item)
+                if package.type.name in EA_DOCUMENT_REVIEW_TYPES:
+                    for submission in item.submissions:
+                        if submission.type == SubmissionType.DOCUMENT and submission.status != SubmissionStatus.PENDING:
+                            submission.is_updated = False
+                            session.add(submission)
                 # For non-versioned packages, we acknowledge all documents
                 if not package.type.versioning_enabled:
                     for submission in item.submissions:
@@ -1229,38 +1243,38 @@ class PackageService:  # pylint: disable=too-many-public-methods
 
     @staticmethod
     def _reset_is_updated_for_accepted_request(package, accepted_request, session):
-        """Reset is_updated on submissions whose item types have no remaining OPEN update requests."""
-        # Subquery: item type IDs that have an OPEN update request for this package
-        open_item_type_subquery = (
-            session.query(func.unnest(UpdateRequestModel.submission_item_types).label('type_id'))
-            .filter(
-                UpdateRequestModel.submission_package_id == package.id,
-                UpdateRequestModel.active.is_(True),
-                UpdateRequestModel.status.in_([
-                    UpdateRequestStatus.OPEN.value,
-                    UpdateRequestStatus.PENDING_REVIEW.value,
-                ]),
+        """Clear accepted sections; non-EA workflows also clear sections without open requests."""
+        types_to_reset = set(accepted_request.submission_item_types or [])
+        if package.type.name not in EA_DOCUMENT_REVIEW_TYPES:
+            # Subquery: item type IDs that have an OPEN update request for this package
+            open_item_type_subquery = (
+                session.query(func.unnest(UpdateRequestModel.submission_item_types).label('type_id'))
+                .filter(
+                    UpdateRequestModel.submission_package_id == package.id,
+                    UpdateRequestModel.active.is_(True),
+                    UpdateRequestModel.status.in_([
+                        UpdateRequestStatus.OPEN.value,
+                        UpdateRequestStatus.PENDING_REVIEW.value,
+                    ]),
+                )
+                .subquery()
             )
-            .subquery()
-        )
 
-        # Find item type IDs from submissions with is_updated=True that have no OPEN update request
-        items_without_open_request = (
-            session.query(ItemModel.type_id)
-            .join(Submission, Submission.item_id == ItemModel.id)
-            .filter(
-                ItemModel.package_id == package.id,
-                Submission.is_updated.is_(True),
-                ~ItemModel.type_id.in_(session.query(open_item_type_subquery.c.type_id)),
+            # Find item type IDs from submissions with is_updated=True that have no OPEN update request
+            items_without_open_request = (
+                session.query(ItemModel.type_id)
+                .join(Submission, Submission.item_id == ItemModel.id)
+                .filter(
+                    ItemModel.package_id == package.id,
+                    Submission.is_updated.is_(True),
+                    ~ItemModel.type_id.in_(session.query(open_item_type_subquery.c.type_id)),
+                )
+                .distinct()
+                .all()
             )
-            .distinct()
-            .all()
-        )
 
-        # Combine: items without open request + the accepted request's item types
-        types_to_reset = {row[0] for row in items_without_open_request}
-        types_to_reset.update(accepted_request.submission_item_types or [])
-
+            # Combine: items without open request + the accepted request's item types
+            types_to_reset.update(row[0] for row in items_without_open_request)
         if not types_to_reset:
             return
 
@@ -1401,6 +1415,15 @@ class PackageService:  # pylint: disable=too-many-public-methods
             )
             session.flush()
             return package
+
+    @classmethod
+    def can_withdraw_package(cls, package):
+        """Expose the action's status eligibility independently of display badges."""
+        try:
+            cls._validate_package_for_withdrawal(package)
+        except (BadRequestError, ResourceNotFoundError):
+            return False
+        return True
 
     @classmethod
     def _validate_package_for_withdrawal(cls, package):

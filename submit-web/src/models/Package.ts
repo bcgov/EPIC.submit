@@ -7,9 +7,15 @@ export enum SubmissionPackageType {
   MANAGEMENT_PLAN = "Management Plan",
   IEM = "IEM",
   IPD = "IPD",
+  DPD = "DPD",
   ADDITIONAL_INFORMATION = "Additional Information",
   REPORT = "Report",
 }
+
+export const EA_DOCUMENT_REVIEW_TYPES: SubmissionPackageType[] = [
+  SubmissionPackageType.IPD,
+  SubmissionPackageType.DPD,
+];
 
 // Report-style package types, grouped as reports in the UI.
 export const REPORT_RELATED_TYPES: SubmissionPackageType[] = [
@@ -313,6 +319,7 @@ export type PackageVersion = {
 };
 
 export type SubmissionPackage = {
+  can_withdraw?: boolean;
   id: number;
   name: string;
   description?: string;
