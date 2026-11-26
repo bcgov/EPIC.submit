@@ -1156,10 +1156,11 @@ class PackageService:  # pylint: disable=too-many-public-methods
             for item in package.items:
                 item.status = ItemStatus.ACKNOWLEDGED
                 session.add(item)
-                # For non-versioned packages, we acknowledge all documents
+                # For non-versioned packages, we acknowledge all submitted documents
                 if not package.type.versioning_enabled:
                     for submission in item.submissions:
-                        if submission.type == SubmissionType.DOCUMENT:
+                        if (submission.type == SubmissionType.DOCUMENT
+                                and submission.status != SubmissionStatus.PENDING):
                             submission.status = SubmissionStatus.ACKNOWLEDGED
                             session.add(submission)
 
