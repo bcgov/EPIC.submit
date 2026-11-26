@@ -5,13 +5,13 @@ Covers how verified report documents roll up to the package status:
 - Approval types B and C: all docs VERIFIED -> READY_FOR_ACKNOWLEDGEMENT on its own
   (no VERIFIED and no PENDING_ACKNOWLEDGEMENT).
 """
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 
 from submit_api.enums.package_type import PackageApprovalType
 from submit_api.models.package import PackageStatus
-from submit_api.models.queries.package import PackageSubmissionQueries
+from submit_api.models.queries.package import PackageItemQueries, PackageSubmissionQueries
 from submit_api.models.submission import SubmissionStatus, SubmissionType
 
 
@@ -118,3 +118,43 @@ def test_report_with_no_submissions_is_new():
     statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
 
     assert statuses == [PackageStatus.NEW.value]
+
+
+@pytest.mark.parametrize('approval_type', [PackageApprovalType.B, PackageApprovalType.C])
+def test_pending_document_does_not_hold_back_ready_for_acknowledgement(approval_type):
+    """A document the holder added but has not submitted must not block acknowledgement.
+
+    Staff cannot see or verify a PENDING document, so once every submitted document is
+    verified the package is ready for acknowledgement.
+    """
+    package = _make_report_package(
+        approval_type,
+        [SubmissionStatus.VERIFIED, SubmissionStatus.VERIFIED, SubmissionStatus.PENDING],
+    )
+
+    statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
+
+    assert statuses == [PackageStatus.READY_FOR_ACKNOWLEDGEMENT.value]
+
+
+def test_pending_document_does_not_hold_back_internal_verification():
+    """Partly verified submitted documents read as INTERNAL_VERIFICATION despite a PENDING one."""
+    package = _make_report_package(
+        PackageApprovalType.C,
+        [SubmissionStatus.VERIFIED, SubmissionStatus.SUBMITTED, SubmissionStatus.PENDING],
+    )
+
+    statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
+
+    assert statuses == [PackageStatus.INTERNAL_VERIFICATION.value]
+
+
+def test_only_pending_documents_do_not_reset_package_to_new():
+    """A package holding only unsubmitted documents is not reported as NEW (no documents)."""
+    package = _make_report_package(PackageApprovalType.C, [SubmissionStatus.PENDING])
+    package.items[0].status = 'IN_PROGRESS'
+
+    with patch.object(PackageItemQueries, '_get_required_item_statuses', return_value=['IN_PROGRESS']):
+        statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
+
+    assert statuses == []

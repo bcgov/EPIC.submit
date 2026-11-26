@@ -346,9 +346,11 @@ class PackageSubmissionQueries:
         if not submissions:
             return [PackageStatus.NEW.value]
 
+        # Unsubmitted (PENDING) documents are invisible to staff and must not block verification.
         statuses = {s.status.value if isinstance(s.status, SubmissionStatus)
                     else s.status
                     for s in submissions}
+        statuses.discard(SubmissionStatus.PENDING.value)
 
         aggregated_statuses = []
 
