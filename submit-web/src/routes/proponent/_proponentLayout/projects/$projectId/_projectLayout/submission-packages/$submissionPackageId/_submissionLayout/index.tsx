@@ -112,6 +112,18 @@ export default function SubmissionPage() {
     (pv) => pv.package_id === submissionPackageId,
   );
 
+  // Point to the newest existing package. If this is the newest, the next one
+  // to be created is current + 1.
+  const currentVersionNumber = currentPackageVersion?.version || 1;
+  const latestVersionNumber = Math.max(
+    currentVersionNumber,
+    ...(packageVersions?.map((pv) => pv.version) ?? []),
+  );
+  const nextPackageVersion =
+    latestVersionNumber > currentVersionNumber
+      ? latestVersionNumber
+      : currentVersionNumber + 1;
+
   const { bannerType, hasBanner } = useEnforceableBanner({
     packageVersions,
     currentPackageVersion,
@@ -593,7 +605,7 @@ export default function SubmissionPage() {
                 <NotApprovedBanner
                   contactEmail={contactEmail}
                   packageTypeName={submissionPackage.type.title ?? submissionPackage.type.name}
-                  nextVersion={(packageVersions?.at(0)?.version || 1) + 1}
+                  nextVersion={nextPackageVersion}
                 />
               </When>
               <When condition={showRevisionRequiredBanner}>
