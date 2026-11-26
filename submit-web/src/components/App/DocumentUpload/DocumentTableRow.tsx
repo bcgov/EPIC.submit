@@ -110,7 +110,7 @@ export default function DocumentTableRow({
   const isVirusRejected = submitted_document?.is_virus_rejected ?? false;
   const [pendingGetObject, setPendingGetObject] = useState(false);
   const [isRemovingDocument, setIsRemovingDocument] = useState(false);
-  const { setValue, trigger, getValues } = useFormContext(); // Get form context directly
+  const { setValue, getValues, formState } = useFormContext(); // Get form context directly
   const { removeFile } = useFileStore();
   const { mutateAsync: deleteSubmission } = useDeleteSubmission({
     submissionItemId: documentItem.item_id,
@@ -142,8 +142,9 @@ export default function DocumentTableRow({
         value !== submitted_document.name, // filter out filename for pending documents
     );
 
-    setValue(formFieldName, newValue, { shouldValidate: true });
-    await trigger(formFieldName);
+    // Only re-validate once the user has tried to submit; otherwise removing
+    // the last document would show "required" errors before Save Completed Form.
+    setValue(formFieldName, newValue, { shouldValidate: formState.isSubmitted });
   };
 
   const onRemoveClick = async () => {
