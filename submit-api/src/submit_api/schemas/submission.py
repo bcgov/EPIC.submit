@@ -171,8 +171,10 @@ class PaginatedProjectDocumentItemSchema(Schema):
     id = fields.Int(data_key="id")
     name = fields.Str(data_key="name")
     project_name = fields.Str(data_key="project_name")
-    work = fields.Method("get_work")
-    phase = fields.Method("get_phase")
+    # Resolved in DocumentQueries.get_documents_paginated: the work's title/phase for work-based
+    # packages, otherwise the labels of the package type's non-work item type.
+    work = fields.Str(data_key="work", allow_none=True)
+    phase = fields.Str(data_key="phase", allow_none=True)
     version = fields.Method("get_version")
     submitted_on = fields.DateTime(data_key="submitted_on")
     status = fields.Enum(data_key="status", enum=ItemStatus)
@@ -183,18 +185,6 @@ class PaginatedProjectDocumentItemSchema(Schema):
     def get_is_virus_rejected(self, obj):
         """Return whether the document failed its background security check."""
         return obj.virus_scan_result == VirusScanResult.REJECTED.value
-
-    def get_phase(self, obj):
-        """Get the phase name."""
-        if obj.has_approved_condition:
-            return "Post Decision"
-        return obj.phase_display_name if obj.phase_display_name else obj.phase_name
-
-    def get_work(self, obj):
-        """Get the work title."""
-        if obj.has_approved_condition:
-            return "Management Plan & Related Documents"
-        return obj.work
 
     def get_version(self, obj):
         """Get the version."""

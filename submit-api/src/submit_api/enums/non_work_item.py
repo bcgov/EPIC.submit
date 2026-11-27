@@ -12,3 +12,10 @@ class NonWorkItemType(enum.Enum):
 
     MANAGEMENT_PLAN = 'MANAGEMENT_PLAN'
     REPORT = 'REPORT'
+
+
+class NonWorkItemEligibility(enum.Enum):
+    """Rule deciding whether a project is eligible for a non-work item type."""
+
+    APPROVED_CONDITION = 'APPROVED_CONDITION'  # project.has_approved_condition is true
+    ALWAYS = 'ALWAYS'

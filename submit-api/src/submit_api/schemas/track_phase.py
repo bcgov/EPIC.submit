@@ -15,6 +15,7 @@ class TrackPhaseSchema(Schema):
 
     id = fields.Int(data_key="id")
     name = fields.Str(data_key="name")
+    display_name = fields.Str(data_key="display_name", allow_none=True)
     ea_act_id = fields.Int(data_key="ea_act_id", allow_none=True)
     work_type_id = fields.Int(data_key="work_type_id")
     work_type_name = fields.Str(data_key="work_type_name", allow_none=True)

@@ -172,8 +172,8 @@ def test_staff_documents_listing_and_filters(session, client, auth_header, creat
 
     for query in (
         "status=SUBMITTED", "submission_type=Management Plan",
-        "work_phase=Management Plan & Related Documents - Post Decision",
-        "work_phase=Other - Phase", "submitted_on_start=2000-01-01", "submitted_on_end=2999-01-01",
+        "work_phase=non_work:MANAGEMENT_PLAN",
+        "work_phase=work:1", "submitted_on_start=2000-01-01", "submitted_on_end=2999-01-01",
         "search_text=needle",
     ):
         assert client.get(f"{url}?{query}", headers=auth_header).status_code == HTTPStatus.OK

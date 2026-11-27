@@ -32,6 +32,7 @@ from submit_api.models.user_role import UserRole as UserRoleModel
 from submit_api.services import authorization
 from submit_api.services.account_user_service import AccountUserService
 from submit_api.services.email_queue_service import SubmitEmailQueueService
+from submit_api.services.non_work_package_map_service import NonWorkPackageMapService
 from submit_api.services.package_service import PackageService
 from submit_api.services.report_package_sync_service import ReportPackageSyncService
 from submit_api.services.user_service import UserService
@@ -498,16 +499,16 @@ class InvitationService:
     @staticmethod
     def _process_non_work_selections(account_project, project_selection, session):
         """Process non-work item selections for an account project."""
-        non_work_item_types = project_selection.get('non_work_item_types', [])
+        non_work_item_types = project_selection.get('non_work_package_map', [])
         for non_work_type_str in non_work_item_types:
             try:
                 non_work_type = NonWorkItemType[non_work_type_str]
-                if non_work_type == NonWorkItemType.MANAGEMENT_PLAN:
-                    project = account_project.project
-                    if project.has_approved_condition:
-                        AccountProjectNonWork.get_or_create(
-                            account_project.id, non_work_type, session
-                        )
+                if NonWorkPackageMapService.is_eligible(
+                    account_project.project, non_work_type, onboarding_only=True
+                ):
+                    AccountProjectNonWork.get_or_create(
+                        account_project.id, non_work_type, session
+                    )
             except (KeyError, AttributeError):
                 continue
 

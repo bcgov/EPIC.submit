@@ -13,10 +13,8 @@
 # limitations under the License.
 """Model to handle all complex operations related to PackageType."""
 from sqlalchemy import and_, or_
-from submit_api.enums.package_type import PackageTypeEnum
 from submit_api.models import db
 from submit_api.models.package_type import PackageType
-from submit_api.models.project import Project
 from submit_api.models.track_phase import TrackPhase
 from submit_api.models.track_work import TrackWork
 
@@ -26,8 +24,8 @@ class PackageTypeQueries:
     """Query module for complex package_type queries"""
 
     @classmethod
-    def find_by_project_id(cls, project_id: int):
-        """Return package types associated with a project's current work phases."""
+    def find_by_project_id(cls, project_id: int, eligible_non_work_package_map_ids: list[int] = None):
+        """Return package types for a project's current work phases and its eligible non-work package maps."""
         # Get phase IDs from active works on this project
         phase_ids = (
             db.session.query(TrackWork.current_phase_id)
@@ -41,21 +39,19 @@ class PackageTypeQueries:
             .subquery()
         )
 
-        phase_match = or_(PackageType.start_phase_id.in_(phase_ids), PackageType.end_phase_id.in_(phase_ids))
-        query = db.session.query(PackageType).filter(phase_match)
+        conditions = [
+            or_(PackageType.start_phase_id.in_(phase_ids), PackageType.end_phase_id.in_(phase_ids))
+        ]
 
-        # Include phase-less Management Plan types for approved condition projects
-        project = Project.query.get(project_id)
-        if project and project.has_approved_condition:
-            query = db.session.query(PackageType).filter(
-                or_(
-                    phase_match,
-                    and_(
-                        PackageType.start_phase_id.is_(None),
-                        PackageType.end_phase_id.is_(None),
-                        PackageType.name == PackageTypeEnum.MANAGEMENT_PLAN.value
-                    )
+        # Include phase-less package types linked to a non-work package map the project is eligible for
+        # (e.g. Management Plan and IEM -> Management Plan, Report -> Report, for approved-condition projects).
+        if eligible_non_work_package_map_ids:
+            conditions.append(
+                and_(
+                    PackageType.start_phase_id.is_(None),
+                    PackageType.end_phase_id.is_(None),
+                    PackageType.non_work_package_map_id.in_(eligible_non_work_package_map_ids),
                 )
             )
 
-        return query.all()
+        return db.session.query(PackageType).filter(or_(*conditions)).all()

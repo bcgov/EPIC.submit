@@ -23,7 +23,9 @@ from submit_api.auth import auth, jwt
 from submit_api.models.account_project_search_options import AccountProjectSearchOptions
 from submit_api.models.package import NonCanonicalPackageStatus, PackageStatus
 from submit_api.resources.apihelper import Api as ApiHelper
+from submit_api.schemas.non_work_package_map import NonWorkPackageMapSchema
 from submit_api.schemas.project import AddProjectSchema, ProjectSchema, StaffAccountProjectSchema
+from submit_api.services.non_work_package_map_service import NonWorkPackageMapService
 from submit_api.services.project_service import ProjectService
 from submit_api.services.report_package_sync_service import ReportPackageSyncService
 from submit_api.utils.util import allowedorigins, cors_preflight
@@ -42,6 +44,9 @@ project_add_list = ApiHelper.convert_ma_schema_to_restx_model(
 )
 project_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, ProjectSchema(), "Project"
+)
+non_work_package_map_model = ApiHelper.convert_ma_schema_to_restx_model(
+    API, NonWorkPackageMapSchema(), "Non Work Package Map"
 )
 staff_project_list_model = ApiHelper.convert_ma_schema_to_restx_model(
     API, StaffAccountProjectSchema(), "Project"
@@ -222,6 +227,26 @@ class ProjectsByAccountUser(Resource):
         """Get projects by user id."""
         projects = ProjectService.get_account_projects_by_user_id(user_id)
         return projects, HTTPStatus.OK
+
+
+@cors_preflight("GET, OPTIONS")
+@API.route("/<int:project_id>/non-work-package-maps", methods=["GET", "OPTIONS"])
+@API.doc(params={"project_id": "The project identifier"})
+class ProjectNonWorkPackageMaps(Resource):
+    """Resource for the non-work package maps (e.g. Management Plan, Report) a project is eligible for."""
+
+    @staticmethod
+    @ApiHelper.swagger_decorators(
+        API, endpoint_description="Get the non-work package maps a project is eligible for"
+    )
+    @API.response(code=HTTPStatus.OK, model=[non_work_package_map_model], description="Success")
+    @API.response(HTTPStatus.NOT_FOUND, "Not Found")
+    @auth.require
+    @cross_origin(origins=allowedorigins())
+    def get(project_id):
+        """Return the eligible non-work package maps with their Work/Phase labels."""
+        package_maps = NonWorkPackageMapService.get_eligible_for_project_id(project_id)
+        return NonWorkPackageMapSchema(many=True).dump(package_maps), HTTPStatus.OK
 
 
 @cors_preflight("POST, OPTIONS")

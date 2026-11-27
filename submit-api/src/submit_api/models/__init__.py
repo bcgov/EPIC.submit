@@ -52,4 +52,5 @@ from .track_phase import TrackPhase
 from .track_work import TrackWork
 from .account_project_work import AccountProjectWork
 from .account_project_non_work import AccountProjectNonWork
+from .non_work_package_map import NonWorkPackageMap
 from .geo_data_upload import GeoDataUpload

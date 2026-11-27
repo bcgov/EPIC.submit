@@ -19,6 +19,7 @@ from submit_api.models.proponent import Proponent
 from submit_api.models.track_work import TrackWork
 from submit_api.services.invitation_service import InvitationService
 from submit_api.services.account_user_service import AccountUserService
+from submit_api.services.non_work_package_map_service import NonWorkPackageMapService
 from submit_api.services.report_package_sync_service import ReportPackageSyncService
 
 
@@ -112,27 +113,29 @@ class ProponentService:
             ],
         }
 
+    @staticmethod
+    def _get_onboarded_items(account_ids) -> tuple[set, set]:
+        """Return the (project_id, work_id) and (project_id, non-work code) pairs already onboarded."""
+        onboarded_works = set()
+        onboarded_non_work_items = set()
+
+        for ap in AccountProject.get_all_in_account_ids(account_ids):
+            for apw in AccountProjectWork.find_by_account_project_id(ap.id):
+                if apw.is_active:
+                    onboarded_works.add((ap.project_id, apw.work_id))
+
+            for apnw in AccountProjectNonWork.find_by_account_project_id(ap.id):
+                if apnw.is_active:
+                    onboarded_non_work_items.add((ap.project_id, apnw.non_work_item_type.value))
+
+        return onboarded_works, onboarded_non_work_items
+
     @classmethod
     def _get_eligibility_entries(cls, proponent_id, account_ids) -> dict:
         """Build eligibility entries from works and non-work items."""
         projects = Project.get_all_by_proponent_id(proponent_id)
-        account_projects = AccountProject.get_all_in_account_ids(account_ids)
-        # Get onboarded works and non-work items (those in account relations)
-        onboarded_works = set()
-        onboarded_non_work_items = set()
-
-        for ap in account_projects:
-            # Get onboarded works
-            apw_list = AccountProjectWork.find_by_account_project_id(ap.id)
-            for apw in apw_list:
-                if apw.is_active:
-                    onboarded_works.add((ap.project_id, apw.work_id))
-
-            # Get onboarded non-work items
-            apnw_list = AccountProjectNonWork.find_by_account_project_id(ap.id)
-            for apnw in apnw_list:
-                if apnw.is_active:
-                    onboarded_non_work_items.add((ap.project_id, apnw.non_work_item_type.value))
+        # Onboarded works and non-work items (those in account relations)
+        onboarded_works, onboarded_non_work_items = cls._get_onboarded_items(account_ids)
 
         eligibility_entries = []
 
@@ -153,17 +156,17 @@ class ProponentService:
                         "is_onboarded": (project.id, work.id) in onboarded_works
                     })
 
-            # Add management plan entry (if has_approved_condition)
-            if project.has_approved_condition:
+            # Add an entry per non-work package map offered at onboarding (e.g. Management Plan)
+            for package_map in NonWorkPackageMapService.get_eligible_for_project(project, onboarding_only=True):
                 eligibility_entries.append({
                     "project_id": project.id,
                     "project_name": project.name,
                     "work_id": None,
-                    "non_work_item_type": NonWorkItemType.MANAGEMENT_PLAN.value,
-                    "current_work": "Management Plan & Related Documents",
-                    "current_phase": "Post Decision",
-                    "is_enabled": project.has_approved_condition,
-                    "is_onboarded": (project.id, NonWorkItemType.MANAGEMENT_PLAN.value) in onboarded_non_work_items
+                    "non_work_item_type": package_map.code,
+                    "current_work": package_map.work_label,
+                    "current_phase": package_map.phase_label,
+                    "is_enabled": True,
+                    "is_onboarded": (project.id, package_map.code) in onboarded_non_work_items
                 })
 
         return {"eligibility_entries": eligibility_entries}

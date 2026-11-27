@@ -56,6 +56,14 @@ class PackageType(BaseModel):
         db.Text, nullable=True,
         comment="Success message to display to user after submission"
     )
+    non_work_package_map_id = Column(
+        db.Integer, ForeignKey('non_work_package_map.id'), nullable=True,
+        comment="Non-work package map entry (e.g. Management Plan, Report) packages of this type belong to "
+                "when not tied to a work"
+    )
+    non_work_package_map = relationship(
+        'NonWorkPackageMap', foreign_keys=[non_work_package_map_id], lazy='joined'
+    )
     start_phase = relationship('TrackPhase', foreign_keys=[start_phase_id], lazy='joined')
     end_phase = relationship('TrackPhase', foreign_keys=[end_phase_id], lazy='joined')
     item_types = relationship('ItemType', secondary='package_item_types', back_populates='package_types')

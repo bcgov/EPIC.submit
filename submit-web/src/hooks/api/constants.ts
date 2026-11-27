@@ -30,4 +30,5 @@ export const QUERY_KEY = Object.freeze({
   GEO_UPLOADS: "geo/uploads",
   BANNER_CONFIGURATIONS: "banner-configurations",
   ACTIVE_BANNER_CONFIGURATION: "banner-configurations/active",
+  NON_WORK_PACKAGE_MAPS: "non-work-package-maps",
 });

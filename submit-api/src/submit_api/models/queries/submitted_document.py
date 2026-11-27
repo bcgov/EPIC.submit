@@ -13,12 +13,14 @@
 # limitations under the License.
 """Model to handle all complex operations related to Submitted Documents."""
 
-from sqlalchemy import cast, and_, or_, String, func
+from sqlalchemy import cast, and_, case, false, or_, String, func
 from submit_api.models.account_project import AccountProject
 from submit_api.models.account_project_search_options import DocumentSearchOptions, ProjectDocumentSearchOptions
 from submit_api.models.db import db
 from submit_api.models.item import Item
+from submit_api.models.non_work_package_map import NonWorkPackageMap
 from submit_api.models.package import Package
+from submit_api.models.package_type import PackageType
 from submit_api.models.queries.submitted_date import filter_by_submitted_date
 from submit_api.models.project import Project
 from submit_api.models.submission import Submission, SubmissionType, SubmissionStatus
@@ -26,6 +28,11 @@ from submit_api.models.submitted_document import SubmittedDocument
 from submit_api.models.account_project_work import AccountProjectWork
 from submit_api.models.track_work import TrackWork
 from submit_api.models.track_phase import TrackPhase
+
+
+# Prefixes of the Work/Phase filter option keys sent by the Documents page
+WORK_PHASE_KEY_WORK = "work"
+WORK_PHASE_KEY_NON_WORK = "non_work"
 
 
 class DocumentQueries:
@@ -143,21 +150,31 @@ class DocumentQueries:
             .subquery("latest_versions")
         )
 
+        # Work-based packages take their labels from the work; packages without a work take them
+        # from the non-work package map their package type is linked to (e.g. Management Plan).
+        is_work_package = Package.account_project_work_id.isnot(None)
+        work_label = case(
+            (is_work_package, TrackWork.title),
+            else_=NonWorkPackageMap.work_label,
+        )
+        phase_label = case(
+            (is_work_package, func.coalesce(TrackPhase.display_name, TrackPhase.name)),
+            else_=NonWorkPackageMap.phase_label,
+        )
+
         query = session.query(
             SubmittedDocument.id.label("id"),
             SubmittedDocument.name.label("name"),
             SubmittedDocument.url.label("url"),
             SubmittedDocument.virus_scan_result,
             Project.name.label("project_name"),
-            TrackWork.title.label("work"),
-            TrackPhase.display_name.label("phase_display_name"),
-            TrackPhase.name.label("phase_name"),
+            work_label.label("work"),
+            phase_label.label("phase"),
             Submission.major_version,
             Submission.minor_version,
             Package.submitted_on,
             Item.status,
             Submission.root_submission_id,
-            Project.has_approved_condition
         )
 
         query = query.join(Item, Item.id == Submission.item_id)
@@ -165,10 +182,14 @@ class DocumentQueries:
         query = query.join(AccountProject, AccountProject.id == Package.account_project_id)
         query = query.join(Project, Project.id == AccountProject.project_id)
         query = query.join(SubmittedDocument, SubmittedDocument.id == Submission.submitted_document_id)
+        query = query.join(PackageType, PackageType.id == Package.type_id)
 
         query = query.outerjoin(AccountProjectWork, AccountProjectWork.id == Package.account_project_work_id)
         query = query.outerjoin(TrackWork, TrackWork.id == AccountProjectWork.work_id)
         query = query.outerjoin(TrackPhase, TrackPhase.id == TrackWork.current_phase_id)
+        query = query.outerjoin(
+            NonWorkPackageMap, NonWorkPackageMap.id == PackageType.non_work_package_map_id
+        )
 
         # Join to the subquery to keep only the latest version per root_submission_id
         query = query.join(
@@ -194,29 +215,13 @@ class DocumentQueries:
             query = query.filter(SubmittedDocument.name.ilike(f"%{search_options.name}%"))
 
         if search_options.submission_type:
-            from submit_api.models.package_type import PackageType
-            query = query.join(PackageType, PackageType.id == Package.type_id)
             query = query.filter(PackageType.name.in_(search_options.submission_type))
 
         if search_options.status:
             query = query.filter(cast(Item.status, String).in_(search_options.status))
 
         if search_options.work_phase:
-            work_phase_concat = (
-                cast(TrackWork.title, String) + " - " +
-                cast(TrackPhase.name, String)
-            )
-            default_work_phase = "Management Plan & Related Documents - Post Decision"
-
-            conditions = [work_phase_concat.in_(search_options.work_phase)]
-            if default_work_phase in search_options.work_phase:
-                conditions.append(
-                    and_(
-                        Package.account_project_work_id.is_(None),
-                        Project.has_approved_condition.is_(True)
-                    )
-                )
-            query = query.filter(or_(*conditions))
+            query = cls._filter_by_work_phase_keys(query, search_options.work_phase)
 
         query = filter_by_submitted_date(query, search_options.submitted_on_start, search_options.submitted_on_end)
         query = query.order_by(Package.submitted_on.desc())
@@ -225,3 +230,39 @@ class DocumentQueries:
         paginated_result = query.paginate(page=search_options.page, per_page=search_options.size, error_out=False)
 
         return paginated_result
+
+    @staticmethod
+    def _filter_by_work_phase_keys(query, work_phase_keys):
+        """Filter by Work/Phase option keys.
+
+        Keys are "work:<track_work_id>" for work-based packages and "non_work:<CODE>" for
+        packages without a work (e.g. "non_work:MANAGEMENT_PLAN"). Unrecognised keys match nothing.
+        """
+        work_ids, non_work_codes = parse_work_phase_keys(work_phase_keys)
+
+        conditions = []
+        if work_ids:
+            conditions.append(AccountProjectWork.work_id.in_(work_ids))
+        if non_work_codes:
+            conditions.append(
+                and_(
+                    Package.account_project_work_id.is_(None),
+                    NonWorkPackageMap.code.in_(non_work_codes),
+                )
+            )
+        if not conditions:
+            return query.filter(false())
+        return query.filter(or_(*conditions))
+
+
+def parse_work_phase_keys(work_phase_keys) -> tuple[list[int], list[str]]:
+    """Split Work/Phase option keys into track work ids and non-work package map codes."""
+    work_ids = []
+    non_work_codes = []
+    for key in work_phase_keys or []:
+        prefix, _, value = (key or "").partition(":")
+        if prefix == WORK_PHASE_KEY_WORK and value.isdigit():
+            work_ids.append(int(value))
+        elif prefix == WORK_PHASE_KEY_NON_WORK and value:
+            non_work_codes.append(value)
+    return work_ids, non_work_codes

@@ -2,6 +2,7 @@ import DateSubmittedFromFilter from "@/components/App/Filters/DateSubmittedFromF
 import DateSubmittedToFilter from "@/components/App/Filters/DateSubmittedToFilter";
 import { SearchFilter } from "@/components/App/Filters/SearchFilter";
 import StatusFilter from "@/components/App/Filters/StatusFilter";
+import { useGetNonWorkPackageMapsByProjectId } from "@/hooks/api/useNonWorkPackageMaps";
 import { useGetPackageTypesByProjectId } from "@/hooks/api/usePackageTypes";
 import { AccountProject } from "@/models/Project";
 import {
@@ -25,6 +26,7 @@ import {
 import { BCDesignTokens } from "epic.theme";
 import { useMemo, useState } from "react";
 import { SubmissionStatusChip } from "../SubmissionStatusChip";
+import { buildWorkPhaseOptions } from "./workPhaseOptions";
 
 export type DocumentFilters = {
   name: string;
@@ -56,29 +58,23 @@ export const DocumentFilter = ({
   const { userType } = useAccount();
   const isProponent = userType === USER_TYPE.PROPONENT;
 
-  // Available Work/Phases from selected project
+  // Available Work/Phases: the project's works plus the non-work package maps (e.g. Management Plan)
+  // it is eligible for. Each option's value is the key the API filters on.
+  const { data: nonWorkPackageMaps } = useGetNonWorkPackageMapsByProjectId({
+    projectId: selectedProject?.project_id,
+    enabled: Boolean(selectedProject),
+  });
   const availableWorkPhases = useMemo(() => {
     if (!selectedProject) return [];
-
-    const workPhases = [];
-
-    if (selectedProject.account_project_works) {
-      workPhases.push(
-        ...selectedProject.account_project_works.map((apw) => {
-          const workTitle = apw.work?.title ?? "";
-          const phaseName = apw.work?.current_phase?.name ?? "";
-          return `${workTitle} - ${phaseName}`;
-        }),
-      );
-    }
-
-    if (selectedProject.project.has_approved_condition) {
-      workPhases.push("Management Plan & Related Documents - Post Decision");
-    }
-
-    // Return unique values
-    return Array.from(new Set(workPhases)).filter(Boolean);
-  }, [selectedProject]);
+    return buildWorkPhaseOptions(
+      selectedProject.account_project_works,
+      nonWorkPackageMaps,
+    );
+  }, [selectedProject, nonWorkPackageMaps]);
+  const workPhaseLabels = useMemo(
+    () => new Map(availableWorkPhases.map((wp) => [wp.value, wp.label])),
+    [availableWorkPhases],
+  );
 
   // Submission types
   const { data: packageTypes } = useGetPackageTypesByProjectId({
@@ -185,15 +181,19 @@ export const DocumentFilter = ({
                 return (
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                     {selected.map((value) => (
-                      <Chip key={value} label={value} size="small" />
+                      <Chip
+                        key={value}
+                        label={workPhaseLabels.get(value) ?? value}
+                        size="small"
+                      />
                     ))}
                   </Box>
                 );
               }}
             >
               {availableWorkPhases.map((wp) => (
-                <MenuItem key={wp} value={wp}>
-                  {wp}
+                <MenuItem key={wp.value} value={wp.value}>
+                  {wp.label}
                 </MenuItem>
               ))}
             </Select>
