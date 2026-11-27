@@ -156,4 +156,10 @@ describe("isDocumentVerifiable", () => {
       isDocumentVerifiable(makeSubmission({ is_eao_uploaded: true })),
     ).toBe(false);
   });
+
+  it("is false for documents the virus scan rejected", () => {
+    const submission = makeSubmission();
+    submission.submitted_document!.is_virus_rejected = true;
+    expect(isDocumentVerifiable(submission)).toBe(false);
+  });
 });

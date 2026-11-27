@@ -110,8 +110,10 @@ export default function DocumentRow({
     packageType,
   });
 
+  // A virus-rejected document is never verified (SUBMIT-1086).
   const showVerifyButton =
     staff &&
+    !isVirusRejected &&
     !isEAChecklist &&
     (submissionPackage?.account_project_work || isAdditionalInfo) &&
     (documentSubmission.status === SUBMISSION_STATUS.SUBMITTED ||
