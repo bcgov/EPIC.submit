@@ -30,7 +30,7 @@ from submit_api.models.package_metadata import PackageMetadataFields
 from submit_api.models.queries.package import PackageItemQueries
 from submit_api.models.queries.package import PackageSubmissionQueries
 from submit_api.models.submission import (
-    MAIN_DOCUMENT_SORT_ORDER, SubmissionType, SubmissionStatus, effective_submission_date
+    MAIN_DOCUMENT_SORT_ORDER, SubmissionType, SubmissionStatus, effective_submission_date, is_virus_rejected
 )
 from submit_api.models.item_type import SubmissionItemType, SubmissionMethod
 from submit_api.models.submission_review import SubmissionReviewStatus
@@ -184,7 +184,10 @@ class PackageService:  # pylint: disable=too-many-public-methods
     def _map_canonical_statuses(package, user_type, package_status_mapping):
         """Map canonical statuses based on user type."""
         new_status = []
-        for status in package.status:
+        # A package only a virus-rejected document holds back is shown as already released.
+        # Its stored status is not rewritten; the next document status change recalculates it.
+        statuses = PackageService._statuses_once_virus_rejections_are_ignored(package) or package.status
+        for status in statuses:
             status_value = status.value if hasattr(status, 'value') else status
             if status_value in package_status_mapping:
                 mapped_status = package_status_mapping[status_value][user_type]
@@ -333,9 +336,11 @@ class PackageService:  # pylint: disable=too-many-public-methods
             and submission.active and not submission.deleted
         ]
         submitted = [s for s in documents if not getattr(s, "is_eao_uploaded", False)]
+        # Virus-rejected documents cannot be verified, so they never count as unverified.
         statuses = [
             s.status.value if isinstance(s.status, SubmissionStatus) else s.status
             for s in submitted
+            if not is_virus_rejected(s)
         ]
         statuses = [status for status in statuses if status != SubmissionStatus.PENDING.value]
         if not statuses:
@@ -409,6 +414,37 @@ class PackageService:  # pylint: disable=too-many-public-methods
         authorization.has_access_to_package(package_id)
         package = PackageModel.get_package_by_id_with_items(package_id)
         return package
+
+    @staticmethod
+    def _statuses_once_virus_rejections_are_ignored(package):
+        """Return the status a package is shown with when only a virus-rejected document holds it back.
+
+        The scan result is written outside the API, so nothing recalculates the stored
+        status when a document is rejected after the others were verified. The stored
+        status is left as it is and the displayed one is worked out here instead.
+
+        Returns None when the package is not held in internal verification by a
+        rejected document, so the stored status stands.
+        """
+        if not package:
+            return None
+        stored_statuses = [
+            status.value if isinstance(status, PackageStatus) else status for status in package.status or []
+        ]
+        if stored_statuses != [PackageStatus.INTERNAL_VERIFICATION.value]:
+            return None
+        has_rejected_document = any(
+            submission.active and not submission.deleted
+            and submission.type == SubmissionType.DOCUMENT and is_virus_rejected(submission)
+            for item in package.items
+            for submission in item.submissions
+        )
+        if not has_rejected_document:
+            return None
+        new_statuses = PackageSubmissionQueries.aggregate_submission_statuses(package)
+        if not new_statuses or new_statuses == [PackageStatus.INTERNAL_VERIFICATION.value]:
+            return None
+        return new_statuses
 
     @classmethod
     def create_new_package_from_original(cls, current_package_id, session):
@@ -1159,8 +1195,10 @@ class PackageService:  # pylint: disable=too-many-public-methods
                 # For non-versioned packages, we acknowledge all submitted documents
                 if not package.type.versioning_enabled:
                     for submission in item.submissions:
+                        # Unsubmitted and virus-rejected documents are left out of the acknowledgement.
                         if (submission.type == SubmissionType.DOCUMENT
-                                and submission.status != SubmissionStatus.PENDING):
+                                and submission.status != SubmissionStatus.PENDING
+                                and not is_virus_rejected(submission)):
                             submission.status = SubmissionStatus.ACKNOWLEDGED
                             session.add(submission)
 

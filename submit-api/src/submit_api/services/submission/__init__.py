@@ -23,6 +23,7 @@ from submit_api.models.submission import (
     SubmissionType,
     SubmissionStatus,
     ALLOWED_TRANSITIONS,
+    is_virus_rejected,
 )
 from submit_api.services import authorization
 from submit_api.services.document_service_client import DocumentServiceClient
@@ -283,6 +284,13 @@ class SubmissionService:
 
                 # Validate state transition
                 cls._validate_submission_status_transition(approval_type, existing_status, SubmissionStatus[status])
+
+                # A document the virus scan rejected cannot be verified or acknowledged.
+                # Reverting to SUBMITTED stays allowed for one verified before the scan finished.
+                if is_virus_rejected(submission) and SubmissionStatus[status] in (
+                    SubmissionStatus.VERIFIED, SubmissionStatus.ACKNOWLEDGED
+                ):
+                    raise BadRequestError("This document was rejected by the virus scan and cannot be verified.")
 
                 submission.status = status
 

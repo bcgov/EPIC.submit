@@ -88,10 +88,18 @@ export const isEaoUploaded = (submission: Submission): boolean =>
   submission.is_eao_uploaded === true;
 
 /**
+ * Whether the virus scan rejected the document. A rejected document is treated
+ * as if it did not exist: it is never verified and never blocks acknowledgement.
+ */
+export const isVirusRejected = (submission: Submission): boolean =>
+  submission.submitted_document?.is_virus_rejected === true;
+
+/**
  * Whether a Verify action should be offered for a document on the EAO report
- * page: it must be sent by the Regulated Party and still in the SUBMITTED
- * state (not yet verified/acknowledged).
+ * page: it must be sent by the Regulated Party, not rejected by the virus scan,
+ * and still in the SUBMITTED state (not yet verified/acknowledged).
  */
 export const isDocumentVerifiable = (submission: Submission): boolean =>
   !isEaoUploaded(submission) &&
+  !isVirusRejected(submission) &&
   submission.status === SUBMISSION_STATUS.SUBMITTED;

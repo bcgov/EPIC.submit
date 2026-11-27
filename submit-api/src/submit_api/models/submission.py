@@ -12,6 +12,7 @@ from sqlalchemy import Column, Enum, ForeignKey, Index
 from .base_model import BaseModel
 from .db import db
 from .item import Item
+from .submitted_document import VirusScanResult
 from ..enums.package_type import PackageApprovalType
 
 
@@ -79,6 +80,16 @@ def effective_submission_date(submission, *, upload_timezone: tzinfo | None = No
             created = created.replace(tzinfo=UTC)
         created = created.astimezone(upload_timezone)
     return created.date()
+
+
+def is_virus_rejected(submission) -> bool:
+    """Return whether the virus scan rejected the submission's document.
+
+    A rejected document is treated as if it did not exist: it takes no part in
+    verification and never holds a package back from acknowledgement.
+    """
+    document = getattr(submission, 'submitted_document', None)
+    return getattr(document, 'virus_scan_result', None) == VirusScanResult.REJECTED.value
 
 
 class Submission(BaseModel):

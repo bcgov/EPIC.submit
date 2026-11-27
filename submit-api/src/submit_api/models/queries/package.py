@@ -21,7 +21,7 @@ from submit_api.models.package import Package as PackageModel
 from submit_api.models.package import PackageStatus
 from submit_api.models.package_version import PackageVersion
 from submit_api.models.package_item_type import PackageItemType
-from submit_api.models.submission import SubmissionStatus, SubmissionType
+from submit_api.models.submission import SubmissionStatus, SubmissionType, is_virus_rejected
 
 
 # pylint: disable=too-few-public-methods
@@ -346,10 +346,13 @@ class PackageSubmissionQueries:
         if not submissions:
             return [PackageStatus.NEW.value]
 
-        # Unsubmitted (PENDING) documents are invisible to staff and must not block verification.
+        # A document the virus scan rejected is treated as if it did not exist, so it
+        # must not hold the package back from being verified or acknowledged.
         statuses = {s.status.value if isinstance(s.status, SubmissionStatus)
                     else s.status
-                    for s in submissions}
+                    for s in submissions
+                    if not is_virus_rejected(s)}
+        # Unsubmitted (PENDING) documents are invisible to staff and must not block verification.
         statuses.discard(SubmissionStatus.PENDING.value)
 
         aggregated_statuses = []
